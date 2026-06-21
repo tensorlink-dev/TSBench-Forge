@@ -1,0 +1,27 @@
+[project]
+name = "tsbench-forge"
+version = "0.1.0"
+description = "A continuous, hard-to-game benchmark for time-series foundation models, driven by a self-improving forge loop."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = ["numpy>=1.25"]
+
+[project.optional-dependencies]
+# The classical `strong` anchor can optionally use statsforecast; the numpy
+# demo and tests never need it.
+strong = ["statsforecast>=1.7"]
+test = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+# Flat module layout: put the repo root on sys.path so tests can `import config`.
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# Modules are imported by their bare names (flat layout); no first-party package.
