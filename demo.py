@@ -4,8 +4,9 @@ Runs with **numpy only** (no network, no optional deps). It prints:
 
 1. the forge fitness trajectory from a deliberately weak generator state,
 2. the final blend ratios and difficulty priors the forge settled on,
-3. a commit-reveal reproducibility check, and
-4. static-analysis output for a clean and a cheating submission.
+3. a commit-reveal reproducibility check,
+4. foundational breadth: coverage across data-generating processes, and
+5. static-analysis output for a clean and a cheating submission.
 
     python demo.py
 """
@@ -15,10 +16,18 @@ from __future__ import annotations
 import numpy as np
 
 from config import CONTEXT_LEN, HORIZON, N_CHALLENGES, WEAK_STATE
+from domains import LorenzSource, default_live_source
 from forge_loop import committed_seed, manifest_for, run_forge
 from generate import build_challenges
-from ingest import FreshBuffer, SyntheticLiveSource
-from score import default_panel, panel_fitness
+from ingest import FreshBuffer
+from score import (
+    DEFAULT_COVERAGE_TARGET,
+    default_panel,
+    domain_coverage,
+    foundational_fitness,
+    panel_fitness,
+    stratified_fitness,
+)
 from seed import rng_for
 from static_analysis import scan_submission
 
@@ -40,8 +49,11 @@ def run_demo() -> None:
         f"epochs={EPOCHS}\n"
     )
 
-    # A frozen live pool stands in for a real, post-commit data feed.
-    buffer = FreshBuffer(SyntheticLiveSource(), pool_size=96, motif_len=768)
+    # A frozen, multi-domain live pool stands in for a real, post-commit feed:
+    # a zoo of distinct data-generating processes (random walk + Lorenz, Rössler,
+    # Hopf, Hénon, logistic, OU, jump-diffusion) so the benchmark is broad enough
+    # to certify a *foundation* model, not just one process.
+    buffer = FreshBuffer(default_live_source(), pool_size=96, motif_len=768)
     buffer.refresh(np.random.default_rng(0xC0FFEE))
 
     print("Starting from a deliberately WEAK generator state:")
@@ -97,10 +109,42 @@ def run_demo() -> None:
     print(f"  two replays byte-identical: {identical}")
 
     panel = default_panel()
-    reveal = build_challenges(final_state, buffer, rng_for(BLOCK_HASH, epoch, mhash), 64)
+    reveal = build_challenges(final_state, buffer, rng_for(BLOCK_HASH, epoch, mhash), 128)
     errs = panel_fitness(reveal, panel)["errors"]
     ranked = ", ".join(f"{m}={errs[m]:.2f}" for m in sorted(errs, key=errs.get))
     print("  reference panel (mean normalised error, best->worst): " + ranked)
+
+    # ----- foundational breadth: coverage across DGPs ----------------------
+    print("\nFoundational breadth: a high score must mean 'good across worlds'.")
+    cov = domain_coverage(reveal)
+    fnd = foundational_fitness(reveal, panel)
+    print(
+        f"  the reveal spans {cov['n_domains']} domains; "
+        f"effective domains (exp-entropy) = {cov['effective_domains']:.2f} "
+        f"-> coverage_gate = {fnd['coverage_gate']:.2f} (target {DEFAULT_COVERAGE_TARGET:.0f})"
+    )
+    print(
+        f"  fitness={fnd['fitness']:.3f}  x  coverage_gate={fnd['coverage_gate']:.2f}  "
+        f"=  foundational_fitness={fnd['foundational_fitness']:.3f}"
+    )
+    print("\n  per-domain validity & discrimination (n, strong-err, spread, order, gate):")
+    for dom, m in sorted(stratified_fitness(reveal, panel).items(), key=lambda kv: -kv[1]["n"]):
+        print(
+            f"    {dom:<14} n={m['n']:>3}  strong={m['difficulty']:>5.2f}  "
+            f"spread={m['spread']:>4.2f}  order={m['ordering']:>+4.2f}  gate={m['gate']:>4.2f}"
+        )
+
+    # A single-domain feed is sharp but NARROW: same generator, but the coverage
+    # gate collapses, so its breadth-aware (foundational) score is penalised.
+    narrow_buf = FreshBuffer(LorenzSource(), pool_size=96, motif_len=768)
+    narrow = build_challenges(final_state, narrow_buf, rng_for(BLOCK_HASH, epoch, mhash), 128)
+    nf = foundational_fitness(narrow, panel)
+    print(
+        f"\n  narrow (Lorenz-only) feed: effective domains = "
+        f"{nf['coverage']['effective_domains']:.2f}  -> coverage_gate "
+        f"{fnd['coverage_gate']:.2f} (broad) vs {nf['coverage_gate']:.2f} (narrow)"
+    )
+    print("  -> breadth is measured, not assumed: the coverage gate rewards many DGPs.")
 
     # ----- submission static analysis --------------------------------------
     print("\nSubmission static analysis (the anti-hardcoding gate):")

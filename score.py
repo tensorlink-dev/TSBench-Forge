@@ -449,13 +449,85 @@ def overfit_gate(strong_err: float, overfit_err: float) -> float:
     return float(1.0 / (1.0 + np.exp(-GATE_STEEPNESS * (ratio - GATE_THRESHOLD))))
 
 
+# --------------------------------------------------------------------------- #
+# Coverage: the foundational-breadth layer
+# --------------------------------------------------------------------------- #
+#
+# ``spread``/``ordering``/``gate`` all measure quality *within* whatever
+# distribution the feed supplies; none of them notices whether that distribution
+# spans one data-generating process or twenty. A benchmark that certifies a
+# *foundation* model must also be broad -- many domains / DGPs -- so a high score
+# means "generalises across worlds," not "good at the one process we test." These
+# helpers measure that breadth from the per-challenge ``meta['domain']`` labels.
+
+UNKNOWN_DOMAIN = "unknown"
+
+# Target effective number of distinct domains per evaluation. The coverage gate
+# is 1.0 once a challenge set reaches this many *effective* domains (Hill number
+# of order 1); below it the gate ramps down linearly. Eight is the breadth of the
+# default multi-domain feed (``domains.default_live_source``) including ``synth``.
+DEFAULT_COVERAGE_TARGET = 4.0
+
+
+def challenge_domain(ch: Challenge) -> str:
+    """The data-generating domain a challenge is tagged with (``unknown`` if absent)."""
+    meta = getattr(ch, "meta", None) or {}
+    return str(meta.get("domain", UNKNOWN_DOMAIN))
+
+
+def domain_coverage(challenges: list[Challenge]) -> dict[str, object]:
+    """Summarise how many distinct DGP domains a challenge set spans.
+
+    Returns per-domain counts, the raw domain count, the Shannon ``entropy`` of
+    the domain mix, and ``effective_domains = exp(entropy)`` -- the *effective
+    number of equally-weighted domains* (a Hill number). Effective domains is the
+    honest breadth measure: ten near-identical domains plus one dominant one score
+    far below ten, because skew concentrates the evaluation on a few processes.
+    """
+    counts: dict[str, int] = {}
+    for ch in challenges:
+        d = challenge_domain(ch)
+        counts[d] = counts.get(d, 0) + 1
+    total = sum(counts.values())
+    if total == 0:
+        return {"per_domain": {}, "n_domains": 0, "entropy": 0.0, "effective_domains": 0.0}
+    probs = np.array([c / total for c in counts.values()], dtype=float)
+    entropy = float(-np.sum(probs * np.log(probs)))
+    return {
+        "per_domain": dict(sorted(counts.items())),
+        "n_domains": len(counts),
+        "entropy": entropy,
+        "effective_domains": float(np.exp(entropy)),
+    }
+
+
+def coverage_gate(
+    challenges: list[Challenge], target_effective_domains: float = DEFAULT_COVERAGE_TARGET
+) -> float:
+    """Breadth multiplier in ``[0, 1]`` from the effective-domain count.
+
+    ``1.0`` once the set reaches ``target_effective_domains`` effective domains,
+    ramping linearly to ``0`` for a single-domain (narrow) set. This is the
+    independent *coverage* layer: like the other gates it only ever multiplies an
+    otherwise-good score down, here punishing benchmarks that are sharp but
+    narrow. It is reported by :func:`panel_fitness` and folded into the score only
+    by the opt-in :func:`foundational_fitness`, so the frozen ``fitness``
+    yardstick (and cross-validator consensus on it) is unchanged.
+    """
+    if target_effective_domains <= 0:
+        return 1.0
+    eff = float(domain_coverage(challenges)["effective_domains"])
+    return float(np.clip(eff / target_effective_domains, 0.0, 1.0))
+
+
 def panel_fitness(
     challenges: list[Challenge], panel: dict[str, PanelModel] | None = None
 ) -> dict[str, object]:
     """Score a challenge set: the forge's objective and the validity gates.
 
     Returns ``fitness``, ``spread``, ``ordering``, ``difficulty``, ``gate`` (plus
-    the raw per-model ``errors`` for diagnostics).
+    the raw per-model ``errors`` for diagnostics, and a report-only ``coverage``
+    summary with its ``coverage_gate``).
 
     * ``spread = (max_err - min_err) / mean_err`` over the *legitimate* models
       (the detector is excluded so it can't inflate discrimination).
@@ -485,6 +557,11 @@ def panel_fitness(
     fitness = spread * max(0.0, ordering) * gate
     difficulty = agg.get("strong", float("nan"))
 
+    coverage = domain_coverage(challenges)
+    cov_gate = float(
+        np.clip(float(coverage["effective_domains"]) / DEFAULT_COVERAGE_TARGET, 0.0, 1.0)
+    )
+
     return {
         "fitness": float(fitness),
         "spread": float(spread),
@@ -492,4 +569,57 @@ def panel_fitness(
         "difficulty": float(difficulty),
         "gate": float(gate),
         "errors": agg,
+        "coverage": coverage,
+        "coverage_gate": cov_gate,
     }
+
+
+def stratified_fitness(
+    challenges: list[Challenge], panel: dict[str, PanelModel] | None = None
+) -> dict[str, dict[str, object]]:
+    """Per-domain fitness report: skill *within each* data-generating process.
+
+    A single aggregate fitness can hide a benchmark that is excellent on one
+    domain and meaningless on the rest. This partitions the challenge set by
+    ``meta['domain']`` and scores each stratum independently, so "foundational"
+    can be read as "valid and discriminating across strata," not merely on
+    average. Each entry includes ``n`` (the stratum size) because small strata
+    carry real sampling noise and should be read with that in mind.
+    """
+    panel = panel or default_panel()
+    groups: dict[str, list[Challenge]] = {}
+    for ch in challenges:
+        groups.setdefault(challenge_domain(ch), []).append(ch)
+
+    report: dict[str, dict[str, object]] = {}
+    for domain, chs in sorted(groups.items()):
+        res = panel_fitness(chs, panel)
+        report[domain] = {
+            "n": len(chs),
+            "fitness": res["fitness"],
+            "spread": res["spread"],
+            "ordering": res["ordering"],
+            "gate": res["gate"],
+            "difficulty": res["difficulty"],
+        }
+    return report
+
+
+def foundational_fitness(
+    challenges: list[Challenge],
+    panel: dict[str, PanelModel] | None = None,
+    target_effective_domains: float = DEFAULT_COVERAGE_TARGET,
+) -> dict[str, object]:
+    """Coverage-gated objective: ``foundational_fitness = fitness * coverage_gate``.
+
+    The opt-in breadth-aware score. Identical to :func:`panel_fitness` but adds
+    ``foundational_fitness``, which a forge can target instead of bare ``fitness``
+    when it must climb toward *both* discrimination/validity **and** domain
+    coverage. Kept separate so the core ``fitness`` (frozen within a benchmark
+    version for consensus) is never silently redefined.
+    """
+    res = dict(panel_fitness(challenges, panel))
+    cov_gate = coverage_gate(challenges, target_effective_domains)
+    res["coverage_gate"] = cov_gate
+    res["foundational_fitness"] = float(res["fitness"]) * cov_gate
+    return res

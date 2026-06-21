@@ -20,6 +20,7 @@ ruff check .
 | Layer | Module | Gaming vector it closes |
 |---|---|---|
 | Live ingestion | `ingest.py` | memorization — data didn't exist at commit time |
+| Domain coverage | `domains.py` + `score.py` | narrowness — a sharp but single-DGP, non-foundational benchmark |
 | Augmentation | `generate.py` | exact-match memorization |
 | Synthetic composition | `generate.py` | coverage gaps live data misses |
 | Real-motif splice | `generate.py` | synthetic-only fingerprints |
@@ -94,6 +95,35 @@ degree these are invested in:
    small a space and the arms race tips toward the miners no matter how clever the
    forge is.
 
+## Foundational breadth (domain coverage)
+
+A benchmark certifies a *foundation* model only if a high score means "generalises
+across worlds," not "good at the one process we test." Breadth therefore has to be
+**generated and measured**, not assumed:
+
+- **A multi-domain feed.** `domains.py` ships a dependency-free zoo of distinct
+  data-generating processes — random-walk plus dynaprior-inspired dynamical
+  systems (Lorenz-63, Rössler, Hopf limit cycle, Hénon, logistic map,
+  Ornstein–Uhlenbeck, jump-diffusion) — blended by `MixtureLiveSource`. Each motif
+  carries its `domain`, which every `spliced` / `aug_live` challenge inherits. A
+  literal `dynaprior` adapter is the documented extension point; this zoo is the
+  offline, numpy-only stand-in that proves the wiring.
+- **A coverage gate.** `score.domain_coverage` reports the *effective* number of
+  domains (`exp(entropy)` of the domain mix — skew counts against you), and
+  `coverage_gate` ramps to 1.0 once a set is broad enough. Like the other gates it
+  only ever multiplies a sharp-but-narrow benchmark *down*.
+- **Stratified reporting.** `score.stratified_fitness` scores each domain
+  separately, so validity/discrimination is read per-DGP instead of hidden in one
+  average — the demo's table shows, e.g., that the panel orders cleanly on
+  `random_walk` but only weakly on some chaotic maps (the validity-gate ↔ exotic-DGP
+  tension, made visible).
+
+Coverage is **report-first**: `panel_fitness` reports `coverage` / `coverage_gate`
+but does not fold them into the frozen `fitness` (which stays the consensus
+yardstick, comparable across validators within a version). A forge that must climb
+toward breadth *as well as* discrimination targets the opt-in
+`score.foundational_fitness = fitness × coverage_gate` instead.
+
 ## The one accepted trade-off
 
 An **evolving** benchmark sacrifices exact cross-epoch comparability. We recover
@@ -107,15 +137,16 @@ faster than the forged one, something is leaking.
 
 ```
 config.py           GeneratorState (the forge's optimization target) + constants
-ingest.py           LiveSource ABC, SyntheticLiveSource stand-in, FreshBuffer
+ingest.py           LiveSource ABC (domain-tagged), SyntheticLiveSource stand-in, FreshBuffer
+domains.py          multi-domain DGP zoo (dynaprior-inspired) + MixtureLiveSource
 generate.py         primitives, augmentations, Recipe grammar, blend controller
-score.py            reference panel (frozen strong anchor + overfit detector) + metrics
+score.py            reference panel (frozen strong anchor + overfit detector), metrics, coverage
 seed.py             commit-reveal deterministic seeding
 static_analysis.py  AST/regex linter for miner submissions
 forge_loop.py       the keep/revert autoresearch loop over GeneratorState
 program.md          the forge LLM's instructions (what it may/may not change)
 demo.py             runnable end-to-end demo
-tests/              determinism, validity, forge, static-analysis
+tests/              determinism, validity, forge, static-analysis, domains/coverage
 ```
 
 ## Notes

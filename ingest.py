@@ -10,7 +10,9 @@ commit point.
 
 ``LiveSource`` is an abstraction with a synthetic stand-in so the demo runs
 offline; real adapters (a market feed, a sensor stream, an energy load API, ...)
-are a documented extension point. Two properties are load-bearing:
+are a documented extension point, and ``domains.py`` ships a dependency-free
+*multi-domain* feed (a zoo of dynamical systems) for breadth. Two properties are
+load-bearing:
 
 * **Different texture.** ``SyntheticLiveSource`` produces random-walk + jump +
   multiplicative-noise series -- deliberately *unlike* the trend/seasonal/AR
@@ -40,9 +42,18 @@ import numpy as np
 class LiveSource(ABC):
     """Abstract source of real time-series motifs.
 
-    A concrete adapter wraps an external feed. The only contract is
+    A concrete adapter wraps an external feed. The only required contract is
     :meth:`pull`; everything downstream (buffering, splicing) is texture-agnostic.
+
+    Each source advertises a ``domain`` label naming the data-generating process
+    (or real-world feed) it represents. The label rides along with every motif
+    (see :meth:`pull_labeled` and ``FreshBuffer``) so the scorer can measure and
+    stratify by *coverage* -- the property a foundation-model benchmark needs but
+    a single-source feed cannot provide. ``domains.MixtureLiveSource`` overrides
+    :meth:`pull_labeled` to vary the label per motif.
     """
+
+    domain: str = "live"
 
     @abstractmethod
     def pull(self, n: int, length: int, rng: np.random.Generator) -> list[np.ndarray]:
@@ -54,6 +65,17 @@ class LiveSource(ABC):
         """
         raise NotImplementedError
 
+    def pull_labeled(
+        self, n: int, length: int, rng: np.random.Generator
+    ) -> list[tuple[np.ndarray, str]]:
+        """Return ``n`` ``(motif, domain)`` pairs.
+
+        The default tags every motif with this source's :attr:`domain`; a mixture
+        feed overrides this to draw a per-motif domain. Defining it in terms of
+        :meth:`pull` keeps single-domain adapters a one-method implementation.
+        """
+        return [(motif, self.domain) for motif in self.pull(n, length, rng)]
+
 
 class SyntheticLiveSource(LiveSource):
     """Offline stand-in whose texture is *distinct* from the synthetic generator.
@@ -63,6 +85,8 @@ class SyntheticLiveSource(LiveSource):
     whole point: "real motifs" must not be reproducible by fitting the synthetic
     process.
     """
+
+    domain = "random_walk"
 
     def __init__(
         self,
@@ -106,19 +130,30 @@ class FreshBuffer:
         self.source = source
         self.pool_size = pool_size
         self.motif_len = motif_len
-        self._pool: list[np.ndarray] = []
+        self._pool: list[tuple[np.ndarray, str]] = []
 
     def refresh(self, rng: np.random.Generator) -> None:
-        """Repopulate the pool. Seeded so all validators hold the same pool."""
-        self._pool = self.source.pull(self.pool_size, self.motif_len, rng)
+        """Repopulate the pool. Seeded so all validators hold the same pool.
+
+        Stores each motif with its ``domain`` label so sampled windows inherit
+        the data-generating process they came from.
+        """
+        self._pool = self.source.pull_labeled(self.pool_size, self.motif_len, rng)
 
     def ensure(self, rng: np.random.Generator) -> None:
         """Populate the pool once if it is empty."""
         if not self._pool:
             self.refresh(rng)
 
-    def sample_motifs(self, k: int, length: int, rng: np.random.Generator) -> list[np.ndarray]:
-        """Draw ``k`` contiguous windows of ``length`` from the pool.
+    @property
+    def pool_domains(self) -> list[str]:
+        """The domain label of every motif currently pooled (diagnostics/tests)."""
+        return [domain for _, domain in self._pool]
+
+    def sample_labeled(
+        self, k: int, length: int, rng: np.random.Generator
+    ) -> list[tuple[np.ndarray, str]]:
+        """Draw ``k`` contiguous ``(window, domain)`` pairs from the pool.
 
         Seeded entirely by ``rng`` so the draw is identical for every validator
         replaying the same beacon. Raises if the pool is empty -- callers must
@@ -128,9 +163,13 @@ class FreshBuffer:
             raise RuntimeError("FreshBuffer is empty; call refresh()/ensure() first")
         if length > self.motif_len:
             raise ValueError(f"requested length {length} exceeds motif_len {self.motif_len}")
-        out: list[np.ndarray] = []
+        out: list[tuple[np.ndarray, str]] = []
         for _ in range(k):
-            series = self._pool[int(rng.integers(0, len(self._pool)))]
+            series, domain = self._pool[int(rng.integers(0, len(self._pool)))]
             start = int(rng.integers(0, len(series) - length + 1))
-            out.append(np.asarray(series[start : start + length], dtype=float))
+            out.append((np.asarray(series[start : start + length], dtype=float), domain))
         return out
+
+    def sample_motifs(self, k: int, length: int, rng: np.random.Generator) -> list[np.ndarray]:
+        """Draw ``k`` contiguous windows (domain labels dropped) -- back-compat shim."""
+        return [motif for motif, _ in self.sample_labeled(k, length, rng)]
