@@ -58,6 +58,11 @@ class Challenge:
     ``overfit`` detector to simulate a worst-case generator-fitting miner; real
     forecasters ignore ``meta`` entirely. It is ``None`` for ``aug_live``, where
     there is no synthetic structure to exploit.
+
+    ``meta['domain']`` names the data-generating process behind the challenge:
+    ``"synth"`` for pure-synthetic scaffolds, or the live motif's source domain
+    (e.g. ``"lorenz"``, ``"random_walk"``) for ``spliced`` / ``aug_live``. The
+    scorer aggregates by it to measure coverage and report skill per domain.
     """
 
     context: np.ndarray
@@ -356,25 +361,28 @@ def assemble_challenge(
     if recipe.mode == "synth":
         series, oracle = _build_synth(state, recipe, rng)
         context, truth = series[:CONTEXT_LEN], series[CONTEXT_LEN:]
-        meta = {"mode": "synth", "oracle": oracle}
+        # Pure-synthetic challenges have no live texture -- their own domain.
+        meta = {"mode": "synth", "oracle": oracle, "domain": "synth"}
 
     elif recipe.mode == "spliced":
         series, oracle = _build_synth(state, recipe, rng)
         scaffold_std = float(np.std(series)) + _EPS
-        motif = buffer.sample_motifs(1, SERIES_LEN, rng)[0]
+        motif, domain = buffer.sample_labeled(1, SERIES_LEN, rng)[0]
         motif = _scale_motif(motif, scaffold_std)
         w = recipe.splice_weight
         blended = (1.0 - w) * series + w * motif
         context, truth = blended[:CONTEXT_LEN], blended[CONTEXT_LEN:]
-        # The detector knows the synthetic part exactly but not the live motif.
-        meta = {"mode": "spliced", "oracle": (1.0 - w) * oracle}
+        # The detector knows the synthetic part exactly but not the live motif;
+        # the challenge inherits the spliced-in motif's data-generating domain.
+        meta = {"mode": "spliced", "oracle": (1.0 - w) * oracle, "domain": domain}
 
     elif recipe.mode == "aug_live":
-        motif = buffer.sample_motifs(1, SERIES_LEN, rng)[0].copy()
+        motif, domain = buffer.sample_labeled(1, SERIES_LEN, rng)[0]
+        motif = motif.copy()
         for op in recipe.aug_ops:
             motif = _AUGMENTATIONS[op](motif, state.aug_severity, rng)
         context, truth = motif[:CONTEXT_LEN], motif[CONTEXT_LEN:]
-        meta = {"mode": "aug_live", "oracle": None}
+        meta = {"mode": "aug_live", "oracle": None, "domain": domain}
 
     else:  # pragma: no cover - guarded by sample_recipe
         raise ValueError(f"unknown mode {recipe.mode!r}")
