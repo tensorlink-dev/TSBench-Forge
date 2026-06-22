@@ -66,6 +66,35 @@ properties keep the LLM consensus-safe and robust:
 - **Fail-safe.** No key, a network error, malformed output, or an illegal knob
   all fall back to the deterministic heuristic; the forge degrades, never breaks.
 
+## Evaluating an actual TSFM
+
+The forge keeps the benchmark hard-to-game; `evaluate.py` is the half that
+**scores a model under test**. A forecaster emits a `ProbForecast` (mean +
+quantiles) and is judged on the metrics the TSFM literature uses — **MASE**
+(point accuracy), **WQL** (weighted quantile loss) and **CRPS** (probabilistic) —
+then ranked on a leaderboard against the reference panel.
+
+```python
+from evaluate import leaderboard, probabilistic_panel
+from tsfm_adapters import load_tsfm   # pip install -e ".[chronos]"
+
+models = {"chronos": load_tsfm("chronos"), **probabilistic_panel()}
+for row in leaderboard(models, reveal):   # reveal = the committed challenges
+    print(row["rank"], row["model"], row["mase"], row["wql"])
+```
+
+`tsfm_adapters.py` ships real Chronos / TimesFM adapters (lazy torch import;
+weights are staged validator-side, outside the submission sandbox). Point-only
+models are lifted to probabilistic via `evaluate.probabilistic`, so a classical
+baseline and a frontier TSFM are scored on the same footing.
+
+**Headroom — the go/no-go.** A benchmark only *certifies* TSFMs if a genuinely
+better model scores measurably better than the classical anchor on it.
+`evaluate.benchmark_has_headroom(probe, reveal)` injects a deliberately-superior
+probe and confirms the benchmark rewards it; run it at setup, because a benchmark
+with no room above its anchor cannot tell a great TSFM from a decent classical
+model no matter what the leaderboard prints.
+
 ## Two load-bearing design commitments
 
 1. **Validity comes from a frozen reference panel, not from trusting the data.**
@@ -188,6 +217,8 @@ sandbox.py          isolated, resource-limited execution of submissions (the rea
 feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
 forge_loop.py       the keep/revert autoresearch loop over GeneratorState
 forge_llm.py        OpenRouter-backed forge proposer (the LLM boundary) + fail-safe fallback
+evaluate.py         model-under-test scoring: MASE/WQL/CRPS, leaderboard, headroom check
+tsfm_adapters.py    real Chronos / TimesFM adapters (the actual TSFMs under test)
 program.md          the forge LLM's instructions (what it may/may not change)
 demo.py             runnable end-to-end demo
 tests/              determinism, validity, forge, static-analysis, domains/coverage, llm, sandbox, feeds, anchor

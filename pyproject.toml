@@ -12,6 +12,10 @@ dependencies = ["numpy>=1.25"]
 # demo and tests never need it.
 strong = ["statsforecast>=1.7"]
 test = ["pytest>=7.0"]
+# Real TSFMs to put under test (loaded via tsfm_adapters.load_tsfm). Imported
+# lazily, so the numpy core, the demo, and the tests never need them.
+chronos = ["torch>=2.0", "chronos-forecasting>=1.4"]
+timesfm = ["timesfm>=1.2"]
 
 [tool.pytest.ini_options]
 # Flat module layout: put the repo root on sys.path so tests can `import config`.

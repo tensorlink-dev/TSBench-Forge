@@ -17,6 +17,12 @@ import numpy as np
 
 from config import CONTEXT_LEN, HORIZON, N_CHALLENGES, WEAK_STATE
 from domains import LorenzSource, default_live_source
+from evaluate import (
+    benchmark_has_headroom,
+    headroom,
+    leaderboard,
+    probabilistic_panel,
+)
 from forge_llm import OpenRouterConfig, make_openrouter_proposer
 from forge_loop import committed_seed, manifest_for, run_forge
 from generate import build_challenges
@@ -136,6 +142,43 @@ def run_demo() -> None:
         f"  anchor validation: strong leads '{vp['runner_up']}' by "
         f"{vp['margin']:.3f} -> valid={vp['valid']}"
     )
+
+    # ----- evaluate models under test: the leaderboard ---------------------
+    print("\nModel evaluation (this is what scores an actual TSFM):")
+    board = leaderboard(probabilistic_panel(), reveal)
+    print(f"  {'rank':>4}  {'model':<16} {'MASE':>7} {'WQL':>7} {'CRPS':>7}")
+    for r in board:
+        print(f"  {r['rank']:>4}  {r['model']:<16} {r['mase']:>7.3f} "
+              f"{r['wql']:>7.3f} {r['crps']:>7.3f}")
+    print("  -> to score a real TSFM: `leaderboard({'chronos': "
+          "load_tsfm('chronos'), **probabilistic_panel()}, reveal)`")
+
+    # Headroom (a setup-time go/no-go): can a model strictly BETTER than the
+    # classical anchor actually win here? If not, the benchmark cannot certify
+    # TSFM quality, whatever its leaderboard says. We inject a deliberately-strong
+    # truth-informed probe (the true future plus small noise -- better than any
+    # real model, but not perfect) and confirm the benchmark rewards it. A real
+    # TSFM's *real* standing comes from the leaderboard above.
+    from evaluate import ProbForecast
+
+    probe_rng = np.random.default_rng(7)
+    truth_by_id = {id(ch.context): np.asarray(ch.truth, dtype=float) for ch in reveal}
+
+    def _superior_probe(context, meta=None):
+        tgt = truth_by_id[id(context)]
+        noisy = tgt + probe_rng.normal(0.0, 0.05 * (np.std(tgt) + 1e-8), size=tgt.shape)
+        return ProbForecast(mean=noisy, quantiles={q: noisy for q in
+                            (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)})
+
+    hr = headroom(_superior_probe, reveal)
+    has = benchmark_has_headroom(_superior_probe, reveal)
+    print(
+        f"  headroom check: a deliberately-superior probe beats the anchor by "
+        f"{hr['mase_margin']:+.3f} MASE / {hr['wql_margin']:+.3f} WQL "
+        f"-> has_headroom={has}"
+    )
+    print("     (the benchmark can separate a better-than-classical model; a real "
+          "TSFM's standing is the leaderboard.)")
 
     # ----- foundational breadth: coverage across DGPs ----------------------
     print("\nFoundational breadth: a high score must mean 'good across worlds'.")
