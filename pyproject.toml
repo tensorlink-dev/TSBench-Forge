@@ -16,6 +16,8 @@ test = ["pytest>=7.0"]
 # lazily, so the numpy core, the demo, and the tests never need them.
 chronos = ["torch>=2.0", "chronos-forecasting>=1.4"]
 timesfm = ["timesfm>=1.2"]
+# Run the example walkthrough notebook (example.ipynb).
+notebook = ["matplotlib>=3.7", "jupyter>=1.0"]
 
 [tool.pytest.ini_options]
 # Flat module layout: put the repo root on sys.path so tests can `import config`.
@@ -25,6 +27,9 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# The example notebook uses notebook-idiomatic style (semicolons, top-level
+# plotting); lint the library, not the walkthrough.
+extend-exclude = ["example.ipynb", "_build_notebook.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

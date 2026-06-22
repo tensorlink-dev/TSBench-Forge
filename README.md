@@ -15,6 +15,11 @@ pytest                # determinism / validity / forge / static-analysis tests
 ruff check .
 ```
 
+For a guided, visual tour, open **`example.ipynb`** (`pip install -e ".[notebook]"`)
+— it walks the whole pipeline with plots: the forge climbing, commit-reveal,
+panel validity, the MASE/WQL/CRPS leaderboard, the headroom check, and sandboxed
+submissions.
+
 ## Defense in depth
 
 | Layer | Module | Gaming vector it closes |
