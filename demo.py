@@ -17,9 +17,11 @@ import numpy as np
 
 from config import CONTEXT_LEN, HORIZON, N_CHALLENGES, WEAK_STATE
 from domains import LorenzSource, default_live_source
+from forge_llm import OpenRouterConfig, make_openrouter_proposer
 from forge_loop import committed_seed, manifest_for, run_forge
 from generate import build_challenges
 from ingest import FreshBuffer
+from sandbox import run_submission
 from score import (
     DEFAULT_COVERAGE_TARGET,
     default_panel,
@@ -27,6 +29,7 @@ from score import (
     foundational_fitness,
     panel_fitness,
     stratified_fitness,
+    validate_panel,
 )
 from seed import rng_for
 from static_analysis import scan_submission
@@ -64,7 +67,19 @@ def run_demo() -> None:
         f"phi={WEAK_STATE.noise_ar_phi}\n"
     )
 
-    final_state, log = run_forge(buffer, EPOCHS, BLOCK_HASH, WEAK_STATE)
+    # The forge proposer is the LLM boundary. With OPENROUTER_API_KEY set, a real
+    # model (Claude Opus 4.8 by default) proposes each one-knob move via
+    # OpenRouter; otherwise -- and on any API error -- it falls back to the
+    # deterministic heuristic, so the demo runs identically offline.
+    cfg = OpenRouterConfig.from_env()
+    if cfg.enabled:
+        print(f"Forge proposer: OpenRouter LLM ({cfg.model}) with heuristic fallback.\n")
+        proposer = make_openrouter_proposer(cfg, on_fallback=lambda r: None)
+    else:
+        print("Forge proposer: deterministic heuristic (set OPENROUTER_API_KEY for the LLM).\n")
+        proposer = None
+
+    final_state, log = run_forge(buffer, EPOCHS, BLOCK_HASH, WEAK_STATE, proposer=proposer)
 
     print("Forge fitness trajectory (KEEP if a one-knob mutation improved fitness):")
     cols = ("epoch", "fitness", "spread", "order", "gate", "decision")
@@ -113,6 +128,14 @@ def run_demo() -> None:
     errs = panel_fitness(reveal, panel)["errors"]
     ranked = ", ".join(f"{m}={errs[m]:.2f}" for m in sorted(errs, key=errs.get))
     print("  reference panel (mean normalised error, best->worst): " + ranked)
+
+    # The anchor is the load-bearing assumption; validate it loudly rather than
+    # trusting it. A production validator runs this at startup with require=True.
+    vp = validate_panel(reveal, panel)
+    print(
+        f"  anchor validation: strong leads '{vp['runner_up']}' by "
+        f"{vp['margin']:.3f} -> valid={vp['valid']}"
+    )
 
     # ----- foundational breadth: coverage across DGPs ----------------------
     print("\nFoundational breadth: a high score must mean 'good across worlds'.")
@@ -168,6 +191,15 @@ def run_demo() -> None:
         print(f"  {name}: {len(findings)} finding(s)")
         for f in findings:
             print(f"      - {f}")
+
+    # The static scan is only a pre-filter; the real boundary is sandboxed
+    # execution. Run both submissions through it against a real context.
+    print("\nSandboxed execution (the real boundary: isolated, resource-limited):")
+    ctx = reveal[0].context
+    for name, code in (("clean numpy forecaster", clean), ("hardcoded/cheating", cheat)):
+        res = run_submission(code, ctx)
+        detail = f"shape={res.prediction.shape}" if res.ok else (res.error or res.findings)
+        print(f"  {name}: status={res.status}  ({detail})")
 
     print("\n" + "=" * 72)
     print("done.")

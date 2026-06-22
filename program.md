@@ -9,9 +9,11 @@ miners' submissions, the concrete challenges, or the random seed — only the
 state and the history of `(state, metrics, decision)`.
 
 > Implementation note: `forge_loop.propose_mutation` is the boundary where you
-> plug in. The shipped stub is a hand-coded approximation of this policy so the
-> demo runs without a model in the loop. Replace its body with a single call to
-> you.
+> plug in, and `forge_llm.make_openrouter_proposer` is the production wiring —
+> it sends you this brief + the metric history over OpenRouter and applies the
+> single `(knob, value)` you return. The hand-coded `propose_mutation` heuristic
+> remains the fail-safe fallback (used when no API key is set or a call fails),
+> so the demo still runs without a model in the loop.
 
 ## What you optimize
 

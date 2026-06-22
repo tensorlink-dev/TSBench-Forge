@@ -365,6 +365,74 @@ def try_statsforecast_strong() -> PanelModel | None:
     return _sf_strong
 
 
+def panel_from_env(env: dict[str, str] | None = None) -> dict[str, PanelModel]:
+    """Build the panel, selecting the ``strong`` anchor from the environment.
+
+    ``TSBENCH_STRONG=statsforecast`` swaps in the AutoETS anchor when the optional
+    dependency is installed (falling back to the numpy anchor otherwise);
+    anything else uses the numpy default. A real deployment registers its own
+    independently-validated TSFM here. Whatever is chosen, callers should gate it
+    through :func:`validate_panel` before trusting a run.
+    """
+    import os
+
+    e = env if env is not None else os.environ
+    choice = (e.get("TSBENCH_STRONG") or "").strip().lower()
+    if choice == "statsforecast":
+        sf = try_statsforecast_strong()
+        if sf is not None:
+            return default_panel(strong_model=sf)
+    return default_panel()
+
+
+class AnchorValidationError(RuntimeError):
+    """Raised when the ``strong`` anchor is not good enough to be a validity anchor."""
+
+
+def validate_panel(
+    challenges: list[Challenge],
+    panel: dict[str, PanelModel] | None = None,
+    *,
+    min_lead: float = 0.02,
+    require: bool = False,
+) -> dict[str, object]:
+    """Check the ``strong`` anchor is genuinely the best *legitimate* forecaster.
+
+    The whole benchmark rests on ``strong`` being independently good: if a naive
+    baseline matches or beats it on a calibration set, the validity gate is hollow
+    and every downstream score is suspect. This runs the panel on ``challenges``
+    and verifies ``strong`` leads every other legitimate model (excluding the
+    ``overfit`` detector) by at least ``min_lead`` in scale-normalised error.
+
+    Returns a report ``{valid, strong_error, runner_up, margin, errors}``. With
+    ``require=True`` an invalid anchor raises :class:`AnchorValidationError`
+    instead -- the recommended posture for a production validator at startup.
+    """
+    panel = panel or default_panel()
+    errs = model_errors(challenges, panel)
+    strong_err = errs.get("strong", float("inf"))
+    competitors = {m: e for m, e in errs.items() if m not in ("strong", "overfit")}
+    runner_up = min(competitors, key=competitors.get) if competitors else None
+    runner_err = competitors[runner_up] if runner_up is not None else float("inf")
+    margin = runner_err - strong_err
+    valid = bool(runner_up is not None and margin >= min_lead)
+
+    report: dict[str, object] = {
+        "valid": valid,
+        "strong_error": float(strong_err),
+        "runner_up": runner_up,
+        "runner_up_error": float(runner_err),
+        "margin": float(margin),
+        "errors": errs,
+    }
+    if require and not valid:
+        raise AnchorValidationError(
+            f"strong anchor not validated: leads {runner_up} by {margin:.4f} "
+            f"(< required {min_lead}); the validity gate would be hollow"
+        )
+    return report
+
+
 # --------------------------------------------------------------------------- #
 # Metrics
 # --------------------------------------------------------------------------- #

@@ -24,6 +24,7 @@ reason the trajectory is legible.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, replace
 
 import numpy as np
@@ -46,6 +47,14 @@ _STEP = {
     "noise_ar_phi": 0.10,
 }
 _KNOBS = tuple(_STEP)
+
+# A proposer maps (state, log, rng) -> (candidate_state, knob_name). The shipped
+# heuristic :func:`propose_mutation` is the default; ``forge_llm`` supplies an
+# OpenRouter-backed one with the identical signature.
+Proposer = Callable[
+    ["GeneratorState", "list[ForgeStep]", "np.random.Generator"],
+    "tuple[GeneratorState, str]",
+]
 
 
 @dataclass
@@ -152,6 +161,7 @@ def run_forge(
     n_challenges: int = N_CHALLENGES,
     panel: dict[str, PanelModel] | None = None,
     n_seeds: int = 4,
+    proposer: Proposer | None = None,
 ) -> tuple[GeneratorState, list[ForgeStep]]:
     """Run the keep/revert forge loop and return ``(final_state, log)``.
 
@@ -160,8 +170,16 @@ def run_forge(
     -> KEEP if the candidate's fitness beats the incumbent's, else REVERT. The
     panel is frozen for the whole run, so the logged fitness is a stable yardstick
     and the trajectory is monotone non-decreasing.
+
+    ``proposer`` defaults to the deterministic heuristic :func:`propose_mutation`.
+    Pass ``forge_llm.make_openrouter_proposer(...)`` to drive the loop with a real
+    LLM; that proposer itself falls back to the heuristic on any failure, so the
+    loop is robust either way. The proposer runs exactly once per epoch, so even a
+    non-deterministic LLM is consensus-safe: only its committed output state is
+    hashed, and the challenges remain a pure function of the revealed seed.
     """
     panel = panel or default_panel()
+    propose = proposer or propose_mutation
     state = init_state.normalized().clamped()
 
     def score(s: GeneratorState) -> dict[str, float]:
@@ -171,7 +189,7 @@ def run_forge(
     log: list[ForgeStep] = [_step(0, None, "init", incumbent, state)]
 
     for epoch in range(1, epochs + 1):
-        candidate, knob = propose_mutation(state, log, rng_for(block_hash, epoch, "propose"))
+        candidate, knob = propose(state, log, rng_for(block_hash, epoch, "propose"))
         cand = score(candidate)
 
         if cand["fitness"] > incumbent["fitness"]:

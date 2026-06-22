@@ -28,8 +28,43 @@ ruff check .
 | Commit-reveal seed | `seed.py` | precomputing the concrete challenges |
 | Reference-panel fitness | `score.py` | invalid / saturated challenges |
 | Overfit detector | `score.py` | generator-fitting (exploiting synthetic quirks) |
-| Submission static analysis | `static_analysis.py` | hardcoded answers regardless of data |
-| Forge loop | `forge_loop.py` | benchmark saturation over time |
+| Submission static analysis | `static_analysis.py` | hardcoded answers (cheap **pre-filter**) |
+| Sandboxed execution | `sandbox.py` | submissions that phone home, OOM, loop, or persist state — the **real** boundary the linter only pre-screens for |
+| As-of / dedup feed | `feeds.py` | vintage-revision leakage and re-serving a finite feed (memorization) |
+| Anchor validation | `score.validate_panel` | a hollow `strong` anchor silently making the validity gate meaningless |
+| Forge loop | `forge_loop.py` + `forge_llm.py` | benchmark saturation over time (LLM-driven via OpenRouter) |
+
+## Running the forge with a real LLM (OpenRouter)
+
+The forge's `propose_mutation` is the one non-deterministic boundary — where an
+LLM reads `program.md` + the metric history and proposes the next one-knob move.
+`forge_llm.py` implements that against **OpenRouter** (stdlib `urllib`, no extra
+dependency). Enable it with an API key:
+
+```bash
+export OPENROUTER_API_KEY=sk-or-...
+export OPENROUTER_MODEL=anthropic/claude-opus-4.8   # default; any OpenRouter model
+python demo.py                                      # forge now climbs via the LLM
+```
+
+```python
+from forge_llm import make_openrouter_proposer, OpenRouterConfig
+from forge_loop import run_forge
+run_forge(buffer, epochs, block_hash, init_state,
+          proposer=make_openrouter_proposer(OpenRouterConfig.from_env()))
+```
+
+Other env knobs: `OPENROUTER_BASE_URL`, `OPENROUTER_TEMPERATURE`,
+`OPENROUTER_MAX_TOKENS`, `OPENROUTER_TIMEOUT`, `OPENROUTER_MAX_RETRIES`. Three
+properties keep the LLM consensus-safe and robust:
+
+- **Runs once per epoch.** Only the committed manifest + revealed seed determine
+  the challenges, so validators never call the LLM and never diverge.
+- **One-knob by construction.** Only the single `(knob, value)` the model returns
+  is applied, then `normalized().clamped()` forces it back into the legal
+  envelope — the `program.md` invariants can't be violated even by a bad reply.
+- **Fail-safe.** No key, a network error, malformed output, or an illegal knob
+  all fall back to the deterministic heuristic; the forge degrades, never breaks.
 
 ## Two load-bearing design commitments
 
@@ -83,12 +118,18 @@ degree these are invested in:
    model run zero-shot, or a strong classical ensemble. A weak anchor makes the
    validity gate hollow (everything "beats" a bad anchor, so nothing is flagged).
    The numpy default here is a backtest-selected classical ensemble; swap in a
-   real zero-shot TSFM via `score.default_panel(strong_model=...)` for production.
+   real zero-shot TSFM via `score.default_panel(strong_model=...)` (or
+   `score.panel_from_env`) for production. **Don't trust it blindly** —
+   `score.validate_panel(challenges, panel, require=True)` fails loudly at startup
+   if `strong` does not actually lead the baselines.
 
 2. **Feed freshness.** The live pool must refresh from sources **outside miners'
    reach**, using as-of/vintage snapshots timestamped *after* the commit point. A
    finite or predictable feed degrades freshness back toward leakability. Always
-   quarantine and dedup every pull.
+   quarantine and dedup every pull. `feeds.py` provides this discipline:
+   `AsOfLiveSource` admits only post-commit motifs, `DedupFreshBuffer`
+   fingerprints every motif ever served and quarantines near-duplicates across
+   epochs, and `HttpCsvLiveSource` is a real adapter to point at a vendor feed.
 
 3. **Recipe-space size.** The generator must *out-produce saturation*: the space
    of reachable challenges must be large enough that miners cannot cover it. Too
@@ -140,13 +181,16 @@ config.py           GeneratorState (the forge's optimization target) + constants
 ingest.py           LiveSource ABC (domain-tagged), SyntheticLiveSource stand-in, FreshBuffer
 domains.py          multi-domain DGP zoo (dynaprior-inspired) + MixtureLiveSource
 generate.py         primitives, augmentations, Recipe grammar, blend controller
-score.py            reference panel (frozen strong anchor + overfit detector), metrics, coverage
+score.py            reference panel (frozen strong anchor + overfit detector), metrics, coverage, validate_panel
 seed.py             commit-reveal deterministic seeding
-static_analysis.py  AST/regex linter for miner submissions
+static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
+sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
+feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
 forge_loop.py       the keep/revert autoresearch loop over GeneratorState
+forge_llm.py        OpenRouter-backed forge proposer (the LLM boundary) + fail-safe fallback
 program.md          the forge LLM's instructions (what it may/may not change)
 demo.py             runnable end-to-end demo
-tests/              determinism, validity, forge, static-analysis, domains/coverage
+tests/              determinism, validity, forge, static-analysis, domains/coverage, llm, sandbox, feeds, anchor
 ```
 
 ## Notes
