@@ -20,6 +20,56 @@ For a guided, visual tour, open **`example.ipynb`** (`pip install -e ".[notebook
 panel validity, the MASE/WQL/CRPS leaderboard, the headroom check, and sandboxed
 submissions.
 
+## Running on real data
+
+The synthetic zoo proves the wiring offline; `live_feeds.py` runs the **same**
+pipeline on genuinely real public series (climate, solar activity, atmospheric
+CO₂, equities, weather):
+
+```
+python live_demo.py     # forge + leaderboard + headroom on real feeds (caches pulls)
+```
+
+```python
+from live_feeds import build_real_live_source
+from ingest import FreshBuffer
+
+source = build_real_live_source()              # multi-domain feed over real data
+buffer = FreshBuffer(source, pool_size=96, motif_len=384)
+buffer.refresh(np.random.default_rng(0xC0FFEE))   # then run_forge / build_challenges as usual
+```
+
+Every adapter takes an injected `fetch` (defaulting to an on-disk cache over
+`urllib`), so tests run fully offline and reruns never re-hit the network. The
+`DatedCsvFeed` adapter reads the date column and stamps each window with its
+availability time, so it drops straight into `feeds.AsOfLiveSource` for vintage
+gating. The curated `live_feeds.REGISTRY` is the list of bundled feeds; point the
+adapters at your own as-of vendor endpoints for production. **`experiments/live_feeds.ipynb`**
+(`python experiments/build_live_feeds_notebook.py` to (re)build it) is the visual
+real-data walkthrough.
+
+## Independently validating the anchor (TSFM-ready)
+
+The benchmark's validity rests on the `strong` anchor being good — but checking
+that on the forge's *own* challenges is circular. `independent_eval.py` does the
+non-circular thing: it establishes an anchor's quality on a **held-out, real,
+external benchmark the forge never touches** (commodity / transport / demography),
+then promotes the validated anchor and re-checks `validate_panel`.
+
+```
+python independent_validation.py    # resolves the best anchor available, validates it
+```
+
+`resolve_anchor()` returns the strongest anchor this environment can actually run —
+a real **TSFM** (Chronos/TimesFM via `tsfm_adapters`, with `.[chronos]` + staged
+weights), else a literature-validated **statsforecast** model (`.[strong]`), else
+the numpy placeholder — and reports which, so a run is never silently on the
+placeholder. `is_independently_validated(...)` is the go/no-go (the anchor must beat
+every classical baseline on the held-out set) and `leakage_gap(...)` contrasts the
+held-out score with the forge score as the README's leakage detector.
+**`experiments/independent_validation.ipynb`** is the visual walkthrough; with
+`.[chronos]` installed it is the independent validation of a *real neural TSFM*.
+
 ## Defense in depth
 
 | Layer | Module | Gaming vector it closes |
@@ -220,6 +270,11 @@ seed.py             commit-reveal deterministic seeding
 static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
 sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
 feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
+live_feeds.py       real public-data adapters (CSV/dated), cached fetch, curated REGISTRY, real mixture
+live_demo.py        end-to-end demo on real public feeds (live analogue of demo.py)
+independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
+independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
+experiments/        runnable experiment notebooks (live_feeds, independent_validation) + their builders
 forge_loop.py       the keep/revert autoresearch loop over GeneratorState
 forge_llm.py        OpenRouter-backed forge proposer (the LLM boundary) + fail-safe fallback
 evaluate.py         model-under-test scoring: MASE/WQL/CRPS, leaderboard, headroom check
