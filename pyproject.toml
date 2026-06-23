@@ -29,7 +29,7 @@ line-length = 100
 target-version = "py311"
 # The walkthrough notebooks use notebook-idiomatic style (semicolons, top-level
 # plotting); lint the library, not the walkthroughs or their builders.
-extend-exclude = ["*.ipynb", "_build_notebook.py", "experiments/build_live_feeds_notebook.py"]
+extend-exclude = ["*.ipynb", "_build_notebook.py", "experiments/build_*_notebook.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

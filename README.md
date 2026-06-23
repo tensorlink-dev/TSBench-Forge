@@ -48,6 +48,28 @@ adapters at your own as-of vendor endpoints for production. **`experiments/live_
 (`python experiments/build_live_feeds_notebook.py` to (re)build it) is the visual
 real-data walkthrough.
 
+## Independently validating the anchor (TSFM-ready)
+
+The benchmark's validity rests on the `strong` anchor being good — but checking
+that on the forge's *own* challenges is circular. `independent_eval.py` does the
+non-circular thing: it establishes an anchor's quality on a **held-out, real,
+external benchmark the forge never touches** (commodity / transport / demography),
+then promotes the validated anchor and re-checks `validate_panel`.
+
+```
+python independent_validation.py    # resolves the best anchor available, validates it
+```
+
+`resolve_anchor()` returns the strongest anchor this environment can actually run —
+a real **TSFM** (Chronos/TimesFM via `tsfm_adapters`, with `.[chronos]` + staged
+weights), else a literature-validated **statsforecast** model (`.[strong]`), else
+the numpy placeholder — and reports which, so a run is never silently on the
+placeholder. `is_independently_validated(...)` is the go/no-go (the anchor must beat
+every classical baseline on the held-out set) and `leakage_gap(...)` contrasts the
+held-out score with the forge score as the README's leakage detector.
+**`experiments/independent_validation.ipynb`** is the visual walkthrough; with
+`.[chronos]` installed it is the independent validation of a *real neural TSFM*.
+
 ## Defense in depth
 
 | Layer | Module | Gaming vector it closes |
@@ -250,7 +272,9 @@ sandbox.py          isolated, resource-limited execution of submissions (the rea
 feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
 live_feeds.py       real public-data adapters (CSV/dated), cached fetch, curated REGISTRY, real mixture
 live_demo.py        end-to-end demo on real public feeds (live analogue of demo.py)
-experiments/        runnable experiment notebooks (live_feeds.ipynb) + their builders
+independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
+independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
+experiments/        runnable experiment notebooks (live_feeds, independent_validation) + their builders
 forge_loop.py       the keep/revert autoresearch loop over GeneratorState
 forge_llm.py        OpenRouter-backed forge proposer (the LLM boundary) + fail-safe fallback
 evaluate.py         model-under-test scoring: MASE/WQL/CRPS, leaderboard, headroom check
