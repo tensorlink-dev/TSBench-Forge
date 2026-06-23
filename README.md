@@ -20,6 +20,34 @@ For a guided, visual tour, open **`example.ipynb`** (`pip install -e ".[notebook
 panel validity, the MASE/WQL/CRPS leaderboard, the headroom check, and sandboxed
 submissions.
 
+## Running on real data
+
+The synthetic zoo proves the wiring offline; `live_feeds.py` runs the **same**
+pipeline on genuinely real public series (climate, solar activity, atmospheric
+CO₂, equities, weather):
+
+```
+python live_demo.py     # forge + leaderboard + headroom on real feeds (caches pulls)
+```
+
+```python
+from live_feeds import build_real_live_source
+from ingest import FreshBuffer
+
+source = build_real_live_source()              # multi-domain feed over real data
+buffer = FreshBuffer(source, pool_size=96, motif_len=384)
+buffer.refresh(np.random.default_rng(0xC0FFEE))   # then run_forge / build_challenges as usual
+```
+
+Every adapter takes an injected `fetch` (defaulting to an on-disk cache over
+`urllib`), so tests run fully offline and reruns never re-hit the network. The
+`DatedCsvFeed` adapter reads the date column and stamps each window with its
+availability time, so it drops straight into `feeds.AsOfLiveSource` for vintage
+gating. The curated `live_feeds.REGISTRY` is the list of bundled feeds; point the
+adapters at your own as-of vendor endpoints for production. **`experiments/live_feeds.ipynb`**
+(`python experiments/build_live_feeds_notebook.py` to (re)build it) is the visual
+real-data walkthrough.
+
 ## Defense in depth
 
 | Layer | Module | Gaming vector it closes |
@@ -220,6 +248,9 @@ seed.py             commit-reveal deterministic seeding
 static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
 sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
 feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
+live_feeds.py       real public-data adapters (CSV/dated), cached fetch, curated REGISTRY, real mixture
+live_demo.py        end-to-end demo on real public feeds (live analogue of demo.py)
+experiments/        runnable experiment notebooks (live_feeds.ipynb) + their builders
 forge_loop.py       the keep/revert autoresearch loop over GeneratorState
 forge_llm.py        OpenRouter-backed forge proposer (the LLM boundary) + fail-safe fallback
 evaluate.py         model-under-test scoring: MASE/WQL/CRPS, leaderboard, headroom check
