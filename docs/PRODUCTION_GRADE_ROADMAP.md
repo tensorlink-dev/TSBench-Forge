@@ -376,6 +376,48 @@ not a competitor to the static suites but the adversarial stress-test they lack.
 
 ---
 
+---
+
+## 7. Implementation status (this branch)
+
+What has been built and tested in-repo (numpy-only, all green via `pytest`), and
+what still needs network / model-weights / a decision and so is scaffolded only.
+
+### Delivered (code + tests)
+- **P1 — context-parroting floor** (`baselines.py`, `score.parrot_gate`,
+  `evaluate.clears_floor` / `FLOOR_BASELINES`, `tests/test_baselines.py`). Parrot
+  is a leaderboard rung and an independent report-only validity gate folded into
+  `foundational_fitness`; submissions must beat seasonal-naive **and** parrot.
+- **P1 — calibration + robust aggregation + significance** (`evaluate.py`:
+  `pce`, `coverage_80`, `wis`; `shifted_gmean`; `normalized_leaderboard`;
+  `evaluate_multiseed`; `friedman_test`; `tests/test_metrics_robust.py`).
+- **P2 — forge robustness** (`forge_loop.py`: `objective` hook +
+  `FOUNDATIONAL_OBJECTIVE`, `evaluate_state` now exposes coverage/parrot/
+  foundational; `score.validate_generalization`; `tests/test_forge_robust.py`).
+- **P3 — DSR dynamics hard tier** (`dsr_metrics.py`: `d_stsp`, `d_h`,
+  `valid_prediction_time`, `max_lyapunov`, `free_run`, `dsr_report`;
+  `tests/test_dsr_metrics.py`).
+- **P0 — contamination-resistance defaults + audit** (`leakage_audit.py`:
+  `default_fresh_buffer` [dedup + as-of], `global_t_now` / `assert_post_cutoff`,
+  `memorization_probe`, `feed_novelty`; `tests/test_leakage_audit.py`). The
+  as-of/dedup machinery in `feeds.py` is now the documented default path.
+
+### Scaffolded — needs resources/decisions not available in-container
+- **Real vendor as-of feed**: `HttpCsvLiveSource` + `AsOfLiveSource` +
+  `default_fresh_buffer` are wired; promoting horizon-forge's 76-source `sources/`
+  catalog + scraper and pointing at live timestamped endpoints is a data-eng task
+  (needs network + credentials).
+- **Real TSFM anchor**: `tsfm_adapters.load_tsfm` + `default_panel(strong_model=)`
+  accept a zero-shot Chronos/TimesFM/Toto unchanged; running weights and
+  validating on external GIFT-Eval/TIME needs torch + checkpoints.
+- **Task grid** (term-scaled horizons), **multivariate** (`MaskedTimeseries` +
+  Granger-verified coupling), **isolated per-model envs**, and **CI** remain on
+  the roadmap above; the metrics/baselines now in place are horizon-parameterised
+  (`context_parrot_for`, `valid_prediction_time(..., lyapunov_time=)`) to make the
+  grid a smaller step.
+
+---
+
 *Sources: repo audits of `/TSBench-Forge`, `/horizon-forge`, `/gift-eval`,
 `/TIME`, `/TempusBench`, `/DynaMix-python`, `/toto` (BOOM); literature —
 arXiv:2410.10393 (GIFT-Eval), 2505.14766 (Toto/BOOM), 2602.12147 (TIME),
