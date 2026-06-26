@@ -214,12 +214,58 @@ def probabilistic_panel() -> dict[str, Forecaster]:
     """The reference panel as probabilistic forecasters (rungs on the leaderboard).
 
     Excludes the ``overfit`` detector (it is anti-gaming machinery, not a model a
-    real submission competes against).
+    real submission competes against), and adds the **context-parroting** floor
+    baseline (``baselines.context_parrot``): a submission that cannot beat trivial
+    nearest-neighbour copying has not demonstrated forecasting skill, so parrot is
+    a rung every real model must clear (Zhang & Gilpin, arXiv:2505.11349).
     """
-    return {
+    from baselines import context_parrot
+
+    panel = {
         name: probabilistic(fn)
         for name, fn in default_panel().items()
         if name != "overfit"
+    }
+    panel["context_parrot"] = probabilistic(context_parrot)
+    return panel
+
+
+# The two mandatory floor baselines: a real submission must beat BOTH to count as
+# demonstrating skill (seasonal-naive = classical floor; context_parrot =
+# repetition floor).
+FLOOR_BASELINES: tuple[str, ...] = ("seasonal_naive", "context_parrot")
+
+
+def clears_floor(
+    candidate: Forecaster,
+    challenges: list,
+    *,
+    primary: str = "mase",
+    seasonality: int = 1,
+) -> dict[str, object]:
+    """Check a model beats both floor baselines (seasonal-naive AND parrot).
+
+    Returns ``{clears, candidate_score, floors, worst_floor}``. ``clears`` is
+    True only if the candidate's ``primary`` metric is strictly below *every*
+    floor baseline's -- the minimum bar for a result to mean anything.
+    """
+    from baselines import context_parrot
+
+    from score import seasonal_naive
+
+    floor_fns = {"seasonal_naive": seasonal_naive, "context_parrot": context_parrot}
+    cand = evaluate_forecaster(candidate, challenges, seasonality=seasonality)[primary]
+    floors = {
+        name: evaluate_forecaster(probabilistic(fn), challenges, seasonality=seasonality)[primary]
+        for name, fn in floor_fns.items()
+    }
+    worst = max(floors, key=floors.get)  # the easiest floor to beat is the lowest
+    clears = all(cand < f for f in floors.values())
+    return {
+        "clears": bool(clears),
+        "candidate_score": float(cand),
+        "floors": {k: float(v) for k, v in floors.items()},
+        "worst_floor": worst,
     }
 
 

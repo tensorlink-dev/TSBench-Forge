@@ -518,6 +518,57 @@ def overfit_gate(strong_err: float, overfit_err: float) -> float:
 
 
 # --------------------------------------------------------------------------- #
+# Parrot gate: the "is this just repetition?" layer
+# --------------------------------------------------------------------------- #
+#
+# ``overfit_gate`` catches *pre-fittable synthetic* structure. A different,
+# orthogonal way a challenge set can fail to measure real skill is if a trivial
+# nearest-neighbour *copy-the-context* forecaster (``baselines.context_parrot``)
+# already does as well as the strong anchor -- then a high score rewards
+# induction-head repetition, not understanding (Zhang & Gilpin, arXiv:2505.11349).
+# This gate mirrors ``overfit_gate`` exactly but uses the parrot's error. It is
+# report-only in ``panel_fitness`` (so the frozen ``fitness`` consensus value is
+# unchanged) and folded into the opt-in ``foundational_fitness``.
+
+
+def parrot_error(challenges: list[Challenge]) -> float:
+    """Mean scale-normalised MAE of the context-parroting baseline."""
+    from baselines import context_parrot  # local import avoids an import cycle
+
+    total = 0.0
+    for ch in challenges:
+        scale = _scale(ch.context)
+        pred = context_parrot(ch.context)
+        total += _mae(pred, ch.truth) / scale
+    return total / max(len(challenges), 1)
+
+
+# Unlike the generator-fitter (a near-oracle expected to trail by ~20%), the
+# parrot is a *legitimate-ish* baseline, so the bar is parity: the gate is 0.5
+# exactly when parrot ties the anchor, collapsing toward 0 when parrot wins and
+# rising toward 1 as the anchor pulls genuinely ahead. The gentler steepness
+# reflects that we are flagging "no real margin over copying", not a sharp cliff.
+PARROT_GATE_THRESHOLD = 1.0
+PARROT_GATE_STEEPNESS = 6.0
+
+
+def parrot_gate(strong_err: float, parrot_err: float) -> float:
+    """Validity multiplier in ``(0, 1)``: ~0 when parroting matches/beats ``strong``.
+
+    Smooth sigmoid of the error ratio ``parrot_err / strong_err`` centred at
+    parity: ``0.5`` when the trivial copy-the-context baseline ties the anchor,
+    ramping toward ``0`` when parrot *wins* (the set is solvable by repetition and
+    rewards no real skill) and toward ``1`` once the anchor clearly beats it. An
+    independent layer from :func:`overfit_gate` -- a set can be non-pre-fittable
+    yet still parrot-solvable (e.g. near-recurrent chaos), and vice versa.
+    """
+    if strong_err <= _EPS:
+        return 0.0
+    ratio = parrot_err / strong_err
+    return float(1.0 / (1.0 + np.exp(-PARROT_GATE_STEEPNESS * (ratio - PARROT_GATE_THRESHOLD))))
+
+
+# --------------------------------------------------------------------------- #
 # Coverage: the foundational-breadth layer
 # --------------------------------------------------------------------------- #
 #
@@ -629,6 +680,7 @@ def panel_fitness(
     cov_gate = float(
         np.clip(float(coverage["effective_domains"]) / DEFAULT_COVERAGE_TARGET, 0.0, 1.0)
     )
+    p_gate = parrot_gate(agg.get("strong", 0.0), parrot_error(challenges))
 
     return {
         "fitness": float(fitness),
@@ -639,6 +691,7 @@ def panel_fitness(
         "errors": agg,
         "coverage": coverage,
         "coverage_gate": cov_gate,
+        "parrot_gate": float(p_gate),
     }
 
 
@@ -689,5 +742,10 @@ def foundational_fitness(
     res = dict(panel_fitness(challenges, panel))
     cov_gate = coverage_gate(challenges, target_effective_domains)
     res["coverage_gate"] = cov_gate
-    res["foundational_fitness"] = float(res["fitness"]) * cov_gate
+    # Fold in the parrot gate too: a foundational benchmark must be broad AND not
+    # solvable by trivial repetition. Both are independent multipliers on the
+    # core fitness, so foundational_fitness only rises when discrimination,
+    # validity, breadth, and non-parrotability all hold at once.
+    p_gate = float(res.get("parrot_gate", 1.0))
+    res["foundational_fitness"] = float(res["fitness"]) * cov_gate * p_gate
     return res
