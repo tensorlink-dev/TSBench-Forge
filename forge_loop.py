@@ -32,8 +32,17 @@ import numpy as np
 from config import N_CHALLENGES, GeneratorState
 from generate import build_challenges
 from ingest import FreshBuffer
-from score import PanelModel, default_panel, panel_fitness
+from score import PanelModel, default_panel, foundational_fitness
 from seed import beacon_seed, manifest_hash, rng_for
+
+# An objective maps an (averaged) evaluate_state metrics dict to the scalar the
+# keep/revert search maximises. The default targets bare ``fitness`` (frozen
+# consensus yardstick); ``FOUNDATIONAL_OBJECTIVE`` targets the breadth- and
+# parrot-gated ``foundational_fitness`` so the forge climbs toward a benchmark
+# that is discriminating, valid, broad, AND not solvable by repetition.
+Objective = Callable[[dict[str, float]], float]
+FITNESS_OBJECTIVE: Objective = lambda m: m["fitness"]  # noqa: E731
+FOUNDATIONAL_OBJECTIVE: Objective = lambda m: m["foundational_fitness"]  # noqa: E731
 
 # Per-knob nudge sizes for the stub proposer. Blend weights take larger steps
 # because they are renormalised (a small raw change barely moves the share).
@@ -142,12 +151,19 @@ def evaluate_state(
     drive keep/revert. Averaging over a small, fixed bank of beacon seeds -- the
     same bank for every state, all run -- yields a stable objective: common random
     numbers turn the search into a clean hill-climb instead of a random walk.
+
+    Returns the averaged scalar metrics, including the breadth-aware
+    ``foundational_fitness`` and its ``coverage_gate`` / ``parrot_gate`` factors,
+    so a forge can target either ``fitness`` or ``foundational_fitness``.
     """
-    keys = ("fitness", "spread", "ordering", "difficulty", "gate")
+    keys = (
+        "fitness", "spread", "ordering", "difficulty", "gate",
+        "coverage_gate", "parrot_gate", "foundational_fitness",
+    )
     acc = {k: 0.0 for k in keys}
     for s in range(n_seeds):
         rng = rng_for(block_hash, 10_000 + s, "forge-eval")
-        res = panel_fitness(build_challenges(state, buffer, rng, n_challenges), panel)
+        res = foundational_fitness(build_challenges(state, buffer, rng, n_challenges), panel)
         for k in keys:
             acc[k] += float(res[k])
     return {k: acc[k] / n_seeds for k in keys}
@@ -162,14 +178,20 @@ def run_forge(
     panel: dict[str, PanelModel] | None = None,
     n_seeds: int = 4,
     proposer: Proposer | None = None,
+    objective: Objective | None = None,
 ) -> tuple[GeneratorState, list[ForgeStep]]:
     """Run the keep/revert forge loop and return ``(final_state, log)``.
 
     Each epoch: propose a one-knob mutation (the LLM boundary) -> assemble
     ``n_challenges`` and score with the reference panel over the fixed seed bank
-    -> KEEP if the candidate's fitness beats the incumbent's, else REVERT. The
-    panel is frozen for the whole run, so the logged fitness is a stable yardstick
-    and the trajectory is monotone non-decreasing.
+    -> KEEP if the candidate's ``objective`` beats the incumbent's, else REVERT.
+    The panel is frozen for the whole run, so the logged metric is a stable
+    yardstick and the trajectory is monotone non-decreasing in the objective.
+
+    ``objective`` defaults to :data:`FITNESS_OBJECTIVE` (bare ``fitness``, the
+    frozen consensus yardstick). Pass :data:`FOUNDATIONAL_OBJECTIVE` to make the
+    forge climb toward breadth- and parrot-gated ``foundational_fitness`` instead,
+    so it cannot settle on a sharp-but-narrow or repetition-solvable benchmark.
 
     ``proposer`` defaults to the deterministic heuristic :func:`propose_mutation`.
     Pass ``forge_llm.make_openrouter_proposer(...)`` to drive the loop with a real
@@ -180,6 +202,7 @@ def run_forge(
     """
     panel = panel or default_panel()
     propose = proposer or propose_mutation
+    obj = objective or FITNESS_OBJECTIVE
     state = init_state.normalized().clamped()
 
     def score(s: GeneratorState) -> dict[str, float]:
@@ -192,7 +215,7 @@ def run_forge(
         candidate, knob = propose(state, log, rng_for(block_hash, epoch, "propose"))
         cand = score(candidate)
 
-        if cand["fitness"] > incumbent["fitness"]:
+        if obj(cand) > obj(incumbent):
             state, incumbent, decision = candidate, cand, "keep"
         else:
             decision = "revert"

@@ -433,6 +433,40 @@ def validate_panel(
     return report
 
 
+def validate_generalization(
+    challenges: list[Challenge],
+    heldout_models: dict[str, PanelModel],
+    panel: dict[str, PanelModel] | None = None,
+    *,
+    min_lead: float = 0.0,
+) -> dict[str, object]:
+    """Check the anchor's lead **generalises to models the forge never optimised against**.
+
+    The forge climbs by making the *frozen* reference panel rank in its expected
+    order, which risks overfitting the challenge distribution to that specific
+    panel: challenges that happen to order these six models correctly without
+    rewarding genuine skill. The defence is a held-out set -- extra forecasters
+    (a real TSFM, other classical baselines, the parrot) that were not part of the
+    forge's objective. If ``strong`` still beats every held-out model on the same
+    challenges, the lead reflects real skill, not panel-overfitting.
+
+    Returns ``{generalizes, strong_error, beaten_by, errors}``. ``beaten_by``
+    lists any held-out model that matches/beats ``strong`` within ``min_lead``.
+    """
+    panel = panel or default_panel()
+    merged = {"strong": panel["strong"]}
+    merged.update({k: v for k, v in heldout_models.items() if k != "strong"})
+    errs = model_errors(challenges, merged)
+    strong_err = errs["strong"]
+    beaten_by = [m for m, e in errs.items() if m != "strong" and e <= strong_err + min_lead]
+    return {
+        "generalizes": len(beaten_by) == 0,
+        "strong_error": float(strong_err),
+        "beaten_by": beaten_by,
+        "errors": errs,
+    }
+
+
 # --------------------------------------------------------------------------- #
 # Metrics
 # --------------------------------------------------------------------------- #
