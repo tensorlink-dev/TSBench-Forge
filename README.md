@@ -83,10 +83,12 @@ held-out score with the forge score as the README's leakage detector.
 | Commit-reveal seed | `seed.py` | precomputing the concrete challenges |
 | Reference-panel fitness | `score.py` | invalid / saturated challenges |
 | Overfit detector | `score.py` | generator-fitting (exploiting synthetic quirks) |
+| Parrot floor | `baselines.py` + `score.parrot_gate` | repetition — a trivial copy-the-context baseline already matching the anchor |
 | Submission static analysis | `static_analysis.py` | hardcoded answers (cheap **pre-filter**) |
 | Sandboxed execution | `sandbox.py` | submissions that phone home, OOM, loop, or persist state — the **real** boundary the linter only pre-screens for |
 | As-of / dedup feed | `feeds.py` | vintage-revision leakage and re-serving a finite feed (memorization) |
-| Anchor validation | `score.validate_panel` | a hollow `strong` anchor silently making the validity gate meaningless |
+| Leakage audit | `leakage_audit.py` | cross-epoch memorization / a stale feed — behavioural probe, feed-novelty meter, global `t_now` barrier |
+| Anchor validation | `score.validate_panel` / `validate_generalization` | a hollow `strong` anchor, or challenges overfit to the one frozen panel |
 | Forge loop | `forge_loop.py` + `forge_llm.py` | benchmark saturation over time (LLM-driven via OpenRouter) |
 
 ## Running the forge with a real LLM (OpenRouter)
@@ -126,8 +128,10 @@ properties keep the LLM consensus-safe and robust:
 The forge keeps the benchmark hard-to-game; `evaluate.py` is the half that
 **scores a model under test**. A forecaster emits a `ProbForecast` (mean +
 quantiles) and is judged on the metrics the TSFM literature uses — **MASE**
-(point accuracy), **WQL** (weighted quantile loss) and **CRPS** (probabilistic) —
-then ranked on a leaderboard against the reference panel.
+(point accuracy), **WQL** (weighted quantile loss) and **CRPS** (probabilistic),
+plus **calibration** as a first-class axis (**PCE**, interval **coverage**,
+**WIS**) because CRPS/WQL conflate calibration with sharpness — then ranked on a
+leaderboard against the reference panel.
 
 ```python
 from evaluate import leaderboard, probabilistic_panel
@@ -138,10 +142,39 @@ for row in leaderboard(models, reveal):   # reveal = the committed challenges
     print(row["rank"], row["model"], row["mase"], row["wql"])
 ```
 
+`probabilistic_panel()` includes the **context-parroting** rung, and
+`evaluate.clears_floor(model, reveal)` enforces the minimum bar: a submission must
+beat **both** seasonal-naive and parrot (`FLOOR_BASELINES`) — a model that cannot
+out-predict trivial copy-the-context has shown no skill (Zhang & Gilpin,
+arXiv:2505.11349). For credible numbers across datasets, `normalized_leaderboard`
+aggregates seasonal-naive-normalised scores by rank + shifted geometric mean
+(GIFT-Eval/BOOM convention), `evaluate_multiseed` reports mean ± std over
+seeds/origins, and `friedman_test` checks whether leaderboard gaps are significant.
+
 `tsfm_adapters.py` ships real Chronos / TimesFM adapters (lazy torch import;
 weights are staged validator-side, outside the submission sandbox). Point-only
 models are lifted to probabilistic via `evaluate.probabilistic`, so a classical
 baseline and a frontier TSFM are scored on the same footing.
+
+### Long-horizon dynamics — the hard tier (`dsr_metrics.py`)
+
+Point metrics saturate to a noise ceiling after ~one Lyapunov time: on a chaotic
+system *every* forecast decorrelates from the truth, so short-horizon error can't
+tell a model that learned the dynamics from one that memorised a plausible
+squiggle. `dsr_metrics.py` scores what stays invariant under the dynamics instead
+(Koppe et al. 2019; Mikhaeil et al. 2022; DynaMix):
+
+- `d_stsp` — **geometric** misalignment (KL between delay-embedded state-space
+  histograms / invariant measures): catches attractor collapse and mean-reversion.
+- `d_h` — **temporal** misalignment (Hellinger between power spectra): catches
+  wrong frequencies and the parroting cyclic-collapse (peaked vs broadband).
+- `valid_prediction_time` (optionally in Lyapunov-time units) and `max_lyapunov`
+  (`|λ_gen − λ_true|` is the sharpest anti-parroting scalar; a periodic collapse
+  has λ ≈ 0). `free_run` rolls a fixed-horizon model out to the thousands of steps
+  these invariant-measure metrics need.
+
+The two misalignments are orthogonal — each alone is gameable, together they are
+hard to fool, and parroting provably loses on them.
 
 **Headroom — the go/no-go.** A benchmark only *certifies* TSFMs if a genuinely
 better model scores measurably better than the classical anchor on it.
@@ -214,6 +247,9 @@ degree these are invested in:
    `AsOfLiveSource` admits only post-commit motifs, `DedupFreshBuffer`
    fingerprints every motif ever served and quarantines near-duplicates across
    epochs, and `HttpCsvLiveSource` is a real adapter to point at a vendor feed.
+   `leakage_audit.default_fresh_buffer` wires dedup + the as-of/`t_now` barrier
+   into the production default; `memorization_probe` and `feed_novelty` then audit
+   whether a model is suspiciously better on seen data, or the feed has gone stale.
 
 3. **Recipe-space size.** The generator must *out-produce saturation*: the space
    of reachable challenges must be large enough that miners cannot cover it. Too
@@ -244,10 +280,11 @@ across worlds," not "good at the one process we test." Breadth therefore has to 
   tension, made visible).
 
 Coverage is **report-first**: `panel_fitness` reports `coverage` / `coverage_gate`
-but does not fold them into the frozen `fitness` (which stays the consensus
-yardstick, comparable across validators within a version). A forge that must climb
-toward breadth *as well as* discrimination targets the opt-in
-`score.foundational_fitness = fitness × coverage_gate` instead.
+and `parrot_gate` but does not fold them into the frozen `fitness` (which stays the
+consensus yardstick, comparable across validators within a version). A forge that
+must climb toward breadth and non-parrotability *as well as* discrimination targets
+the opt-in `score.foundational_fitness = fitness × coverage_gate × parrot_gate`
+instead — pass `forge_loop.FOUNDATIONAL_OBJECTIVE` to `run_forge(objective=...)`.
 
 ## The one accepted trade-off
 
@@ -265,23 +302,27 @@ config.py           GeneratorState (the forge's optimization target) + constants
 ingest.py           LiveSource ABC (domain-tagged), SyntheticLiveSource stand-in, FreshBuffer
 domains.py          multi-domain DGP zoo (dynaprior-inspired) + MixtureLiveSource
 generate.py         primitives, augmentations, Recipe grammar, blend controller
-score.py            reference panel (frozen strong anchor + overfit detector), metrics, coverage, validate_panel
+score.py            reference panel (frozen strong anchor + overfit detector), metrics, coverage, parrot gate, validate_panel/generalization
+baselines.py        context-parroting floor baseline (the repetition floor every model must clear)
 seed.py             commit-reveal deterministic seeding
 static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
 sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
 feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
+leakage_audit.py    contamination-resistant default buffer, global t_now barrier, memorization probe, feed-novelty meter
 live_feeds.py       real public-data adapters (CSV/dated), cached fetch, curated REGISTRY, real mixture
 live_demo.py        end-to-end demo on real public feeds (live analogue of demo.py)
 independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
 independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
 experiments/        runnable experiment notebooks (live_feeds, independent_validation) + their builders
-forge_loop.py       the keep/revert autoresearch loop over GeneratorState
+forge_loop.py       the keep/revert autoresearch loop over GeneratorState (fitness or foundational objective)
 forge_llm.py        OpenRouter-backed forge proposer (the LLM boundary) + fail-safe fallback
-evaluate.py         model-under-test scoring: MASE/WQL/CRPS, leaderboard, headroom check
+evaluate.py         model-under-test scoring: MASE/WQL/CRPS + calibration (PCE/coverage/WIS), floor check, robust aggregation, multi-seed, significance
+dsr_metrics.py      long-horizon dynamics: D_stsp / D_H / valid-prediction-time / Lyapunov + free-running rollout
 tsfm_adapters.py    real Chronos / TimesFM adapters (the actual TSFMs under test)
 program.md          the forge LLM's instructions (what it may/may not change)
 demo.py             runnable end-to-end demo
-tests/              determinism, validity, forge, static-analysis, domains/coverage, llm, sandbox, feeds, anchor
+docs/               PRODUCTION_GRADE_ROADMAP.md — peer-benchmark synthesis + P0–P3 plan and status
+tests/              determinism, validity, forge, static-analysis, domains/coverage, llm, sandbox, feeds, anchor, baselines, robust metrics, DSR, leakage audit
 ```
 
 ## Notes
