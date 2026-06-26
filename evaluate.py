@@ -34,6 +34,7 @@ discriminating power in the range that matters and its scores are not meaningful
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -144,6 +145,18 @@ def _pinball(truth: np.ndarray, pred_q: np.ndarray, q: float) -> np.ndarray:
     return np.maximum(q * diff, (q - 1) * diff)
 
 
+# Central prediction intervals (from the symmetric decile pairs) used by WIS, and
+# the matching alpha = 1 - nominal-coverage of each interval.
+_WIS_PAIRS: tuple[tuple[float, float], ...] = ((0.1, 0.9), (0.2, 0.8), (0.3, 0.7), (0.4, 0.6))
+_WIS_ALPHAS: tuple[float, ...] = tuple(round(1.0 - (hi - lo), 3) for lo, hi in _WIS_PAIRS)
+
+
+def _interval_score(truth: np.ndarray, lo: np.ndarray, hi: np.ndarray, alpha: float) -> np.ndarray:
+    """Elementwise interval score (Gneiting & Raftery) for a central interval."""
+    return (hi - lo) + (2.0 / alpha) * (lo - truth) * (truth < lo) \
+        + (2.0 / alpha) * (truth - hi) * (truth > hi)
+
+
 @dataclass
 class _Accum:
     abs_err: float = 0.0
@@ -152,6 +165,10 @@ class _Accum:
     wql_den: float = 0.0
     crps_sum: float = 0.0
     crps_n: int = 0
+    wis_sum: float = 0.0  # sum of per-challenge mean WIS
+    cov80_sum: float = 0.0  # sum of per-challenge [q10,q90] coverage fraction
+    cov_hits: dict | None = None  # per-quantile-level count of truth <= q (for PCE)
+    cov_total: int = 0  # total (challenge x horizon) points seen
     n: int = 0
 
 
@@ -169,6 +186,7 @@ def evaluate_forecaster(
     dominate by scale.
     """
     acc = _Accum()
+    acc.cov_hits = {q: 0 for q in DEFAULT_QUANTILES}
     for ch in challenges:
         truth = np.asarray(ch.truth, dtype=float)
         meta = getattr(ch, "meta", None)
@@ -182,6 +200,19 @@ def evaluate_forecaster(
         acc.wql_den += denom
         for q in DEFAULT_QUANTILES:
             acc.wql_num += 2.0 * float(np.sum(_pinball(truth, fc.quantiles[q], q)))
+            # Calibration bookkeeping: how often the truth falls at/below level q.
+            acc.cov_hits[q] += int(np.sum(truth <= fc.quantiles[q]))
+        acc.cov_total += truth.size
+
+        # Interval coverage of the nominal-80% band and the Weighted Interval Score.
+        lo10, hi90 = fc.quantiles[0.1], fc.quantiles[0.9]
+        acc.cov80_sum += float(np.mean((truth >= lo10) & (truth <= hi90)))
+        wis = 0.5 * np.abs(truth - fc.quantiles[0.5])
+        for (lo_q, hi_q), alpha in zip(_WIS_PAIRS, _WIS_ALPHAS, strict=True):
+            wis = wis + (alpha / 2.0) * _interval_score(
+                truth, fc.quantiles[lo_q], fc.quantiles[hi_q], alpha
+            )
+        acc.wis_sum += float(np.mean(wis / (len(_WIS_PAIRS) + 0.5)))
 
         # CRPS ~ 2 * mean pinball over a dense quantile grid. The model only emits
         # a coarse decile grid, so we interpolate ITS quantiles onto the dense grid
@@ -196,10 +227,21 @@ def evaluate_forecaster(
         acc.n += 1
 
     n = max(acc.n, 1)
+    # Probabilistic Calibration Error: mean over quantile levels of the gap
+    # between nominal level q and the empirically observed coverage at q. CRPS/WQL
+    # conflate calibration and sharpness (Adler et al., ICLR 2026), so PCE is
+    # reported separately as a dedicated calibration axis.
+    total_pts = max(acc.cov_total, 1)
+    pce = float(
+        np.mean([abs((acc.cov_hits[q] / total_pts) - q) for q in DEFAULT_QUANTILES])
+    )
     return {
         "mase": acc.scaled_n / n,
         "wql": acc.wql_num / (len(DEFAULT_QUANTILES) * max(acc.wql_den, _EPS)),
         "crps": acc.crps_sum / max(acc.crps_n, 1),
+        "wis": acc.wis_sum / n,
+        "pce": pce,
+        "coverage_80": acc.cov80_sum / n,
         "mae": acc.abs_err / n,
         "n": float(acc.n),
     }
@@ -250,7 +292,6 @@ def clears_floor(
     floor baseline's -- the minimum bar for a result to mean anything.
     """
     from baselines import context_parrot
-
     from score import seasonal_naive
 
     floor_fns = {"seasonal_naive": seasonal_naive, "context_parrot": context_parrot}
@@ -332,3 +373,150 @@ def benchmark_has_headroom(
     """
     h = headroom(known_better, challenges, seasonality=seasonality)
     return bool(h["mase_margin"] > min_margin)
+
+
+# --------------------------------------------------------------------------- #
+# Robust aggregation + statistical significance
+# --------------------------------------------------------------------------- #
+
+
+def shifted_gmean(values: list[float] | np.ndarray, shift: float = 1e-5) -> float:
+    """Shifted geometric mean ``exp(mean(log(x + shift))) - shift``.
+
+    The aggregation BOOM / Toto use across heterogeneous datasets: robust to the
+    near-zero, heavy-tailed, zero-inflated scores that wreck an arithmetic mean,
+    while still defined when some values are exactly zero. NaNs are dropped.
+    """
+    x = np.asarray(values, dtype=float)
+    x = x[np.isfinite(x)]
+    if x.size == 0:
+        return float("nan")
+    x = np.clip(x, 0.0, None)
+    return float(np.exp(np.mean(np.log(x + shift))) - shift)
+
+
+def normalized_leaderboard(
+    forecasters: dict[str, Forecaster],
+    challenge_sets: dict[str, list],
+    *,
+    metric: str = "mase",
+    baseline: str = "seasonal_naive",
+    seasonality: int = 1,
+) -> list[dict[str, object]]:
+    """Seasonal-naive-normalised, rank-aggregated leaderboard across datasets.
+
+    The GIFT-Eval / BOOM convention: for each dataset score every model, divide by
+    the ``baseline`` model's score on that dataset (so heterogeneous scales become
+    comparable), then aggregate each model across datasets two ways -- the
+    **shifted geometric mean** of its normalised scores and its **average rank**.
+    Rows are returned sorted by average rank (the more robust headline).
+
+    ``challenge_sets`` maps a dataset name to its challenge list. The ``baseline``
+    forecaster must be present in ``forecasters``.
+    """
+    from score import seasonal_naive
+
+    fns = dict(forecasters)
+    if baseline not in fns:
+        fns[baseline] = probabilistic(seasonal_naive)
+
+    # raw[dataset][model] = metric value
+    raw: dict[str, dict[str, float]] = {}
+    for ds, chs in challenge_sets.items():
+        raw[ds] = {
+            name: evaluate_forecaster(fc, chs, seasonality=seasonality)[metric]
+            for name, fc in fns.items()
+        }
+
+    normed: dict[str, list[float]] = {m: [] for m in fns}
+    ranks: dict[str, list[int]] = {m: [] for m in fns}
+    for scores in raw.values():
+        base = scores.get(baseline, float("nan"))
+        order = sorted(scores, key=lambda m: scores[m])
+        rank_of = {m: i + 1 for i, m in enumerate(order)}
+        for m in fns:
+            denom = base if (np.isfinite(base) and abs(base) > _EPS) else _EPS
+            normed[m].append(scores[m] / denom)
+            ranks[m].append(rank_of[m])
+
+    rows = [
+        {
+            "model": m,
+            f"{metric}_norm_gmean": shifted_gmean(normed[m]),
+            "avg_rank": float(np.mean(ranks[m])),
+            "n_datasets": len(challenge_sets),
+        }
+        for m in fns
+    ]
+    rows.sort(key=lambda r: r["avg_rank"])
+    return rows
+
+
+def evaluate_multiseed(
+    forecaster: Forecaster,
+    challenge_sets: list[list],
+    *,
+    seasonality: int = 1,
+) -> dict[str, object]:
+    """Score a model over several independent challenge sets; report mean +/- std.
+
+    A single sampled set carries real sampling noise, so a credible result reports
+    spread across seeds (Hewamalage et al. 2023). ``challenge_sets`` is one
+    challenge list per seed/origin. Returns per-metric ``{mean, std}`` plus the
+    raw per-seed values.
+    """
+    per_metric: dict[str, list[float]] = {}
+    for chs in challenge_sets:
+        res = evaluate_forecaster(forecaster, chs, seasonality=seasonality)
+        for k, v in res.items():
+            if k == "n":
+                continue
+            per_metric.setdefault(k, []).append(float(v))
+    return {
+        k: {"mean": float(np.mean(v)), "std": float(np.std(v)), "values": v}
+        for k, v in per_metric.items()
+    }
+
+
+def friedman_test(score_matrix: list[list[float]] | np.ndarray) -> dict[str, float]:
+    """Friedman test for differences among k models over n paired blocks.
+
+    ``score_matrix`` is ``n_blocks x k_models`` of an error metric (lower better).
+    Returns the chi-square ``statistic``, degrees of freedom ``df = k-1``, and a
+    ``p_value`` from the chi-square survival function (Wilson-Hilferty
+    approximation, so no scipy dependency). Use it to check whether a leaderboard's
+    differences are real before reading into them.
+    """
+    a = np.asarray(score_matrix, dtype=float)
+    n, k = a.shape
+    if n < 2 or k < 2:
+        return {"statistic": 0.0, "df": float(max(k - 1, 0)), "p_value": 1.0}
+    # Rank within each block (average ranks for ties), lower error -> rank 1.
+    ranks = np.empty_like(a)
+    for i in range(n):
+        order = np.argsort(a[i])
+        r = np.empty(k)
+        r[order] = np.arange(1, k + 1)
+        # average ties
+        row = a[i]
+        for v in np.unique(row):
+            mask = row == v
+            if mask.sum() > 1:
+                r[mask] = r[mask].mean()
+        ranks[i] = r
+    rj = ranks.sum(axis=0)
+    stat = (12.0 / (n * k * (k + 1))) * float(np.sum(rj**2)) - 3.0 * n * (k + 1)
+    df = k - 1
+    return {"statistic": float(stat), "df": float(df), "p_value": _chi2_sf(stat, df)}
+
+
+def _chi2_sf(x: float, df: int) -> float:
+    """Upper-tail chi-square probability via the Wilson-Hilferty approximation."""
+    if x <= 0 or df <= 0:
+        return 1.0
+    t = (x / df) ** (1.0 / 3.0)
+    mean = 1.0 - 2.0 / (9.0 * df)
+    sd = np.sqrt(2.0 / (9.0 * df))
+    z = (t - mean) / sd
+    # standard-normal upper tail
+    return float(0.5 * math.erfc(z / np.sqrt(2.0)))
