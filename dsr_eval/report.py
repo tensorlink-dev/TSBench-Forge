@@ -102,7 +102,6 @@ def summary_markdown(rows: Sequence[dict], *, cfg=None, n_seeds: int | None = No
 
     for system in systems:
         models = sorted(m for s, m in agg if s == system)
-        ref = next(iter(agg[(system, models[0])].values())) if models else None
         lam_true, _ = agg[(system, models[0])]["lyap_true"] if models else (float("nan"), 0.0)
         d_ky, _ = agg[(system, models[0])]["d_ky_ref"] if models else (float("nan"), 0.0)
         title = f"## {system}"
@@ -113,7 +112,6 @@ def summary_markdown(rows: Sequence[dict], *, cfg=None, n_seeds: int | None = No
             cells = [_fmt(*agg[(system, model)][k]) for k, _, _ in _METRICS]
             lines.append(f"| {model} | " + " | ".join(cells) + " |")
         lines.append("")
-        _ = ref  # reference invariants are surfaced in the section title
     return "\n".join(lines)
 
 

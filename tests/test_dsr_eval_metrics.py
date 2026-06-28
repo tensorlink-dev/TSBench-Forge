@@ -89,6 +89,19 @@ def test_d_stsp_gmm_discriminates() -> None:
     assert same < 0.5 * diff
 
 
+def test_d_stsp_uses_shared_tau_from_true_series() -> None:
+    # auto_tau differs wildly between chaotic Lorenz and a clean cycle; the comparison
+    # must embed BOTH with the true series' delay, not a per-argument one.
+    from dsr_metrics import auto_tau
+
+    lor = _lorenz(4000, 11)
+    cycle = np.sin(2 * np.pi * np.arange(4000) / 12)  # collapsed-model output
+    assert auto_tau(lor) != auto_tau(cycle)  # the inconsistency this guards against
+    shared = state_space_divergence(cycle, lor, m=3)
+    explicit = d_stsp(cycle, lor, m=3, tau=auto_tau(lor))
+    assert shared == pytest.approx(explicit, rel=1e-9)
+
+
 def test_state_space_divergence_auto_uses_gmm_in_high_dim() -> None:
     a = _lorenz(4000, 3)
     b = _lorenz(4000, 4)

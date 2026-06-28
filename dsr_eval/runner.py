@@ -63,6 +63,9 @@ class MetricConfig:
     sigma: int = 20
     vpt_threshold: float = 0.4
     ssp_seed: int = 0
+    # Rosenstein fit window for lambda_max(gen). None -> derive ~1 Lyapunov time from
+    # the system (a fixed short window badly overestimates the exponent).
+    lyap_horizon: int | None = None
 
 
 # --------------------------------------------------------------------------- #
@@ -147,7 +150,15 @@ def evaluate_sample(
         bins=cfg.bins, n_components=cfg.n_components, n_mc=cfg.n_mc, seed=cfg.ssp_seed,
     )
     d_h_val = power_spectrum_hellinger(g_cut, t_cut, sigma=cfg.sigma)
-    lyap_gen = max_lyapunov_rate(g_cut, sample.dt, m=cfg.embed_dim, tau=cfg.tau)
+    # Fit the Rosenstein slope over ~1 Lyapunov time (clamped); a fixed short window
+    # overestimates lambda badly. Fall back to the function default when unknown.
+    if cfg.lyap_horizon is not None:
+        lyap_h = cfg.lyap_horizon
+    elif sample.lyapunov_time and sample.dt:
+        lyap_h = int(min(200, max(20, round(sample.lyapunov_time / sample.dt))))
+    else:
+        lyap_h = 50
+    lyap_gen = max_lyapunov_rate(g_cut, sample.dt, m=cfg.embed_dim, tau=cfg.tau, horizon=lyap_h)
     lyap_true = sample.lyap_max_ref
 
     # MASE on the short held-out window, using the model's own forecast length.

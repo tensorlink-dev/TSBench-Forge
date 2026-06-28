@@ -151,7 +151,13 @@ def d_stsp_gmm(
     Monte-Carlo draws. Reliable where a histogram is too sparse (embedding dim > 3).
     Returns ``0`` for a series compared with itself (the two fits are identical) and a
     positive value for a misaligned invariant measure; clamped at 0 to absorb MC noise.
+
+    The delay ``tau`` is resolved from the *true* series and applied to both
+    embeddings, so generated and true live in the same reconstructed state space even
+    when a collapsed model has a very different autocorrelation.
     """
+    if tau is None:
+        tau = auto_tau(true)
     g = delay_embed(generated, m=m, tau=tau)
     t = delay_embed(true, m=m, tau=tau)
     d = min(g.shape[1], t.shape[1])
@@ -185,7 +191,13 @@ def state_space_divergence(
     ``estimator="auto"`` uses the binning KL (``dsr_metrics.d_stsp``) for ``m <= 3``
     and the GMM/Monte-Carlo KL (:func:`d_stsp_gmm`) for higher ``m`` where a histogram
     becomes too sparse. Force one with ``estimator="binning"`` / ``"gmm"``.
+
+    When ``tau`` is ``None`` it is resolved once from the *true* series and applied to
+    both embeddings, so a comparison is always made in a single, shared state space
+    (``dsr_metrics.d_stsp`` would otherwise pick a separate delay per argument).
     """
+    if tau is None:
+        tau = auto_tau(true)
     if estimator == "auto":
         estimator = "binning" if m <= 3 else "gmm"
     if estimator == "binning":
@@ -298,7 +310,7 @@ def max_lyapunov_rate(
     *,
     m: int = 3,
     tau: int | None = None,
-    horizon: int = 20,
+    horizon: int = 50,
     theiler: int = 10,
 ) -> float:
     """Data-driven maximal Lyapunov exponent of a series, per unit *time*.
@@ -307,6 +319,11 @@ def max_lyapunov_rate(
     divides by ``dt`` so the result is in the same units as
     :func:`lyapunov_spectrum`. Positive => chaotic; ~0 => periodic. Approximate
     (intended for ``|lambda_gen - lambda_true|``-style comparison on a model's rollout).
+
+    ``horizon`` is the number of steps the divergence slope is fit over and should span
+    roughly one Lyapunov time; far-too-short windows badly overestimate the exponent
+    (e.g. ``horizon=20`` triples Lorenz's lambda at ``dt=0.01``). The runner derives it
+    from the system's Lyapunov time; the default suits ``dt`` of order ``0.01-0.05``.
     """
     slope = max_lyapunov(x, m=m, tau=tau, horizon=horizon, theiler=theiler)
     return slope / dt if dt else slope
