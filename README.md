@@ -310,7 +310,7 @@ sandbox.py          isolated, resource-limited execution of submissions (the rea
 feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
 leakage_audit.py    contamination-resistant default buffer, global t_now barrier, memorization probe, feed-novelty meter
 live_feeds.py       real public-data adapters (CSV/dated), cached fetch, curated REGISTRY, real mixture
-daily_feeds.py      daily-updated JSON-API adapters (path engine + DatedJsonFeed), curated DAILY_REGISTRY, daily mixture
+daily_feeds.py      daily-updated public-source adapters (JSON path engine, JSON/CSV/text/panel feeds), curated DAILY_REGISTRY, daily mixture
 live_demo.py        end-to-end demo on real public feeds (live analogue of demo.py)
 independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
 independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
