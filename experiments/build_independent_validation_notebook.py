@@ -52,8 +52,9 @@ and network on first run (feeds are then cached).
 
 code(r"""
 import sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..")))
-sys.path.insert(0, os.path.abspath(os.getcwd()))
+# tsbench-forge modules live in src/; make them importable from repo root or experiments/.
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..", "src")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "src")))
 
 %matplotlib inline
 import numpy as np

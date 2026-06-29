@@ -25,8 +25,8 @@ dysts = ["dysts>=0.5"]
 notebook = ["matplotlib>=3.7", "jupyter>=1.0"]
 
 [tool.pytest.ini_options]
-# Flat module layout: put the repo root on sys.path so tests can `import config`.
-pythonpath = ["."]
+# src layout: put src/ on sys.path so tests can `import config`, `import dsr_eval`.
+pythonpath = ["src"]
 testpaths = ["tests"]
 
 [tool.ruff]
@@ -34,7 +34,7 @@ line-length = 100
 target-version = "py311"
 # The walkthrough notebooks use notebook-idiomatic style (semicolons, top-level
 # plotting); lint the library, not the walkthroughs or their builders.
-extend-exclude = ["*.ipynb", "_build_notebook.py", "experiments/build_*_notebook.py"]
+extend-exclude = ["*.ipynb", "src/_build_notebook.py", "experiments/build_*_notebook.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
