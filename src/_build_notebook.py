@@ -37,6 +37,14 @@ the deterministic heuristic fallback.)
 """)
 
 code(r"""
+import os, sys
+# Make the tsbench-forge modules importable whether this runs from the repo
+# root or from notebooks/ (the modules live in src/).
+for _p in ("src", os.path.join("..", "src")):
+    if os.path.isdir(_p):
+        sys.path.insert(0, os.path.abspath(_p))
+        break
+
 %matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
@@ -287,5 +295,8 @@ nb = new_notebook(cells=cells, metadata={
     "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
     "language_info": {"name": "python"},
 })
-nbf.write(nb, "example.ipynb")
-print(f"wrote example.ipynb with {len(cells)} cells")
+import os
+
+_out = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "notebooks", "example.ipynb")
+nbf.write(nb, _out)
+print(f"wrote {_out} with {len(cells)} cells")

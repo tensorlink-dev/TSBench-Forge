@@ -10,12 +10,12 @@ an **independent** layer, so beating the benchmark requires defeating all of the
 at once — which collapses into "actually be a good forecaster."
 
 ```
-python demo.py        # end-to-end, numpy only: forge climb + static analysis
+python src/demo.py    # end-to-end, numpy only: forge climb + static analysis
 pytest                # determinism / validity / forge / static-analysis tests
 ruff check .
 ```
 
-For a guided, visual tour, open **`example.ipynb`** (`pip install -e ".[notebook]"`)
+For a guided, visual tour, open **`notebooks/example.ipynb`** (`pip install -e ".[notebook]"`)
 — it walks the whole pipeline with plots: the forge climbing, commit-reveal,
 panel validity, the MASE/WQL/CRPS leaderboard, the headroom check, and sandboxed
 submissions.
@@ -27,7 +27,7 @@ pipeline on genuinely real public series (climate, solar activity, atmospheric
 CO₂, equities, weather):
 
 ```
-python live_demo.py     # forge + leaderboard + headroom on real feeds (caches pulls)
+python src/live_demo.py # forge + leaderboard + headroom on real feeds (caches pulls)
 ```
 
 ```python
@@ -57,7 +57,7 @@ external benchmark the forge never touches** (commodity / transport / demography
 then promotes the validated anchor and re-checks `validate_panel`.
 
 ```
-python independent_validation.py    # resolves the best anchor available, validates it
+python src/independent_validation.py    # resolves the best anchor available, validates it
 ```
 
 `resolve_anchor()` returns the strongest anchor this environment can actually run —
@@ -101,7 +101,7 @@ dependency). Enable it with an API key:
 ```bash
 export OPENROUTER_API_KEY=sk-or-...
 export OPENROUTER_MODEL=anthropic/claude-opus-4.8   # default; any OpenRouter model
-python demo.py                                      # forge now climbs via the LLM
+python src/demo.py                                  # forge now climbs via the LLM
 ```
 
 ```python
@@ -297,33 +297,39 @@ faster than the forged one, something is leaking.
 
 ## Repo layout
 
+All the importable modules live under `src/` (a standard src layout; `pyproject.toml`
+puts `src/` on the path so `import config`, `import dsr_eval`, … just work).
+
 ```
-config.py           GeneratorState (the forge's optimization target) + constants
-ingest.py           LiveSource ABC (domain-tagged), SyntheticLiveSource stand-in, FreshBuffer
-domains.py          multi-domain DGP zoo (dynaprior-inspired) + MixtureLiveSource
-generate.py         primitives, augmentations, Recipe grammar, blend controller
-score.py            reference panel (frozen strong anchor + overfit detector), metrics, coverage, parrot gate, validate_panel/generalization
-baselines.py        context-parroting floor baseline (the repetition floor every model must clear)
-seed.py             commit-reveal deterministic seeding
-static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
-sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
-feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
-leakage_audit.py    contamination-resistant default buffer, global t_now barrier, memorization probe, feed-novelty meter
-live_feeds.py       real public-data adapters (CSV/dated), cached fetch, curated REGISTRY, real mixture
-daily_feeds.py      daily-updated public-source adapters (JSON path engine, JSON/CSV/text/panel feeds), curated DAILY_REGISTRY, daily mixture
-live_demo.py        end-to-end demo on real public feeds (live analogue of demo.py)
-independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
-independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
-experiments/        runnable experiment notebooks (live_feeds, independent_validation) + their builders
-forge_loop.py       the keep/revert autoresearch loop over GeneratorState (fitness or foundational objective)
-forge_llm.py        OpenRouter-backed forge proposer (the LLM boundary) + fail-safe fallback
-evaluate.py         model-under-test scoring: MASE/WQL/CRPS + calibration (PCE/coverage/WIS), floor check, robust aggregation, multi-seed, significance
-dsr_metrics.py      long-horizon dynamics: D_stsp / D_H / valid-prediction-time / Lyapunov + free-running rollout
-tsfm_adapters.py    real Chronos / TimesFM adapters (the actual TSFMs under test)
-program.md          the forge LLM's instructions (what it may/may not change)
-demo.py             runnable end-to-end demo
-docs/               PRODUCTION_GRADE_ROADMAP.md — peer-benchmark synthesis + P0–P3 plan and status
-tests/              determinism, validity, forge, static-analysis, domains/coverage, llm, sandbox, feeds, anchor, baselines, robust metrics, DSR, leakage audit
+src/
+  config.py           GeneratorState (the forge's optimization target) + constants
+  ingest.py           LiveSource ABC (domain-tagged), SyntheticLiveSource stand-in, FreshBuffer
+  domains.py          multi-domain DGP zoo (dynaprior-inspired) + MixtureLiveSource
+  generate.py         primitives, augmentations, Recipe grammar, blend controller
+  score.py            reference panel (frozen strong anchor + overfit detector), metrics, coverage, parrot gate, validate_panel/generalization
+  baselines.py        context-parroting floor baseline (the repetition floor every model must clear)
+  seed.py             commit-reveal deterministic seeding
+  static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
+  sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
+  feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
+  leakage_audit.py    contamination-resistant default buffer, global t_now barrier, memorization probe, feed-novelty meter
+  live_feeds.py       real public-data adapters (CSV/dated), cached fetch, curated REGISTRY, real mixture
+  daily_feeds.py      daily-updated public-source adapters (JSON path engine, JSON/CSV/text/panel feeds), curated DAILY_REGISTRY, daily mixture
+  live_demo.py        end-to-end demo on real public feeds (live analogue of demo.py)
+  independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
+  independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
+  forge_loop.py       the keep/revert autoresearch loop over GeneratorState (fitness or foundational objective)
+  forge_llm.py        OpenRouter-backed forge proposer (the LLM boundary) + fail-safe fallback
+  evaluate.py         model-under-test scoring: MASE/WQL/CRPS + calibration (PCE/coverage/WIS), floor check, robust aggregation, multi-seed, significance
+  dsr_metrics.py      long-horizon dynamics: D_stsp / D_H / valid-prediction-time / Lyapunov + free-running rollout
+  tsfm_adapters.py    real Chronos / TimesFM adapters (the actual TSFMs under test)
+  dsr_eval/           dynamical-systems (DSR) eval package: systems zoo, datasets, metrics, runner, report
+  program.md          the forge LLM's instructions (what it may/may not change)
+  demo.py             runnable end-to-end demo
+notebooks/            example.ipynb — full guided walkthrough with plots
+experiments/          runnable experiment notebooks (live_feeds, independent_validation) + their builders
+docs/                 PRODUCTION_GRADE_ROADMAP.md — peer-benchmark synthesis + P0–P3 plan and status
+tests/                determinism, validity, forge, static-analysis, domains/coverage, llm, sandbox, feeds, anchor, baselines, robust metrics, DSR, leakage audit
 ```
 
 ## Notes

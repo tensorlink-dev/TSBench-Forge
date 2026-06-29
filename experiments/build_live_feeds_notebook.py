@@ -50,9 +50,10 @@ so reruns are offline). If a host is blocked, the feed build raises — set
 
 code(r"""
 import sys, os
-# Make the repo root importable whether this runs from repo root or experiments/.
-sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..")))
-sys.path.insert(0, os.path.abspath(os.getcwd()))
+# Make the tsbench-forge modules (in src/) importable whether this runs from
+# the repo root or from experiments/.
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..", "src")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "src")))
 
 %matplotlib inline
 import numpy as np

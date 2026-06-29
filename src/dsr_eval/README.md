@@ -46,11 +46,12 @@ baseline works with no per-model code.
 ## Usage
 
 ```sh
-# CLI (defaults to the classical panel baselines so it runs with no torch):
-python -m dsr_eval --models seasonal_naive context_parrot --systems lorenz rossler \
+# CLI (defaults to the classical panel baselines so it runs with no torch).
+# Modules live under src/, so put it on the path (run from the repo root):
+PYTHONPATH=src python -m dsr_eval --models seasonal_naive context_parrot --systems lorenz rossler \
     --seeds 5 --long-len 10000 --out-dir dsr_results
 # put a real TSFM under test (install the extra + stage weights):
-python -m dsr_eval --models chronos --systems lorenz rossler
+PYTHONPATH=src python -m dsr_eval --models chronos --systems lorenz rossler
 ```
 
 ```python
