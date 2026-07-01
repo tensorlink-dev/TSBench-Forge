@@ -764,22 +764,94 @@ def foundational_fitness(
     challenges: list[Challenge],
     panel: dict[str, PanelModel] | None = None,
     target_effective_domains: float = DEFAULT_COVERAGE_TARGET,
+    dgp_classes: list[str | None] | None = None,
+    cadences: list[str | None] | None = None,
+    breadth_min_share: float = 0.02,
 ) -> dict[str, object]:
-    """Coverage-gated objective: ``foundational_fitness = fitness * coverage_gate``.
+    """Coverage-gated objective: ``foundational_fitness = fitness * coverage_gate * parrot_gate * dgp_class_breadth_gate * cadence_breadth_gate``.
 
     The opt-in breadth-aware score. Identical to :func:`panel_fitness` but adds
     ``foundational_fitness``, which a forge can target instead of bare ``fitness``
     when it must climb toward *both* discrimination/validity **and** domain
     coverage. Kept separate so the core ``fitness`` (frozen within a benchmark
     version for consensus) is never silently redefined.
+
+    Reward-hacking defense: the ``dgp_classes`` and ``cadences`` optional args
+    (fed from ``buffer.pool_dgp_classes`` / ``buffer.pool_cadences``) enable
+    two additional multiplicative gates that hard-veto any state where a DGP
+    class or cadence band drops below ``breadth_min_share``. When both args are
+    ``None`` (legacy call site, no `ScrapedLiveSource` wired up) the gates
+    default to 1.0 — old behavior preserved. See ``docs/REWARD_HACKING.md``.
     """
     res = dict(panel_fitness(challenges, panel))
     cov_gate = coverage_gate(challenges, target_effective_domains)
     res["coverage_gate"] = cov_gate
-    # Fold in the parrot gate too: a foundational benchmark must be broad AND not
-    # solvable by trivial repetition. Both are independent multipliers on the
-    # core fitness, so foundational_fitness only rises when discrimination,
-    # validity, breadth, and non-parrotability all hold at once.
     p_gate = float(res.get("parrot_gate", 1.0))
-    res["foundational_fitness"] = float(res["fitness"]) * cov_gate * p_gate
+
+    # Hard-veto breadth gates: any class or band below `breadth_min_share` → 0.
+    dgp_gate = dgp_class_breadth_gate(dgp_classes, breadth_min_share) if dgp_classes else 1.0
+    cadence_gate = cadence_breadth_gate(cadences, breadth_min_share) if cadences else 1.0
+    res["dgp_class_breadth_gate"] = dgp_gate
+    res["cadence_breadth_gate"] = cadence_gate
+
+    # All gates multiply into the aggregate — any one going to zero forces the
+    # aggregate to zero, so the LLM forge cannot trade off discrimination
+    # against generalisation breadth or cadence coverage.
+    res["foundational_fitness"] = (
+        float(res["fitness"]) * cov_gate * p_gate * dgp_gate * cadence_gate
+    )
     return res
+
+
+# ---------------------------------------------------------------------------
+# Reward-hacking defense: DGP-class and cadence breadth gates
+# ---------------------------------------------------------------------------
+
+
+def _min_share(labels: list[str | None]) -> float:
+    """Smallest share (0-1) of any non-``None`` label; 1.0 for an empty list."""
+    labels = [l for l in labels if l is not None]
+    if not labels:
+        return 1.0
+    counts: dict[str, int] = {}
+    for l in labels:
+        counts[l] = counts.get(l, 0) + 1
+    total = float(len(labels))
+    return min(counts.values()) / total
+
+
+def dgp_class_breadth_gate(
+    dgp_classes: list[str | None] | None,
+    min_share: float = 0.02,
+) -> float:
+    """Hard veto: 0.0 if any DGP class has share below ``min_share``, else 1.0.
+
+    Feed with ``buffer.pool_dgp_classes``. Kills the "domain collapse" reward-
+    hacking corner where the LLM's search silently narrows the pool to a
+    single (or a handful of) DGP class(es). Multiplies into ``foundational_fitness``.
+
+    If ``dgp_classes`` is ``None`` or all entries are ``None`` (no tagged
+    labels — a legacy source is in use), returns 1.0 so old behavior is
+    preserved. That means the gate is opt-in: it activates only when a
+    ``ScrapedLiveSource`` (or another labeled source) is in the FreshBuffer.
+    """
+    if not dgp_classes:
+        return 1.0
+    share = _min_share(dgp_classes)
+    return 1.0 if share >= min_share else 0.0
+
+
+def cadence_breadth_gate(
+    cadences: list[str | None] | None,
+    min_share: float = 0.02,
+) -> float:
+    """Hard veto: 0.0 if any cadence band has share below ``min_share``, else 1.0.
+
+    Feed with ``buffer.pool_cadences``. Kills the "cadence collapse" reward-
+    hacking corner (e.g. drift toward all-minute-cadence blends that drop the
+    yearly/monthly generalisation claim).
+    """
+    if not cadences:
+        return 1.0
+    share = _min_share(cadences)
+    return 1.0 if share >= min_share else 0.0
