@@ -32,8 +32,8 @@ import numpy as np
 from ingest import LiveSource, MotifMeta
 
 
-# Coarse cadence bands — same partition as `pool_sampler.FREQ_BAND` and the
-# reward-hacking-defense breadth gates in score.py.
+# Coarse cadence bands — the partition the reward-hacking-defense breadth gates
+# in score.py read off each motif's cadence label.
 FREQ_BAND: dict[str, str] = {
     "PT30S": "sub-min", "PT1M": "sub-min", "PT2M30S": "sub-min",
     "PT5M": "few-min", "PT6M": "few-min", "PT10M": "few-min", "PT15M": "few-min",

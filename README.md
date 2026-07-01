@@ -233,7 +233,6 @@ src/
   leakage_audit.py    contamination-resistant default buffer, t_now barrier, memorization probe, feed-novelty meter
   live_feeds.py       curated real public-data adapters (CSV/dated), cached fetch, real mixture
   daily_feeds.py      daily-updated public-source adapters (JSON path engine), curated registry
-  pool_sampler.py     equal-weight-per-domain-per-DGP-class eval-pool sampler + generalization gap
   independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
   independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
   evaluate.py         model-under-test scoring: MASE/WQL/CRPS + calibration, floor check, robust aggregation, significance

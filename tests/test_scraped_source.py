@@ -5,7 +5,7 @@ scraper run). Verifies:
   - Motifs get pulled with the expected shape and length
   - Each MotifMeta carries domain + dgp_class + cadence + source_id from the catalog
   - Equal-weight sampling doesn't over-represent nature just because it has
-    more sources in the fixture (the very property that motivated pool_sampler)
+    more sources in the fixture (the equal-weight-per-domain-per-class property)
 """
 from __future__ import annotations
 

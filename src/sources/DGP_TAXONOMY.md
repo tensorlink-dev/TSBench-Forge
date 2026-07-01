@@ -134,9 +134,9 @@ Before adding a new source, ask:
 
 ## What the eval-pool builder does with this tag
 
-`pool_sampler.py` (Priority 5) uses `dgp_class` to sample equal-weight per class
-per epoch. So a domain with 6 sources of 3 DGP classes contributes at the class
-level, not source level. This prevents the "20 weather stations = 20 nature
+`scraped_source.ScrapedLiveSource` uses `dgp_class` to sample equal-weight per
+class per epoch. So a domain with 6 sources of 3 DGP classes contributes at the
+class level, not source level. This prevents the "20 weather stations = 20 nature
 votes" trap identified in the coverage skew review.
 
 ## Backfilling existing sources
