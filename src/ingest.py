@@ -35,8 +35,29 @@ served) so a finite feed cannot be memorised across epochs.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 import numpy as np
+
+
+@dataclass(frozen=True)
+class MotifMeta:
+    """Rich metadata for one motif in the freshness pool.
+
+    ``domain`` is the coarse tag every source has emitted since the beginning
+    (kept for backward compatibility with the ``(motif, domain)`` tuples that
+    ``generate.py`` unpacks). ``dgp_class`` and ``cadence`` are new fields added
+    for the reward-hacking-defense breadth gates in ``score.py`` — a
+    ``ScrapedLiveSource`` fills them from ``sources.yaml``; legacy sources
+    default them to ``None``, in which case the breadth gates degrade to a
+    coverage-by-domain fallback.
+    """
+
+    motif: np.ndarray
+    domain: str
+    dgp_class: str | None = None
+    cadence: str | None = None
+    source_id: str | None = None
 
 
 class LiveSource(ABC):
@@ -75,6 +96,23 @@ class LiveSource(ABC):
         :meth:`pull` keeps single-domain adapters a one-method implementation.
         """
         return [(motif, self.domain) for motif in self.pull(n, length, rng)]
+
+    def pull_meta(
+        self, n: int, length: int, rng: np.random.Generator
+    ) -> list[MotifMeta]:
+        """Rich labeled pull returning ``MotifMeta`` records.
+
+        The default wraps :meth:`pull_labeled` and leaves ``dgp_class`` /
+        ``cadence`` as ``None``. A concrete adapter (e.g. ``ScrapedLiveSource``)
+        that has access to the source catalog should override this to fill
+        those fields — the reward-hacking-defense breadth gates in ``score.py``
+        need them to be non-``None`` to enforce the DGP-class-share and
+        cadence-band-share floors.
+        """
+        return [
+            MotifMeta(motif=motif, domain=domain)
+            for motif, domain in self.pull_labeled(n, length, rng)
+        ]
 
 
 class SyntheticLiveSource(LiveSource):
@@ -131,6 +169,7 @@ class FreshBuffer:
         self.pool_size = pool_size
         self.motif_len = motif_len
         self._pool: list[tuple[np.ndarray, str]] = []
+        self._pool_meta: list[MotifMeta] = []
 
     def refresh(self, rng: np.random.Generator) -> None:
         """Repopulate the pool. Seeded so all validators hold the same pool.
@@ -138,7 +177,11 @@ class FreshBuffer:
         Stores each motif with its ``domain`` label so sampled windows inherit
         the data-generating process they came from.
         """
-        self._pool = self.source.pull_labeled(self.pool_size, self.motif_len, rng)
+        meta = self.source.pull_meta(self.pool_size, self.motif_len, rng)
+        self._pool_meta = meta
+        # Legacy (motif, domain) tuple pool, kept for backward compat with
+        # generate.py's `motif, domain = buffer.sample_labeled(...)` destructuring.
+        self._pool = [(m.motif, m.domain) for m in meta]
 
     def ensure(self, rng: np.random.Generator) -> None:
         """Populate the pool once if it is empty."""
@@ -149,6 +192,20 @@ class FreshBuffer:
     def pool_domains(self) -> list[str]:
         """The domain label of every motif currently pooled (diagnostics/tests)."""
         return [domain for _, domain in self._pool]
+
+    @property
+    def pool_dgp_classes(self) -> list[str | None]:
+        """The dgp_class of every motif currently pooled (fills ``None`` for
+        legacy sources that don't tag it). Used by the reward-hacking-defense
+        breadth gates in ``score.py``."""
+        return [m.dgp_class for m in self._pool_meta]
+
+    @property
+    def pool_cadences(self) -> list[str | None]:
+        """The cadence band of every motif currently pooled (fills ``None`` for
+        legacy sources that don't tag it). Used by the cadence-breadth reward-
+        hacking-defense gate."""
+        return [m.cadence for m in self._pool_meta]
 
     def sample_labeled(
         self, k: int, length: int, rng: np.random.Generator
