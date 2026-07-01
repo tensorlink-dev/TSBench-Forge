@@ -14,11 +14,8 @@ almost all of the vetting is **automatic**:
 
 A human is in the loop only where one is genuinely required — licensing / legal
 sign-off for paywalled or contract sources. The agent never touches a forecast or
-a score.
-
-This is the *opposite* of the removed forge: not a bounded optimizer in the
-consensus path, but an offline discovery step — vetted automatically by code —
-where a non-deterministic model is exactly the right tool.
+a score, so a non-deterministic model is exactly the right tool for the
+open-ended discovery job and its output is safe to vet automatically.
 """
 
 from . import config, coverage, llm, quality, runner, vet

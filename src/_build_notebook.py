@@ -19,11 +19,11 @@ def code(src: str) -> None:
 md(r"""
 # tsbench-forge — a guided walkthrough
 
-`tsbench-forge` is a **continuous, hard-to-game benchmark for time-series
-foundation models (TSFMs)** built on **real public data only**. There is no
-synthetic generator and no self-improving forge: the distribution the benchmark
-tests is exactly the distribution of the ingested feeds (climate, energy,
-markets, transport, …), drawn from the live catalog under `src/sources/`.
+`tsbench-forge` is a **hard-to-game benchmark for time-series foundation models
+(TSFMs)** built on **real public data only**. The distribution the benchmark tests
+is exactly the distribution of the ingested feeds (climate, energy, markets,
+transport, …), drawn from the live catalog under `src/sources/` — there is no
+synthetic generation.
 
 Two halves work together:
 

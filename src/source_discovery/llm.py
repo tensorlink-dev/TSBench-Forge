@@ -1,8 +1,8 @@
 """The LLM boundary for source discovery — where the agent actually runs.
 
-Unlike the removed forge, this LLM call is **not** in the benchmark's scoring or
-consensus path. It runs offline, its output is a candidate list that deterministic
-code (``vet.py``) and a human review before anything is scraped, and it never
+This LLM call is **not** in the benchmark's scoring or consensus path. It runs
+offline, its output is a candidate list that deterministic code (``vet.py`` then
+``quality.py``) vets automatically before anything enters rotation, and it never
 touches a forecast or a score. So it needs none of the determinism machinery a
 consensus component would: a non-deterministic model is exactly right for
 open-ended discovery.

@@ -10,12 +10,10 @@ Its output is a candidate list, never a decision — and the vetting is
 only where one is genuinely required: licensing / legal sign-off for paywalled or
 contract sources. The agent never scores a model and never touches a forecast.
 
-> **How this differs from the removed forge.** The forge was an LLM wedged into
-> the benchmark's *scoring/consensus path*, optimizing a handful of bounded
-> scalars — a job a classical optimizer does exactly, so it was removed. This is
-> the opposite: an *offline*, automatically-vetted *discovery* step, where a
-> non-deterministic model is precisely the right tool and nothing it emits reaches
-> a score or requires validator consensus.
+> **Why an LLM here is safe.** This is an *offline*, automatically-vetted
+> *discovery* step: nothing the model emits reaches a score or requires validator
+> consensus, so a non-deterministic model is precisely the right tool for the
+> open-ended judgement the task needs.
 
 ## The loop
 

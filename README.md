@@ -207,20 +207,6 @@ across worlds." Breadth is **measured**, not assumed:
 - `score.stratified_fitness` scores each domain separately, so validity and
   discrimination are read per-DGP instead of hidden in one average.
 
-## What this benchmark deliberately does *not* have
-
-Earlier versions drove the benchmark with a **self-improving "forge"**: an LLM ran
-a keep/revert autosearch loop over a synthetic data generator to keep the benchmark
-hard to game. That machinery — the LLM/OpenRouter proposer, the search loop, the
-synthetic generator and its generator-fitting detector — has been **removed**. The
-search space it explored was a handful of bounded scalars a classical optimizer
-covers exactly, and the robustness that matters for a *general-purpose* TSFM
-benchmark comes from the **real data + validity/breadth gates + freshness
-discipline**, not from an evolving synthetic generator. Removing it makes the
-benchmark simpler, fully deterministic, and free of a non-deterministic boundary —
-at the cost of the "moving target over epochs" property, which real, continually
-refreshed data provides on its own.
-
 ## Repo layout
 
 ```

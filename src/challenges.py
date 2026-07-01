@@ -2,9 +2,9 @@
 
 The benchmark forecasts **real series**. A challenge is a window of a genuinely
 real motif (climate, energy, markets, transport, …) drawn from the live catalog,
-split into an observed ``context`` and a held-out ``truth`` horizon. There is no
-synthetic generator, no blend controller, and no forge: the distribution the
-benchmark tests is exactly the distribution of the ingested feeds.
+split into an observed ``context`` and a held-out ``truth`` horizon. The
+distribution the benchmark tests is exactly the distribution of the ingested feeds
+— there is no synthetic generation.
 
 Anti-gaming role
 ----------------

@@ -17,11 +17,8 @@ gating (`feeds.py`, `leakage_audit.py`), commit-reveal seeding (`seed.py`), and 
 stack of multiplicative validity gates in `score.py` (panel-validity + parrot +
 coverage + DGP-class/cadence breadth) make it the only design here that treats
 "a high score must mean genuine forecasting skill" as a *property to be enforced*,
-not hoped for. (There was once a self-improving synthetic *forge* — an LLM
-autosearch over a data generator — but it is gone: no synthetic DGP means no
-generator to reverse-engineer, and the generator-fitting detector it needed is
-deleted with it. Anti-gaming now rests on the real-data freshness discipline plus
-the surviving gates.)
+not hoped for. Anti-gaming rests on the real-data freshness discipline plus the
+validity / parrot / coverage / breadth gates.
 
 Everyone else is a static (or lightly-refreshed) dataset suite; we are a
 *refreshing, live* one. That is our moat. But a moat is not a paper. To be
@@ -219,9 +216,8 @@ Contamination resistance now rests entirely on the **real-data freshness
 discipline**: commit-reveal seeding + as-of / vintage gating + cross-epoch dedup
 (`feeds.py`, `leakage_audit.py`) mean only *post-commit* live data is ever scored,
 and `leakage_audit.global_t_now` implements the R2 barrier
-(`t_now = max(model cutoffs)`). This is a *stronger* story than the old synthetic
-forge gave us — it is real data that provably could not have been in a
-pretraining corpus, not held-by-construction synthetic. Action items: (a) point
+(`t_now = max(model cutoffs)`). This is a strong anti-contamination story: real
+data that provably could not have been in a pretraining corpus. Action items: (a) point
 `AsOfLiveSource` / `HttpCsvLiveSource` at real vendor-timestamped endpoints so the
 barrier binds on live vintages; (b) keep the leakage/contamination *audit*
 (`leakage_audit.memorization_probe` / `feed_novelty`, TSFMAudit-style) as a
@@ -420,8 +416,7 @@ what still needs network / model-weights / a decision and so is scaffolded only.
   `scraped_source.ScrapedLiveSource`, `score.foundational_fitness` folding in
   coverage / parrot / DGP-class / cadence breadth gates, `score.validate_generalization`;
   `tests/test_reward_hacking.py`, `tests/test_scraped_source.py`, `tests/test_coverage.py`).
-  The synthetic forge (LLM autosearch over a data generator) and its
-  generator-fitting detector are **deleted**; there is no synthetic DGP to reverse-engineer.
+  The benchmark forecasts real data only — there is no synthetic DGP to reverse-engineer.
 - **P3 — DSR dynamics hard tier** (`dsr_metrics.py`: `d_stsp`, `d_h`,
   `valid_prediction_time`, `max_lyapunov`, `free_run`, `dsr_report`;
   `tests/test_dsr_metrics.py`).

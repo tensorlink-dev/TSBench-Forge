@@ -2,9 +2,9 @@
 
 The benchmark forecasts **real data only**. Challenges are windows of genuinely
 real series drawn from a scraped live catalog (`ScrapedLiveSource` over
-`src/sources/`) and assembled by `challenges.build_live_challenges`. There is no
-synthetic generator, no blend controller, and no LLM forge loop: the distribution
-the benchmark tests is exactly the distribution of the ingested feeds.
+`src/sources/`) and assembled by `challenges.build_live_challenges`. The
+distribution the benchmark tests is exactly the distribution of the ingested feeds
+— there is no synthetic generation.
 
 A challenge pool earns credit as a benchmark through
 

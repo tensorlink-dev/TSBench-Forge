@@ -8,8 +8,8 @@ that build them.
 The real-data walkthrough: the full commit-reveal → panel → MASE/WQL/CRPS
 leaderboard → headroom → breadth pipeline run on **real public series** (climate,
 solar, atmospheric CO₂, equities, weather) via `live_feeds.py`. Challenges are
-assembled with `build_live_challenges` over the live buffer — no synthetic
-generator, no forge.
+assembled with `build_live_challenges` over the live buffer — real data only, no
+synthetic generation.
 
 ```bash
 pip install -e ".[notebook]"                       # matplotlib + jupyter
