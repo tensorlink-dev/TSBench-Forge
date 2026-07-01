@@ -13,7 +13,7 @@ contract sources. The agent never scores a model and never touches a forecast.
 > **How this differs from the removed forge.** The forge was an LLM wedged into
 > the benchmark's *scoring/consensus path*, optimizing a handful of bounded
 > scalars — a job a classical optimizer does exactly, so it was removed. This is
-> the opposite: an *offline*, human-vetted *discovery* step, where a
+> the opposite: an *offline*, automatically-vetted *discovery* step, where a
 > non-deterministic model is precisely the right tool and nothing it emits reaches
 > a score or requires validator consensus.
 

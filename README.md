@@ -186,9 +186,12 @@ these are invested in:
    the cron scrapes daily; today ~29 sources have enough history for the live path,
    with the rest maturing over time. The **`source_discovery`** agent
    (`python -m source_discovery`) keeps this pool diverse and uncontaminated: it
-   maps coverage gaps, then an LLM proposes concrete new sources that deterministic
-   code vets (contamination denylist, dedup, schema) before a human adds them —
-   an offline, human-vetted curation step, never in the scoring path.
+   maps coverage gaps, an LLM proposes concrete new sources, and two deterministic
+   stages vet them **automatically** — metadata pre-filters (contamination
+   denylist, dedup, schema) before fetching, then a data-quality gate on the
+   fetched series (finite/variance/flatline checks + a discrimination filter that
+   rejects pure noise and trivially-periodic series). A human is involved only for
+   licensing sign-off; the agent never touches the scoring path.
 
 ## Foundational breadth (domain coverage)
 
@@ -241,7 +244,7 @@ src/
   static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
   sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
   dsr_eval/           standalone dynamical-systems (DSR) eval package: systems zoo, datasets, metrics, runner, report
-  source_discovery/   LLM catalog-curation agent: map coverage gaps -> propose sources -> deterministic vetting (offline, human-vetted)
+  source_discovery/   LLM catalog-curation agent: map coverage gaps -> propose sources -> automatic vetting (metadata denylist/dedup + data-quality gate)
   sources/            the live-data catalog: sources.yaml, scraper.py, DGP_TAXONOMY.md, samples/, data/
   demo.py             runnable end-to-end demo on real public data
 notebooks/            example.ipynb — full guided walkthrough with plots
