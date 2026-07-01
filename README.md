@@ -25,8 +25,9 @@ synthetic generator.
 
 The benchmark forecasts windows of genuinely real public time series — climate,
 solar activity, energy load, markets, transport, public health — pulled from a
-**curated catalog of daily-or-faster-updating sources** (`src/sources/`, 55
-verified feeds across the 7 GIFT-Eval domains). `sources/scraper.py` snapshots
+**curated catalog of daily-or-faster-updating sources** (`src/sources/`, 92
+verified feeds across the 7 GIFT-Eval domains, 36 DGP classes, sub-minute to
+yearly cadence). `sources/scraper.py` snapshots
 each source to dated parquet; `scraped_source.ScrapedLiveSource` serves those
 snapshots into a `FreshBuffer`, sampling **equal-weight across
 domain × DGP-class × cadence** so no source-count-heavy domain dominates.
@@ -183,7 +184,11 @@ these are invested in:
 3. **Catalog breadth & depth.** Coverage must span many domains, DGP classes, and
    cadences, and each source must accumulate enough history. The catalog grows as
    the cron scrapes daily; today ~29 sources have enough history for the live path,
-   with the rest maturing over time.
+   with the rest maturing over time. The **`source_discovery`** agent
+   (`python -m source_discovery`) keeps this pool diverse and uncontaminated: it
+   maps coverage gaps, then an LLM proposes concrete new sources that deterministic
+   code vets (contamination denylist, dedup, schema) before a human adds them —
+   an offline, human-vetted curation step, never in the scoring path.
 
 ## Foundational breadth (domain coverage)
 
@@ -228,7 +233,6 @@ src/
   leakage_audit.py    contamination-resistant default buffer, t_now barrier, memorization probe, feed-novelty meter
   live_feeds.py       curated real public-data adapters (CSV/dated), cached fetch, real mixture
   daily_feeds.py      daily-updated public-source adapters (JSON path engine), curated registry
-  pool_sampler.py     equal-weight-per-domain-per-DGP-class eval-pool sampler + generalization gap
   independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
   independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
   evaluate.py         model-under-test scoring: MASE/WQL/CRPS + calibration, floor check, robust aggregation, significance
@@ -237,6 +241,7 @@ src/
   static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
   sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
   dsr_eval/           standalone dynamical-systems (DSR) eval package: systems zoo, datasets, metrics, runner, report
+  source_discovery/   LLM catalog-curation agent: map coverage gaps -> propose sources -> deterministic vetting (offline, human-vetted)
   sources/            the live-data catalog: sources.yaml, scraper.py, DGP_TAXONOMY.md, samples/, data/
   demo.py             runnable end-to-end demo on real public data
 notebooks/            example.ipynb — full guided walkthrough with plots

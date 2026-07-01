@@ -65,7 +65,7 @@ def main() -> int:
 
     out = []
     out.append("<!doctype html><html lang='en'><head><meta charset='utf-8'>")
-    out.append("<title>Timeframe benchmark — all 55 source plots</title>")
+    out.append("<title>Timeframe benchmark — all source plots</title>")
     out.append("""<style>
 :root { color-scheme: light dark; }
 body { font-family: -apple-system, system-ui, sans-serif; max-width: 1100px;

@@ -6,7 +6,7 @@ Curated catalog of **daily-or-faster updating** time-series data sources for a f
 
 ```
 sources/
-├── sources.yaml         # 55 verified entries with full schema
+├── sources.yaml         # 92 verified entries with full schema
 ├── candidates.md        # initial brainstorm (pre-verification)
 ├── verification_log.md  # every URL attempted, kept|dropped, reason
 ├── coverage_matrix.md   # domain × archetype, domain × frequency, gaps
@@ -52,11 +52,12 @@ python scraper.py --id binance_btcusdt_1m --dry-run
 
 | target | required | actual |
 |---|---|---|
-| total verified                 | ≥40 | 55 |
-| sources per GIFT-Eval domain   | ≥3  | 4–15 (all 7 domains) |
-| sources per Tempus archetype   | ≥1  | 2–37 (all 10 archetypes) |
-| sources per frequency band     | ≥2  | 9–19 (all 4 bands) |
-| share `clean` or `partial`     | ≥70% | 91% (50 / 55) |
+| total verified                 | ≥40 | 92 |
+| sources per GIFT-Eval domain   | ≥3  | 9–21 (all 7 domains) |
+| sources per Tempus archetype   | ≥1  | all 10 archetypes |
+| sources per frequency band     | ≥2  | all bands (sub-min → yearly) |
+| distinct DGP classes in use    | —   | 36 (of ~54 in DGP_TAXONOMY.md) |
+| share `clean` or `partial`     | ≥70% | 95% (87 / 92) |
 
 See `coverage_matrix.md` for the full table.
 

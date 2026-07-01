@@ -164,7 +164,7 @@ def _rossler_rhs(x: np.ndarray, p: dict[str, float]) -> np.ndarray:
 
 
 def _rossler_jac(x: np.ndarray, p: dict[str, float]) -> np.ndarray:
-    a, _b, c = p["a"], p["b"], p["c"]
+    a, c = p["a"], p["c"]
     return np.array([[0.0, -1.0, -1.0], [1.0, a, 0.0], [x[2], 0.0, x[0] - c]])
 
 

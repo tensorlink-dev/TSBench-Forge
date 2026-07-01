@@ -20,7 +20,7 @@ from collections import Counter
 import numpy as np
 
 from challenges import build_live_challenges
-from config import CONTEXT_LEN, HORIZON, N_CHALLENGES
+from config import CONTEXT_LEN, HORIZON
 from evaluate import (
     ProbForecast,
     benchmark_has_headroom,
