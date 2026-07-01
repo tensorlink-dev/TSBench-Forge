@@ -5,27 +5,20 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from config import HORIZON, GeneratorState
-from generate import build_challenges
-from ingest import FreshBuffer, SyntheticLiveSource
+from conftest import structured_challenges
+from config import HORIZON
 from score import (
     AnchorValidationError,
     default_panel,
     panel_from_env,
     validate_panel,
 )
-from seed import rng_for
-
-# A structured state where the strong anchor genuinely earns its lead.
-_STRUCTURED = GeneratorState(
-    w_synth=0.5, w_spliced=0.25, w_aug_live=0.25,
-    changepoint_prob=0.1, regime_switch_prob=0.1, aug_severity=0.3, noise_ar_phi=0.4,
-)
 
 
 def _challenges(n: int = 96):
-    buf = FreshBuffer(SyntheticLiveSource(), pool_size=64, motif_len=768)
-    return build_challenges(_STRUCTURED, buf, rng_for("anchor", 1, "m"), n)
+    # Structured trend+seasonal+AR series where the strong anchor genuinely earns
+    # its lead — the right setting to test that validation passes a good anchor.
+    return structured_challenges(n, seed=1)
 
 
 def test_default_anchor_validates_on_structured_data() -> None:

@@ -20,7 +20,7 @@ from evaluate import (
     probabilistic,
     shifted_gmean,
 )
-from generate import Challenge
+from challenges import Challenge
 
 
 def _gaussian_truth_challenges(n: int, sigma: float, seed: int) -> list[Challenge]:

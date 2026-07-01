@@ -12,8 +12,8 @@ import numpy as np
 
 from config import CONTEXT_LEN, HORIZON
 from feeds import DatedLiveSource, DedupFreshBuffer
-from generate import Challenge
-from ingest import SyntheticLiveSource
+from challenges import Challenge
+from conftest import RandomWalkSource as SyntheticLiveSource
 from leakage_audit import (
     assert_post_cutoff,
     default_fresh_buffer,

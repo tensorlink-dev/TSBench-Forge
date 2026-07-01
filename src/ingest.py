@@ -8,19 +8,14 @@ layer closes that vector by sourcing real motifs that **did not exist when the
 miner committed**. The benchmark only ever uses data timestamped *after* the
 commit point.
 
-``LiveSource`` is an abstraction with a synthetic stand-in so the demo runs
-offline; real adapters (a market feed, a sensor stream, an energy load API, ...)
-are a documented extension point, and ``domains.py`` ships a dependency-free
-*multi-domain* feed (a zoo of dynamical systems) for breadth. Two properties are
-load-bearing:
+``LiveSource`` is the abstraction every real feed implements;
+``scraped_source.ScrapedLiveSource`` is the production adapter over the scraped
+catalog (``src/sources/``), and ``live_feeds`` / ``daily_feeds`` provide curated
+public-data adapters. :class:`MixtureLiveSource` blends several sources into one
+multi-domain feed. One property is load-bearing:
 
-* **Different texture.** ``SyntheticLiveSource`` produces random-walk + jump +
-  multiplicative-noise series -- deliberately *unlike* the trend/seasonal/AR
-  process in ``generate.py``. If the "live" motifs shared the synthetic texture,
-  a miner who fit the synthetic process would also fit the motifs, and the
-  splice defence would be hollow.
-* **Seeded sampling.** ``FreshBuffer.sample_motifs`` draws from a fixed pool
-  using the beacon-derived RNG, so every validator splices the *same* motifs and
+* **Seeded sampling.** ``FreshBuffer.sample_meta`` draws from a fixed pool using
+  the beacon-derived RNG, so every validator samples the *same* windows and
   consensus holds.
 
 Production note
@@ -35,8 +30,49 @@ served) so a finite feed cannot be memorised across epochs.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 import numpy as np
+
+
+def _finalize(series: np.ndarray) -> np.ndarray:
+    """Make a raw observable finite, non-constant, and unit-scale (z-scored).
+
+    Heterogeneous feeds live on wildly different scales; z-scoring puts them on a
+    common footing so no single source dominates the pool and the per-challenge
+    error normalisation in ``score`` stays well-conditioned. A degenerate
+    (constant) window -- which would make the naive one-step scale collapse --
+    falls back to a deterministic ramp rather than a flat line. Shared by the
+    real-data adapters (``live_feeds`` / ``daily_feeds``).
+    """
+    x = np.nan_to_num(np.asarray(series, dtype=float), nan=0.0, posinf=0.0, neginf=0.0)
+    x = x - x.mean()
+    s = float(np.std(x))
+    if s < 1e-8:
+        x = np.linspace(-1.0, 1.0, x.size)
+        x = x - x.mean()
+        s = float(np.std(x)) or 1.0
+    return x / s
+
+
+@dataclass(frozen=True)
+class MotifMeta:
+    """Rich metadata for one motif in the freshness pool.
+
+    ``domain`` is the coarse tag every source has emitted since the beginning
+    (kept for the ``(motif, domain)`` tuple pool that ``FreshBuffer`` and its
+    ``sample_labeled`` consumers unpack). ``dgp_class`` and ``cadence`` are new fields added
+    for the reward-hacking-defense breadth gates in ``score.py`` — a
+    ``ScrapedLiveSource`` fills them from ``sources.yaml``; legacy sources
+    default them to ``None``, in which case the breadth gates degrade to a
+    coverage-by-domain fallback.
+    """
+
+    motif: np.ndarray
+    domain: str
+    dgp_class: str | None = None
+    cadence: str | None = None
+    source_id: str | None = None
 
 
 class LiveSource(ABC):
@@ -49,7 +85,7 @@ class LiveSource(ABC):
     (or real-world feed) it represents. The label rides along with every motif
     (see :meth:`pull_labeled` and ``FreshBuffer``) so the scorer can measure and
     stratify by *coverage* -- the property a foundation-model benchmark needs but
-    a single-source feed cannot provide. ``domains.MixtureLiveSource`` overrides
+    a single-source feed cannot provide. :class:`MixtureLiveSource` overrides
     :meth:`pull_labeled` to vary the label per motif.
     """
 
@@ -76,46 +112,58 @@ class LiveSource(ABC):
         """
         return [(motif, self.domain) for motif in self.pull(n, length, rng)]
 
+    def pull_meta(
+        self, n: int, length: int, rng: np.random.Generator
+    ) -> list[MotifMeta]:
+        """Rich labeled pull returning ``MotifMeta`` records.
 
-class SyntheticLiveSource(LiveSource):
-    """Offline stand-in whose texture is *distinct* from the synthetic generator.
+        The default wraps :meth:`pull_labeled` and leaves ``dgp_class`` /
+        ``cadence`` as ``None``. A concrete adapter (e.g. ``ScrapedLiveSource``)
+        that has access to the source catalog should override this to fill
+        those fields — the reward-hacking-defense breadth gates in ``score.py``
+        need them to be non-``None`` to enforce the DGP-class-share and
+        cadence-band-share floors.
+        """
+        return [
+            MotifMeta(motif=motif, domain=domain)
+            for motif, domain in self.pull_labeled(n, length, rng)
+        ]
 
-    Random walk + Poisson-like jumps + multiplicative noise. This looks nothing
-    like the additive trend/seasonal/AR series the generator builds, which is the
-    whole point: "real motifs" must not be reproducible by fitting the synthetic
-    process.
+
+class MixtureLiveSource(LiveSource):
+    """Blend several :class:`LiveSource` components into one multi-domain feed.
+
+    Each motif is drawn from a component chosen by the (normalised) component
+    weights, and carries that component's ``domain`` label via
+    :meth:`pull_labeled`. The draw and every downstream pull flow through the
+    passed-in ``rng``, so the whole feed stays a pure function of the beacon seed
+    -- the property the determinism / consensus tests rely on. Used by
+    ``live_feeds`` / ``daily_feeds`` to blend curated real public sources.
     """
 
-    domain = "random_walk"
+    domain = "mixture"
 
-    def __init__(
-        self,
-        vol: float = 0.1,
-        jump_prob: float = 0.03,
-        jump_scale: float = 1.5,
-        drift_scale: float = 0.01,
-        mult_noise: float = 0.02,
-        base: float = 10.0,
-    ) -> None:
-        self.vol = vol
-        self.jump_prob = jump_prob
-        self.jump_scale = jump_scale
-        self.drift_scale = drift_scale
-        self.mult_noise = mult_noise
-        self.base = base
+    def __init__(self, components: list[tuple[LiveSource, float]]) -> None:
+        if not components:
+            raise ValueError("MixtureLiveSource needs at least one component")
+        weights = np.array([w for _, w in components], dtype=float)
+        if np.any(weights < 0) or weights.sum() <= 0:
+            raise ValueError("component weights must be non-negative and sum to > 0")
+        self.sources = [s for s, _ in components]
+        self.weights = weights / weights.sum()
+
+    def pull_labeled(
+        self, n: int, length: int, rng: np.random.Generator
+    ) -> list[tuple[np.ndarray, str]]:
+        idx = rng.choice(len(self.sources), size=n, p=self.weights)
+        out: list[tuple[np.ndarray, str]] = []
+        for i in idx:
+            src = self.sources[int(i)]
+            out.append((src.pull(1, length, rng)[0], src.domain))
+        return out
 
     def pull(self, n: int, length: int, rng: np.random.Generator) -> list[np.ndarray]:
-        motifs: list[np.ndarray] = []
-        for _ in range(n):
-            drift = rng.normal(0.0, self.drift_scale)
-            steps = rng.normal(0.0, self.vol, size=length)
-            jumps = (rng.random(length) < self.jump_prob) * rng.normal(
-                0.0, self.jump_scale, size=length
-            )
-            walk = np.cumsum(drift + steps + jumps)
-            mult = np.exp(rng.normal(0.0, self.mult_noise, size=length))
-            motifs.append((self.base + walk) * mult)
-        return motifs
+        return [m for m, _ in self.pull_labeled(n, length, rng)]
 
 
 class FreshBuffer:
@@ -131,6 +179,7 @@ class FreshBuffer:
         self.pool_size = pool_size
         self.motif_len = motif_len
         self._pool: list[tuple[np.ndarray, str]] = []
+        self._pool_meta: list[MotifMeta] = []
 
     def refresh(self, rng: np.random.Generator) -> None:
         """Repopulate the pool. Seeded so all validators hold the same pool.
@@ -138,7 +187,11 @@ class FreshBuffer:
         Stores each motif with its ``domain`` label so sampled windows inherit
         the data-generating process they came from.
         """
-        self._pool = self.source.pull_labeled(self.pool_size, self.motif_len, rng)
+        meta = self.source.pull_meta(self.pool_size, self.motif_len, rng)
+        self._pool_meta = meta
+        # (motif, domain) tuple pool, kept for the ``sample_labeled`` consumers
+        # that destructure `motif, domain = buffer.sample_labeled(...)`.
+        self._pool = [(m.motif, m.domain) for m in meta]
 
     def ensure(self, rng: np.random.Generator) -> None:
         """Populate the pool once if it is empty."""
@@ -149,6 +202,20 @@ class FreshBuffer:
     def pool_domains(self) -> list[str]:
         """The domain label of every motif currently pooled (diagnostics/tests)."""
         return [domain for _, domain in self._pool]
+
+    @property
+    def pool_dgp_classes(self) -> list[str | None]:
+        """The dgp_class of every motif currently pooled (fills ``None`` for
+        legacy sources that don't tag it). Used by the reward-hacking-defense
+        breadth gates in ``score.py``."""
+        return [m.dgp_class for m in self._pool_meta]
+
+    @property
+    def pool_cadences(self) -> list[str | None]:
+        """The cadence band of every motif currently pooled (fills ``None`` for
+        legacy sources that don't tag it). Used by the cadence-breadth reward-
+        hacking-defense gate."""
+        return [m.cadence for m in self._pool_meta]
 
     def sample_labeled(
         self, k: int, length: int, rng: np.random.Generator
@@ -173,3 +240,34 @@ class FreshBuffer:
     def sample_motifs(self, k: int, length: int, rng: np.random.Generator) -> list[np.ndarray]:
         """Draw ``k`` contiguous windows (domain labels dropped) -- back-compat shim."""
         return [motif for motif, _ in self.sample_labeled(k, length, rng)]
+
+    def sample_meta(
+        self, k: int, length: int, rng: np.random.Generator
+    ) -> list[MotifMeta]:
+        """Draw ``k`` contiguous windows as ``MotifMeta``, carrying every label.
+
+        Unlike :meth:`sample_labeled` (which keeps only ``domain``), this preserves
+        ``dgp_class`` / ``cadence`` / ``source_id`` on each sampled window, so the
+        pure-live challenge builder can stamp them onto every ``Challenge`` for
+        stratified scoring and the breadth gates. Seeded entirely by ``rng``.
+        """
+        if not self._pool_meta:
+            raise RuntimeError("FreshBuffer is empty; call refresh()/ensure() first")
+        if length > self.motif_len:
+            raise ValueError(f"requested length {length} exceeds motif_len {self.motif_len}")
+        out: list[MotifMeta] = []
+        for _ in range(k):
+            m = self._pool_meta[int(rng.integers(0, len(self._pool_meta)))]
+            series = m.motif
+            start = int(rng.integers(0, len(series) - length + 1))
+            window = np.asarray(series[start : start + length], dtype=float)
+            out.append(
+                MotifMeta(
+                    motif=window,
+                    domain=m.domain,
+                    dgp_class=m.dgp_class,
+                    cadence=m.cadence,
+                    source_id=m.source_id,
+                )
+            )
+        return out

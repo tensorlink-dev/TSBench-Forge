@@ -35,17 +35,18 @@ def code(src: str) -> None:
 md(r"""
 # tsbench-forge on **real data** — a live-feed experiment
 
-The companion to `example.ipynb`, but every "live" motif here is a **real public
-time series** pulled through `live_feeds.py`, not the synthetic zoo. We run the
-whole pipeline on them: build a multi-domain real feed, run the forge,
-commit-reveal, validate the panel, score a MASE/WQL/CRPS leaderboard, check
-headroom, and read per-domain breadth.
+The companion to `example.ipynb`: every motif here is a **real public time
+series** pulled through `live_feeds.py`. The whole pipeline runs on them — build
+a multi-domain real feed, assemble challenges from the live catalog
+(commit-reveal), validate the panel, score a MASE/WQL/CRPS leaderboard, check
+headroom, and read per-domain breadth. There is no synthetic generator and no
+forge: the distribution the benchmark tests is exactly the distribution of the
+ingested feeds.
 
 **Requirements:** `pip install -e ".[notebook]"` and outbound access to the feed
 hosts on first run (bodies are then cached under `~/.cache/tsbench-forge/feeds`,
 so reruns are offline). If a host is blocked, the feed build raises — set
-`TSBENCH_FEED_CACHE` to a pre-populated directory, or fall back to
-`domains.default_live_source()`.
+`TSBENCH_FEED_CACHE` to a pre-populated directory.
 """)
 
 code(r"""
@@ -60,18 +61,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 
-from config import WEAK_STATE, CONTEXT_LEN, HORIZON
+from config import CONTEXT_LEN, HORIZON
 from ingest import FreshBuffer
-from forge_loop import run_forge, manifest_for
-from generate import build_challenges
+from challenges import build_live_challenges
 from seed import rng_for
-from score import default_panel, panel_fitness, validate_panel, domain_coverage, stratified_fitness
+from score import default_panel, validate_panel, domain_coverage, stratified_fitness
 from evaluate import leaderboard, probabilistic_panel, headroom, benchmark_has_headroom, ProbForecast
 from live_feeds import REGISTRY, build_real_live_source, make_feed, cached_fetch
 
 BLOCK_HASH = "0xlive-notebook"
-EPOCHS, MOTIF_LEN, POOL = 18, 384, 96
-print(f"context={CONTEXT_LEN} horizon={HORIZON} epochs={EPOCHS}")
+MOTIF_LEN, POOL, N_REVEAL = 384, 96, 128
+print(f"context={CONTEXT_LEN} horizon={HORIZON} challenges={N_REVEAL}")
 for name, spec in REGISTRY.items():
     print(f"  {name:<18} {spec.domain:<18} {spec.note}")
 """)
@@ -98,8 +98,8 @@ axes[0].set_title("One z-scored window from each real feed"); plt.tight_layout()
 md(r"""
 ## 2. A real multi-domain pool
 
-`build_real_live_source()` blends the registry into one `MixtureLiveSource` — the
-real-data analogue of `domains.default_live_source()`.
+`build_real_live_source()` blends the registry into one `MixtureLiveSource`, and
+`FreshBuffer` builds a breadth-balanced pool of real motifs from it.
 """)
 
 code(r"""
@@ -110,41 +110,25 @@ print("pool domains:", dict(Counter(buffer.pool_domains)))
 """)
 
 md(r"""
-## 3. Run the forge — on real data
+## 3. Assemble challenges from the live catalog (commit-reveal)
 
-Starting from a deliberately weak (synthetic-heavy, pre-fittable) state, the forge
-keeps one-knob moves only when the panel becomes more discriminating-and-valid.
-`fitness = spread · max(0, ordering) · gate`.
+Each challenge draws one real window from the pool, optionally applies one light
+truth-preserving augmentation, and splits it into observed context / hidden
+truth. The draw flows through the beacon-derived `rng`, so a given `(pool, seed)`
+yields a byte-identical challenge set across all validators — identical
+challenges for every validator.
 """)
 
 code(r"""
-final_state, log = run_forge(buffer, EPOCHS, BLOCK_HASH, WEAK_STATE)
-epochs = [s.epoch for s in log]
-fig, ax = plt.subplots(1, 2, figsize=(12, 4))
-ax[0].plot(epochs, [s.fitness for s in log], marker="o"); ax[0].set(title="Forge fitness (real feed)", xlabel="epoch", ylabel="fitness"); ax[0].grid(alpha=0.3)
-ax[1].plot(epochs, [s.gate for s in log], marker="o", label="gate")
-ax[1].plot(epochs, [s.ordering for s in log], marker="s", label="ordering")
-ax[1].plot(epochs, [s.spread for s in log], marker="^", label="spread")
-ax[1].set(title="gate / ordering / spread", xlabel="epoch"); ax[1].legend(); ax[1].grid(alpha=0.3)
-plt.tight_layout(); plt.show()
-print(f"fitness {log[0].fitness:.3f} -> {log[-1].fitness:.3f}  ({sum(1 for s in log if s.decision=='keep')} KEEPs)")
-""")
-
-md(r"""
-## 4. Commit-reveal — identical challenges for every validator
-""")
-
-code(r"""
-mhash = manifest_for(final_state)
-a = build_challenges(final_state, buffer, rng_for(BLOCK_HASH, EPOCHS, mhash), 8)
-b = build_challenges(final_state, buffer, rng_for(BLOCK_HASH, EPOCHS, mhash), 8)
+a = build_live_challenges(buffer, rng_for(BLOCK_HASH, 0, "chk"), 8)
+b = build_live_challenges(buffer, rng_for(BLOCK_HASH, 0, "chk"), 8)
 identical = all(np.array_equal(x.context, y.context) and np.array_equal(x.truth, y.truth) for x, y in zip(a, b))
-reveal = build_challenges(final_state, buffer, rng_for(BLOCK_HASH, EPOCHS, mhash), 128)
-print(f"manifest={mhash[:16]}...  two replays byte-identical: {identical}  revealed {len(reveal)} challenges")
+reveal = build_live_challenges(buffer, rng_for(BLOCK_HASH, 0, "reveal"), N_REVEAL)
+print(f"two replays byte-identical: {identical}  revealed {len(reveal)} challenges")
 """)
 
 md(r"""
-## 5. Panel validity + leaderboard (MASE / WQL / CRPS) on real data
+## 4. Panel validity + leaderboard (MASE / WQL / CRPS) on real data
 
 > **Read this if `valid=False`.** On real data the *default numpy anchor* does not
 > always lead — a simple `ewma`/`drift` can edge it out on noisy equities or
@@ -181,7 +165,7 @@ board = leaderboard({"chronos": load_tsfm("chronos"), **probabilistic_panel()}, 
 """)
 
 md(r"""
-## 6. Headroom — can the benchmark certify a *better* model?
+## 5. Headroom — can the benchmark certify a *better* model?
 """)
 
 code(r"""
@@ -198,25 +182,24 @@ print(f"benchmark_has_headroom = {benchmark_has_headroom(superior_probe, reveal)
 """)
 
 md(r"""
-## 7. Foundational breadth across **real** domains
+## 6. Foundational breadth across **real** domains
 
 Coverage is measured (effective number of DGPs), and fitness is read per domain so
-narrowness can't hide in an average. On real data this surfaces a genuine signal:
-the synthetic share is pre-fittable (low `gate`) while the real domains are not,
-and some real series (e.g. equities) are intrinsically hard to order — the
-validity-gate ↔ hard-DGP tension, made visible on real data.
+narrowness can't hide in an average. On real data some series (e.g. equities) are
+intrinsically hard to order, which surfaces per-domain. Recall
+`fitness = spread · max(0, ordering)`; `strong` is the anchor's difficulty.
 """)
 
 code(r"""
 cov = domain_coverage(reveal)
 print(f"spans {cov['n_domains']} domains; effective (exp-entropy) = {cov['effective_domains']:.2f}\n")
-print(f"{'domain':<18}{'n':>4}{'spread':>8}{'order':>8}{'gate':>7}")
+print(f"{'domain':<18}{'n':>4}{'spread':>8}{'order':>8}{'strong':>8}")
 for dom, m in sorted(stratified_fitness(reveal, panel).items(), key=lambda kv: -kv[1]['n']):
-    print(f"{dom:<18}{m['n']:>4}{m['spread']:>8.2f}{m['ordering']:>+8.2f}{m['gate']:>7.2f}")
+    print(f"{dom:<18}{m['n']:>4}{m['spread']:>8.2f}{m['ordering']:>+8.2f}{m['difficulty']:>8.2f}")
 """)
 
 md(r"""
-## 8. As-of (vintage) gating on real timestamps
+## 7. As-of (vintage) gating on real timestamps
 
 A real deployment must only serve data timestamped *after* the commit beacon.
 `DatedCsvFeed` reads the date column and stamps each window with its end time;
@@ -238,10 +221,11 @@ print("all post-commit:", all(ts > commit for _, _, ts in windows))
 md(r"""
 ## Recap
 
-- Real, multi-domain feeds flow through the **same** forge → reveal → panel →
-  leaderboard → headroom pipeline as the synthetic demo.
-- The forge hardens against the pre-fittable synthetic share (gate ↑); real
-  motifs carry structure the generator-fitter cannot reconstruct.
+- Real, multi-domain feeds flow through the **same** reveal → panel →
+  leaderboard → headroom → breadth pipeline as `example.ipynb` — there is no
+  forge and no synthetic generator; the tested distribution is exactly the feeds.
+- `build_live_challenges` draws real motifs deterministically from the pool, so
+  every validator replays byte-identical challenges.
 - `DatedCsvFeed` + `AsOfLiveSource` give vintage discipline on real timestamps.
 
 For production: point `DatedCsvFeed` at an as-of vendor endpoint, wrap it in

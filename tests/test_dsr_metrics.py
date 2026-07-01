@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from domains import LorenzSource
+from conftest import lorenz_motif
 from dsr_metrics import (
     d_h,
     d_stsp,
@@ -25,7 +25,7 @@ from dsr_metrics import (
 
 
 def _lorenz(length: int, seed: int) -> np.ndarray:
-    return LorenzSource().pull(1, length, np.random.default_rng(seed))[0]
+    return lorenz_motif(length, seed)
 
 
 def test_delay_embed_shape() -> None:

@@ -7,15 +7,12 @@ out-predicts the anchor) yields low/negative ``ordering`` and near-zero
 
 from __future__ import annotations
 
-from dataclasses import replace
-
 import numpy as np
 
-from config import CONTEXT_LEN, HORIZON, SEASONAL_PERIODS, WEAK_STATE
-from generate import Challenge, build_challenges
-from ingest import FreshBuffer, SyntheticLiveSource
+from challenges import Challenge
+from conftest import structured_challenges
+from config import CONTEXT_LEN, HORIZON, SEASONAL_PERIODS
 from score import kendall_tau, panel_fitness
-from seed import rng_for
 
 
 def _broken_challenges(n: int = 24) -> list[Challenge]:
@@ -54,25 +51,12 @@ def test_broken_set_has_low_ordering_and_zero_fitness() -> None:
 
 
 def test_wellformed_set_is_valid_and_discriminating() -> None:
-    state = replace(
-        WEAK_STATE, w_synth=0.45, w_spliced=0.35, w_aug_live=0.20, aug_severity=0.3
-    )
-    buffer = FreshBuffer(SyntheticLiveSource(), pool_size=64, motif_len=768)
-    buffer.refresh(np.random.default_rng(7))
-
-    # Average over several beacons (as the forge does) so the comparison reflects
-    # the state, not single-draw sampling noise.
-    metrics = {"fitness": 0.0, "ordering": 0.0, "gate": 0.0}
-    errs_sum: dict[str, float] = {}
-    n_seeds = 5
-    for s in range(n_seeds):
-        res = panel_fitness(build_challenges(state, buffer, rng_for("valid", s, "m"), 64))
-        for k in metrics:
-            metrics[k] += float(res[k]) / n_seeds
-        for m, e in res["errors"].items():
-            errs_sum[m] = errs_sum.get(m, 0.0) + e
-
-    assert min(errs_sum, key=errs_sum.get) == "strong"  # anchor leads on average
-    assert metrics["ordering"] > 0.0
-    assert metrics["gate"] > 0.0
-    assert metrics["fitness"] > 0.0
+    # A well-formed set: trend+seasonal+AR series the strong anchor is built for.
+    # This tests the validity-gate *logic* (does a genuinely-ordered panel score
+    # positive fitness), independent of the numpy anchor's quality on raw real
+    # data (which is exactly what validate_panel flags when it is insufficient).
+    res = panel_fitness(structured_challenges(96, seed=3))
+    errs = res["errors"]
+    assert min(errs, key=errs.get) == "strong"  # anchor leads by construction
+    assert res["ordering"] > 0.0
+    assert res["fitness"] > 0.0

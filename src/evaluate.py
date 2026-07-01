@@ -1,10 +1,9 @@
 """Model-under-test evaluation: the half that actually scores a TSFM.
 
-The forge (``forge_loop``/``forge_llm``) keeps the benchmark hard-to-game and the
-panel (``score``) decides whether a challenge set is *valid*. Neither one scores a
-**submitted model**. This module closes that gap: given a forecaster and the
-revealed challenges, it computes the metrics the TSFM literature actually uses and
-ranks the model on a leaderboard against the reference panel.
+The panel (``score``) decides whether a challenge set is *valid*, but it does not
+score a **submitted model**. This module closes that gap: given a forecaster and
+the revealed challenges, it computes the metrics the TSFM literature actually uses
+and ranks the model on a leaderboard against the reference panel.
 
 What a "proper TSFM" needs that point-MAE could not give
 --------------------------------------------------------
@@ -255,19 +254,14 @@ def evaluate_forecaster(
 def probabilistic_panel() -> dict[str, Forecaster]:
     """The reference panel as probabilistic forecasters (rungs on the leaderboard).
 
-    Excludes the ``overfit`` detector (it is anti-gaming machinery, not a model a
-    real submission competes against), and adds the **context-parroting** floor
-    baseline (``baselines.context_parrot``): a submission that cannot beat trivial
-    nearest-neighbour copying has not demonstrated forecasting skill, so parrot is
-    a rung every real model must clear (Zhang & Gilpin, arXiv:2505.11349).
+    Adds the **context-parroting** floor baseline (``baselines.context_parrot``):
+    a submission that cannot beat trivial nearest-neighbour copying has not
+    demonstrated forecasting skill, so parrot is a rung every real model must
+    clear (Zhang & Gilpin, arXiv:2505.11349).
     """
     from baselines import context_parrot
 
-    panel = {
-        name: probabilistic(fn)
-        for name, fn in default_panel().items()
-        if name != "overfit"
-    }
+    panel = {name: probabilistic(fn) for name, fn in default_panel().items()}
     panel["context_parrot"] = probabilistic(context_parrot)
     return panel
 

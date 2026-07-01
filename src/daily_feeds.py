@@ -68,7 +68,7 @@ from typing import Any
 
 import numpy as np
 
-from domains import _finalize
+from ingest import _finalize
 from feeds import DatedLiveSource, DatedMotif
 from ingest import LiveSource
 from live_feeds import DatedCsvFeed, Fetcher, cached_fetch, urllib_fetch
@@ -375,7 +375,7 @@ class DatedJsonFeed(DatedLiveSource):
 
     Fetches once (via the injected ``fetch``), parses one timestamp path and one
     value path into a time-sorted series, caches it in memory, and serves random
-    ``length``-windows — z-scored with :func:`domains._finalize` and stamped with
+    ``length``-windows — z-scored with :func:`ingest._finalize` and stamped with
     each window's last-point availability time. Set ``dict_keyed=True`` for
     date-keyed-object payloads (then ``timestamp_field`` names the dict and
     ``value_field`` is the sub-path per value). ``filter_field`` / ``filter_value``
@@ -795,7 +795,7 @@ def build_daily_live_source(
     points; subset ``names`` (or raise the pool/motif length accordingly) when
     mixing them with the long climate/finance feeds.
     """
-    from domains import MixtureLiveSource
+    from ingest import MixtureLiveSource
 
     chosen = names or list(DAILY_REGISTRY)
     f = fetch or cached_fetch()

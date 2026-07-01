@@ -8,14 +8,13 @@ from __future__ import annotations
 
 import numpy as np
 
-from config import WEAK_STATE
-from generate import build_challenges
-from ingest import FreshBuffer, SyntheticLiveSource
+from challenges import build_live_challenges
+from conftest import live_buffer
 from seed import beacon_seed, manifest_hash, rng_for
 
 
-def _buffer() -> FreshBuffer:
-    return FreshBuffer(SyntheticLiveSource(), pool_size=32, motif_len=512)
+def _buffer():
+    return live_buffer(pool_size=32, motif_len=384)
 
 
 def test_beacon_seed_is_pure_and_distinct() -> None:
@@ -37,26 +36,21 @@ def test_rng_for_is_reproducible_and_independent() -> None:
 
 def test_challenges_byte_identical_across_runs() -> None:
     block, epoch, man = "0xabc", 7, manifest_hash("payload")
-    ch1 = build_challenges(WEAK_STATE, _buffer(), rng_for(block, epoch, man), 16)
-    ch2 = build_challenges(WEAK_STATE, _buffer(), rng_for(block, epoch, man), 16)
+    ch1 = build_live_challenges(_buffer(), rng_for(block, epoch, man), 16)
+    ch2 = build_live_challenges(_buffer(), rng_for(block, epoch, man), 16)
 
     assert len(ch1) == len(ch2) == 16
     for a, b in zip(ch1, ch2, strict=True):
         assert a.mode == b.mode
         assert np.array_equal(a.context, b.context)
         assert np.array_equal(a.truth, b.truth)
-        # The synthetic oracle (consumed by the detector) must also match.
-        oa, ob = a.meta.get("oracle"), b.meta.get("oracle")
-        if oa is None or ob is None:
-            assert oa is ob
-        else:
-            assert np.array_equal(oa, ob)
+        assert a.meta.get("domain") == b.meta.get("domain")
 
 
 def test_different_beacons_yield_different_challenges() -> None:
     man = manifest_hash("p")
-    ch1 = build_challenges(WEAK_STATE, _buffer(), rng_for("blkA", 1, man), 8)
-    ch2 = build_challenges(WEAK_STATE, _buffer(), rng_for("blkB", 1, man), 8)
+    ch1 = build_live_challenges(_buffer(), rng_for("blkA", 1, man), 8)
+    ch2 = build_live_challenges(_buffer(), rng_for("blkB", 1, man), 8)
     differs = any(
         not np.array_equal(a.context, b.context) for a, b in zip(ch1, ch2, strict=True)
     )

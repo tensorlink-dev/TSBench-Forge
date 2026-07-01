@@ -5,9 +5,11 @@ that build them.
 
 ## live_feeds.ipynb
 
-The real-data walkthrough: the full forge → commit-reveal → panel → MASE/WQL/CRPS
+The real-data walkthrough: the full commit-reveal → panel → MASE/WQL/CRPS
 leaderboard → headroom → breadth pipeline run on **real public series** (climate,
-solar, atmospheric CO₂, equities, weather) via `live_feeds.py`.
+solar, atmospheric CO₂, equities, weather) via `live_feeds.py`. Challenges are
+assembled with `build_live_challenges` over the live buffer — no synthetic
+generator, no forge.
 
 ```bash
 pip install -e ".[notebook]"                       # matplotlib + jupyter
@@ -19,9 +21,8 @@ Notes:
 
 - **Network on first run.** The notebook pulls a handful of CSVs and caches them
   under `~/.cache/tsbench-forge/feeds` (override with `TSBENCH_FEED_CACHE`), so
-  reruns are offline. If a feed host is blocked, swap in
-  `domains.default_live_source()` or point `TSBENCH_FEED_CACHE` at a pre-populated
-  cache.
+  reruns are offline. If a feed host is blocked, point `TSBENCH_FEED_CACHE` at a
+  pre-populated cache.
 - **`valid=False` is expected on some seeds.** On real data the *default numpy
   anchor* does not always lead the simple baselines — the validity gate correctly
   flagging that the anchor is too weak to certify real-world skill. The fix is to
@@ -36,8 +37,8 @@ no extra dependencies (only **running** it does).
 
 Proves an **independently-validated anchor**: it establishes a model's quality on a
 held-out, real, external benchmark (gold / NYC taxi / births — disjoint from the
-forge feed), then promotes the validated anchor to `strong` and re-checks
-`validate_panel` on the forge reveal.
+live benchmark feed), then promotes the validated anchor to `strong` and re-checks
+`validate_panel` on the live benchmark's own reveal.
 
 ```bash
 pip install -e ".[notebook,strong]"                          # statsforecast fallback

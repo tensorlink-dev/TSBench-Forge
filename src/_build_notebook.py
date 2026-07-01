@@ -20,20 +20,27 @@ md(r"""
 # tsbench-forge — a guided walkthrough
 
 `tsbench-forge` is a **continuous, hard-to-game benchmark for time-series
-foundation models (TSFMs)**. Two halves work together:
+foundation models (TSFMs)** built on **real public data only**. There is no
+synthetic generator and no self-improving forge: the distribution the benchmark
+tests is exactly the distribution of the ingested feeds (climate, energy,
+markets, transport, …), drawn from the live catalog under `src/sources/`.
 
-1. **The forge (anti-gaming).** A self-improving loop that keeps the benchmark a
-   moving target — closing memorization, pre-fitting, and saturation, with
+Two halves work together:
+
+1. **Assembling challenges (anti-gaming).** A fresh, breadth-balanced pool of
+   *real* motifs is sampled and split into observed context / hidden truth, with
    challenges derived deterministically from a commit-reveal seed so every
-   validator agrees.
+   validator agrees. Freshness / as-of gating and light truth-preserving
+   augmentation are the layers that keep it hard to memorise.
 2. **The evaluation (the part that scores a model).** A probabilistic leaderboard
    (MASE / WQL / CRPS) that ranks a real TSFM against a reference panel, plus a
    *headroom* check that the benchmark can actually separate a better-than-classical
-   model.
+   model, and a *foundational breadth* read across real domains.
 
-This notebook runs **numpy-only** — no API key, no network, no GPU. (With
-`OPENROUTER_API_KEY` set, the forge proposer would call a real LLM; here it uses
-the deterministic heuristic fallback.)
+This notebook runs **numpy-only, fully offline** — no API key, no network, no
+GPU. It reads locally-scraped parquet (`src/sources/data`) if present, else the
+committed trimmed fixture (`tests/fixtures/sources_data`), exactly like
+`src/demo.py`.
 """)
 
 code(r"""
@@ -48,102 +55,92 @@ for _p in ("src", os.path.join("..", "src")):
 %matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import Counter
 
-from config import WEAK_STATE, CONTEXT_LEN, HORIZON
-from domains import default_live_source
+from config import CONTEXT_LEN, HORIZON
+from scraped_source import ScrapedLiveSource
 from ingest import FreshBuffer
-from forge_loop import run_forge, manifest_for
-from generate import build_challenges
+from challenges import build_live_challenges
 from seed import rng_for
-from score import default_panel, panel_fitness, validate_panel, domain_coverage, stratified_fitness
+from score import (
+    default_panel, panel_fitness, validate_panel, domain_coverage,
+    stratified_fitness, foundational_fitness,
+)
 from evaluate import leaderboard, probabilistic_panel, headroom, benchmark_has_headroom, ProbForecast
 from sandbox import run_submission
 
 BLOCK_HASH = "0xnotebook-demo"
-EPOCHS = 18
-print(f"context={CONTEXT_LEN}  horizon={HORIZON}  epochs={EPOCHS}")
+MOTIF_LEN, POOL_SIZE, N_REVEAL = 384, 96, 128
+
+
+def _data_dir():
+    # Prefer freshly-scraped data; fall back to the committed trimmed fixture.
+    here = os.path.abspath(sys.path[0])
+    live = os.path.join(here, "sources", "data")
+    fixture = os.path.join(here, os.pardir, "tests", "fixtures", "sources_data")
+    if os.path.isdir(live) and any(
+        f.endswith(".parquet") for _, _, fs in os.walk(live) for f in fs
+    ):
+        return live
+    return os.path.abspath(fixture)
+
+
+CATALOG = os.path.join(os.path.abspath(sys.path[0]), "sources", "sources.yaml")
+print(f"context={CONTEXT_LEN}  horizon={HORIZON}  challenges={N_REVEAL}")
+print(f"live catalog data: {_data_dir()}")
 """)
 
 md(r"""
-## 1. A fresh, multi-domain live pool
+## 1. A fresh, breadth-balanced pool of real motifs
 
-The benchmark splices in *real* motifs that "didn't exist at commit time." Here a
-seeded multi-domain zoo (random walk + Lorenz, Rössler, Hopf, Hénon, logistic,
-OU, jump-diffusion) stands in for a real post-commit feed — broad enough to
-certify a *foundation* model, not just one process.
+The benchmark samples *real* windows from the live catalog. `ScrapedLiveSource`
+reads the scraped parquet, and `FreshBuffer` builds a pool balanced across
+domain × dgp_class × cadence — broad enough to certify a *foundation* model, not
+just one process.
 """)
 
 code(r"""
-buffer = FreshBuffer(default_live_source(), pool_size=96, motif_len=768)
+source = ScrapedLiveSource(CATALOG, _data_dir(), min_series_length=MOTIF_LEN)
+buffer = FreshBuffer(source, pool_size=POOL_SIZE, motif_len=MOTIF_LEN)
 buffer.refresh(np.random.default_rng(0xC0FFEE))
-from collections import Counter
-print("pool domains:", dict(Counter(buffer.pool_domains)))
+print("pool domains    :", dict(Counter(buffer.pool_domains)))
+print("pool dgp_classes:", len(set(buffer.pool_dgp_classes)), "classes")
+print("pool cadences   :", dict(Counter(buffer.pool_cadences)))
 """)
 
 md(r"""
-## 2. Run the forge — watch the benchmark improve itself
+## 2. Commit-reveal: the challenges are a pure function of the seed
 
-Starting from a deliberately **weak** (synthetic-heavy, easy-to-pre-fit) state,
-the forge proposes one knob change per epoch and **keeps** it only if the
-reference panel becomes more discriminating-and-valid. `fitness = spread ·
-max(0, ordering) · gate` — three independent gates that must all hold at once.
+The concrete challenges are derived from `seed = H(block_hash ‖ epoch ‖ tag)`,
+revealed only after miners commit. Every draw flows through the beacon-derived
+`rng`, so a given `(pool, seed)` yields a byte-identical challenge set across all
+validators — the cornerstone of commit-reveal consensus.
 """)
 
 code(r"""
-final_state, log = run_forge(buffer, EPOCHS, BLOCK_HASH, WEAK_STATE)
-
-epochs = [s.epoch for s in log]
-fig, ax = plt.subplots(1, 2, figsize=(12, 4))
-ax[0].plot(epochs, [s.fitness for s in log], marker="o")
-ax[0].set(title="Forge fitness trajectory", xlabel="epoch", ylabel="fitness")
-ax[0].grid(alpha=0.3)
-ax[1].plot(epochs, [s.gate for s in log], marker="o", label="gate (anti pre-fit)")
-ax[1].plot(epochs, [s.ordering for s in log], marker="s", label="ordering (validity)")
-ax[1].plot(epochs, [s.spread for s in log], marker="^", label="spread (discrimination)")
-ax[1].set(title="Gate / ordering / spread", xlabel="epoch"); ax[1].legend(); ax[1].grid(alpha=0.3)
-plt.tight_layout(); plt.show()
-
-print(f"fitness {log[0].fitness:.3f} -> {log[-1].fitness:.3f}   "
-      f"({sum(1 for s in log if s.decision=='keep')} KEEPs)")
-nf = final_state.normalized()
-print(f"final blend  synth={nf.w_synth:.2f}  spliced={nf.w_spliced:.2f}  aug_live={nf.w_aug_live:.2f}"
-      f"   (started 0.85 / 0.10 / 0.05)")
-""")
-
-md(r"""
-The forge rebalances **away from pre-fittable synthetic data**, which lifts the
-generator-fitting `gate`. That's the benchmark hardening itself against the
-easiest way to game it.
-
-## 3. Commit-reveal: the challenges are a pure function of the seed
-
-The forge commits a hashed manifest of the state it settled on; the concrete
-challenges are derived from `seed = H(block_hash ‖ epoch ‖ manifest_hash)`,
-revealed only after miners commit. Every validator replays identical challenges.
-""")
-
-code(r"""
-epoch = EPOCHS
-mhash = manifest_for(final_state)
-a = build_challenges(final_state, buffer, rng_for(BLOCK_HASH, epoch, mhash), 8)
-b = build_challenges(final_state, buffer, rng_for(BLOCK_HASH, epoch, mhash), 8)
+reveal = build_live_challenges(buffer, rng_for(BLOCK_HASH, 0, "reveal"), N_REVEAL)
+a = build_live_challenges(buffer, rng_for(BLOCK_HASH, 0, "chk"), 8)
+b = build_live_challenges(buffer, rng_for(BLOCK_HASH, 0, "chk"), 8)
 identical = all(np.array_equal(x.context, y.context) and np.array_equal(x.truth, y.truth)
                 for x, y in zip(a, b))
-print(f"manifest_hash = {mhash[:16]}...")
-print(f"two independent replays are byte-identical: {identical}")
-
-# The committed challenge set used for the rest of the notebook:
-reveal = build_challenges(final_state, buffer, rng_for(BLOCK_HASH, epoch, mhash), 128)
 print(f"revealed {len(reveal)} challenges")
+print(f"two independent replays are byte-identical: {identical}")
 """)
 
 md(r"""
-## 4. The reference panel & the validity gate
+## 3. The reference panel & the validity gate
 
 Validity comes from a *frozen reference panel*, not from trusting the data. A
 challenge only counts if a panel of known-quality forecasters ranks in its known
 order. The `strong` anchor must genuinely lead — `validate_panel` checks that
 loudly, so a hollow anchor fails instead of silently making the gate meaningless.
+
+> **Read this if `valid=False`.** On raw real data the *default numpy classical
+> anchor* does not always lead the simple baselines. That is the validity gate
+> doing its job: it is telling you the anchor is too weak to certify real-world
+> skill. The fix is **not** to ignore it but to swap in an independently-validated
+> zero-shot TSFM via `default_panel(strong_model=...)` — see `independent_eval.py`
+> and `experiments/independent_validation.ipynb`.
 """)
 
 code(r"""
@@ -158,11 +155,14 @@ plt.title("Reference panel — mean normalised error (lower = better)")
 plt.ylabel("normalised MAE"); plt.grid(alpha=0.3, axis="y"); plt.show()
 
 vp = validate_panel(reveal, panel)
-print(f"anchor validation: strong leads '{vp['runner_up']}' by {vp['margin']:.3f}  -> valid={vp['valid']}")
+print(f"anchor validation: strong leads '{vp['runner_up']}' by {vp['margin']:+.3f}  -> valid={vp['valid']}")
+if not vp["valid"]:
+    print("NOTE: the numpy classical anchor does not lead on raw real data — expected;")
+    print("      the fix is a real TSFM anchor via default_panel(strong_model=...).")
 """)
 
 md(r"""
-## 5. Evaluating a model — the leaderboard (MASE / WQL / CRPS)
+## 4. Evaluating a model — the leaderboard (MASE / WQL / CRPS)
 
 This is the half that **scores an actual TSFM**. A forecaster emits a
 `ProbForecast` (mean + quantiles) and is judged on the metrics the TSFM
@@ -189,7 +189,7 @@ plt.grid(alpha=0.3, axis="y"); plt.show()
 """)
 
 md(r"""
-## 6. Headroom — can the benchmark certify a *better* model?
+## 5. Headroom — can the benchmark certify a *better* model?
 
 A benchmark only certifies TSFMs if a genuinely better model scores measurably
 better than the classical anchor. We inject a deliberately-superior probe (the
@@ -215,7 +215,7 @@ print(f"benchmark_has_headroom = {benchmark_has_headroom(superior_probe, reveal)
 """)
 
 md(r"""
-## 7. A sample challenge and the anchor's forecast
+## 6. A sample challenge and the anchor's forecast
 
 What a single challenge actually looks like: an observed context, the hidden
 truth over the horizon, and the `strong` anchor's prediction.
@@ -235,7 +235,7 @@ plt.legend(); plt.grid(alpha=0.3); plt.show()
 """)
 
 md(r"""
-## 8. Submissions run in a sandbox, not just a linter
+## 7. Submissions run in a sandbox, not just a linter
 
 The static scan is a cheap pre-filter; the **real** boundary is isolated,
 resource-limited execution. A clean forecaster runs; a hardcoded/cheating one is
@@ -262,33 +262,50 @@ for name, code_str in (("clean numpy forecaster", clean), ("hardcoded/cheating",
 """)
 
 md(r"""
-## 9. Foundational breadth — good *across worlds*, not one process
+## 8. Foundational breadth — good *across worlds*, not one process
 
 A high score should mean "generalises across domains." Coverage is measured (the
-effective number of data-generating processes), and fitness is reported per
-domain so narrowness can't hide in an average.
+effective number of data-generating processes), breadth gates check the pool
+spans enough dgp_classes and cadences, and fitness is reported per domain so
+narrowness can't hide in an average. Recall `fitness = spread · max(0, ordering)`.
 """)
 
 code(r"""
 cov = domain_coverage(reveal)
-print(f"spans {cov['n_domains']} domains; effective (exp-entropy) = {cov['effective_domains']:.2f}")
-print(f"\n{'domain':<16}{'n':>4}{'spread':>8}{'order':>8}{'gate':>7}")
+fnd = foundational_fitness(
+    reveal, panel,
+    dgp_classes=buffer.pool_dgp_classes,
+    cadences=buffer.pool_cadences,
+)
+print(f"spans {cov['n_domains']} real domains; effective (exp-entropy) = {cov['effective_domains']:.2f}")
+print(f"coverage_gate={fnd['coverage_gate']:.2f}  "
+      f"dgp_class_breadth_gate={fnd['dgp_class_breadth_gate']:.0f}  "
+      f"cadence_breadth_gate={fnd['cadence_breadth_gate']:.0f}  "
+      f"parrot_gate={fnd['parrot_gate']:.2f}")
+
+print(f"\n{'domain':<16}{'n':>4}{'spread':>8}{'order':>8}{'strong':>8}")
 for dom, m in sorted(stratified_fitness(reveal, panel).items(), key=lambda kv: -kv[1]['n']):
-    print(f"{dom:<16}{m['n']:>4}{m['spread']:>8.2f}{m['ordering']:>+8.2f}{m['gate']:>7.2f}")
+    print(f"{dom:<16}{m['n']:>4}{m['spread']:>8.2f}{m['ordering']:>+8.2f}{m['difficulty']:>8.2f}")
 """)
 
 md(r"""
 ## Recap
 
-- **Forge** → the benchmark hardens itself (gate ↑) and stays a moving target.
+- **Live catalog** → challenges are real motifs, not synthetic; the tested
+  distribution is exactly the ingested feeds.
 - **Commit-reveal** → identical, reproducible challenges for every validator.
-- **Panel + `validate_panel`** → challenges only count when the anchor genuinely leads.
+- **Panel + `validate_panel`** → challenges only count when the anchor genuinely
+  leads (numpy anchor `valid=False` on raw real data is expected; fix is a real
+  TSFM anchor).
 - **Leaderboard (MASE/WQL/CRPS) + `load_tsfm`** → scores an actual TSFM.
 - **Headroom** → confirms the benchmark can certify a better-than-classical model.
 - **Sandbox** → submissions are executed in isolation, not just linted.
+- **Foundational breadth** → valid and discriminating *across* real domains.
 
-Swap in a real anchor (`default_panel(strong_model=...)`), a real post-commit feed
-(`feeds.py`), and a real model (`tsfm_adapters.load_tsfm`) for production.
+Swap in a real anchor (`default_panel(strong_model=...)`) and a real model
+(`tsfm_adapters.load_tsfm`) for production. See `src/demo.py` for the same flow as
+a script, and `experiments/` for the real-live-feed and independent-validation
+walkthroughs.
 """)
 
 nb = new_notebook(cells=cells, metadata={
