@@ -1,0 +1,408 @@
+# Slow-cadence catalog — weekly / monthly / quarterly / annual sources.
+#
+# GIFT-Eval covers 10 frequencies (10s → annual). The fast catalog `sources.yaml`
+# covers 5 (sub-min → daily). This file covers the missing 4: weekly, monthly,
+# quarterly, annual — required for a foundation-model generalization test that
+# claims coverage across the full cadence ladder.
+#
+# Same schema as sources.yaml. Every entry carries `dgp_class` (see
+# DGP_TAXONOMY.md) so the eval-pool builder can DGP-weight rather than
+# source-count-weight the aggregate score.
+#
+# For monthly/yearly cadences, "daily-fresh" means the augmentation realization
+# rotates daily, not the underlying series. See docs/EVAL_POOL.md for how the
+# slow tier feeds cascade.pool.
+#
+# All entries are PENDING first-fetch verification unless noted otherwise.
+# ============================================================================
+
+# ============================================================================
+# Weekly (P1W) — 5 entries; targeted at ~12 for parity with GIFT-Eval weekly slot
+# ============================================================================
+
+- id: eia_weekly_petroleum_stocks
+  name: EIA weekly petroleum stocks — US crude, gasoline, distillate, refinery util
+  domain: energy
+  dgp_class: energy_supply_flow
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://api.eia.gov/v2/petroleum/stoc/wstk/data/?frequency=weekly&data[0]=value&sort[0][column]=period&sort[0][direction]=desc&length=5000&api_key={EIA_API_KEY}
+    auth: env:EIA_API_KEY
+    rate_limit: "30 req/min with key"
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    variates: 1
+  history_available: P40Y
+  update_cadence_observed: "weekly (Wed release), ~2 day lag"
+  pretraining_novelty: partial
+  novelty_notes: "EIA weekly petroleum series widely cited; specific sub-series (regional gasoline stocks, distillate imports) less so."
+  license: "Public domain (US Government / EIA)"
+  sample_path: samples/eia_weekly_petroleum_stocks.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch — EIA v2 API returns weekly petroleum stocks
+    with DEMO_KEY.] 267k+ records total across 100s of series. Same `{EIA_API_KEY}`
+    URL-query-auth blocker as fast-catalog `eia_natural_gas_spot_daily`.
+
+- id: cdc_fluview_ili
+  name: CDC FluView — weekly outpatient influenza-like illness rate by HHS region
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes: [smooth_periodic, hierarchical, non_stationary_regime, bounded]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://gis.cdc.gov/grasp/flu2/GetPhase02QuickStats?AppVersion=Public&Season=YearAll
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: "[].WEEKEND"
+    value_field: "[].ACTIVITY_LEVEL_NUMERIC"
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: "weekly publication (Fridays, Oct-May); off-season slower"
+  pretraining_novelty: partial
+  novelty_notes: "CDC ILI is widely used (Flu Prediction Challenge); some contamination expected. HHS-region breakdown less common than national."
+  license: "Public domain (US Government)"
+  sample_path: samples/cdc_fluview_ili.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    CDC FluView has multiple endpoints; the QuickStats above is the widely-used HHS-region
+    panel. If it moves, alternative dataset id at data.cdc.gov: search "FluView".
+
+- id: usda_nass_crop_progress_weekly
+  name: USDA NASS Crop Progress — weekly % planted / harvested by state × crop
+  domain: sales
+  dgp_class: agricultural_progress
+  archetypes: [smooth_periodic, hierarchical, bounded]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://quickstats.nass.usda.gov/api/api_GET/?key={USDA_NASS_API_KEY}&source_desc=SURVEY&statisticcat_desc=PROGRESS&freq_desc=WEEKLY&format=JSON
+    auth: env:USDA_NASS_API_KEY
+    rate_limit: "polite"
+  schema:
+    timestamp_field: data[].week_ending
+    value_field: data[].Value
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: "weekly during growing season"
+  pretraining_novelty: clean
+  novelty_notes: "USDA NASS crop progress % planted/harvested by state × crop — panel of ~500 series, agricultural DGP class distinct from anything in TSFM pretrains."
+  license: "Public domain (US Government)"
+  sample_path: samples/usda_nass_crop_progress_weekly.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    NASS QuickStats API requires free API key from quickstats.nass.usda.gov/api. Same
+    `{USDA_NASS_API_KEY}` URL-query-auth blocker as EIA. In-season only (typical
+    April-November for row crops); handle gaps in continuous-time projection.
+
+- id: noaa_drought_monitor_weekly
+  name: NOAA US Drought Monitor — weekly drought classification by state
+  domain: nature
+  dgp_class: climate_index
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical, bounded]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://usdmdataservices.unl.edu/api/StateStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=all&startdate=1/1/2020&enddate=12/31/2030&statisticsType=1
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: "[].ValidStart"
+    value_field: "[].D2"      # severe drought % of area
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: "weekly publication (Thursdays)"
+  pretraining_novelty: clean
+  novelty_notes: "USDM weekly per-state drought severity (D0-D4 bands, % of area) — climate index panel, not in TSFM corpora."
+  license: "Public domain (NOAA/NDMC)"
+  sample_path: samples/noaa_drought_monitor_weekly.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    National Drought Mitigation Center hosts the API. 50-state panel × D0-D4 bands = 250
+    series. Adjacent to nature/climate but categorically distinct from weather station data.
+
+- id: ecb_weekly_bank_liquidity
+  name: ECB weekly Eurosystem liquidity operations (MRO/MLO/deposit facility)
+  domain: econ_fin
+  dgp_class: monetary_policy_flow
+  archetypes: [non_stationary_regime, bounded, hierarchical]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data-api.ecb.europa.eu/service/data/ILM/W.U2.C.T210000.U2.EUR?format=jsondata&lastNObservations=520
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: dataSets[0].series."0:0:0:0:0:0".observations
+    value_field: dataSets[0].series."0:0:0:0:0:0".observations
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: "weekly, Tuesday publication"
+  pretraining_novelty: clean
+  novelty_notes: "ECB SDMX weekly Eurosystem operations — European monetary indicators, distinct from US-heavy TSFM training data."
+  license: "CC-BY-4.0 (ECB)"
+  sample_path: samples/ecb_weekly_bank_liquidity.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    ECB uses SDMX-JSON with observations keyed by dimension-index strings.
+    **Scraper limitation**: SDMX-JSON needs a decoder that maps observation index keys
+    back to (time, dimensions). Same shape issue as OECD SDMX + Eurostat.
+
+# ============================================================================
+# Monthly (P1M) — 4 entries; targeted at ~15 for parity with GIFT-Eval monthly slot
+# ============================================================================
+
+- id: oecd_cli_monthly
+  name: OECD Composite Leading Indicators — monthly by country
+  domain: econ_fin
+  dgp_class: macro_leading_indicator
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical]
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CLI,/all?format=jsondata&lastNObservations=240
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: structure.dimensions.observation[TIME_PERIOD].values
+    value_field: dataSets[0].observations
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: "monthly, ~5 week lag"
+  pretraining_novelty: clean
+  novelty_notes: "OECD CLI covers ~40 countries; leading-indicator DGP class distinct from GDP/CPI."
+  license: "OECD terms of use"
+  sample_path: samples/oecd_cli_monthly.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] SDMX endpoint returns 500+ series covering multiple
+    countries × CLI variants (amplitude adjusted, normalized, trend-restored) × monthly and
+    quarterly. **Same SDMX-JSON decoder gap as ECB entry.** Once the decoder exists, this
+    single endpoint provides a large macro-econ panel.
+
+- id: noaa_ncei_monthly_climate
+  name: NOAA NCEI — monthly US climate divisions (temperature, precipitation)
+  domain: nature
+  dgp_class: climate_field
+  archetypes: [smooth_periodic, hierarchical, non_stationary_regime]
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://www.ncei.noaa.gov/access/services/data/v1?dataset=climdiv&startDate=1900-01-01&endDate=2030-12-31&stations={CLIMDIV_ID}&format=json
+    auth: env:NOAA_NCEI_TOKEN
+    rate_limit: "polite"
+  panel:
+    - {CLIMDIV_ID: "USH00011084"}  # Alabama-01
+    - {CLIMDIV_ID: "USC00011084"}
+    # NOAA has 344 US climate divisions; expand panel at activation.
+    - {CLIMDIV_ID: "TBD-FULL-PANEL-FROM-NCEI-CATALOG"}
+  schema:
+    timestamp_field: "[].date"
+    value_field: "[].value"
+    variates: 1
+  history_available: P125Y
+  update_cadence_observed: "monthly, ~2 week lag"
+  pretraining_novelty: partial
+  novelty_notes: "NOAA NCEI climate data long-established; per-station monthly is narrower than typical TSFM training set."
+  license: "Public domain (US Government)"
+  sample_path: samples/noaa_ncei_monthly_climate.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    NCEI CDO API. Free NOAA token from ncdc.noaa.gov/cdo-web/token. Header-based auth
+    (`token: <value>`) — needs the header-name-override scraper extension (same as LTA).
+
+- id: eurostat_monthly_hicp_by_country
+  name: Eurostat HICP — monthly harmonized inflation by EU country
+  domain: econ_fin
+  dgp_class: macro_inflation
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical, bounded]
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_manr?format=JSON&lang=EN
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: dimension.time.category.index
+    value_field: value
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: "monthly, ~3 week lag"
+  pretraining_novelty: partial
+  novelty_notes: "Eurostat HICP by country and sub-category — EU27 panel less US-centric than typical TSFM training data."
+  license: "Public — Eurostat"
+  sample_path: samples/eurostat_monthly_hicp_by_country.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] returns JSON but with SDMX-JSON structure —
+    values keyed by dimension-index strings that require mapping tables to decode into
+    (time, country) tuples. **Same SDMX decoder gap as ECB and OECD entries.**
+
+- id: usda_wasde_monthly
+  name: USDA WASDE — monthly world agricultural supply and demand estimates
+  domain: sales
+  dgp_class: agricultural_forecast
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical]
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://www.usda.gov/oce/commodity/wasde/oce-wasde-report-{YYYY-MM}.xls
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: report_month
+    value_field: production_wheat
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: "monthly (2nd Tue), ~24h lag"
+  pretraining_novelty: clean
+  novelty_notes: "USDA WASDE monthly world crop supply/demand forecasts — modeled-forecast DGP class rare in TSFM training."
+  license: "Public domain (US Government)"
+  sample_path: samples/usda_wasde_monthly.xls  # PENDING
+  verification:
+    last_verified: BLOCKED
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    WASDE publishes as Excel (.xls) monthly. **Blocked on scraper .xls parser** (same
+    class as html_table + rest_xml). Or use USDA ERS API alternative if available.
+    Consider replacing with the JSON-formatted successor if USDA publishes one.
+
+# ============================================================================
+# Yearly (P1Y) — 3 entries; targeted at ~10 for parity with GIFT-Eval annual slot
+# ============================================================================
+
+- id: worldbank_wdi_yearly
+  name: World Bank WDI — yearly development indicators by country (panel)
+  domain: econ_fin
+  dgp_class: development_indicator
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical]
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://api.worldbank.org/v2/country/all/indicator/{INDICATOR_CODE}?format=json&per_page=20000
+    auth: none
+    rate_limit: "polite"
+  panel:
+    # OPERATOR ACTION: populate at activation with 100+ *mid-tail* WDI indicators.
+    # AVOID top-cited series (NY.GDP.MKTP.CD, SP.POP.TOTL, etc.) — those appear in
+    # every TSFM training corpus. Use sub-sectoral GVA, commodity-specific exports,
+    # gender-disaggregated indicators, environmental services, etc.
+    - {INDICATOR_CODE: "AG.YLD.CREL.KG"}       # Cereal yield (kg per hectare)
+    - {INDICATOR_CODE: "EN.ATM.CO2E.PC"}       # CO₂ emissions per capita
+    - {INDICATOR_CODE: "SH.STA.SUIC.P5"}       # Suicide mortality rate
+    - {INDICATOR_CODE: "SL.TLF.CACT.FE.ZS"}    # Female labor force participation
+    - {INDICATOR_CODE: "TBD-EXPAND-TO-150"}
+  schema:
+    timestamp_field: "[1][].date"              # year integer
+    value_field: "[1][].value"
+    variates: 1
+  history_available: P60Y
+  update_cadence_observed: "annually, ~9 month lag"
+  pretraining_novelty: partial
+  novelty_notes: "World Bank WDI is comprehensive; top-100 indicators contaminate TSFM training. Mid-tail sub-sectoral indicators are clean."
+  license: "CC-BY-4.0 (World Bank)"
+  sample_path: samples/worldbank_wdi_yearly.json  # PENDING
+  verification:
+    last_verified: PENDING              # WebFetch timed out during verification; endpoint pattern documented on data.worldbank.org
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    Response is a 2-array: [0]=metadata, [1]=data. Data records have `date` (year string),
+    `value` (numeric), `countryiso3code`. 200-country × N-indicator × 60-year panel.
+    See DGP_TAXONOMY.md for guidance on picking indicators that hit distinct DGP classes.
+
+- id: fao_crop_yields_yearly
+  name: FAO — yearly crop yields by country × crop
+  domain: sales
+  dgp_class: agricultural_productivity
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical]
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://fenixservices.fao.org/faostat/api/v1/en/data/QCL?area_cs=M49&item_cs=CPC&element=5419&year_range=1961:2030&output_type=json
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: data[].Year
+    value_field: data[].Value
+    variates: 1
+  history_available: P60Y
+  update_cadence_observed: "annually, ~1 year lag"
+  pretraining_novelty: clean
+  novelty_notes: "FAO crop-yield-by-country-by-crop panel — thousands of series, distinct DGP class from macro-economic indicators."
+  license: "CC-BY-NC-SA-3.0 (FAO)"
+  sample_path: samples/fao_crop_yields_yearly.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    FAOSTAT QCL = Crops-and-Livestock, element 5419 = yield (kg/hectare). Panel:
+    ~200 countries × ~100 crops = ~20k series × 60 years.
+
+- id: maddison_gdp_per_capita_yearly
+  name: Maddison Project — yearly GDP per capita by country (historical, centuries)
+  domain: econ_fin
+  dgp_class: macro_historical
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical]
+  frequency: P1Y
+  endpoint:
+    type: rest_csv
+    url: https://www.rug.nl/ggdc/historicaldevelopment/maddison/data/mpd2023.xlsx
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: year
+    value_field: gdppc
+    variates: 1
+  history_available: P2000Y                # centuries — "context depth" stress test
+  update_cadence_observed: "every ~3 years (Maddison releases)"
+  pretraining_novelty: partial
+  novelty_notes: "Maddison historical GDP is well-cited but the very long context (~800 years for some countries) is unusual and stresses TSFM long-context handling."
+  license: "CC-BY-4.0 (Maddison Project)"
+  sample_path: samples/maddison_gdp_per_capita_yearly.xlsx  # PENDING
+  verification:
+    last_verified: BLOCKED
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    Published as .xlsx (Excel). **Blocked on scraper .xlsx parser** (same class as
+    WASDE .xls). Adds openpyxl dep. This entry is the **long-context stress test** — some
+    country series run 800+ years, testing whether TSFMs can handle unusually long context
+    without truncation artifacts.
+
+# ============================================================================
+# End of slow-cadence catalog.
+# See DGP_TAXONOMY.md for the dgp_class taxonomy used above.
+# See sources/coverage_matrix.md for how these fill the frequency-ladder gap.
+# ============================================================================

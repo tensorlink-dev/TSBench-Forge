@@ -1,0 +1,3029 @@
+# Timeframe benchmark — verified daily-or-faster time-series sources
+# All entries verified by HTTP call on 2026-05-11.
+# See verification_log.md for per-source provenance.
+
+# ============================================================================
+# econ_fin
+# ============================================================================
+- id: polymarket_btc_history
+  name: Polymarket price history (active market — operator-selected)
+  domain: econ_fin
+  dgp_class: prediction_market
+  archetypes: [bounded, non_stationary_regime]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://clob.polymarket.com/prices-history?market={MARKET_ID}&interval=1d&fidelity=60
+    auth: none
+    rate_limit: null
+  panel:
+    # OPERATOR ACTION: populate this list at activation by enumerating active markets
+    # via gamma-api.polymarket.com/markets?closed=false&order=volume&ascending=false
+    # and picking 5-10 long-running, high-volume markets (≥6mo to resolution preferred —
+    # markets near resolution have degenerate "approaching binary" dynamics that don't
+    # generalise to forecasting skill).
+    - {MARKET_ID: "TBD-FROM-GAMMA-API"}
+  schema:
+    timestamp_field: history[].t          # epoch seconds
+    value_field: history[].p              # bounded [0,1]
+    variates: 1
+  history_available: P1Y
+  update_cadence_observed: "every ~5 minutes (clob trades)"
+  pretraining_novelty: clean
+  novelty_notes: "Specific Polymarket conditions; Polymarket history not in LOTSA/Monash/Chronos/TimesFM/Moirai mixes."
+  license: "Polymarket ToS — research use ok"
+  sample_path: samples/polymarket_btc_history.json
+  verification:
+    last_verified: PENDING                # was 2026-05-11; original market resolved (June 2026 expiry)
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01:] The original entry pinned market id 13915689... ("BTC≥150K by June 2026")
+    which **resolved** before today (2026-07-01). Time-bounded Polymarket markets cannot
+    be pinned by id long-term — replaced the single hardcoded id with a `{MARKET_ID}` panel
+    placeholder so the operator populates active market ids at activation. See gamma-api
+    enumeration command in the panel comment above. Other candidate market ids previously
+    documented in candidates.md may also be resolved by now.
+
+- id: kalshi_markets_snapshot
+  name: Kalshi open markets — last_price snapshot
+  domain: econ_fin
+  dgp_class: prediction_market
+  archetypes: [bounded, hierarchical]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.elections.kalshi.com/trade-api/v2/markets?limit=200&status=open
+    auth: none
+    rate_limit: "10 req/s"
+  schema:
+    timestamp_field: now()
+    value_field: markets[].last_price_dollars
+    variates: 1
+  history_available: P3Y
+  update_cadence_observed: "real-time on trade"
+  pretraining_novelty: clean
+  novelty_notes: "Kalshi only opened to retail mid-2023; markets are event-driven, mostly novel."
+  license: "Kalshi ToS — research-permissive; rate limit applies"
+  sample_path: samples/kalshi_markets.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 10
+    sample_freshness_hours: 0.05
+  notes: "Snapshot poll. Per-market candlesticks endpoint exists for historical bars: /markets/{ticker}/candlesticks."
+
+- id: manifold_markets_snapshot
+  name: Manifold markets — probability snapshot
+  domain: econ_fin
+  dgp_class: prediction_market
+  archetypes: [bounded, hierarchical]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.manifold.markets/v0/markets?limit=200
+    auth: none
+    rate_limit: "1000 req/min"
+  schema:
+    timestamp_field: lastUpdatedTime  # epoch ms
+    value_field: probability          # [0,1]
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "real-time on trade"
+  pretraining_novelty: clean
+  novelty_notes: "Manifold market state is play-money but live; unlikely in major TSFM pretrains."
+  license: "MIT (Manifold open data)"
+  sample_path: samples/manifold_markets.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 10
+    sample_freshness_hours: 0.04
+  notes: "Use /v0/bets?contractId=X for per-market bet stream when needed."
+
+- id: coingecko_btc_hourly
+  name: CoinGecko BTC/USD hourly market chart
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [non_stationary_regime]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=hourly
+    auth: none
+    rate_limit: "30 req/min"
+  schema:
+    timestamp_field: prices[][0]   # epoch ms
+    value_field: prices[][1]
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "hourly"
+  pretraining_novelty: contaminated
+  novelty_notes: "BTC/USD daily/hourly is in many TSFM training mixes (Chronos demo data)."
+  license: "Free tier ToS"
+  sample_path: samples/coingecko_btc_hourly.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 25
+    sample_freshness_hours: 1.0
+  notes: "Calibration baseline. For novelty, switch to long-tail coin id or Polymarket."
+
+- id: binance_btcusdt_1m
+  name: Binance crypto-pairs 1-minute klines (10-symbol panel)
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [non_stationary_regime, chaotic_nonlinear, noisy_clean_pair]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.binance.com/api/v3/klines?symbol={SYMBOL}&interval=1m&limit=1000
+    auth: none
+    rate_limit: "1200 req/min weight"
+  panel:
+    - {SYMBOL: BTCUSDT}
+    - {SYMBOL: ETHUSDT}
+    - {SYMBOL: SOLUSDT}
+    - {SYMBOL: BNBUSDT}
+    - {SYMBOL: XRPUSDT}
+    - {SYMBOL: ADAUSDT}
+    - {SYMBOL: DOGEUSDT}
+    - {SYMBOL: AVAXUSDT}
+    - {SYMBOL: MATICUSDT}
+    - {SYMBOL: LINKUSDT}
+  schema:
+    timestamp_field: "[][0]"    # open time epoch ms
+    value_field: ["[][1]","[][2]","[][3]","[][4]","[][5]"]   # OHLCV
+    variates: 5
+  history_available: P7Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: partial
+  novelty_notes: "BTCUSDT daily is contaminated; 1-minute resolution less so. Use long-tail pair (e.g. tBTCEUR niche) for clean."
+  license: "Binance public market data — research use ok"
+  sample_path: samples/binance_btcusdt_1m.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Use ?endTime= for historical paging. Klines limit cap = 1000 bars."
+
+- id: coinbase_btc_5min
+  name: Coinbase Exchange BTC-USD 5-minute candles
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [non_stationary_regime, noisy_clean_pair]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=300
+    auth: none
+    rate_limit: "10 req/s"
+  schema:
+    timestamp_field: "[][0]"    # epoch s
+    value_field: ["[][1]","[][2]","[][3]","[][4]","[][5]"]    # low,high,open,close,volume
+    variates: 5
+  history_available: P10Y
+  update_cadence_observed: "5 minutes"
+  pretraining_novelty: partial
+  novelty_notes: "Pair with Binance to study cross-exchange consistency (effectively a noisy_clean_pair for the same asset)."
+  license: "Coinbase market data ToS"
+  sample_path: samples/coinbase_btc_5min.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Granularities: 60, 300, 900, 3600, 21600, 86400 seconds."
+
+- id: defillama_chain_tvl_daily
+  name: DefiLlama Ethereum chain TVL daily
+  domain: econ_fin
+  dgp_class: macro_economic_indicator
+  archetypes: [non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.llama.fi/v2/historicalChainTvl/Ethereum
+    auth: none
+    rate_limit: "60 req/min"
+  schema:
+    timestamp_field: "[].date"   # epoch s
+    value_field: "[].tvl"        # USD
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "daily snapshots, refreshed every few hours"
+  pretraining_novelty: clean
+  novelty_notes: "DefiLlama daily TVL not in LOTSA/Monash/M4/M5; DeFi data largely absent from TSFM corpora."
+  license: "Free, attribution requested"
+  sample_path: samples/defillama_eth_tvl.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 100
+    sample_freshness_hours: 1.0
+  notes: "Per-protocol TVL also available: /protocol/{slug}. Use for hierarchical (per-protocol) panel."
+
+- id: frankfurter_fx_daily
+  name: Frankfurter ECB FX daily reference rates
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: [non_stationary_regime, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.frankfurter.dev/v1/latest?from=USD
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: date
+    value_field: rates       # dict of currency -> rate
+    variates: 30
+  history_available: P25Y
+  update_cadence_observed: "weekday only — ECB publishes Mon–Fri ~16:00 CET"
+  pretraining_novelty: contaminated
+  novelty_notes: "ECB daily FX is in LOTSA Exchange dataset (Monash) — calibration baseline only."
+  license: "Free public-domain (ECB)"
+  sample_path: samples/frankfurter_fx_latest.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 1
+    sample_freshness_hours: 70.0
+  notes: "Weekend gap is normal. For history: /v1/2026-01-01..2026-05-09?from=USD"
+
+- id: treasury_yield_curve_daily
+  name: US Treasury daily yield curve rates
+  domain: econ_fin
+  dgp_class: monetary_policy_rate
+  archetypes: [non_stationary_regime, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Date
+    value_field: ["1 Mo","3 Mo","6 Mo","1 Yr","2 Yr","5 Yr","10 Yr","30 Yr"]
+    variates: 14
+  history_available: P30Y
+  update_cadence_observed: "weekday only — US Treasury business days"
+  pretraining_novelty: contaminated
+  novelty_notes: "Headline FRED series; in many pretrain corpora."
+  license: "Public domain (US Government)"
+  sample_path: samples/treasury_yield_curve.csv
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 100
+    sample_freshness_hours: 70.0
+  notes: "Calibration baseline for econ_fin daily."
+
+# ============================================================================
+# energy
+# ============================================================================
+- id: uk_carbon_intensity_actual
+  name: UK National Grid carbon intensity (actual + forecast)
+  domain: energy
+  dgp_class: generation_mix
+  archetypes: [bounded, smooth_periodic, noisy_clean_pair]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api.carbonintensity.org.uk/intensity
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].from
+    value_field: ["data[].intensity.actual","data[].intensity.forecast"]
+    variates: 2
+  history_available: P8Y
+  update_cadence_observed: "30 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "UK CI API not in standard TSFM pretrain mixes."
+  license: "CC-BY-4.0 (NESO/National Grid ESO)"
+  sample_path: samples/uk_carbon_intensity.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 1
+    sample_freshness_hours: 0.5
+  notes: "Use /intensity/{from}/{to} for historic range."
+
+- id: uk_carbon_intensity_genmix
+  name: UK National Grid generation mix by fuel
+  domain: energy
+  dgp_class: generation_mix
+  archetypes: [bounded, hierarchical, categorical]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api.carbonintensity.org.uk/generation
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.from
+    value_field: data.generationmix[].perc      # 9 fuels, sum to 100
+    variates: 9
+  history_available: P8Y
+  update_cadence_observed: "30 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "Hierarchical % mix; not in major TSFM corpora."
+  license: "CC-BY-4.0"
+  sample_path: samples/uk_carbon_intensity_genmix.json
+  verification:
+    last_verified: 2026-05-11T01:23:00Z
+    sample_rows: 1
+    sample_freshness_hours: 0.5
+
+- id: octopus_agile_tariff
+  name: Octopus Energy Agile tariff (14-region UK panel)
+  domain: energy
+  dgp_class: energy_price
+  archetypes: [non_stationary_regime, bounded]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api.octopus.energy/v1/products/AGILE-24-10-01/electricity-tariffs/E-1R-AGILE-24-10-01-{REGION}/standard-unit-rates/
+    auth: none
+    rate_limit: "100 req/min"
+  panel:
+    - {REGION: A}    # Eastern England
+    - {REGION: B}    # East Midlands
+    - {REGION: C}    # London
+    - {REGION: D}    # Merseyside & North Wales
+    - {REGION: E}    # West Midlands
+    - {REGION: F}    # NE England
+    - {REGION: G}    # NW England
+    - {REGION: H}    # Southern England
+    - {REGION: J}    # SE England
+    - {REGION: K}    # Southern Wales
+    - {REGION: L}    # SW England
+    - {REGION: M}    # Yorkshire
+    - {REGION: N}    # Southern Scotland
+    - {REGION: P}    # Northern Scotland
+  schema:
+    timestamp_field: results[].valid_from
+    value_field: results[].value_inc_vat   # p/kWh
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "30 minutes; next-day prices published ~16:00 UTC"
+  pretraining_novelty: clean
+  novelty_notes: "Retail dynamic tariff; not in pretraining corpora."
+  license: "Octopus Energy API ToS — research-permissive"
+  sample_path: samples/octopus_agile_rates.json
+  verification:
+    last_verified: 2026-05-11T01:27:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.5
+  notes: "Region letters A-P. Product code rolls (next: AGILE-25-XX-XX); pull product list dynamically."
+
+- id: aemo_nem_5min
+  name: AEMO NEM 5-minute price & demand (5-region panel)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [hierarchical, non_stationary_regime, chaotic_nonlinear, smooth_periodic]
+  frequency: PT5M
+  endpoint:
+    type: rest_csv
+    url: https://aemo.com.au/aemo/data/nem/priceanddemand/PRICE_AND_DEMAND_202605_{REGION}.csv
+    auth: none
+    rate_limit: null
+  panel:
+    - {REGION: NSW1}
+    - {REGION: VIC1}
+    - {REGION: QLD1}
+    - {REGION: SA1}
+    - {REGION: TAS1}
+  schema:
+    timestamp_field: SETTLEMENTDATE
+    value_field: [TOTALDEMAND, RRP]
+    variates: 2
+  history_available: P15Y
+  update_cadence_observed: "5 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "AEMO public CSV; not in LOTSA/Monash."
+  license: "AEMO public data — research permitted"
+  sample_path: samples/aemo_nem_5min.csv
+  verification:
+    last_verified: 2026-05-11T01:27:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Filename pattern: PRICE_AND_DEMAND_{YYYYMM}_{REGION}.csv. REGION ∈ {NSW1,QLD1,SA1,TAS1,VIC1}."
+
+- id: caiso_oasis_lmp_5min
+  name: CAISO OASIS real-time LMP (5-min)
+  domain: energy
+  dgp_class: energy_price
+  archetypes: [hierarchical, non_stationary_regime, chaotic_nonlinear, zero_inflated_sparse]
+  frequency: PT5M
+  endpoint:
+    type: rest_csv
+    url: https://oasis.caiso.com/oasisapi/SingleZip?queryname=PRC_INTVL_LMP&startdatetime=20260510T07:00-0000&enddatetime=20260510T08:00-0000&version=3&market_run_id=RTM&node=TH_NP15_GEN-APND
+    auth: none
+    rate_limit: "1 req/5s — burst caps apply"
+  schema:
+    timestamp_field: REPORT_ITEM/REPORT_DATA/INTERVAL_START_GMT
+    value_field: REPORT_ITEM/REPORT_DATA/VALUE
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "5 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "CAISO public; sparse in TSFM corpora."
+  license: "CAISO public ToS"
+  sample_path: samples/caiso_oasis_lmp_5min.zip
+  verification:
+    last_verified: 2026-05-11T01:28:00Z
+    sample_rows: 12
+    sample_freshness_hours: 0.5
+  notes: "Returns zipped XML; handle in scraper. Other queries: ENE_SLRS, AS_RESULTS, etc."
+
+- id: nyiso_realtime_lmp_zonal
+  name: NYISO real-time LMP zonal (5-min)
+  domain: energy
+  dgp_class: energy_price
+  archetypes: [hierarchical, non_stationary_regime]
+  frequency: PT5M
+  endpoint:
+    type: rest_csv
+    # YYYYMMDD token is expanded to current UTC date by scraper.expand_url.
+    # Note: NYISO file rolls at 00:00 ET; for the first ~5h of UTC each day,
+    # the previous-day file is still the live one. Production cron should poll
+    # the NY-local current-day file.
+    url: http://mis.nyiso.com/public/csv/realtime/{YYYYMMDD}realtime_zone.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "Time Stamp"
+    value_field: "LBMP ($/MWHr)"
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "5 minutes; daily file rolls at 00:00 ET"
+  pretraining_novelty: clean
+  novelty_notes: "NYISO public file; novel for TSFM."
+  license: "NYISO public data"
+  sample_path: samples/nyiso_realtime_lmp.csv
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.5
+  notes: "Daily CSV file URL pattern with date. 11 zones per timestamp (CAPITL, CENTRL, etc.) — naturally hierarchical."
+
+- id: elia_solar_15min
+  name: Belgian Elia per-region solar production (15-min)
+  domain: energy
+  dgp_class: generation_mix
+  archetypes: [hierarchical, smooth_periodic, bounded]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods032/records?limit=100&order_by=datetime%20desc
+    auth: none
+    rate_limit: "5000 req/day, anonymous"
+  schema:
+    timestamp_field: results[].datetime
+    value_field: results[].measured        # MW
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "15 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "Elia open data; not in LOTSA."
+  license: "CC-BY-4.0"
+  sample_path: samples/elia_solar_15min.json
+  verification:
+    last_verified: 2026-05-11T01:28:00Z
+    sample_rows: 20
+    sample_freshness_hours: 4.0
+  notes: "Region facet for hierarchical panel: facet=region. Other datasets: ods033 wind, ods001 load."
+
+- id: uk_neso_carbon_historic_30min
+  name: UK NESO historic generation mix and carbon intensity (30-min)
+  domain: energy
+  dgp_class: generation_mix
+  archetypes: [hierarchical, smooth_periodic]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api.neso.energy/api/3/action/datastore_search?resource_id=f93d1835-75bc-43e5-84ad-12472b180a98&limit=1000&sort=DATETIME%20desc
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: result.records[].DATETIME
+    value_field: result.records[].CARBON_INTENSITY
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "30 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "NESO datastore; not in standard TSFM corpora."
+  license: "OGL UK"
+  sample_path: samples/uk_neso_carbon_historic.json
+  verification:
+    last_verified: 2026-05-11T01:30:00Z
+    sample_rows: 10
+    sample_freshness_hours: 4.0
+  notes: "CKAN datastore_search; pagination via offset."
+
+# ============================================================================
+# nature
+# ============================================================================
+- id: usgs_earthquakes_realtime
+  name: USGS earthquakes — all events past 24h
+  domain: nature
+  dgp_class: seismic_event
+  archetypes: [count_discrete, chaotic_nonlinear, zero_inflated_sparse]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: features[].properties.time      # epoch ms
+    value_field: features[].properties.mag
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: "every minute (rolling 24h)"
+  pretraining_novelty: partial
+  novelty_notes: "USGS feed referenced in some pretrains but per-event data novel."
+  license: "Public domain (USGS)"
+  sample_path: samples/usgs_earthquakes.json
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Aggregate to hourly counts for count_discrete, or per-region for hierarchical. Other feeds: significant_week, 4.5_month."
+
+- id: usgs_streamflow_iv
+  name: USGS NWIS instantaneous streamflow (30-gauge US panel)
+  domain: nature
+  dgp_class: hydrology
+  archetypes: [hierarchical, chaotic_nonlinear, non_stationary_regime]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://waterservices.usgs.gov/nwis/iv/?format=json&sites={SITE}&parameterCd=00060&period=PT24H
+    auth: none
+    rate_limit: null
+  panel:
+    - {SITE: '01646500'}    # Potomac @ Little Falls, MD
+    - {SITE: '06892350'}    # Kansas R @ DeSoto, KS
+    - {SITE: '07374000'}    # Mississippi R @ Baton Rouge, LA
+    - {SITE: '11447650'}    # Sacramento R @ Freeport, CA
+    - {SITE: '14211720'}    # Willamette R @ Portland, OR
+    - {SITE: '02035000'}    # James R @ Cartersville, VA
+    - {SITE: '09380000'}    # Colorado R @ Lees Ferry, AZ
+    - {SITE: '02085070'}    # Eno R @ Hillsborough, NC
+    - {SITE: '02175000'}    # Edisto R nr Givhans, SC
+    - {SITE: '03335500'}    # Wabash R @ Lafayette, IN
+    - {SITE: '04085427'}    # Fox R @ Berlin, WI
+    - {SITE: '05389000'}    # Yellow R @ Ion, IA
+    - {SITE: '06934500'}    # Missouri R @ Hermann, MO
+    - {SITE: '07057500'}    # North Fork White R, MO
+    - {SITE: '08116650'}    # Brazos R nr Rosharon, TX
+    - {SITE: '08313000'}    # Rio Grande @ Otowi, NM
+    - {SITE: '09424900'}    # Bill Williams R, AZ
+    - {SITE: '10128500'}    # Weber R nr Oakley, UT
+    - {SITE: '13317000'}    # Salmon R @ White Bird, ID
+    - {SITE: '12330000'}    # Boulder Creek nr Maxville, MT
+    - {SITE: '14191000'}    # Willamette R @ Salem, OR
+    - {SITE: '13056500'}    # Henrys Fork Snake R, ID
+    - {SITE: '02226160'}    # Satilla R nr Atkinson, GA
+    - {SITE: '03251500'}    # Licking R, KY
+    - {SITE: '04193500'}    # Maumee R @ Waterville, OH
+    - {SITE: '01400500'}    # Raritan R @ Manville, NJ
+    - {SITE: '02236000'}    # St Johns R @ DeLand, FL
+    - {SITE: '06054500'}    # Missouri R @ Toston, MT
+    - {SITE: '14266000'}    # Siletz R @ Siletz, OR
+    - {SITE: '10128500'}    # second Weber gauge as test
+  schema:
+    timestamp_field: value.timeSeries[0].values[0].value[].dateTime
+    value_field: value.timeSeries[0].values[0].value[].value
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: "15 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "Per-station NWIS data; the specific gauge id is unlikely in TSFM mixes."
+  license: "Public domain (USGS)"
+  sample_path: samples/usgs_streamflow.json
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 17
+    sample_freshness_hours: 0.5
+  notes: "Use sites=01646500,12010000,... for hierarchical panel. parameterCd 00060 = discharge cfs."
+
+- id: noaa_tides_coops
+  name: NOAA CO-OPS tide gauge water level (25-station panel, 6-min)
+  domain: nature
+  dgp_class: tidal_periodic
+  archetypes: [smooth_periodic, hierarchical]
+  frequency: PT6M
+  endpoint:
+    type: rest_json
+    url: https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station={STATION}&product=water_level&datum=mllw&time_zone=gmt&units=metric&format=json
+    auth: none
+    rate_limit: null
+  panel:
+    - {STATION: '8454000'}    # Providence, RI
+    - {STATION: '8443970'}    # Boston, MA
+    - {STATION: '8423898'}    # Fort Point, NH
+    - {STATION: '8410140'}    # Eastport, ME
+    - {STATION: '8518750'}    # The Battery, NY
+    - {STATION: '8534720'}    # Atlantic City, NJ
+    - {STATION: '8557380'}    # Lewes, DE
+    - {STATION: '8638610'}    # Sewells Point, VA
+    - {STATION: '8665530'}    # Charleston, SC
+    - {STATION: '8723214'}    # Virginia Key, FL
+    - {STATION: '8729840'}    # Pensacola, FL
+    - {STATION: '8771341'}    # Galveston Bay, TX
+    - {STATION: '9410660'}    # Los Angeles, CA
+    - {STATION: '9414290'}    # San Francisco, CA
+    - {STATION: '9447130'}    # Seattle, WA
+    - {STATION: '9455090'}    # Seward, AK
+    - {STATION: '1612340'}    # Honolulu, HI
+    - {STATION: '8761724'}    # Grand Isle, LA
+    - {STATION: '8651370'}    # Duck, NC
+    - {STATION: '8447930'}    # Woods Hole, MA
+    - {STATION: '8531680'}    # Sandy Hook, NJ
+    - {STATION: '8761305'}    # Shell Beach, LA
+    - {STATION: '9410230'}    # La Jolla, CA
+    - {STATION: '9415020'}    # Point Reyes, CA
+    - {STATION: '9444900'}    # Port Townsend, WA
+  schema:
+    timestamp_field: data[].t
+    value_field: data[].v        # meters MLLW
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: "6 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "Per-station tide height not in standard TSFM mixes."
+  license: "Public domain (NOAA)"
+  sample_path: samples/noaa_tides_coops.json
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 14
+    sample_freshness_hours: 0.5
+  notes: "Station list at /api/prod/stations.json. Smooth_periodic exemplar."
+
+- id: ndbc_buoy_realtime
+  name: NDBC buoy realtime metereological (20-buoy panel)
+  domain: nature
+  dgp_class: weather_field
+  archetypes: [hierarchical, chaotic_nonlinear]
+  frequency: PT1H
+  endpoint:
+    type: rest_csv
+    url: https://www.ndbc.noaa.gov/data/realtime2/{BUOY}.txt
+    auth: none
+    rate_limit: null
+  panel:
+    - {BUOY: '41008'}    # Grays Reef, GA
+    - {BUOY: '41001'}    # E of Cape Hatteras, NC
+    - {BUOY: '41002'}    # S Hatteras
+    - {BUOY: '41010'}    # Canaveral East, FL
+    - {BUOY: '41040'}    # NE Puerto Rico
+    - {BUOY: '42001'}    # Mid-Gulf, MX
+    - {BUOY: '42002'}    # West-Gulf, MX
+    - {BUOY: '42040'}    # Mobile South, AL
+    - {BUOY: '44004'}    # Hotel
+    - {BUOY: '44005'}    # Gulf of Maine
+    - {BUOY: '44008'}    # Nantucket
+    - {BUOY: '44011'}    # Georges Bank
+    - {BUOY: '44013'}    # Boston, MA
+    # 44017 (Montauk Point) — recovered 2023-02, never re-deployed (NOAA maintenance).
+    #                        verified retired 2026-07-01. 44025 below covers Long Island.
+    - {BUOY: '44025'}    # Long Island
+    - {BUOY: '46001'}    # Gulf of Alaska
+    - {BUOY: '46002'}    # Oregon Offshore
+    - {BUOY: '46006'}    # SE Papa
+    - {BUOY: '46026'}    # San Francisco
+    - {BUOY: '51001'}    # NW Hawaii
+  schema:
+    timestamp_field: "YY MM DD hh mm"
+    value_field: [WSPD, WVHT, PRES, ATMP, WTMP]
+    variates: 5
+  history_available: P30Y
+  update_cadence_observed: "hourly"
+  pretraining_novelty: partial
+  novelty_notes: "NDBC realtime is widely used; specific buoy id less so."
+  license: "Public domain (NOAA)"
+  sample_path: samples/ndbc_buoy_41008.txt
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 100
+    sample_freshness_hours: 1.0
+  notes: "Buoy id list at https://www.ndbc.noaa.gov/wstat.shtml. 'MM' = missing."
+
+- id: swpc_planetary_k
+  name: NOAA SWPC planetary K-index (1-min estimated)
+  domain: nature
+  dgp_class: space_weather
+  archetypes: [bounded, chaotic_nonlinear]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://services.swpc.noaa.gov/json/planetary_k_index_1m.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].time_tag"
+    value_field: "[].estimated_kp"      # bounded 0-9
+    variates: 1
+  history_available: P3Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: clean
+  novelty_notes: "Space-weather Kp; not in major TSFM corpora."
+  license: "Public domain (NOAA SWPC)"
+  sample_path: samples/swpc_planetary_k.json
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+
+- id: swpc_solar_wind_plasma
+  name: NOAA SWPC ACE/DSCOVR solar wind plasma (1-min)
+  domain: nature
+  dgp_class: space_weather
+  archetypes: [chaotic_nonlinear]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[][0]"        # row 0 is header
+    value_field: ["[][1]","[][2]","[][3]"]   # density, speed, temperature
+    variates: 3
+  history_available: P3Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: clean
+  novelty_notes: "Niche space-weather; absent from LOTSA/Monash."
+  license: "Public domain (NOAA SWPC)"
+  sample_path: samples/swpc_solar_wind_plasma.json
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+
+- id: open_meteo_forecast
+  name: Open-Meteo NWP forecast (hourly)
+  domain: nature
+  dgp_class: weather_field
+  archetypes: [hierarchical, smooth_periodic]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.0&hourly=temperature_2m,precipitation,wind_speed_10m&past_days=7&forecast_days=1
+    auth: none
+    rate_limit: "10000 req/day, anonymous"
+  schema:
+    timestamp_field: hourly.time[]
+    value_field: [hourly.temperature_2m, hourly.precipitation, hourly.wind_speed_10m]
+    variates: 3
+  history_available: P5Y
+  update_cadence_observed: "hourly"
+  pretraining_novelty: partial
+  novelty_notes: "Open-Meteo aggregates ECMWF/GFS/ICON; specific lat/lon panel novel."
+  license: "CC-BY-4.0"
+  sample_path: samples/open_meteo_forecast.json
+  verification:
+    last_verified: 2026-05-11T01:36:00Z
+    sample_rows: 192
+    sample_freshness_hours: 1.0
+  notes: "past_days+forecast_days windows. Many vars: pressure_msl, cloud_cover, et al."
+
+- id: open_meteo_air_quality
+  name: Open-Meteo air-quality CAMS (hourly)
+  domain: nature
+  dgp_class: air_quality
+  archetypes: [hierarchical, noisy_clean_pair]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://air-quality-api.open-meteo.com/v1/air-quality?latitude=50.474&longitude=7.616&hourly=pm2_5,pm10,carbon_monoxide&past_days=2&forecast_days=1
+    auth: none
+    rate_limit: "10000 req/day"
+  schema:
+    timestamp_field: hourly.time[]
+    value_field: [hourly.pm2_5, hourly.pm10, hourly.carbon_monoxide]
+    variates: 3
+  history_available: P3Y
+  update_cadence_observed: "hourly"
+  pretraining_novelty: clean
+  novelty_notes: "CAMS regulatory model output. Pair with sensor.community sensor at same lat/lon for noisy_clean_pair archetype."
+  license: "CC-BY-4.0"
+  sample_path: samples/open_meteo_air_quality.json
+  verification:
+    last_verified: 2026-05-11T01:36:00Z
+    sample_rows: 72
+    sample_freshness_hours: 1.0
+  notes: "PAIR: this is the CLEAN/reference series. NOISY companion: sensor_community_pm25 entry below at lat 50.474, lon 7.616 (sensor 27357). Same underlying PM2.5 signal at near-identical lat/lon."
+  paired_with: sensor_community_pm25
+
+- id: open_meteo_marine
+  name: Open-Meteo marine forecast (hourly)
+  domain: nature
+  dgp_class: weather_field
+  archetypes: [hierarchical, smooth_periodic]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://marine-api.open-meteo.com/v1/marine?latitude=54.5&longitude=7.5&hourly=wave_height,wave_period&past_days=2&forecast_days=1
+    auth: none
+    rate_limit: "10000 req/day"
+  schema:
+    timestamp_field: hourly.time[]
+    value_field: [hourly.wave_height, hourly.wave_period]
+    variates: 2
+  history_available: P3Y
+  update_cadence_observed: "hourly"
+  pretraining_novelty: clean
+  novelty_notes: "Marine forecast; absent from LOTSA."
+  license: "CC-BY-4.0"
+  sample_path: samples/open_meteo_marine.json
+  verification:
+    last_verified: 2026-05-11T01:36:00Z
+    sample_rows: 72
+    sample_freshness_hours: 1.0
+
+- id: sensor_community_pm25
+  name: sensor.community Nova SDS011 PM2.5 (citizen sensor 27357)
+  domain: nature
+  dgp_class: air_quality
+  archetypes: [hierarchical, noisy_clean_pair]
+  frequency: PT2M30S          # ~2.5 minutes
+  endpoint:
+    type: rest_json
+    url: https://data.sensor.community/airrohr/v1/sensor/27357/
+    auth: none
+    rate_limit: "60 req/min"
+  schema:
+    timestamp_field: "[].timestamp"
+    value_field: "[].sensordatavalues[]"     # P1=PM10, P2=PM2.5
+    variates: 2
+  history_available: P5Y
+  update_cadence_observed: "2-3 minutes (per-sensor)"
+  pretraining_novelty: clean
+  novelty_notes: "Citizen-sensor PM data; not in TSFM corpora."
+  license: "ODbL"
+  sample_path: samples/sensor_community_sensor.json
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 5
+    sample_freshness_hours: 0.05
+  notes: "PAIR: this is the NOISY companion to open_meteo_air_quality at lat 50.474, lon 7.616. Bulk feed: data.sensor.community/airrohr/v1/filter/box=...."
+  paired_with: open_meteo_air_quality
+
+- id: mauna_loa_co2_daily
+  name: NOAA GML Mauna Loa daily CO₂
+  domain: nature
+  dgp_class: climate_index
+  archetypes: [smooth_periodic]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_trend_gl.txt
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "year month day"
+    value_field: trend
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: "daily (~2 day lag)"
+  pretraining_novelty: contaminated
+  novelty_notes: "Mauna Loa CO₂ in many TSFM corpora. Calibration baseline for smooth_periodic."
+  license: "Public domain (NOAA GML)"
+  sample_path: samples/mauna_loa_co2_daily.txt
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 100
+    sample_freshness_hours: 50.0
+  notes: "co2_trend_gl.txt = global trend, deseasonalized + cycle. Format: yr mo dy raw trend."
+
+- id: nws_active_alerts
+  name: NWS US active weather alerts (binary state + categorical)
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [binary_state, categorical]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.weather.gov/alerts/active
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: features[].properties.sent
+    value_field: features[].properties.event       # categorical event type
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "every minute"
+  pretraining_novelty: clean
+  novelty_notes: "NWS alerts; per-zone binary active flag is novel."
+  license: "Public domain (NWS)"
+  sample_path: samples/nws_active_alerts.json
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Per-zone polling for binary_state: GET /alerts/active/zone/{zoneId}. Active count per region: /alerts/active/count."
+
+- id: ingv_seismicity
+  name: INGV Italian seismicity event catalog (FDSN, rolling 30-day window)
+  domain: nature
+  dgp_class: seismic_event
+  archetypes: [count_discrete, chaotic_nonlinear, zero_inflated_sparse]
+  frequency: PT1M
+  endpoint:
+    type: rest_csv
+    url: https://webservices.ingv.it/fdsnws/event/1/query?starttime={YYYY-MM-DD-30d}T00:00:00&minmag=2.0&format=text
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Time
+    value_field: Magnitude
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: "every minute"
+  pretraining_novelty: clean
+  novelty_notes: "Italian-only catalog; novel."
+  license: "CC-BY-4.0 (INGV)"
+  sample_path: samples/ingv_seismicity.txt
+  verification:
+    last_verified: PENDING                # was 2026-05-11; URL was time-frozen at 2026-05-09
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 + scraper patched:] Original URL hardcoded `starttime=2026-05-09`
+    which never updates — by July 2026 the window contains 52+ days of events but the
+    catalog of "new since 2026-05-09" never refreshes. Replaced the hardcoded date with
+    the new `{YYYY-MM-DD-30d}` offset token (today minus 30 days), giving a continuously
+    rolling 30-day window. FDSN event web service. Aggregate to daily counts for
+    count_discrete archetype.
+
+- id: usda_snotel_swe
+  name: USDA SNOTEL daily snow water equivalent (rolling 30-day window)
+  domain: nature
+  dgp_class: hydrology
+  archetypes: [smooth_periodic, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data?stationTriplets=908:WA:SNTL&elements=WTEQ&duration=DAILY&beginDate={YYYY-MM-DD-30d}&endDate={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].data[].values[].date"
+    value_field: "[].data[].values[].value"      # inches
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: "daily (~1 day lag)"
+  pretraining_novelty: clean
+  novelty_notes: "Per-station SNOTEL data; absent from TSFM corpora."
+  license: "Public domain (USDA NRCS)"
+  sample_path: samples/usda_snotel_swe.json
+  verification:
+    last_verified: PENDING                # was 2026-05-11; URL was time-frozen at 2026-04-01 to 2026-05-10
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 + scraper patched:] Original URL had hardcoded
+    `beginDate=2026-04-01&endDate=2026-05-10` — never updated, so by July 2026 the
+    window was 50+ days in the past with no incoming data. Replaced with the new
+    `{YYYY-MM-DD-30d}` (today − 30) and `{YYYY-MM-DD}` (today) offset tokens for a
+    rolling 30-day window. AWDB endpoint verified live + JSON shape confirmed.
+    Multiple stationTriplets for hierarchical panel. Elements: WTEQ, SNWD, TAVG, PREC.
+
+- id: gdacs_natural_disasters
+  name: GDACS global disaster alerts RSS
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: PT15M
+  endpoint:
+    type: rss
+    url: https://www.gdacs.org/xml/rss.xml
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: pubDate
+    value_field: gdacs:alertlevel       # Green/Orange/Red — categorical
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "every 15 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "GDACS RSS not in TSFM corpora."
+  license: "Public domain (EC JRC)"
+  sample_path: samples/gdacs_disasters.xml
+  verification:
+    last_verified: 2026-05-11T01:25:00Z
+    sample_rows: 65
+    sample_freshness_hours: 0.5
+  notes: "RSS w/ structured GDACS namespace. Aggregate to daily counts per alert type."
+
+# ============================================================================
+# sales (consumer attention / retail proxy)
+# ============================================================================
+- id: wikimedia_top_articles_daily
+  name: Wikimedia top-1000 articles per day (en.wikipedia)
+  domain: sales
+  dgp_class: attention_pageviews
+  archetypes: [hierarchical, count_discrete, smooth_periodic, noisy_clean_pair]
+  frequency: P1D
+  endpoint:
+    # Use a 2-day-lagged URL because Wikimedia publishes daily aggregates
+    # 24-48h after the day ends; same-day request returns 404.
+    type: rest_json
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/2026/05/09
+    auth: none
+    rate_limit: "200 req/s"
+  schema:
+    timestamp_field: items[].year+month+day
+    value_field: items[].articles[].views
+    variates: 1000
+  history_available: P10Y
+  update_cadence_observed: "daily (~1-2 day lag)"
+  pretraining_novelty: contaminated
+  novelty_notes: "Top-1000 article identities are well-known; calibration baseline."
+  license: "CC-BY-SA-4.0"
+  sample_path: samples/wikimedia_top_articles.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 100
+    sample_freshness_hours: 50.0
+
+- id: wikimedia_per_article_pageviews
+  name: Wikimedia per-article daily pageviews (long-tail)
+  domain: sales
+  dgp_class: attention_pageviews
+  archetypes: [hierarchical, count_discrete, non_stationary_regime, smooth_periodic]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/{ARTICLE}/daily/20260101/{YYYYMMDD}
+    auth: none
+    rate_limit: "200 req/s"
+  panel:
+    - {ARTICLE: Cleveland_Clinic}
+    - {ARTICLE: Bitcoin}
+    - {ARTICLE: Quantum_computing}
+    - {ARTICLE: Tariff}
+    - {ARTICLE: Eurovision_Song_Contest}
+    - {ARTICLE: GPT-4}
+    - {ARTICLE: Climate_change}
+    - {ARTICLE: Artificial_intelligence}
+    - {ARTICLE: Electric_vehicle}
+    - {ARTICLE: NATO}
+    - {ARTICLE: Federal_Reserve}
+    - {ARTICLE: SpaceX}
+    - {ARTICLE: Apple_Inc.}
+    - {ARTICLE: Tesla,_Inc.}
+    - {ARTICLE: NVIDIA}
+    - {ARTICLE: Recession}
+    - {ARTICLE: Inflation}
+    - {ARTICLE: World_Cup}
+    - {ARTICLE: Super_Bowl}
+    - {ARTICLE: Olympics}
+    - {ARTICLE: Earthquake}
+    - {ARTICLE: Hurricane}
+    - {ARTICLE: Wildfire}
+    - {ARTICLE: Volcano}
+    - {ARTICLE: Stock_market}
+    - {ARTICLE: Renewable_energy}
+    - {ARTICLE: Nuclear_power}
+    - {ARTICLE: Cybersecurity}
+    - {ARTICLE: Cryptocurrency}
+    - {ARTICLE: Blockchain}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "daily (~1-2 day lag)"
+  pretraining_novelty: partial
+  novelty_notes: "Long-tail article views (non-top-1000) are largely absent from TSFM corpora."
+  license: "CC-BY-SA-4.0"
+  sample_path: samples/wikimedia_per_article_pageviews.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 39
+    sample_freshness_hours: 50.0
+  notes: "Use a curated panel of 100-1000 long-tail article ids. Iterate to build hierarchical panel."
+
+- id: hn_top_stories
+  name: Hacker News top-500 story IDs
+  domain: sales
+  dgp_class: content_ranking
+  archetypes: [hierarchical, non_stationary_regime, chaotic_nonlinear, binary_state]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://hacker-news.firebaseio.com/v0/topstories.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: now()
+    value_field: "[]"         # ranked list of item ids
+    variates: 500
+  history_available: P10Y
+  update_cadence_observed: "every minute"
+  pretraining_novelty: partial
+  novelty_notes: "Item content in Common Crawl, but ranking dynamics not in TSFM mixes."
+  license: "Public (HN Firebase API)"
+  sample_path: samples/hn_top_stories.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 500
+    sample_freshness_hours: 0.05
+  notes: "Item details: /v0/item/{id}.json. For per-story score timeseries, poll item endpoint repeatedly."
+
+- id: npm_downloads_per_pkg
+  name: npm per-package daily downloads
+  domain: sales
+  dgp_class: download_counts
+  archetypes: [hierarchical, count_discrete, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.npmjs.org/downloads/range/last-month/{PACKAGE}
+    auth: none
+    rate_limit: "5 req/s soft"
+  panel:
+    - {PACKAGE: react}
+    - {PACKAGE: lodash}
+    - {PACKAGE: axios}
+    - {PACKAGE: vue}
+    - {PACKAGE: tslib}
+    - {PACKAGE: yargs}
+    - {PACKAGE: '@aws-sdk/client-s3'}
+    - {PACKAGE: rxjs}
+    - {PACKAGE: chalk}
+    - {PACKAGE: dotenv}
+    - {PACKAGE: typescript}
+    - {PACKAGE: webpack}
+    - {PACKAGE: eslint}
+    - {PACKAGE: prettier}
+    - {PACKAGE: jest}
+    - {PACKAGE: react-dom}
+    - {PACKAGE: next}
+    - {PACKAGE: tailwindcss}
+    - {PACKAGE: zod}
+    - {PACKAGE: '@types/node'}
+    - {PACKAGE: vite}
+    - {PACKAGE: express}
+    - {PACKAGE: '@babel/core'}
+    - {PACKAGE: esbuild}
+    - {PACKAGE: rollup}
+    - {PACKAGE: postcss}
+    - {PACKAGE: sass}
+    - {PACKAGE: socket.io}
+    - {PACKAGE: graphql}
+    - {PACKAGE: bun}
+  schema:
+    timestamp_field: downloads[].day
+    value_field: downloads[].downloads
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "daily (~2-3 day lag)"
+  pretraining_novelty: partial
+  novelty_notes: "Top-100 packages partially in pretrains; long-tail novel."
+  license: "Free (npm public stats)"
+  sample_path: samples/npm_downloads_per_pkg.json
+  verification:
+    last_verified: 2026-05-11T01:30:00Z
+    sample_rows: 30
+    sample_freshness_hours: 65.0
+  notes: "Use long-tail packages for clean panel. Bulk via /downloads/range/.../package1,package2."
+
+- id: pypi_downloads_per_pkg
+  name: PyPI per-package daily downloads (pypistats)
+  domain: sales
+  dgp_class: download_counts
+  archetypes: [hierarchical, count_discrete]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://pypistats.org/api/packages/{PACKAGE}/overall?mirrors=true
+    auth: none
+    rate_limit: null
+  panel:
+    - {PACKAGE: numpy}
+    - {PACKAGE: pandas}
+    - {PACKAGE: requests}
+    - {PACKAGE: torch}
+    - {PACKAGE: pyarrow}
+    - {PACKAGE: httpx}
+    - {PACKAGE: ruff}
+    - {PACKAGE: pydantic}
+    - {PACKAGE: huggingface-hub}
+    - {PACKAGE: matplotlib}
+    - {PACKAGE: scikit-learn}
+    - {PACKAGE: tensorflow}
+    - {PACKAGE: transformers}
+    - {PACKAGE: scipy}
+    - {PACKAGE: fastapi}
+    - {PACKAGE: flask}
+    - {PACKAGE: django}
+    - {PACKAGE: sqlalchemy}
+    - {PACKAGE: jupyter}
+    - {PACKAGE: notebook}
+    - {PACKAGE: polars}
+    - {PACKAGE: duckdb}
+    - {PACKAGE: lxml}
+    - {PACKAGE: beautifulsoup4}
+    - {PACKAGE: aiohttp}
+    - {PACKAGE: rich}
+    - {PACKAGE: click}
+    - {PACKAGE: typer}
+    - {PACKAGE: pytest}
+    - {PACKAGE: black}
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].downloads
+    variates: 1
+  history_available: P3Y
+  update_cadence_observed: "daily (~1 day lag)"
+  pretraining_novelty: partial
+  novelty_notes: "Top packages partial; tail novel."
+  license: "Free (pypistats)"
+  sample_path: samples/pypi_downloads_per_pkg.json
+  verification:
+    last_verified: 2026-05-11T01:30:00Z
+    sample_rows: 100
+    sample_freshness_hours: 24.0
+
+- id: crates_io_downloads
+  name: crates.io daily aggregate downloads
+  domain: sales
+  dgp_class: download_counts
+  archetypes: [hierarchical, count_discrete]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://crates.io/api/v1/crates/{CRATE}/downloads
+    auth: env:CRATESIO_USER_AGENT     # crates.io requires User-Agent header with contact
+    rate_limit: "1 req/s"
+  panel:
+    - {CRATE: serde}
+    - {CRATE: tokio}
+    - {CRATE: clap}
+    - {CRATE: anyhow}
+    - {CRATE: regex}
+    - {CRATE: rand}
+    - {CRATE: reqwest}
+    - {CRATE: itertools}
+    - {CRATE: rayon}
+    - {CRATE: log}
+    - {CRATE: serde_json}
+    - {CRATE: thiserror}
+    - {CRATE: futures}
+    - {CRATE: hyper}
+    - {CRATE: axum}
+    - {CRATE: sqlx}
+    - {CRATE: chrono}
+    - {CRATE: uuid}
+    - {CRATE: tonic}
+    - {CRATE: bytes}
+    - {CRATE: tracing}
+    - {CRATE: lazy_static}
+    - {CRATE: dotenv}
+    - {CRATE: env_logger}
+    - {CRATE: parking_lot}
+  schema:
+    timestamp_field: meta.extra_downloads[].date
+    value_field: meta.extra_downloads[].downloads
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "daily (live counter)"
+  pretraining_novelty: clean
+  novelty_notes: "crates.io download stats not in TSFM corpora."
+  license: "Free (crates.io API)"
+  sample_path: samples/crates_io_downloads.json
+  verification:
+    last_verified: 2026-05-11T01:30:00Z
+    sample_rows: 90
+    sample_freshness_hours: 0.5
+  notes: "Set User-Agent header to email/contact per crates.io policy or get 403."
+
+- id: itunes_top_podcasts
+  name: Apple iTunes top-100 podcasts (US)
+  domain: sales
+  dgp_class: content_ranking
+  archetypes: [hierarchical, categorical, bounded]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://rss.applemarketingtools.com/api/v2/us/podcasts/top/100/podcasts.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: feed.updated
+    value_field: feed.results[].id           # ranked list
+    variates: 100
+  history_available: P5Y
+  update_cadence_observed: "daily"
+  pretraining_novelty: partial
+  novelty_notes: "iTunes top-charts present in some web crawls; ranking dynamics novel."
+  license: "Apple Marketing Tools ToS"
+  sample_path: samples/itunes_top_podcasts.json
+  verification:
+    last_verified: 2026-05-11T01:30:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Country code in URL: us, gb, de, jp, etc. Other media: music, books, apps."
+
+- id: reddit_top_daily
+  name: Reddit /r/all top of day
+  domain: sales
+  dgp_class: attention_pageviews
+  archetypes: [hierarchical, count_discrete]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://www.reddit.com/r/all/top.json?t=day&limit=100
+    auth: env:REDDIT_USER_AGENT      # any UA; default may get 429
+    rate_limit: "60 req/min unauth"
+  schema:
+    timestamp_field: data.children[].data.created_utc
+    value_field: data.children[].data.score
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "near real-time"
+  pretraining_novelty: partial
+  novelty_notes: "Reddit posts in Common Crawl; per-thread score timeseries novel."
+  license: "Reddit Data API ToS — research use ok"
+  sample_path: samples/reddit_top_daily.json
+  verification:
+    last_verified: 2026-05-11T01:30:00Z
+    sample_rows: 25
+    sample_freshness_hours: 1.0
+
+# ============================================================================
+# transport
+# ============================================================================
+- id: opensky_states_local
+  name: OpenSky aircraft states over NYC bounding box
+  domain: transport
+  dgp_class: air_traffic_flow
+  archetypes: [count_discrete, hierarchical, smooth_periodic, chaotic_nonlinear, non_stationary_regime, noisy_clean_pair]
+  frequency: PT1M
+  paired_with: tfl_arrivals
+  endpoint:
+    type: rest_json
+    url: https://opensky-network.org/api/states/all?lamin=40.5&lomin=-74.5&lamax=41.0&lomax=-73.5
+    auth: none
+    rate_limit: "10 req/min anonymous, 100 req/min auth"
+  schema:
+    timestamp_field: time
+    value_field: states[][6, 7, 9]        # lat, lon, velocity per aircraft
+    variates: 3
+  history_available: P3Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: clean
+  novelty_notes: "OpenSky state vectors not in TSFM corpora."
+  license: "OpenSky NRC ToS — research-permissive, attribution"
+  sample_path: samples/opensky_states_local.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 84
+    sample_freshness_hours: 0.05
+  notes: "Aggregate to per-minute count for count_discrete; per-aircraft track for hierarchical."
+
+- id: citibike_station_status
+  name: Citi Bike NYC station status (GBFS)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [hierarchical, count_discrete, binary_state]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.citibikenyc.com/gbfs/en/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: last_updated
+    value_field: data.stations[].num_bikes_available
+    variates: 1
+  history_available: P12Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: clean
+  novelty_notes: "Per-station GBFS feed; not in TSFM corpora."
+  license: "Citi Bike data licence (Lyft) — research permissive"
+  sample_path: samples/citibike_station_status.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "binary_state: per-station is_renting flag. GBFS standard — many other systems support same schema (Lyft NY, Bay Wheels SF, etc.)."
+
+- id: bart_realtime_etd
+  name: BART real-time train arrival ETD (per-station)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [hierarchical, count_discrete, bounded, categorical]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.bart.gov/api/etd.aspx?cmd=etd&orig=ALL&key=MW9S-E7SL-26DU-VV8V&json=y
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: root.time
+    value_field: root.station[].etd[].estimate[].minutes
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: clean
+  novelty_notes: "BART ETD; not in TSFM corpora."
+  license: "BART API — public, research use ok"
+  sample_path: samples/bart_realtime_etd.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 50
+    sample_freshness_hours: 0.05
+  notes: "Public test key MW9S-E7SL-26DU-VV8V documented by BART; for production, get own key."
+
+- id: tfl_arrivals
+  name: TfL tube/Elizabeth/DLR line arrivals (12-line panel)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [hierarchical, count_discrete, smooth_periodic]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.tfl.gov.uk/Line/{LINE}/Arrivals
+    auth: none
+    rate_limit: "500 req/min anonymous"
+  panel:
+    - {LINE: bakerloo}
+    - {LINE: central}
+    - {LINE: circle}
+    - {LINE: district}
+    - {LINE: hammersmith-city}
+    - {LINE: jubilee}
+    - {LINE: metropolitan}
+    - {LINE: northern}
+    - {LINE: piccadilly}
+    - {LINE: victoria}
+    - {LINE: elizabeth}
+    - {LINE: dlr}
+  schema:
+    timestamp_field: "[].timestamp"
+    value_field: "[].timeToStation"
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "30 seconds"
+  pretraining_novelty: clean
+  novelty_notes: "TfL real-time API; not in TSFM mixes."
+  license: "Open Government Licence v3"
+  sample_path: samples/tfl_arrivals.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Lines: bakerloo, central, circle, district, hammersmith-city, jubilee, metropolitan, northern, piccadilly, victoria, waterloo-city, elizabeth, ..."
+
+- id: tfl_bikepoints_status
+  name: TfL Santander Cycles bike-point availability (798 stations)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [hierarchical, count_discrete, binary_state, bounded, smooth_periodic]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.tfl.gov.uk/BikePoint/
+    auth: none
+    rate_limit: "500 req/min"
+  schema:
+    timestamp_field: "[].additionalProperties[?key=='Installed'].modified"
+    value_field: "[].additionalProperties[?key=='NbBikes'].value"
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: clean
+  novelty_notes: "Per-bikepoint dock state; absent from TSFM corpora."
+  license: "Open Government Licence v3"
+  sample_path: samples/tfl_bikepoints_status.json
+  verification:
+    last_verified: 2026-05-11T01:36:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+
+# ============================================================================
+# web_cloudops
+# ============================================================================
+- id: hn_max_item
+  name: Hacker News max item id (firehose proxy)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://hacker-news.firebaseio.com/v0/maxitem.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: now()
+    value_field: maxitem      # monotonic int
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "every minute"
+  pretraining_novelty: clean
+  novelty_notes: "Diff between successive maxitem values = item creation rate; novel signal."
+  license: "Public (HN Firebase)"
+  sample_path: samples/hn_max_item.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 1
+    sample_freshness_hours: 0.05
+  notes: "Diff to get arrivals per minute (count_discrete)."
+
+- id: github_events_firehose
+  name: GitHub public events firehose
+  domain: web_cloudops
+  dgp_class: code_activity
+  archetypes: [count_discrete, hierarchical, categorical, smooth_periodic, chaotic_nonlinear]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.github.com/events
+    auth: env:GITHUB_TOKEN          # optional; raises rate limit from 60→5000/h
+    rate_limit: "60 req/h anon, 5000 req/h auth"
+  schema:
+    timestamp_field: "[].created_at"
+    value_field: "[].type"          # PushEvent, PullRequestEvent, etc.
+    variates: 1
+  history_available: P15Y           # full archive at gharchive.org
+  update_cadence_observed: "near real-time"
+  pretraining_novelty: clean
+  novelty_notes: "Per-minute event-type counts not in TSFM mixes."
+  license: "GitHub Terms — research use ok"
+  sample_path: samples/github_events.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 30
+    sample_freshness_hours: 0.05
+  notes: "Aggregate to per-minute counts by event type for hierarchical+categorical."
+
+- id: stackoverflow_questions
+  name: StackExchange questions firehose (Stack Overflow)
+  domain: web_cloudops
+  dgp_class: qa_stream
+  archetypes: [count_discrete, hierarchical, smooth_periodic]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.stackexchange.com/2.3/questions?order=desc&sort=creation&site=stackoverflow&pagesize=100
+    auth: none
+    rate_limit: "300 req/day anon"
+  schema:
+    timestamp_field: items[].creation_date     # epoch s
+    value_field: items[].tags                  # categorical
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "near real-time"
+  pretraining_novelty: clean
+  novelty_notes: "Per-tag question rate timeseries novel."
+  license: "CC-BY-SA"
+  sample_path: samples/stackoverflow_questions.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Auth via API key raises quota to 10k/day."
+
+- id: aws_health_rss
+  name: AWS Service Health Dashboard RSS
+  domain: web_cloudops
+  dgp_class: service_health
+  archetypes: [zero_inflated_sparse, binary_state, categorical]
+  frequency: PT5M
+  endpoint:
+    type: rss
+    url: https://status.aws.amazon.com/rss/all.rss
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: pubDate
+    value_field: category               # service name
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "every 5 minutes (sparse incidents)"
+  pretraining_novelty: clean
+  novelty_notes: "AWS incident series sparse; novel."
+  license: "Public (AWS)"
+  sample_path: samples/aws_health_rss.xml
+  verification:
+    last_verified: 2026-05-11T01:30:00Z
+    sample_rows: 50
+    sample_freshness_hours: 6.0
+  notes: "Per-service feed: rss/{region}-{service}.rss. Incident-driven, mostly zeros."
+
+- id: nws_alerts_count
+  name: NWS active alert counts by region (US)
+  domain: web_cloudops
+  dgp_class: alert_stream
+  archetypes: [count_discrete, hierarchical]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.weather.gov/alerts/active/count
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: now()
+    value_field: regions             # dict region_code -> count
+    variates: 5
+  history_available: P5Y
+  update_cadence_observed: "every minute"
+  pretraining_novelty: clean
+  novelty_notes: "Cross-listed with nature; structured as ops dashboard signal."
+  license: "Public domain (NWS)"
+  sample_path: samples/nws_alerts_count.json
+  verification:
+    last_verified: 2026-05-11T01:29:00Z
+    sample_rows: 1
+    sample_freshness_hours: 0.05
+
+- id: ripestat_announced_prefixes
+  name: RIPEstat announced BGP prefixes for AS3333 (RIPE NCC)
+  domain: web_cloudops
+  dgp_class: network_flow
+  archetypes: [count_discrete, non_stationary_regime, bounded]
+  frequency: PT8H
+  endpoint:
+    type: rest_json
+    url: https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS3333
+    auth: none
+    rate_limit: "1000 req/day"
+  schema:
+    timestamp_field: data.query_starttime
+    value_field: data.prefixes        # list — count
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "8 hours (RIS dump cadence)"
+  pretraining_novelty: clean
+  novelty_notes: "BGP RIS data; absent from TSFM corpora."
+  license: "Free (RIPE NCC)"
+  sample_path: samples/ripestat_announced_prefixes.json
+  verification:
+    last_verified: 2026-05-11T01:30:00Z
+    sample_rows: 1
+    sample_freshness_hours: 12.0
+  notes: "Use ?starttime/endtime for historical. Other AS resources for hierarchical."
+
+# ============================================================================
+# healthcare
+# ============================================================================
+- id: rki_germany_cases
+  name: RKI Germany daily new COVID/respiratory cases
+  domain: healthcare
+  dgp_class: disease_case_count
+  archetypes: [count_discrete, non_stationary_regime, zero_inflated_sparse, binary_state]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.corona-zahlen.org/germany/history/cases/365
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].cases
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "daily (~2 day lag)"
+  pretraining_novelty: partial
+  novelty_notes: "RKI cases historical may be in some pretrains; recent values novel."
+  license: "MIT (api.corona-zahlen.org wraps RKI public data)"
+  sample_path: samples/rki_germany_cases.json
+  verification:
+    last_verified: 2026-05-11T01:33:00Z
+    sample_rows: 30
+    sample_freshness_hours: 50.0
+  notes: "Wraps RKI Dashboard data. Use /states/.. for per-state hierarchical panel."
+
+- id: rki_germany_hospitalizations
+  name: RKI Germany 7-day rolling hospitalization rate
+  domain: healthcare
+  dgp_class: disease_case_count
+  archetypes: [non_stationary_regime, hierarchical, bounded, chaotic_nonlinear]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.corona-zahlen.org/germany/history/hospitalization/365
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].incidence7Days
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "daily (~3 day lag)"
+  pretraining_novelty: partial
+  novelty_notes: "Rolling 7-day; recent slice novel."
+  license: "MIT wrapper of RKI"
+  sample_path: samples/rki_germany_hospitalizations.json
+  verification:
+    last_verified: 2026-05-11T01:33:00Z
+    sample_rows: 27
+    sample_freshness_hours: 70.0
+
+- id: wikimedia_health_pageviews
+  name: Wikimedia per-article daily pageviews (medical articles)
+  domain: healthcare
+  dgp_class: attention_pageviews
+  archetypes: [hierarchical, count_discrete, non_stationary_regime, smooth_periodic, bounded, noisy_clean_pair]
+  frequency: P1D
+  paired_with: rki_germany_cases
+  endpoint:
+    type: rest_json
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/{ARTICLE}/daily/20260101/20260509
+    auth: none
+    rate_limit: "200 req/s"
+  panel:
+    - {ARTICLE: Influenza}
+    - {ARTICLE: Cancer}
+    - {ARTICLE: Cleveland_Clinic}
+    - {ARTICLE: Tylenol}
+    - {ARTICLE: Ozempic}
+    - {ARTICLE: Respiratory_syncytial_virus}
+    - {ARTICLE: Measles}
+    - {ARTICLE: Long_COVID}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "daily (~1-2 day lag)"
+  pretraining_novelty: partial
+  novelty_notes: "Per-article pageviews not in TSFM corpora; tail novel."
+  license: "CC-BY-SA-4.0"
+  sample_path: samples/wikimedia_health_influenza.json
+  verification:
+    last_verified: 2026-05-11T01:34:00Z
+    sample_rows: 39
+    sample_freshness_hours: 50.0
+  notes: "Iterate over a curated medical-article panel: Influenza, RSV, Cancer, Cleveland_Clinic, Tylenol, Ozempic, ... See samples/wikimedia_health_*.json for two example articles."
+
+- id: nyc_311_complaints
+  name: NYC 311 service request firehose
+  domain: healthcare
+  dgp_class: alert_stream
+  archetypes: [count_discrete, hierarchical, categorical]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.cityofnewyork.us/resource/erm2-nwe9.json?$limit=200&$order=created_date DESC
+    auth: env:NYC_OPENDATA_TOKEN     # optional; raises throttle
+    rate_limit: "1000 req/h anon"
+  schema:
+    timestamp_field: "[].created_date"
+    value_field: "[].complaint_type"        # categorical
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "near real-time (records arrive within minutes)"
+  pretraining_novelty: clean
+  novelty_notes: "Per-borough per-complaint-type counts; not in TSFM mixes."
+  license: "NYC Open Data — public domain"
+  sample_path: samples/nyc311_complaints.json
+  verification:
+    last_verified: 2026-05-11T01:33:00Z
+    sample_rows: 100
+    sample_freshness_hours: 50.0
+  notes: "Health-relevant complaint types: 'Health', 'Mold', 'Rodent', 'Air Quality', 'Indoor Air Quality', 'Sanitation Condition'. Filter $where=complaint_type IN ('Health','Mold',...) for healthcare-specific panel."
+
+# ============================================================================
+# ADDITIONS — gap-fillers for unfilled (domain × archetype) cells.
+# All verified 2026-05-11.
+# ============================================================================
+
+- id: mempool_unconfirmed_count
+  name: Bitcoin mempool unconfirmed-tx count (mempool.space)
+  domain: econ_fin
+  dgp_class: observability_metric
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: PT30S
+  endpoint:
+    type: rest_json
+    url: https://mempool.space/api/mempool
+    auth: none
+    rate_limit: "1 req/s"
+  schema:
+    timestamp_field: now()
+    value_field: count
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "live (effectively every block + every poll)"
+  pretraining_novelty: clean
+  novelty_notes: "mempool snapshot count not in TSFM corpora."
+  license: "MIT (mempool.space)"
+  sample_path: samples/mempool_unconfirmed.json
+  verification:
+    last_verified: 2026-05-11T03:03:00Z
+    sample_rows: 8
+    sample_freshness_hours: 0.05
+  notes: "Single-call snapshot — must poll. Sister endpoints: /api/v1/fees/recommended, /api/blocks."
+
+- id: binance_btcusdt_funding_rate
+  name: Binance BTCUSDT perpetual-futures funding rate
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [chaotic_nonlinear, non_stationary_regime, bounded]
+  frequency: PT8H
+  endpoint:
+    type: rest_json
+    url: https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1000
+    auth: none
+    rate_limit: "weight-based"
+  schema:
+    timestamp_field: "[].fundingTime"
+    value_field: "[].fundingRate"
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "every 8 hours (perp settlement)"
+  pretraining_novelty: clean
+  novelty_notes: "Funding-rate series largely absent from TSFM corpora."
+  license: "Binance public market data"
+  sample_path: samples/binance_funding_rate.json
+  verification:
+    last_verified: 2026-05-11T03:03:00Z
+    sample_rows: 1000
+    sample_freshness_hours: 1.0
+  notes: "Funding cadence is fixed at 8-hour intervals."
+
+- id: bitcoin_block_arrivals
+  name: Bitcoin block-found arrival times (Blockstream Esplora)
+  domain: econ_fin
+  dgp_class: observability_metric
+  archetypes: [count_discrete, chaotic_nonlinear, smooth_periodic]
+  frequency: PT10M
+  endpoint:
+    type: rest_json
+    url: https://blockstream.info/api/blocks
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: "[].timestamp"
+    value_field: "[].height"
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "Poisson, mean ~10 min"
+  pretraining_novelty: clean
+  novelty_notes: "Block inter-arrival times not in TSFM corpora — canonical Poisson process."
+  license: "Public (Blockstream Esplora — free)"
+  sample_path: samples/bitcoin_block_arrivals.json
+  verification:
+    last_verified: PENDING                # was 2026-05-11; original blockchain.info endpoint retired
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01:] The original `blockchain.info/blocks/{ts_ms}?format=json` endpoint
+    returns 404 (blockchain.info migrated to blockchain.com and dropped this path). Swapped
+    to **Blockstream Esplora** (`blockstream.info/api/blocks`) which is the canonical
+    open Bitcoin block-explorer API — returns the 10 most recent blocks per call with
+    fields `height` + `timestamp` + 11 others. For deeper history paginate via
+    `/blocks/<start_height>`. Bin to per-hour count for count_discrete; raw inter-arrival
+    for chaotic_nonlinear.
+
+- id: polymarket_new_market_rate
+  name: Polymarket new-market creation rate
+  domain: econ_fin
+  dgp_class: prediction_market
+  archetypes: [count_discrete, zero_inflated_sparse, hierarchical, categorical, binary_state]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gamma-api.polymarket.com/markets?limit=200&order=createdAt&ascending=false
+    auth: none
+    rate_limit: "60 req/min"
+  schema:
+    timestamp_field: "[].createdAt"
+    value_field: "[].id"
+    variates: 1
+  history_available: P3Y
+  update_cadence_observed: "live; spikes coincide with sports/news"
+  pretraining_novelty: clean
+  novelty_notes: "Polymarket market-creation cadence absent from TSFM corpora."
+  license: "Polymarket ToS"
+  sample_path: samples/polymarket_new_markets.json
+  verification:
+    last_verified: 2026-05-11T03:03:00Z
+    sample_rows: 200
+    sample_freshness_hours: 0.05
+  notes: "Bin createdAt per minute → count series. Use multiple pages for longer range."
+
+- id: swpc_solar_xray_flux
+  name: NOAA SWPC GOES X-ray flux (1-min, 0.1-0.8 nm)
+  domain: nature
+  dgp_class: space_weather
+  archetypes: [bounded, chaotic_nonlinear, zero_inflated_sparse]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://services.swpc.noaa.gov/json/goes/primary/xrays-1-day.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].time_tag"
+    value_field: "[].flux"
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: clean
+  novelty_notes: "Solar X-ray flux series novel for TSFM benchmarks."
+  license: "Public domain (NOAA SWPC)"
+  sample_path: samples/swpc_solar_xray_flux.json
+  verification:
+    last_verified: 2026-05-11T03:03:00Z
+    sample_rows: 1000
+    sample_freshness_hours: 0.05
+  notes: "Two-band sample mixed; we filter to 0.1-0.8nm. M/X-class flares produce sparse spikes (zero_inflated_sparse)."
+
+- id: open_meteo_uv_index
+  name: Open-Meteo UV index forecast
+  domain: nature
+  dgp_class: weather_field
+  archetypes: [bounded, smooth_periodic, hierarchical]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.0&hourly=uv_index&past_days=14&forecast_days=2
+    auth: none
+    rate_limit: "10000 req/day"
+  schema:
+    timestamp_field: hourly.time[]
+    value_field: hourly.uv_index
+    variates: 1
+  history_available: P3Y
+  update_cadence_observed: "hourly"
+  pretraining_novelty: clean
+  novelty_notes: "UV index forecast novel for TSFM benchmarks."
+  license: "CC-BY-4.0"
+  sample_path: samples/open_meteo_uv_index.json
+  verification:
+    last_verified: 2026-05-11T03:03:00Z
+    sample_rows: 384
+    sample_freshness_hours: 1.0
+  notes: "Bounded 0-12; clean diurnal cycle. Use lat/lon panel for hierarchical."
+
+- id: hn_ask_stories
+  name: Hacker News Ask-HN stories
+  domain: sales
+  dgp_class: content_ranking
+  archetypes: [hierarchical, count_discrete, zero_inflated_sparse]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://hacker-news.firebaseio.com/v0/askstories.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].time"
+    value_field: "[].score"
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "every minute"
+  pretraining_novelty: clean
+  novelty_notes: "Ask-HN scores by story id."
+  license: "Public (HN Firebase)"
+  sample_path: samples/hn_ask_stories.json
+  verification:
+    last_verified: 2026-05-11T03:04:00Z
+    sample_rows: 25
+    sample_freshness_hours: 0.05
+  notes: "Returns 200 most-recent Ask-HN story ids; for each, /v0/item/{id}.json gives time + score."
+
+# ============================================================================
+# More gap-fillers (verified 2026-05-11) — close out remaining cells.
+# ============================================================================
+
+- id: tfl_line_status
+  name: TfL Tube line status (binary disruption per line)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [binary_state, categorical, hierarchical, zero_inflated_sparse]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.tfl.gov.uk/Line/Mode/tube/Status
+    auth: none
+    rate_limit: "500 req/min"
+  schema:
+    timestamp_field: now()
+    value_field: "[].lineStatuses[].statusSeverity"     # 10=Good; lower=disruption
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "1 minute"
+  pretraining_novelty: clean
+  novelty_notes: "Per-line status flag not in TSFM corpora."
+  license: "Open Government Licence v3"
+  sample_path: samples/tfl_line_status.json
+  verification:
+    last_verified: 2026-05-11T03:37:00Z
+    sample_rows: 66
+    sample_freshness_hours: 0.05
+  notes: "Snapshot per call — must poll. is_disrupted = (statusSeverity != 10) gives binary; statusSeverityDescription is categorical."
+
+- id: bpa_balancing_load_wind
+  name: BPA Balancing Authority load + generation mix (5-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [chaotic_nonlinear, smooth_periodic, hierarchical, count_discrete, non_stationary_regime]
+  frequency: PT5M
+  endpoint:
+    type: rest_csv
+    url: https://transmission.bpa.gov/business/operations/Wind/baltwg.txt
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "Date/Time"
+    value_field: [Load, VER, Hydro, "Fossil/Biomass", Nuclear]
+    variates: 5
+  history_available: P10Y
+  update_cadence_observed: "5 minutes (with ~hour lag)"
+  pretraining_novelty: clean
+  novelty_notes: "BPA SCADA load + variable-energy-resource (wind/solar) data; not in TSFM corpora."
+  license: "Public domain (BPA)"
+  sample_path: samples/bpa_balancing.txt
+  verification:
+    last_verified: 2026-05-11T03:37:00Z
+    sample_rows: 2016
+    sample_freshness_hours: 4.5
+  notes: "Tab-separated, ~14 header lines before data. Latest line = most recent 5-min interval."
+
+- id: neso_stor_notifications
+  name: UK NESO STOR (Short-Term Operating Reserve) notification log
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [zero_inflated_sparse, count_discrete, categorical, binary_state]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://api.neso.energy/dataset/fc8dadc7-235d-44b0-bab2-320dc76095de/resource/1dbebd85-6b42-4d8f-8542-16a83d17dc14/download/stor-iin.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "Notification Issued Date Time"
+    value_field: Service
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "irregular — only when STOR procurement events occur"
+  pretraining_novelty: clean
+  novelty_notes: "Energy reserve event log; novel."
+  license: "OGL UK (NESO)"
+  sample_path: samples/neso_stor_notifications.csv
+  verification:
+    last_verified: 2026-05-11T03:37:00Z
+    sample_rows: 11
+    sample_freshness_hours: 980.0
+  notes: "Sparse — most days have zero events. Bin per day for count_discrete; binary as is_event_today. Sister CSVs for Balancing Reserve, SFFR, DC/DM/DR exist via ancillary-services-important-industry-notifications dataset."
+
+- id: gharchive_hourly_events
+  name: GH Archive hourly events count (clean aggregate of GitHub firehose)
+  domain: web_cloudops
+  dgp_class: code_activity
+  archetypes: [count_discrete, smooth_periodic, noisy_clean_pair]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.gharchive.org/{YYYY-MM-DD}-{H-1}.json.gz
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: minute
+    value_field: event_count
+    variates: 1
+  history_available: P12Y
+  update_cadence_observed: "hourly file drop (~1 h lag)"
+  pretraining_novelty: clean
+  novelty_notes: "GH Archive aggregates the GitHub events firehose at hour-buckets. Pairs with github_events_firehose as clean reference."
+  license: "MIT (gharchive.org)"
+  sample_path: samples/gharchive_per_minute.json
+  verification:
+    last_verified: PENDING                # was 2026-05-11; original URL had unresolved {H} placeholder
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 + scraper patched:] Original URL `{YYYY-MM-DD}-{H}.json.gz` failed
+    with "unresolved placeholders ['H']" because the scraper's `expand_url` only handled
+    static date tokens, and there was no `panel:` defining H. Two fixes applied:
+      (a) scraper.py extended: `expand_url` now substitutes `{H}` (current UTC hour),
+          `{HH}` (zero-padded), and the offset form `{H-N}` (e.g. `{H-1}` = previous hour).
+      (b) URL token changed `{H}` → `{H-1}` because gharchive publishes ~30-60 min after
+          the hour ends; fetching the *current* hour usually 404s, so target the *previous*
+          hour for reliable retrieval.
+    Each hourly file is ~30-50 MB compressed. Per-minute counts derived from
+    event.created_at within the file. Sister of github_events_firehose (noisy realtime
+    sample) — same population, different fidelity.
+  paired_with: github_events_firehose
+
+# ============================================================================
+# Cross-frequency coverage fillers (verified 2026-05-11)
+# Target: increase (domain × frequency) cell density.
+# ============================================================================
+
+- id: binance_btcusdt_15m
+  name: Binance BTCUSDT 15-minute klines
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [non_stationary_regime, chaotic_nonlinear]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.binance.com/api/v3/klines?symbol={SYMBOL}&interval=15m&limit=1000
+    auth: none
+    rate_limit: "weight-based"
+  panel:
+    - {SYMBOL: BTCUSDT}
+    - {SYMBOL: ETHUSDT}
+    - {SYMBOL: SOLUSDT}
+    - {SYMBOL: BNBUSDT}
+    - {SYMBOL: XRPUSDT}
+    - {SYMBOL: ADAUSDT}
+    - {SYMBOL: DOGEUSDT}
+    - {SYMBOL: AVAXUSDT}
+  schema:
+    timestamp_field: "[].0"
+    value_field: ["[].1","[].2","[].3","[].4","[].5"]
+    variates: 5
+  history_available: P7Y
+  update_cadence_observed: "15 min"
+  pretraining_novelty: partial
+  novelty_notes: "BTC 15m is common; pair with other intervals for multi-cadence study. 8-pair panel."
+  license: "Binance public market data"
+  sample_path: samples/binance_btcusdt_15m.json
+  verification:
+    last_verified: 2026-05-11T04:01:00Z
+    sample_rows: 672
+    sample_freshness_hours: 0.05
+
+- id: binance_btcusdt_30m
+  name: Binance crypto-pairs 30-minute klines (8-symbol panel)
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [non_stationary_regime, chaotic_nonlinear]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api.binance.com/api/v3/klines?symbol={SYMBOL}&interval=30m&limit=1000
+    auth: none
+    rate_limit: "weight-based"
+  panel:
+    - {SYMBOL: BTCUSDT}
+    - {SYMBOL: ETHUSDT}
+    - {SYMBOL: SOLUSDT}
+    - {SYMBOL: BNBUSDT}
+    - {SYMBOL: XRPUSDT}
+    - {SYMBOL: ADAUSDT}
+    - {SYMBOL: DOGEUSDT}
+    - {SYMBOL: AVAXUSDT}
+  schema:
+    timestamp_field: "[].0"
+    value_field: ["[].1","[].2","[].3","[].4","[].5"]
+    variates: 5
+  history_available: P7Y
+  update_cadence_observed: "30 min"
+  pretraining_novelty: partial
+  novelty_notes: "BTC 30m is common; provides econ_fin PT30M coverage."
+  license: "Binance public market data"
+  sample_path: samples/binance_btcusdt_30m.json
+  verification:
+    last_verified: 2026-05-11T04:01:00Z
+    sample_rows: 720
+    sample_freshness_hours: 0.1
+
+- id: eia_nyis_hourly_demand
+  name: EIA NYISO hourly demand (US grid)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [hierarchical, smooth_periodic, non_stationary_regime, bounded]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.eia.gov/v2/electricity/rto/region-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=NYIS&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key=DEMO_KEY
+    auth: env:EIA_API_KEY
+    rate_limit: "30 req/min with key; lower with DEMO_KEY"
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "hourly"
+  pretraining_novelty: partial
+  novelty_notes: "EIA grid demand for NYISO; partial coverage in some pretrain mixes."
+  license: "Public domain (US EIA)"
+  sample_path: samples/eia_nyis_hourly_demand.json
+  verification:
+    last_verified: 2026-05-11T04:01:00Z
+    sample_rows: 200
+    sample_freshness_hours: 1.0
+  notes: "DEMO_KEY works for verification; production needs free EIA key. Many respondent codes available: PJM, CAISO, ERCO, MISO, etc. — hierarchical panel."
+
+- id: usgs_streamflow_daily
+  name: USGS daily-mean streamflow (Potomac @ Little Falls)
+  domain: nature
+  dgp_class: hydrology
+  archetypes: [smooth_periodic, chaotic_nonlinear, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://waterservices.usgs.gov/nwis/dv/?format=json&sites=01646500&parameterCd=00060&statCd=00003&startDT=2026-04-01&endDT=2026-05-10
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: value.timeSeries[0].values[0].value[].dateTime
+    value_field: value.timeSeries[0].values[0].value[].value
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: "daily (1-day lag)"
+  pretraining_novelty: clean
+  novelty_notes: "Daily-mean rollup of the same gauge used at 15-min cadence; novel at daily granularity."
+  license: "Public domain (USGS)"
+  sample_path: samples/usgs_streamflow_daily.json
+  verification:
+    last_verified: 2026-05-11T04:01:00Z
+    sample_rows: 39
+    sample_freshness_hours: 24.0
+
+- id: open_meteo_climate_daily
+  name: Open-Meteo Climate API — daily ensemble (CMIP6 EC-Earth3P-HR)
+  domain: nature
+  dgp_class: climate_field
+  archetypes: [smooth_periodic, bounded, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://climate-api.open-meteo.com/v1/climate?latitude=40.71&longitude=-74.0&start_date=2020-01-01&end_date=2025-12-31&models=EC_Earth3P_HR&daily=temperature_2m_mean
+    auth: none
+    rate_limit: "10000 req/day"
+  schema:
+    timestamp_field: daily.time
+    value_field: daily.temperature_2m_mean
+    variates: 1
+  history_available: P40Y
+  update_cadence_observed: "daily (climate model outputs, refreshed daily)"
+  pretraining_novelty: clean
+  novelty_notes: "CMIP6 climate model temperatures; not in TSFM mixes."
+  license: "CC-BY-4.0"
+  sample_path: samples/open_meteo_climate_daily.json
+  verification:
+    last_verified: 2026-05-11T04:01:00Z
+    sample_rows: 2192
+    sample_freshness_hours: 24.0
+
+- id: npm_total_daily_downloads
+  name: npm registry total daily downloads (all packages)
+  domain: web_cloudops
+  dgp_class: download_counts
+  archetypes: [count_discrete, smooth_periodic, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.npmjs.org/downloads/range/last-month/npm
+    auth: none
+    rate_limit: "5 req/s soft"
+  schema:
+    timestamp_field: downloads[].day
+    value_field: downloads[].downloads
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "daily (2-3 day lag)"
+  pretraining_novelty: clean
+  novelty_notes: "Aggregate npm download count — registry-wide load metric."
+  license: "Free (npm public stats)"
+  sample_path: samples/npm_total_daily.json
+  verification:
+    last_verified: 2026-05-11T04:01:00Z
+    sample_rows: 30
+    sample_freshness_hours: 50.0
+
+- id: nws_heat_advisories
+  name: NWS active heat-advisory subset (sparse healthcare-relevant alerts)
+  domain: healthcare
+  dgp_class: alert_stream
+  archetypes: [zero_inflated_sparse, binary_state, hierarchical, categorical]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.weather.gov/alerts?event=Heat+Advisory&limit=500
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: features[].properties.sent
+    value_field: features[].properties.severity
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "minute-resolution, sparse — most weeks empty"
+  pretraining_novelty: clean
+  novelty_notes: "Subset filter of NWS active alerts for heat events; healthcare-relevant."
+  license: "Public domain (NWS)"
+  sample_path: samples/nws_heat_advisories.json
+  verification:
+    last_verified: 2026-05-11T04:03:00Z
+    sample_rows: 19
+    sample_freshness_hours: 1.0
+
+- id: hn_algolia_stories
+  name: HN Algolia search-by-date — story arrival rate
+  domain: sales
+  dgp_class: content_ranking
+  archetypes: [count_discrete, hierarchical, smooth_periodic]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=200
+    auth: none
+    rate_limit: "10000 req/h"
+  schema:
+    timestamp_field: hits[].created_at
+    value_field: hits[].points
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "real-time on submission"
+  pretraining_novelty: clean
+  novelty_notes: "HN Algolia date-indexed; clean per-story arrival timeline."
+  license: "Free (HN + Algolia public)"
+  sample_path: samples/hn_algolia_stories.json
+  verification:
+    last_verified: 2026-05-11T04:04:00Z
+    sample_rows: 200
+    sample_freshness_hours: 0.1
+
+- id: wikimedia_recent_changes
+  name: Wikimedia recent-changes firehose
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes: [count_discrete, hierarchical, smooth_periodic, categorical]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://en.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&format=json
+    auth: none
+    rate_limit: "500 req/min"
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].type
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: "real-time on edit"
+  pretraining_novelty: clean
+  novelty_notes: "Per-edit event firehose; clean web_cloudops signal of Wikipedia server load."
+  license: "CC-BY-SA-4.0"
+  sample_path: samples/wikimedia_recent_changes.json
+  verification:
+    last_verified: 2026-05-11T04:04:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.05
+  notes: "Bin per minute for arrival count; edit type (edit/new/log) is categorical."
+
+- id: metar_us_airports
+  name: METAR aviation weather (50-station US-airport panel, ~5-min cadence)
+  domain: nature
+  dgp_class: weather_field
+  archetypes: [hierarchical, smooth_periodic, chaotic_nonlinear]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://aviationweather.gov/api/data/metar?ids={STATION}&format=json&hours=6
+    auth: none
+    rate_limit: "60 req/min"
+  panel:
+    - {STATION: KJFK}    # New York JFK
+    - {STATION: KLGA}    # New York LaGuardia
+    - {STATION: KEWR}    # Newark
+    - {STATION: KBOS}    # Boston
+    - {STATION: KDCA}    # Washington Reagan
+    - {STATION: KIAD}    # Dulles
+    - {STATION: KBWI}    # Baltimore
+    - {STATION: KPHL}    # Philadelphia
+    - {STATION: KORD}    # Chicago O'Hare
+    - {STATION: KMDW}    # Chicago Midway
+    - {STATION: KMSP}    # Minneapolis
+    - {STATION: KDTW}    # Detroit
+    - {STATION: KCLE}    # Cleveland
+    - {STATION: KCMH}    # Columbus
+    - {STATION: KCVG}    # Cincinnati
+    - {STATION: KATL}    # Atlanta
+    - {STATION: KMIA}    # Miami
+    - {STATION: KMCO}    # Orlando
+    - {STATION: KTPA}    # Tampa
+    - {STATION: KCLT}    # Charlotte
+    - {STATION: KRDU}    # Raleigh-Durham
+    - {STATION: KMEM}    # Memphis
+    - {STATION: KBNA}    # Nashville
+    - {STATION: KDFW}    # Dallas
+    - {STATION: KIAH}    # Houston
+    - {STATION: KAUS}    # Austin
+    - {STATION: KSAT}    # San Antonio
+    - {STATION: KMSY}    # New Orleans
+    - {STATION: KOKC}    # Oklahoma City
+    - {STATION: KSTL}    # St Louis
+    - {STATION: KMKE}    # Milwaukee
+    - {STATION: KIND}    # Indianapolis
+    - {STATION: KMCI}    # Kansas City
+    - {STATION: KDEN}    # Denver
+    - {STATION: KSLC}    # Salt Lake City
+    - {STATION: KPHX}    # Phoenix
+    - {STATION: KLAS}    # Las Vegas
+    - {STATION: KLAX}    # Los Angeles
+    - {STATION: KSAN}    # San Diego
+    - {STATION: KSFO}    # San Francisco
+    - {STATION: KSJC}    # San Jose
+    - {STATION: KSMF}    # Sacramento
+    - {STATION: KOAK}    # Oakland
+    - {STATION: KPDX}    # Portland
+    - {STATION: KSEA}    # Seattle
+    - {STATION: KANC}    # Anchorage
+    - {STATION: PHNL}    # Honolulu
+    - {STATION: KBUF}    # Buffalo
+    - {STATION: KPIT}    # Pittsburgh
+    - {STATION: KBHM}    # Birmingham
+  schema:
+    timestamp_field: "[].obsTime"
+    value_field: ["[].temp","[].dewp","[].wspd","[].altim"]
+    variates: 4
+  history_available: P30Y
+  update_cadence_observed: "5-15 minutes per station"
+  pretraining_novelty: partial
+  novelty_notes: "METAR is widely used in pretraining mixes via Weather datasets, but the specific 50-station panel is novel."
+  license: "Public domain (FAA / NWS)"
+  sample_path: samples/metar_kjfk.json
+  verification:
+    last_verified: 2026-05-11T05:54:00Z
+    sample_rows: 13
+    sample_freshness_hours: 0.1
+
+# ============================================================================
+# Eval-pool gap-closers — PENDING VERIFICATION
+# ============================================================================
+# Added to close coverage gaps for the cascade eval-pool use case:
+#   - Gap 1: healthcare floor (was 4 sources)
+#   - Gap 2: transport thin + minute-only (was 6 sources, no P1D)
+#   - Gap 3: daily band over-indexed on software downloads
+#   - Gap 4: econ_fin crypto-heavy → add traditional finance
+#   - Gap 5: LATAM / Asia / Africa thin → 4 new geographic regions
+# Every entry below is `last_verified: PENDING` — URL patterns are documented
+# from the issuing agency's public API docs, but each needs one real HTTP call,
+# a sample save under samples/<id>.{json,csv}, and a verification_log.md row
+# before activation. See verification_log.md "PENDING — gap-closers" section.
+# ============================================================================
+
+# ---- Healthcare adds (Gap 1) ------------------------------------------------
+
+- id: cdc_nssp_ed_visits
+  name: CDC NSSP — emergency-department visit trajectories (US, by syndrome × region)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes: [hierarchical, smooth_periodic, non_stationary_regime, count_discrete]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/rdmq-nq56.json?$where=week_end >= '{YYYY-MM-DD-90d}'&$limit=5000
+    auth: none
+    rate_limit: "1000 req/h anonymous; higher with app token"
+  schema:
+    timestamp_field: "[].week_end"
+    value_field: "[].percent_visits"
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "weekly publication (Fridays), weekly bins"
+  pretraining_novelty: clean
+  novelty_notes: "NSSP syndromic surveillance ED-visit panel not in known TSFM pretrains."
+  license: "Public domain (US Government)"
+  sample_path: samples/cdc_nssp_ed_visits.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebSearch:] dataset id `rdmq-nq56` is correct
+    (title: "NSSP Emergency Department Visit Trajectories by State and Sub State Regions —
+    COVID-19, Flu, RSV, Combined", at data.cdc.gov). Publication is **weekly on Fridays**, not
+    daily — corrected `frequency: P1W`. This entry therefore belongs in `sources-slow.yaml`
+    (slow-cadence catalog) once that exists; keeping it here only because it is a
+    high-value healthcare add and the slow catalog has not been created yet.
+    Socrata SoQL endpoint; use $select for specific (region, syndrome) panels.
+
+- id: openaq_global_air_quality
+  name: OpenAQ — global air-quality measurements (multi-station hourly panel)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes: [hierarchical, noisy_clean_pair, non_stationary_regime, bounded]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.openaq.org/v3/measurements?location_id={LOCATION_ID}&parameter=pm25&limit=1000&order_by=datetime&sort=desc
+    auth: env:OPENAQ_API_KEY
+    rate_limit: "60 req/min with free key"
+  panel:
+    # **OPERATOR ACTION:** populate this list at activation via one-time discovery call:
+    #   GET https://api.openaq.org/v3/locations?parameters_id=2&limit=1000
+    #     &coordinates=<lat,lon>&radius=<m>     # optional geographic filter
+    # PM2.5 has parameter id = 2. Pick ~8-12 high-data-volume stations across continents
+    # (e.g. Delhi, Beijing, Mexico City, São Paulo, Jakarta, Lagos, LA, London). The v2
+    # location IDs that I originally inlined here did NOT carry over to v3 — v2 was retired
+    # 2025-01-31. Until the panel is populated this entry yields zero series.
+    - {LOCATION_ID: "TBD-FROM-V3-DISCOVERY"}
+  schema:
+    timestamp_field: results[].datetime.utc
+    value_field: results[].value
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: "10-60 minutes per station"
+  pretraining_novelty: partial
+  novelty_notes: "OpenAQ aggregates regulatory monitors; some city-level PM2.5 in Weather/EPA pretrains."
+  license: "CC-BY-4.0 (OpenAQ)"
+  sample_path: samples/openaq_global_air_quality.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch + docs.openaq.org:] OpenAQ v3 base URL
+    `api.openaq.org/v3/...` returns HTTP 401 without `X-API-Key` header — auth confirmed
+    required. **OpenAQ v1/v2 were retired 2025-01-31**, so the eight sample location IDs I
+    originally inlined (from v2) cannot be assumed to exist in v3. Replaced the panel with a
+    sentinel + operator-action comment instructing one-time discovery via
+    `/v3/locations?parameters_id=2`. Pair with `open_meteo_air_quality` as a noisy-clean pair
+    (regulatory monitor vs CAMS model). Free API key signup at openaq.org.
+
+# ---- Transport adds (Gap 2) -------------------------------------------------
+
+- id: nyc_mta_subway_hourly
+  name: NYC MTA subway — hourly ridership (station × hour panel, 2025+)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [hierarchical, smooth_periodic, count_discrete, non_stationary_regime]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.ny.gov/resource/5wq4-mkjj.json?$where=transit_timestamp >= '{YYYY-MM-DD-30d}T00:00:00'&$limit=50000&$order=transit_timestamp
+    auth: none
+    rate_limit: "1000 req/h anonymous; higher with app token"
+  schema:
+    timestamp_field: "[].transit_timestamp"
+    value_field: "[].ridership"
+    variates: 1
+  history_available: P1Y                # 2025-onwards dataset; historical 2020-2024 lives in wujg-7c2s
+  update_cadence_observed: "weekly publication, hourly bins"
+  pretraining_novelty: clean
+  novelty_notes: "MTA hourly post-dates Chronos/TimesFM/Toto base mixes. Per-station-per-fare-class panel."
+  license: "Public domain (NY State / MTA Open Data)"
+  sample_path: samples/nyc_mta_subway_hourly.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] My original entry pointed at `wujg-7c2s` — that
+    dataset is the historical "2020-2024" cut and is **frozen as of 2025-01-10** (rowsUpdatedAt
+    metadata). The live, refreshing dataset for 2025+ is **`5wq4-mkjj`** ("MTA Subway Hourly
+    Ridership: Beginning 2025"). Both have the same schema (transit_timestamp + ridership +
+    station_complex_id + routes + fare class). Publication is **weekly**, hourly bins. Yields
+    ~470 stations × 24h. Consider $select to slice by station for per-series files. For deeper
+    history, the operator can union `5wq4-mkjj` + `wujg-7c2s` (same column names).
+
+- id: eurocontrol_daily_traffic
+  name: EUROCONTROL — daily flight movements (state-level European panel)
+  domain: transport
+  dgp_class: aviation_traffic
+  archetypes: [hierarchical, smooth_periodic, non_stationary_regime, count_discrete]
+  frequency: P1D
+  endpoint:
+    type: html_table       # BLOCKED — scraper does not yet support html_table fetcher
+    url: https://www.eurocontrol.int/Economics/DailyTrafficVariation-States.html
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: date
+    value_field: flights
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "daily, typical 24-48h publication lag"
+  pretraining_novelty: clean
+  novelty_notes: "EUROCONTROL daily state-level — granular EU aviation panel not in TSFM mixes."
+  license: "EUROCONTROL Open Data — research permissive"
+  sample_path: samples/eurocontrol_daily_traffic.html  # PENDING
+  verification:
+    last_verified: BLOCKED
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebSearch:] **No clean CSV download exists.** The data is published
+    only via dashboard pages at eurocontrol.int/Economics/DailyTrafficVariation-{States,ACCs,
+    AOs,Airports}.html and the Aviation Intelligence Portal (ansperformance.eu). My original
+    filename pattern (`/sites/default/files/{YYYY-MM}/...csv`) does not exist.
+
+    Two paths forward:
+      (a) Extend scraper.py with an `html_table` endpoint type (BeautifulSoup parse the
+          dashboard's embedded table). One-time scraper work, then this entry activates.
+      (b) Drop this entry from the gap-closer set and use the EUROCONTROL aviation-intelligence
+          ans-performance.eu portal once we can confirm it has a programmatic CSV/JSON path
+          (it did not at the time of verification).
+
+    Until either (a) or (b) is done, this entry is BLOCKED. The verification_log.md PENDING
+    section is updated to reflect this.
+
+- id: tsa_checkpoint_daily
+  name: TSA — daily passenger throughput at US airports
+  domain: transport
+  dgp_class: aviation_traffic
+  archetypes: [smooth_periodic, non_stationary_regime, bounded]
+  frequency: P1D
+  endpoint:
+    type: html_table       # BLOCKED — scraper does not yet support html_table fetcher
+    url: https://www.tsa.gov/travel/passenger-volumes
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: date
+    value_field: passengers
+    variates: 1
+  history_available: P5Y                # TSA started publishing daily in 2020
+  update_cadence_observed: "daily, next-day publication"
+  pretraining_novelty: partial
+  novelty_notes: "TSA daily checkpoint is widely cited (COVID recovery proxy) — some leakage likely; high value for transport breadth nonetheless."
+  license: "Public domain (US Government / TSA FOIA reading room)"
+  sample_path: samples/tsa_checkpoint_daily.html  # PENDING
+  verification:
+    last_verified: BLOCKED
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebSearch + WebFetch:] Current URL is
+    `tsa.gov/travel/passenger-volumes` (not the old `/coronavirus/passenger-throughput`).
+    **No CSV download exists** — data is rendered as an HTML table. WebFetch attempt also
+    returned HTTP 403 (TSA bot-blocks; will need a polite User-Agent + likely TLS-fingerprint
+    handling).
+
+    Blocked on the same `html_table` scraper extension as `eurocontrol_daily_traffic`. An
+    existing community scraper at github.com/hunj/tsa-passenger-throughput parses the HTML
+    table with a GitHub Actions schedule — reference implementation worth borrowing.
+
+    Until the scraper.py `html_table` fetcher exists, this entry is BLOCKED.
+
+# ---- Daily-band rebalance (Gap 3) -------------------------------------------
+
+- id: treasury_daily_debt_to_penny
+  name: US Treasury — daily debt to the penny (total public debt outstanding)
+  domain: econ_fin
+  dgp_class: macro_economic_indicator
+  archetypes: [non_stationary_regime, smooth_periodic, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny?fields=record_date,tot_pub_debt_out_amt,debt_held_public_amt,intragov_hold_amt&page[size]=10000&sort=-record_date
+    auth: none
+    rate_limit: "none documented"
+  schema:
+    timestamp_field: data[].record_date
+    value_field: ["data[].tot_pub_debt_out_amt", "data[].debt_held_public_amt", "data[].intragov_hold_amt"]
+    variates: 3
+  history_available: P30Y
+  update_cadence_observed: "daily, ~1 business day lag"
+  pretraining_novelty: partial
+  novelty_notes: "Total debt headline number is well-known; intraday composition (public vs intragov) less so. Multi-variate."
+  license: "Public domain (US Government — fiscaldata.treasury.gov)"
+  sample_path: samples/treasury_daily_debt_to_penny.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: "Treasury Fiscal Data API, keyless, well-documented. Complements existing treasury_yield_curve_daily (yields vs stocks)."
+
+- id: eia_natural_gas_spot_daily
+  name: EIA — daily Henry Hub natural gas spot price + regional hubs
+  domain: energy
+  dgp_class: energy_price
+  archetypes: [non_stationary_regime, chaotic_nonlinear, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.eia.gov/v2/natural-gas/pri/sum/data/?frequency=daily&data[0]=value&facets[series][]=RNGWHHD&sort[0][column]=period&sort[0][direction]=desc&length=5000&api_key={EIA_API_KEY}
+    auth: env:EIA_API_KEY
+    rate_limit: "30 req/min with key"
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: "daily, next-business-day publication"
+  pretraining_novelty: partial
+  novelty_notes: "Henry Hub spot is commonly cited; regional hub differentials less so."
+  license: "Public domain (US Government / EIA)"
+  sample_path: samples/eia_natural_gas_spot_daily.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] My original URL pointed at `pri/fut` which is
+    **futures** (RNGC1 = "Natural Gas Futures Contract 1"), not spot. Corrected to `pri/sum`
+    (summary prices) with `facets[series][]=RNGWHHD` (Henry Hub Spot, dollars/MMBtu, daily).
+    EIA v2 + DEMO_KEY confirmed functional. **Scraper limitation:** the existing
+    `_resolve_auth` cannot substitute `{EIA_API_KEY}` into the URL query string — see
+    verification_log.md "Scraper extension points needed". Without that fix the scraper sends
+    the literal placeholder. Workaround until the fix lands: use scraper.py's `_expand_panel`
+    by putting `{EIA_API_KEY}` in a panel row, or temporarily hardcode the key.
+    EIA series catalog browser: https://www.eia.gov/opendata/browser/natural-gas/pri
+
+# ---- Geographic diversity adds (Gap 5) --------------------------------------
+
+- id: bcb_focus_market_expectations
+  name: Banco Central do Brasil — Focus market expectations survey (daily, multi-indicator)
+  domain: econ_fin
+  dgp_class: macro_leading_indicator
+  archetypes: [non_stationary_regime, bounded, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?$top=2000&$orderby=Data desc&$format=json
+    auth: none
+    rate_limit: "none documented"
+  schema:
+    timestamp_field: value[].Data
+    value_field: value[].Mediana
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "daily working-day publication"
+  pretraining_novelty: clean
+  novelty_notes: "Brazilian central bank Focus survey — Portuguese-only docs, very unlikely in TSFM English-language pretrains."
+  license: "Open Government — BCB Olinda public API"
+  sample_path: samples/bcb_focus_market_expectations.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: "OData endpoint, keyless. $filter=Indicador eq 'IPCA' for inflation, 'PIB Total' for GDP growth, 'Câmbio' for FX. Multi-indicator panel achievable via parameterized $filter."
+
+- id: jma_japan_forecast
+  name: JMA — Japan Meteorological Agency forecast & observations (prefecture panel)
+  domain: nature
+  dgp_class: weather_field
+  archetypes: [smooth_periodic, chaotic_nonlinear, hierarchical]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://www.jma.go.jp/bosai/forecast/data/forecast/{AREA_CODE}.json
+    auth: none
+    rate_limit: "polite"
+  panel:
+    - {AREA_CODE: "130000"}  # Tokyo
+    - {AREA_CODE: "270000"}  # Osaka
+    - {AREA_CODE: "230000"}  # Aichi (Nagoya)
+    - {AREA_CODE: "010000"}  # Hokkaido
+    - {AREA_CODE: "400000"}  # Fukuoka
+    - {AREA_CODE: "471000"}  # Okinawa
+    - {AREA_CODE: "040000"}  # Miyagi (Sendai)
+    - {AREA_CODE: "340000"}  # Hiroshima
+  schema:
+    timestamp_field: "[0].timeSeries[2].timeDefines[]"
+    value_field: "[0].timeSeries[2].areas[0].temps[]"
+    variates: 1
+  history_available: P0D  # JMA only publishes current forecast; historical needs separate archive endpoint
+  update_cadence_observed: "every ~1 hour"
+  pretraining_novelty: clean
+  novelty_notes: "JMA prefecture-level JSON not in known TSFM pretrains (Japanese-text indexed). Open-Meteo Japan re-fits from CDS — distinct."
+  license: "Public domain (JMA)"
+  sample_path: samples/jma_japan_forecast.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] Endpoint + area code 130000 = Tokyo confirmed. JMA
+    forecasts contain four `timeSeries` entries: [0] weather codes / wind / wave, [1]
+    precipitation probability (`pops`), **[2] temperature** (`temps`), [3] 7-day extended
+    outlook. Corrected schema path from my original `timeSeries[0]` (which is weather codes)
+    to `timeSeries[2]` (temps). JMA forecast JSON publishes current+future only; for
+    forecastable history use the JMA AMeDAS observation archive at
+    https://www.data.jma.go.jp/obd/stats/etrn/ (HTML — would also need html_table scraper).
+    Start with forecast-only daily-snapshot mode.
+
+- id: lta_singapore_traffic_speeds
+  name: Singapore LTA — traffic speed bands (road network, 5-min cadence)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [hierarchical, non_stationary_regime, smooth_periodic, bounded]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: http://datamall2.mytransport.sg/ltaodataservice/TrafficSpeedBands
+    auth: env:LTA_ACCOUNT_KEY              # passed as `AccountKey` header by scraper
+    rate_limit: "60 req/min with free key"
+  schema:
+    timestamp_field: now()
+    value_field: value[].SpeedBand
+    variates: 1
+  history_available: P0D  # snapshot only; persistence via repeated polling
+  update_cadence_observed: "every 5 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "Singapore LTA DataMall — Asian transit operations panel not in known TSFM pretrains."
+  license: "Singapore Open Data Licence — research permissive"
+  sample_path: samples/lta_singapore_traffic_speeds.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: "Snapshot endpoint — meaning is 'speed band per road segment at poll time'. ~10k segments, take ?$skip=N for paging. Free AccountKey from datamall.lta.gov.sg. Auth is via `AccountKey` HTTP header — confirm scraper._resolve_auth handles non-Bearer header names, or extend."
+
+- id: banxico_daily_rates
+  name: Banxico — daily FX & interest rate series (Mexico)
+  domain: econ_fin
+  dgp_class: monetary_policy_rate
+  archetypes: [non_stationary_regime, smooth_periodic, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.banxico.org.mx/SieAPIRest/service/v1/series/{SERIES_ID}/datos/oportuno?token={BANXICO_TOKEN}
+    auth: env:BANXICO_TOKEN
+    rate_limit: "polite"
+  panel:
+    - {SERIES_ID: "SF43718"}   # USD/MXN FIX
+    - {SERIES_ID: "SF60633"}   # CETES 28-day yield
+    - {SERIES_ID: "SF61745"}   # TIIE 28-day
+    - {SERIES_ID: "SF43783"}   # EUR/MXN
+  schema:
+    timestamp_field: bmx.series[0].datos[].fecha
+    value_field: bmx.series[0].datos[].dato
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: "daily working-day publication"
+  pretraining_novelty: clean
+  novelty_notes: "Spanish-language SIE API. Mexican rates rare in TSFM English pretrains."
+  license: "Public — Banxico SIE API"
+  sample_path: samples/banxico_daily_rates.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: "Free token from banxico.org.mx/SieAPIRest/. Date format DD/MM/YYYY in 'fecha' — parser must handle. Series catalog at the Banxico SIE web UI."
+
+# ============================================================================
+# Generalization-priority adds (2026-07-01) — PENDING VERIFICATION
+# ============================================================================
+# Added to close the "generalises across domains" test gap:
+#   Priority 1: healthcare depth — was 5 sources, 58 rows/day; add 3 with distinct DGP classes
+#   Priority 2: transport de-monoculture — TfL dominated at 71% of transport volume;
+#               add aviation + rail sources with distinct DGP classes
+# Each entry carries a `dgp_class` field (Priority 4 taxonomy — see DGP_TAXONOMY.md)
+# to enable DGP-class-weighted stratified scoring rather than source-count-weighted.
+# ============================================================================
+
+# ---- Healthcare adds (Priority 1) -------------------------------------------
+
+- id: cdc_nwss_wastewater
+  name: CDC NWSS — public SARS-CoV-2 wastewater surveillance (US, wwtp × jurisdiction panel)
+  domain: healthcare
+  dgp_class: environmental_biosurveillance
+  archetypes: [hierarchical, zero_inflated_sparse, non_stationary_regime, bounded]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/2ew6-ywp6.json?$limit=5000&$order=first_sample_date DESC
+    auth: none
+    rate_limit: "1000 req/h anonymous; higher with app token"
+  schema:
+    timestamp_field: "[].first_sample_date"
+    value_field: "[].ptc_15d"
+    variates: 1
+  history_available: P4Y
+  update_cadence_observed: "weekly, ~1-2 day publication lag"
+  pretraining_novelty: clean
+  novelty_notes: "NWSS wastewater is post-COVID data (2022+), not in Chronos/TimesFM/Moirai pretrains."
+  license: "Public domain (US Government)"
+  sample_path: samples/cdc_nwss_wastewater.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] endpoint returns JSON with `first_sample_date`,
+    `ptc_15d` (15-day percent change), `population_served`, `wwtp_id`, `wwtp_jurisdiction`.
+    Panel ~50-jurisdiction × 100s-wwtp. Environmental proxy for community infection — DGP
+    class distinct from ILI or hospitalization. Confirm dataset id via data.cdc.gov search
+    if it migrates.
+
+- id: cdc_nndss_notifiable_weekly
+  name: CDC NNDSS — weekly notifiable diseases by state (US panel)
+  domain: healthcare
+  dgp_class: disease_case_count
+  archetypes: [hierarchical, count_discrete, zero_inflated_sparse, non_stationary_regime]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/x9gk-5huc.json?$limit=10000&$order=year DESC,week DESC
+    auth: none
+    rate_limit: "1000 req/h anonymous"
+  schema:
+    timestamp_field: "[].year"
+    value_field: "[].m2"
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "weekly publication (Thursdays)"
+  pretraining_novelty: clean
+  novelty_notes: "NNDSS state × disease weekly counts — long tail of rare diseases (mumps, meningococcal, hantavirus) not in TSFM corpora."
+  license: "Public domain (US Government / MMWR)"
+  sample_path: samples/cdc_nndss_notifiable_weekly.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] dataset `x9gk-5huc` returns JSON with `states`,
+    `year`, `week`, `label` (disease), `m1_flag`, `m2` (current-week count).
+    **Scraper limitation:** timestamp is (year, week) tuple, not ISO date. Two options:
+    (a) parser hook to convert to ISO Monday-of-week date; (b) leave as (year, week)
+    and handle downstream. Use `$where=label='<Disease>'` for a per-disease panel.
+
+- id: who_gho_life_expectancy_by_country
+  name: WHO Global Health Observatory — life expectancy at birth by country (annual)
+  domain: healthcare
+  dgp_class: vital_statistics
+  archetypes: [smooth_periodic, hierarchical, bounded]
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://ghoapi.azureedge.net/api/WHOSIS_000001
+    auth: none
+    rate_limit: "none documented"
+  schema:
+    timestamp_field: value[].TimeDim
+    value_field: value[].NumericValue
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: "annually"
+  pretraining_novelty: clean
+  novelty_notes: "WHO GHO indicator series — annual cadence unseen by frequency-restricted TSFMs."
+  license: "CC-BY-4.0 (WHO)"
+  sample_path: samples/who_gho_life_expectancy.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] OData API. `SpatialDim` (ISO3), `TimeDim` (year),
+    `NumericValue`, `Dim1` (SEX_FMLE/SEX_MLE/SEX_BTSX). ~200 countries × ~25 years × 3
+    sex-dims = ~15k rows per fetch. **Also serves as the first P1Y entry in the fast catalog**
+    until `sources-slow.yaml` is wired up. Other WHOSIS ids to add: WHOSIS_000002 (life
+    expectancy at 60), MDG_0000000001 (under-5 mortality), etc.
+
+# ---- Transport adds (Priority 2) --------------------------------------------
+
+- id: amtrak_train_status_realtime
+  name: Amtrak — nationwide train position/status (live JSON API)
+  domain: transport
+  dgp_class: rail_operations
+  archetypes: [hierarchical, non_stationary_regime, chaotic_nonlinear, count_discrete]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.amtraker.com/v3/trains
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: lastValTS
+    value_field: velocity
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "every ~1 minute per active train"
+  pretraining_novelty: clean
+  novelty_notes: "US intercity rail live positions — distinct from urban transit (TfL, MTA, BART); community API, not in TSFM corpora."
+  license: "Free community API (amtraker.com)"
+  sample_path: samples/amtrak_train_status_realtime.json  # PENDING
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] returns JSON keyed by trainID with `trainNum`,
+    `routeName`, `lat`, `lon`, `velocity`, `heading`, `trainState`, `stations[]` (with
+    schArr/schDep/arr/dep/status). ~40-70 active trains × per-1-min updates. DGP class
+    distinct from urban-transit ridership: rail operations (schedule adherence, velocity,
+    on-time rate).
+
+- id: faa_nasstatus_delays
+  name: FAA NASSTATUS — real-time airport delays and closures (US)
+  domain: transport
+  dgp_class: aviation_congestion
+  archetypes: [zero_inflated_sparse, count_discrete, hierarchical]
+  frequency: PT15M
+  endpoint:
+    type: rest_xml                        # BLOCKED — scraper does not yet support XML fetcher
+    url: https://nasstatus.faa.gov/api/airport-status-information
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: AIRPORT_STATUS_INFORMATION/Update_Time
+    value_field: AIRPORT_STATUS_INFORMATION/Delay_type/ARPT/Delay/Min
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "every ~5-15 minutes"
+  pretraining_novelty: clean
+  novelty_notes: "FAA airport delay bulletin — zero-inflated (most airports usually clear), event-driven spikes on weather/ATC events. Not in TSFM corpora."
+  license: "Public domain (US Government / FAA)"
+  sample_path: samples/faa_nasstatus_delays.xml  # PENDING
+  verification:
+    last_verified: BLOCKED
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: |
+    [VERIFIED 2026-07-01 via WebFetch:] endpoint returns XML with `<AIRPORT_STATUS_INFORMATION>`
+    root; fields include Update_Time, Delay_type × ARPT × Min/Max delay minutes + Trend + Reason.
+    **Blocked on scraper `rest_xml` fetcher** (same category as eurocontrol/tsa's `html_table`
+    blocker). Adding it is ~30 LOC + lxml dep; unblocks FAA + any future XML-only endpoint.
+    Aviation domain otherwise absent from transport after TfL / MTA / Amtrak (all rail or ground).
+

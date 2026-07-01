@@ -1,0 +1,153 @@
+# Timeframe scraper cron schedule
+#
+# Group sources by poll cadence so each cron entry batches a domain's
+# co-frequency sources. Times are UTC. Anonymous-quota-limited sources are
+# placed in the lowest cadence that still satisfies "≥ once per day, every
+# day".
+#
+# To install on a Linux host:
+#   crontab -e
+#   PYTHONPATH=/root/timeframe
+#   for each entry below, add a line:
+#     <cron> cd /root/timeframe/sources && python scraper.py --id <id> >> data/_cron.log 2>&1
+
+schedules:
+
+  # ──────── 1-minute cadence ────────
+  - every: PT1M
+    sources:
+      - usgs_earthquakes_realtime
+      - swpc_planetary_k
+      - swpc_solar_wind_plasma
+      - nws_active_alerts
+      - nws_alerts_count
+      - hn_max_item
+      - hn_top_stories
+      - bart_realtime_etd
+      - tfl_arrivals
+      - tfl_bikepoints_status
+      - citibike_station_status
+      - github_events_firehose
+      - kalshi_markets_snapshot
+      - manifold_markets_snapshot
+      - binance_btcusdt_1m
+      - opensky_states_local       # respects 10/min anon limit
+    cron: "* * * * *"
+
+  - every: PT2M30S                  # sensor.community
+    sources:
+      - sensor_community_pm25
+    cron: "*/3 * * * *"
+
+  - every: PT5M
+    sources:
+      - aemo_nem_5min
+      - caiso_oasis_lmp_5min
+      - nyiso_realtime_lmp_zonal
+      - coinbase_btc_5min
+      - aws_health_rss
+      - polymarket_btc_history     # 60-fidelity ticks
+    cron: "*/5 * * * *"
+
+  - every: PT15M
+    sources:
+      - usgs_streamflow_iv
+      - elia_solar_15min
+      - gdacs_natural_disasters
+    cron: "*/15 * * * *"
+
+  - every: PT30M
+    sources:
+      - uk_carbon_intensity_actual
+      - uk_carbon_intensity_genmix
+      - uk_neso_carbon_historic_30min
+      - octopus_agile_tariff
+    cron: "*/30 * * * *"
+
+  - every: PT1H
+    sources:
+      - noaa_tides_coops           # 6-min native; hourly poll captures 10 ticks
+      - ndbc_buoy_realtime
+      - open_meteo_forecast
+      - open_meteo_air_quality
+      - open_meteo_marine
+      - coingecko_btc_hourly
+      - reddit_top_daily
+      - stackoverflow_questions    # respects 300 req/day anon
+      - ingv_seismicity
+    cron: "5 * * * *"              # 5 minutes past every hour
+
+  # ──────── daily / once-per-day ────────
+  # Stagger by minute to avoid thundering herd at 00:00 UTC.
+
+  - every: P1D
+    sources: [defillama_chain_tvl_daily]
+    cron: "10 1 * * *"
+
+  - every: P1D
+    sources: [frankfurter_fx_daily]
+    cron: "15 17 * * 1-5"          # ECB publishes ~16:00 CET weekdays
+
+  - every: P1D
+    sources: [treasury_yield_curve_daily]
+    cron: "30 22 * * 1-5"          # US Treasury publishes after market close
+
+  - every: P1D
+    sources:
+      - mauna_loa_co2_daily
+      - usda_snotel_swe
+    cron: "0 12 * * *"
+
+  - every: P1D
+    sources:
+      - wikimedia_top_articles_daily
+      - wikimedia_per_article_pageviews
+      - wikimedia_health_pageviews
+    cron: "0 14 * * *"             # after Wikimedia's daily compute
+
+  - every: P1D
+    sources:
+      - npm_downloads_per_pkg
+      - pypi_downloads_per_pkg
+      - crates_io_downloads
+      - itunes_top_podcasts
+    cron: "30 13 * * *"
+
+  - every: P1D
+    sources:
+      - rki_germany_cases
+      - rki_germany_hospitalizations
+    cron: "0 16 * * *"             # after RKI daily refresh ~14:00 CET
+
+  - every: PT8H
+    sources: [ripestat_announced_prefixes]
+    cron: "0 */8 * * *"
+
+  - every: PT1H
+    sources: [nyc_311_complaints]
+    cron: "20 * * * *"
+
+# ──────── operational notes ────────
+#
+# 1. Per-source rate-limit budgets (req/day) summed under PT1M cron exceed some
+#    free-tier quotas. Specifically:
+#      - opensky_states_local: anonymous limit 10 req/min => safe at PT1M.
+#      - github_events_firehose: 60/h anon => MUST set GITHUB_TOKEN, which
+#        raises to 5000/h.
+#      - stackoverflow_questions: 300/day anon => keep at hourly cadence
+#        (24 polls/day). Set STACKEXCHANGE_KEY to lift to 10k/day.
+#      - reddit_top_daily: rate-limited per UA; set REDDIT_USER_AGENT.
+#
+# 2. Daily sources (`P1D`) are scheduled at offsets specific to the upstream
+#    publication time, derived from each provider's documented cadence:
+#      - ECB FX: ~16:00 CET, only weekdays (cron handles via 1-5 day spec).
+#      - US Treasury yields: posted ~16:00 ET on business days.
+#      - Wikimedia pageviews: roughly 13:00 UTC the next day.
+#      - RKI: dashboards updated 13–14:00 CET.
+#
+# 3. Failures append to data/<id>/_errors.log; an external watchdog (e.g.,
+#    cron MAILTO + a digest script) is recommended for production.
+#
+# 4. URL templates in sources.yaml use {YYYYMMDD}, {YYYYMM}, etc. tokens that
+#    scraper.py expands automatically; nothing extra is needed for daily
+#    file-rolling sources (NYISO, AEMO).
