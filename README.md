@@ -25,8 +25,9 @@ synthetic generator.
 
 The benchmark forecasts windows of genuinely real public time series — climate,
 solar activity, energy load, markets, transport, public health — pulled from a
-**curated catalog of daily-or-faster-updating sources** (`src/sources/`, 55
-verified feeds across the 7 GIFT-Eval domains). `sources/scraper.py` snapshots
+**curated catalog of daily-or-faster-updating sources** (`src/sources/`, 92
+verified feeds across the 7 GIFT-Eval domains, 36 DGP classes, sub-minute to
+yearly cadence). `sources/scraper.py` snapshots
 each source to dated parquet; `scraped_source.ScrapedLiveSource` serves those
 snapshots into a `FreshBuffer`, sampling **equal-weight across
 domain × DGP-class × cadence** so no source-count-heavy domain dominates.

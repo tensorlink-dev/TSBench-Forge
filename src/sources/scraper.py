@@ -38,11 +38,9 @@ import logging
 import os
 import re
 import sys
-import time
 import zipfile
 from pathlib import Path
 from typing import Any, Iterable, Optional
-from urllib.parse import urlparse
 
 import yaml
 
