@@ -39,9 +39,8 @@ The companion to `example.ipynb`: every motif here is a **real public time
 series** pulled through `live_feeds.py`. The whole pipeline runs on them — build
 a multi-domain real feed, assemble challenges from the live catalog
 (commit-reveal), validate the panel, score a MASE/WQL/CRPS leaderboard, check
-headroom, and read per-domain breadth. There is no synthetic generator and no
-forge: the distribution the benchmark tests is exactly the distribution of the
-ingested feeds.
+headroom, and read per-domain breadth. The distribution the benchmark tests is
+exactly the distribution of the ingested feeds — there is no synthetic generation.
 
 **Requirements:** `pip install -e ".[notebook]"` and outbound access to the feed
 hosts on first run (bodies are then cached under `~/.cache/tsbench-forge/feeds`,
@@ -222,8 +221,8 @@ md(r"""
 ## Recap
 
 - Real, multi-domain feeds flow through the **same** reveal → panel →
-  leaderboard → headroom → breadth pipeline as `example.ipynb` — there is no
-  forge and no synthetic generator; the tested distribution is exactly the feeds.
+  leaderboard → headroom → breadth pipeline as `example.ipynb` — the tested
+  distribution is exactly the feeds.
 - `build_live_challenges` draws real motifs deterministically from the pool, so
   every validator replays byte-identical challenges.
 - `DatedCsvFeed` + `AsOfLiveSource` give vintage discipline on real timestamps.

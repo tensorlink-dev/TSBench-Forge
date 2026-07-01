@@ -8,7 +8,7 @@ buffer that challenges are sampled from.
 Each motif that goes into the buffer carries:
 
 * ``domain``      — the 7-domain GIFT-Eval taxonomy tag (``nature``, ``econ_fin``, …)
-* ``dgp_class``   — the taxonomy from ``sources/DGP_TAXONOMY.md`` (35 classes)
+* ``dgp_class``   — the taxonomy from ``sources/DGP_TAXONOMY.md`` (36 in use)
 * ``cadence``     — coarse frequency band (sub-min / few-min / half-hour /
                     hourly / daily / weekly / monthly / quarterly / yearly)
 * ``source_id``   — the ``sources.yaml`` ``id`` for provenance and audit
@@ -26,15 +26,14 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable
 
 import numpy as np
 
 from ingest import LiveSource, MotifMeta
 
 
-# Coarse cadence bands — same partition as `pool_sampler.FREQ_BAND` and the
-# reward-hacking-defense breadth gates in score.py.
+# Coarse cadence bands — the partition the reward-hacking-defense breadth gates
+# in score.py read off each motif's cadence label.
 FREQ_BAND: dict[str, str] = {
     "PT30S": "sub-min", "PT1M": "sub-min", "PT2M30S": "sub-min",
     "PT5M": "few-min", "PT6M": "few-min", "PT10M": "few-min", "PT15M": "few-min",
@@ -52,12 +51,10 @@ class ScrapedLiveSource(LiveSource):
     ``data_dir/<source_id>/*.parquet`` at each ``pull``/``pull_meta`` to grab
     contiguous motif windows.
 
-    Sampling uses ``src.pool_sampler.sample_pool`` under the hood so each pull
-    respects **equal-weight-per-DGP-class-per-domain** — the property that
+    Sampling enforces **equal-weight-per-DGP-class-per-domain** (and optionally
+    per-cadence) via :meth:`_sample_indices_equal_weight` — the property that
     prevents source-count-heavy domains (nature) from drowning out light ones
-    (healthcare) in the buffer. This is the same sampler that the eval-pool
-    builder uses, so the served buffer has the same distribution shape that
-    validators will score on.
+    (healthcare) in the buffer, so the served pool spans the catalog evenly.
     """
 
     domain = "scraped_live"  # coarse fallback; per-motif domain overrides
@@ -84,9 +81,9 @@ class ScrapedLiveSource(LiveSource):
             require_freshness_days: if set, drop parquet files older than this
                 many days. Guards against stale scraper output leaking into the
                 buffer when the cron falls behind.
-            enforce_cadence_balance: pass through to ``sample_pool``. On by
-                default so cadence bands are equal-weighted alongside DGP
-                classes. Disable only if you want an internal ablation.
+            enforce_cadence_balance: on by default so cadence bands are
+                equal-weighted alongside DGP classes. Disable only if you want an
+                internal ablation.
         """
         import yaml
         with open(catalog_path) as f:
@@ -202,7 +199,7 @@ class ScrapedLiveSource(LiveSource):
         self, n: int, rng: np.random.Generator
     ) -> list[dict]:
         """Pick ``n`` series with equal weight per (domain × dgp_class) — and
-        optional per-cadence — using the same policy as ``pool_sampler``.
+        optional per-cadence equal weighting.
         """
         cat = self._catalog()
         if not cat:
@@ -264,7 +261,7 @@ class ScrapedLiveSource(LiveSource):
         # rank encoding of a categorical column only if nothing numeric survives.
         excluded = {"timestamp"} | {f"_panel_{k}" for k in (panel_row or {}).keys()}
         value_cols = [c for c in df.columns if c not in excluded] or [df.columns[-1]]
-        best_col, best_finite, best_values = None, -1, None
+        best_finite, best_values = -1, None
         for c in value_cols:
             try:
                 v = df[c].astype(float).to_numpy()
@@ -272,7 +269,7 @@ class ScrapedLiveSource(LiveSource):
                 continue
             finite = int(np.isfinite(v).sum())
             if finite > best_finite:
-                best_col, best_finite, best_values = c, finite, v
+                best_finite, best_values = finite, v
         if best_values is None or best_finite == 0:
             # No usable numeric column: rank-encode the first candidate.
             col = value_cols[0]

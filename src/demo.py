@@ -1,4 +1,4 @@
-"""End-to-end demo on **real public data** — the whole pipeline, no forge.
+"""End-to-end demo on **real public data** — the whole pipeline.
 
 The benchmark forecasts real series drawn from the live catalog (``src/sources/``).
 This runs the full flow on them: build a fresh, breadth-balanced pool -> assemble
@@ -20,7 +20,7 @@ from collections import Counter
 import numpy as np
 
 from challenges import build_live_challenges
-from config import CONTEXT_LEN, HORIZON, N_CHALLENGES
+from config import CONTEXT_LEN, HORIZON
 from evaluate import (
     ProbForecast,
     benchmark_has_headroom,
@@ -158,7 +158,7 @@ def run() -> None:
         )
 
     print("\n" + "=" * 72)
-    print("done — the full pipeline ran on real public data, no forge / LLM / synthetic.")
+    print("done — the full pipeline ran on real public data.")
 
 
 if __name__ == "__main__":

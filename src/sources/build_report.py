@@ -15,25 +15,20 @@ rest. Per-source loaders keep the report robust against scraper schema gaps.
 
 from __future__ import annotations
 
-import csv
 import datetime as dt
-import io
 import json
-import os
 import re
-import shutil
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 from textwrap import shorten
-from typing import Callable, Optional
+from typing import Callable
 
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import yaml
 

@@ -16,7 +16,7 @@ Last updated 2026-07-01. **92 sources** in catalog, **80 working** post scraper 
 | scraper endpoint types | rest_json, rest_csv, rss, s3 | + rest_xml, html_table, rest_xlsx | +3 |
 | scraper token substitutions | 7 date tokens | + `{H}`, `{H-N}`, `{HH}`, `{YYYY-MM-DD-Nd}`, `{ISO_DATE}`, `{ISO_DATETIME}`, `{ENVVAR}` | +7 |
 | scraper SDMX-JSON decoder | none | present (OECD/Eurostat/ECB/IMF ready) | new parser |
-| generalization sampler | none | `pool_sampler.py` (equal-weight per DGP-class × domain × cadence) | new module |
+| generalization sampler | none | `scraped_source.ScrapedLiveSource` (equal-weight per DGP-class × domain × cadence) | in the live adapter |
 
 ### Domain × DGP-class breadth (from 2026-07-01 live scrape)
 
