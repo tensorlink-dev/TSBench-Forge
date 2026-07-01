@@ -19,7 +19,7 @@ Integration backends
 
 * ``"scipy"`` -- ``scipy.integrate.solve_ivp`` with the RK45 adaptive integrator
   (the protocol the paper uses). Imported lazily; enabled by ``pip install -e ".[dsr]"``.
-* ``"numpy"`` -- the repo's dependency-free fixed-step RK4 (``domains._rk4_rollout``),
+* ``"numpy"`` -- a dependency-free fixed-step RK4 (``_rk4_rollout``, defined here),
   so the core path stays numpy-only and consensus-safe.
 * ``"dysts"`` -- pull a system from Gilpin's ``dysts`` chaotic-systems library
   (``pip install -e ".[dysts]"``) via :func:`from_dysts`; integrated with the same
@@ -39,8 +39,30 @@ from dataclasses import dataclass
 
 import numpy as np
 
-# Reuse the repo's pure-numpy fixed-step RK4 so the fallback path adds no dependency.
-from domains import _rk4_rollout
+
+def _rk4_rollout(
+    field: Callable[[np.ndarray], np.ndarray],
+    x0: np.ndarray,
+    n_steps: int,
+    dt: float,
+    clip: float = 1e6,
+) -> np.ndarray:
+    """Fixed-step RK4 rollout of an autonomous vector field; ``(n_steps+1, dim)``.
+
+    Pure-numpy, dependency-free, so the DSR fallback path never needs SciPy.
+    """
+    x = np.asarray(x0, dtype=float).copy()
+    out = np.empty((n_steps + 1, x.size))
+    out[0] = x
+    for t in range(n_steps):
+        k1 = field(x)
+        k2 = field(x + 0.5 * dt * k1)
+        k3 = field(x + 0.5 * dt * k2)
+        k4 = field(x + dt * k3)
+        x = np.clip(x + (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4), -clip, clip)
+        out[t + 1] = x
+    return out
+
 
 # Right-hand side / Jacobian signatures: f(state, params) -> derivative / matrix.
 _Rhs = Callable[[np.ndarray, "dict[str, float]"], np.ndarray]

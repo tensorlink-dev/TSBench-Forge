@@ -1,9 +1,10 @@
 """Pin the reward-hacking-defense invariants.
 
-Every test here is a lock: a state that reaches the corner *must* score
-foundational_fitness = 0. The LLM forge sees these gates as unconditional zeros,
-so it cannot climb toward the failure mode. If a code change makes any of these
-tests pass with fitness > 0, the defense is broken.
+Every test here is a lock: a pool that reaches the corner *must* score
+foundational_fitness = 0. The breadth gates hard-veto these degenerate pools as
+unconditional zeros, so a silently-narrowing eval distribution scores nothing. If
+a code change makes any of these tests pass with fitness > 0, the defense is
+broken.
 
 See docs/REWARD_HACKING.md for the failure modes each test locks down.
 """

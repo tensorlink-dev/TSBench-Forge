@@ -35,10 +35,11 @@ md(r"""
 # Proving an **independently-validated** anchor (TSFM-ready)
 
 The benchmark's validity rests on the `strong` anchor genuinely being good — but
-checking that on the forge's *own* challenges is circular. This notebook does the
-non-circular thing: it establishes the anchor's quality on a **held-out, real,
-external benchmark the forge never touches** (commodity / transport / demography),
-then promotes the validated anchor and confirms it also leads on the forge.
+checking that on the benchmark's *own* challenges is circular. This notebook does
+the non-circular thing: it establishes the anchor's quality on a **held-out, real,
+external benchmark disjoint from the live feed** (commodity / transport /
+demography), then promotes the validated anchor and confirms it also leads on the
+live benchmark's own reveal.
 
 It resolves the **strongest anchor this environment can run**: a real TSFM
 (Chronos/TimesFM) if `.[chronos]` + weights are present, else a literature-
@@ -61,15 +62,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 
-from config import WEAK_STATE
 from evaluate import leaderboard, probabilistic_panel
-from forge_loop import run_forge, manifest_for
-from generate import build_challenges
+from challenges import build_live_challenges
 from seed import rng_for
 from score import validate_panel
 from independent_eval import (
     VALIDATION_REGISTRY, validation_benchmark, resolve_anchor,
-    is_independently_validated, validated_panel, leakage_gap, forge_buffer,
+    is_independently_validated, validated_panel, leakage_gap, live_buffer,
 )
 
 anchor = resolve_anchor()           # TSFM -> statsforecast -> numpy
@@ -81,8 +80,8 @@ for name, spec in VALIDATION_REGISTRY.items():
 md(r"""
 ## 1. The held-out external benchmark
 
-Real series in domains **disjoint from the forge feed** — so a good score here is
-independent evidence of skill, not a property of the forge's distribution.
+Real series in domains **disjoint from the live benchmark feed** — so a good score
+here is independent evidence of skill, not a property of the benchmark's distribution.
 """)
 
 code(r"""
@@ -102,7 +101,7 @@ axes[0].set_title("Held-out tasks: context (dark) + horizon truth (green)"); plt
 md(r"""
 ## 2. Independent validation — the anchor must beat every classical baseline
 
-Zero-shot on the held-out set (nothing is fit to the forge). If the anchor does
+Zero-shot on the held-out set (nothing is fit to the benchmark). If the anchor does
 not lead, it is **not** fit to certify TSFM quality — the gate the README demands.
 """)
 
@@ -124,25 +123,27 @@ plt.title("Independent validation on the external held-out set"); plt.grid(alpha
 """)
 
 md(r"""
-## 3. Harden a forge benchmark, then promote the validated anchor
+## 3. Assemble the live benchmark, then promote the validated anchor
 
-The forge runs with the cheap numpy panel (its job is *hardening*); we then promote
-the **independently-validated** anchor to `strong` and confirm it still leads on the
-forge's own reveal via `validate_panel`. Because the anchor's quality was
-established externally in step 2, this is no longer circular.
+We build the live benchmark feed and assemble its commit-reveal challenges, then
+promote the **independently-validated** anchor to `strong` and confirm it also
+leads on the benchmark's own reveal via `validate_panel`. Because the anchor's
+quality was established externally in step 2, this is no longer circular.
+
+> On raw real data the numpy anchor may not lead (`valid=False`) — that is the
+> gate correctly reporting the anchor is too weak; the fix is a real TSFM anchor
+> (`resolve_anchor(prefer_tsfm="chronos")`), not to ignore it.
 """)
 
 code(r"""
-buffer = forge_buffer(pool_size=96, motif_len=384)
+buffer = live_buffer(pool_size=96, motif_len=384)
 buffer.refresh(np.random.default_rng(0xC0FFEE))
-final_state, log = run_forge(buffer, 12, "0xindep-nb", WEAK_STATE)
-mhash = manifest_for(final_state)
-reveal = build_challenges(final_state, buffer, rng_for("0xindep-nb", 12, mhash), 96)
-print(f"forge fitness {log[0].fitness:.3f} -> {log[-1].fitness:.3f}; revealed {len(reveal)} challenges")
+reveal = build_live_challenges(buffer, rng_for("0xindep-nb", 0, "reveal"), 96)
+print(f"revealed {len(reveal)} challenges from the live benchmark feed")
 
 panel, _ = validated_panel(anchor)
 vp = validate_panel(reveal, panel)
-print(f"validate_panel on forge reveal: runner-up '{vp['runner_up']}', "
+print(f"validate_panel on the live reveal: runner-up '{vp['runner_up']}', "
       f"anchor leads by {vp['margin']:+.3f} -> valid={vp['valid']}")
 """)
 
@@ -159,8 +160,8 @@ for r in board:
 
 gap = leakage_gap(anchor.forecaster, reveal, benchmark=bench)
 print(f"\nleakage detector  held-out MASE={gap['static_mase']:.3f}  "
-      f"forge MASE={gap['forge_mase']:.3f}  gap={gap['gap']:+.3f}")
-print("Track this gap across epochs: a forge score racing ahead of the held-out score == leakage.")
+      f"live-reveal MASE={gap['live_mase']:.3f}  gap={gap['gap']:+.3f}")
+print("Track this gap over time: a live-reveal score racing ahead of the held-out score == leakage.")
 """)
 
 md(r"""
@@ -183,8 +184,8 @@ validity anchor. Nothing else changes.
 
 ## Recap
 
-- **Independent** = quality established on a held-out, real, external set the forge
-  never touches — breaking the circularity of self-validation.
+- **Independent** = quality established on a held-out, real, external set disjoint
+  from the live benchmark feed — breaking the circularity of self-validation.
 - `resolve_anchor` always runs the strongest anchor available (TSFM → classical →
   numpy) and reports which, so a run is never silently on the placeholder.
 - A validated anchor makes `validate_panel` meaningful; the leakage gap keeps it

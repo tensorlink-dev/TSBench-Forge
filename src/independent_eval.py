@@ -1,16 +1,16 @@
 """Independent validation of a forecasting anchor — the missing credibility step.
 
 The whole benchmark rests on the ``strong`` anchor being genuinely good. But
-checking that on the forge's *own* challenges is circular: a hollow anchor can
+checking that on the benchmark's *own* challenges is circular: a hollow anchor can
 look fine on a distribution it helped shape. **Independent validation** breaks the
-circle — establish the anchor's quality on a *held-out, real benchmark the forge
-never touches*, exactly as TSFM papers validate zero-shot on external data (e.g.
-GIFT-Eval), and only then promote it to the anchor.
+circle — establish the anchor's quality on a *held-out, real benchmark disjoint
+from the live feed*, exactly as TSFM papers validate zero-shot on external data
+(e.g. GIFT-Eval), and only then promote it to the anchor.
 
 This module is that step, end to end:
 
 1. :func:`validation_benchmark` builds a static set of forecasting tasks from real
-   public series that are **disjoint from the forge feed** (commodity prices,
+   public series that are **disjoint from the live feed** (commodity prices,
    transport demand, demography) — the external yardstick.
 2. :func:`independent_leaderboard` scores candidate anchors on it (MASE/WQL/CRPS),
    so "this model is good" is a measured claim, not an assumption.
@@ -21,8 +21,8 @@ This module is that step, end to end:
    literature-validated classical model (statsforecast), else the numpy default —
    and reports which one was used, so a run is never silently on the placeholder.
 5. :func:`leakage_gap` contrasts the anchor's held-out (independent) score with its
-   score on the forge reveal: a large, persistent gap is the leakage signal the
-   README calls for.
+   score on the live benchmark reveal: a large, persistent gap is the leakage
+   signal the README calls for.
 
 Nothing here needs torch: the TSFM path is optional and lazily imported, so the
 harness runs offline with classical anchors and lights up the moment a real TSFM
@@ -45,12 +45,12 @@ from evaluate import (
     leaderboard,
     probabilistic,
 )
-from generate import Challenge
+from challenges import Challenge
 from ingest import FreshBuffer
 from live_feeds import CsvFeed, Fetcher, cached_fetch
 from score import default_panel
 
-# Real public series that are DISJOINT from the forge feed (``live_feeds.REGISTRY``).
+# Real public series that are DISJOINT from the live feed (``live_feeds.REGISTRY``).
 # Distinct domains so "good here" means broad skill, and external so validation is
 # not circular. Each is long enough for a CONTEXT_LEN+HORIZON window.
 VALIDATION_REGISTRY: dict[str, dict] = {
@@ -95,7 +95,7 @@ def validation_benchmark(
     seed: int = 20240619,
     max_oversample: int = 12,
 ) -> list[Challenge]:
-    """Build the held-out, real, *external* validation set (disjoint from the forge).
+    """Build the held-out, real, *external* validation set (disjoint from the live feed).
 
     Pulls held-out real series, slices fixed-geometry (context, truth) windows, and
     returns them as plain :class:`Challenge` objects so the same metrics score them.
@@ -134,12 +134,12 @@ def independent_leaderboard(
 
 
 # The classical baselines a real anchor must beat to earn the title. These are the
-# legitimate (non-``overfit``) reference models, lifted to probabilistic.
+# legitimate reference models (everything but ``strong`` itself), lifted to probabilistic.
 def _baselines() -> dict[str, Forecaster]:
     return {
         name: probabilistic(fn)
         for name, fn in default_panel().items()
-        if name not in ("strong", "overfit")
+        if name != "strong"
     }
 
 
@@ -268,16 +268,16 @@ def leakage_gap(
     benchmark: list[Challenge] | None = None,
     **bench_kwargs,
 ) -> dict[str, float]:
-    """Independent (held-out) score vs forge-reveal score for the same anchor.
+    """Independent (held-out) score vs live-reveal score for the same anchor.
 
-    The README's leakage detector: track the gap over time. If the forged score
-    races ahead of the static one, the forge distribution is leaking. Returns both
-    MASE scores and their difference (forge minus held-out).
+    The README's leakage detector: track the gap over time. If the live-reveal
+    score races ahead of the static one, the live distribution is leaking. Returns
+    both MASE scores and their difference (reveal minus held-out).
     """
     bench = benchmark if benchmark is not None else validation_benchmark(**bench_kwargs)
     static = evaluate_forecaster(anchor, bench)["mase"]
-    forged = evaluate_forecaster(anchor, reveal)["mase"]
-    return {"static_mase": static, "forge_mase": forged, "gap": forged - static}
+    live = evaluate_forecaster(anchor, reveal)["mase"]
+    return {"static_mase": static, "live_mase": live, "gap": live - static}
 
 
 def validated_panel(
@@ -288,9 +288,9 @@ def validated_panel(
     return default_panel(strong_model=a.point_model), a
 
 
-# Re-export so callers can build a forge feed without importing both modules.
-def forge_buffer(pool_size: int = 96, motif_len: int = 384, *, fetch: Fetcher | None = None):
-    """A FreshBuffer over the real forge feed (live_feeds), for convenience."""
+# Re-export so callers can build the live benchmark feed without importing both.
+def live_buffer(pool_size: int = 96, motif_len: int = 384, *, fetch: Fetcher | None = None):
+    """A FreshBuffer over the real benchmark feed (live_feeds), for convenience."""
     from live_feeds import build_real_live_source
 
     source = build_real_live_source(fetch=fetch)

@@ -11,11 +11,10 @@ from __future__ import annotations
 import numpy as np
 
 from baselines import context_parrot
-from config import CONTEXT_LEN, HORIZON, WEAK_STATE
-from domains import LorenzSource
+from challenges import Challenge, build_live_challenges
+from conftest import live_buffer, lorenz_motif
+from config import CONTEXT_LEN, HORIZON
 from evaluate import clears_floor, probabilistic, probabilistic_panel
-from generate import Challenge, build_challenges
-from ingest import FreshBuffer, SyntheticLiveSource
 from score import panel_fitness, parrot_gate
 from seed import rng_for
 
@@ -48,14 +47,7 @@ def test_parrot_gate_shape() -> None:
 
 
 def test_parrot_gate_reported_and_bounded() -> None:
-    state = WEAK_STATE.__class__(
-        w_synth=0.5, w_spliced=0.3, w_aug_live=0.2, changepoint_prob=0.2,
-        regime_switch_prob=0.15, aug_severity=0.3, noise_ar_phi=0.4,
-    )
-    buffer = FreshBuffer(SyntheticLiveSource(), pool_size=64, motif_len=768)
-    rng = rng_for("0xfeed", 1, "test")
-    buffer.refresh(rng)
-    chs = build_challenges(state, buffer, rng, 48)
+    chs = build_live_challenges(live_buffer(), rng_for("0xfeed", 1, "test"), 48)
     res = panel_fitness(chs)
     assert "parrot_gate" in res
     assert 0.0 <= res["parrot_gate"] <= 1.0
@@ -64,14 +56,13 @@ def test_parrot_gate_reported_and_bounded() -> None:
 def test_parrot_competitive_on_chaos() -> None:
     # On chaotic Lorenz motifs, near-recurrences make parroting a serious
     # baseline -- the very regime the gate exists to surface. We only assert the
-    # gate is finite/low-ish (parrot is in the running), not a brittle threshold.
-    src = LorenzSource()
-    rng = np.random.default_rng(7)
-    motifs = src.pull(16, CONTEXT_LEN + HORIZON, rng)
+    # gate is finite/bounded (parrot is in the running), not a brittle threshold.
     chs = [
-        Challenge(context=m[:CONTEXT_LEN], truth=m[CONTEXT_LEN:], mode="chaos",
-                  meta={"domain": "lorenz"})
-        for m in motifs
+        Challenge(
+            context=(m := lorenz_motif(CONTEXT_LEN + HORIZON, seed=i))[:CONTEXT_LEN],
+            truth=m[CONTEXT_LEN:], mode="chaos", meta={"domain": "lorenz"},
+        )
+        for i in range(16)
     ]
     res = panel_fitness(chs)
     assert 0.0 <= res["parrot_gate"] <= 1.0

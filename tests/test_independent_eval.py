@@ -12,7 +12,7 @@ import pytest
 
 from config import CONTEXT_LEN, HORIZON
 from evaluate import ProbForecast, probabilistic
-from generate import Challenge
+from challenges import Challenge
 from independent_eval import (
     VALIDATION_REGISTRY,
     ResolvedAnchor,
@@ -148,7 +148,7 @@ def test_validated_panel_swaps_strong():
     panel, used = validated_panel(a)
     assert used is a
     assert panel["strong"] is a.point_model
-    assert "overfit" in panel  # the rest of the panel is intact
+    assert "seasonal_naive" in panel and "drift" in panel  # the rest is intact
 
 
 def test_leakage_gap_shape():
@@ -156,5 +156,5 @@ def test_leakage_gap_shape():
     reveal = _make_challenges(12, seed=4)
     anchor = probabilistic(lambda c, m=None: np.full(HORIZON, float(np.mean(c[-12:]))))
     gap = leakage_gap(anchor, reveal, benchmark=bench)
-    assert set(gap) == {"static_mase", "forge_mase", "gap"}
-    assert gap["gap"] == pytest.approx(gap["forge_mase"] - gap["static_mase"])
+    assert set(gap) == {"static_mase", "live_mase", "gap"}
+    assert gap["gap"] == pytest.approx(gap["live_mase"] - gap["static_mase"])

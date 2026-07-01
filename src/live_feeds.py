@@ -1,18 +1,16 @@
 """Real public time-series feeds — the live layer wired to actual data.
 
-``ingest.py`` defines the ``LiveSource`` contract with a synthetic stand-in, and
+``ingest.py`` defines the ``LiveSource`` contract and the buffering layer, and
 ``feeds.py`` adds the *discipline* a real deployment needs (as-of gating, cross-
-epoch dedup, an HTTP/CSV skeleton). This module supplies the missing piece: a set
+epoch dedup, an HTTP/CSV skeleton). This module supplies concrete pieces: a set
 of **concrete adapters pointed at real, publicly hosted series**, plus a curated
-registry that composes them into a genuinely multi-domain *real* feed — the
-real-data analogue of ``domains.default_live_source``.
+registry that composes them into a genuinely multi-domain *real* feed.
 
 Why this matters
 ----------------
 The benchmark's anti-memorisation guarantee only bites if the "live" motifs are
-real data a miner could not reproduce by fitting the synthetic generator. Until
-real series actually flow through the pipeline, that guarantee is scaffolding.
-This module makes it concrete: ``build_real_live_source()`` returns a
+real data a miner could not have seen or reproduced at commit time. This module
+makes that concrete: ``build_real_live_source()`` returns a
 ``MixtureLiveSource`` spanning climate, solar activity, atmospheric chemistry,
 finance, and weather — five distinct real-world data-generating processes.
 
@@ -23,10 +21,10 @@ Design choices that keep it consensus-safe and testable
   default is a small on-disk cache over ``urllib`` (:func:`cached_fetch`), so a
   notebook re-runs without re-hitting the network and validators that share a
   cache snapshot stay byte-identical.
-* **Per-motif z-scoring.** Each served window is normalised with the same
-  :func:`domains._finalize` the synthetic zoo uses, so real and synthetic motifs
-  land on a common scale and the per-challenge error normalisation in ``score``
-  stays well-conditioned regardless of a feed's native units.
+* **Per-motif z-scoring.** Each served window is normalised with
+  :func:`ingest._finalize`, so all served motifs land on a common scale and the
+  per-challenge error normalisation in ``score`` stays well-conditioned
+  regardless of a feed's native units.
 * **As-of ready.** :class:`DatedCsvFeed` parses the date column and stamps every
   window with the availability time of its *last* point, so it drops straight into
   :class:`feeds.AsOfLiveSource` for vintage gating against the commit beacon.
@@ -50,7 +48,7 @@ from datetime import UTC, datetime
 
 import numpy as np
 
-from domains import _finalize
+from ingest import _finalize
 from feeds import DatedLiveSource, DatedMotif
 from ingest import LiveSource
 
@@ -204,7 +202,7 @@ class CsvFeed(LiveSource):
 
     Fetches once (via the injected ``fetch``), caches the parsed series in memory,
     and serves random ``length``-windows, each z-scored with :func:`_finalize` so
-    it matches the synthetic zoo's conditioning. Raises if the series is shorter
+    all served windows share a common conditioning. Raises if the series is shorter
     than a requested window — curate long-enough feeds, or shrink ``motif_len``.
     """
 
@@ -389,14 +387,14 @@ def build_real_live_source(
     fetch: Fetcher | None = None,
     weights: dict[str, float] | None = None,
 ):
-    """A multi-domain feed over *real* data — the live analogue of the zoo.
+    """A multi-domain feed over *real* data.
 
-    Mirrors :func:`domains.default_live_source` but every component is a real
-    public series. Pass ``names`` to subset the registry and ``weights`` to skew
+    Every component is a real public series. Pass ``names`` to subset the
+    registry and ``weights`` to skew
     the mix (defaults to an equal blend). The shared ``fetch`` (a cache by
     default) means each underlying URL is pulled at most once.
     """
-    from domains import MixtureLiveSource
+    from ingest import MixtureLiveSource
 
     chosen = names or list(REGISTRY)
     f = fetch or cached_fetch()

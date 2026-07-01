@@ -1,7 +1,7 @@
 [project]
 name = "tsbench-forge"
 version = "0.1.0"
-description = "A continuous, hard-to-game benchmark for time-series foundation models, driven by a self-improving forge loop."
+description = "A hard-to-game benchmark for time-series foundation models, built on fresh real-world data."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -17,8 +17,8 @@ test = ["pytest>=7.0"]
 chronos = ["torch>=2.0", "chronos-forecasting>=1.4"]
 timesfm = ["timesfm>=1.2"]
 # Dynamical-systems (DSR) eval (dsr_eval/): scipy enables solve_ivp/RK45 integration;
-# without it the eval falls back to the numpy RK4 in domains.py. dysts adds Gilpin's
-# chaotic-systems zoo as an optional backend. Both imported lazily.
+# without it the eval falls back to the numpy RK4 in dsr_eval/systems.py. dysts adds
+# Gilpin's chaotic-systems zoo as an optional backend. Both imported lazily.
 dsr = ["scipy>=1.11"]
 dysts = ["dysts>=0.5"]
 # Run the example walkthrough notebook (example.ipynb).

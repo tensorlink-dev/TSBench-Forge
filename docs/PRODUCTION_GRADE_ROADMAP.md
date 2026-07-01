@@ -9,21 +9,29 @@ that reviewers at ICML/NeurIPS/ICLR will accept.*
 
 ## 0. TL;DR — where we are and the one-sentence thesis
 
-`tsbench-forge` already owns a thesis nobody else in this list owns: **the
-benchmark is an adversary, not a dataset.** The forge loop (`forge_loop.py`),
-commit-reveal seeding (`seed.py`), 11 independent anti-gaming layers, and the
-two load-bearing validity gates (panel-validity + generator-fitting detection in
-`score.py`) make it the only design here that treats "a high score must mean
-genuine forecasting skill" as a *property to be enforced*, not hoped for.
+`tsbench-forge` owns a thesis nobody else in this list owns: **validity is
+enforced, not assumed.** The benchmark forecasts **real data only** — challenges
+are windows of live scraped series (`ScrapedLiveSource` over `src/sources/`,
+assembled by `challenges.build_live_challenges`) — and freshness / as-of vintage
+gating (`feeds.py`, `leakage_audit.py`), commit-reveal seeding (`seed.py`), and a
+stack of multiplicative validity gates in `score.py` (panel-validity + parrot +
+coverage + DGP-class/cadence breadth) make it the only design here that treats
+"a high score must mean genuine forecasting skill" as a *property to be enforced*,
+not hoped for. (There was once a self-improving synthetic *forge* — an LLM
+autosearch over a data generator — but it is gone: no synthetic DGP means no
+generator to reverse-engineer, and the generator-fitting detector it needed is
+deleted with it. Anti-gaming now rests on the real-data freshness discipline plus
+the surviving gates.)
 
-Everyone else is a static (or lightly-refreshed) dataset suite. That is our
-moat. But a moat is not a paper. To be production-grade **and** academically
-acceptable we must bolt onto that adversarial core the three things the static
-benchmarks already do well and we currently fake or stub:
+Everyone else is a static (or lightly-refreshed) dataset suite; we are a
+*refreshing, live* one. That is our moat. But a moat is not a paper. To be
+production-grade **and** academically acceptable we must bolt onto that live core
+the three things the static benchmarks already do well and we currently stub:
 
-1. **Real, diverse, *provably-uncontaminated* data at scale** (we have ~8 DGPs +
-   static GitHub CSVs; GIFT-Eval has 144k series / 177M points, BOOM has 2,807
-   real observability series, TIME has 50 fresh post-cutoff datasets).
+1. **Real, diverse, *provably-uncontaminated* data at scale** (the scraped
+   catalog spans 7 GIFT-Eval domains and 35 DGP classes; GIFT-Eval has 144k
+   series / 177M points, BOOM has 2,807 real observability series, TIME has 50
+   fresh post-cutoff datasets).
 2. **A capability taxonomy** that says *which property of "understanding time"*
    each challenge probes — and reports per-capability, not one scalar.
 3. **The standard rigor checklist** reviewers now demand for TSFMs: leakage
@@ -44,8 +52,9 @@ The reference for *how an academic TSFM benchmark is structured.* Steal wholesal
   hard-code `HORIZON=48`, `CONTEXT_LEN=256` (`config.py`). We need a *task grid*.
 - **Non-leaking pretraining corpus shipped alongside the benchmark**
   (`Salesforce/GiftEvalPretrain`, ~230B points, eval datasets excluded). This is
-  *the* move that makes zero-shot claims defensible. We should ship a
-  "forge-pretrain" split that is provably disjoint from what the forge serves.
+  *the* move that makes zero-shot claims defensible. Our analogue is stronger and
+  needs no shipped corpus: the live feed only ever serves *post-commit* vintages,
+  so what we score is disjoint-by-construction from any pretraining set (§3.1).
 - **MASE + CRPS, each normalized against Seasonal Naive, aggregated by average
   Rank** across configs. We already compute MASE/WQL/CRPS (`evaluate.py`) — adopt
   their *rank-aggregation* and *seasonal-naive normalization* exactly so numbers
@@ -62,8 +71,9 @@ BOOM (2,807 Datadog observability series) is the antidote to "benchmarks are too
 clean" (the LTSF critique, §3). Steal:
 - **Heavy-tailed, sparse, bursty, high-cardinality, non-stationary real data** as
   a domain we deliberately include — observability metrics, not just smooth
-  econ/energy. Our `domains.py` chaotic zoo is the *opposite* extreme; we want
-  both ends.
+  econ/energy. The scraped catalog already leans real-world-messy (MTA, Binance,
+  weather); the dynamical-systems tier (`dsr_eval/`, `dsr_metrics.py`) supplies
+  the opposite, chaotic extreme — we want both ends.
 - **Zero-inflation is a real failure mode**: ~9.8% of BOOM has near-zero
   variance, which wrecks MASE/MAPE. BOOM evaluates zero-inflated series
   *separately* and aggregates with a **shifted geometric mean** (eps=1e-5) — far
@@ -99,7 +109,7 @@ clean" (the LTSF critique, §3). Steal:
   models. Complements (does not replace) our `sandbox.py`; sandbox is the
   *security* boundary, isolated envs are the *reproducibility* boundary.
 - **Rolling-window eval with per-window hyperparameter selection on the validate
-  split only** — textbook leakage-safe protocol; our forge is single-origin, we
+  split only** — textbook leakage-safe protocol; our eval is single-origin, we
   should add rolling origins.
 - **Proper scoring rules incl. WIS (Weighted Interval Score)** with explicit
   sharpness + calibration decomposition. We have CRPS/WQL; add WIS and a
@@ -125,8 +135,9 @@ This is the scientific heart of "truly understands time." Short-horizon MASE/CRP
 - **Chaotic dynamical systems as provably-uncontaminated, difficulty-tunable
   tasks.** Difficulty has a *physical* axis: the **largest Lyapunov exponent λ**
   (Lyapunov time τ = 1/λ); Valid Prediction Time measured in Lyapunov times is
-  the natural hardness-normalized horizon. Our `domains.py` already has Lorenz,
-  Rössler, Hénon, logistic — annotate each with λ and report VPT.
+  the natural hardness-normalized horizon. `dsr_eval/systems.py` already carries
+  Lorenz / Rössler (with reference λ, Lyapunov time, and Kaplan-Yorke dimension)
+  plus a `dysts` bridge; `dsr_metrics.py` reports VPT.
 - **Regime/parameter generalization tiers**: train-regime vs. bifurcated-regime
   vs. interpolate/extrapolate across the parameter (e.g., Lorenz ρ). A natural
   hard-tier difficulty ladder.
@@ -144,10 +155,11 @@ Already proved out the generation machinery we should consolidate into
   tunable location & magnitude = ready-made difficulty knobs. **Lift verbatim.**
 - **KernelSynth GP-prior synthesis** (`kernels.py`) — held-out-by-construction,
   same approach Chronos used for ~half its training data. Lift verbatim.
-- **76 verified live sources / 366 series with full provenance, as-of gating,
-  cross-epoch dedup, frequency-weighted sampling.** This is the real-data backbone
-  our current static-CSV `live_feeds.py` is faking. **Promote horizon-forge's
-  `sources/` catalog + scraper into tsbench-forge's production feed.**
+- **Verified live sources with full provenance, as-of gating, cross-epoch dedup,
+  frequency-weighted sampling.** This is the real-data backbone — now **landed**:
+  the `src/sources/` catalog + scraper are consolidated in-repo and wired to the
+  live pool through `scraped_source.ScrapedLiveSource`, which is the production
+  feed `challenges.build_live_challenges` samples from.
 - Honest gaps it flagged: no difficulty stratification, 1-D only (no
   multivariate), single-shot (no adaptive/feedback generation). We fix these.
 
@@ -158,15 +170,16 @@ Already proved out the generation machinery we should consolidate into
 Reviewers and users both ask "*what is this benchmark actually measuring?*" We
 answer with an explicit taxonomy. Every challenge is tagged with the capabilities
 it stresses, and the leaderboard reports **per-capability scores**, not one
-number. Proposed axes (each maps to generators we already have or can lift):
+number. Proposed axes (each maps to a slice of the live catalog, its DGP
+taxonomy, or a metric we already have or can lift):
 
 | Capability | Probes whether the model… | How we test it | Source to lift |
 |---|---|---|---|
-| **Trend / changepoint** | tracks local, breaking trends (not a global line) | piecewise-linear trend w/ changepoints late in context | `generate.py` (have it) |
-| **Seasonality / multi-period** | locks onto multiple seasonal periods, incl. unseen ones | sinusoid sums (12/24/36), TIME's seasonal-strength buckets | `generate.py`, TIME features |
+| **Trend / changepoint** | tracks local, breaking trends (not a global line) | real trending/changepoint DGP classes (`sources/DGP_TAXONOMY.md`), stratified | live catalog |
+| **Seasonality / multi-period** | locks onto multiple seasonal periods, incl. unseen ones | seasonal DGP classes, TIME's seasonal-strength buckets | live catalog, TIME features |
 | **Non-stationarity / regime shift** | adapts across distribution shifts & level/variance regimes | `inject_regime_change`, regime-switched AR noise | horizon-forge augs |
 | **Long-horizon / long-context** | uses long history & forecasts far without collapse | term grid (1×/10×/15× seasonal), 30× stress | TIME / GIFT term design |
-| **Chaotic dynamics (the hard tier)** | reconstructs the *attractor*, not just next steps | dysts/`domains.py` systems, scored by D_stsp / D_H / VPT | DynaMix |
+| **Chaotic dynamics (the hard tier)** | reconstructs the *attractor*, not just next steps | `dsr_eval/systems.py` + `dysts` systems, scored by D_stsp / D_H / VPT | DynaMix |
 | **Uncertainty calibration** | emits honest predictive distributions | PCE/WIS + coverage on all of the above | §3 |
 | **Multivariate / cross-series** | exploits genuine cross-channel dependence | coupled ODEs, BOOM high-cardinality (F-score-verified) | Toto/BOOM, DynaMix |
 | **Robustness** | tolerates noise, missingness, outliers, sparsity/zero-inflation | jitter/cutout augs, BOOM zero-inflated bucket | horizon-forge, BOOM |
@@ -201,14 +214,19 @@ What recent literature says reviewers now require, and where we stand.
   adaptation* under a fine-tuning probe. Concrete trap: Monash `Elecdemand` is a
   1/1000-rescaled subset of `Australian Electricity Demand` — exact-match misses it.
 
-**Where we stand:** *This is our strongest hand and we should play it hard.* The
-forge's procedural generation + commit-reveal + as-of gating + cross-epoch dedup
-is *already* a contamination-resistant design (held-by-construction synthetic, +
-post-commit live data). Action items: (a) ship a provably-disjoint forge-pretrain
-split; (b) implement an explicit `t_now` temporal barrier in the live feed
-(`feeds.py` `AsOfLiveSource` is the hook — make it real, vendor-timestamped); (c)
-add a leakage/contamination *audit* (TSFMAudit-style probe) as a reported column;
-(d) state the contamination-resistance argument as Theorem-ish prose in the paper.
+**Where we stand:** *This is our strongest hand and we should play it hard.*
+Contamination resistance now rests entirely on the **real-data freshness
+discipline**: commit-reveal seeding + as-of / vintage gating + cross-epoch dedup
+(`feeds.py`, `leakage_audit.py`) mean only *post-commit* live data is ever scored,
+and `leakage_audit.global_t_now` implements the R2 barrier
+(`t_now = max(model cutoffs)`). This is a *stronger* story than the old synthetic
+forge gave us — it is real data that provably could not have been in a
+pretraining corpus, not held-by-construction synthetic. Action items: (a) point
+`AsOfLiveSource` / `HttpCsvLiveSource` at real vendor-timestamped endpoints so the
+barrier binds on live vintages; (b) keep the leakage/contamination *audit*
+(`leakage_audit.memorization_probe` / `feed_novelty`, TSFMAudit-style) as a
+reported column; (c) state the contamination-resistance argument as Theorem-ish
+prose in the paper.
 
 ### 3.2 Strong simple baselines + the "benchmarks reward complexity that isn't there" critique
 - Zeng et al., *Are Transformers Effective for Time Series Forecasting?*
@@ -269,11 +287,13 @@ first-class axis (it's a capability in §2). This is cheap and very on-trend —
   differences are real; use **Diebold-Mariano**, **Friedman + Nemenyi/Holm**
   post-hoc, Wilcoxon. The leakage paper itself reports 10-seed mean±std.
 
-**Where we stand:** The forge already averages fitness over a **seed bank with
-common random numbers** (`evaluate_state`, n_seeds=4) — good variance reduction.
-Action: extend to *model evaluation*: run each model over N seeds/origins, report
-mean±std and a **Friedman + post-hoc** significance test across the leaderboard.
-Multiple test windows (rolling origins, §1 TempusBench) give the samples for free.
+**Where we stand:** The multi-seed + significance machinery is in place —
+`evaluate.evaluate_multiseed` and `evaluate.friedman_test` — and challenge
+assembly is fully seed-deterministic (`build_live_challenges` via `rng.spawn`), so
+common-random-number variance reduction across models is free. Action: wire these
+into the reported leaderboard (run each model over N seeds/origins, report
+mean±std + **Friedman + post-hoc**). Multiple test windows (rolling origins, §1
+TempusBench) give the samples for free.
 
 ### 3.5 Benchmark-gaming / cherry-picking / dataset-simplicity critiques
 - Roque et al., *Cherry-Picking in TSF* (AAAI'25): with **4 cherry-picked test
@@ -286,8 +306,10 @@ Multiple test windows (rolling origins, §1 TempusBench) give the samples for fr
   **"Drop-Last" bug** makes reported metrics depend on batch size (PatchTST ETTh2
   MSE 0.414→0.348 just by enlarging batch). Disable drop-last in testing.
 
-**Where we stand:** The forge's whole point is anti-gaming; cherry-picking is
-structurally hard because *we* generate and seed the test set, not the submitter.
+**Where we stand:** Anti-gaming is structural: cherry-picking is hard because the
+benchmark commit-reveal *assembles and seeds the test set* from a fresh live
+catalog (`build_live_challenges`), and the breadth/coverage gates (§4) veto any
+narrow pool — the submitter never picks the series.
 Action: (a) for the **multivariate** axis, *verify* cross-channel dependence
 (Granger F-score) so we don't repeat the LTSF "no real coupling" mistake — use
 coupled ODEs and BOOM high-cardinality, not independent channels; (b) treat
@@ -313,16 +335,16 @@ Concrete, file-level. Status from the code review:
 
 | Area | Current state | Gap → Action |
 |---|---|---|
-| **Live feeds** | static GitHub CSV snapshots (`live_feeds.py`) | Replace with real as-of vendor endpoints + horizon-forge's 76-source catalog/scraper; make `feeds.AsOfLiveSource` timestamp-real (enables `t_now`, §3.1). |
-| **External validation** | 3 hand-picked held-out series (`independent_eval.py`) | Wire to GIFT-Eval/TIME as the external negative-control; expand to a real curated held-out suite. |
+| **Live feeds** | scraped live catalog wired via `scraped_source.ScrapedLiveSource` (`src/sources/` + `feeds.py` as-of/dedup) | **Landed.** Remaining: point `AsOfLiveSource` / `HttpCsvLiveSource` at real vendor-timestamped endpoints so `t_now` binds on live vintages (§3.1). |
+| **External validation** | held-out real series disjoint from the feed (`independent_eval.py`) | Wire to GIFT-Eval/TIME as the external negative-control; expand to a real curated held-out suite. |
 | **Task geometry** | fixed `HORIZON=48`, `CONTEXT_LEN=256` (`config.py`) | Introduce a **task grid**: term-scaled horizons (1×/10×/15× seasonal), variable context as a reported axis. |
 | **Multivariate** | challenges are 1-D | Adopt `MaskedTimeseries`; add coupled-ODE + BOOM-style multivariate w/ verified cross-channel dependence. |
-| **Metrics** | MASE/WQL/CRPS, Gaussian lift | Add WIS, **PCE/calibration**, D_stsp, D_H, VPT; reuse GluonTS `evaluate_model`; seasonal-naive normalization everywhere; shifted-gmean + rank aggregation; zero-inflated bucket. |
-| **Forge proposer** | OpenRouter-only LLM + hand-coded heuristic fallback (`forge_llm.py`, `forge_loop.py`) | Provider-agnostic proposer; keep deterministic fallback; log proposals as part of the auditable recipe. |
-| **Recipe/dedup** | per-challenge oracle, no cross-epoch registry | Lift horizon-forge `tracker.py` (canonical hash + SQLite + `sample_novel`) for guaranteed novelty across epochs. |
+| **Metrics** | MASE/WQL/CRPS, Gaussian lift; PCE/WIS/coverage + robust aggregation in `evaluate.py`; D_stsp/D_H/VPT in `dsr_metrics.py` | Reuse GluonTS `evaluate_model`; make seasonal-naive normalization the default everywhere; wire shifted-gmean + rank aggregation and a zero-inflated bucket into the reported leaderboard. |
+| **Anchor quality** | numpy classical `strong` anchor; on raw real data it is often beaten by `drift`/`ewma`, so `validate_panel` returns `valid=False` (by design) | Promote an independently-validated zero-shot TSFM (`independent_eval.resolve_anchor` / `default_panel(strong_model=…)`) so the validity gate holds on real data. |
+| **Recipe / catalog breadth** | equal-weight sampling across domain × dgp_class × cadence + cross-epoch dedup (`scraped_source.py`, `feeds.py`) | Grow the `src/sources/` catalog; keep the DGP-class/cadence breadth gates green as it grows (see `docs/REWARD_HACKING.md`). |
 | **Reproducibility env** | single-process numpy | Add TempusBench-style isolated per-model envs/subprocess for heterogeneous real TSFMs (Chronos/TimesFM/Moirai/Toto) on top of `sandbox.py`. |
 | **Consensus** | single validator | Out of scope for the academic artifact; document as subnet-deployment layer. |
-| **Coverage objective** | `foundational_fitness = fitness × coverage_gate` exists but isn't default | Make breadth/coverage a default forge objective once the task grid lands. |
+| **Coverage objective** | `foundational_fitness = fitness × coverage_gate × parrot_gate × dgp_class_breadth_gate × cadence_breadth_gate` (`score.py`) | Report `foundational_fitness` (not bare `fitness`) as the default pool-quality yardstick once the task grid lands. |
 
 ---
 
@@ -333,34 +355,36 @@ Concrete, file-level. Status from the code review:
    naive/seasonal-naive/**context-parroting**/AutoARIMA/ETS/Theta as permanent
    baseline rows; require models to clear **both** floor baselines. *(GIFT-Eval/BOOM
    parity + the parroting blade, §3.2b.)*
-2. **Leakage story made real**: `t_now` temporal barrier in a real as-of live feed;
-   ship a provably-disjoint forge-pretrain split; document the contamination-resistance argument.
+2. **Leakage story made real**: point the as-of live feed at real
+   vendor-timestamped endpoints so the `t_now` barrier (`leakage_audit.global_t_now`)
+   binds on live vintages; document the contamination-resistance argument.
 3. **Multiple seeds + significance** for model evaluation (mean±std, Friedman+post-hoc); rolling origins for the sample.
 4. **Submission metadata + PR-based public leaderboard** (model_type, testdata_leakage, repro-code), HF Space.
 5. Audit metrics for drop-last/aggregation artifacts; adopt **shifted-gmean** + **zero-inflated bucket**.
 
 ### P1 — the scientific differentiators (the paper's contribution)
-6. **Dynamical-systems hard tier**: annotate `domains.py` systems with λ; implement **D_stsp, D_H, VPT** (from DynaMix); regime/parameter-generalization difficulty ladder.
-7. **Capability taxonomy + per-capability leaderboard**: tag every challenge; compute TIME-style STL/FFT features on real series and stratify. Report per-axis, not one scalar.
-8. **Calibration as a first-class axis**: PCE + WIS + coverage. *(ICLR'26-topical, cheap, differentiating.)*
-9. **Consolidate horizon-forge generation**: lift `augmentations.py`, `kernels.py`, `tracker.py`, and the `sources/` catalog into tsbench-forge as the production generator + feed.
+6. **Dynamical-systems hard tier**: the `dsr_eval/` runner + `dsr_metrics.py` already implement **D_stsp, D_H, VPT** and carry reference λ / Lyapunov times (`dsr_eval/systems.py`); extend with a regime/parameter-generalization difficulty ladder and fold the tier into the reported leaderboard.
+7. **Capability taxonomy + per-capability leaderboard**: tag every challenge; compute TIME-style STL/FFT features on the real series and stratify. Report per-axis, not one scalar.
+8. **Calibration as a first-class axis**: PCE + WIS + coverage are in `evaluate.py`; surface them per-axis on the leaderboard. *(ICLR'26-topical, cheap, differentiating.)*
+9. **Grow the live catalog**: expand `src/sources/` breadth (domains × DGP classes × cadences) while keeping the breadth gates green; the scraper + `ScrapedLiveSource` feed path is already the production generator.
 
 ### P2 — breadth & polish
 10. **Multivariate with verified cross-channel dependence** (coupled ODEs + BOOM high-cardinality; Granger-check it). `MaskedTimeseries` payload.
 11. **Isolated per-model execution envs** for real heterogeneous TSFMs; reference notebooks (Chronos/TimesFM/Moirai/Toto).
-12. **Adaptive generation feedback loop**: route the forge toward capabilities where the field is weak (closes horizon-forge's "single-shot" gap).
+12. **Catalog curation toward weak capabilities**: prioritise adding real sources that stress capabilities where the field is weak (the live analogue of horizon-forge's "single-shot" gap).
 13. **Governance**: documented protocol, model-type taxonomy, dataset licensing manifest, contribution guide (GIFT-Eval style).
 
 ---
 
 ## 6. Positioning for the paper
 
-The one-line claim: **"The first *adversarial, contamination-resistant* TSFM
-benchmark that scores genuine temporal understanding — including long-term
+The one-line claim: **"A *live, contamination-resistant* TSFM benchmark that
+enforces validity and scores genuine temporal understanding — including long-term
 dynamical invariants — rather than memorization or short-horizon curve-fitting."**
 
 Three defensible contributions, each grounded in the gaps above:
-1. **Anti-gaming-by-construction** (forge loop + commit-reveal + validity gates) —
+1. **Validity-enforced-by-construction** (real-data freshness / as-of gating +
+   commit-reveal seeding + multiplicative validity/parrot/coverage/breadth gates) —
    answers the cherry-picking (Roque'25) and contamination (Meyer'25) crises
    *structurally*, not by patching.
 2. **Dynamics-aware hard tier** with invariant metrics (D_stsp/D_H/VPT, Lyapunov-
@@ -372,7 +396,8 @@ Three defensible contributions, each grounded in the gaps above:
    the GIFT-Eval/BOOM/TIME credibility bar and the 2026 calibration agenda.
 
 Ship it next to GIFT-Eval/TIME as the *external, refreshing, hard* complement —
-not a competitor to the static suites but the adversarial stress-test they lack.
+not a competitor to the static suites but the live, freshness-enforced stress-test
+they lack.
 
 ---
 
@@ -391,9 +416,12 @@ what still needs network / model-weights / a decision and so is scaffolded only.
 - **P1 — calibration + robust aggregation + significance** (`evaluate.py`:
   `pce`, `coverage_80`, `wis`; `shifted_gmean`; `normalized_leaderboard`;
   `evaluate_multiseed`; `friedman_test`; `tests/test_metrics_robust.py`).
-- **P2 — forge robustness** (`forge_loop.py`: `objective` hook +
-  `FOUNDATIONAL_OBJECTIVE`, `evaluate_state` now exposes coverage/parrot/
-  foundational; `score.validate_generalization`; `tests/test_forge_robust.py`).
+- **Pure-live challenge assembly + breadth defenses** (`challenges.build_live_challenges`,
+  `scraped_source.ScrapedLiveSource`, `score.foundational_fitness` folding in
+  coverage / parrot / DGP-class / cadence breadth gates, `score.validate_generalization`;
+  `tests/test_reward_hacking.py`, `tests/test_scraped_source.py`, `tests/test_coverage.py`).
+  The synthetic forge (LLM autosearch over a data generator) and its
+  generator-fitting detector are **deleted**; there is no synthetic DGP to reverse-engineer.
 - **P3 — DSR dynamics hard tier** (`dsr_metrics.py`: `d_stsp`, `d_h`,
   `valid_prediction_time`, `max_lyapunov`, `free_run`, `dsr_report`;
   `tests/test_dsr_metrics.py`).
@@ -403,10 +431,11 @@ what still needs network / model-weights / a decision and so is scaffolded only.
   as-of/dedup machinery in `feeds.py` is now the documented default path.
 
 ### Scaffolded — needs resources/decisions not available in-container
-- **Real vendor as-of feed**: `HttpCsvLiveSource` + `AsOfLiveSource` +
-  `default_fresh_buffer` are wired; promoting horizon-forge's 76-source `sources/`
-  catalog + scraper and pointing at live timestamped endpoints is a data-eng task
-  (needs network + credentials).
+- **Real vendor as-of feed**: the `src/sources/` catalog + scraper +
+  `ScrapedLiveSource` are consolidated and wired through `HttpCsvLiveSource` /
+  `AsOfLiveSource` / `default_fresh_buffer`; pointing at live *timestamped* vendor
+  endpoints (so the `t_now` barrier binds on real vintages) is the remaining
+  data-eng task (needs network + credentials).
 - **Real TSFM anchor**: `tsfm_adapters.load_tsfm` + `default_panel(strong_model=)`
   accept a zero-shot Chronos/TimesFM/Toto unchanged; running weights and
   validating on external GIFT-Eval/TIME needs torch + checkpoints.

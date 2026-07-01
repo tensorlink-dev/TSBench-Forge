@@ -2,15 +2,15 @@
 
 Anti-gaming role
 ----------------
-The forge LLM is non-deterministic, so it must not run live per validator --
-validators would diverge and consensus would break. Instead the forge runs
-*once* per epoch and commits a hashed manifest (its chosen ``GeneratorState``
-plus metadata). The concrete challenges are then derived deterministically from
+Challenges must be reproducible across validators, or consensus would break.
+The benchmark commits a hashed manifest (the fixed live pool plus metadata),
+and the concrete challenges are derived deterministically from
 
     seed = H(block_hash || epoch || manifest_hash)
 
-revealed only *after* miners have committed their submissions. This closes two
-gaming vectors at once:
+revealed only *after* miners have committed their submissions. The seed drives a
+plain RNG that selects windows from the fixed live pool -- no model in the loop.
+This closes two gaming vectors at once:
 
 * **Precomputation** -- miners cannot derive the seed (and therefore the exact
   challenges) before they commit, because ``block_hash`` is a future,
@@ -62,7 +62,7 @@ def rng_for(block_hash: str, epoch: int, manifest_hash: str) -> np.random.Genera
 def manifest_hash(payload: str) -> str:
     """Hash a manifest payload to a hex string for the commit step.
 
-    The forge commits ``manifest_hash(json.dumps(state, sorted))`` so the state
-    is frozen before the seed (and thus the challenges) is revealed.
+    The commit step publishes ``manifest_hash(json.dumps(manifest, sorted))`` so
+    the manifest is frozen before the seed (and thus the challenges) is revealed.
     """
     return hashlib.sha256(payload.encode()).hexdigest()

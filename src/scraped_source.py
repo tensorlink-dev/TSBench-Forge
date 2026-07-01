@@ -1,10 +1,9 @@
-"""`ScrapedLiveSource` — feeds the scraper's parquet output into the LLM forge.
+"""`ScrapedLiveSource` — feeds the scraper's parquet output into the live pool.
 
 Closes the last-mile wire between the live-data catalog (`src/sources/`) and
-the forge's `FreshBuffer`. Before this module existed, the forge could only
-run against `SyntheticLiveSource` (random-walk stand-in) or `MixtureLiveSource`
-(numpy-only DGP zoo) — never real scraped Wikipedia / MTA / Binance / weather
-data. This adapter fixes that.
+the benchmark's `FreshBuffer`. This adapter is the production feed: it serves
+windows of real scraped Wikipedia / MTA / Binance / weather data into the
+buffer that challenges are sampled from.
 
 Each motif that goes into the buffer carries:
 
@@ -15,10 +14,10 @@ Each motif that goes into the buffer carries:
 * ``source_id``   — the ``sources.yaml`` ``id`` for provenance and audit
 
 The reward-hacking-defense breadth gates in ``score.py`` read the ``dgp_class``
-and ``cadence`` labels off the buffer and *hard-veto* any state that produces a
-pool where some class or band drops below a min-share floor. That means the
-LLM forge cannot silently narrow the eval-pool distribution: any epoch that
-would collapse a DGP class or a cadence band scores fitness 0 and gets reverted.
+and ``cadence`` labels off the buffer and *hard-veto* any pool where some class
+or band drops below a min-share floor. That keeps the served eval-pool
+distribution broad: any pool that would collapse a DGP class or a cadence band
+scores fitness 0.
 
 Pure numpy + pyarrow + pyyaml. No dep on the scraper module itself; the
 adapter is decoupled through the on-disk parquet contract.
@@ -57,7 +56,7 @@ class ScrapedLiveSource(LiveSource):
     respects **equal-weight-per-DGP-class-per-domain** — the property that
     prevents source-count-heavy domains (nature) from drowning out light ones
     (healthcare) in the buffer. This is the same sampler that the eval-pool
-    builder uses, so the LLM-forge sees the same distribution shape that
+    builder uses, so the served buffer has the same distribution shape that
     validators will score on.
     """
 
@@ -78,7 +77,7 @@ class ScrapedLiveSource(LiveSource):
             data_dir: parent of ``<source_id>/*.parquet``. In the consolidated
                 layout that's ``src/sources/data``.
             min_series_length: drop sources with fewer than this many
-                observations available; forge motifs need enough runway.
+                observations available; served motifs need enough runway.
             max_series_per_source: after panel expansion, cap per-source series
                 count so an oversized panel (e.g. 50-station METAR) can't
                 dominate the pool. ``None`` disables the cap.
@@ -258,17 +257,38 @@ class ScrapedLiveSource(LiveSource):
             reps = int(np.ceil(length / max(1, len(values))))
             values = np.tile(values, reps)[:length]
             return values
-        # Choose first numeric-looking column that isn't the timestamp or a panel key.
+        # Choose the value column with the most finite (non-NaN) numeric values,
+        # not merely the first: some feeds carry several value fields where the
+        # leading one is sparse/mostly-NaN for a given panel, which would yield a
+        # degenerate all-NaN motif. Prefer the densest real signal; fall back to a
+        # rank encoding of a categorical column only if nothing numeric survives.
         excluded = {"timestamp"} | {f"_panel_{k}" for k in (panel_row or {}).keys()}
-        value_cols = [c for c in df.columns if c not in excluded]
-        col = value_cols[0] if value_cols else df.columns[-1]
-        try:
-            values = df[col].astype(float).to_numpy()
-        except (TypeError, ValueError):
-            # Column is non-numeric (categorical). Fall back to a rank encoding
-            # so a `categorical` archetype still yields a numeric motif.
+        value_cols = [c for c in df.columns if c not in excluded] or [df.columns[-1]]
+        best_col, best_finite, best_values = None, -1, None
+        for c in value_cols:
+            try:
+                v = df[c].astype(float).to_numpy()
+            except (TypeError, ValueError):
+                continue
+            finite = int(np.isfinite(v).sum())
+            if finite > best_finite:
+                best_col, best_finite, best_values = c, finite, v
+        if best_values is None or best_finite == 0:
+            # No usable numeric column: rank-encode the first candidate.
+            col = value_cols[0]
             values = df[col].astype("category").cat.codes.to_numpy().astype(float)
+        else:
+            values = best_values
+        # Prefer a window with real signal: try a few starts and keep the first
+        # whose finite fraction clears half, so an occasional NaN patch doesn't
+        # dominate a motif when denser windows exist.
         start = int(rng.integers(0, len(values) - length + 1))
+        for _ in range(4):
+            cand = int(rng.integers(0, len(values) - length + 1))
+            window = values[cand : cand + length]
+            if np.isfinite(window).mean() >= 0.5:
+                start = cand
+                break
         motif = np.asarray(values[start : start + length], dtype=float)
         # Replace any NaN/inf with the running median so downstream numeric ops
         # don't explode; the scraper's clean step usually handles this, but

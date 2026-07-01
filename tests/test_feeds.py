@@ -10,7 +10,7 @@ from feeds import (
     DedupFreshBuffer,
     HttpCsvLiveSource,
 )
-from ingest import SyntheticLiveSource
+from conftest import RandomWalkSource as SyntheticLiveSource
 
 
 class _DatedConstant(DatedLiveSource):

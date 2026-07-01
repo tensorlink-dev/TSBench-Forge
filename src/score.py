@@ -4,8 +4,7 @@ This is the foundation of the whole benchmark. **Validity does not come from
 trusting the data; it comes from a frozen reference panel.** A challenge only
 "counts" if a fixed panel of independently-known-quality forecasters ranks in
 its expected order. If a naive baseline beats the ``strong`` anchor, the
-challenge is measuring an artifact rather than forecasting skill, and the forge
-that produced it is penalised.
+challenge is measuring an artifact rather than forecasting skill.
 
 The panel
 ---------
@@ -14,33 +13,29 @@ The panel
   *independently of this benchmark* (e.g. a top, non-leaking GIFT-Eval model run
   zero-shot, or a strong classical ensemble). The numpy default is a
   backtest-selected classical ensemble (Holt-Winters+AR / global decomposition /
-  drift / naive / damped), which adapts per series so it stays best across both
-  synthetic and live textures; a real TSFM can be dropped in unchanged because
-  every model shares the ``(context, meta) -> horizon`` interface.
-* ``overfit`` -- a **gaming detector**, not a real forecaster. It is handed the
-  synthetic generator's own continuation (including its deterministic
-  "fingerprint"), so it is near-oracle on pure synthetic data but badly wrong on
-  live motifs. It therefore beats the anchor exactly when the generator leans too
-  hard on pre-fittable synthetic structure, and that is caught two ways: it sits
-  last in ``PANEL_QUALITY_ORDER`` (so its rise lowers ``ordering``) and it drives
-  an explicit ``gate`` that multiplies the fitness toward zero.
+  drift / naive / damped), which adapts per series so it stays best across
+  heterogeneous real feeds; a real TSFM can be dropped in unchanged because every
+  model shares the ``(context, meta) -> horizon`` interface.
+
+Because the benchmark forecasts real data only, there is no synthetic generator
+to reverse-engineer, so the old generator-fitting detector (``overfit``) and its
+gate are gone. Two independent gaming vectors remain, each with its own layer:
+the panel-validity gate below, and the parrot gate (a challenge set is worthless
+if trivially copying the context matches the anchor).
 
 Fitness
 -------
-``panel_fitness`` returns ``spread``, ``ordering``, ``difficulty``, ``gate`` and
-the doubly-gated ``fitness = spread * max(0, ordering) * gate``:
+``panel_fitness`` returns ``spread``, ``ordering``, ``difficulty`` and the gated
+``fitness = spread * max(0, ordering)``:
 
-* ``spread`` measures how *discriminating* the challenge set is (computed over
-  the legitimate models only, so a blown-up detector can't inflate it).
+* ``spread = (max_err - min_err) / mean_err`` measures how *discriminating* the
+  challenge set is across the panel.
 * ``ordering`` is the Kendall-tau agreement between the achieved ranking and the
   established quality order -- the panel-validity gate. If ``strong`` is beaten by
   a naive baseline, ``ordering`` goes negative and ``max(0, ordering)`` zeroes it.
-* ``gate`` is the generator-fitting gate: if the ``overfit`` detector matches or
-  beats the anchor, the data is pre-fittable and ``gate -> 0``.
 
-The two gates are independent layers -- one catches *invalid* challenge sets, the
-other catches *pre-fittable* ones -- so the forge can only score by producing
-challenges that are valid, non-fittable, and discriminating all at once.
+The breadth-aware :func:`foundational_fitness` additionally folds in the parrot
+gate and the domain / DGP-class / cadence coverage gates.
 """
 
 from __future__ import annotations
@@ -52,8 +47,8 @@ import numpy as np
 
 from config import HORIZON, PANEL_QUALITY_ORDER, SEASONAL_PERIODS
 
-if TYPE_CHECKING:  # pragma: no cover - typing only, avoids a generate<->score cycle
-    from generate import Challenge
+if TYPE_CHECKING:  # pragma: no cover - typing only, avoids a challenges<->score cycle
+    from challenges import Challenge
 
 # A panel model maps an observed context (and optional generator metadata) to a
 # horizon-length prediction. A real zero-shot TSFM satisfies this by ignoring
@@ -299,34 +294,15 @@ def strong(context: np.ndarray, meta: dict | None = None) -> np.ndarray:
 
     The anchor scores each candidate on rolling backtest windows of the context
     and returns the best candidate's forecast. This lets one model be genuinely
-    best across *both* textures -- trend+seasonal+AR on structured synthetic
-    series, naive/drift on random-walk live motifs -- which is what keeps the
-    validity gate meaningful as the blend shifts toward live data.
+    best across *both* textures -- trend+seasonal+AR on structured series,
+    naive/drift on random-walk live motifs -- which is what keeps the validity
+    gate meaningful across the live data distribution.
 
-    It estimates everything from the context (never the generator's parameters),
-    so its edge is genuine skill. Replace it with a real, independently-validated
-    zero-shot TSFM via :func:`default_panel` to raise the validity bar further.
+    It estimates everything from the context, so its edge is genuine skill.
+    Replace it with a real, independently-validated zero-shot TSFM via
+    :func:`default_panel` to raise the validity bar further.
     """
     return _STRONG_CANDIDATES[_backtest_best(context)](context)
-
-
-def overfit(context: np.ndarray, meta: dict | None = None) -> np.ndarray:
-    """Generator-fitting *detector* (NOT a legitimate forecaster).
-
-    When the challenge carries the synthetic generator's own noise-free
-    continuation (``meta['oracle']``), this model returns it verbatim -- i.e. it
-    behaves like a miner who has perfectly reverse-engineered the synthetic
-    process. That makes it near-oracle on pure-synthetic challenges but useless
-    on spliced/live ones, where no such fingerprint exists and it falls back to a
-    (poor) stationary mean-reversion prior.
-
-    Because it sits *last* in ``PANEL_QUALITY_ORDER``, any epoch where it climbs
-    the ranking -- i.e. where the generator leans too hard on pre-fittable
-    synthetic structure -- collapses the ``ordering`` term and the fitness.
-    """
-    if meta is not None and meta.get("oracle") is not None:
-        return np.asarray(meta["oracle"], dtype=float)
-    return np.full(HORIZON, float(context.mean()), dtype=float)
 
 
 def default_panel(strong_model: PanelModel | None = None) -> dict[str, PanelModel]:
@@ -342,7 +318,6 @@ def default_panel(strong_model: PanelModel | None = None) -> dict[str, PanelMode
         "drift": drift,
         "ewma": ewma,
         "ar1": ar1,
-        "overfit": overfit,
     }
 
 
@@ -401,8 +376,8 @@ def validate_panel(
     The whole benchmark rests on ``strong`` being independently good: if a naive
     baseline matches or beats it on a calibration set, the validity gate is hollow
     and every downstream score is suspect. This runs the panel on ``challenges``
-    and verifies ``strong`` leads every other legitimate model (excluding the
-    ``overfit`` detector) by at least ``min_lead`` in scale-normalised error.
+    and verifies ``strong`` leads every other model by at least ``min_lead`` in
+    scale-normalised error.
 
     Returns a report ``{valid, strong_error, runner_up, margin, errors}``. With
     ``require=True`` an invalid anchor raises :class:`AnchorValidationError`
@@ -411,7 +386,7 @@ def validate_panel(
     panel = panel or default_panel()
     errs = model_errors(challenges, panel)
     strong_err = errs.get("strong", float("inf"))
-    competitors = {m: e for m, e in errs.items() if m not in ("strong", "overfit")}
+    competitors = {m: e for m, e in errs.items() if m != "strong"}
     runner_up = min(competitors, key=competitors.get) if competitors else None
     runner_err = competitors[runner_up] if runner_up is not None else float("inf")
     margin = runner_err - strong_err
@@ -440,15 +415,16 @@ def validate_generalization(
     *,
     min_lead: float = 0.0,
 ) -> dict[str, object]:
-    """Check the anchor's lead **generalises to models the forge never optimised against**.
+    """Check the anchor's lead **generalises to models outside the reference panel**.
 
-    The forge climbs by making the *frozen* reference panel rank in its expected
-    order, which risks overfitting the challenge distribution to that specific
-    panel: challenges that happen to order these six models correctly without
-    rewarding genuine skill. The defence is a held-out set -- extra forecasters
-    (a real TSFM, other classical baselines, the parrot) that were not part of the
-    forge's objective. If ``strong`` still beats every held-out model on the same
-    challenges, the lead reflects real skill, not panel-overfitting.
+    The validity gate rewards challenge sets in which the *frozen* reference
+    panel ranks in its expected order, which risks the challenge distribution
+    favouring that specific panel: challenges that happen to order these six
+    models correctly without rewarding genuine skill. The defence is a held-out
+    set -- extra forecasters (a real TSFM, other classical baselines, the parrot)
+    that are not part of the reference panel. If ``strong`` still beats every
+    held-out model on the same challenges, the lead reflects real skill, not
+    panel-overfitting.
 
     Returns ``{generalizes, strong_error, beaten_by, errors}``. ``beaten_by``
     lists any held-out model that matches/beats ``strong`` within ``min_lead``.
@@ -527,42 +503,17 @@ def model_errors(
     return {m: sums[m] / n for m in names}
 
 
-# The generator-fitter is expected to trail the anchor by ~20% (ratio 1.2) for
-# the benchmark to count as fully valid. The gate is a smooth sigmoid of the
-# error ratio so there is always a gradient leading *away* from pre-fittable
-# regions -- no flat dead zone for the forge to get stuck on.
-GATE_THRESHOLD = 1.2
-GATE_STEEPNESS = 8.0
-
-
-def overfit_gate(strong_err: float, overfit_err: float) -> float:
-    """Validity multiplier in ``(0, 1)`` from the generator-fitting detector.
-
-    Near ``0`` when the detector (a miner who has reverse-engineered the
-    generator) matches or beats the independently-strong anchor -- i.e. the
-    challenges are pre-fittable artifacts -- and ramping smoothly to near ``1``
-    once the detector clearly trails the anchor. This independent layer stops the
-    forge from drifting toward a synthetic-heavy, pre-fittable benchmark even when
-    that benchmark looks superficially discriminating (high ``spread``).
-    """
-    if strong_err <= _EPS:
-        return 0.0
-    ratio = overfit_err / strong_err
-    return float(1.0 / (1.0 + np.exp(-GATE_STEEPNESS * (ratio - GATE_THRESHOLD))))
-
-
 # --------------------------------------------------------------------------- #
 # Parrot gate: the "is this just repetition?" layer
 # --------------------------------------------------------------------------- #
 #
-# ``overfit_gate`` catches *pre-fittable synthetic* structure. A different,
-# orthogonal way a challenge set can fail to measure real skill is if a trivial
-# nearest-neighbour *copy-the-context* forecaster (``baselines.context_parrot``)
-# already does as well as the strong anchor -- then a high score rewards
-# induction-head repetition, not understanding (Zhang & Gilpin, arXiv:2505.11349).
-# This gate mirrors ``overfit_gate`` exactly but uses the parrot's error. It is
-# report-only in ``panel_fitness`` (so the frozen ``fitness`` consensus value is
-# unchanged) and folded into the opt-in ``foundational_fitness``.
+# A challenge set can fail to measure real skill if a trivial nearest-neighbour
+# *copy-the-context* forecaster (``baselines.context_parrot``) already does as
+# well as the strong anchor -- then a high score rewards induction-head
+# repetition, not understanding (Zhang & Gilpin, arXiv:2505.11349). This gate is
+# a smooth sigmoid of the parrot's error ratio. It is report-only in
+# ``panel_fitness`` (so the frozen ``fitness`` consensus value is unchanged) and
+# folded into the opt-in ``foundational_fitness``.
 
 
 def parrot_error(challenges: list[Challenge]) -> float:
@@ -577,10 +528,9 @@ def parrot_error(challenges: list[Challenge]) -> float:
     return total / max(len(challenges), 1)
 
 
-# Unlike the generator-fitter (a near-oracle expected to trail by ~20%), the
-# parrot is a *legitimate-ish* baseline, so the bar is parity: the gate is 0.5
+# The parrot is a *legitimate-ish* baseline, so the bar is parity: the gate is 0.5
 # exactly when parrot ties the anchor, collapsing toward 0 when parrot wins and
-# rising toward 1 as the anchor pulls genuinely ahead. The gentler steepness
+# rising toward 1 as the anchor pulls genuinely ahead. The gentle steepness
 # reflects that we are flagging "no real margin over copying", not a sharp cliff.
 PARROT_GATE_THRESHOLD = 1.0
 PARROT_GATE_STEEPNESS = 6.0
@@ -593,8 +543,8 @@ def parrot_gate(strong_err: float, parrot_err: float) -> float:
     parity: ``0.5`` when the trivial copy-the-context baseline ties the anchor,
     ramping toward ``0`` when parrot *wins* (the set is solvable by repetition and
     rewards no real skill) and toward ``1`` once the anchor clearly beats it. An
-    independent layer from :func:`overfit_gate` -- a set can be non-pre-fittable
-    yet still parrot-solvable (e.g. near-recurrent chaos), and vice versa.
+    independent layer from the panel-validity gate -- a set can order the panel
+    correctly yet still be parrot-solvable (e.g. near-recurrent series).
     """
     if strong_err <= _EPS:
         return 0.0
@@ -606,8 +556,8 @@ def parrot_gate(strong_err: float, parrot_err: float) -> float:
 # Coverage: the foundational-breadth layer
 # --------------------------------------------------------------------------- #
 #
-# ``spread``/``ordering``/``gate`` all measure quality *within* whatever
-# distribution the feed supplies; none of them notices whether that distribution
+# ``spread`` and ``ordering`` both measure quality *within* whatever
+# distribution the feed supplies; neither notices whether that distribution
 # spans one data-generating process or twenty. A benchmark that certifies a
 # *foundation* model must also be broad -- many domains / DGPs -- so a high score
 # means "generalises across worlds," not "good at the one process we test." These
@@ -617,8 +567,8 @@ UNKNOWN_DOMAIN = "unknown"
 
 # Target effective number of distinct domains per evaluation. The coverage gate
 # is 1.0 once a challenge set reaches this many *effective* domains (Hill number
-# of order 1); below it the gate ramps down linearly. Eight is the breadth of the
-# default multi-domain feed (``domains.default_live_source``) including ``synth``.
+# of order 1); below it the gate ramps down linearly. Four is a reasonable
+# breadth floor for the live catalog's GIFT-Eval domains.
 DEFAULT_COVERAGE_TARGET = 4.0
 
 
@@ -676,38 +626,34 @@ def coverage_gate(
 def panel_fitness(
     challenges: list[Challenge], panel: dict[str, PanelModel] | None = None
 ) -> dict[str, object]:
-    """Score a challenge set: the forge's objective and the validity gates.
+    """Score a challenge set: discrimination gated by panel validity.
 
-    Returns ``fitness``, ``spread``, ``ordering``, ``difficulty``, ``gate`` (plus
-    the raw per-model ``errors`` for diagnostics, and a report-only ``coverage``
-    summary with its ``coverage_gate``).
+    Returns ``fitness``, ``spread``, ``ordering``, ``difficulty`` (plus the raw
+    per-model ``errors`` for diagnostics, and a report-only ``coverage`` summary
+    with its ``coverage_gate`` and ``parrot_gate``).
 
-    * ``spread = (max_err - min_err) / mean_err`` over the *legitimate* models
-      (the detector is excluded so it can't inflate discrimination).
-    * ``ordering = kendall_tau(achieved_order, PANEL_QUALITY_ORDER)`` over all
-      models -- the panel-validity gate. If a naive model beats ``strong``, the
-      anchor falls in the ranking and ``ordering`` goes negative.
-    * ``gate`` -- the generator-fitting gate (see :func:`overfit_gate`).
-    * ``fitness = spread * max(0, ordering) * gate`` -- discrimination, counted
-      only once *both* independent validity conditions hold. Either a naive model
-      beating ``strong`` (``ordering <= 0``) or the generator-fitter beating
-      ``strong`` (``gate == 0``) drives the fitness to zero.
+    * ``spread = (max_err - min_err) / mean_err`` over the panel -- how strongly
+      the challenge set discriminates good forecasters from bad.
+    * ``ordering = kendall_tau(achieved_order, PANEL_QUALITY_ORDER)`` -- the
+      panel-validity gate. If a naive model beats ``strong``, the anchor falls in
+      the ranking and ``ordering`` goes negative.
+    * ``fitness = spread * max(0, ordering)`` -- discrimination, counted only when
+      the panel orders validly. A naive model beating ``strong`` (``ordering <=
+      0``) drives the fitness to zero.
     """
     panel = panel or default_panel()
     agg = model_errors(challenges, panel)
 
-    legit = [m for m in agg if m != "overfit"]
-    legit_errs = [agg[m] for m in legit]
-    mean_e = float(np.mean(legit_errs))
-    spread = (max(legit_errs) - min(legit_errs)) / mean_e if mean_e > _EPS else 0.0
+    errs = list(agg.values())
+    mean_e = float(np.mean(errs))
+    spread = (max(errs) - min(errs)) / mean_e if mean_e > _EPS else 0.0
 
     ref = [m for m in PANEL_QUALITY_ORDER if m in agg]
     common = set(ref)
     achieved = [m for m in sorted(agg, key=lambda m: agg[m]) if m in common]
     ordering = kendall_tau(achieved, ref)
 
-    gate = overfit_gate(agg.get("strong", 0.0), agg.get("overfit", 0.0))
-    fitness = spread * max(0.0, ordering) * gate
+    fitness = spread * max(0.0, ordering)
     difficulty = agg.get("strong", float("nan"))
 
     coverage = domain_coverage(challenges)
@@ -721,7 +667,6 @@ def panel_fitness(
         "spread": float(spread),
         "ordering": float(ordering),
         "difficulty": float(difficulty),
-        "gate": float(gate),
         "errors": agg,
         "coverage": coverage,
         "coverage_gate": cov_gate,
@@ -754,7 +699,6 @@ def stratified_fitness(
             "fitness": res["fitness"],
             "spread": res["spread"],
             "ordering": res["ordering"],
-            "gate": res["gate"],
             "difficulty": res["difficulty"],
         }
     return report
@@ -771,14 +715,14 @@ def foundational_fitness(
     """Coverage-gated objective: ``foundational_fitness = fitness * coverage_gate * parrot_gate * dgp_class_breadth_gate * cadence_breadth_gate``.
 
     The opt-in breadth-aware score. Identical to :func:`panel_fitness` but adds
-    ``foundational_fitness``, which a forge can target instead of bare ``fitness``
-    when it must climb toward *both* discrimination/validity **and** domain
-    coverage. Kept separate so the core ``fitness`` (frozen within a benchmark
-    version for consensus) is never silently redefined.
+    ``foundational_fitness``, which folds domain coverage and the breadth gates
+    into the score so a benchmark is rewarded for *both* discrimination/validity
+    **and** domain coverage. Kept separate so the core ``fitness`` (frozen within
+    a benchmark version for consensus) is never silently redefined.
 
     Reward-hacking defense: the ``dgp_classes`` and ``cadences`` optional args
     (fed from ``buffer.pool_dgp_classes`` / ``buffer.pool_cadences``) enable
-    two additional multiplicative gates that hard-veto any state where a DGP
+    two additional multiplicative gates that hard-veto any pool where a DGP
     class or cadence band drops below ``breadth_min_share``. When both args are
     ``None`` (legacy call site, no `ScrapedLiveSource` wired up) the gates
     default to 1.0 — old behavior preserved. See ``docs/REWARD_HACKING.md``.
@@ -795,7 +739,7 @@ def foundational_fitness(
     res["cadence_breadth_gate"] = cadence_gate
 
     # All gates multiply into the aggregate — any one going to zero forces the
-    # aggregate to zero, so the LLM forge cannot trade off discrimination
+    # aggregate to zero, so the served eval-pool cannot trade off discrimination
     # against generalisation breadth or cadence coverage.
     res["foundational_fitness"] = (
         float(res["fitness"]) * cov_gate * p_gate * dgp_gate * cadence_gate
@@ -827,8 +771,8 @@ def dgp_class_breadth_gate(
     """Hard veto: 0.0 if any DGP class has share below ``min_share``, else 1.0.
 
     Feed with ``buffer.pool_dgp_classes``. Kills the "domain collapse" reward-
-    hacking corner where the LLM's search silently narrows the pool to a
-    single (or a handful of) DGP class(es). Multiplies into ``foundational_fitness``.
+    hacking corner where the served pool silently narrows to a single (or a
+    handful of) DGP class(es). Multiplies into ``foundational_fitness``.
 
     If ``dgp_classes`` is ``None`` or all entries are ``None`` (no tagged
     labels — a legacy source is in use), returns 1.0 so old behavior is

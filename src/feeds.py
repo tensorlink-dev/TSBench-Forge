@@ -1,7 +1,7 @@
 """Production live-feed adapters and the freshness discipline they need.
 
-``ingest.py`` defines the ``LiveSource`` contract and a synthetic stand-in so the
-demo runs offline. This module supplies the two things a *real* deployment must
+``ingest.py`` defines the ``LiveSource`` contract and the ``FreshBuffer`` that
+pools motifs. This module supplies the two things a *real* deployment must
 add on top, the things the ``ingest`` docstring calls load-bearing but leaves as
 an extension point:
 
