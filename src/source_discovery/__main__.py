@@ -11,6 +11,9 @@
 
     # Vet a candidate list produced elsewhere (e.g. by an interactive agent):
     python -m source_discovery --vet candidates.json --out src/sources/discovered
+
+    # Auto-assess the DATA of an already-scraped source (admission gate):
+    python -m source_discovery --assess aemo_nem_5min --data-dir src/sources/data
 """
 
 from __future__ import annotations
@@ -20,9 +23,10 @@ import json
 import os
 import sys
 
-from . import coverage, llm, runner
+from . import coverage, llm, quality, runner
 
 _DEFAULT_CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "sources.yaml")
+_DEFAULT_DATA = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "data")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -35,7 +39,30 @@ def main(argv: list[str] | None = None) -> int:
                     help="print the assembled agent prompt and exit (no model call)")
     ap.add_argument("--vet", metavar="FILE",
                     help="vet a candidate JSON array from FILE instead of calling the model")
+    ap.add_argument("--assess", metavar="SOURCE_ID",
+                    help="auto-assess the DATA of an already-scraped source (admission gate)")
+    ap.add_argument("--data-dir", default=_DEFAULT_DATA,
+                    help="scraped parquet dir for --assess (default src/sources/data)")
     args = ap.parse_args(argv)
+
+    if args.assess:
+        q = quality.assess_scraped_source(args.catalog, args.data_dir, args.assess)
+        disc = None
+        if q.discrimination is not None:
+            d = q.discrimination
+            disc = {"ok": d.ok, "predictability": d.predictability,
+                    "naive_error": d.naive_error, "spread": d.spread,
+                    "n_windows": d.n_windows, "reasons": d.reasons}
+        report = {
+            "source": args.assess,
+            "admitted": q.ok,
+            "series_ok": f"{q.n_series_ok}/{q.n_series}",
+            "reasons": q.reasons,
+            "discrimination": disc,
+            "per_series_metrics": [p.metrics for p in q.per_series],
+        }
+        print(json.dumps(report, indent=2, default=str))
+        return 0 if q.ok else 1
 
     if args.coverage:
         reg = coverage.load_registry(args.catalog)

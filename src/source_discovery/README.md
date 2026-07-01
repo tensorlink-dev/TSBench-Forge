@@ -4,10 +4,11 @@ An LLM-driven **data-source discovery** tool. It keeps the benchmark's source
 pool diverse and uncontaminated by reviewing what's in `sources.yaml`, ranking
 the coverage gaps, and proposing concrete new sources to fill them.
 
-Its output is a **vetted candidate list, never a decision.** Every proposal is
-checked by deterministic code and — for anything licensed or paywalled — a human,
-before a source is ever added or scraped. The agent never scores a model and never
-touches a forecast.
+Its output is a candidate list, never a decision — and the vetting is
+**automatic**. Every proposal is checked by deterministic code at two stages
+(metadata before fetching, then the actual data after), with a human in the loop
+only where one is genuinely required: licensing / legal sign-off for paywalled or
+contract sources. The agent never scores a model and never touches a forecast.
 
 > **How this differs from the removed forge.** The forge was an LLM wedged into
 > the benchmark's *scoring/consensus path*, optimizing a handful of bounded
@@ -19,9 +20,9 @@ touches a forecast.
 ## The loop
 
 ```
-sources.yaml ──► coverage.py ──► (gaps) ──► llm.py (the agent) ──► vet.py ──► candidates.json
-                deterministic                 proposals            deterministic   (human review
-                                                                                     + scraper)
+sources.yaml ─► coverage.py ─► llm.py (agent) ─► vet.py ─────► scraper.py ─► quality.py ──► rotation
+              deterministic     proposals       metadata vet   (fetch)      DATA auto-vet
+              (gap matrix)                       (pre-fetch)                 (post-fetch)
 ```
 
 1. **`coverage.py`** loads the catalog, normalises each entry to the agent's
@@ -31,15 +32,24 @@ sources.yaml ──► coverage.py ──► (gaps) ──► llm.py (the agent)
    (`CURRENT_SOURCES`, `TARGET_COVERAGE`, `CONTAMINATION_DENYLIST`,
    `MODEL_CUTOFFS`) to a model and parses back a gap analysis + a JSON candidate
    array. This is the only non-deterministic step.
-3. **`vet.py`** rejects/flags each candidate by machine-checkable rules: schema,
-   contamination **denylist** (catches "ETTh1 under another name"), **duplicate**
-   of an existing source (same host + domain), and a **contamination sanity**
-   check of the agent's own risk claim vs. its `first_available_date` and the
-   model cutoffs.
+3. **`vet.py`** — *metadata* pre-filters (before fetching): schema, contamination
+   **denylist** (catches "ETTh1 under another name"), **duplicate** of an existing
+   source (same host + domain), and a contamination-claim sanity check.
+4. **`quality.py`** — the *data* admission gate (after the proposal is scraped),
+   fully automatic:
+   - **intrinsic per-series checks** — non-finite (NaN/inf) fraction, length,
+     constant / near-constant **variance**, degenerate value-cardinality (stuck /
+     quantized sensor), flatline runs, single-spike variance domination;
+   - **a discrimination filter** — reject if the series are **unforecastable**
+     (near-zero autocorrelation ⇒ pure noise) or **trivially solved** (a
+     seasonal-naive copy already nails them). SNR and spectral flatness are
+     reported as *diagnostics*, not hard gates, because real noisy feeds and pure
+     noise overlap on those — the behavioural filter is the honest test.
 
-The second downstream gate the system prompt mentions — the **discrimination
-filter** — can only run *after* a source is scraped (it needs real windows to
-score with `score.panel_fitness`), so it lives in the main benchmark, not here.
+Both vetting stages run with **no human and no LLM**. `quality.py` is the concrete
+form of the system prompt's "discrimination filter + leakage check" for the data
+itself; it reuses the benchmark's own panel, so "admittable" means the same thing
+as "a useful challenge".
 
 ## Usage
 
@@ -57,6 +67,9 @@ python -m source_discovery --out src/sources/discovered
 
 # Vet a candidate list produced elsewhere (e.g. by an interactive Claude session):
 python -m source_discovery --vet candidates.json --out src/sources/discovered
+
+# Auto-assess the DATA of an already-scraped source (the admission gate):
+python -m source_discovery --assess aemo_nem_5min --data-dir src/sources/data
 ```
 
 Because the deterministic half runs without a key, the tool is useful even with no
