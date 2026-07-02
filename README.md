@@ -1,23 +1,25 @@
 # tsbench-forge
 
-A **live-data catalog for time-series foundation models (TSFMs)** and the tooling
-that keeps it fresh and growing. The repo does two things:
+A **live-data benchmark for time-series foundation models (TSFMs)**. It fetches
+suites of real time series across domains and frequencies, scores forecasters on
+**MASE / WQL / CRPS against a seasonal-naive floor**, and keeps itself expanding
+with an autosearch agent that proposes and vets new sources. The repo does three
+things:
 
 1. **Fetch and manage live sources** — a curated catalog of real, fast-updating
    public time series, scraped on a cron into dated parquet.
-2. **Discover new sources** — an autosearch-style LLM agent that maps coverage
+2. **Evaluate TSFMs** — build forecasting challenges from the catalog and rank
+   models on probabilistic metrics, normalised against seasonal naive.
+3. **Discover new sources** — an autosearch-style LLM agent that maps coverage
    gaps, proposes concrete new sources, and vets them automatically before they
    enter rotation.
 
-Everything else the repo has grown (scoring panels, challenge generation, model
-evaluation, DSR metrics, the sandbox) is **obsolete** — see
-[Obsolete / pending removal](#obsolete--pending-removal).
-
 ```bash
-pip install httpx pyarrow pyyaml pandas
+pip install httpx pyarrow pyyaml pandas numpy
 
 python src/sources/scraper.py --list          # every source + cadence
 python src/sources/scraper.py --all           # scrape everything once
+python src/demo.py                            # full pipeline: catalog -> challenges -> leaderboard
 python -m source_discovery --coverage         # map gaps in the catalog
 ```
 
@@ -65,7 +67,43 @@ discipline a live feed needs:
 - `live_feeds.py` / `daily_feeds.py` — curated real public-data adapters (CSV/dated
   and JSON-path), with cached fetches.
 
-## 2. The source-discovery agent (`src/source_discovery/`)
+## 2. The benchmark (`src/`)
+
+The evaluation half: real series in, a probabilistic leaderboard out.
+
+- `challenges.py` — builds challenge sets from the live catalog: each challenge
+  is a real window split into `context` / `truth`, tagged with its source's
+  domain / DGP class / cadence / frequency, with light truth-preserving
+  augmentation against memorisation. Deterministic per `(pool, seed)`
+  (`seed.py`), so replays are byte-identical.
+- `evaluate.py` — scores a forecaster on **MASE** (seasonal-naive-scaled point
+  error, season length derived per series from its sampling frequency), **WQL**
+  and **CRPS** (probabilistic, on the model's own quantiles), plus WIS,
+  calibration error (PCE), and interval coverage. `clears_floor` requires a
+  model to beat **seasonal naive** and **context parrot**; `normalized_leaderboard`
+  is the GIFT-Eval convention — per-dataset scores divided by seasonal naive's,
+  aggregated by shifted geometric mean and average rank. `headroom` /
+  `benchmark_has_headroom` check the benchmark can actually separate a superior
+  model from the classical anchor.
+- `score.py` — the classical reference panel (seasonal naive, drift, EWMA, AR(1),
+  a backtest-selected `strong` anchor) and the challenge-set validity gates
+  (discrimination spread, parrot gate, domain / DGP-class / cadence breadth).
+- `baselines.py` — the context-parrot floor (nearest-neighbour copying), the
+  skill bar every real model must clear.
+- `tsfm_adapters.py` — wraps published zero-shot TSFMs (Chronos / Chronos-Bolt,
+  TimesFM) behind the `ProbForecast` contract so they drop straight onto the
+  leaderboard: `leaderboard({'chronos': load_tsfm('chronos'), **probabilistic_panel()}, reveal)`.
+- `config.py` — context length, horizon, panel seasonality-search periods.
+- `demo.py` — the end-to-end run on locally scraped data (offline, no LLM):
+  pool → challenges → panel validity → MASE/WQL/CRPS leaderboard → headroom →
+  breadth.
+
+```bash
+python src/demo.py                  # full pipeline on scraped (or fixture) data
+pip install -e ".[chronos]"         # enable the Chronos adapter (torch)
+```
+
+## 3. The source-discovery agent (`src/source_discovery/`)
 
 An autosearch-style LLM curation tool that keeps the catalog diverse and
 uncontaminated. It maps coverage gaps, an LLM proposes concrete new sources, and
@@ -98,23 +136,19 @@ python -m source_discovery --assess aemo_nem_5min           # data-quality gate 
 
 ## Obsolete / pending removal
 
-The repo was previously a full TSFM *benchmark*; that scope is retired. These
-modules are **obsolete** and slated for deletion — they are not part of fetching
-or discovering sources:
+These modules are out of the benchmark's scope and slated for deletion:
 
-`src/score.py`, `src/baselines.py`, `src/challenges.py`, `src/seed.py`,
-`src/evaluate.py`, `src/tsfm_adapters.py`, `src/dsr_metrics.py`, `src/dsr_eval/`,
-`src/static_analysis.py`, `src/sandbox.py`, `src/demo.py`, `src/config.py`,
-`notebooks/`, `experiments/`, `docs/REWARD_HACKING.md`,
-`docs/PRODUCTION_GRADE_ROADMAP.md`, and their tests.
-
-> One coupling to untangle first: `source_discovery/quality.py` and `vet.py`
-> currently import `score.panel_fitness` for the discrimination filter, so
-> `score.py` can't be removed until that check is inlined or dropped.
+- `src/sandbox.py`, `src/static_analysis.py`, `docs/REWARD_HACKING.md` — gating
+  of *miner-submitted code* (a subnet concern, not part of scoring a TSFM).
+- `src/dsr_metrics.py`, `src/dsr_eval/` — the dynamical-systems-reconstruction
+  eval, a separate protocol from the MASE/WQL/CRPS benchmark.
+- `notebooks/`, `experiments/`, `docs/PRODUCTION_GRADE_ROADMAP.md` — exploratory
+  artifacts.
 
 ## Notes
 
 - Python ≥ 3.11. Scraping and serving use `httpx` + `pyarrow` + `pyyaml` +
-  `pandas`; the source-discovery LLM step needs `OPENROUTER_API_KEY`.
+  `pandas`; the benchmark core is numpy-only (TSFM adapters lazily import torch
+  behind extras); the source-discovery LLM step needs `OPENROUTER_API_KEY`.
 - The catalog grows as the cron scrapes daily; sources accumulate history over
   time before they have enough depth to serve.

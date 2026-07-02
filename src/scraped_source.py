@@ -165,6 +165,7 @@ class ScrapedLiveSource(LiveSource):
                     "domain": meta["domain"],
                     "dgp_class": meta["dgp_class"],
                     "cadence": meta["cadence"],
+                    "freq": meta["freq"],
                     "paths": parquets,
                     "panel_row": None,
                 })
@@ -183,6 +184,7 @@ class ScrapedLiveSource(LiveSource):
                     "domain": meta["domain"],
                     "dgp_class": meta["dgp_class"],
                     "cadence": meta["cadence"],
+                    "freq": meta["freq"],
                     "paths": parquets,
                     "panel_row": panel_key,
                 })
@@ -316,6 +318,7 @@ class ScrapedLiveSource(LiveSource):
                 dgp_class=spec["dgp_class"],
                 cadence=spec["cadence"],
                 source_id=spec["source_id"],
+                freq=spec.get("freq"),
             )
             for spec in picks
         ]

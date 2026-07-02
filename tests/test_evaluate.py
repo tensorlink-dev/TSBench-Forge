@@ -9,6 +9,7 @@ import numpy as np
 from config import HORIZON
 from evaluate import (
     ProbForecast,
+    _naive_scale,
     _probit,
     benchmark_has_headroom,
     evaluate_forecaster,
@@ -16,6 +17,7 @@ from evaluate import (
     leaderboard,
     probabilistic,
     probabilistic_panel,
+    season_length,
 )
 from score import default_panel
 
@@ -106,3 +108,38 @@ def test_headroom_is_nonpositive_for_an_inferior_model() -> None:
 def test_benchmark_has_headroom_gate() -> None:
     chs = _challenges()
     assert benchmark_has_headroom(_perfect, chs) is True
+
+
+def test_season_length_follows_frequency_and_caps_to_context() -> None:
+    assert season_length("PT1H", 256) == 24
+    assert season_length("PT30M", 256) == 48
+    assert season_length("P1M", 256) == 12
+    # Cycle longer than the context degrades to non-seasonal, as does unknown.
+    assert season_length("PT1M", 256) == 1
+    assert season_length("P1D", 256) == 1
+    assert season_length(None, 256) == 1
+    assert season_length("PT7H", 256) == 1
+
+
+def test_naive_scale_degrades_when_season_exceeds_context() -> None:
+    x = np.arange(10, dtype=float)
+    assert _naive_scale(x, 50) == _naive_scale(x, 1)  # not an epsilon blow-up
+
+
+def test_mase_uses_per_challenge_seasonality_from_freq() -> None:
+    """On a strongly periodic series, seasonal-naive scaling (from freq=PT1H,
+    period 24) yields a larger MASE than non-seasonal scaling, because the
+    in-sample seasonal-naive error (the denominator) is much smaller."""
+    rng = np.random.default_rng(3)
+    total = 256 + HORIZON
+    t = np.arange(total)
+    series = 5 * np.sin(2 * np.pi * t / 24) + rng.normal(0, 0.1, total)
+    ch = SimpleNamespace(context=series[:256], truth=series[256:],
+                         meta={"freq": "PT1H"})
+    fc = probabilistic(default_panel()["drift"])
+    seasonal = evaluate_forecaster(fc, [ch])["mase"]           # m from freq
+    plain = evaluate_forecaster(fc, [ch], seasonality=1)["mase"]
+    assert seasonal > plain
+    # An untagged challenge falls back to the non-seasonal scale.
+    ch_untagged = SimpleNamespace(context=ch.context, truth=ch.truth, meta={})
+    assert evaluate_forecaster(fc, [ch_untagged])["mase"] == plain

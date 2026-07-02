@@ -62,6 +62,8 @@ class Challenge:
     * ``dgp_class`` — the finer data-generating-process class (``sources/
       DGP_TAXONOMY.md``), read by the breadth gates.
     * ``cadence``   — the coarse frequency band, read by the cadence-breadth gate.
+    * ``freq``      — the exact ISO-8601 sampling interval (``PT1H``, ``P1D``, …);
+      the evaluator derives each challenge's MASE season length from it.
     * ``source_id`` — the ``sources.yaml`` id, for audit / dedup.
     * ``oracle``    — always ``None`` on the live path. The field is retained so
       the scorer's ``(context, meta) -> horizon`` model interface is unchanged;
@@ -221,6 +223,7 @@ def build_live_challenges(
                     "domain": m.domain,
                     "dgp_class": m.dgp_class,
                     "cadence": m.cadence,
+                    "freq": m.freq,
                     "source_id": m.source_id,
                 },
             )
