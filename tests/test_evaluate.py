@@ -76,7 +76,7 @@ def test_leaderboard_ranks_better_model_first() -> None:
     board = leaderboard({"perfect": _perfect, **probabilistic_panel()}, chs)
     assert board[0]["model"] == "perfect"
     assert board[0]["rank"] == 1
-    # The strong anchor should outrank the naive baselines among the rest.
+    # The strong baseline should outrank the naive baselines among the rest.
     ranks = {r["model"]: r["rank"] for r in board}
     assert ranks["strong"] < ranks["ar1"]
 

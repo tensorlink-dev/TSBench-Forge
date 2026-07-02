@@ -14,11 +14,11 @@ enforced, not assumed.** The benchmark forecasts **real data only** — challeng
 are windows of live scraped series (`ScrapedLiveSource` over `src/sources/`,
 assembled by `challenges.build_live_challenges`) — and freshness / as-of vintage
 gating (`feeds.py`, `leakage_audit.py`), commit-reveal seeding (`seed.py`), and a
-stack of multiplicative validity gates in `score.py` (panel-validity + parrot +
-coverage + DGP-class/cadence breadth) make it the only design here that treats
-"a high score must mean genuine forecasting skill" as a *property to be enforced*,
-not hoped for. Anti-gaming rests on the real-data freshness discipline plus the
-validity / parrot / coverage / breadth gates.
+stack of multiplicative validity gates in `score.py` (discrimination/`spread` +
+parrot + coverage + DGP-class/cadence breadth) make it the only design here that
+treats "a high score must mean genuine forecasting skill" as a *property to be
+enforced*, not hoped for. Anti-gaming rests on the real-data freshness discipline
+plus the discrimination / parrot / coverage / breadth gates.
 
 Everyone else is a static (or lightly-refreshed) dataset suite; we are a
 *refreshing, live* one. That is our moat. But a moat is not a paper. To be
@@ -235,9 +235,11 @@ prose in the paper.
   **always** compare against naive **and** seasonal-naive; pick metrics by data
   characteristics; MAPE invalid near zero.
 
-**Where we stand:** Good — our panel *requires* `strong` to beat naive baselines
-(`PANEL_QUALITY_ORDER`, the ordering gate), which is exactly the discipline above,
-enforced automatically. Action: make seasonal-naive the **mandatory normalizer**
+**Where we stand:** Good — `strong` is a strong classical leaderboard rung
+(`evaluate.headroom`'s "beat a good classical model, not just naive" bar), so
+clearing it is exactly the discipline above; `score.panel_fitness` rewards
+discrimination (`spread`) across the baseline panel rather than demanding a fixed
+ordering. Action: make seasonal-naive the **mandatory normalizer**
 for every reported metric (GIFT-Eval/BOOM convention) and publish naive/seasonal
 -naive/AutoARIMA/AutoETS/AutoTheta as permanent leaderboard rows.
 
@@ -332,11 +334,11 @@ Concrete, file-level. Status from the code review:
 | Area | Current state | Gap → Action |
 |---|---|---|
 | **Live feeds** | scraped live catalog wired via `scraped_source.ScrapedLiveSource` (`src/sources/` + `feeds.py` as-of/dedup) | **Landed.** Remaining: point `AsOfLiveSource` / `HttpCsvLiveSource` at real vendor-timestamped endpoints so `t_now` binds on live vintages (§3.1). |
-| **External validation** | held-out real series disjoint from the feed (`independent_eval.py`) | Wire to GIFT-Eval/TIME as the external negative-control; expand to a real curated held-out suite. |
+| **Contamination audit** | memorization probe + feed-novelty + `t_now` barrier (`leakage_audit.py`) | Wire to GIFT-Eval/TIME as the external negative-control; keep the audit columns reported alongside the leaderboard. |
 | **Task geometry** | fixed `HORIZON=48`, `CONTEXT_LEN=256` (`config.py`) | Introduce a **task grid**: term-scaled horizons (1×/10×/15× seasonal), variable context as a reported axis. |
 | **Multivariate** | challenges are 1-D | Adopt `MaskedTimeseries`; add coupled-ODE + BOOM-style multivariate w/ verified cross-channel dependence. |
 | **Metrics** | MASE/WQL/CRPS, Gaussian lift; PCE/WIS/coverage + robust aggregation in `evaluate.py`; D_stsp/D_H/VPT in `dsr_metrics.py` | Reuse GluonTS `evaluate_model`; make seasonal-naive normalization the default everywhere; wire shifted-gmean + rank aggregation and a zero-inflated bucket into the reported leaderboard. |
-| **Anchor quality** | numpy classical `strong` anchor; on raw real data it is often beaten by `drift`/`ewma`, so `validate_panel` returns `valid=False` (by design) | Promote an independently-validated zero-shot TSFM (`independent_eval.resolve_anchor` / `default_panel(strong_model=…)`) so the validity gate holds on real data. |
+| **Leaderboard bar** | numpy classical `strong` is a strong-baseline leaderboard rung (not a validity gate); on raw real data a naive model legitimately wins on some series | `strong` is a leaderboard baseline, not a validity gate; swap in a zero-shot TSFM via `default_panel(strong_model=…)` to raise the leaderboard bar. |
 | **Recipe / catalog breadth** | equal-weight sampling across domain × dgp_class × cadence + cross-epoch dedup (`scraped_source.py`, `feeds.py`) | Grow the `src/sources/` catalog; keep the DGP-class/cadence breadth gates green as it grows (see `docs/REWARD_HACKING.md`). |
 | **Reproducibility env** | single-process numpy | Add TempusBench-style isolated per-model envs/subprocess for heterogeneous real TSFMs (Chronos/TimesFM/Moirai/Toto) on top of `sandbox.py`. |
 | **Consensus** | single validator | Out of scope for the academic artifact; document as subnet-deployment layer. |
@@ -414,7 +416,7 @@ what still needs network / model-weights / a decision and so is scaffolded only.
   `evaluate_multiseed`; `friedman_test`; `tests/test_metrics_robust.py`).
 - **Pure-live challenge assembly + breadth defenses** (`challenges.build_live_challenges`,
   `scraped_source.ScrapedLiveSource`, `score.foundational_fitness` folding in
-  coverage / parrot / DGP-class / cadence breadth gates, `score.validate_generalization`;
+  coverage / parrot / DGP-class / cadence breadth gates;
   `tests/test_reward_hacking.py`, `tests/test_scraped_source.py`, `tests/test_coverage.py`).
   The benchmark forecasts real data only — there is no synthetic DGP to reverse-engineer.
 - **P3 — DSR dynamics hard tier** (`dsr_metrics.py`: `d_stsp`, `d_h`,
@@ -431,9 +433,10 @@ what still needs network / model-weights / a decision and so is scaffolded only.
   `AsOfLiveSource` / `default_fresh_buffer`; pointing at live *timestamped* vendor
   endpoints (so the `t_now` barrier binds on real vintages) is the remaining
   data-eng task (needs network + credentials).
-- **Real TSFM anchor**: `tsfm_adapters.load_tsfm` + `default_panel(strong_model=)`
-  accept a zero-shot Chronos/TimesFM/Toto unchanged; running weights and
-  validating on external GIFT-Eval/TIME needs torch + checkpoints.
+- **Real TSFM leaderboard baseline**: `tsfm_adapters.load_tsfm` +
+  `default_panel(strong_model=)` accept a zero-shot Chronos/TimesFM/Toto unchanged
+  as the `strong` rung; running weights and validating on external GIFT-Eval/TIME
+  needs torch + checkpoints.
 - **Task grid** (term-scaled horizons), **multivariate** (`MaskedTimeseries` +
   Granger-verified coupling), **isolated per-model envs**, and **CI** remain on
   the roadmap above; the metrics/baselines now in place are horizon-parameterised

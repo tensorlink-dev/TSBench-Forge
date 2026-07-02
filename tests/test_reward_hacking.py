@@ -68,7 +68,7 @@ def _make_scored_dict(fit: float = 1.0, cov: float = 1.0, parrot: float = 1.0) -
 
 def test_foundational_fitness_zeros_when_any_gate_zeros(monkeypatch):
     """Any single breadth gate returning 0.0 zeros the aggregate — regardless of
-    how high spread, ordering, and gate go."""
+    how high the discrimination spread goes."""
     import score
 
     # Stub panel_fitness + coverage_gate to constant 1.0 so this test is only
@@ -110,13 +110,13 @@ def test_foundational_fitness_zeros_when_any_gate_zeros(monkeypatch):
 
 def test_llm_cannot_recover_fitness_via_pure_class_dominance(monkeypatch):
     """The exact scenario docs/REWARD_HACKING.md #2 (domain collapse) describes:
-    the LLM has found a state where spread + ordering + gate are all perfect,
-    but the pool has narrowed to one DGP class. Aggregate must be 0."""
+    the served pool scores perfectly on spread but has narrowed to one DGP
+    class. Aggregate must be 0."""
     import score
 
     monkeypatch.setattr(
         score, "panel_fitness",
-        lambda *_a, **_k: _make_scored_dict(fit=2.0, parrot=1.0),  # spread × ordering × gate = 2.0
+        lambda *_a, **_k: _make_scored_dict(fit=2.0, parrot=1.0),  # spread (fitness) = 2.0
     )
     monkeypatch.setattr(score, "coverage_gate", lambda *_a, **_k: 1.0)
     r = foundational_fitness(

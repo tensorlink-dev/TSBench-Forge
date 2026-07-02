@@ -167,7 +167,7 @@ class Discrimination:
     ok: bool
     predictability: float   # max autocorrelation over lags 1..K; ~0 => pure noise
     naive_error: float      # seasonal-naive normalised error; ~0 => trivially periodic
-    spread: float           # panel spread (reported; anchor-dependent, not a hard gate)
+    spread: float           # panel spread (reported diagnostic, not a hard gate)
     n_windows: int
     reasons: list[str] = field(default_factory=list)
 
@@ -221,10 +221,8 @@ def discrimination(
       does NOT already nail it; a clean sine, which naive forecasts perfectly, is
       rejected as it cannot separate models).
 
-    Both signals are anchor-independent by design. The panel ``spread`` is computed
-    and reported as a diagnostic but is NOT a hard gate, because it depends on the
-    ``strong`` anchor's quality (which on raw real data is exactly what
-    ``validate_panel`` flags separately).
+    Both signals are self-contained (they need only the series, no reference
+    model). The panel ``spread`` is also computed and reported as a diagnostic.
     """
     from challenges import Challenge, _normalize_by_context  # local import
     from config import SEASONAL_PERIODS

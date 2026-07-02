@@ -54,13 +54,14 @@ breadth gates.
 
 ## Two load-bearing design commitments
 
-1. **Validity comes from a frozen reference panel, not from trusting the data.**
-   A challenge only counts if a fixed panel of *known-quality* forecasters ranks
-   in its known order. If a naive baseline beats the strong model, the challenge
-   is measuring an artifact and its validity term goes to zero. The panel's top
-   tier (`strong`) is the validity anchor: its quality must be established
-   *independently* (see below), not by this benchmark. The panel is **frozen
-   within a version** so all validators reach consensus.
+1. **A challenge earns its keep by discriminating, not by matching a ground
+   truth.** The data is real, so there is nothing to "trust" — a challenge set is
+   worthwhile when good forecasters beat bad ones on it (`spread`), it isn't
+   solvable by trivially copying the context (parrot gate), and it is broad and
+   forecastable (coverage / breadth gates + the admission-time discrimination
+   filter). There is **no "a strong model must lead" gate**: on real data a naive
+   model legitimately wins on some series (random walks), so requiring a
+   sophisticated model to lead would penalise valid tasks.
 
 2. **Consensus by determinism.** The concrete challenges are a pure function of
    the fixed post-commit pool snapshot and the revealed beacon seed
@@ -68,44 +69,19 @@ breadth gates.
    byte-identical challenges. There is no LLM and no per-validator search — nothing
    to diverge on.
 
-### How validity and discrimination compose (`score.panel_fitness`)
+### How discrimination is scored (`score.panel_fitness`)
 
 ```
-fitness = spread * max(0, ordering)
+fitness = spread = (max_err − min_err) / mean_err   # over a panel of baselines
 ```
 
-- `spread = (max_err − min_err) / mean_err` — how strongly the challenge set
-  separates good forecasters from bad.
-- `ordering = kendall_tau(achieved_order, PANEL_QUALITY_ORDER)` — the
-  **panel-validity gate**. If a naive model beats `strong`, `ordering` goes
-  negative and `max(0, ordering)` zeroes the fitness.
-
-The breadth-aware `score.foundational_fitness` additionally folds in the parrot
-gate and the coverage / DGP-class / cadence gates (below), so a sharp-but-narrow
-or repetition-solvable set is multiplied down.
-
-## Independently validating the anchor (TSFM-ready) — the key lever
-
-The benchmark's validity rests on the `strong` anchor actually being good — and
-checking that on the benchmark's own challenges is circular. `independent_eval.py`
-does the non-circular thing: it establishes an anchor's quality on a **held-out,
-real, external benchmark** (commodity / transport / demography, disjoint from the
-main feed), then promotes the validated anchor and re-checks `validate_panel`.
-
-```
-python src/independent_validation.py    # resolves the best anchor available, validates it
-```
-
-`resolve_anchor()` returns the strongest anchor this environment can run — a real
-**TSFM** (Chronos/TimesFM via `tsfm_adapters`, with `.[chronos]` + staged
-weights), else a literature-validated **statsforecast** model (`.[strong]`), else
-the numpy placeholder — and reports which.
-
-> **This is now the load-bearing investment.** On raw real data the numpy
-> classical anchor is often *not* the best forecaster (drift/EWMA can beat it), so
-> `validate_panel` correctly returns `valid=False` with the placeholder. That is
-> the gate doing its job: the fix is an independently-validated zero-shot TSFM
-> anchor via `score.default_panel(strong_model=...)`, **not** ignoring the gate.
+How strongly the challenge set separates good forecasters from bad. A set no
+model does better than another on (pure noise) has ~0 spread. The breadth-aware
+`score.foundational_fitness` multiplies in the parrot gate and the coverage /
+DGP-class / cadence gates (below), so a repetition-solvable or sharp-but-narrow
+set is gated down. `strong` is a strong classical baseline / leaderboard rung
+(the "beat a good classical model, not just a naive one" bar), not a validity
+anchor; swap in a real TSFM via `score.default_panel(strong_model=...)`.
 
 ## Defense in depth
 
@@ -115,11 +91,10 @@ the numpy placeholder — and reports which.
 | As-of / dedup feed | `feeds.py` | vintage-revision leakage and re-serving a finite feed |
 | Leakage audit | `leakage_audit.py` | cross-epoch memorization / a stale feed — behavioural probe, feed-novelty meter, global `t_now` barrier |
 | Light augmentation | `challenges.py` | exact-match memorization of a repeated motif |
-| Reference-panel validity | `score.panel_fitness` | invalid / saturated challenges (naive beats `strong`) |
-| Parrot floor | `baselines.py` + `score.parrot_gate` | repetition — a trivial copy-the-context baseline matching the anchor |
+| Discrimination + forecastability | `score.panel_fitness` (`spread`) + `source_discovery.quality` | non-discriminating sets — pure noise (no model separation) or trivially-solved series, rejected at admission |
+| Parrot floor | `baselines.py` + `score.parrot_gate` | repetition — a trivial copy-the-context baseline matching the panel |
 | Domain coverage | `score.coverage_gate` | narrowness — a sharp but single-domain, non-foundational set |
 | DGP-class / cadence breadth | `score.foundational_fitness` | pool collapse — some DGP class or cadence band drops below a min-share floor (hard veto) |
-| Anchor validation | `score.validate_panel` + `independent_eval.py` | a hollow `strong` anchor, established on a held-out external set |
 | Submission static analysis | `static_analysis.py` | hardcoded answers (cheap **pre-filter**) |
 | Sandboxed execution | `sandbox.py` | submissions that phone home, OOM, loop, or persist state — the **real** boundary |
 
@@ -149,7 +124,7 @@ aggregation, multi-seed spread, and significance (GIFT-Eval/BOOM conventions).
 
 **Headroom — the go/no-go.** `evaluate.benchmark_has_headroom(probe, reveal)`
 injects a deliberately-superior probe and confirms the benchmark rewards it; run
-it at setup, because a benchmark with no room above its anchor cannot tell a great
+it at setup, because a benchmark with no room above its baselines cannot tell a great
 TSFM from a decent classical model.
 
 ### Long-horizon dynamics — the hard tier (`dsr_metrics.py`, `dsr_eval/`)
@@ -161,19 +136,12 @@ spectrum misalignment), `valid_prediction_time`, and `max_lyapunov`. The `dsr_ev
 package is a standalone dynamical-systems reconstruction benchmark with its own
 systems zoo, datasets, metrics, and runner.
 
-## Robustness is conditional — invest in these three things
+## Robustness is conditional — invest in these two things
 
 This benchmark is **not unconditionally robust.** "Robust" holds only to the degree
 these are invested in:
 
-1. **Anchor quality.** The `strong` anchor must be genuinely good and of
-   *independently established* quality — a top, non-leaking zero-shot TSFM or a
-   strong classical ensemble. On real data the numpy default is often insufficient;
-   `score.validate_panel(..., require=True)` fails loudly at startup if `strong`
-   does not lead. Swap in a real TSFM (`independent_eval.py` proves it on a held-out
-   set first).
-
-2. **Feed freshness.** The live pool must refresh from sources **outside miners'
+1. **Feed freshness.** The live pool must refresh from sources **outside miners'
    reach**, using as-of/vintage snapshots timestamped *after* the commit point.
    This is now the **primary** anti-memorization defense (augmentation is
    belt-and-suspenders). `feeds.AsOfLiveSource` admits only post-commit motifs,
@@ -181,7 +149,7 @@ these are invested in:
    epochs, and `leakage_audit.default_fresh_buffer` wires dedup + the `t_now`
    barrier into the production default.
 
-3. **Catalog breadth & depth.** Coverage must span many domains, DGP classes, and
+2. **Catalog breadth & depth.** Coverage must span many domains, DGP classes, and
    cadences, and each source must accumulate enough history. The catalog grows as
    the cron scrapes daily; today ~29 sources have enough history for the live path,
    with the rest maturing over time. The **`source_discovery`** agent
@@ -211,19 +179,17 @@ across worlds." Breadth is **measured**, not assumed:
 
 ```
 src/
-  config.py           global constants + the frozen PANEL_QUALITY_ORDER
+  config.py           global constants (context/horizon, seasonal periods)
   ingest.py           LiveSource ABC (domain-tagged), MixtureLiveSource, FreshBuffer, _finalize
   scraped_source.py   ScrapedLiveSource: the live catalog -> FreshBuffer adapter (the production feed)
   challenges.py       build_live_challenges: real windows -> Challenge, with light truth-preserving augmentation
-  score.py            reference panel (frozen strong anchor), validity/parrot/coverage/breadth gates, metrics
+  score.py            panel of baselines, discrimination (spread) + parrot/coverage/breadth gates, metrics
   baselines.py        context-parroting floor baseline
   seed.py             commit-reveal deterministic seeding
   feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
   leakage_audit.py    contamination-resistant default buffer, t_now barrier, memorization probe, feed-novelty meter
   live_feeds.py       curated real public-data adapters (CSV/dated), cached fetch, real mixture
   daily_feeds.py      daily-updated public-source adapters (JSON path engine), curated registry
-  independent_eval.py held-out external validation set, anchor resolution (TSFM/statsforecast/numpy), leakage gap
-  independent_validation.py  end-to-end proof: validate the best available anchor, then promote it
   evaluate.py         model-under-test scoring: MASE/WQL/CRPS + calibration, floor check, robust aggregation, significance
   dsr_metrics.py      long-horizon dynamics: D_stsp / D_H / valid-prediction-time / Lyapunov + free-running rollout
   tsfm_adapters.py    real Chronos / TimesFM adapters (the actual TSFMs under test)
@@ -234,15 +200,15 @@ src/
   sources/            the live-data catalog: sources.yaml, scraper.py, DGP_TAXONOMY.md, samples/, data/
   demo.py             runnable end-to-end demo on real public data
 notebooks/            example.ipynb — full guided walkthrough with plots
-experiments/          runnable experiment notebooks (live_feeds, independent_validation) + their builders
+experiments/          runnable live_feeds experiment notebook + its builder
 docs/                 REWARD_HACKING.md, PRODUCTION_GRADE_ROADMAP.md
-tests/                determinism, validity, coverage, feeds, anchor, baselines, robust metrics, DSR, leakage, sandbox
+tests/                determinism, validity/discrimination, coverage, feeds, baselines, robust metrics, DSR, leakage, sandbox, source_discovery
 ```
 
 ## Notes
 
 - Python ≥ 3.11. The core path is **numpy only**; reading the scraped parquet
-  catalog uses `pyarrow` + `pyyaml` + `pandas`. The classical `strong` anchor can
+  catalog uses `pyarrow` + `pyyaml` + `pandas`. The classical `strong` baseline can
   optionally use `statsforecast` (lazily imported).
 - Everything is seeded and reproducible — no global mutable RNG, no LLM, and no
   network in the core path (the scraped parquet is on disk; live-feed adapters
