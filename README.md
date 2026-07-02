@@ -1,215 +1,154 @@
 # tsbench-forge
 
-A **hard-to-game benchmark for time-series foundation models (TSFMs)**, built on
-**fresh, real-world data**.
+A **live-data benchmark for time-series foundation models (TSFMs)**. It fetches
+suites of real time series across domains and frequencies, scores forecasters on
+**MASE / WQL / CRPS against a seasonal-naive floor**, and keeps itself expanding
+with an autosearch agent that proposes and vets new sources. The repo does three
+things:
 
-A TSFM benchmark is fit for purpose only if a high score is achievable **solely
-through genuine forecasting capability**. `tsbench-forge` gets there with two
-commitments and *defense in depth*: it forecasts **real series** that a model
-could not have memorized, and it only counts a challenge as valid when a **frozen
-panel of known-quality forecasters ranks in its expected order**. Each known way
-to game a forecasting benchmark is closed by an independent layer.
+1. **Fetch and manage live sources** — a curated catalog of real, fast-updating
+   public time series, scraped on a cron into dated parquet.
+2. **Evaluate TSFMs** — build forecasting challenges from the catalog and rank
+   models on probabilistic metrics, normalised against seasonal naive.
+3. **Discover new sources** — an autosearch-style LLM agent that maps coverage
+   gaps, proposes concrete new sources, and vets them automatically before they
+   enter rotation.
 
-```
-python src/demo.py    # end-to-end on real public data: pool -> challenges -> leaderboard
-pytest                # determinism / validity / coverage / feeds / sandbox / DSR tests
-ruff check .
-```
+```bash
+pip install httpx pyarrow pyyaml pandas numpy
 
-`src/demo.py` runs the whole pipeline offline over locally-scraped parquet
-(`src/sources/data`), falling back to a small committed fixture
-(`tests/fixtures/sources_data`) so it always runs — no network, no LLM, no
-synthetic generator.
-
-## The data: a live catalog of real series
-
-The benchmark forecasts windows of genuinely real public time series — climate,
-solar activity, energy load, markets, transport, public health — pulled from a
-**curated catalog of daily-or-faster-updating sources** (`src/sources/`, 92
-verified feeds across the 7 GIFT-Eval domains, 36 DGP classes, sub-minute to
-yearly cadence). `sources/scraper.py` snapshots
-each source to dated parquet; `scraped_source.ScrapedLiveSource` serves those
-snapshots into a `FreshBuffer`, sampling **equal-weight across
-domain × DGP-class × cadence** so no source-count-heavy domain dominates.
-
-```python
-from scraped_source import ScrapedLiveSource
-from ingest import FreshBuffer
-from challenges import build_live_challenges
-from seed import rng_for
-import numpy as np
-
-source = ScrapedLiveSource("src/sources/sources.yaml", "src/sources/data", min_series_length=384)
-buffer = FreshBuffer(source, pool_size=96, motif_len=384)
-buffer.refresh(np.random.default_rng(0xC0FFEE))
-reveal = build_live_challenges(buffer, rng_for("0xblock", 0, "reveal"), 128)
+python src/sources/scraper.py --list          # every source + cadence
+python src/sources/scraper.py --all           # scrape everything once
+python src/demo.py                            # full pipeline: catalog -> challenges -> leaderboard
+python -m source_discovery --coverage         # map gaps in the catalog
 ```
 
-Each challenge is a real window split into an observed `context` and a held-out
-`truth` horizon, z-scored by its context (leak-free) so heterogeneous scales are
-comparable, and lightly, **truth-preservingly** augmented so an exact repeat of a
-motif is never byte-identical to anything seen before. Every challenge carries its
-`domain` / `dgp_class` / `cadence` / `source_id` for stratified scoring and the
-breadth gates.
+## 1. The live catalog (`src/sources/`)
 
-## Two load-bearing design commitments
-
-1. **A challenge earns its keep by discriminating, not by matching a ground
-   truth.** The data is real, so there is nothing to "trust" — a challenge set is
-   worthwhile when good forecasters beat bad ones on it (`spread`), it isn't
-   solvable by trivially copying the context (parrot gate), and it is broad and
-   forecastable (coverage / breadth gates + the admission-time discrimination
-   filter). There is **no "a strong model must lead" gate**: on real data a naive
-   model legitimately wins on some series (random walks), so requiring a
-   sophisticated model to lead would penalise valid tasks.
-
-2. **Consensus by determinism.** The concrete challenges are a pure function of
-   the fixed post-commit pool snapshot and the revealed beacon seed
-   (`seed = H(block_hash || epoch || …)`, see `seed.py`). Every validator replays
-   byte-identical challenges. There is no LLM and no per-validator search — nothing
-   to diverge on.
-
-### How discrimination is scored (`score.panel_fitness`)
+A curated catalog of **daily-or-faster-updating** real public time series —
+climate, solar activity, energy load, markets, transport, public health — across
+the 7 GIFT-Eval domains. Today: **92 verified feeds**, **36 DGP (archetype)
+classes**, sub-minute to yearly cadence. Every entry is verified by a real HTTP
+call before it lands in `sources.yaml`.
 
 ```
-fitness = spread = (max_err − min_err) / mean_err   # over a panel of baselines
+src/sources/
+  sources.yaml         92 verified entries with full schema (domain, cadence, DGP class, novelty)
+  scraper.py           config-driven unified scraper (one adapter, many sources)
+  cron.yaml            poll cadence per source
+  data/                scraper output: parquet per source per UTC date (~90 sources scraped)
+  samples/             ~100-row trimmed payload per source (for review)
+  candidates.md        initial brainstorm (pre-verification)
+  verification_log.md  every URL attempted, kept|dropped, and why
+  coverage_matrix.md   domain × archetype, domain × frequency, gaps
+  DGP_TAXONOMY.md      the archetype/DGP-class taxonomy
 ```
 
-How strongly the challenge set separates good forecasters from bad. A set no
-model does better than another on (pure noise) has ~0 spread. The breadth-aware
-`score.foundational_fitness` multiplies in the parrot gate and the coverage /
-DGP-class / cadence gates (below), so a repetition-solvable or sharp-but-narrow
-set is gated down. `strong` is a strong classical baseline / leaderboard rung
-(the "beat a good classical model, not just a naive one" bar), not a validity
-anchor; swap in a real TSFM via `score.default_panel(strong_model=...)`.
-
-## Defense in depth
-
-| Layer | Module | Gaming vector it closes |
-|---|---|---|
-| Live ingestion | `ingest.py` / `scraped_source.py` | memorization — data didn't exist at commit time |
-| As-of / dedup feed | `feeds.py` | vintage-revision leakage and re-serving a finite feed |
-| Leakage audit | `leakage_audit.py` | cross-epoch memorization / a stale feed — behavioural probe, feed-novelty meter, global `t_now` barrier |
-| Light augmentation | `challenges.py` | exact-match memorization of a repeated motif |
-| Discrimination + forecastability | `score.panel_fitness` (`spread`) + `source_discovery.quality` | non-discriminating sets — pure noise (no model separation) or trivially-solved series, rejected at admission |
-| Parrot floor | `baselines.py` + `score.parrot_gate` | repetition — a trivial copy-the-context baseline matching the panel |
-| Domain coverage | `score.coverage_gate` | narrowness — a sharp but single-domain, non-foundational set |
-| DGP-class / cadence breadth | `score.foundational_fitness` | pool collapse — some DGP class or cadence band drops below a min-share floor (hard veto) |
-| Submission static analysis | `static_analysis.py` | hardcoded answers (cheap **pre-filter**) |
-| Sandboxed execution | `sandbox.py` | submissions that phone home, OOM, loop, or persist state — the **real** boundary |
-
-## Evaluating an actual TSFM
-
-`evaluate.py` scores a model under test. A forecaster emits a `ProbForecast`
-(mean + quantiles) and is judged on the metrics the TSFM literature uses —
-**MASE** (point), **WQL** (weighted quantile loss) and **CRPS** (probabilistic) —
-plus **calibration** as a first-class axis (**PCE**, interval **coverage**,
-**WIS**), then ranked on a leaderboard against the reference panel.
-
-```python
-from evaluate import leaderboard, probabilistic_panel
-from tsfm_adapters import load_tsfm   # pip install -e ".[chronos]"
-
-models = {"chronos": load_tsfm("chronos"), **probabilistic_panel()}
-for row in leaderboard(models, reveal):
-    print(row["rank"], row["model"], row["mase"], row["wql"])
+```bash
+python src/sources/scraper.py --id usgs_earthquakes_realtime   # one source
+python src/sources/scraper.py --domain energy                  # a whole domain
+python src/sources/scraper.py --id binance_btcusdt_1m --dry-run # fetch+parse, no write
 ```
 
-`probabilistic_panel()` includes the **context-parroting** rung, and
-`evaluate.clears_floor(model, reveal)` enforces the minimum bar: a submission must
-beat **both** seasonal-naive and parrot — a model that cannot out-predict trivial
-copy-the-context has shown no skill (Zhang & Gilpin, arXiv:2505.11349).
-`normalized_leaderboard`, `evaluate_multiseed`, and `friedman_test` give robust
-aggregation, multi-seed spread, and significance (GIFT-Eval/BOOM conventions).
+### Serving and freshness (`src/`)
 
-**Headroom — the go/no-go.** `evaluate.benchmark_has_headroom(probe, reveal)`
-injects a deliberately-superior probe and confirms the benchmark rewards it; run
-it at setup, because a benchmark with no room above its baselines cannot tell a great
-TSFM from a decent classical model.
+The snapshots are served through a small ingestion layer with the anti-staleness
+discipline a live feed needs:
 
-### Long-horizon dynamics — the hard tier (`dsr_metrics.py`, `dsr_eval/`)
+- `scraped_source.py` — `ScrapedLiveSource`: serves the dated parquet snapshots,
+  sampling **equal-weight across domain × DGP-class × cadence** so no
+  source-count-heavy domain dominates.
+- `ingest.py` — `LiveSource` ABC (domain-tagged), `MixtureLiveSource`, `FreshBuffer`.
+- `feeds.py` — production feed discipline: **as-of / vintage gating** (only serve
+  motifs timestamped after a commit point) and **cross-epoch dedup** (fingerprint
+  and quarantine near-duplicates).
+- `leakage_audit.py` — the contamination-resistant default buffer: dedup + a global
+  `t_now` barrier, a memorization probe, and a feed-novelty meter.
+- `live_feeds.py` / `daily_feeds.py` — curated real public-data adapters (CSV/dated
+  and JSON-path), with cached fetches.
 
-Point metrics saturate to a noise ceiling after ~one Lyapunov time. `dsr_metrics.py`
-scores what stays invariant under the dynamics instead (Koppe et al. 2019; Mikhaeil
-et al. 2022): `d_stsp` (state-space / invariant-measure misalignment), `d_h` (power-
-spectrum misalignment), `valid_prediction_time`, and `max_lyapunov`. The `dsr_eval/`
-package is a standalone dynamical-systems reconstruction benchmark with its own
-systems zoo, datasets, metrics, and runner.
+## 2. The benchmark (`src/`)
 
-## Robustness is conditional — invest in these two things
+The evaluation half: real series in, a probabilistic leaderboard out.
 
-This benchmark is **not unconditionally robust.** "Robust" holds only to the degree
-these are invested in:
+- `challenges.py` — builds challenge sets from the live catalog: each challenge
+  is a real window split into `context` / `truth`, tagged with its source's
+  domain / DGP class / cadence / frequency, with light truth-preserving
+  augmentation against memorisation. Deterministic per `(pool, seed)`
+  (`seed.py`), so replays are byte-identical.
+- `evaluate.py` — scores a forecaster on **MASE** (seasonal-naive-scaled point
+  error, season length derived per series from its sampling frequency), **WQL**
+  and **CRPS** (probabilistic, on the model's own quantiles), plus WIS,
+  calibration error (PCE), and interval coverage. `clears_floor` requires a
+  model to beat **seasonal naive** and **context parrot**; `normalized_leaderboard`
+  is the GIFT-Eval convention — per-dataset scores divided by seasonal naive's,
+  aggregated by shifted geometric mean and average rank. `headroom` /
+  `benchmark_has_headroom` check the benchmark can actually separate a superior
+  model from the classical anchor.
+- `score.py` — the classical reference panel (seasonal naive, drift, EWMA, AR(1),
+  a backtest-selected `strong` anchor) and the challenge-set validity gates
+  (discrimination spread, parrot gate, domain / DGP-class / cadence breadth).
+- `baselines.py` — the context-parrot floor (nearest-neighbour copying), the
+  skill bar every real model must clear.
+- `tsfm_adapters.py` — wraps published zero-shot TSFMs (Chronos / Chronos-Bolt,
+  TimesFM) behind the `ProbForecast` contract so they drop straight onto the
+  leaderboard: `leaderboard({'chronos': load_tsfm('chronos'), **probabilistic_panel()}, reveal)`.
+- `config.py` — context length, horizon, panel seasonality-search periods.
+- `demo.py` — the end-to-end run on locally scraped data (offline, no LLM):
+  pool → challenges → panel validity → MASE/WQL/CRPS leaderboard → headroom →
+  breadth.
 
-1. **Feed freshness.** The live pool must refresh from sources **outside miners'
-   reach**, using as-of/vintage snapshots timestamped *after* the commit point.
-   This is now the **primary** anti-memorization defense (augmentation is
-   belt-and-suspenders). `feeds.AsOfLiveSource` admits only post-commit motifs,
-   `feeds.DedupFreshBuffer` fingerprints and quarantines near-duplicates across
-   epochs, and `leakage_audit.default_fresh_buffer` wires dedup + the `t_now`
-   barrier into the production default.
-
-2. **Catalog breadth & depth.** Coverage must span many domains, DGP classes, and
-   cadences, and each source must accumulate enough history. The catalog grows as
-   the cron scrapes daily; today ~29 sources have enough history for the live path,
-   with the rest maturing over time. The **`source_discovery`** agent
-   (`python -m source_discovery`) keeps this pool diverse and uncontaminated: it
-   maps coverage gaps, an LLM proposes concrete new sources, and two deterministic
-   stages vet them **automatically** — metadata pre-filters (contamination
-   denylist, dedup, schema) before fetching, then a data-quality gate on the
-   fetched series (finite/variance/flatline checks + a discrimination filter that
-   rejects pure noise and trivially-periodic series). A human is involved only for
-   licensing sign-off; the agent never touches the scoring path.
-
-## Foundational breadth (domain coverage)
-
-A benchmark certifies a *foundation* model only if a high score means "generalises
-across worlds." Breadth is **measured**, not assumed:
-
-- `score.domain_coverage` reports the *effective* number of domains
-  (`exp(entropy)` of the domain mix — skew counts against you), and `coverage_gate`
-  ramps to 1.0 once a set is broad enough.
-- `dgp_class_breadth_gate` / `cadence_breadth_gate` are **hard vetoes**: any DGP
-  class or cadence band below a min-share floor sends `foundational_fitness` to 0,
-  so the served pool can never silently narrow.
-- `score.stratified_fitness` scores each domain separately, so validity and
-  discrimination are read per-DGP instead of hidden in one average.
-
-## Repo layout
-
+```bash
+python src/demo.py                  # full pipeline on scraped (or fixture) data
+pip install -e ".[chronos]"         # enable the Chronos adapter (torch)
 ```
-src/
-  config.py           global constants (context/horizon, seasonal periods)
-  ingest.py           LiveSource ABC (domain-tagged), MixtureLiveSource, FreshBuffer, _finalize
-  scraped_source.py   ScrapedLiveSource: the live catalog -> FreshBuffer adapter (the production feed)
-  challenges.py       build_live_challenges: real windows -> Challenge, with light truth-preserving augmentation
-  score.py            panel of baselines, discrimination (spread) + parrot/coverage/breadth gates, metrics
-  baselines.py        context-parroting floor baseline
-  seed.py             commit-reveal deterministic seeding
-  feeds.py            production feed discipline: as-of gating, cross-epoch dedup, HTTP/CSV adapter
-  leakage_audit.py    contamination-resistant default buffer, t_now barrier, memorization probe, feed-novelty meter
-  live_feeds.py       curated real public-data adapters (CSV/dated), cached fetch, real mixture
-  daily_feeds.py      daily-updated public-source adapters (JSON path engine), curated registry
-  evaluate.py         model-under-test scoring: MASE/WQL/CRPS + calibration, floor check, robust aggregation, significance
-  dsr_metrics.py      long-horizon dynamics: D_stsp / D_H / valid-prediction-time / Lyapunov + free-running rollout
-  tsfm_adapters.py    real Chronos / TimesFM adapters (the actual TSFMs under test)
-  static_analysis.py  AST/regex linter for miner submissions (cheap pre-filter)
-  sandbox.py          isolated, resource-limited execution of submissions (the real boundary)
-  dsr_eval/           standalone dynamical-systems (DSR) eval package: systems zoo, datasets, metrics, runner, report
-  source_discovery/   LLM catalog-curation agent: map coverage gaps -> propose sources -> automatic vetting (metadata denylist/dedup + data-quality gate)
-  sources/            the live-data catalog: sources.yaml, scraper.py, DGP_TAXONOMY.md, samples/, data/
-  demo.py             runnable end-to-end demo on real public data
-notebooks/            example.ipynb — full guided walkthrough with plots
-experiments/          runnable live_feeds experiment notebook + its builder
-docs/                 REWARD_HACKING.md, PRODUCTION_GRADE_ROADMAP.md
-tests/                determinism, validity/discrimination, coverage, feeds, baselines, robust metrics, DSR, leakage, sandbox, source_discovery
+
+## 3. The source-discovery agent (`src/source_discovery/`)
+
+An autosearch-style LLM curation tool that keeps the catalog diverse and
+uncontaminated. It maps coverage gaps, an LLM proposes concrete new sources, and
+**two deterministic stages vet them automatically** — the model never makes a
+decision and never touches any data path:
+
+- `coverage.py` — deterministic gap analysis over `sources.yaml` (domain × cadence
+  matrix + ranked gaps). No model, no network.
+- `llm.py` — the only non-deterministic step: proposes candidates via the
+  OpenRouter chat API (provider-agnostic, stdlib `urllib`, `OPENROUTER_MODEL`).
+- `vet.py` — **metadata pre-filters** on each proposal *before* anything is
+  fetched: schema, a **contamination denylist** (known pretraining datasets and
+  repackagings), duplicate-of-existing, and a novelty sanity check.
+- `quality.py` — the **data admission gate** that runs on the actually-fetched
+  series: finite/variance/flatline/spike auto-rejects, plus a behavioural
+  discrimination filter. No human, no LLM.
+- `config.py` — the deterministic knobs: denylist, domains, cadence bands, targets.
+- `runner.py` / `__main__.py` / `system_prompt.md` — glue, CLI, and the agent prompt.
+
+A human is in the loop only for **licensing / legal sign-off** on paywalled or
+contract sources.
+
+```bash
+python -m source_discovery --coverage                       # gaps only (deterministic)
+python -m source_discovery --dry-run                        # print the agent prompt, no model call
+python -m source_discovery --out src/sources/discovered     # full run (needs OPENROUTER_API_KEY)
+python -m source_discovery --vet candidates.json --out ...  # vet a candidate list from elsewhere
+python -m source_discovery --assess aemo_nem_5min           # data-quality gate on a scraped source
 ```
+
+## Obsolete / pending removal
+
+These modules are out of the benchmark's scope and slated for deletion:
+
+- `src/sandbox.py`, `src/static_analysis.py`, `docs/REWARD_HACKING.md` — gating
+  of *miner-submitted code* (a subnet concern, not part of scoring a TSFM).
+- `src/dsr_metrics.py`, `src/dsr_eval/` — the dynamical-systems-reconstruction
+  eval, a separate protocol from the MASE/WQL/CRPS benchmark.
+- `notebooks/`, `experiments/`, `docs/PRODUCTION_GRADE_ROADMAP.md` — exploratory
+  artifacts.
 
 ## Notes
 
-- Python ≥ 3.11. The core path is **numpy only**; reading the scraped parquet
-  catalog uses `pyarrow` + `pyyaml` + `pandas`. The classical `strong` baseline can
-  optionally use `statsforecast` (lazily imported).
-- Everything is seeded and reproducible — no global mutable RNG, no LLM, and no
-  network in the core path (the scraped parquet is on disk; live-feed adapters
-  cache their pulls).
+- Python ≥ 3.11. Scraping and serving use `httpx` + `pyarrow` + `pyyaml` +
+  `pandas`; the benchmark core is numpy-only (TSFM adapters lazily import torch
+  behind extras); the source-discovery LLM step needs `OPENROUTER_API_KEY`.
+- The catalog grows as the cron scrapes daily; sources accumulate history over
+  time before they have enough depth to serve.

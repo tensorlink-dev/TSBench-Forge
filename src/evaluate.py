@@ -99,9 +99,47 @@ def _naive_scale(context: np.ndarray, m: int = 1) -> float:
     """In-sample seasonal-naive MAE used to scale MASE (m=1 == non-seasonal)."""
     x = np.asarray(context, dtype=float)
     if x.size <= m:
-        return _EPS
+        # Season longer than the context: degrade to the non-seasonal scale
+        # rather than returning epsilon (which would explode MASE).
+        m = 1
+        if x.size <= 1:
+            return _EPS
     s = float(np.mean(np.abs(x[m:] - x[:-m])))
     return s if s > _EPS else float(np.std(x) + _EPS)
+
+
+# Season length per ISO-8601 sampling interval, the gluonts/GIFT-Eval convention:
+# one natural cycle in steps (daily cycle for sub-daily data; the calendar cycle
+# above that). Frequencies absent here score with m=1 (non-seasonal MASE).
+FREQ_SEASONALITY: dict[str, int] = {
+    "PT30S": 120,   # 1 hour
+    "PT1M": 1440,   # 1 day
+    "PT2M30S": 576,
+    "PT5M": 288,
+    "PT6M": 240,
+    "PT10M": 144,
+    "PT15M": 96,
+    "PT30M": 48,
+    "PT1H": 24,
+    "PT8H": 3,
+    "P1D": 1,
+    "P1W": 1,
+    "P1M": 12,
+    "P1Q": 4,
+    "P1Y": 1,
+}
+
+
+def season_length(freq: str | None, context_len: int) -> int:
+    """Season length ``m`` for MASE scaling, derived from the sampling interval.
+
+    Falls back to 1 (non-seasonal) when the frequency is unknown or the full
+    cycle does not fit inside the context — the same degradation gluonts applies
+    — so high-frequency series with a daily cycle longer than the context are
+    scored non-seasonally rather than against an inestimable season.
+    """
+    m = FREQ_SEASONALITY.get(freq or "", 1)
+    return m if 1 < m < context_len else 1
 
 
 # --------------------------------------------------------------------------- #
@@ -175,7 +213,7 @@ def evaluate_forecaster(
     forecaster: Forecaster,
     challenges: list,
     *,
-    seasonality: int = 1,
+    seasonality: int | None = None,
 ) -> dict[str, float]:
     """Score one forecaster over the challenge set.
 
@@ -183,6 +221,11 @@ def evaluate_forecaster(
     better), ``mae``, and ``n``. WQL is pooled (sum numerators / sum
     denominators) the way GIFT-Eval aggregates, so large-magnitude series do not
     dominate by scale.
+
+    ``seasonality`` fixes one MASE season length for every challenge; the default
+    (``None``) derives it per challenge from ``meta["freq"]`` via
+    :func:`season_length`, so a mixed-frequency set scales each series by its own
+    seasonal-naive error (m=1 when the frequency is untagged or unknown).
     """
     acc = _Accum()
     acc.cov_hits = {q: 0 for q in DEFAULT_QUANTILES}
@@ -192,8 +235,13 @@ def evaluate_forecaster(
         fc = forecaster(ch.context, meta)
         mean = np.asarray(fc.mean, dtype=float)
 
+        if seasonality is None:
+            freq = meta.get("freq") if isinstance(meta, dict) else None
+            m = season_length(freq, len(ch.context))
+        else:
+            m = seasonality
         acc.abs_err += float(np.mean(np.abs(truth - mean)))
-        acc.scaled_n += float(np.mean(np.abs(truth - mean))) / _naive_scale(ch.context, seasonality)
+        acc.scaled_n += float(np.mean(np.abs(truth - mean))) / _naive_scale(ch.context, m)
 
         denom = float(np.sum(np.abs(truth)))
         acc.wql_den += denom
@@ -277,7 +325,7 @@ def clears_floor(
     challenges: list,
     *,
     primary: str = "mase",
-    seasonality: int = 1,
+    seasonality: int | None = None,
 ) -> dict[str, object]:
     """Check a model beats both floor baselines (seasonal-naive AND parrot).
 
@@ -309,7 +357,7 @@ def leaderboard(
     challenges: list,
     *,
     primary: str = "mase",
-    seasonality: int = 1,
+    seasonality: int | None = None,
 ) -> list[dict[str, object]]:
     """Score every named forecaster and return rows ranked by ``primary`` (asc).
 
@@ -331,7 +379,7 @@ def headroom(
     challenges: list,
     *,
     anchor: Forecaster | None = None,
-    seasonality: int = 1,
+    seasonality: int | None = None,
 ) -> dict[str, object]:
     """Margin of a candidate model over the classical anchor.
 
@@ -357,7 +405,7 @@ def benchmark_has_headroom(
     challenges: list,
     *,
     min_margin: float = 0.0,
-    seasonality: int = 1,
+    seasonality: int | None = None,
 ) -> bool:
     """Go/no-go: can a model known to be superior actually beat the anchor here?
 
@@ -395,7 +443,7 @@ def normalized_leaderboard(
     *,
     metric: str = "mase",
     baseline: str = "seasonal_naive",
-    seasonality: int = 1,
+    seasonality: int | None = None,
 ) -> list[dict[str, object]]:
     """Seasonal-naive-normalised, rank-aggregated leaderboard across datasets.
 
@@ -450,7 +498,7 @@ def evaluate_multiseed(
     forecaster: Forecaster,
     challenge_sets: list[list],
     *,
-    seasonality: int = 1,
+    seasonality: int | None = None,
 ) -> dict[str, object]:
     """Score a model over several independent challenge sets; report mean +/- std.
 

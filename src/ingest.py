@@ -73,6 +73,10 @@ class MotifMeta:
     dgp_class: str | None = None
     cadence: str | None = None
     source_id: str | None = None
+    freq: str | None = None
+    """Exact sampling interval as an ISO-8601 duration (``PT1H``, ``P1D``, …) from
+    ``sources.yaml`` — finer than the coarse ``cadence`` band. The evaluator maps
+    it to a season length for MASE's seasonal-naive scaling."""
 
 
 class LiveSource(ABC):
@@ -268,6 +272,7 @@ class FreshBuffer:
                     dgp_class=m.dgp_class,
                     cadence=m.cadence,
                     source_id=m.source_id,
+                    freq=m.freq,
                 )
             )
         return out
