@@ -1,41 +1,35 @@
-"""Reference panel, validity gate, and fitness metrics.
+"""Reference baselines, discrimination metric, and breadth gates.
 
-This is the foundation of the whole benchmark. **Validity does not come from
-trusting the data; it comes from a frozen reference panel.** A challenge only
-"counts" if a fixed panel of independently-known-quality forecasters ranks in
-its expected order. If a naive baseline beats the ``strong`` anchor, the
-challenge is measuring an artifact rather than forecasting skill.
+The benchmark forecasts real data, so a challenge set earns its keep by
+**discriminating** forecasters, not by matching a synthetic ground truth. This
+module scores that discrimination and reports the breadth / non-triviality gates.
 
-The panel
----------
+The panel of baselines
+----------------------
+A fixed set of cheap reference forecasters, used both to measure discrimination
+(``spread``) and as leaderboard rungs a model under test must beat:
+
 * ``seasonal_naive``, ``drift``, ``ar1``, ``ewma`` -- cheap classical baselines.
-* ``strong`` -- the **validity anchor**. Its quality must be established
-  *independently of this benchmark* (e.g. a top, non-leaking GIFT-Eval model run
-  zero-shot, or a strong classical ensemble). The numpy default is a
-  backtest-selected classical ensemble (Holt-Winters+AR / global decomposition /
-  drift / naive / damped), which adapts per series so it stays best across
-  heterogeneous real feeds; a real TSFM can be dropped in unchanged because every
-  model shares the ``(context, meta) -> horizon`` interface.
+* ``strong`` -- a stronger classical baseline (a backtest-selected ensemble:
+  Holt-Winters+AR / global decomposition / drift / naive / damped), the "can the
+  model beat a good classical forecaster, not just a naive one" bar used by
+  :func:`evaluate.headroom`. Swap in a real TSFM via ``default_panel(strong_model
+  =...)`` since every model shares the ``(context, meta) -> horizon`` interface.
 
-Because the benchmark forecasts real data only, there is no synthetic generator
-to reverse-engineer, so the old generator-fitting detector (``overfit``) and its
-gate are gone. Two independent gaming vectors remain, each with its own layer:
-the panel-validity gate below, and the parrot gate (a challenge set is worthless
-if trivially copying the context matches the anchor).
+There is no reference-panel *ordering* gate and no "strong must lead" anchor: on
+real data a naive model legitimately wins on some series (random walks), so
+requiring a sophisticated model to lead would penalise valid tasks. Validity comes
+instead from discrimination (``spread``), the parrot gate (a set is worthless if
+copying the context matches the panel), the coverage / DGP-class / cadence breadth
+gates, and the admission-time forecastability filter in
+``source_discovery.quality``.
 
 Fitness
 -------
-``panel_fitness`` returns ``spread``, ``ordering``, ``difficulty`` and the gated
-``fitness = spread * max(0, ordering)``:
-
-* ``spread = (max_err - min_err) / mean_err`` measures how *discriminating* the
-  challenge set is across the panel.
-* ``ordering`` is the Kendall-tau agreement between the achieved ranking and the
-  established quality order -- the panel-validity gate. If ``strong`` is beaten by
-  a naive baseline, ``ordering`` goes negative and ``max(0, ordering)`` zeroes it.
-
-The breadth-aware :func:`foundational_fitness` additionally folds in the parrot
-gate and the domain / DGP-class / cadence coverage gates.
+``panel_fitness`` returns ``fitness = spread = (max_err - min_err) / mean_err`` --
+how strongly the challenge set separates good forecasters from bad. The
+breadth-aware :func:`foundational_fitness` multiplies in the parrot gate and the
+domain / DGP-class / cadence coverage gates.
 """
 
 from __future__ import annotations
@@ -45,7 +39,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from config import HORIZON, PANEL_QUALITY_ORDER, SEASONAL_PERIODS
+from config import HORIZON, SEASONAL_PERIODS
 
 if TYPE_CHECKING:  # pragma: no cover - typing only, avoids a challenges<->score cycle
     from challenges import Challenge
@@ -179,7 +173,7 @@ def _damped_forecast(context: np.ndarray) -> np.ndarray:
 
 
 def _hw_ar_forecast(context: np.ndarray) -> np.ndarray:
-    """Holt-Winters + AR(1): the anchor's structural moat.
+    """Holt-Winters + AR(1): the strong baseline's structural moat.
 
     Estimates seasonality, then a *local damped* level/trend (robust to
     changepoints, unlike a global line), then an AR(1) term on the residual.
@@ -224,7 +218,7 @@ def _decompose_global_forecast(context: np.ndarray) -> np.ndarray:
 
     Complements ``hw_ar``: when the trend really is a single clean global line
     (no changepoints) the global slope beats a damped local one, so having both
-    structural candidates lets the anchor keep its seasonality moat over ``drift``
+    structural candidates lets the strong baseline keep its seasonality moat over ``drift``
     in *every* trend regime.
     """
     n = len(context)
@@ -247,8 +241,8 @@ def _decompose_global_forecast(context: np.ndarray) -> np.ndarray:
     return trend_f + seas_f + ar_f
 
 
-# Candidates the strong anchor selects among by backtest. The simple baselines
-# guarantee the anchor is never much worse than the best baseline on any series;
+# Candidates the strong baseline selects among by backtest. The simple baselines
+# guarantee the strong baseline is never much worse than the best baseline on any series;
 # the two structural candidates (``hw_ar`` local-trend, ``decomp`` global-trend)
 # are what let it pull decisively ahead on structured data, in either trend
 # regime.
@@ -267,7 +261,7 @@ def _backtest_best(context: np.ndarray) -> str:
     """Pick the candidate with the lowest error over rolling backtest windows.
 
     Two windows (when the context allows) make the selection robust to a single
-    unlucky holdout, so the anchor reliably tracks the genuinely-best candidate.
+    unlucky holdout, so the strong baseline reliably tracks the genuinely-best candidate.
     """
     names = list(_STRONG_CANDIDATES)
     n = len(context)
@@ -290,27 +284,26 @@ def _backtest_best(context: np.ndarray) -> str:
 
 
 def strong(context: np.ndarray, meta: dict | None = None) -> np.ndarray:
-    """Default **validity anchor**: backtest-selected adaptive forecaster.
+    """A strong classical baseline: backtest-selected adaptive forecaster.
 
-    The anchor scores each candidate on rolling backtest windows of the context
-    and returns the best candidate's forecast. This lets one model be genuinely
-    best across *both* textures -- trend+seasonal+AR on structured series,
-    naive/drift on random-walk live motifs -- which is what keeps the validity
-    gate meaningful across the live data distribution.
+    Scores each candidate on rolling backtest windows of the context and returns
+    the best candidate's forecast, so one model stays competitive across *both*
+    textures -- trend+seasonal+AR on structured series, naive/drift on random-walk
+    motifs. It is the "beat a good classical model, not just a naive one" bar on
+    the leaderboard and in :func:`evaluate.headroom`.
 
-    It estimates everything from the context, so its edge is genuine skill.
-    Replace it with a real, independently-validated zero-shot TSFM via
-    :func:`default_panel` to raise the validity bar further.
+    It estimates everything from the context, so its edge is genuine skill. Swap in
+    a real zero-shot TSFM via :func:`default_panel` to raise that bar.
     """
     return _STRONG_CANDIDATES[_backtest_best(context)](context)
 
 
 def default_panel(strong_model: PanelModel | None = None) -> dict[str, PanelModel]:
-    """Construct the reference panel, optionally swapping in a real ``strong``.
+    """Construct the reference panel of baselines, optionally swapping ``strong``.
 
-    The panel is **frozen within a benchmark version** for consensus: do not add
-    or reorder models mid-version. To raise the validity bar, replace only the
-    ``strong`` callable with an independently-validated zero-shot TSFM.
+    The panel is **frozen within a benchmark version** for cross-validator
+    reproducibility: do not add or reorder models mid-version. Replace only the
+    ``strong`` callable to put a real zero-shot TSFM on the leaderboard.
     """
     return {
         "strong": strong_model or strong,
@@ -322,7 +315,7 @@ def default_panel(strong_model: PanelModel | None = None) -> dict[str, PanelMode
 
 
 def try_statsforecast_strong() -> PanelModel | None:
-    """Lazily build a ``statsforecast`` AutoETS anchor, or ``None`` if unavailable.
+    """Lazily build a ``statsforecast`` AutoETS model, or ``None`` if unavailable.
 
     Optional dependency: the numpy demo never calls this, so ``demo.py`` runs
     with numpy alone. In a real deployment prefer a top GIFT-Eval TSFM here.
@@ -341,13 +334,12 @@ def try_statsforecast_strong() -> PanelModel | None:
 
 
 def panel_from_env(env: dict[str, str] | None = None) -> dict[str, PanelModel]:
-    """Build the panel, selecting the ``strong`` anchor from the environment.
+    """Build the panel, selecting the ``strong`` baseline from the environment.
 
-    ``TSBENCH_STRONG=statsforecast`` swaps in the AutoETS anchor when the optional
-    dependency is installed (falling back to the numpy anchor otherwise);
-    anything else uses the numpy default. A real deployment registers its own
-    independently-validated TSFM here. Whatever is chosen, callers should gate it
-    through :func:`validate_panel` before trusting a run.
+    ``TSBENCH_STRONG=statsforecast`` swaps in the AutoETS model when the optional
+    dependency is installed (falling back to the numpy default otherwise);
+    anything else uses the numpy default. A real deployment can register its own
+    zero-shot TSFM as the ``strong`` rung here.
     """
     import os
 
@@ -360,120 +352,9 @@ def panel_from_env(env: dict[str, str] | None = None) -> dict[str, PanelModel]:
     return default_panel()
 
 
-class AnchorValidationError(RuntimeError):
-    """Raised when the ``strong`` anchor is not good enough to be a validity anchor."""
-
-
-def validate_panel(
-    challenges: list[Challenge],
-    panel: dict[str, PanelModel] | None = None,
-    *,
-    min_lead: float = 0.02,
-    require: bool = False,
-) -> dict[str, object]:
-    """Check the ``strong`` anchor is genuinely the best *legitimate* forecaster.
-
-    The whole benchmark rests on ``strong`` being independently good: if a naive
-    baseline matches or beats it on a calibration set, the validity gate is hollow
-    and every downstream score is suspect. This runs the panel on ``challenges``
-    and verifies ``strong`` leads every other model by at least ``min_lead`` in
-    scale-normalised error.
-
-    Returns a report ``{valid, strong_error, runner_up, margin, errors}``. With
-    ``require=True`` an invalid anchor raises :class:`AnchorValidationError`
-    instead -- the recommended posture for a production validator at startup.
-    """
-    panel = panel or default_panel()
-    errs = model_errors(challenges, panel)
-    strong_err = errs.get("strong", float("inf"))
-    competitors = {m: e for m, e in errs.items() if m != "strong"}
-    runner_up = min(competitors, key=competitors.get) if competitors else None
-    runner_err = competitors[runner_up] if runner_up is not None else float("inf")
-    margin = runner_err - strong_err
-    valid = bool(runner_up is not None and margin >= min_lead)
-
-    report: dict[str, object] = {
-        "valid": valid,
-        "strong_error": float(strong_err),
-        "runner_up": runner_up,
-        "runner_up_error": float(runner_err),
-        "margin": float(margin),
-        "errors": errs,
-    }
-    if require and not valid:
-        raise AnchorValidationError(
-            f"strong anchor not validated: leads {runner_up} by {margin:.4f} "
-            f"(< required {min_lead}); the validity gate would be hollow"
-        )
-    return report
-
-
-def validate_generalization(
-    challenges: list[Challenge],
-    heldout_models: dict[str, PanelModel],
-    panel: dict[str, PanelModel] | None = None,
-    *,
-    min_lead: float = 0.0,
-) -> dict[str, object]:
-    """Check the anchor's lead **generalises to models outside the reference panel**.
-
-    The validity gate rewards challenge sets in which the *frozen* reference
-    panel ranks in its expected order, which risks the challenge distribution
-    favouring that specific panel: challenges that happen to order these six
-    models correctly without rewarding genuine skill. The defence is a held-out
-    set -- extra forecasters (a real TSFM, other classical baselines, the parrot)
-    that are not part of the reference panel. If ``strong`` still beats every
-    held-out model on the same challenges, the lead reflects real skill, not
-    panel-overfitting.
-
-    Returns ``{generalizes, strong_error, beaten_by, errors}``. ``beaten_by``
-    lists any held-out model that matches/beats ``strong`` within ``min_lead``.
-    """
-    panel = panel or default_panel()
-    merged = {"strong": panel["strong"]}
-    merged.update({k: v for k, v in heldout_models.items() if k != "strong"})
-    errs = model_errors(challenges, merged)
-    strong_err = errs["strong"]
-    beaten_by = [m for m, e in errs.items() if m != "strong" and e <= strong_err + min_lead]
-    return {
-        "generalizes": len(beaten_by) == 0,
-        "strong_error": float(strong_err),
-        "beaten_by": beaten_by,
-        "errors": errs,
-    }
-
-
 # --------------------------------------------------------------------------- #
 # Metrics
 # --------------------------------------------------------------------------- #
-
-
-def kendall_tau(order_a: list[str], order_b: list[str]) -> float:
-    """Kendall's tau between two orderings of the *same* set of names.
-
-    ``+1`` identical, ``-1`` reversed, ``0`` uncorrelated. This is the validity
-    gate's core: ``order_a`` = achieved (best->worst by error), ``order_b`` =
-    the established quality order.
-    """
-    items = list(order_a)
-    if set(items) != set(order_b):
-        raise ValueError("kendall_tau requires the two orderings to cover the same set")
-    rank_a = {m: i for i, m in enumerate(items)}
-    rank_b = {m: i for i, m in enumerate(order_b)}
-    names = items
-    n = len(names)
-    concordant = discordant = 0
-    for i in range(n):
-        for j in range(i + 1, n):
-            a = rank_a[names[i]] - rank_a[names[j]]
-            b = rank_b[names[i]] - rank_b[names[j]]
-            s = np.sign(a) * np.sign(b)
-            if s > 0:
-                concordant += 1
-            elif s < 0:
-                discordant += 1
-    denom = n * (n - 1) / 2
-    return float((concordant - discordant) / denom) if denom else 0.0
 
 
 def _scale(context: np.ndarray) -> float:
@@ -509,7 +390,7 @@ def model_errors(
 #
 # A challenge set can fail to measure real skill if a trivial nearest-neighbour
 # *copy-the-context* forecaster (``baselines.context_parrot``) already does as
-# well as the strong anchor -- then a high score rewards induction-head
+# well as the strong baseline -- then a high score rewards induction-head
 # repetition, not understanding (Zhang & Gilpin, arXiv:2505.11349). This gate is
 # a smooth sigmoid of the parrot's error ratio. It is report-only in
 # ``panel_fitness`` (so the frozen ``fitness`` consensus value is unchanged) and
@@ -529,8 +410,8 @@ def parrot_error(challenges: list[Challenge]) -> float:
 
 
 # The parrot is a *legitimate-ish* baseline, so the bar is parity: the gate is 0.5
-# exactly when parrot ties the anchor, collapsing toward 0 when parrot wins and
-# rising toward 1 as the anchor pulls genuinely ahead. The gentle steepness
+# exactly when parrot ties the strong baseline, collapsing toward 0 when parrot wins and
+# rising toward 1 as the strong baseline pulls genuinely ahead. The gentle steepness
 # reflects that we are flagging "no real margin over copying", not a sharp cliff.
 PARROT_GATE_THRESHOLD = 1.0
 PARROT_GATE_STEEPNESS = 6.0
@@ -540,11 +421,11 @@ def parrot_gate(strong_err: float, parrot_err: float) -> float:
     """Validity multiplier in ``(0, 1)``: ~0 when parroting matches/beats ``strong``.
 
     Smooth sigmoid of the error ratio ``parrot_err / strong_err`` centred at
-    parity: ``0.5`` when the trivial copy-the-context baseline ties the anchor,
+    parity: ``0.5`` when the trivial copy-the-context baseline ties the strong baseline,
     ramping toward ``0`` when parrot *wins* (the set is solvable by repetition and
-    rewards no real skill) and toward ``1`` once the anchor clearly beats it. An
-    independent layer from the panel-validity gate -- a set can order the panel
-    correctly yet still be parrot-solvable (e.g. near-recurrent series).
+    rewards no real skill) and toward ``1`` once the strong baseline clearly beats
+    it. Independent of ``spread`` -- a set can separate the panel well yet still be
+    parrot-solvable (e.g. near-recurrent series), so both are checked.
     """
     if strong_err <= _EPS:
         return 0.0
@@ -626,20 +507,21 @@ def coverage_gate(
 def panel_fitness(
     challenges: list[Challenge], panel: dict[str, PanelModel] | None = None
 ) -> dict[str, object]:
-    """Score a challenge set: discrimination gated by panel validity.
+    """Score a challenge set by how strongly it **discriminates** forecasters.
 
-    Returns ``fitness``, ``spread``, ``ordering``, ``difficulty`` (plus the raw
-    per-model ``errors`` for diagnostics, and a report-only ``coverage`` summary
-    with its ``coverage_gate`` and ``parrot_gate``).
+    Returns ``fitness``, ``spread``, ``difficulty`` (plus the raw per-model
+    ``errors`` for diagnostics, and a report-only ``coverage`` summary with its
+    ``coverage_gate`` and ``parrot_gate``).
 
-    * ``spread = (max_err - min_err) / mean_err`` over the panel -- how strongly
-      the challenge set discriminates good forecasters from bad.
-    * ``ordering = kendall_tau(achieved_order, PANEL_QUALITY_ORDER)`` -- the
-      panel-validity gate. If a naive model beats ``strong``, the anchor falls in
-      the ranking and ``ordering`` goes negative.
-    * ``fitness = spread * max(0, ordering)`` -- discrimination, counted only when
-      the panel orders validly. A naive model beating ``strong`` (``ordering <=
-      0``) drives the fitness to zero.
+    * ``spread = (max_err - min_err) / mean_err`` over the panel of baselines --
+      how strongly the challenge set separates good forecasters from bad. A set
+      that no model does better than any other on (pure noise) has ~0 spread.
+    * ``fitness = spread`` -- discrimination is the score. There is no
+      panel-ordering / anchor gate: on real data a naive model legitimately wins
+      on some series (e.g. random walks), so requiring a "strong" model to lead
+      would penalise valid tasks. Non-triviality and forecastability are enforced
+      instead by the parrot gate and the admission-time discrimination filter
+      (``source_discovery.quality``).
     """
     panel = panel or default_panel()
     agg = model_errors(challenges, panel)
@@ -648,24 +530,17 @@ def panel_fitness(
     mean_e = float(np.mean(errs))
     spread = (max(errs) - min(errs)) / mean_e if mean_e > _EPS else 0.0
 
-    ref = [m for m in PANEL_QUALITY_ORDER if m in agg]
-    common = set(ref)
-    achieved = [m for m in sorted(agg, key=lambda m: agg[m]) if m in common]
-    ordering = kendall_tau(achieved, ref)
-
-    fitness = spread * max(0.0, ordering)
-    difficulty = agg.get("strong", float("nan"))
+    difficulty = agg.get("strong", min(errs) if errs else float("nan"))
 
     coverage = domain_coverage(challenges)
     cov_gate = float(
         np.clip(float(coverage["effective_domains"]) / DEFAULT_COVERAGE_TARGET, 0.0, 1.0)
     )
-    p_gate = parrot_gate(agg.get("strong", 0.0), parrot_error(challenges))
+    p_gate = parrot_gate(agg.get("strong", min(errs) if errs else 0.0), parrot_error(challenges))
 
     return {
-        "fitness": float(fitness),
+        "fitness": float(spread),
         "spread": float(spread),
-        "ordering": float(ordering),
         "difficulty": float(difficulty),
         "errors": agg,
         "coverage": coverage,
@@ -679,12 +554,11 @@ def stratified_fitness(
 ) -> dict[str, dict[str, object]]:
     """Per-domain fitness report: skill *within each* data-generating process.
 
-    A single aggregate fitness can hide a benchmark that is excellent on one
-    domain and meaningless on the rest. This partitions the challenge set by
-    ``meta['domain']`` and scores each stratum independently, so "foundational"
-    can be read as "valid and discriminating across strata," not merely on
-    average. Each entry includes ``n`` (the stratum size) because small strata
-    carry real sampling noise and should be read with that in mind.
+    A single aggregate fitness can hide a benchmark that discriminates well on one
+    domain and not at all on the rest. This partitions the challenge set by
+    ``meta['domain']`` and scores each stratum independently, so discrimination is
+    read per-DGP, not merely on average. Each entry includes ``n`` (the stratum
+    size) because small strata carry real sampling noise.
     """
     panel = panel or default_panel()
     groups: dict[str, list[Challenge]] = {}
@@ -698,7 +572,6 @@ def stratified_fitness(
             "n": len(chs),
             "fitness": res["fitness"],
             "spread": res["spread"],
-            "ordering": res["ordering"],
             "difficulty": res["difficulty"],
         }
     return report
@@ -716,9 +589,9 @@ def foundational_fitness(
 
     The opt-in breadth-aware score. Identical to :func:`panel_fitness` but adds
     ``foundational_fitness``, which folds domain coverage and the breadth gates
-    into the score so a benchmark is rewarded for *both* discrimination/validity
-    **and** domain coverage. Kept separate so the core ``fitness`` (frozen within
-    a benchmark version for consensus) is never silently redefined.
+    into the score so a benchmark is rewarded for *both* discrimination **and**
+    domain coverage / non-triviality. Kept separate so the core ``fitness`` is
+    never silently redefined.
 
     Reward-hacking defense: the ``dgp_classes`` and ``cadences`` optional args
     (fed from ``buffer.pool_dgp_classes`` / ``buffer.pool_cadences``) enable

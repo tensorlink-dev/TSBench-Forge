@@ -3,7 +3,7 @@
 Acceptance: (1) parroting copies the future of the most similar past window on a
 cleanly repeating series; (2) on a challenge set that is *solvable by repetition*
 the parrot gate collapses toward zero, while on genuine structured challenges the
-anchor leads the parrot and the gate stays high.
+panel beats the parrot and the gate stays high.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def test_parrot_short_context_falls_back_to_persistence() -> None:
 
 
 def test_parrot_gate_shape() -> None:
-    # Pure unit test of the sigmoid: parrot winning -> low, anchor leading -> high.
+    # Pure unit test of the sigmoid: parrot winning -> low, panel leading -> high.
     assert parrot_gate(1.0, 0.5) < 0.3  # parrot much better than strong
     assert abs(parrot_gate(1.0, 1.0) - 0.5) < 1e-9  # parity
     assert parrot_gate(1.0, 1.6) > 0.9  # strong clearly leads

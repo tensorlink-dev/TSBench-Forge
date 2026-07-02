@@ -10,9 +10,9 @@ they never ship in ``src``:
   offline source), for feed / leakage / dedup unit tests.
 * :func:`live_buffer` — a ``FreshBuffer`` over the committed real-data fixture
   (``tests/fixtures/sources_data``), for tests that need genuine catalog breadth.
-* :func:`structured_challenges` — constructed trend+seasonal+AR challenges where
-  the classical ``strong`` anchor genuinely leads, for testing the validity-gate
-  *logic* independently of anchor quality on raw real data.
+* :func:`structured_challenges` — constructed trend+seasonal+AR challenges on
+  which the panel of baselines spreads out (models genuinely differ), for testing
+  the discrimination fitness.
 * :func:`lorenz_motif` — a Lorenz-63 observable for the chaos-metric tests.
 """
 
@@ -80,11 +80,10 @@ def live_buffer(pool_size: int = 48, motif_len: int = 384, seed: int = 0xC0FFEE)
 
 
 def structured_challenges(n: int = 64, seed: int = 0) -> list[Challenge]:
-    """Constructed trend+seasonal+AR(1) challenges where ``strong`` genuinely leads.
+    """Constructed trend+seasonal+AR(1) challenges on which the panel spreads out.
 
-    Used to test the validity-gate *logic* (does the panel order correctly, does a
-    hollow anchor get flagged) without depending on the numpy anchor's quality on
-    raw real data. The series are z-scored by context so they match the live path.
+    Used to test the discrimination fitness (a structured set separates the panel's
+    models). The series are z-scored by context so they match the live path.
     """
     rng = np.random.default_rng(seed)
     p = SEASONAL_PERIODS[1]

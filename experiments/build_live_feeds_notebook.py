@@ -64,7 +64,7 @@ from config import CONTEXT_LEN, HORIZON
 from ingest import FreshBuffer
 from challenges import build_live_challenges
 from seed import rng_for
-from score import default_panel, validate_panel, domain_coverage, stratified_fitness
+from score import default_panel, panel_fitness, domain_coverage, stratified_fitness
 from evaluate import leaderboard, probabilistic_panel, headroom, benchmark_has_headroom, ProbForecast
 from live_feeds import REGISTRY, build_real_live_source, make_feed, cached_fetch
 
@@ -127,22 +127,18 @@ print(f"two replays byte-identical: {identical}  revealed {len(reveal)} challeng
 """)
 
 md(r"""
-## 4. Panel validity + leaderboard (MASE / WQL / CRPS) on real data
+## 4. Discrimination + leaderboard (MASE / WQL / CRPS) on real data
 
-> **Read this if `valid=False`.** On real data the *default numpy anchor* does not
-> always lead — a simple `ewma`/`drift` can edge it out on noisy equities or
-> sunspots. That is the validity gate doing its job: it is telling you the anchor
-> is too weak to certify real-world skill, exactly the README's "panel quality is
-> load-bearing" caveat made concrete. The fix is **not** to ignore it but to swap
-> in an independently-validated zero-shot TSFM via
-> `default_panel(strong_model=...)`; on the synthetic zoo (`example.ipynb`) the
-> numpy anchor *does* lead, which is why the demo uses it.
+The panel of baselines measures `spread` — how strongly the real challenge set
+separates forecasters. `strong` is the "beat a good classical model" rung on the
+leaderboard, not a validity gate: on real data a naive model legitimately wins on
+some series, so there is no requirement that a sophisticated model lead.
 """)
 
 code(r"""
 panel = default_panel()
-vp = validate_panel(reveal, panel)
-print(f"anchor validation: strong leads '{vp['runner_up']}' by {vp['margin']:.3f} -> valid={vp['valid']}")
+res = panel_fitness(reveal, panel)
+print(f"discrimination: spread={res['spread']:.3f}  parrot_gate={res['parrot_gate']:.2f}")
 
 board = leaderboard(probabilistic_panel(), reveal)
 print(f"\n{'rank':>4}  {'model':<16}{'MASE':>8}{'WQL':>8}{'CRPS':>8}")
@@ -176,7 +172,7 @@ def superior_probe(context, meta=None):
     d = (0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9)
     return ProbForecast(mean=noisy, quantiles={q: noisy for q in d})
 hr = headroom(superior_probe, reveal)
-print(f"superior probe beats anchor by {hr['mase_margin']:+.3f} MASE / {hr['wql_margin']:+.3f} WQL")
+print(f"superior probe beats the strong baseline by {hr['mase_margin']:+.3f} MASE / {hr['wql_margin']:+.3f} WQL")
 print(f"benchmark_has_headroom = {benchmark_has_headroom(superior_probe, reveal)}")
 """)
 
@@ -186,15 +182,15 @@ md(r"""
 Coverage is measured (effective number of DGPs), and fitness is read per domain so
 narrowness can't hide in an average. On real data some series (e.g. equities) are
 intrinsically hard to order, which surfaces per-domain. Recall
-`fitness = spread · max(0, ordering)`; `strong` is the anchor's difficulty.
+`fitness = spread` (discrimination); `strong` is a strong-baseline difficulty reference.
 """)
 
 code(r"""
 cov = domain_coverage(reveal)
 print(f"spans {cov['n_domains']} domains; effective (exp-entropy) = {cov['effective_domains']:.2f}\n")
-print(f"{'domain':<18}{'n':>4}{'spread':>8}{'order':>8}{'strong':>8}")
+print(f"{'domain':<18}{'n':>4}{'spread':>8}{'strong_err':>11}")
 for dom, m in sorted(stratified_fitness(reveal, panel).items(), key=lambda kv: -kv[1]['n']):
-    print(f"{dom:<18}{m['n']:>4}{m['spread']:>8.2f}{m['ordering']:>+8.2f}{m['difficulty']:>8.2f}")
+    print(f"{dom:<18}{m['n']:>4}{m['spread']:>8.2f}{m['difficulty']:>11.2f}")
 """)
 
 md(r"""

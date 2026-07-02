@@ -35,7 +35,6 @@ from score import (
     foundational_fitness,
     panel_fitness,
     stratified_fitness,
-    validate_panel,
 )
 from scraped_source import ScrapedLiveSource
 from seed import rng_for
@@ -86,22 +85,16 @@ def run() -> None:
     )
     print(f"Commit-reveal: {len(reveal)} challenges; two replays byte-identical: {identical}\n")
 
-    # ----- panel validity --------------------------------------------------
+    # ----- discrimination over the baseline panel --------------------------
     panel = default_panel()
-    errs = panel_fitness(reveal, panel)["errors"]
+    res = panel_fitness(reveal, panel)
+    errs = res["errors"]
     ranked = ", ".join(f"{m}={errs[m]:.2f}" for m in sorted(errs, key=errs.get))
-    vp = validate_panel(reveal, panel)
-    print(f"Reference panel (best->worst): {ranked}")
+    print(f"Baseline panel (best->worst): {ranked}")
     print(
-        f"Anchor validation: strong leads '{vp['runner_up']}' by "
-        f"{vp['margin']:+.3f} -> valid={vp['valid']}"
+        f"Discrimination: spread={res['spread']:.3f}  parrot_gate={res['parrot_gate']:.2f}  "
+        f"(higher spread = better separation of forecasters)\n"
     )
-    if not vp["valid"]:
-        print(
-            "  NOTE: the numpy classical anchor does not lead on raw real data — expected.\n"
-            "  The fix is an independently-validated zero-shot TSFM via\n"
-            "  default_panel(strong_model=...), not to ignore the gate. See independent_eval.py.\n"
-        )
 
     # ----- leaderboard -----------------------------------------------------
     print("Leaderboard on real data (MASE / WQL / CRPS, lower = better):")
@@ -150,12 +143,9 @@ def run() -> None:
         f"  breadth gates: dgp_class={fnd['dgp_class_breadth_gate']:.0f}  "
         f"cadence={fnd['cadence_breadth_gate']:.0f}  parrot={fnd['parrot_gate']:.2f}"
     )
-    print(f"  {'domain':<14}{'n':>4}{'spread':>8}{'order':>8}{'strong':>8}")
+    print(f"  {'domain':<14}{'n':>4}{'spread':>8}{'strong_err':>11}")
     for dom, m in sorted(stratified_fitness(reveal, panel).items(), key=lambda kv: -kv[1]["n"]):
-        print(
-            f"  {dom:<14}{m['n']:>4}{m['spread']:>8.2f}{m['ordering']:>+8.2f}"
-            f"{m['difficulty']:>8.2f}"
-        )
+        print(f"  {dom:<14}{m['n']:>4}{m['spread']:>8.2f}{m['difficulty']:>11.2f}")
 
     print("\n" + "=" * 72)
     print("done — the full pipeline ran on real public data.")

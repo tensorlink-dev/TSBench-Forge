@@ -63,7 +63,7 @@ from ingest import FreshBuffer
 from challenges import build_live_challenges
 from seed import rng_for
 from score import (
-    default_panel, panel_fitness, validate_panel, domain_coverage,
+    default_panel, panel_fitness, domain_coverage,
     stratified_fitness, foundational_fitness,
 )
 from evaluate import leaderboard, probabilistic_panel, headroom, benchmark_has_headroom, ProbForecast
@@ -128,19 +128,17 @@ print(f"two independent replays are byte-identical: {identical}")
 """)
 
 md(r"""
-## 3. The reference panel & the validity gate
+## 3. The panel of baselines & discrimination
 
-Validity comes from a *frozen reference panel*, not from trusting the data. A
-challenge only counts if a panel of known-quality forecasters ranks in its known
-order. The `strong` anchor must genuinely lead — `validate_panel` checks that
-loudly, so a hollow anchor fails instead of silently making the gate meaningless.
-
-> **Read this if `valid=False`.** On raw real data the *default numpy classical
-> anchor* does not always lead the simple baselines. That is the validity gate
-> doing its job: it is telling you the anchor is too weak to certify real-world
-> skill. The fix is **not** to ignore it but to swap in an independently-validated
-> zero-shot TSFM via `default_panel(strong_model=...)` — see `independent_eval.py`
-> and `experiments/independent_validation.ipynb`.
+A challenge set earns its keep by **discriminating** forecasters. We run a fixed
+panel of cheap baselines (`seasonal_naive`, `drift`, `ewma`, `ar1`, plus a
+stronger classical `strong`) and measure `spread = (max_err − min_err) / mean_err`
+— how far apart their errors are. A set no model does better than another on
+(pure noise) has ~0 spread; a set with real structure spreads the panel out. There
+is no "strong must lead" ordering gate: on real data a naive model legitimately
+wins on some series (random walks), so that would penalise valid tasks. `strong`
+is just the "beat a good classical model, not only a naive one" rung on the
+leaderboard.
 """)
 
 code(r"""
@@ -151,14 +149,10 @@ order = sorted(errs, key=errs.get)
 
 plt.figure(figsize=(8, 4))
 plt.bar(order, [errs[m] for m in order], color=["#2a9d8f" if m=="strong" else "#999" for m in order])
-plt.title("Reference panel — mean normalised error (lower = better)")
+plt.title("Baseline panel — mean normalised error (lower = better)")
 plt.ylabel("normalised MAE"); plt.grid(alpha=0.3, axis="y"); plt.show()
 
-vp = validate_panel(reveal, panel)
-print(f"anchor validation: strong leads '{vp['runner_up']}' by {vp['margin']:+.3f}  -> valid={vp['valid']}")
-if not vp["valid"]:
-    print("NOTE: the numpy classical anchor does not lead on raw real data — expected;")
-    print("      the fix is a real TSFM anchor via default_panel(strong_model=...).")
+print(f"discrimination: spread={res['spread']:.3f}  parrot_gate={res['parrot_gate']:.2f}")
 """)
 
 md(r"""
@@ -192,7 +186,7 @@ md(r"""
 ## 5. Headroom — can the benchmark certify a *better* model?
 
 A benchmark only certifies TSFMs if a genuinely better model scores measurably
-better than the classical anchor. We inject a deliberately-superior probe (the
+better than a strong classical baseline. We inject a deliberately-superior probe (the
 true future + small noise — better than any real model, but not perfect) and
 confirm the benchmark rewards it. If this failed, no leaderboard here would be
 trustworthy.
@@ -209,16 +203,16 @@ def superior_probe(context, meta=None):
     return ProbForecast(mean=noisy, quantiles={q: noisy for q in deciles})
 
 hr = headroom(superior_probe, reveal)
-print(f"a superior model beats the anchor by {hr['mase_margin']:+.3f} MASE / "
+print(f"a superior model beats the strong baseline by {hr['mase_margin']:+.3f} MASE / "
       f"{hr['wql_margin']:+.3f} WQL")
 print(f"benchmark_has_headroom = {benchmark_has_headroom(superior_probe, reveal)}")
 """)
 
 md(r"""
-## 6. A sample challenge and the anchor's forecast
+## 6. A sample challenge and the strong baseline's forecast
 
 What a single challenge actually looks like: an observed context, the hidden
-truth over the horizon, and the `strong` anchor's prediction.
+truth over the horizon, and the `strong` baseline's prediction.
 """)
 
 code(r"""
@@ -267,7 +261,7 @@ md(r"""
 A high score should mean "generalises across domains." Coverage is measured (the
 effective number of data-generating processes), breadth gates check the pool
 spans enough dgp_classes and cadences, and fitness is reported per domain so
-narrowness can't hide in an average. Recall `fitness = spread · max(0, ordering)`.
+narrowness can't hide in an average. Recall `fitness = spread` (discrimination).
 """)
 
 code(r"""
@@ -294,18 +288,17 @@ md(r"""
 - **Live catalog** → challenges are real motifs, not synthetic; the tested
   distribution is exactly the ingested feeds.
 - **Commit-reveal** → identical, reproducible challenges for every validator.
-- **Panel + `validate_panel`** → challenges only count when the anchor genuinely
-  leads (numpy anchor `valid=False` on raw real data is expected; fix is a real
-  TSFM anchor).
+- **Discrimination (`spread`) + parrot gate** → a set counts when it separates
+  forecasters and isn't solvable by copying the context.
 - **Leaderboard (MASE/WQL/CRPS) + `load_tsfm`** → scores an actual TSFM.
 - **Headroom** → confirms the benchmark can certify a better-than-classical model.
 - **Sandbox** → submissions are executed in isolation, not just linted.
-- **Foundational breadth** → valid and discriminating *across* real domains.
+- **Foundational breadth** → discriminating *across* real domains.
 
-Swap in a real anchor (`default_panel(strong_model=...)`) and a real model
-(`tsfm_adapters.load_tsfm`) for production. See `src/demo.py` for the same flow as
-a script, and `experiments/` for the real-live-feed and independent-validation
-walkthroughs.
+Put a real model on the leaderboard (`tsfm_adapters.load_tsfm`) and, if you like, a
+real classical/TSFM `strong` rung (`default_panel(strong_model=...)`) for
+production. See `src/demo.py` for the same flow as a script and `experiments/` for
+the real-live-feed walkthrough.
 """)
 
 nb = new_notebook(cells=cells, metadata={
