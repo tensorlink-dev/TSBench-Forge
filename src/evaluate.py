@@ -201,12 +201,14 @@ class _Accum:
     wql_num: float = 0.0
     wql_den: float = 0.0
     crps_sum: float = 0.0
-    crps_n: int = 0
+    crps_n: float = 0.0
     wis_sum: float = 0.0  # sum of per-challenge mean WIS
     cov80_sum: float = 0.0  # sum of per-challenge [q10,q90] coverage fraction
     cov_hits: dict | None = None  # per-quantile-level count of truth <= q (for PCE)
-    cov_total: int = 0  # total (challenge x horizon) points seen
+    cov_total: float = 0.0  # total (challenge x horizon) points seen
     n: int = 0
+    wsum: float = 0.0  # sum of per-challenge unseen weights
+    unseen_sum: float = 0.0  # sum of per-challenge unseen_frac (diagnostic)
 
 
 def evaluate_forecaster(
@@ -226,40 +228,54 @@ def evaluate_forecaster(
     (``None``) derives it per challenge from ``meta["freq"]`` via
     :func:`season_length`, so a mixed-frequency set scales each series by its own
     seasonal-naive error (m=1 when the frequency is untagged or unknown).
+
+    **Unseen weighting** — every challenge contributes with weight
+    ``UNSEEN_WEIGHT_FLOOR + (1 - UNSEEN_WEIGHT_FLOOR) * meta["unseen_frac"]``:
+    truth that postdates the daily cutoff (which no pretrained model can have
+    memorised) carries full weight, fully-historical truth carries the floor.
+    Challenge sets without the tag weigh uniformly, so results are unchanged
+    for legacy/synthetic sets.
     """
+    from config import UNSEEN_WEIGHT_FLOOR
+
     acc = _Accum()
-    acc.cov_hits = {q: 0 for q in DEFAULT_QUANTILES}
+    acc.cov_hits = {q: 0.0 for q in DEFAULT_QUANTILES}
     for ch in challenges:
         truth = np.asarray(ch.truth, dtype=float)
         meta = getattr(ch, "meta", None)
         fc = forecaster(ch.context, meta)
         mean = np.asarray(fc.mean, dtype=float)
 
+        unseen = float(meta.get("unseen_frac", 0.0)) if isinstance(meta, dict) else 0.0
+        w = UNSEEN_WEIGHT_FLOOR + (1.0 - UNSEEN_WEIGHT_FLOOR) * unseen
+        acc.wsum += w
+        acc.unseen_sum += unseen
+
         if seasonality is None:
             freq = meta.get("freq") if isinstance(meta, dict) else None
             m = season_length(freq, len(ch.context))
         else:
             m = seasonality
-        acc.abs_err += float(np.mean(np.abs(truth - mean)))
-        acc.scaled_n += float(np.mean(np.abs(truth - mean))) / _naive_scale(ch.context, m)
+        acc.abs_err += w * float(np.mean(np.abs(truth - mean)))
+        acc.scaled_n += w * float(np.mean(np.abs(truth - mean))) / _naive_scale(ch.context, m)
 
         denom = float(np.sum(np.abs(truth)))
-        acc.wql_den += denom
+        acc.wql_den += w * denom
         for q in DEFAULT_QUANTILES:
-            acc.wql_num += 2.0 * float(np.sum(_pinball(truth, fc.quantiles[q], q)))
+            acc.wql_num += w * 2.0 * float(np.sum(_pinball(truth, fc.quantiles[q], q)))
             # Calibration bookkeeping: how often the truth falls at/below level q.
-            acc.cov_hits[q] += int(np.sum(truth <= fc.quantiles[q]))
-        acc.cov_total += truth.size
+            acc.cov_hits[q] += w * float(np.sum(truth <= fc.quantiles[q]))
+        acc.cov_total += w * truth.size
 
         # Interval coverage of the nominal-80% band and the Weighted Interval Score.
         lo10, hi90 = fc.quantiles[0.1], fc.quantiles[0.9]
-        acc.cov80_sum += float(np.mean((truth >= lo10) & (truth <= hi90)))
+        acc.cov80_sum += w * float(np.mean((truth >= lo10) & (truth <= hi90)))
         wis = 0.5 * np.abs(truth - fc.quantiles[0.5])
         for (lo_q, hi_q), alpha in zip(_WIS_PAIRS, _WIS_ALPHAS, strict=True):
             wis = wis + (alpha / 2.0) * _interval_score(
                 truth, fc.quantiles[lo_q], fc.quantiles[hi_q], alpha
             )
-        acc.wis_sum += float(np.mean(wis / (len(_WIS_PAIRS) + 0.5)))
+        acc.wis_sum += w * float(np.mean(wis / (len(_WIS_PAIRS) + 0.5)))
 
         # CRPS ~ 2 * mean pinball over a dense quantile grid. The model only emits
         # a coarse decile grid, so we interpolate ITS quantiles onto the dense grid
@@ -269,28 +285,29 @@ def evaluate_forecaster(
         q_stack = np.stack([np.asarray(fc.quantiles[lv], dtype=float) for lv in levels])
         for q in _CRPS_QUANTILES:
             pq = np.array([np.interp(q, levels, q_stack[:, h]) for h in range(q_stack.shape[1])])
-            acc.crps_sum += 2.0 * float(np.mean(_pinball(truth, pq, q)))
-            acc.crps_n += 1
+            acc.crps_sum += w * 2.0 * float(np.mean(_pinball(truth, pq, q)))
+            acc.crps_n += w
         acc.n += 1
 
-    n = max(acc.n, 1)
+    n = max(acc.wsum, _EPS)
     # Probabilistic Calibration Error: mean over quantile levels of the gap
     # between nominal level q and the empirically observed coverage at q. CRPS/WQL
     # conflate calibration and sharpness (Adler et al., ICLR 2026), so PCE is
     # reported separately as a dedicated calibration axis.
-    total_pts = max(acc.cov_total, 1)
+    total_pts = max(acc.cov_total, _EPS)
     pce = float(
         np.mean([abs((acc.cov_hits[q] / total_pts) - q) for q in DEFAULT_QUANTILES])
     )
     return {
         "mase": acc.scaled_n / n,
         "wql": acc.wql_num / (len(DEFAULT_QUANTILES) * max(acc.wql_den, _EPS)),
-        "crps": acc.crps_sum / max(acc.crps_n, 1),
+        "crps": acc.crps_sum / max(acc.crps_n, _EPS),
         "wis": acc.wis_sum / n,
         "pce": pce,
         "coverage_80": acc.cov80_sum / n,
         "mae": acc.abs_err / n,
         "n": float(acc.n),
+        "unseen_frac": acc.unseen_sum / max(acc.n, 1),
     }
 
 
