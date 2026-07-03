@@ -77,6 +77,11 @@ class MotifMeta:
     """Exact sampling interval as an ISO-8601 duration (``PT1H``, ``P1D``, …) from
     ``sources.yaml`` — finer than the coarse ``cadence`` band. The evaluator maps
     it to a season length for MASE's seasonal-naive scaling."""
+    ts: np.ndarray | None = None
+    """UTC-naive ``datetime64[ns]`` timestamps aligned with ``motif``, or ``None``
+    when the feed's timestamps don't parse. The challenge builder compares the
+    truth window's timestamps against the daily cutoff to compute the challenge's
+    ``unseen_frac`` (the share of the horizon a pretrained model cannot have seen)."""
 
 
 class LiveSource(ABC):
@@ -178,10 +183,17 @@ class FreshBuffer:
     identical across validators because they share the same feed snapshot.
     """
 
-    def __init__(self, source: LiveSource, pool_size: int = 128, motif_len: int = 768) -> None:
+    def __init__(
+        self,
+        source: LiveSource,
+        pool_size: int = 128,
+        motif_len: int = 768,
+        tail_frac: float = 0.5,
+    ) -> None:
         self.source = source
         self.pool_size = pool_size
         self.motif_len = motif_len
+        self.tail_frac = float(tail_frac)
         self._pool: list[tuple[np.ndarray, str]] = []
         self._pool_meta: list[MotifMeta] = []
 
@@ -263,8 +275,17 @@ class FreshBuffer:
         for _ in range(k):
             m = self._pool_meta[int(rng.integers(0, len(self._pool_meta)))]
             series = m.motif
-            start = int(rng.integers(0, len(series) - length + 1))
+            # Tail-anchor bias mirrors ScrapedLiveSource: half the sub-windows
+            # pin to the motif's fresh end so pooled post-cutoff steps survive
+            # the second slice instead of being cut off by a uniform start.
+            if float(rng.random()) < self.tail_frac:
+                start = len(series) - length
+            else:
+                start = int(rng.integers(0, len(series) - length + 1))
             window = np.asarray(series[start : start + length], dtype=float)
+            ts_win = None
+            if m.ts is not None and len(m.ts) == len(series):
+                ts_win = m.ts[start : start + length]
             out.append(
                 MotifMeta(
                     motif=window,
@@ -273,6 +294,7 @@ class FreshBuffer:
                     cadence=m.cadence,
                     source_id=m.source_id,
                     freq=m.freq,
+                    ts=ts_win,
                 )
             )
         return out

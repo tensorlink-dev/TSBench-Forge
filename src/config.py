@@ -26,3 +26,10 @@ N_CHALLENGES: int = 64
 # context. They are deliberately co-prime-ish and not equal to HORIZON so that
 # ``seasonal_naive`` cannot win by the horizon happening to align with a period.
 SEASONAL_PERIODS: tuple[int, ...] = (12, 24, 36)
+
+UNSEEN_WEIGHT_FLOOR: float = 0.25
+"""Scoring weight of a fully-historical challenge (its truth predates the daily
+cutoff, so a pretrained model could in principle have memorised it). A challenge
+whose truth is entirely post-cutoff weighs 1.0; in between the weight scales
+linearly with ``unseen_frac``. The floor keeps historical challenges contributing
+breadth (a partial hold) without letting memorisable data dominate the score."""

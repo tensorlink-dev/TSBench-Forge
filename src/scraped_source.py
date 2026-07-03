@@ -68,6 +68,7 @@ class ScrapedLiveSource(LiveSource):
         max_series_per_source: int | None = 200,
         require_freshness_days: int | None = None,
         enforce_cadence_balance: bool = True,
+        tail_frac: float = 0.5,
     ) -> None:
         """Args:
             catalog_path: path to ``sources.yaml``.
@@ -94,6 +95,7 @@ class ScrapedLiveSource(LiveSource):
         self.max_series_per_source = max_series_per_source
         self.require_freshness_days = require_freshness_days
         self.enforce_cadence_balance = bool(enforce_cadence_balance)
+        self.tail_frac = float(tail_frac)
 
         # Index the catalog for O(1) per-source metadata lookup.
         self._meta_by_source: dict[str, dict] = {}
@@ -238,8 +240,15 @@ class ScrapedLiveSource(LiveSource):
 
     def _extract_motif(
         self, series_spec: dict, length: int, rng: np.random.Generator
-    ) -> np.ndarray:
-        """Slice a length-``length`` window out of one panel-expanded series."""
+    ) -> tuple[np.ndarray, np.ndarray | None]:
+        """Slice a length-``length`` window out of one panel-expanded series.
+
+        Returns ``(values, timestamps)`` — timestamps as UTC-naive
+        ``datetime64[ns]`` aligned with the window, or ``None`` when the feed's
+        timestamps don't parse (or the repeat-pad path fired). The challenge
+        builder uses them to compute each challenge's ``unseen_frac`` against
+        the daily cutoff.
+        """
         import pyarrow.parquet as pq
         t = pq.read_table(series_spec["paths"][-1])
         df = t.to_pandas()
@@ -249,13 +258,46 @@ class ScrapedLiveSource(LiveSource):
                 col = f"_panel_{k}"
                 if col in df.columns:
                     df = df[df[col] == v]
+        # Serve chronologically: several feeds deliver newest-first (treasury,
+        # EIA sort=desc) and year-chunked panels arrive out of order — without
+        # this, forecasters would be handed a time-reversed series.
+        ts_arr: np.ndarray | None = None
+        if "timestamp" in df.columns and len(df) > 1:
+            import pandas as pd
+            ts = pd.to_datetime(df["timestamp"], errors="coerce", utc=True, format="mixed")
+            if ts.notna().mean() <= 0.9:
+                # Feed-specific stamps "mixed" can't infer: wikimedia's
+                # YYYYMMDDHH, NDBC's space-separated "YY MM DD hh mm".
+                for fmt in ("%Y%m%d%H", "%Y %m %d %H %M", "%Y %m %d"):
+                    alt = pd.to_datetime(df["timestamp"], errors="coerce", utc=True, format=fmt)
+                    if alt.notna().mean() > 0.9:
+                        ts = alt
+                        break
+            if ts.notna().mean() > 0.9:
+                if not ts.is_monotonic_increasing:
+                    order = np.argsort(ts.to_numpy(), kind="stable")  # NaT sorts last
+                    df = df.iloc[order]
+                    ts = ts.iloc[order]
+                ts_arr = ts.dt.tz_localize(None).to_numpy()
         if len(df) < length:
             # Repeat-pad short series so the pull doesn't crash; the pool won't
             # commonly hit this because we filtered by min_series_length.
-            values = df.iloc[:, 1].astype(float).to_numpy() if len(df) else np.zeros(length)
+            if len(df):
+                col = df.iloc[:, 1]
+                try:
+                    values = col.astype(float).to_numpy()
+                except (TypeError, ValueError):
+                    # Categorical feed (e.g. advisory severity): rank-encode,
+                    # mirroring the fallback in the full-length path below.
+                    values = col.astype("category").cat.codes.to_numpy().astype(float)
+            else:
+                values = np.zeros(length)
             reps = int(np.ceil(length / max(1, len(values))))
             values = np.tile(values, reps)[:length]
-            return values
+            if not np.all(np.isfinite(values)):
+                med = float(np.nanmedian(values)) if np.isfinite(np.nanmedian(values)) else 0.0
+                values = np.where(np.isfinite(values), values, med)
+            return values, None  # tiled timestamps would be fictitious
         # Choose the value column with the most finite (non-NaN) numeric values,
         # not merely the first: some feeds carry several value fields where the
         # leading one is sparse/mostly-NaN for a given panel, which would yield a
@@ -278,16 +320,48 @@ class ScrapedLiveSource(LiveSource):
             values = df[col].astype("category").cat.codes.to_numpy().astype(float)
         else:
             values = best_values
-        # Prefer a window with real signal: try a few starts and keep the first
-        # whose finite fraction clears half, so an occasional NaN patch doesn't
-        # dominate a motif when denser windows exist.
-        start = int(rng.integers(0, len(values) - length + 1))
-        for _ in range(4):
-            cand = int(rng.integers(0, len(values) - length + 1))
-            window = values[cand : cand + length]
-            if np.isfinite(window).mean() >= 0.5:
-                start = cand
-                break
+        # Contiguity: a feed that lands one disjoint chunk per cron run (e.g.
+        # GH Archive's hourly files) must not serve windows straddling a gap —
+        # that's a fake level-shift that explodes every model's error. Segment
+        # the series at gaps > 8× the median sampling interval and sample
+        # inside the longest segment only.
+        seg_lo, seg_hi = 0, len(values)
+        if ts_arr is not None:
+            d = np.diff(ts_arr).astype("timedelta64[s]").astype(float)
+            pos = d[d > 0]
+            if pos.size:
+                med = float(np.median(pos))
+                cuts = (np.flatnonzero(d > 8.0 * med) + 1).tolist()
+                bounds = [0, *cuts, len(values)]
+                seg_lo, seg_hi = max(
+                    zip(bounds[:-1], bounds[1:]), key=lambda p: p[1] - p[0]
+                )
+        if seg_hi - seg_lo < length:
+            # No contiguous stretch long enough: tile-pad the longest segment
+            # (mirrors the short-series path; timestamps would be fictitious).
+            seg = values[seg_lo:seg_hi]
+            reps = int(np.ceil(length / max(1, len(seg))))
+            motif = np.asarray(np.tile(seg, reps)[:length], dtype=float)
+            if not np.all(np.isfinite(motif)):
+                med_v = float(np.nanmedian(motif)) if np.isfinite(np.nanmedian(motif)) else 0.0
+                motif = np.where(np.isfinite(motif), motif, med_v)
+            return motif, None
+        # Tail-anchor bias: with probability ``tail_frac`` pin the window to the
+        # fresh end of the (longest contiguous) segment, so a healthy share of
+        # the pool carries post-cutoff (pretraining-unseen) truth even when deep
+        # history exists. Otherwise prefer a window with real signal: try a few
+        # starts and keep the first whose finite fraction clears half, so an
+        # occasional NaN patch doesn't dominate a motif when denser windows exist.
+        if float(rng.random()) < self.tail_frac:
+            start = seg_hi - length
+        else:
+            start = seg_lo + int(rng.integers(0, seg_hi - seg_lo - length + 1))
+            for _ in range(6):
+                cand = seg_lo + int(rng.integers(0, seg_hi - seg_lo - length + 1))
+                window = values[cand : cand + length]
+                if np.isfinite(window).mean() >= 0.5:
+                    start = cand
+                    break
         motif = np.asarray(values[start : start + length], dtype=float)
         # Replace any NaN/inf with the running median so downstream numeric ops
         # don't explode; the scraper's clean step usually handles this, but
@@ -295,7 +369,10 @@ class ScrapedLiveSource(LiveSource):
         if not np.all(np.isfinite(motif)):
             med = float(np.nanmedian(motif)) if np.isfinite(np.nanmedian(motif)) else 0.0
             motif = np.where(np.isfinite(motif), motif, med)
-        return motif
+        ts_win = None
+        if ts_arr is not None and len(ts_arr) == len(values):
+            ts_win = ts_arr[start : start + length]
+        return motif, ts_win
 
     # ------------------------------------------------------------- LiveSource
 
@@ -311,17 +388,21 @@ class ScrapedLiveSource(LiveSource):
         self, n: int, length: int, rng: np.random.Generator
     ) -> list[MotifMeta]:
         picks = self._sample_indices_equal_weight(n, rng)
-        return [
-            MotifMeta(
-                motif=self._extract_motif(spec, length, rng),
-                domain=spec["domain"],
-                dgp_class=spec["dgp_class"],
-                cadence=spec["cadence"],
-                source_id=spec["source_id"],
-                freq=spec.get("freq"),
+        out: list[MotifMeta] = []
+        for spec in picks:
+            motif, ts = self._extract_motif(spec, length, rng)
+            out.append(
+                MotifMeta(
+                    motif=motif,
+                    domain=spec["domain"],
+                    dgp_class=spec["dgp_class"],
+                    cadence=spec["cadence"],
+                    source_id=spec["source_id"],
+                    freq=spec.get("freq"),
+                    ts=ts,
+                )
             )
-            for spec in picks
-        ]
+        return out
 
 
 # ---------------------------------------------------------------- helpers

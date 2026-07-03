@@ -181,6 +181,33 @@ def _apply_light_augmentation(
 # --------------------------------------------------------------------------- #
 
 
+def default_cutoff() -> np.datetime64:
+    """The daily cutoff: start of the current UTC day.
+
+    Everything time-stamped before it is treated as potentially seen by a
+    pretrained model; truth steps at/after it are guaranteed-unseen. A fixed
+    daily boundary (rather than ``now()``) keeps the cutoff identical for every
+    validator scoring the same day's challenges.
+    """
+    import datetime as dt
+
+    today = dt.datetime.now(dt.timezone.utc).date()
+    return np.datetime64(today.isoformat())
+
+
+def _unseen_frac(ts: np.ndarray | None, cutoff: np.datetime64) -> float:
+    """Share of the truth window's timestamps that fall at/after ``cutoff``.
+
+    ``ts`` is the full context+horizon timestamp array; only the horizon part
+    counts. Unparseable timestamps (``None``/NaT) count as seen — conservative:
+    a challenge only earns extra weight for provably-fresh truth.
+    """
+    if ts is None or len(ts) != SERIES_LEN:
+        return 0.0
+    truth_ts = ts[CONTEXT_LEN:]
+    return float(np.mean(truth_ts >= cutoff))  # NaT >= cutoff is False
+
+
 def build_live_challenges(
     buffer: FreshBuffer,
     rng: np.random.Generator,
@@ -188,6 +215,7 @@ def build_live_challenges(
     *,
     augment: bool = True,
     aug_severity: float = 0.3,
+    cutoff: np.datetime64 | None = None,
 ) -> list[Challenge]:
     """Deterministically assemble ``n`` challenges from real motifs.
 
@@ -195,7 +223,11 @@ def build_live_challenges(
     equal-weight across domain × dgp_class × cadence when backed by a
     ``ScrapedLiveSource``), optionally applies one light truth-preserving
     augmentation, and splits it into ``context`` / ``truth``. Every challenge is
-    tagged with its source domain / dgp_class / cadence / source_id.
+    tagged with its source domain / dgp_class / cadence / source_id, plus
+    ``unseen_frac`` — the share of its truth timestamps at/after ``cutoff``
+    (default: start of the current UTC day). The evaluator up-weights
+    challenges by it, so forecasts of genuinely-unseen future dominate the
+    score while deep-history challenges still contribute breadth.
 
     Each challenge gets an independent child stream via ``rng.spawn`` so the set
     is order-stable and byte-reproducible — the basis of cross-validator consensus
@@ -203,6 +235,8 @@ def build_live_challenges(
     refresh so the per-challenge streams (``children[1:]``) are identical whether
     or not the buffer was already populated.
     """
+    if cutoff is None:
+        cutoff = default_cutoff()
     children = rng.spawn(n + 1)
     buffer.ensure(children[0])
     challenges: list[Challenge] = []
@@ -225,6 +259,7 @@ def build_live_challenges(
                     "cadence": m.cadence,
                     "freq": m.freq,
                     "source_id": m.source_id,
+                    "unseen_frac": _unseen_frac(getattr(m, "ts", None), cutoff),
                 },
             )
         )
