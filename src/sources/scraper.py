@@ -38,6 +38,7 @@ import logging
 import os
 import re
 import sys
+import time
 import zipfile
 from pathlib import Path
 from typing import Any, Iterable, Optional
@@ -245,7 +246,29 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
             f"unresolved placeholders {leftover} in URL — define `panel` in sources.yaml or pass --panel"
         )
     headers = _resolve_auth(ep.get("auth"))
-    resp = _http_get(url, headers)
+    # Up to 3 attempts. Two failure modes are retried: transient transport
+    # faults (DNS blips, SSL handshake stalls — observed on WSL2 / long-haul
+    # routes), and 429/503 throttling with Retry-After honoured (capped) —
+    # pypistats in particular 429s bursts of panel rows.
+    for attempt in range(3):
+        try:
+            resp = _http_get(url, headers)
+        except httpx.TransportError as e:
+            if attempt == 2:
+                raise
+            wait = 5 * (attempt + 1)
+            log.info("transport error for %s (%s) — retrying in %ds", url[:100], e, wait)
+            time.sleep(wait)
+            continue
+        if resp.status_code in (429, 503) and attempt < 2:
+            try:
+                wait = min(float(resp.headers.get("Retry-After") or 15), 60.0)
+            except ValueError:  # HTTP-date form; just use the default
+                wait = 15.0
+            log.info("HTTP %d for %s — retrying in %.0fs", resp.status_code, url[:100], wait)
+            time.sleep(wait)
+            continue
+        break
     if resp.status_code != 200:
         raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
     return resp.content, resp.headers.get("content-type", "")
@@ -307,7 +330,16 @@ def _apply(obj: Any, tokens: list[tuple[str, str]]) -> Any:
             return None
         if not isinstance(obj, list):
             return None
-        return [_apply(item, rest) for item in obj]
+        out = [_apply(item, rest) for item in obj]
+        # A second `[]` deeper in the path yields a list per element; flatten
+        # one level so `a[].b[].c` gives one flat sequence instead of nesting
+        # (which collapsed multi-level feeds like SNOTEL to a single record).
+        if any(isinstance(x, list) for x in out):
+            flat: list = []
+            for x in out:
+                flat.extend(x) if isinstance(x, list) else flat.append(x)
+            return flat
+        return out
     # explicit index
     try:
         idx = int(val)
@@ -542,6 +574,8 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
         import gzip
         blob = gzip.decompress(blob)
 
+    if ep_type == "ndjson_minute_counts":
+        return _records_from_ndjson_minute_counts(blob)
     if ep_type == "rest_json":
         data = json.loads(blob)
         # SDMX-JSON detection: response with both `dataSets` and `structure` needs
@@ -574,6 +608,22 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
 # ──────────────────────────────────────────────────────────────────────────
 # New parsers: XML, HTML table, XLSX, SDMX-JSON
 # ──────────────────────────────────────────────────────────────────────────
+
+
+def _records_from_ndjson_minute_counts(blob: bytes) -> list[dict]:
+    """Aggregate an NDJSON event stream (GH Archive hourly files) into
+    per-minute event counts. Events are one JSON object per line; we extract
+    `created_at` with a regex instead of json-decoding every event because the
+    decompressed hourly files run to hundreds of MB."""
+    from collections import Counter
+    counts = Counter(
+        m.group(1)
+        for m in re.finditer(rb'"created_at":"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})', blob)
+    )
+    return [
+        {"timestamp": minute.decode() + ":00Z", "value": n}
+        for minute, n in sorted(counts.items())
+    ]
 
 
 def _records_from_xml(blob: bytes, schema: dict) -> list[dict]:
@@ -738,6 +788,9 @@ def _records_from_sdmx_json(data: dict, schema: dict) -> list[dict]:
 
 def run_one(sid: str, dry_run: bool = False) -> int:
     src = get_source(sid)
+    if src.get("disabled"):
+        log.info("skip %s (disabled: %s)", sid, src.get("disabled_reason", "no reason given"))
+        return 0
     log.info("fetch %s -> %s", sid, src["endpoint"]["url"][:120])
 
     panel = src.get("panel") or [None]   # list of dicts or [None] for single-poll
@@ -751,7 +804,10 @@ def run_one(sid: str, dry_run: bool = False) -> int:
             continue
         try:
             rows = parse_payload(src, blob, ct)
-            if panel_row:
+            # `panel_concat: true` marks a panel that paginates ONE series over
+            # time (e.g. one CSV per calendar year) rather than enumerating
+            # distinct series — skip the `_panel_` tagging so the chunks merge.
+            if panel_row and not src.get("panel_concat"):
                 for r in rows:
                     r.update({"_panel_" + k: v for k, v in panel_row.items()})
         except Exception as e:                              # noqa: BLE001
@@ -777,7 +833,8 @@ def main() -> int:
     sources = load_sources()
     if args.list:
         for s in sources:
-            print(f"{s['id']:35s}  {s['domain']:13s}  {s['frequency']}")
+            flag = "  [DISABLED]" if s.get("disabled") else ""
+            print(f"{s['id']:35s}  {s['domain']:13s}  {s['frequency']}{flag}")
         return 0
 
     targets: Iterable[str]

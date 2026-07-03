@@ -7,6 +7,12 @@
 # ============================================================================
 - id: polymarket_btc_history
   name: Polymarket price history (active market — operator-selected)
+  disabled: true
+  disabled_reason: >-
+    2026-07-03: Polymarket geo-blocks Australia, where the scrape host lives —
+    clob/gamma-api.polymarket.com refuse connections ("no route to host"), and
+    the panel still holds the TBD-FROM-GAMMA-API sentinel. Re-enable only from
+    a non-AU scrape host, after populating the panel per the OPERATOR ACTION note.
   domain: econ_fin
   dgp_class: prediction_market
   archetypes: [bounded, non_stationary_regime]
@@ -253,9 +259,24 @@
   frequency: P1D
   endpoint:
     type: rest_csv
-    url: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026
+    url: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/{YEAR}/all?type=daily_treasury_yield_curve&field_tdr_date_value={YEAR}
     auth: none
     rate_limit: null
+  panel_concat: true   # the panel paginates one series by year, not distinct series
+  panel:
+    # One CSV per calendar year (the /all/all form 403s); ~250 rows each.
+    # Add the new year each January.
+    - {YEAR: "2016"}
+    - {YEAR: "2017"}
+    - {YEAR: "2018"}
+    - {YEAR: "2019"}
+    - {YEAR: "2020"}
+    - {YEAR: "2021"}
+    - {YEAR: "2022"}
+    - {YEAR: "2023"}
+    - {YEAR: "2024"}
+    - {YEAR: "2025"}
+    - {YEAR: "2026"}
   schema:
     timestamp_field: Date
     value_field: ["1 Mo","3 Mo","6 Mo","1 Yr","2 Yr","5 Yr","10 Yr","30 Yr"]
@@ -676,8 +697,10 @@
     - {BUOY: '42001'}    # Mid-Gulf, MX
     - {BUOY: '42002'}    # West-Gulf, MX
     - {BUOY: '42040'}    # Mobile South, AL
-    - {BUOY: '44004'}    # Hotel
-    - {BUOY: '44005'}    # Gulf of Maine
+    # 44004 (Hotel) and 44005 (Gulf of Maine) — realtime2 feeds 404, verified
+    # retired 2026-07-03. 41048 covers offshore Atlantic, 44027 the Gulf of Maine.
+    - {BUOY: '41048'}    # West Bermuda
+    - {BUOY: '44027'}    # Jonesport, ME (Gulf of Maine)
     - {BUOY: '44008'}    # Nantucket
     - {BUOY: '44011'}    # Georges Bank
     - {BUOY: '44013'}    # Boston, MA
@@ -739,12 +762,14 @@
   frequency: PT1M
   endpoint:
     type: rest_json
-    url: https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json
+    # products/solar-wind/plasma-1-day.json went 404 (2026-07-03); the geospace
+    # propagated product has the same array-of-arrays shape with a header row.
+    url: https://services.swpc.noaa.gov/products/geospace/propagated-solar-wind-1-hour.json
     auth: none
     rate_limit: null
   schema:
     timestamp_field: "[][0]"        # row 0 is header
-    value_field: ["[][1]","[][2]","[][3]"]   # density, speed, temperature
+    value_field: ["[][1]","[][2]","[][3]"]   # speed, density, temperature
     variates: 3
   history_available: P3Y
   update_cadence_observed: "1 minute"
@@ -961,7 +986,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data?stationTriplets=908:WA:SNTL&elements=WTEQ&duration=DAILY&beginDate={YYYY-MM-DD-30d}&endDate={YYYY-MM-DD}
+    url: https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data?stationTriplets=908:WA:SNTL&elements=WTEQ&duration=DAILY&beginDate={YYYY-MM-DD-3650d}&endDate={YYYY-MM-DD}
     auth: none
     rate_limit: null
   schema:
@@ -1052,7 +1077,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/{ARTICLE}/daily/20260101/{YYYYMMDD}
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/{ARTICLE}/daily/20150701/{YYYYMMDD}
     auth: none
     rate_limit: "200 req/s"
   panel:
@@ -1069,7 +1094,7 @@
     - {ARTICLE: Federal_Reserve}
     - {ARTICLE: SpaceX}
     - {ARTICLE: Apple_Inc.}
-    - {ARTICLE: Tesla,_Inc.}
+    - {ARTICLE: "Tesla,_Inc."}   # must be quoted: bare comma splits the YAML flow mapping
     - {ARTICLE: NVIDIA}
     - {ARTICLE: Recession}
     - {ARTICLE: Inflation}
@@ -1137,7 +1162,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://api.npmjs.org/downloads/range/last-month/{PACKAGE}
+    url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-540d}:{YYYY-MM-DD}/{PACKAGE}
     auth: none
     rate_limit: "5 req/s soft"
   panel:
@@ -1326,6 +1351,11 @@
 
 - id: reddit_top_daily
   name: Reddit /r/all top of day
+  disabled: true
+  disabled_reason: >-
+    2026-07-03: unauthenticated JSON endpoints (www/old/api.reddit.com) now 403
+    or redirect to login from datacenter IPs regardless of User-Agent. Reviving
+    this needs a Reddit OAuth app (client id/secret) and an OAuth-aware fetch.
   domain: sales
   dgp_class: attention_pageviews
   archetypes: [hierarchical, count_discrete]
@@ -1730,7 +1760,7 @@
   paired_with: rki_germany_cases
   endpoint:
     type: rest_json
-    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/{ARTICLE}/daily/20260101/20260509
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/{ARTICLE}/daily/20150701/{YYYYMMDD}
     auth: none
     rate_limit: "200 req/s"
   panel:
@@ -1880,6 +1910,11 @@
 
 - id: polymarket_new_market_rate
   name: Polymarket new-market creation rate
+  disabled: true
+  disabled_reason: >-
+    2026-07-03: Polymarket geo-blocks Australia, where the scrape host lives —
+    gamma-api.polymarket.com refuses connections. Endpoint itself is fine;
+    re-enable only if the scraper cron moves to a non-AU host.
   domain: econ_fin
   dgp_class: prediction_market
   archetypes: [count_discrete, zero_inflated_sparse, hierarchical, categorical, binary_state]
@@ -2072,19 +2107,24 @@
   notes: "Sparse — most days have zero events. Bin per day for count_discrete; binary as is_event_today. Sister CSVs for Balancing Reserve, SFFR, DC/DM/DR exist via ancillary-services-important-industry-notifications dataset."
 
 - id: gharchive_hourly_events
-  name: GH Archive hourly events count (clean aggregate of GitHub firehose)
+  name: GH Archive per-minute event counts (clean aggregate of GitHub firehose)
   domain: web_cloudops
   dgp_class: code_activity
   archetypes: [count_discrete, smooth_periodic, noisy_clean_pair]
-  frequency: PT1H
+  # The parser emits per-MINUTE counts within each hourly archive file; the
+  # series is only contiguous when the cron polls hourly. (Was mislabeled PT1H,
+  # which pointed MASE at a wrong season and hid the gap structure.)
+  frequency: PT1M
   endpoint:
-    type: rest_json
+    # Hourly files are gzipped NDJSON (one event per line), not a JSON document —
+    # the dedicated parser regex-extracts created_at and buckets to minute counts.
+    type: ndjson_minute_counts
     url: https://data.gharchive.org/{YYYY-MM-DD}-{H-1}.json.gz
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: minute
-    value_field: event_count
+    timestamp_field: timestamp      # minute bucket, emitted by the parser
+    value_field: value              # events in that minute
     variates: 1
   history_available: P12Y
   update_cadence_observed: "hourly file drop (~1 h lag)"
@@ -2220,7 +2260,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://waterservices.usgs.gov/nwis/dv/?format=json&sites=01646500&parameterCd=00060&statCd=00003&startDT=2026-04-01&endDT=2026-05-10
+    url: https://waterservices.usgs.gov/nwis/dv/?format=json&sites=01646500&parameterCd=00060&statCd=00003&startDT={YYYY-MM-DD-3650d}&endDT={YYYY-MM-DD}
     auth: none
     rate_limit: null
   schema:
@@ -2272,7 +2312,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://api.npmjs.org/downloads/range/last-month/npm
+    url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-540d}:{YYYY-MM-DD}/npm
     auth: none
     rate_limit: "5 req/s soft"
   schema:
@@ -2426,7 +2466,7 @@
     - {STATION: KOAK}    # Oakland
     - {STATION: KPDX}    # Portland
     - {STATION: KSEA}    # Seattle
-    - {STATION: KANC}    # Anchorage
+    - {STATION: PANC}    # Anchorage (Alaska ICAO prefix is PA-; KANC returns HTTP 204)
     - {STATION: PHNL}    # Honolulu
     - {STATION: KBUF}    # Buffalo
     - {STATION: KPIT}    # Pittsburgh
@@ -2471,9 +2511,17 @@
   frequency: P1W
   endpoint:
     type: rest_json
-    url: https://data.cdc.gov/resource/rdmq-nq56.json?$where=week_end >= '{YYYY-MM-DD-90d}'&$limit=5000
+    # rdmq-nq56 was the wrong dataset (categorical ed_trends_* per county, no
+    # percent_visits — the old schema never matched a row). vutn-jzwm is the
+    # NSSP percent-of-ED-visits dataset (week_end, pathogen, geography,
+    # percent_visits); filtered to the national series, one panel row per pathogen.
+    url: https://data.cdc.gov/resource/vutn-jzwm.json?geography=United States&pathogen={PATHOGEN}&$order=week_end&$limit=5000
     auth: none
     rate_limit: "1000 req/h anonymous; higher with app token"
+  panel:
+    - {PATHOGEN: "COVID-19"}
+    - {PATHOGEN: "Influenza"}
+    - {PATHOGEN: "RSV"}
   schema:
     timestamp_field: "[].week_end"
     value_field: "[].percent_visits"
@@ -2505,20 +2553,26 @@
   frequency: PT1H
   endpoint:
     type: rest_json
-    url: https://api.openaq.org/v3/measurements?location_id={LOCATION_ID}&parameter=pm25&limit=1000&order_by=datetime&sort=desc
+    # v3 has no top-level /measurements — series hang off /v3/sensors/{id}/.
+    # The /hours rollup endpoint is empty or times out for many live sensors,
+    # so use raw /measurements with a 14-day window (~350 hourly rows, fits
+    # one page at limit=1000; pagination is oldest-first within the window).
+    url: https://api.openaq.org/v3/sensors/{SENSOR_ID}/measurements?datetime_from={YYYY-MM-DD-14d}&limit=1000
     auth: env:OPENAQ_API_KEY
     rate_limit: "60 req/min with free key"
   panel:
-    # **OPERATOR ACTION:** populate this list at activation via one-time discovery call:
-    #   GET https://api.openaq.org/v3/locations?parameters_id=2&limit=1000
-    #     &coordinates=<lat,lon>&radius=<m>     # optional geographic filter
-    # PM2.5 has parameter id = 2. Pick ~8-12 high-data-volume stations across continents
-    # (e.g. Delhi, Beijing, Mexico City, São Paulo, Jakarta, Lagos, LA, London). The v2
-    # location IDs that I originally inlined here did NOT carry over to v3 — v2 was retired
-    # 2025-01-31. Until the panel is populated this entry yields zero series.
-    - {LOCATION_ID: "TBD-FROM-V3-DISCOVERY"}
+    # PM2.5 sensor ids (parameter id 2), discovered 2026-07-03 via
+    # /v3/locations?parameters_id=2&coordinates=...&monitor=true, then verified
+    # *sensor-level* datetimeLast < 2 days — location-level datetimeLast lies
+    # (a location can be fresh while its pm25 sensor died years ago).
+    - {SENSOR_ID: "12234787"}   # Delhi — R K Puram, DPCC (location 17)
+    - {SENSOR_ID: "12915957"}   # London — Tower Hamlets Mile End Rd (location 151)
+    - {SENSOR_ID: "40702"}      # Mexico City — Nezahualcóyotl (location 8000)
+    - {SENSOR_ID: "25551"}      # Los Angeles — Compton (location 1948)
+    - {SENSOR_ID: "8533919"}    # Seoul — Hongneung-ro (location 2622586)
+    - {SENSOR_ID: "26099"}      # Warsaw — ul. Tołstoja (location 6381)
   schema:
-    timestamp_field: results[].datetime.utc
+    timestamp_field: results[].period.datetimeFrom.utc
     value_field: results[].value
     variates: 1
   history_available: P8Y
@@ -2532,13 +2586,13 @@
     sample_rows: null
     sample_freshness_hours: null
   notes: |
-    [VERIFIED 2026-07-01 via WebFetch + docs.openaq.org:] OpenAQ v3 base URL
-    `api.openaq.org/v3/...` returns HTTP 401 without `X-API-Key` header — auth confirmed
-    required. **OpenAQ v1/v2 were retired 2025-01-31**, so the eight sample location IDs I
-    originally inlined (from v2) cannot be assumed to exist in v3. Replaced the panel with a
-    sentinel + operator-action comment instructing one-time discovery via
-    `/v3/locations?parameters_id=2`. Pair with `open_meteo_air_quality` as a noisy-clean pair
-    (regulatory monitor vs CAMS model). Free API key signup at openaq.org.
+    [ACTIVATED 2026-07-03 with live key:] panel populated with six PM2.5 sensors across
+    four continents, each verified to return fresh rows via
+    /v3/sensors/{id}/measurements?datetime_from=. São Paulo / Jakarta / Beijing / Lagos had
+    no monitor with a live pm25 sensor within 25 km at discovery time — revisit when
+    expanding the panel. OpenAQ v1/v2 retired 2025-01-31; v3 requires X-API-Key. Pair with
+    `open_meteo_air_quality` as a noisy-clean pair (regulatory monitor vs CAMS model).
+    Free API key signup at openaq.org.
 
 # ---- Transport adds (Gap 2) -------------------------------------------------
 
@@ -2692,7 +2746,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://api.eia.gov/v2/natural-gas/pri/sum/data/?frequency=daily&data[0]=value&facets[series][]=RNGWHHD&sort[0][column]=period&sort[0][direction]=desc&length=5000&api_key={EIA_API_KEY}
+    url: https://api.eia.gov/v2/natural-gas/pri/fut/data/?frequency=daily&data[0]=value&facets[series][]=RNGWHHD&sort[0][column]=period&sort[0][direction]=desc&length=5000&api_key={EIA_API_KEY}
     auth: env:EIA_API_KEY
     rate_limit: "30 req/min with key"
   schema:
@@ -2710,14 +2764,13 @@
     sample_rows: null
     sample_freshness_hours: null
   notes: |
-    [VERIFIED 2026-07-01 via WebFetch:] My original URL pointed at `pri/fut` which is
-    **futures** (RNGC1 = "Natural Gas Futures Contract 1"), not spot. Corrected to `pri/sum`
-    (summary prices) with `facets[series][]=RNGWHHD` (Henry Hub Spot, dollars/MMBtu, daily).
-    EIA v2 + DEMO_KEY confirmed functional. **Scraper limitation:** the existing
-    `_resolve_auth` cannot substitute `{EIA_API_KEY}` into the URL query string — see
-    verification_log.md "Scraper extension points needed". Without that fix the scraper sends
-    the literal placeholder. Workaround until the fix lands: use scraper.py's `_expand_panel`
-    by putting `{EIA_API_KEY}` in a panel row, or temporarily hardcode the key.
+    [RE-VERIFIED 2026-07-03 with live key:] `pri/sum` now only offers monthly/annual
+    frequencies ("Invalid frequency 'daily'"), so moved back to `pri/fut` — despite the
+    route name, `facets[series][]=RNGWHHD` there selects process PS0 "Spot Price" (Henry
+    Hub, dollars/MMBtu, daily; confirmed in the payload's process-name field), fresh to
+    the previous business day. The earlier note claiming pri/fut was futures-only applied
+    to the RNGC1 series, not the route. `{EIA_API_KEY}` in the URL is substituted by
+    `_expand_env` — the old `_resolve_auth` limitation note is obsolete.
     EIA series catalog browser: https://www.eia.gov/opendata/browser/natural-gas/pri
 
 # ---- Geographic diversity adds (Gap 5) --------------------------------------
@@ -2801,8 +2854,9 @@
   frequency: PT5M
   endpoint:
     type: rest_json
-    url: http://datamall2.mytransport.sg/ltaodataservice/TrafficSpeedBands
-    auth: env:LTA_ACCOUNT_KEY              # passed as `AccountKey` header by scraper
+    # Unversioned path 404s (verified 2026-07-03) — the live route is v3 over https.
+    url: https://datamall2.mytransport.sg/ltaodataservice/v3/TrafficSpeedBands
+    auth: env:LTA_ACCOUNT_KEY:AccountKey   # non-Bearer header name
     rate_limit: "60 req/min with free key"
   schema:
     timestamp_field: now()
@@ -2828,7 +2882,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://www.banxico.org.mx/SieAPIRest/service/v1/series/{SERIES_ID}/datos/oportuno?token={BANXICO_TOKEN}
+    url: https://www.banxico.org.mx/SieAPIRest/service/v1/series/{SERIES_ID}/datos/2016-01-01/{YYYY-MM-DD}?token={BANXICO_TOKEN}
     auth: env:BANXICO_TOKEN
     rate_limit: "polite"
   panel:
@@ -2873,11 +2927,19 @@
   frequency: P1W
   endpoint:
     type: rest_json
-    url: https://data.cdc.gov/resource/2ew6-ywp6.json?$limit=5000&$order=first_sample_date DESC
+    # Unfiltered, the feed interleaves thousands of wwtp sites at the same
+    # week — as one series that's noise. Pin to one large plant per panel row.
+    # NOTE 2026-07-03: the public dataset's max date_end is 2025-09-07 (frozen);
+    # kept for history but it will never earn unseen weight until CDC resumes it.
+    url: https://data.cdc.gov/resource/2ew6-ywp6.json?key_plot_id={KEY_PLOT_ID}&$limit=5000&$order=date_end
     auth: none
     rate_limit: "1000 req/h anonymous; higher with app token"
+  panel:
+    - {KEY_PLOT_ID: "WWS_nv_2607_Treatment plant_post grit removal"}   # Las Vegas area, pop 990k
+    - {KEY_PLOT_ID: "NWSS_mn_2257_Treatment plant_raw wastewater"}     # MN, pop 98k
+    - {KEY_PLOT_ID: "NWSS_in_2357_Treatment plant_raw wastewater"}     # IN, pop 98k
   schema:
-    timestamp_field: "[].first_sample_date"
+    timestamp_field: "[].date_end"
     value_field: "[].ptc_15d"
     variates: 1
   history_available: P4Y

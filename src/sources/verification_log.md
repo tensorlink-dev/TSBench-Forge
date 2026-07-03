@@ -752,3 +752,172 @@ Of the 7 zero-data sources:
   current `{MARKET_ID}` panel populated from gamma-api (one-time, then auto-rolls until
   the chosen markets resolve). This is inherent to time-bounded prediction markets,
   not a fixable YAML defect.
+
+---
+
+## 2026-07-03 — first full live run with real API keys (all-source scrape + fix pass)
+
+Full `--all` scrape: 80/92 sources wrote parquet. The 12 failures triaged below;
+all endpoints re-probed live with the real keys loaded.
+
+### eia_natural_gas_spot_daily
+- attempted: https://api.eia.gov/v2/natural-gas/pri/fut/data/?frequency=daily&facets[series][]=RNGWHHD (was pri/sum)
+- result: kept — URL fixed pri/sum → pri/fut
+- reason: pri/sum now rejects frequency=daily (monthly/annual only). RNGWHHD under
+  pri/fut is process PS0 "Spot Price", daily, fresh to previous business day.
+- verified_at: 2026-07-03T14:40:00Z
+
+### swpc_solar_wind_plasma
+- attempted: https://services.swpc.noaa.gov/products/geospace/propagated-solar-wind-1-hour.json
+- result: kept — URL replaced
+- reason: products/solar-wind/plasma-*.json all 404 now (whole directory gone).
+  Geospace propagated product has identical array-of-arrays shape; header row
+  [time_tag, speed, density, temperature, ...] keeps schema indices [][1..3] valid.
+- verified_at: 2026-07-03T14:45:00Z
+
+### openaq_global_air_quality
+- attempted: https://api.openaq.org/v3/sensors/{SENSOR_ID}/measurements?datetime_from={YYYY-MM-DD-14d}&limit=1000
+- result: kept — activated with 6-sensor panel (Delhi, London, Mexico City, LA, Seoul, Warsaw)
+- reason: v3 has no top-level /measurements (404). /hours rollups empty for many live
+  sensors; raw sensor /measurements with a 14-day window verified fresh for all 6.
+  Caution: location-level datetimeLast is unreliable — verify sensor-level datetimeLast.
+- verified_at: 2026-07-03T15:00:00Z
+
+### ndbc_buoy_realtime (panel)
+- attempted: realtime2/{44004,44005}.txt → 404 (retired); {41048,44027}.txt → 200
+- result: kept — panel swap 44004→41048 (West Bermuda), 44005→44027 (Jonesport, ME)
+- verified_at: 2026-07-03T14:45:00Z
+
+### metar_us_airports (panel)
+- attempted: aviationweather.gov/api/data/metar?ids=PANC → 200 with data
+- result: kept — panel fix KANC→PANC (Alaska ICAO prefix is PA-; KANC returns 204 empty)
+- verified_at: 2026-07-03T14:45:00Z
+
+### wikimedia_per_article_pageviews (panel)
+- attempted: per-article/.../Tesla,_Inc./daily/... → 200
+- result: kept — YAML fix: quoted "Tesla,_Inc." (bare comma split the flow mapping into
+  {ARTICLE: Tesla, _Inc.: null}). Cleveland_Clinic/NATO 404s were transient; both 200 now.
+- verified_at: 2026-07-03T14:45:00Z
+
+### gharchive_hourly_events
+- attempted: data.gharchive.org/{YYYY-MM-DD}-{H-1}.json.gz
+- result: kept — new scraper endpoint type `ndjson_minute_counts`
+- reason: hourly files are gzipped NDJSON, not a JSON document; json.loads failed with
+  "Extra data". New parser regex-extracts created_at, buckets per-minute counts.
+- verified_at: 2026-07-03T15:00:00Z
+
+### pypi_downloads_per_pkg
+- result: kept — scraper now honours Retry-After on 429/503 (2 retries, capped 60s);
+  8/30 packages had been dropped by pypistats burst rate-limiting.
+- verified_at: 2026-07-03T15:00:00Z
+
+### reddit_top_daily
+- attempted: www/old/api.reddit.com JSON endpoints, with contact User-Agent
+- result: DISABLED (`disabled: true` in sources.yaml)
+- reason: 403 / redirect-to-login from datacenter IPs regardless of UA. Needs a Reddit
+  OAuth app + OAuth-aware fetch to revive.
+- verified_at: 2026-07-03T14:50:00Z
+
+### lta_singapore_traffic_speeds
+- attempted: /ltaodataservice/TrafficSpeedBands and /v3/TrafficSpeedBands with AccountKey header
+- result: DISABLED
+- reason: HTTP 401 on both — the configured LTA_ACCOUNT_KEY is rejected. Operator: check
+  DataMall account activation or regenerate key, then re-enable.
+- verified_at: 2026-07-03T14:40:00Z
+
+### polymarket_btc_history / polymarket_new_market_rate
+- attempted: clob.polymarket.com, gamma-api.polymarket.com
+- result: DISABLED
+- reason: "no route to host" from the scrape host — connection-level block, not HTTP.
+  btc_history additionally still has the TBD-FROM-GAMMA-API panel sentinel. Re-enable
+  after network access is restored (+ panel activation for btc_history).
+- verified_at: 2026-07-03T14:50:00Z
+
+### Environment-only failures (no catalog change)
+- open_meteo_forecast / _uv_index / _climate_daily: SSL handshake timeout from this host
+  (api.open-meteo.com unreachable at connection level; endpoints known-good historically).
+- nyc_mta_subway_hourly: DNS resolution failure for data.ny.gov from this host.
+- Left enabled: both look host-network-specific, not endpoint regressions.
+
+### Scraper changes (2026-07-03)
+- fetch_payload: 429/503 → honour Retry-After (capped 60 s), 2 retries.
+- parse_payload: new endpoint type `ndjson_minute_counts` (GH Archive).
+- run_one/--list: `disabled: true` + `disabled_reason` per-source skip support.
+
+### lta_singapore_traffic_speeds (update, same day)
+- attempted: https://datamall2.mytransport.sg/ltaodataservice/v3/TrafficSpeedBands with AccountKey header
+- result: RE-ENABLED — key fixed by operator; URL moved to https v3 (unversioned path 404s);
+  auth changed to explicit `env:LTA_ACCOUNT_KEY:AccountKey` (plain `env:VAR` infers
+  `Authorization: Bearer`, which DataMall rejects). Fresh payload (lastUpdatedTime within
+  5 min), ~10k segments; snapshot semantics — one raw row per poll.
+- verified_at: 2026-07-03T16:26:00Z
+
+### open_meteo_* / nyc_mta_subway_hourly (update, same day)
+- attempted: re-ran all four previously failing sources after network diagnostics
+- result: kept, all writing (open_meteo_forecast 192, _uv_index 384, _climate_daily 2192,
+  nyc_mta_subway_hourly 6515 rows). The earlier failures were transient: WSL2
+  resolver-proxy DNS blip (data.ny.gov) and a temporary SSL-handshake stall window
+  (api.open-meteo.com, Hetzner). DNS/TLS/TCP all verified clean on retest.
+- scraper change: fetch_payload now also retries httpx.TransportError (3 attempts,
+  5s/10s backoff) alongside the 429/503 Retry-After handling, so cron runs don't
+  lose a source to a network blip.
+- verified_at: 2026-07-03T16:48:00Z
+
+## 2026-07-03 (later) — historical backfill pass: deepen shallow daily/weekly series
+
+Lookbacks widened (all verified writing): banxico_daily_rates → `/datos/2016-01-01/{YYYY-MM-DD}`
+(2,641 rows/series; was latest-datum-only), wikimedia_per_article + _health → start 20150701
+(~4,019 rows/article; _health also had a hardcoded stale end 20260509), npm_* → 540-day range
+(541 rows; API max ~18 months/query), usgs_streamflow_daily → rolling 10y (3,650 rows; had
+hardcoded Apr–May 2026 window), usda_snotel_swe → rolling 10y (3,649 rows),
+treasury_yield_curve_daily → {YEAR} panel 2016–2026 with new `panel_concat: true`
+(2,625 rows, one continuous series). API-capped, cannot deepen: pypistats (180d), crates.io (90d).
+wikimedia panel note: 'Cryptocurrency' 404s with the 2015 start — 29/30 articles fine.
+
+### cdc_nssp_ed_visits — dataset was wrong, replaced
+- rdmq-nq56 has categorical `ed_trends_*` per county and **no percent_visits/pathogen columns**;
+  the schema never matched (2-row writes). Repointed to vutn-jzwm (NSSP percent of ED visits),
+  national geography, panel over pathogen {COVID-19, Influenza, RSV} — 142 weekly rows each,
+  fresh to 2026-06-20.
+
+### Scraper/loader fixes surfaced by the backfill
+- **Loader chronological sort (correctness bug):** ScrapedLiveSource._extract_motif sliced
+  windows in file order; newest-first feeds (treasury CSV, EIA sort=desc) were being served
+  TIME-REVERSED to forecasters. Loader now sorts by parsed timestamp when >90% parse and the
+  series isn't already ascending. Verified: treasury serves 2016-01-04 → 2026-07-02.
+- **_apply/_walk flattening:** multi-level paths (`a[].b[].c`) returned nested lists and
+  collapsed to 1 record (SNOTEL). Iterate steps now flatten one level.
+- **panel_concat:** `panel_concat: true` skips `_panel_` tagging for panels that paginate one
+  series over time (treasury years) instead of enumerating distinct series.
+
+### Bin eligibility after backfill (series with enough rows in the latest snapshot)
+- daily/weekly (need 286): 7 → 84 of 150
+- monthly+ (need 140): 0 → 1
+- hourly-ish (need 560): 22 of 45; sub-hourly (need 1120): 7 — accumulates via cron.
+
+## 2026-07-03 (evening) — unseen-fraction weighting + serving-validity fixes
+
+Benchmark change (Chris's design): challenges are now weighted by how much of their
+truth window postdates a daily cutoff (start of current UTC day), rather than
+hard-anchoring truth to the live tail. `w = 0.25 + 0.75 * unseen_frac`
+(config.UNSEEN_WEIGHT_FLOOR): fully-historical truth contributes at the floor
+(partial hold for breadth), post-cutoff truth at full weight. Plumbing: MotifMeta
+gains `ts` (aligned datetime64 timestamps); ScrapedLiveSource/FreshBuffer take
+`tail_frac=0.5` (share of windows pinned to the fresh end); build_live_challenges
+takes `cutoff` and stamps meta["unseen_frac"]; evaluate_forecaster weights every
+metric accumulation (legacy sets weigh uniformly — results unchanged, suite green).
+
+Serving-validity fixes shaken out by the first weighted leaderboard run
+(pooled MASE was ~430 from a handful of poisoned challenges; now median 1.2, mean ~3,
+panel rungs order correctly with parrot last):
+- **Gap segmentation:** windows can no longer straddle sampling gaps (>8× median
+  interval). The loader samples inside the longest contiguous segment, tile-padding
+  if none is long enough. gharchive's scattered hourly chunks were serving fake
+  level-shifts with MASE in the thousands.
+- **gharchive_hourly_events relabeled PT1H → PT1M** (parser emits per-minute counts;
+  the PT1H label pointed MASE at the wrong season). Contiguous only once cron polls hourly.
+- **cdc_nwss_wastewater pinned to 3 wwtp sites via key_plot_id** (unfiltered, thousands
+  of sites interleave at the same week → noise). NOTE: public dataset frozen at
+  2025-09-07; keeps floor weight only.
+- **Timestamp parse fallbacks** for wikimedia (YYYYMMDDHH) and NDBC ("YY MM DD hh mm")
+  so those series carry ts and can earn unseen weight (pool ts-None 23→12 of 96).
