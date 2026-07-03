@@ -1767,7 +1767,7 @@
   endpoint:
     type: rest_json
     url: https://data.cityofnewyork.us/resource/erm2-nwe9.json?$limit=200&$order=created_date DESC
-    auth: env:NYC_OPENDATA_TOKEN     # optional; raises throttle
+    auth: env:NYC_OPENDATA_TOKEN:X-App-Token     # optional; raises throttle. Socrata wants X-App-Token, not Bearer
     rate_limit: "1000 req/h anon"
   schema:
     timestamp_field: "[].created_date"
