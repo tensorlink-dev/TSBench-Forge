@@ -27,6 +27,13 @@ from config import HORIZON
 from evaluate import DEFAULT_QUANTILES, ProbForecast
 
 
+def _meta_horizon(meta: dict | None, fallback: int) -> int:
+    """Per-cadence profile horizon from challenge meta, else the fallback."""
+    if isinstance(meta, dict) and meta.get("horizon"):
+        return int(meta["horizon"])
+    return fallback
+
+
 class ChronosForecaster:
     """Amazon Chronos / Chronos-Bolt as a probabilistic :class:`evaluate.Forecaster`.
 
@@ -64,8 +71,9 @@ class ChronosForecaster:
         pipeline = self._ensure_pipeline()
         ctx = torch.tensor(np.asarray(context, dtype=float))
         levels = list(self.quantiles)
+        hor = _meta_horizon(meta, self.horizon)
         q_tensor, mean_tensor = pipeline.predict_quantiles(
-            context=ctx, prediction_length=self.horizon, quantile_levels=levels
+            ctx, prediction_length=hor, quantile_levels=levels
         )
         q_np = q_tensor[0].cpu().numpy()  # (horizon, n_levels)
         mean = np.asarray(mean_tensor[0].cpu().numpy(), dtype=float)
@@ -118,10 +126,108 @@ class TimesFMForecaster:
         return ProbForecast(mean=mean, quantiles=quantiles)
 
 
+class Toto2Forecaster:
+    """Datadog Toto-2.0 as a probabilistic :class:`evaluate.Forecaster`.
+
+    ``model.forecast`` returns quantiles of shape (9, batch, n_variates, horizon)
+    at exactly the benchmark's decile levels. Median serves as the point forecast.
+    """
+
+    def __init__(
+        self,
+        model_name: str = "Datadog/Toto-2.0-313m",
+        *,
+        device: str = "cuda",
+        quantiles: tuple[float, ...] = DEFAULT_QUANTILES,
+        horizon: int = HORIZON,
+    ) -> None:
+        self.model_name = model_name
+        self.device = device
+        self.quantiles = quantiles
+        self.horizon = horizon
+        self._model = None
+
+    def _ensure_model(self):
+        if self._model is None:
+            import torch
+            from toto2 import Toto2Model  # lazy: needs torch
+
+            device = self.device if torch.cuda.is_available() else "cpu"
+            self._model = Toto2Model.from_pretrained(self.model_name).to(device).eval()
+            self._device = device
+        return self._model
+
+    def __call__(self, context: np.ndarray, meta: dict | None = None) -> ProbForecast:
+        import torch
+
+        model = self._ensure_model()
+        hor = _meta_horizon(meta, self.horizon)
+        ctx = np.asarray(context, dtype=np.float32)
+        target = torch.tensor(ctx, device=self._device).reshape(1, 1, -1)
+        batch = {
+            "target": target,
+            "target_mask": torch.ones_like(target, dtype=torch.bool),
+            "series_ids": torch.zeros(1, 1, dtype=torch.long, device=self._device),
+        }
+        with torch.no_grad():
+            q = model.forecast(batch, horizon=hor, decode_block_size=768,
+                               has_missing_values=False)
+        q_np = np.asarray(q.detach().cpu().numpy(), dtype=float)[:, 0, 0, :]  # (9, horizon)
+        quantiles = {lvl: q_np[i] for i, lvl in enumerate(self.quantiles)}
+        return ProbForecast(mean=q_np[4], quantiles=quantiles)
+
+
+class TiRexForecaster:
+    """NX-AI TiRex as a probabilistic :class:`evaluate.Forecaster`.
+
+    ``model.forecast`` returns (quantiles, mean); the quantile grid defaults to
+    the benchmark's nine deciles.
+    """
+
+    def __init__(
+        self,
+        model_name: str = "NX-AI/TiRex",
+        *,
+        quantiles: tuple[float, ...] = DEFAULT_QUANTILES,
+        horizon: int = HORIZON,
+    ) -> None:
+        self.model_name = model_name
+        self.quantiles = quantiles
+        self.horizon = horizon
+        self._model = None
+
+    def _ensure_model(self):
+        if self._model is None:
+            from tirex import load_model  # lazy: needs torch
+
+            self._model = load_model(self.model_name)
+        return self._model
+
+    def __call__(self, context: np.ndarray, meta: dict | None = None) -> ProbForecast:
+        import torch
+
+        model = self._ensure_model()
+        hor = _meta_horizon(meta, self.horizon)
+        ctx = torch.tensor(np.asarray(context, dtype=np.float32)).reshape(1, -1)
+        q, mean = model.forecast(context=ctx, prediction_length=hor)
+        q_np = np.asarray(torch.as_tensor(q).detach().cpu().numpy(), dtype=float)[0]
+        if q_np.shape[0] == len(self.quantiles):        # (9, horizon)
+            pass
+        elif q_np.shape[-1] == len(self.quantiles):     # (horizon, 9)
+            q_np = q_np.T
+        else:
+            raise ValueError(f"unexpected TiRex quantile shape {q_np.shape}")
+        quantiles = {lvl: q_np[i] for i, lvl in enumerate(self.quantiles)}
+        mean_np = np.asarray(torch.as_tensor(mean).detach().cpu().numpy(), dtype=float)[0]
+        return ProbForecast(mean=mean_np, quantiles=quantiles)
+
+
 _REGISTRY = {
     "chronos": ChronosForecaster,
     "chronos-bolt": ChronosForecaster,
     "timesfm": TimesFMForecaster,
+    "toto2": Toto2Forecaster,
+    "tirex": TiRexForecaster,
 }
 
 

@@ -99,11 +99,11 @@ def run() -> None:
     # ----- leaderboard -----------------------------------------------------
     print("Leaderboard on real data (MASE / WQL / CRPS, lower = better):")
     board = leaderboard(probabilistic_panel(), reveal)
-    print(f"  {'rank':>4}  {'model':<16} {'MASE':>7} {'WQL':>7} {'CRPS':>7}")
+    print(f"  {'rank':>4}  {'model':<16} {'MASExSN':>8} {'CRPSxSN':>8} {'MASE':>7} {'WQL':>7} {'CRPS':>7}")
     for r in board:
         print(
-            f"  {r['rank']:>4}  {r['model']:<16} {r['mase']:>7.3f} "
-            f"{r['wql']:>7.3f} {r['crps']:>7.3f}"
+            f"  {r['rank']:>4}  {r['model']:<16} {r['mase_rel']:>8.3f} {r['crps_rel']:>8.3f} "
+            f"{r['mase']:>7.3f} {r['wql']:>7.3f} {r['crps']:>7.3f}"
         )
     print(
         "  -> to score a real TSFM: "
