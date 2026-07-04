@@ -921,3 +921,70 @@ panel rungs order correctly with parrot last):
   2025-09-07; keeps floor weight only.
 - **Timestamp parse fallbacks** for wikimedia (YYYYMMDDHH) and NDBC ("YY MM DD hh mm")
   so those series carry ts and can earn unseen weight (pool ts-None 23→12 of 96).
+
+## 2026-07-04 — v2: per-cadence challenge profiles + freq-aware seasonal floor
+
+Grounded in the 2026-07-03 rank-stability experiment (3x3 context/horizon grid x
+3 cadence bands x 3 seeds, frozen panel, freq-aware MASE):
+- hourly band: ctx 512 cuts panel MASE ~35% vs 256 and flips the ranking — shape
+  changes conclusions, so one global shape was hiding real differences.
+- daily band: context_parrot ranked #1 in 8/9 cells at h>=24 days — long daily
+  horizons reward retrieval, not forecasting. Horizon shortened to 14.
+- sub-hourly at ctx 1024: parrot dominates outright (0.62 vs 0.87 runner-up);
+  ctx 512 keeps the parrot floor honest. 1024 revisit deferred.
+- H1 refuted as stated: seasonal_naive did NOT improve with context because its
+  period search was hardcoded to (12,24,36) — it could never express a 288-step
+  (5-min) or 1440-step (1-min) daily cycle. Fixed: the search now adds the
+  frequency-derived natural cycle when it fits the context.
+
+Changes (benchmark-version bump — panel behaviour changes on profiled sets):
+- config.PROFILES: (context, horizon) per cadence band; FREQ_SEASONALITY moved
+  to config (shared by evaluator MASE scaling + panel seasonality search).
+- challenges.build_live_challenges cuts each profile shape from the fresh end
+  of the pooled motif; meta gains context_len/horizon; context shrinks to fit
+  short pools (fixtures), horizon never silently changes.
+- score.py panel + strong candidates are horizon- and freq-aware via meta;
+  identical behaviour for meta-less calls (fixed-shape tests unchanged).
+- Verified live: shape mix (256,14)x60 (512,24)x40 (512,48)x17 (128,8)x5 (64,8)x6;
+  leaderboard strong>ewma>...>parrot with best MASE 1.25 (was 2.7 at one global
+  shape); replay byte-identical; demo end-to-end green; 176 tests pass.
+
+## 2026-07-04 — Tier-1 keyless batch from the autoresearch run (11 sources added)
+
+All entries dry-run + live-scraped on admission day; admission gate (`--assess`)
+run wherever enough rows exist. Catalog: 92 → 103 sources.
+
+### Admitted by the deterministic gate
+- **nvd_cve_disclosures** — 2,000 rows (30-day window), CVSS base-score series; admitted 1/1.
+- **nasa_eonet_events** — 500 open events, magnitude series; admitted 1/1.
+
+### Scraped clean; gate verdicts to know about
+- **ea_uk_rainfall_15min** — 6 stations × 1,000 readings (PT15M, fills nature/few-min).
+  3/6 pass intrinsic checks — the failures are dry-spell flatlines, inherent to
+  zero-inflated rainfall, not data faults; passing stations rotate with weather.
+- **sec_filer_submissions** — 6-filer panel (JPM alone ~25k filings); 3/6 pass —
+  low-cardinality size series on sparse filers. Passing filers are dense ones.
+- **emsc_seismic_events** — 1,000 events, fresh; NOT admitted: magnitude arrivals have
+  predictability 0.11 < 0.15 (event magnitudes are ~i.i.d. — the gate is correct).
+  Kept for parity with usgs_earthquakes_realtime (same semantics) and as raw material
+  for a future count-per-interval aggregation, which is the forecastable signal.
+- **cisa_kev_catalog** — 940 rows of full history; NOT admitted for the same reason
+  (rank-encoded vendor is noise). The forecastable signal is additions-per-day;
+  needs count aggregation. License/freshness clean.
+
+### Accumulating (too few rows to assess yet)
+- **openfda_food_recalls** (87), **usgs_elevated_volcanoes** (3),
+  **tsunami_alert_feed** (1 — Atom; scraper's RSS parser extended to handle
+  namespaced Atom <entry>/<updated>), and the two snapshot sources
+  **wsdot_ferry_locations** / **tfl_road_disruptions** (1 row per poll, LTA-style).
+
+### Deliberately NOT added (from the 45-candidate list)
+- SEC EDGAR full-text search + current-filings Atom: overlap sec_filer_submissions.
+- npm _changes: redundant with npm_downloads_per_pkg; cumulative-seq semantics weak.
+- NOAA SPC storm reports: today.csv concatenates three differently-headed CSV
+  sections; needs a dedicated parser first.
+- WHO Disease Outbreak News / Alberta ER waits: HTML pages, need scraping adapters.
+- RIPE RIS Live: websocket; scraper has no ws support.
+
+### Scraper change
+- `_records_from_rss` now also parses Atom feeds (namespaced entry/updated/category).

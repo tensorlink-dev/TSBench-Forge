@@ -3089,3 +3089,309 @@
     blocker). Adding it is ~30 LOC + lxml dep; unblocks FAA + any future XML-only endpoint.
     Aviation domain otherwise absent from transport after TfL / MTA / Amtrak (all rail or ground).
 
+
+# ============================================================================
+# 2026-07-04 autoresearch batch — Tier-1 keyless candidates (discovery/2026-07-04)
+# ============================================================================
+
+- id: nvd_cve_disclosures
+  name: NIST NVD — CVE disclosures with CVSS v3.1 base score
+  domain: web_cloudops
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate={YYYY-MM-DD-30d}T00:00:00.000&pubEndDate={YYYY-MM-DD}T23:59:59.999&resultsPerPage=2000
+    auth: none
+    rate_limit: "5 req/30s keyless; 50 with NVD_API_KEY"
+  schema:
+    timestamp_field: vulnerabilities[].cve.published
+    value_field: vulnerabilities[].cve.metrics.cvssMetricV31[0].cvssData.baseScore
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: "continuous disclosure; API paginated"
+  pretraining_novelty: partial
+  novelty_notes: "CVE text is heavily pretrained; the disclosure-time/severity series is not."
+  license: "Public domain (NIST)"
+  sample_path: samples/nvd_cve_disclosures.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: "Severity is sparse on very fresh CVEs (metrics lag); loader tolerates NaN."
+
+- id: emsc_seismic_events
+  name: EMSC Seismic Portal — European-Mediterranean earthquake events
+  domain: nature
+  dgp_class: seismic_event
+  archetypes: [count_discrete, chaotic_nonlinear, zero_inflated_sparse]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://www.seismicportal.eu/fdsnws/event/1/query?format=json&limit=1000&orderby=time
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: features[].properties.time
+    value_field: features[].properties.mag
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: "near real-time"
+  pretraining_novelty: partial
+  novelty_notes: "Sister of usgs_earthquakes_realtime with different network coverage (EU/Med)."
+  license: "EMSC — free reuse with attribution (CC BY)"
+  sample_path: samples/emsc_seismic_events.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+  notes: "Discovery vet rejected only for an empty license field; filled here (human override)."
+
+- id: nasa_eonet_events
+  name: NASA EONET — natural event tracker (wildfires, storms, volcanoes)
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://eonet.gsfc.nasa.gov/api/v3/events?limit=500&status=open
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: events[].geometry[0].date
+    value_field: events[].geometry[0].magnitudeValue
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "hourly-ish curation"
+  pretraining_novelty: partial
+  novelty_notes: "Event curation feed; magnitudes sparse (storms kts, fires acres)."
+  license: "Public domain (NASA)"
+  sample_path: samples/nasa_eonet_events.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+
+- id: cisa_kev_catalog
+  name: CISA Known Exploited Vulnerabilities catalog
+  domain: web_cloudops
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: vulnerabilities[].dateAdded
+    value_field: vulnerabilities[].vendorProject   # categorical; loader rank-encodes
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "business-day additions"
+  pretraining_novelty: partial
+  novelty_notes: "KEV additions-per-day arrival process; full history in every fetch (~1.6k rows)."
+  license: "Public domain (CISA)"
+  sample_path: samples/cisa_kev_catalog.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+
+- id: openfda_food_recalls
+  name: openFDA — food recall enforcement reports
+  domain: healthcare
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/food/enforcement.json?sort=report_date:desc&limit=1000
+    auth: none
+    rate_limit: "240 req/min keyless"
+  schema:
+    timestamp_field: results[].report_date        # YYYYMMDD
+    value_field: results[].classification         # Class I/II/III; rank-encoded
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: "weekly-ish enforcement report batches"
+  pretraining_novelty: partial
+  novelty_notes: "Recall arrival/severity stream; fills the healthcare/irregular gap."
+  license: "Public domain (openFDA; CC0)"
+  sample_path: samples/openfda_food_recalls.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+
+- id: sec_filer_submissions
+  name: SEC EDGAR — per-filer submission stream (filing size series)
+  domain: econ_fin
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.sec.gov/submissions/CIK{CIK}.json
+    auth: env:SEC_USER_AGENT               # SEC asks for a declared contact UA
+    rate_limit: "10 req/s"
+  panel:
+    - {CIK: "0000320193"}   # Apple
+    - {CIK: "0000789019"}   # Microsoft
+    - {CIK: "0001045810"}   # NVIDIA
+    - {CIK: "0001318605"}   # Tesla
+    - {CIK: "0000019617"}   # JPMorgan
+    - {CIK: "0000034088"}   # Exxon Mobil
+  schema:
+    timestamp_field: filings.recent.acceptanceDateTime[]
+    value_field: filings.recent.size[]
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "filing-driven; ~1000 recent filings per filer"
+  pretraining_novelty: partial
+  novelty_notes: "Filing text is pretrained everywhere; the per-filer arrival/size series is not."
+  license: "Public domain (SEC)"
+  sample_path: samples/sec_filer_submissions.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+
+- id: ea_uk_rainfall_15min
+  name: Environment Agency UK — rainfall gauges (15-min accumulations)
+  domain: nature
+  dgp_class: hydrology
+  archetypes: [zero_inflated_sparse, count_discrete, smooth_periodic]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://environment.data.gov.uk/flood-monitoring/id/stations/{STATION}/readings?_sorted&_limit=1000
+    auth: none
+    rate_limit: "polite"
+  panel:
+    - {STATION: "E7050"}
+    - {STATION: "4163"}
+    - {STATION: "0890TH"}
+    - {STATION: "E1310"}
+    - {STATION: "3680"}
+    - {STATION: "3275"}
+  schema:
+    timestamp_field: items[].dateTime
+    value_field: items[].value
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "15-min readings, ~hourly publication"
+  pretraining_novelty: partial
+  novelty_notes: "Fills the nature/few-min gap; zero-inflated rainfall is a distinct DGP."
+  license: "Open Government Licence v3"
+  sample_path: samples/ea_uk_rainfall_15min.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+
+- id: wsdot_ferry_locations
+  name: WSDOT — Washington State Ferries vessel locations/speeds (snapshot)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [hierarchical, smooth_periodic, bounded]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.wsdot.wa.gov/ferries/api/vessels/rest/vessellocations
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: now()          # snapshot per poll (vessel speeds at poll time)
+    value_field: "[].Speed"
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "continuous AIS-style updates"
+  pretraining_novelty: clean
+  novelty_notes: "Regional ferry ops telemetry; absent from TSFM corpora."
+  license: "Public (WSDOT traveler information API)"
+  sample_path: samples/wsdot_ferry_locations.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+
+- id: tfl_road_disruptions
+  name: TfL — London road network disruptions (snapshot)
+  domain: transport
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.tfl.gov.uk/Road/all/Disruption
+    auth: none
+    rate_limit: "500 req/min anonymous"
+  schema:
+    timestamp_field: now()          # snapshot per poll (active disruption set)
+    value_field: "[].severity"
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "continuously updated disruption set"
+  pretraining_novelty: partial
+  novelty_notes: "Active-disruption count/severity per poll; persistence via cron."
+  license: "TfL Open Data (free registration not required for this endpoint)"
+  sample_path: samples/tfl_road_disruptions.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+
+- id: usgs_elevated_volcanoes
+  name: USGS HANS — elevated volcano notices (color code changes)
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [zero_inflated_sparse, categorical, binary_state]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://volcanoes.usgs.gov/hans-public/api/volcano/getElevatedVolcanoes
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].sent_utc"
+    value_field: "[].color_code"    # GREEN/YELLOW/ORANGE/RED; rank-encoded
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "event-driven; few active notices at a time"
+  pretraining_novelty: clean
+  novelty_notes: "Sparse regime-change stream; accumulates via cron dedup."
+  license: "Public domain (USGS)"
+  sample_path: samples/usgs_elevated_volcanoes.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null
+
+- id: tsunami_alert_feed
+  name: NOAA tsunami.gov — Pacific/National TWC event messages (Atom)
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [zero_inflated_sparse, categorical]
+  frequency: PT15M
+  endpoint:
+    type: rss
+    url: https://www.tsunami.gov/events/xml/PAAQAtom.xml
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: updated
+    value_field: title
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "event-driven alerts"
+  pretraining_novelty: clean
+  novelty_notes: "Alert arrival stream; pairs with EMSC/USGS seismic feeds."
+  license: "Public domain (NOAA)"
+  sample_path: samples/tsunami_alert_feed.json  # PENDING
+  verification:
+    last_verified: 2026-07-04T00:00:00Z
+    sample_rows: null
+    sample_freshness_hours: null

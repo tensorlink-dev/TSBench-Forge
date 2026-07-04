@@ -39,7 +39,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from config import CONTEXT_LEN, HORIZON
+from config import CONTEXT_LEN, HORIZON, PROFILES
 from ingest import FreshBuffer
 
 SERIES_LEN = CONTEXT_LEN + HORIZON
@@ -114,16 +114,19 @@ def time_warp(
     return np.interp(np.arange(n), cum, x)
 
 
-def history_cutout(x: np.ndarray, severity: float, rng: np.random.Generator) -> np.ndarray:
+def history_cutout(
+    x: np.ndarray, severity: float, rng: np.random.Generator, ctx_len: int = CONTEXT_LEN
+) -> np.ndarray:
     """Blank a contiguous chunk of *history* (context only), holding last value.
 
     Forces robustness to missing context; never touches the horizon, so the truth
-    stays a faithful continuation.
+    stays a faithful continuation. ``ctx_len`` is the challenge's actual context
+    length (per-cadence profiles vary it).
     """
-    span = int(severity * CONTEXT_LEN * 0.5)
+    span = int(severity * ctx_len * 0.5)
     if span < 1:
         return x
-    start = int(rng.integers(0, max(1, CONTEXT_LEN - span)))
+    start = int(rng.integers(0, max(1, ctx_len - span)))
     out = x.copy()
     out[start : start + span] = out[start]
     return out
@@ -140,7 +143,7 @@ _AUGMENTATIONS = {
 }
 
 
-def _normalize_by_context(series: np.ndarray) -> np.ndarray:
+def _normalize_by_context(series: np.ndarray, ctx_len: int = CONTEXT_LEN) -> np.ndarray:
     """Z-score a full ``context+horizon`` series by its **context** statistics.
 
     The real catalog spans wildly different scales (treasury debt in dollars, a UV
@@ -153,7 +156,7 @@ def _normalize_by_context(series: np.ndarray) -> np.ndarray:
     context's naive one-step error), so this only *adds* comparability, it does not
     change the point-accuracy ranking.
     """
-    ctx = series[:CONTEXT_LEN]
+    ctx = series[:ctx_len]
     mu = float(ctx.mean())
     sd = float(ctx.std())
     if sd < _EPS:
@@ -162,7 +165,7 @@ def _normalize_by_context(series: np.ndarray) -> np.ndarray:
 
 
 def _apply_light_augmentation(
-    series: np.ndarray, severity: float, rng: np.random.Generator
+    series: np.ndarray, severity: float, rng: np.random.Generator, ctx_len: int = CONTEXT_LEN
 ) -> np.ndarray:
     """Apply one randomly-chosen truth-preserving augmentation at ``severity``.
 
@@ -173,6 +176,8 @@ def _apply_light_augmentation(
     if severity <= 0.0:
         return series
     op = str(rng.choice(list(_AUGMENTATIONS)))
+    if op == "history_cutout":
+        return history_cutout(series, severity, rng, ctx_len)
     return _AUGMENTATIONS[op](series, severity, rng)
 
 
@@ -195,16 +200,17 @@ def default_cutoff() -> np.datetime64:
     return np.datetime64(today.isoformat())
 
 
-def _unseen_frac(ts: np.ndarray | None, cutoff: np.datetime64) -> float:
+def _unseen_frac(ts: np.ndarray | None, cutoff: np.datetime64, horizon: int) -> float:
     """Share of the truth window's timestamps that fall at/after ``cutoff``.
 
-    ``ts`` is the full context+horizon timestamp array; only the horizon part
-    counts. Unparseable timestamps (``None``/NaT) count as seen — conservative:
-    a challenge only earns extra weight for provably-fresh truth.
+    ``ts`` is the full context+horizon timestamp array; only the last
+    ``horizon`` steps count. Unparseable timestamps (``None``/NaT) count as
+    seen — conservative: a challenge only earns extra weight for
+    provably-fresh truth.
     """
-    if ts is None or len(ts) != SERIES_LEN:
+    if ts is None or len(ts) < horizon:
         return 0.0
-    truth_ts = ts[CONTEXT_LEN:]
+    truth_ts = ts[-horizon:]
     return float(np.mean(truth_ts >= cutoff))  # NaT >= cutoff is False
 
 
@@ -222,12 +228,14 @@ def build_live_challenges(
     Each challenge draws one real window from ``buffer`` (which samples
     equal-weight across domain × dgp_class × cadence when backed by a
     ``ScrapedLiveSource``), optionally applies one light truth-preserving
-    augmentation, and splits it into ``context`` / ``truth``. Every challenge is
-    tagged with its source domain / dgp_class / cadence / source_id, plus
-    ``unseen_frac`` — the share of its truth timestamps at/after ``cutoff``
-    (default: start of the current UTC day). The evaluator up-weights
-    challenges by it, so forecasts of genuinely-unseen future dominate the
-    score while deep-history challenges still contribute breadth.
+    augmentation, and splits it into ``context`` / ``truth`` at the
+    **per-cadence profile shape** (``config.PROFILES``): fast feeds get long
+    contexts, daily-and-slower get short horizons. Every challenge is tagged
+    with domain / dgp_class / cadence / source_id / context_len / horizon,
+    plus ``unseen_frac`` — the share of its truth timestamps at/after
+    ``cutoff`` (default: start of the current UTC day). The evaluator
+    up-weights challenges by it, so forecasts of genuinely-unseen future
+    dominate the score while deep-history challenges still contribute breadth.
 
     Each challenge gets an independent child stream via ``rng.spawn`` so the set
     is order-stable and byte-reproducible — the basis of cross-validator consensus
@@ -241,11 +249,22 @@ def build_live_challenges(
     buffer.ensure(children[0])
     challenges: list[Challenge] = []
     for child in children[1:]:
-        m = buffer.sample_meta(1, SERIES_LEN, child)[0]
-        series = _normalize_by_context(np.asarray(m.motif, dtype=float))
+        # Draw the full pooled motif, then cut the per-cadence profile shape
+        # from its fresh end. PROFILES sets (context, horizon) per cadence
+        # band; when the pool's motifs are shorter than a profile asks for
+        # (e.g. fixture data), the context shrinks to fit — the horizon is the
+        # task definition and never silently changes.
+        m = buffer.sample_meta(1, buffer.motif_len, child)[0]
+        motif = np.asarray(m.motif, dtype=float)
+        ctx_len, horizon = PROFILES.get(m.cadence or "", (CONTEXT_LEN, HORIZON))
+        ctx_len = min(ctx_len, len(motif) - horizon)
+        want = ctx_len + horizon
+        series = motif[-want:]
+        ts = m.ts[-want:] if m.ts is not None and len(m.ts) == len(motif) else None
+        series = _normalize_by_context(series, ctx_len)
         if augment:
-            series = _apply_light_augmentation(series, aug_severity, child)
-        context, truth = series[:CONTEXT_LEN], series[CONTEXT_LEN:]
+            series = _apply_light_augmentation(series, aug_severity, child, ctx_len)
+        context, truth = series[:ctx_len], series[ctx_len:]
         challenges.append(
             Challenge(
                 context=np.asarray(context, dtype=float),
@@ -259,7 +278,9 @@ def build_live_challenges(
                     "cadence": m.cadence,
                     "freq": m.freq,
                     "source_id": m.source_id,
-                    "unseen_frac": _unseen_frac(getattr(m, "ts", None), cutoff),
+                    "context_len": ctx_len,
+                    "horizon": horizon,
+                    "unseen_frac": _unseen_frac(ts, cutoff, horizon),
                 },
             )
         )

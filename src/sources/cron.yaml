@@ -41,6 +41,7 @@ schedules:
 
   - every: PT5M
     sources:
+      - wsdot_ferry_locations
       - aemo_nem_5min
       - caiso_oasis_lmp_5min
       - nyiso_realtime_lmp_zonal
@@ -51,6 +52,10 @@ schedules:
 
   - every: PT15M
     sources:
+      - ea_uk_rainfall_15min
+      - tfl_road_disruptions
+      - tsunami_alert_feed
+      - emsc_seismic_events
       - usgs_streamflow_iv
       - elia_solar_15min
       - gdacs_natural_disasters
@@ -81,7 +86,13 @@ schedules:
   # Stagger by minute to avoid thundering herd at 00:00 UTC.
 
   - every: P1D
-    sources: [defillama_chain_tvl_daily]
+    sources:
+      - nvd_cve_disclosures
+      - cisa_kev_catalog
+      - openfda_food_recalls
+      - sec_filer_submissions
+      - usgs_elevated_volcanoes
+      - nasa_eonet_events [defillama_chain_tvl_daily]
     cron: "10 1 * * *"
 
   - every: P1D

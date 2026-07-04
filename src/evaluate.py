@@ -108,26 +108,10 @@ def _naive_scale(context: np.ndarray, m: int = 1) -> float:
     return s if s > _EPS else float(np.std(x) + _EPS)
 
 
-# Season length per ISO-8601 sampling interval, the gluonts/GIFT-Eval convention:
-# one natural cycle in steps (daily cycle for sub-daily data; the calendar cycle
-# above that). Frequencies absent here score with m=1 (non-seasonal MASE).
-FREQ_SEASONALITY: dict[str, int] = {
-    "PT30S": 120,   # 1 hour
-    "PT1M": 1440,   # 1 day
-    "PT2M30S": 576,
-    "PT5M": 288,
-    "PT6M": 240,
-    "PT10M": 144,
-    "PT15M": 96,
-    "PT30M": 48,
-    "PT1H": 24,
-    "PT8H": 3,
-    "P1D": 1,
-    "P1W": 1,
-    "P1M": 12,
-    "P1Q": 4,
-    "P1Y": 1,
-}
+# Season length per sampling interval — moved to config.py so the panel's
+# seasonality search (score.py) shares the same table; re-exported for
+# back-compat with existing imports.
+from config import FREQ_SEASONALITY  # noqa: E402
 
 
 def season_length(freq: str | None, context_len: int) -> int:

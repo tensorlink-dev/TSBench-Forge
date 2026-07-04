@@ -40,7 +40,7 @@ from scraped_source import ScrapedLiveSource
 from seed import rng_for
 
 BLOCK_HASH = "0xlive-demo-block-hash"
-MOTIF_LEN = 384
+MOTIF_LEN = 608  # >= max PROFILES context+horizon (512+96) so fast feeds get full shapes
 POOL_SIZE = 96
 N_REVEAL = 128
 CATALOG = os.path.join(os.path.dirname(__file__), "sources", "sources.yaml")
