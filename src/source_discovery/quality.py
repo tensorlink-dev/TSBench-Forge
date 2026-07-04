@@ -337,5 +337,6 @@ def assess_scraped_source(
         return SourceQuality(False, 0, 0, [], None,
                              [f"source '{source_id}' has no usable series under {data_dir}"])
     rng = _np.random.default_rng(0)
-    series = [src._extract_motif(spec, motif_len, rng) for spec in specs[:n_series]]
+    # _extract_motif returns (values, timestamps); quality checks only need values.
+    series = [src._extract_motif(spec, motif_len, rng)[0] for spec in specs[:n_series]]
     return assess_source(series, **kwargs)
