@@ -65,16 +65,21 @@ def build_user_message(inputs: dict) -> str:
     def block(title: str, obj) -> str:
         return f"## {title}\n```json\n{json.dumps(obj, indent=2, default=str)}\n```"
 
-    return "\n\n".join(
-        [
-            "Run the three-phase task on the following inputs.",
-            block("CURRENT_SOURCES", inputs["current_sources"]),
-            block("COVERAGE_SUMMARY (precomputed)", inputs["coverage_summary"]),
-            block("TARGET_COVERAGE", inputs["target_coverage"]),
-            block("CONTAMINATION_DENYLIST", inputs["contamination_denylist"]),
-            block("MODEL_CUTOFFS", inputs["model_cutoffs"]),
-        ]
-    )
+    parts = [
+        "Run the three-phase task on the following inputs.",
+        block("CURRENT_SOURCES", inputs["current_sources"]),
+        block("COVERAGE_SUMMARY (precomputed)", inputs["coverage_summary"]),
+        block("TARGET_COVERAGE", inputs["target_coverage"]),
+        block("CONTAMINATION_DENYLIST", inputs["contamination_denylist"]),
+        block("MODEL_CUTOFFS", inputs["model_cutoffs"]),
+    ]
+    if inputs.get("already_proposed"):
+        parts.append(block(
+            "ALREADY_PROPOSED (do NOT re-propose these hosts/datasets — "
+            "every one is auto-rejected; find genuinely NEW sources)",
+            inputs["already_proposed"],
+        ))
+    return "\n\n".join(parts)
 
 
 def assemble_messages(inputs: dict) -> list[dict]:

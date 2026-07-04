@@ -82,9 +82,22 @@ def _schema_errors(c: dict) -> list[str]:
     return errs
 
 
-def vet_candidate(c: dict, registry: list[dict]) -> VetResult:
-    """Vet one proposal against the schema, denylist, registry, and cutoffs."""
+def vet_candidate(c: dict, registry: list[dict], ledger: dict | None = None) -> VetResult:
+    """Vet one proposal against the schema, denylist, registry, ledger, and cutoffs."""
     reasons: list[str] = []
+
+    # 0) Ledger — a (domain, host) that was already proposed in ANY prior run is
+    # a wasted proposal: reject so repeats never reach a human reviewer twice.
+    if ledger:
+        from . import ledger as _ledger
+
+        prior = ledger.get(_ledger.candidate_key(c))
+        if prior is not None:
+            return VetResult(c, ok=False, verdict="reject", reasons=[
+                f"already proposed on {prior.get('first_proposed')} "
+                f"(status={prior.get('status')}, seen {prior.get('times_proposed')}x) "
+                "— propose a genuinely new source"
+            ])
 
     # 1) Schema — a malformed proposal can't be trusted or acted on.
     schema_errs = _schema_errors(c)
@@ -126,9 +139,11 @@ def vet_candidate(c: dict, registry: list[dict]) -> VetResult:
     return VetResult(c, ok=True, verdict=verdict, reasons=reasons)
 
 
-def vet_all(candidates: list[dict], registry: list[dict]) -> list[VetResult]:
+def vet_all(
+    candidates: list[dict], registry: list[dict], ledger: dict | None = None
+) -> list[VetResult]:
     """Vet a candidate list; accepted/flagged first, rejected last."""
-    results = [vet_candidate(c, registry) for c in candidates]
+    results = [vet_candidate(c, registry, ledger) for c in candidates]
     order = {"accept": 0, "flag": 1, "reject": 2}
     results.sort(key=lambda r: order[r.verdict])
     return results

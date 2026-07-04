@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from . import config, coverage, llm, vet
+from . import config, coverage, ledger, llm, vet
 
 
 def target_coverage() -> dict:
@@ -30,15 +30,18 @@ def target_coverage() -> dict:
 
 
 def build_inputs(catalog_path: str | Path) -> dict:
-    """Assemble the four agent inputs (deterministic, no LLM)."""
+    """Assemble the agent inputs (deterministic, no LLM)."""
     registry = coverage.load_registry(catalog_path)
+    led = ledger.load(ledger.ledger_path(catalog_path))
     return {
         "registry": registry,  # kept for vetting; not sent verbatim if large
+        "ledger": led,  # kept for vetting; compact form goes in the prompt
         "current_sources": registry,
         "coverage_summary": coverage.summarize(registry),
         "target_coverage": target_coverage(),
         "contamination_denylist": list(config.CONTAMINATION_DENYLIST),
         "model_cutoffs": dict(config.MODEL_CUTOFFS),
+        "already_proposed": ledger.prompt_block(led),
     }
 
 
@@ -66,12 +69,22 @@ def run_discovery(
     cfg: llm.OpenRouterConfig,
     out_dir: str | Path,
 ) -> dict:
-    """Full run: propose via the model, vet, and write outputs. Returns a summary."""
+    """Full run: propose via the model, vet, and write outputs. Returns a summary.
+
+    Vetted proposals (accepted AND rejected) are upserted into the proposal
+    ledger so subsequent runs see them in ALREADY_PROPOSED and the vet
+    hard-rejects re-proposals — the agent explores instead of re-treading.
+    """
+    import datetime as dt
+
     inputs = build_inputs(catalog_path)
     gap_analysis, candidates = llm.propose(inputs, cfg)
-    results = vet.vet_all(candidates, inputs["registry"])
+    results = vet.vet_all(candidates, inputs["registry"], ledger=inputs["ledger"])
     counts = _write_outputs(Path(out_dir), gap_analysis, results)
-    return {"proposed": len(candidates), **counts, "out_dir": str(out_dir)}
+    new = ledger.update(
+        ledger.ledger_path(catalog_path), results, dt.date.today().isoformat()
+    )
+    return {"proposed": len(candidates), **counts, "ledger_new": new, "out_dir": str(out_dir)}
 
 
 def run_vet(

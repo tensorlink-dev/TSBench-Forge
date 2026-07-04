@@ -161,3 +161,14 @@ speculative ones.
 - Optimizing for source *count* instead of source *diversity and freshness*.
 - Proposing clean, strongly-periodic series that a seasonal-naive baseline would
   already nail — those don't separate models.
+
+## Proposal memory (ALREADY_PROPOSED)
+
+When the inputs include an `ALREADY_PROPOSED` block, every entry in it has been
+proposed in a previous run — it is either already in rotation ("wired"), waiting
+on an API key ("key-gated"), rejected, or pending human review. **Re-proposing
+any of these hosts/datasets is wasted output: the vet auto-rejects them.**
+Spend your entire proposal budget on sources that appear in neither
+CURRENT_SOURCES nor ALREADY_PROPOSED. Prefer a less-famous API that is new over
+a famous one that is listed — novelty against both lists is a hard requirement,
+and gap-fit is scored only among genuinely new proposals.
