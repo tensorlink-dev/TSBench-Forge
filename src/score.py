@@ -39,7 +39,32 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from config import HORIZON, SEASONAL_PERIODS
+from config import FREQ_SEASONALITY, HORIZON, SEASONAL_PERIODS
+
+
+def _resolve_horizon(meta: dict | None) -> int:
+    """Horizon for this challenge: ``meta["horizon"]`` (per-cadence profile) or
+    the global fallback. Panel models call this so one frozen panel serves
+    every profile shape."""
+    if isinstance(meta, dict):
+        h = meta.get("horizon")
+        if h:
+            return int(h)
+    return HORIZON
+
+
+def _season_candidates(context_len: int, meta: dict | None) -> tuple[int, ...]:
+    """Seasonal periods to search: the frozen co-prime-ish trio plus the
+    frequency-derived natural cycle when it fits the context. Without the
+    freq-derived candidate the seasonal floor cannot even express a daily
+    cycle on sub-hourly feeds (e.g. 288 steps at 5-min), making
+    "beats seasonal naive" hollow exactly where the catalog is densest."""
+    cands = list(SEASONAL_PERIODS)
+    if isinstance(meta, dict):
+        m = FREQ_SEASONALITY.get(meta.get("freq") or "", 0)
+        if 1 < m < context_len and m not in cands:
+            cands.append(m)
+    return tuple(cands)
 
 if TYPE_CHECKING:  # pragma: no cover - typing only, avoids a challenges<->score cycle
     from challenges import Challenge
@@ -116,20 +141,21 @@ def _ar1_coef(x: np.ndarray) -> float:
 
 
 def seasonal_naive(context: np.ndarray, meta: dict | None = None) -> np.ndarray:
-    """Repeat the most recent estimated seasonal cycle."""
-    n = len(context)
-    p = _dominant_period(context, SEASONAL_PERIODS)
-    if p < 2:
-        return np.full(HORIZON, context[-1], dtype=float)
-    idx = n - p + (np.arange(HORIZON) % p)
-    return context[idx].astype(float)
+    """Repeat the most recent estimated seasonal cycle.
+
+    The period search covers the frozen SEASONAL_PERIODS plus the challenge's
+    frequency-derived natural cycle when it fits the context (see
+    :func:`_season_candidates`)."""
+    return _hw_seasonal_repeat(
+        context, _resolve_horizon(meta), _season_candidates(len(context), meta)
+    )
 
 
 def drift(context: np.ndarray, meta: dict | None = None) -> np.ndarray:
     """Linear extrapolation of the global slope from first to last point."""
     n = len(context)
     slope = (context[-1] - context[0]) / max(n - 1, 1)
-    return context[-1] + slope * np.arange(1, HORIZON + 1)
+    return context[-1] + slope * np.arange(1, _resolve_horizon(meta) + 1)
 
 
 def ewma(context: np.ndarray, meta: dict | None = None, alpha: float = 0.3) -> np.ndarray:
@@ -137,7 +163,7 @@ def ewma(context: np.ndarray, meta: dict | None = None, alpha: float = 0.3) -> n
     level = float(context[0])
     for v in context[1:]:
         level = alpha * float(v) + (1 - alpha) * level
-    return np.full(HORIZON, level, dtype=float)
+    return np.full(_resolve_horizon(meta), level, dtype=float)
 
 
 def ar1(context: np.ndarray, meta: dict | None = None) -> np.ndarray:
@@ -149,16 +175,16 @@ def ar1(context: np.ndarray, meta: dict | None = None) -> np.ndarray:
     mu = float(context.mean())
     x = context - mu
     phi = _ar1_coef(x)
-    h = np.arange(1, HORIZON + 1)
+    h = np.arange(1, _resolve_horizon(meta) + 1)
     return mu + float(x[-1]) * (phi**h)
 
 
-def _naive_flat(context: np.ndarray) -> np.ndarray:
+def _naive_flat(context: np.ndarray, hor: int = HORIZON) -> np.ndarray:
     """Last observed value, held flat -- optimal for a pure random walk."""
-    return np.full(HORIZON, float(context[-1]), dtype=float)
+    return np.full(hor, float(context[-1]), dtype=float)
 
 
-def _damped_forecast(context: np.ndarray) -> np.ndarray:
+def _damped_forecast(context: np.ndarray, hor: int = HORIZON) -> np.ndarray:
     """Holt-style damped trend from the recent local slope.
 
     Extrapolates a recent trend but damps it toward flat, which is well-behaved
@@ -167,12 +193,14 @@ def _damped_forecast(context: np.ndarray) -> np.ndarray:
     k = min(12, len(context) - 1)
     slope = float(np.mean(np.diff(context[-k - 1 :]))) if k >= 1 else 0.0
     phi = 0.9
-    h = np.arange(1, HORIZON + 1)
+    h = np.arange(1, hor + 1)
     damp = phi * (1 - phi**h) / (1 - phi)
     return context[-1] + slope * damp
 
 
-def _hw_ar_forecast(context: np.ndarray) -> np.ndarray:
+def _hw_ar_forecast(
+    context: np.ndarray, hor: int = HORIZON, cands: tuple[int, ...] = SEASONAL_PERIODS
+) -> np.ndarray:
     """Holt-Winters + AR(1): the strong baseline's structural moat.
 
     Estimates seasonality, then a *local damped* level/trend (robust to
@@ -186,7 +214,7 @@ def _hw_ar_forecast(context: np.ndarray) -> np.ndarray:
     t = np.arange(n, dtype=float)
     slope_g, intercept_g = _linfit(context)
     detr = context - (intercept_g + slope_g * t)
-    p = _dominant_period(detr, SEASONAL_PERIODS)
+    p = _dominant_period(detr, cands)
     if p >= 2:
         prof = _seasonal_profile(detr, p)
         seas_in = prof[np.arange(n) % p]
@@ -203,17 +231,19 @@ def _hw_ar_forecast(context: np.ndarray) -> np.ndarray:
     phi = _ar1_coef(resid)
     last_resid = float(resid[-1])
 
-    h = np.arange(1, HORIZON + 1)
+    h = np.arange(1, hor + 1)
     phi_d = 0.9
     damp = phi_d * (1 - phi_d**h) / (1 - phi_d)
     trend_f = level + local_slope * damp
-    future = n + np.arange(HORIZON)
-    seas_f = prof[future % p] if p >= 2 else np.zeros(HORIZON)
+    future = n + np.arange(hor)
+    seas_f = prof[future % p] if p >= 2 else np.zeros(hor)
     ar_f = last_resid * (phi**h)
     return trend_f + seas_f + ar_f
 
 
-def _decompose_global_forecast(context: np.ndarray) -> np.ndarray:
+def _decompose_global_forecast(
+    context: np.ndarray, hor: int = HORIZON, cands: tuple[int, ...] = SEASONAL_PERIODS
+) -> np.ndarray:
     """Global-trend + seasonality + AR(1) residual.
 
     Complements ``hw_ar``: when the trend really is a single clean global line
@@ -225,7 +255,7 @@ def _decompose_global_forecast(context: np.ndarray) -> np.ndarray:
     t = np.arange(n, dtype=float)
     slope, intercept = _linfit(context)
     detr = context - (intercept + slope * t)
-    p = _dominant_period(detr, SEASONAL_PERIODS)
+    p = _dominant_period(detr, cands)
     if p >= 2:
         prof = _seasonal_profile(detr, p)
         seas_in = prof[np.arange(n) % p]
@@ -234,10 +264,10 @@ def _decompose_global_forecast(context: np.ndarray) -> np.ndarray:
     resid = detr - seas_in
     phi = _ar1_coef(resid)
     last = float(resid[-1] - resid.mean())
-    th = np.arange(n, n + HORIZON)
+    th = np.arange(n, n + hor)
     trend_f = intercept + slope * th
-    seas_f = prof[th % p] if p >= 2 else np.zeros(HORIZON)
-    ar_f = last * (phi ** np.arange(1, HORIZON + 1))
+    seas_f = prof[th % p] if p >= 2 else np.zeros(hor)
+    ar_f = last * (phi ** np.arange(1, hor + 1))
     return trend_f + seas_f + ar_f
 
 
@@ -246,18 +276,31 @@ def _decompose_global_forecast(context: np.ndarray) -> np.ndarray:
 # the two structural candidates (``hw_ar`` local-trend, ``decomp`` global-trend)
 # are what let it pull decisively ahead on structured data, in either trend
 # regime.
-_STRONG_CANDIDATES: dict[str, Callable[[np.ndarray], np.ndarray]] = {
+# Every candidate takes ``(context, hor, cands)`` so the strong baseline
+# serves any per-cadence profile shape with one frozen candidate set.
+_STRONG_CANDIDATES: dict[str, Callable[[np.ndarray, int, tuple[int, ...]], np.ndarray]] = {
     "hw_ar": _hw_ar_forecast,
     "decomp": _decompose_global_forecast,
-    "naive": _naive_flat,
-    "drift": lambda c: drift(c),
-    "damped": _damped_forecast,
-    "ewma": lambda c: ewma(c),
-    "seasonal": lambda c: seasonal_naive(c),
+    "naive": lambda c, h, s: _naive_flat(c, h),
+    "drift": lambda c, h, s: drift(c, {"horizon": h}),
+    "damped": lambda c, h, s: _damped_forecast(c, h),
+    "ewma": lambda c, h, s: ewma(c, {"horizon": h}),
+    "seasonal": lambda c, h, s: _hw_seasonal_repeat(c, h, s),
 }
 
 
-def _backtest_best(context: np.ndarray) -> str:
+def _hw_seasonal_repeat(context: np.ndarray, hor: int, cands: tuple[int, ...]) -> np.ndarray:
+    """seasonal_naive with an explicit candidate list (the public function
+    derives candidates from meta; the strong candidate gets them directly)."""
+    n = len(context)
+    p = _dominant_period(context, cands)
+    if p < 2:
+        return np.full(hor, context[-1], dtype=float)
+    idx = n - p + (np.arange(hor) % p)
+    return context[idx].astype(float)
+
+
+def _backtest_best(context: np.ndarray, hor: int, cands: tuple[int, ...]) -> str:
     """Pick the candidate with the lowest error over rolling backtest windows.
 
     Two windows (when the context allows) make the selection robust to a single
@@ -266,18 +309,18 @@ def _backtest_best(context: np.ndarray) -> str:
     names = list(_STRONG_CANDIDATES)
     n = len(context)
     ends = [n]
-    if n - HORIZON > 2 * HORIZON + 8:
-        ends.append(n - HORIZON // 2)
+    if n - hor > 2 * hor + 8:
+        ends.append(n - hor // 2)
     totals = {k: 0.0 for k in names}
     used = 0
     for end in ends:
-        train, val = context[: end - HORIZON], context[end - HORIZON : end]
-        if len(train) < HORIZON + 8:
+        train, val = context[: end - hor], context[end - hor : end]
+        if len(train) < hor + 8:
             continue
         scale = _scale(train)
         used += 1
         for k in names:
-            totals[k] += _mae(_STRONG_CANDIDATES[k](train), val) / scale
+            totals[k] += _mae(_STRONG_CANDIDATES[k](train, hor, cands), val) / scale
     if used == 0:
         return "hw_ar"
     return min(names, key=lambda k: totals[k])
@@ -295,7 +338,9 @@ def strong(context: np.ndarray, meta: dict | None = None) -> np.ndarray:
     It estimates everything from the context, so its edge is genuine skill. Swap in
     a real zero-shot TSFM via :func:`default_panel` to raise that bar.
     """
-    return _STRONG_CANDIDATES[_backtest_best(context)](context)
+    hor = _resolve_horizon(meta)
+    cands = _season_candidates(len(context), meta)
+    return _STRONG_CANDIDATES[_backtest_best(context, hor, cands)](context, hor, cands)
 
 
 def default_panel(strong_model: PanelModel | None = None) -> dict[str, PanelModel]:
@@ -404,7 +449,7 @@ def parrot_error(challenges: list[Challenge]) -> float:
     total = 0.0
     for ch in challenges:
         scale = _scale(ch.context)
-        pred = context_parrot(ch.context)
+        pred = context_parrot(ch.context, getattr(ch, "meta", None))
         total += _mae(pred, ch.truth) / scale
     return total / max(len(challenges), 1)
 
