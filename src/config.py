@@ -14,10 +14,51 @@ from __future__ import annotations
 # --------------------------------------------------------------------------- #
 
 CONTEXT_LEN: int = 256
-"""Length of the observed context window handed to every forecaster."""
+"""Fallback context length (used when a challenge's cadence has no profile,
+and by fixed-shape test/synthetic sets)."""
 
 HORIZON: int = 48
-"""Number of steps each forecaster must predict."""
+"""Fallback horizon (same role as CONTEXT_LEN)."""
+
+# Per-cadence challenge shapes, keyed by the FREQ_BAND cadence label.
+# Grounded in the 2026-07-03 rank-stability experiment (verification_log.md):
+# ctx 512 cuts hourly-band error ~35% vs 256 and keeps the context-parrot floor
+# honest (parrot only dominates at 1024); daily horizons beyond ~2 weeks are
+# noise-dominated (parrot ranked #1 in 8/9 daily cells at h>=24). Horizons track
+# the operational loop: daily cutoff, forecast O(12-24h) ahead at native cadence.
+PROFILES: dict[str, tuple[int, int]] = {
+    "sub-min": (512, 48),
+    "few-min": (512, 48),
+    "half-hour": (512, 48),
+    "hourly": (512, 24),
+    "daily": (256, 14),
+    "weekly": (128, 8),
+    "monthly": (128, 12),
+    "quarterly": (64, 8),
+    "yearly": (64, 8),
+}
+
+# Season length per ISO-8601 sampling interval, the gluonts/GIFT-Eval convention:
+# one natural cycle in steps (daily cycle for sub-daily data; the calendar cycle
+# above that). Frequencies absent here score with m=1 (non-seasonal MASE).
+# Shared by the evaluator (MASE scaling) and the panel's seasonality search.
+FREQ_SEASONALITY: dict[str, int] = {
+    "PT30S": 120,   # 1 hour
+    "PT1M": 1440,   # 1 day
+    "PT2M30S": 576,
+    "PT5M": 288,
+    "PT6M": 240,
+    "PT10M": 144,
+    "PT15M": 96,
+    "PT30M": 48,
+    "PT1H": 24,
+    "PT8H": 3,
+    "P1D": 1,
+    "P1W": 1,
+    "P1M": 12,
+    "P1Q": 4,
+    "P1Y": 1,
+}
 
 N_CHALLENGES: int = 64
 """Default number of challenges assembled per epoch / evaluation."""
