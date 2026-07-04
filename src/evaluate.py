@@ -353,6 +353,40 @@ def clears_floor(
     }
 
 
+def _per_challenge_scores(
+    forecaster: Forecaster, challenges: list, seasonality: int | None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Per-challenge (mase, crps, unseen-weight) arrays for robust aggregation."""
+    from config import UNSEEN_WEIGHT_FLOOR
+
+    mases, crpss, ws = [], [], []
+    for ch in challenges:
+        truth = np.asarray(ch.truth, dtype=float)
+        meta = getattr(ch, "meta", None)
+        fc = forecaster(ch.context, meta)
+        if seasonality is None:
+            freq = meta.get("freq") if isinstance(meta, dict) else None
+            m = season_length(freq, len(ch.context))
+        else:
+            m = seasonality
+        mases.append(float(np.mean(np.abs(truth - np.asarray(fc.mean, dtype=float))))
+                     / _naive_scale(ch.context, m))
+        levels = sorted(fc.quantiles)
+        q_stack = np.stack([np.asarray(fc.quantiles[lv], dtype=float) for lv in levels])
+        crps = np.mean([
+            2.0 * float(np.mean(_pinball(
+                truth,
+                np.array([np.interp(q, levels, q_stack[:, h]) for h in range(q_stack.shape[1])]),
+                q,
+            )))
+            for q in _CRPS_QUANTILES
+        ])
+        crpss.append(float(crps))
+        unseen = float(meta.get("unseen_frac", 0.0)) if isinstance(meta, dict) else 0.0
+        ws.append(UNSEEN_WEIGHT_FLOOR + (1.0 - UNSEEN_WEIGHT_FLOOR) * unseen)
+    return np.array(mases), np.array(crpss), np.array(ws)
+
+
 def leaderboard(
     forecasters: dict[str, Forecaster],
     challenges: list,
@@ -362,14 +396,61 @@ def leaderboard(
 ) -> list[dict[str, object]]:
     """Score every named forecaster and return rows ranked by ``primary`` (asc).
 
+    Ranking uses the **seasonal-naive-relative shifted geometric mean** of the
+    primary metric (``<primary>_rel`` columns), normalised at the *source*
+    level — the GIFT-Eval / BOOM per-dataset convention: challenges are grouped
+    by ``source_id``, each model's unseen-weighted mean score per source is
+    divided by the seasonal-naive forecaster's, and the ratios are aggregated
+    by weighted shifted gmean. Per-source (not per-challenge) normalisation
+    matters: on near-flat challenges seasonal-naive's error approaches zero and
+    per-challenge ratios explode, inverting the ranking. The gmean is robust to
+    the heavy-tailed per-challenge scores that let a handful of blow-ups set an
+    arithmetic-mean rank (observed live: Chronos-Bolt won 63% of challenges
+    against ewma yet ranked below it on mean MASE). The arithmetic-mean metric
+    suite is still reported per row.
+
     Pass the models under test merged with :func:`probabilistic_panel` to see
     where a submission lands relative to the known-quality reference rungs.
     """
+    from score import seasonal_naive
+
+    naive_mase, naive_crps, w = _per_challenge_scores(
+        probabilistic(seasonal_naive), challenges, seasonality
+    )
+    sources = np.array([
+        str((getattr(ch, "meta", None) or {}).get("source_id")) for ch in challenges
+    ])
+    groups = {s: np.flatnonzero(sources == s) for s in dict.fromkeys(sources)}
+
+    def _per_source_rel(model_scores: np.ndarray, naive_scores: np.ndarray) -> float:
+        ratios, weights = [], []
+        for idx in groups.values():
+            wg = w[idx]
+            naive_mean = float(np.average(naive_scores[idx], weights=wg))
+            model_mean = float(np.average(model_scores[idx], weights=wg))
+            ratios.append(model_mean / max(naive_mean, _EPS))
+            weights.append(float(wg.sum()))
+        return shifted_gmean(ratios, weights=weights)
+
     rows = []
     for name, fc in forecasters.items():
-        m = evaluate_forecaster(fc, challenges, seasonality=seasonality)
+        # Cache forecasts by context identity so each model runs inference
+        # exactly once per challenge across the two scoring passes.
+        cache: dict[int, ProbForecast] = {}
+
+        def replay(context, meta=None, _fc=fc, _cache=cache):
+            key = id(context)
+            if key not in _cache:
+                _cache[key] = _fc(context, meta)
+            return _cache[key]
+
+        m = evaluate_forecaster(replay, challenges, seasonality=seasonality)
+        ms, cs, _ = _per_challenge_scores(replay, challenges, seasonality)
+        m["mase_rel"] = _per_source_rel(ms, naive_mase)
+        m["crps_rel"] = _per_source_rel(cs, naive_crps)
         rows.append({"model": name, **m})
-    rows.sort(key=lambda r: r[primary])
+    rank_key = f"{primary}_rel" if f"{primary}_rel" in rows[0] else primary
+    rows.sort(key=lambda r: r[rank_key])
     for i, r in enumerate(rows, 1):
         r["rank"] = i
     return rows
@@ -423,19 +504,27 @@ def benchmark_has_headroom(
 # --------------------------------------------------------------------------- #
 
 
-def shifted_gmean(values: list[float] | np.ndarray, shift: float = 1e-5) -> float:
+def shifted_gmean(
+    values: list[float] | np.ndarray,
+    shift: float = 1e-5,
+    weights: list[float] | np.ndarray | None = None,
+) -> float:
     """Shifted geometric mean ``exp(mean(log(x + shift))) - shift``.
 
     The aggregation BOOM / Toto use across heterogeneous datasets: robust to the
     near-zero, heavy-tailed, zero-inflated scores that wreck an arithmetic mean,
     while still defined when some values are exactly zero. NaNs are dropped.
+    ``weights`` (e.g. the unseen-fraction challenge weights) turn it into a
+    weighted geometric mean; they are aligned with ``values`` before NaN-drop.
     """
     x = np.asarray(values, dtype=float)
-    x = x[np.isfinite(x)]
+    w = np.ones_like(x) if weights is None else np.asarray(weights, dtype=float)
+    keep = np.isfinite(x) & np.isfinite(w) & (w > 0)
+    x, w = x[keep], w[keep]
     if x.size == 0:
         return float("nan")
     x = np.clip(x, 0.0, None)
-    return float(np.exp(np.mean(np.log(x + shift))) - shift)
+    return float(np.exp(np.average(np.log(x + shift), weights=w)) - shift)
 
 
 def normalized_leaderboard(
