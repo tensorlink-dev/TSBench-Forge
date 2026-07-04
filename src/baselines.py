@@ -44,7 +44,7 @@ def context_parrot(
     meta: dict | None = None,
     *,
     query_len: int | None = None,
-    horizon: int = HORIZON,
+    horizon: int | None = None,
 ) -> np.ndarray:
     """Nearest-neighbour "copy the future that followed the most similar past".
 
@@ -58,6 +58,9 @@ def context_parrot(
     This is deliberately the cheapest non-trivial forecaster imaginable; a model
     that cannot beat it has not learned dynamics, only repetition.
     """
+    if horizon is None:
+        # Per-cadence profile horizon when the challenge carries one.
+        horizon = int(meta["horizon"]) if isinstance(meta, dict) and meta.get("horizon") else HORIZON
     x = np.asarray(context, dtype=float).reshape(-1)
     n = x.size
     q = query_len or max(8, min(2 * horizon, n // 4))
