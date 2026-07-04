@@ -921,3 +921,43 @@ panel rungs order correctly with parrot last):
   2025-09-07; keeps floor weight only.
 - **Timestamp parse fallbacks** for wikimedia (YYYYMMDDHH) and NDBC ("YY MM DD hh mm")
   so those series carry ts and can earn unseen weight (pool ts-None 23→12 of 96).
+
+## 2026-07-04 — Tier-1 keyless batch from the autoresearch run (11 sources added)
+
+All entries dry-run + live-scraped on admission day; admission gate (`--assess`)
+run wherever enough rows exist. Catalog: 92 → 103 sources.
+
+### Admitted by the deterministic gate
+- **nvd_cve_disclosures** — 2,000 rows (30-day window), CVSS base-score series; admitted 1/1.
+- **nasa_eonet_events** — 500 open events, magnitude series; admitted 1/1.
+
+### Scraped clean; gate verdicts to know about
+- **ea_uk_rainfall_15min** — 6 stations × 1,000 readings (PT15M, fills nature/few-min).
+  3/6 pass intrinsic checks — the failures are dry-spell flatlines, inherent to
+  zero-inflated rainfall, not data faults; passing stations rotate with weather.
+- **sec_filer_submissions** — 6-filer panel (JPM alone ~25k filings); 3/6 pass —
+  low-cardinality size series on sparse filers. Passing filers are dense ones.
+- **emsc_seismic_events** — 1,000 events, fresh; NOT admitted: magnitude arrivals have
+  predictability 0.11 < 0.15 (event magnitudes are ~i.i.d. — the gate is correct).
+  Kept for parity with usgs_earthquakes_realtime (same semantics) and as raw material
+  for a future count-per-interval aggregation, which is the forecastable signal.
+- **cisa_kev_catalog** — 940 rows of full history; NOT admitted for the same reason
+  (rank-encoded vendor is noise). The forecastable signal is additions-per-day;
+  needs count aggregation. License/freshness clean.
+
+### Accumulating (too few rows to assess yet)
+- **openfda_food_recalls** (87), **usgs_elevated_volcanoes** (3),
+  **tsunami_alert_feed** (1 — Atom; scraper's RSS parser extended to handle
+  namespaced Atom <entry>/<updated>), and the two snapshot sources
+  **wsdot_ferry_locations** / **tfl_road_disruptions** (1 row per poll, LTA-style).
+
+### Deliberately NOT added (from the 45-candidate list)
+- SEC EDGAR full-text search + current-filings Atom: overlap sec_filer_submissions.
+- npm _changes: redundant with npm_downloads_per_pkg; cumulative-seq semantics weak.
+- NOAA SPC storm reports: today.csv concatenates three differently-headed CSV
+  sections; needs a dedicated parser first.
+- WHO Disease Outbreak News / Alberta ER waits: HTML pages, need scraping adapters.
+- RIPE RIS Live: websocket; scraper has no ws support.
+
+### Scraper change
+- `_records_from_rss` now also parses Atom feeds (namespaced entry/updated/category).

@@ -501,6 +501,22 @@ def _records_from_rss(text: str, schema: dict) -> list[dict]:
         ts = item.findtext("pubDate")
         val = item.findtext("category") or item.findtext("title") or ""
         rows.append({"timestamp": _epoch_to_iso(ts) or ts, "value": val})
+    if not rows:
+        # Atom feeds (tsunami.gov, many gov alert streams): namespaced
+        # <entry> elements with <updated>/<title>/<category term=...>.
+        for entry in root.iter():
+            if entry.tag.rsplit("}", 1)[-1] != "entry":
+                continue
+            ts = val = None
+            for child in entry:
+                tag = child.tag.rsplit("}", 1)[-1]
+                if tag == "updated":
+                    ts = child.text
+                elif tag == "category" and child.get("term"):
+                    val = child.get("term")
+                elif tag == "title" and val is None:
+                    val = child.text
+            rows.append({"timestamp": _epoch_to_iso(ts) or ts, "value": val or ""})
     return rows
 
 
