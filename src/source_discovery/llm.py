@@ -126,26 +126,49 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
             "Use `--dry-run` to emit the assembled prompt, or `--vet <file>` to vet "
             "candidates produced elsewhere."
         )
-    payload = json.dumps(
-        {
-            "model": cfg.model,
-            "messages": assemble_messages(inputs),
-            "temperature": cfg.temperature,
-            "max_tokens": cfg.max_tokens,
-        }
-    ).encode()
-    req = urllib.request.Request(
-        cfg.base_url,
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {cfg.api_key}",
-            "Content-Type": "application/json",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=cfg.timeout) as resp:
-            body = json.loads(resp.read().decode())
-    except urllib.error.URLError as exc:  # pragma: no cover - network path
-        raise RuntimeError(f"OpenRouter call failed: {exc}") from exc
-    text = body["choices"][0]["message"]["content"]
-    return parse_response(text)
+    def _call(max_tokens: int) -> dict:
+        payload = json.dumps(
+            {
+                "model": cfg.model,
+                "messages": assemble_messages(inputs),
+                "temperature": cfg.temperature,
+                "max_tokens": max_tokens,
+            }
+        ).encode()
+        req = urllib.request.Request(
+            cfg.base_url,
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {cfg.api_key}",
+                "Content-Type": "application/json",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=cfg.timeout) as resp:
+                return json.loads(resp.read().decode())
+        except urllib.error.URLError as exc:  # pragma: no cover - network path
+            raise RuntimeError(f"OpenRouter call failed: {exc}") from exc
+
+    # Reasoning models (GLM, o-series, R1...) can spend the entire completion
+    # budget on hidden reasoning and return content=None with
+    # finish_reason="length". Retry once with a doubled budget before failing.
+    max_tokens = cfg.max_tokens
+    for attempt in range(2):
+        body = _call(max_tokens)
+        choice = (body.get("choices") or [{}])[0]
+        msg = choice.get("message") or {}
+        text = msg.get("content") or ""
+        if text.strip():
+            return parse_response(text)
+        finish = choice.get("finish_reason")
+        if finish == "length" and attempt == 0:
+            max_tokens *= 2
+            continue
+        err = (body.get("error") or {}).get("message")
+        raise RuntimeError(
+            f"OpenRouter returned no content (model={cfg.model}, "
+            f"finish_reason={finish!r}, error={err!r}, max_tokens={max_tokens}). "
+            "For reasoning models raise OPENROUTER_MAX_TOKENS or pick a "
+            "non-reasoning OPENROUTER_MODEL."
+        )
+    raise AssertionError("unreachable")  # pragma: no cover
