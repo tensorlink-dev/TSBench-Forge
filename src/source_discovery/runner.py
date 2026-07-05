@@ -30,13 +30,27 @@ def target_coverage() -> dict:
 
 
 def build_inputs(catalog_path: str | Path) -> dict:
-    """Assemble the agent inputs (deterministic, no LLM)."""
+    """Assemble the agent inputs (deterministic, no LLM).
+
+    The prompt's CURRENT_SOURCES is one terse string per source, not the full
+    registry: reasoning models burn their completion budget deliberating over
+    large structured blocks (observed: ~40% of sweep rounds dying with
+    finish_reason=length once the full 63kB registry + ledger were in the
+    prompt). The full registry still backs the coverage matrix and vetting.
+    """
+    from urllib.parse import urlparse
+
     registry = coverage.load_registry(catalog_path)
     led = ledger.load(ledger.ledger_path(catalog_path))
+    compact = [
+        f"{e['id']} [{e['domain']}/{e['cadence']}] "
+        f"{urlparse(str(e.get('url_or_endpoint', ''))).netloc}"
+        for e in registry
+    ]
     return {
-        "registry": registry,  # kept for vetting; not sent verbatim if large
+        "registry": registry,  # kept for vetting; not sent verbatim
         "ledger": led,  # kept for vetting; compact form goes in the prompt
-        "current_sources": registry,
+        "current_sources": compact,
         "coverage_summary": coverage.summarize(registry),
         "target_coverage": target_coverage(),
         "contamination_denylist": list(config.CONTAMINATION_DENYLIST),
