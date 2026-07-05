@@ -29,3 +29,38 @@ Blocked/wrong from probes: OpenChargeMap (403, needs key), NTSB AviationData
 
 Next batch when desired: the seven 200s above can go through the standard
 admission pipeline (entry → dry-run → scrape → --assess → cron → PR).
+
+---
+
+## 2026-07-05 (later) — ledger-aware rounds: 32 fresh candidates, all live-probed
+
+10 rounds with the new proposal ledger active: 39 proposals, **zero repeats**
+(vs Steam 55x blind), 32 accepts — every one a host never proposed in 113 prior
+rounds. All probed from the scrape host:
+
+### Verified live, keyless — ready for the admission pipeline (12)
+| candidate | domain / cadence | note |
+|---|---|---|
+| Launch Library 2 (thespacedevs) | transport / irregular | 200 |
+| bioRxiv/medRxiv details API | healthcare / irregular | 200, date-ranged |
+| GeoNet NZ quakes | nature / irregular | 200; NZ counterpart to USGS/EMSC |
+| **PEGELONLINE water gauges** | nature / PT15M | 200 via `www.pegelonline.wsv.de` (bare host connection-fails) |
+| Jikan (MyAnimeList) episodes | sales / irregular | 200 |
+| CFTC press-release RSS | econ_fin / irregular | 200 |
+| CPSC recalls RSS | healthcare / irregular | 200 via `/Newsroom/CPSC-RSS-Feed` (proposed path 404) |
+| MBTA v3 alerts | transport / irregular | 200 keyless (rate-limited) |
+| ISC/SANS DShield portdata | web_cloudops / PT5M | 200 |
+| SEPTA alerts | transport / irregular | 200 via `/api/Alerts/index.php` |
+| World Bank WDI | econ_fin / P1Y | 200 |
+| OECD MEI SDMX-JSON | econ_fin / P1M | 200 (scraper already parses SDMX-JSON) |
+
+### Key-gated, free registration (ledger statuses updated)
+abuse.ch trio (URLhaus/MalwareBazaar/ThreatFox — Auth-Key since 2025), Trakt
+(client id), Finnhub, BEA, TriMet, OpenEnergyMonitor, BoardGameGeek (401s now),
+AEMET (api_key param).
+
+### Blocked / weak from this host
+UN Comtrade, OpenHumans, IMO fireballs, SPP, INTERMAGNET, IMAGE magnetometers:
+connection-level 000 (same class as Polymarket). crt.sh: flaky 502/404. FSIS
+recalls: 403 bot-wall. Coral Reef Watch: product path needs research. DOL
+claims: HTML page, needs a scraping adapter.
