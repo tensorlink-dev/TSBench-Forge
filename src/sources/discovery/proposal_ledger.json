@@ -697,7 +697,7 @@
     "name": "BEA API \u2014 GDP and personal income (quarterly)",
     "domain": "econ_fin",
     "frequency": "P3M",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -715,7 +715,7 @@
     "name": "Finnhub \u2014 real-time market news event stream",
     "domain": "econ_fin",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -832,7 +832,7 @@
     "name": "OpenEnergyMonitor community IoT energy monitors (emoncms.org public feeds)",
     "domain": "energy",
     "frequency": "PT10S",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -888,6 +888,15 @@
     "frequency": "half-hour",
     "status": "rejected",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.swissgrid.ch",
+    "name": "Swissgrid \u2014 real-time grid frequency & control power data",
+    "domain": "energy",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1116,6 +1125,15 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|api.water.noaa.gov",
+    "name": "NOAA National Water Prediction Service \u2014 river forecast & observation API",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|aurorawatch.lancs.ac.uk",
     "name": "AuroraWatch UK \u2014 geomagnetic activity alert feed",
     "domain": "nature",
@@ -1246,7 +1264,7 @@
     "name": "AEMET OpenData \u2014 Spanish weather observations (hourly/half-hourly)",
     "domain": "nature",
     "frequency": "PT30M",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1372,7 +1390,7 @@
     "name": "Trakt TV \u2014 trending shows & scrobble activity",
     "domain": "sales",
     "frequency": "PT15M",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1381,7 +1399,7 @@
     "name": "BoardGameGeek XMLAPI2 \u2014 game ratings and collection counts",
     "domain": "sales",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1419,6 +1437,24 @@
     "frequency": "PT5M",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|ws.audioscrobbler.com",
+    "name": "Last.fm API \u2014 user recent scrobbles (play event stream)",
+    "domain": "sales",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|www.googleapis.com",
+    "name": "YouTube Data API \u2014 per-video statistics (view/like/comment counts)",
+    "domain": "sales",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1516,7 +1552,7 @@
     "name": "TriMet Developer API \u2014 GTFS-RT service alerts",
     "domain": "transport",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1563,6 +1599,15 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|webtris.nationalhighways.co.uk",
+    "name": "National Highways (UK) WebTRIS \u2014 traffic flow roadside sensor data",
+    "domain": "transport",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1705,7 +1750,7 @@
     "name": "MalwareBazaar \u2014 malware sample submission stream (abuse.ch)",
     "domain": "web_cloudops",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1737,6 +1782,24 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|status.azure.com",
+    "name": "Azure Status page RSS feed",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|status.cloud.google.com",
+    "name": "Google Cloud Status Atom feed",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|status.gitlab.com",
     "name": "GitLab.com status incidents (Statuspage.io API)",
     "domain": "web_cloudops",
@@ -1750,7 +1813,7 @@
     "name": "ThreatFox \u2014 IOC submission stream (abuse.ch)",
     "domain": "web_cloudops",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1759,7 +1822,7 @@
     "name": "URLhaus (abuse.ch) \u2014 recent malicious URL submission stream",
     "domain": "web_cloudops",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
