@@ -1,0 +1,1793 @@
+[
+  {
+    "key": "sales|api.steampowered.com",
+    "name": "Steam Web API \u2014 concurrent players per game (real-time polling)",
+    "domain": "sales",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 55
+  },
+  {
+    "key": "healthcare|api.purpleair.com",
+    "name": "PurpleAir real-time PM2.5 sensor network",
+    "domain": "healthcare",
+    "frequency": "PT2M",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 38
+  },
+  {
+    "key": "healthcare|api.fda.gov",
+    "name": "FDA MAUDE adverse event reports",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 30
+  },
+  {
+    "key": "nature|firms.modaps.eosdis.nasa.gov",
+    "name": "NASA FIRMS active fire detections (MODIS + VIIRS)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 24
+  },
+  {
+    "key": "sales|api.twitch.tv",
+    "name": "Twitch Helix API \u2014 live stream viewer counts (top 100 streams aggregate)",
+    "domain": "sales",
+    "frequency": "PT1M",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 23
+  },
+  {
+    "key": "energy|transparency.entsoe.eu",
+    "name": "ENTSO-E Transparency Platform \u2014 unavailability of generation units",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 21
+  },
+  {
+    "key": "energy|web-api.tp.entsoe.eu",
+    "name": "ENTSO-E Transparency Platform \u2014 generation unit unavailability",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 19
+  },
+  {
+    "key": "econ_fin|www.sec.gov",
+    "name": "SEC EDGAR \u2014 Current Filings Feed (Atom/RSS)",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 16
+  },
+  {
+    "key": "healthcare|www.who.int",
+    "name": "WHO Disease Outbreak News (DON) \u2014 event arrival stream",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 15
+  },
+  {
+    "key": "web_cloudops|api.cloudflare.com",
+    "name": "Cloudflare Radar API \u2014 Internet Traffic & Outages",
+    "domain": "web_cloudops",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 15
+  },
+  {
+    "key": "nature|www.spc.noaa.gov",
+    "name": "NOAA SPC Storm Reports (real-time + archive)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 12
+  },
+  {
+    "key": "web_cloudops|atlas.ripe.net",
+    "name": "RIPE Atlas active network measurements",
+    "domain": "web_cloudops",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 11
+  },
+  {
+    "key": "web_cloudops|api.ioda.caida.org",
+    "name": "CAIDA IODA (Internet Outage Detection and Analysis)",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 10
+  },
+  {
+    "key": "healthcare|api.waqi.info",
+    "name": "WAQI (World Air Quality Index) API \u2014 Real-time Station Measurements",
+    "domain": "healthcare",
+    "frequency": "PT1M",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 7
+  },
+  {
+    "key": "energy|www.oe.netl.doe.gov",
+    "name": "DOE OE-417 electric disturbance event log",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 6
+  },
+  {
+    "key": "nature|api.purpleair.com",
+    "name": "PurpleAir Community API \u2014 PM2.5 & meteorological sensor network",
+    "domain": "nature",
+    "frequency": "PT2M",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 6
+  },
+  {
+    "key": "nature|datapoint.metoffice.gov.uk",
+    "name": "UK Met Office DataPoint \u2014 half-hourly observations",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 6
+  },
+  {
+    "key": "sales|api.producthunt.com",
+    "name": "Product Hunt \u2014 product launch events (GraphQL API)",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 6
+  },
+  {
+    "key": "transport|api.openchargemap.io",
+    "name": "Open Charge Map \u2014 EV Charging Station Availability (irregular status changes)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 6
+  },
+  {
+    "key": "econ_fin|ec.europa.eu",
+    "name": "Eurostat \u2014 monthly economic and social indicators (JSON-stat API)",
+    "domain": "econ_fin",
+    "frequency": "P1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 5
+  },
+  {
+    "key": "healthcare|promedmail.org",
+    "name": "ProMED-mail \u2014 Infectious Disease Outbreak Alerts",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 5
+  },
+  {
+    "key": "nature|api.gbif.org",
+    "name": "GBIF species occurrence records (event-time series)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 5
+  },
+  {
+    "key": "web_cloudops|www.cisa.gov",
+    "name": "CISA cybersecurity advisories and alerts feed",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 5
+  },
+  {
+    "key": "econ_fin|banks.data.fdic.gov",
+    "name": "FDIC Bank Failures \u2014 failed bank list (event stream)",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 4
+  },
+  {
+    "key": "econ_fin|efts.sec.gov",
+    "name": "SEC EDGAR \u2014 filing submission arrival rate",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 4
+  },
+  {
+    "key": "energy|api.pjm.com",
+    "name": "PJM Data Miner 2 \u2014 Real-time LMP & Load (5-min)",
+    "domain": "energy",
+    "frequency": "PT5M",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 4
+  },
+  {
+    "key": "energy|www.ercot.com",
+    "name": "ERCOT (Electric Reliability Council of Texas) Real-Time Outlook",
+    "domain": "energy",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 4
+  },
+  {
+    "key": "transport|data.cityofnewyork.us",
+    "name": "NYC DOT Real-Time Traffic Speed Data",
+    "domain": "transport",
+    "frequency": "PT5M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 4
+  },
+  {
+    "key": "transport|data.ntsb.gov",
+    "name": "NTSB Aviation Accident Database",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 4
+  },
+  {
+    "key": "econ_fin|www.treasurydirect.gov",
+    "name": "US Treasury Auction Announcements",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "energy|api.bmreports.com",
+    "name": "UK National Grid ESO \u2014 System Frequency (1-minute)",
+    "domain": "energy",
+    "frequency": "sub-min",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "energy|api.energidataservice.dk",
+    "name": "Energinet DK Power System Right Now",
+    "domain": "energy",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "energy|dataport.pecanstreet.org",
+    "name": "Pecan Street Dataport \u2014 residential electricity consumption & solar generation",
+    "domain": "energy",
+    "frequency": "sub-min",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "energy|midcdmz.nrel.gov",
+    "name": "NREL MIDC \u2014 Measurement and Instrumentation Data Center (1-min solar irradiance)",
+    "domain": "energy",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "healthcare|clinicaltrials.gov",
+    "name": "ClinicalTrials.gov \u2014 new study registration event stream",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "healthcare|www.england.nhs.uk",
+    "name": "NHS England A&E daily and weekly sitrep (acute trust attendance, monthly+weekly)",
+    "domain": "healthcare",
+    "frequency": "weekly",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "nature|api.nasa.gov",
+    "name": "NASA DONKI \u2014 Coronal Mass Ejection (CME) events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "nature|opendata.dwd.de",
+    "name": "DWD (Deutscher Wetterdienst) 10-minute climate observations",
+    "domain": "nature",
+    "frequency": "PT10M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "nature|www.fema.gov",
+    "name": "FEMA Disaster Declarations API",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "nature|www.ncei.noaa.gov",
+    "name": "NOAA NCEI Storm Events Database",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "sales|replicate.npmjs.com",
+    "name": "npm registry CouchDB _changes feed \u2014 package publish event stream",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "transport|api.globalfishingwatch.org",
+    "name": "Global Fishing Watch API \u2014 Vessel Encounter & Port Visit Events",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "transport|stream.aisstream.io",
+    "name": "AISStream.io \u2014 real-time AIS vessel positions (WebSocket)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "transport|www.wsdot.wa.gov",
+    "name": "WSDOT \u2014 Washington State traffic incident reports (real-time event stream)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "web_cloudops|api.gdeltproject.org",
+    "name": "GDELT 2.0 \u2014 global news event database (15-min updates)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "web_cloudops|www.cloudflarestatus.com",
+    "name": "Cloudflare Status \u2014 service incidents and component health (Statuspage API)",
+    "domain": "web_cloudops",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 3
+  },
+  {
+    "key": "econ_fin|api.kraken.com",
+    "name": "Kraken OHLC 30-minute candles",
+    "domain": "econ_fin",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "econ_fin|api.stlouisfed.org",
+    "name": "FRED (Federal Reserve Economic Data) \u2014 monthly & quarterly macro indicators",
+    "domain": "econ_fin",
+    "frequency": "monthly",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "econ_fin|api.thegraph.com",
+    "name": "Uniswap V3 Pool Swap Events (The Graph)",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "econ_fin|data.sec.gov",
+    "name": "SEC EDGAR \u2014 Filing Submission Events (per-filer aggregate)",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|api.bmrs.com",
+    "name": "Elexon BMRS \u2014 GB system frequency (1-second resolution)",
+    "domain": "energy",
+    "frequency": "PT1S",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|data.elexon.co.uk",
+    "name": "Elexon BMRS \u2014 Great Britain electricity market data (frequency, prices, volumes)",
+    "domain": "energy",
+    "frequency": "PT30M (market data) and PT1M (frequency data)",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|data.nationalgrideso.com",
+    "name": "National Grid ESO System Frequency",
+    "domain": "energy",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|pvoutput.org",
+    "name": "PVOutput.org \u2014 rooftop solar PV generation (citizen sensor network)",
+    "domain": "energy",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|www.eia.gov",
+    "name": "EIA \u2014 Electric Disturbance Events (OE-417)",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|www.nrc.gov",
+    "name": "NRC Event Notification Reports \u2014 nuclear reactor incident/event stream",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "nature|ameriflux.lbl.gov",
+    "name": "AmeriFlux eddy covariance \u2014 half-hourly ecosystem fluxes",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "nature|data.icos-cp.eu",
+    "name": "ICOS Carbon Portal \u2014 ecosystem flux tower data (half-hourly NEE)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "nature|environment.data.gov.uk",
+    "name": "UK Environment Agency Real-time Hydrology API",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "nature|eonet.gsfc.nasa.gov",
+    "name": "NASA EONET (Earth Observatory Natural Event Tracker)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "nature|volcano.si.edu",
+    "name": "Smithsonian Global Volcanism Program \u2014 volcanic eruption events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "nature|www.movebank.org",
+    "name": "Movebank Animal GPS Telemetry",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "sales|api.opensea.io",
+    "name": "OpenSea NFT collection sale events",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "sales|hub.docker.com",
+    "name": "Docker Hub repository pull count time series",
+    "domain": "sales",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "transport|api.adsbexchange.com",
+    "name": "ADS-B Exchange \u2014 aircraft count in geographic bounding box",
+    "domain": "transport",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "transport|api.nhtsa.gov",
+    "name": "NHTSA Vehicle Safety Recalls API",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "transport|api.tfl.gov.uk",
+    "name": "TfL Road Network Accident Stats",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "transport|api.wmata.com",
+    "name": "WMATA (Washington DC Metro) real-time rail predictions",
+    "domain": "transport",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "transport|datafeeds.networkrail.co.uk",
+    "name": "Network Rail Data Feeds \u2014 Train Movement Events",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "web_cloudops|api.openstreetmap.org",
+    "name": "OpenStreetMap changeset event stream",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "econ_fin|api.bls.gov",
+    "name": "US Bureau of Labor Statistics Public API \u2014 monthly employment series",
+    "domain": "econ_fin",
+    "frequency": "P1M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.bybit.com",
+    "name": "Bybit v5 API \u2014 BTCUSDT 30-minute klines",
+    "domain": "econ_fin",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.consumerfinance.gov",
+    "name": "CFPB Consumer Complaint Database",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.opensea.io",
+    "name": "OpenSea NFT Floor Prices",
+    "domain": "econ_fin",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.usaspending.gov",
+    "name": "USAspending.gov Federal Awards",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.whale-alert.io",
+    "name": "Whale Alert \u2014 large cryptocurrency transaction events",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.worldbank.org",
+    "name": "World Bank Open Data API \u2014 World Development Indicators (annual)",
+    "domain": "econ_fin",
+    "frequency": "P1Y",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|apps.bea.gov",
+    "name": "BEA API \u2014 GDP and personal income (quarterly)",
+    "domain": "econ_fin",
+    "frequency": "P3M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|comtradeapi.un.org",
+    "name": "UN Comtrade API \u2014 international trade flows (monthly)",
+    "domain": "econ_fin",
+    "frequency": "P1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|finnhub.io",
+    "name": "Finnhub \u2014 real-time market news event stream",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|home.treasury.gov",
+    "name": "OFAC recent sanctions designation actions (US Treasury)",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|oui.doleta.gov",
+    "name": "DOL weekly unemployment insurance initial claims (US, state + national panel)",
+    "domain": "econ_fin",
+    "frequency": "P1W",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|stats.oecd.org",
+    "name": "OECD Main Economic Indicators (MEI) \u2014 monthly leading indicators & confidence in",
+    "domain": "econ_fin",
+    "frequency": "P1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.cftc.gov",
+    "name": "CFTC Press Releases \u2014 enforcement actions and rulemaking announcements",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.okx.com",
+    "name": "OKX \u2014 crypto-pairs 30-minute candlesticks (multi-symbol panel)",
+    "domain": "econ_fin",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.treasurydirect.org",
+    "name": "US TreasuryDirect \u2014 Treasury auction announcements and results",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|api.elexon.co.uk",
+    "name": "Elexon BMRS \u2014 UK Balancing Mechanism half-hourly system prices and volumes",
+    "domain": "energy",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|api.energy-charts.info",
+    "name": "Energy Charts \u2014 Grid Frequency (50Hertz)",
+    "domain": "energy",
+    "frequency": "PT1S",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|api.fingrid.fi",
+    "name": "Fingrid Wind Power Production (Finland)",
+    "domain": "energy",
+    "frequency": "PT3M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|api.misoenergy.org",
+    "name": "MISO Real-Time 5-Minute LMPs",
+    "domain": "energy",
+    "frequency": "PT5M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|apim.pge.com",
+    "name": "PG&E Outage Map API",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|data.fingrid.fi",
+    "name": "Fingrid Open Data API \u2014 Grid Frequency (1-min)",
+    "domain": "energy",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|emoncms.org",
+    "name": "OpenEnergyMonitor community IoT energy monitors (emoncms.org public feeds)",
+    "domain": "energy",
+    "frequency": "PT10S",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|marketplace.spp.org",
+    "name": "SPP Market Data \u2014 Southwest Power Pool real-time LMP (5-min)",
+    "domain": "energy",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|pecanstreet.org",
+    "name": "Pecan Street Residential Energy Telemetry",
+    "domain": "energy",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|reports.ieso.ca",
+    "name": "IESO Ontario \u2014 real-time market price & demand (5-min)",
+    "domain": "energy",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|webservices.iso-ne.com",
+    "name": "ISO New England \u2014 real-time LMP & load (5-min)",
+    "domain": "energy",
+    "frequency": "PT5M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.50hertz.com",
+    "name": "50Hertz grid frequency measurements (1-second)",
+    "domain": "energy",
+    "frequency": "PT1S",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.nordpoolgroup.com",
+    "name": "Nord Pool Day-Ahead Electricity Prices (Nordic/Baltic)",
+    "domain": "energy",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.transnetbw.de",
+    "name": "TransnetBW \u2014 European grid frequency (real-time)",
+    "domain": "energy",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|api.biorxiv.org",
+    "name": "bioRxiv/medRxiv \u2014 preprint publication event stream",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|api.openhumans.org",
+    "name": "Open Humans Foundation \u2014 public personal health data streams",
+    "domain": "healthcare",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|api.safecast.org",
+    "name": "Safecast \u2014 citizen radiation monitoring network (global)",
+    "domain": "healthcare",
+    "frequency": "irregular (event-driven: measurement timestamps)",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|data.police.uk",
+    "name": "UK Police \u2014 street-level crime incidents (Police.uk API)",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|data.sfgov.org",
+    "name": "SFFD Live Dispatch Feed",
+    "domain": "healthcare",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|emergency.cdc.gov",
+    "name": "CDC Health Alert Network (HAN) \u2014 health alert feed",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|openaps.org",
+    "name": "OpenAPS Data Commons",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|physionet.org",
+    "name": "PhysioNet MIMIC-IV Waveform Database \u2014 bedside vital signs",
+    "domain": "healthcare",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|uk-air.defra.gov.uk",
+    "name": "DEFRA UK Automatic Urban and Rural Network (AURN) air quality monitoring",
+    "domain": "healthcare",
+    "frequency": "PT15M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.airnowapi.org",
+    "name": "AirNow API \u2014 real-time AQI from EPA monitoring stations (US)",
+    "domain": "healthcare",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.albertahealthservices.ca",
+    "name": "Alberta Health Services \u2014 Emergency Department Wait Times",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.cpsc.gov",
+    "name": "CPSC Recalls RSS \u2014 Consumer Product Safety Commission recall announcements",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.ecdc.europa.eu",
+    "name": "ECDC Outbreak News RSS",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.fda.gov",
+    "name": "FDA Recalls, Market Withdrawals, & Safety Alerts",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.fema.gov",
+    "name": "FEMA Disaster Declarations Summary",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.fsis.usda.gov",
+    "name": "USDA FSIS Recalls \u2014 Food Safety and Inspection Service recall announcements",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.healthmap.org",
+    "name": "HealthMap \u2014 real-time infectious disease outbreak alerts",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.londonair.org.uk",
+    "name": "London Air Quality Network (LAQN) API \u2014 hourly pollutant concentrations",
+    "domain": "healthcare",
+    "frequency": "PT1H",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|{NIGHTSCOUT_URL}",
+    "name": "OpenAPS Nightscout CGM (Continuous Glucose Monitor) Stream",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|{nightscout_site}",
+    "name": "Nightscout open CGM glucose monitoring (community-hosted)",
+    "domain": "healthcare",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.gdeltproject.org",
+    "name": "GDELT 2.0 Event Database \u2014 Global news event stream (15-min updates)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.geonet.org.nz",
+    "name": "GeoNet NZ \u2014 New Zealand earthquake & volcanic event catalog",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.knmi.nl",
+    "name": "KNMI Open Data API \u2014 Dutch weather station observations (half-hourly)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.metoffice.gov.uk",
+    "name": "UK Met Office DataPoint (half-hourly observations)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|aurorawatch.lancs.ac.uk",
+    "name": "AuroraWatch UK \u2014 geomagnetic activity alert feed",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|blitzortung.org",
+    "name": "Blitzortung.org Real-time Lightning Strikes",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|cdmo.baruch.sc.edu",
+    "name": "NERRS SWMP \u2014 estuarine water quality at 30-minute intervals",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|cneos.jpl.nasa.gov",
+    "name": "NASA CNEOS \u2014 fireball and bolide event reports",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|coralreefwatch.noaa.gov",
+    "name": "NOAA Coral Reef Watch \u2014 coral bleaching alert products (Degree Heating Week)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|data-argo.ifremer.fr",
+    "name": "Argo profiling float observations (Ifremer Coriolis DAC)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|data.blitzortung.org",
+    "name": "Blitzortung.org lightning strike detections",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|data.icos.europa.eu",
+    "name": "ICOS ecosystem flux measurements (European eddy covariance network)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|data.neonscience.org",
+    "name": "NEON \u2014 National Ecological Observatory Network sensor data (30-min environmental",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|firms.modaps.eosdata.nasa.gov",
+    "name": "NASA FIRMS \u2014 VIIRS Active Fire Detections",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|image.oulu.fi",
+    "name": "IMAGE magnetometer network \u2014 Fennoscandian geomagnetic field (41-station panel)",
+    "domain": "nature",
+    "frequency": "PT10S",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|intermagnet.org",
+    "name": "INTERMAGNET \u2014 International Real-time Magnetic Observatory Network geomagnetic m",
+    "domain": "nature",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|kauai.ccmc.gsfc.nasa.gov",
+    "name": "NASA DONKI \u2014 solar flare events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|lightning.blitzortung.org",
+    "name": "Blitzortung.org real-time lightning detection network",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|opendata.aemet.es",
+    "name": "AEMET OpenData \u2014 Spanish weather observations (hourly/half-hourly)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|opendata.fmi.fi",
+    "name": "FMI Open Data \u2014 Finnish Meteorological Institute weather observations (station p",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|pegelonline.wsv.de",
+    "name": "PEGELONLINE \u2014 German federal water level gauge network",
+    "domain": "nature",
+    "frequency": "PT15M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|phenocam.sr.unh.edu",
+    "name": "PhenoCam Network \u2014 vegetation phenology time series (GCC per camera)",
+    "domain": "nature",
+    "frequency": "PT30M (images captured every 30 min; GCC extracted per image)",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|volcanoes.usgs.gov",
+    "name": "USGS Volcano Notifications Service \u2014 Eruption & Unrest Alerts",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.airnowapi.org",
+    "name": "AirNow API (Real-time Air Quality)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.bom.gov.au",
+    "name": "Australian Bureau of Meteorology \u2014 AWS weather observations (30-min)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.eswd.eu",
+    "name": "European Severe Weather Database (ESWD) \u2014 severe weather event reports",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.imo.net",
+    "name": "IMO fireball event reports (International Meteor Organization)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.nhc.noaa.gov",
+    "name": "NOAA NHC \u2014 Tropical Cyclone Advisories (Atlantic + Eastern Pacific)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.seismicportal.eu",
+    "name": "EMSC Seismic Portal \u2014 European-Mediterranean real-time earthquake events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.tsunami.gov",
+    "name": "NOAA NWS Tsunami Warning Messages (PTWC/NTWC)",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.crossref.org",
+    "name": "Crossref DOI Registration Events",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.jikan.moe",
+    "name": "Jikan (MyAnimeList unofficial API) \u2014 anime episode release events",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.trakt.tv",
+    "name": "Trakt TV \u2014 trending shows & scrobble activity",
+    "domain": "sales",
+    "frequency": "PT15M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|boardgamegeek.com",
+    "name": "BoardGameGeek XMLAPI2 \u2014 game ratings and collection counts",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|huggingface.co",
+    "name": "HuggingFace Hub \u2014 model download counts (top-N panel)",
+    "domain": "sales",
+    "frequency": "PT5M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|mastodon.social",
+    "name": "Mastodon Public Timeline (mastodon.social)",
+    "domain": "sales",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|opencollective.com",
+    "name": "Open Collective \u2014 public collective transaction stream",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|steamdb.info",
+    "name": "SteamDB Concurrent Players (Game/App Panel)",
+    "domain": "sales",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|www.kickstarter.com",
+    "name": "Kickstarter \u2014 Project Launches & Funding Milestones",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|511ny.org",
+    "name": "511NY \u2014 New York State traffic events (Open511-compatible)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|api-endpoint.mta.info",
+    "name": "MTA NYC Bus GTFS-RT (Vehicle Positions)",
+    "domain": "transport",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|api-v3.mbta.com",
+    "name": "MBTA v3 API \u2014 service alerts (active disruptions)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|api.opentransportdata.swiss",
+    "name": "Swiss Open Transport Data \u2014 real-time SBB/CFF departures",
+    "domain": "transport",
+    "frequency": "PT30M (real-time updates; pollable at 30-min)",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|api.tfgm.uk",
+    "name": "Transport for Greater Manchester (TfGM) API",
+    "domain": "transport",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|apis.deutschebahn.com",
+    "name": "Deutsche Bahn \u2014 real-time train departure/arrival API",
+    "domain": "transport",
+    "frequency": "PT1M (real-time updates; can be polled at 1-5 min)",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|bwt.cbp.gov",
+    "name": "US CBP Border Wait Times",
+    "domain": "transport",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|cwwp2.dot.ca.gov",
+    "name": "Caltrans QuickMap Traffic Incidents (District 1)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|data.aishub.net",
+    "name": "AISHub real-time AIS vessel positions (maritime traffic)",
+    "domain": "transport",
+    "frequency": "PT1M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|developer.trimet.org",
+    "name": "TriMet Developer API \u2014 GTFS-RT service alerts",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|ll.thespacedevs.com",
+    "name": "Launch Library 2 \u2014 upcoming & recent space launch events",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|navigation.usace.army.mil",
+    "name": "USACE Lock Performance Monitoring System \u2014 vessel lockages",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|realtime.nationalrail.co.uk",
+    "name": "Network Rail OpenLDBWS \u2014 Live Departure Boards Web Service (UK rail station depa",
+    "domain": "transport",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|services.marinetraffic.com",
+    "name": "MarineTraffic (Vessel Positions)",
+    "domain": "transport",
+    "frequency": "PT1M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|transport.opendata.ch",
+    "name": "Transport Opendata Switzerland \u2014 Stationboard",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|www.navcen.uscg.gov",
+    "name": "USCG Local Notice to Mariners (Maritime Alerts)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|www.ntsb.gov",
+    "name": "NTSB aviation accident preliminary reports",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|www3.septa.org",
+    "name": "SEPTA Real-Time API \u2014 service advisories and train views",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|api.bgpstream.com",
+    "name": "CAIDA BGPStream Hijack and Outage Events",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|api.certspotter.com",
+    "name": "Cert Spotter \u2014 SSL Certificate Issuances",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|api.ioda.cmu.edu",
+    "name": "CMU IODA \u2014 Internet Outage Detection and Analysis",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|api.ooni.org",
+    "name": "OONI Internet Censorship Measurements",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|bgpstream.caida.org",
+    "name": "CAIDA BGPStream (BGP updates)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|bgpstream.com",
+    "name": "RIPE NCC BGPStream (Live Routing Updates)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|bsky.social",
+    "name": "Bluesky (AT Protocol) firehose \u2014 event count stream",
+    "domain": "web_cloudops",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|crt.sh",
+    "name": "crt.sh \u2014 Certificate Transparency log search (new cert issuance events)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|data.gdeltproject.org",
+    "name": "GDELT 2.0 Event Database \u2014 real-time global news events",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|ioda.caida.org",
+    "name": "IODA \u2014 Internet Outage Detection and Analysis (CAIDA, global)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|isc.sans.edu",
+    "name": "ISC/SANS DShield API \u2014 internet threat activity (port-level attack counts)",
+    "domain": "web_cloudops",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|mastodon.social",
+    "name": "Mastodon Public Timeline (Post arrival rate)",
+    "domain": "web_cloudops",
+    "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|mb-api.abuse.ch",
+    "name": "MalwareBazaar \u2014 malware sample submission stream (abuse.ch)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|otx.alienvault.com",
+    "name": "AlienVault OTX \u2014 Open Threat Exchange pulse stream (IOC bundles)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|ris-live.ripe.net",
+    "name": "RIPE RIS Live \u2014 real-time BGP update event stream",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|services.nvd.nist.gov",
+    "name": "NIST NVD CVE API \u2014 vulnerability disclosure arrivals",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "wired",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|status.gitlab.com",
+    "name": "GitLab.com status incidents (Statuspage.io API)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|threatfox-api.abuse.ch",
+    "name": "ThreatFox \u2014 IOC submission stream (abuse.ch)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|urlhaus-api.abuse.ch",
+    "name": "URLhaus (abuse.ch) \u2014 recent malicious URL submission stream",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|www.ams-ix.net",
+    "name": "AMS-IX \u2014 Amsterdam Internet Exchange traffic statistics",
+    "domain": "web_cloudops",
+    "frequency": "few-min",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|www.githubstatus.com",
+    "name": "GitHub Status \u2014 incident history (Statuspage API v2)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|www.spamhaus.org",
+    "name": "Spamhaus DROP List",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  }
+]
