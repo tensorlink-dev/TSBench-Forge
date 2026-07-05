@@ -988,3 +988,24 @@ run wherever enough rows exist. Catalog: 92 → 103 sources.
 
 ### Scraper change
 - `_records_from_rss` now also parses Atom feeds (namespaced entry/updated/category).
+
+## 2026-07-05 — wiring batch 2: 12 ledger-round sources added (103 → 115)
+
+All payload-inspected, dry-run, live-scraped on admission day. Gate verdicts:
+- **energinet_dk_power_system** — ADMITTED clean (1-min multivariate Danish grid
+  state: CO2/solar/wind; fills energy/sub-min).
+- **pegelonline_rhine_gauges** — 2/5 gauges pass (dry-July flatlines, inherent to
+  low-water river levels; rotates with weather). www host required; UUID panel.
+- **fdic_bank_failures** — correctly NOT admitted (i.i.d. event sizes, 90y history);
+  kept for count-aggregation future like EMSC/KEV.
+- geonet_nz_quakes, dshield_daily_summary, launch_library_launches,
+  cloudflare_status_incidents, fema_disaster_declarations, mbta_service_alerts,
+  septa_alerts_snapshot (snapshot), biorxiv_preprint_stream, worldbank_wdi_annual —
+  scraped clean; accumulate under cron before assessment. worldbank marked
+  pretraining_novelty: contaminated (yearly-cell filler, floor-weighted forever).
+- **Dropped from batch**: oecd_mei_cli — legacy stats.oecd.org silently redirects to
+  the 9-dim SDMX 2.0 dataflow and ignores the old series key (413 interleaved
+  series per call). Needs the new OECD API dataflow key; deferred. Eurostat
+  deferred (JSON-stat format; SDMX 2.1 endpoint 406s). NCEI storm events deferred
+  (untemplatable compile-date filenames). Jikan skipped (weak snapshot semantics).
+- Scraper: SDMX-JSON 2.0 envelope (data.dataSets + structures) now unwrapped.

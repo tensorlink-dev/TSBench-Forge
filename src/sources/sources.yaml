@@ -3395,3 +3395,303 @@
     last_verified: 2026-07-04T00:00:00Z
     sample_rows: null
     sample_freshness_hours: null
+
+# ============================================================================
+# 2026-07-05 wiring batch 2 — ledger-aware autoresearch candidates
+# ============================================================================
+
+- id: pegelonline_rhine_gauges
+  name: PEGELONLINE — German federal waterway level gauges (15-min)
+  domain: nature
+  dgp_class: hydrology
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    # NOTE: bare pegelonline.wsv.de is connection-blocked from the scrape host;
+    # the www host works. Station shortnames need URL-escaping (umlauts) so the
+    # panel uses UUIDs.
+    url: https://www.pegelonline.wsv.de/webservices/rest-api/v2/stations/{STATION}/W/measurements.json?start=P15D
+    auth: none
+    rate_limit: "polite"
+  panel:
+    - {STATION: "a6ee8177-107b-47dd-bcfd-30960ccc6e9c"}   # Köln (Rhine)
+    - {STATION: "a37a9aa3-45e9-4d90-9df6-109f3a28a5af"}   # Mainz (Rhine)
+    - {STATION: "66ff3eb4-513b-478b-abd2-2f5126ea66fd"}   # Frankfurt Osthafen (Main)
+    - {STATION: "70272185-b2b3-4178-96b8-43bea330dcae"}   # Dresden (Elbe)
+    - {STATION: "ccccb57f-a2f9-4183-ae88-5710d3afaefd"}   # Magdeburg-Strombrücke (Elbe)
+  schema:
+    timestamp_field: "[].timestamp"
+    value_field: "[].value"
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: "15-min readings, near-real-time"
+  pretraining_novelty: partial
+  novelty_notes: "German WSV gauge network; fills the nature/few-min gap alongside EA UK rainfall."
+  license: "DL-DE/BY-2.0 (German federal open data)"
+  sample_path: samples/pegelonline_rhine_gauges.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: energinet_dk_power_system
+  name: Energinet — Danish power system right now (1-min, multivariate)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [smooth_periodic, non_stationary_regime, hierarchical]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/powersystemrightnow?limit=5000
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: records[].Minutes1UTC
+    value_field: ["records[].CO2Emission", "records[].SolarPower", "records[].OffshoreWindPower", "records[].OnshoreWindPower"]
+    variates: 4
+  history_available: P5Y
+  update_cadence_observed: "1-minute"
+  pretraining_novelty: partial
+  novelty_notes: "Danish TSO real-time grid state; 1-min energy fills the energy/sub-min cell."
+  license: "CC-BY-4.0 (Energinet)"
+  sample_path: samples/energinet_dk_power_system.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: geonet_nz_quakes
+  name: GeoNet — New Zealand earthquakes (MMI>=3)
+  domain: nature
+  dgp_class: seismic_event
+  archetypes: [count_discrete, chaotic_nonlinear, zero_inflated_sparse]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.geonet.org.nz/quake?MMI=3
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: features[].properties.time
+    value_field: features[].properties.magnitude
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: "near real-time"
+  pretraining_novelty: partial
+  novelty_notes: "NZ network; third seismic feed (USGS global, EMSC EU/Med, GeoNet NZ)."
+  license: "CC-BY-3.0-NZ (GeoNet)"
+  sample_path: samples/geonet_nz_quakes.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: dshield_daily_summary
+  name: ISC/SANS DShield — daily internet threat summary (records/sources/targets)
+  domain: web_cloudops
+  dgp_class: alert_stream
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://isc.sans.edu/api/dailysummary/{YYYY-MM-DD-180d}/{YYYY-MM-DD}?json
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: "[].date"
+    value_field: "[].records"
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: "daily (~1 week lag on latest days)"
+  pretraining_novelty: partial
+  novelty_notes: "Global honeypot sensor counts; heavy-tailed operational counts."
+  license: "CC-BY-NC (SANS ISC; research use)"
+  sample_path: samples/dshield_daily_summary.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: cloudflare_status_incidents
+  name: Cloudflare Status — incident stream (Statuspage)
+  domain: web_cloudops
+  dgp_class: service_health
+  archetypes: [zero_inflated_sparse, categorical, count_discrete]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://www.cloudflarestatus.com/api/v2/incidents.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: incidents[].created_at
+    value_field: incidents[].impact          # none/minor/major/critical; rank-encoded
+    variates: 1
+  history_available: P1Y
+  update_cadence_observed: "event-driven"
+  pretraining_novelty: partial
+  novelty_notes: "Pairs with aws_health_rss as a second cloud-provider incident stream."
+  license: "Public status feed"
+  sample_path: samples/cloudflare_status_incidents.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: fema_disaster_declarations
+  name: FEMA — disaster declaration summaries (US)
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$orderby=declarationDate desc&$top=1000
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: DisasterDeclarationsSummaries[].declarationDate
+    value_field: DisasterDeclarationsSummaries[].incidentType   # categorical
+    variates: 1
+  history_available: P70Y
+  update_cadence_observed: "event-driven"
+  pretraining_novelty: partial
+  novelty_notes: "US disaster-declaration arrival process."
+  license: "Public domain (FEMA OpenFEMA)"
+  sample_path: samples/fema_disaster_declarations.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: fdic_bank_failures
+  name: FDIC — US bank failures (deposits at failure)
+  domain: econ_fin
+  dgp_class: alert_stream
+  archetypes: [zero_inflated_sparse, count_discrete, non_stationary_regime]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://banks.data.fdic.gov/api/failures?limit=10000&sort_by=FAILDATE&sort_order=ASC
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].data.FAILDATE
+    value_field: data[].data.QBFDEP          # deposits at failure ($k)
+    variates: 1
+  history_available: P90Y
+  update_cadence_observed: "event-driven (rare)"
+  pretraining_novelty: partial
+  novelty_notes: "Long-history sparse financial-stress event series."
+  license: "Public domain (FDIC)"
+  sample_path: samples/fdic_bank_failures.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: mbta_service_alerts
+  name: MBTA v3 — service alerts (severity)
+  domain: transport
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, hierarchical]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api-v3.mbta.com/alerts?page[limit]=500
+    auth: none
+    rate_limit: "keyless throttled; fine at 15-min polls"
+  schema:
+    timestamp_field: data[].attributes.updated_at
+    value_field: data[].attributes.severity   # numeric 1-10
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "continuously updated alert set"
+  pretraining_novelty: clean
+  novelty_notes: "Boston transit disruption severity stream; sister to tfl_road_disruptions."
+  license: "MassDOT developer terms (free)"
+  sample_path: samples/mbta_service_alerts.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: septa_alerts_snapshot
+  name: SEPTA — active alerts/advisories (snapshot)
+  domain: transport
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://www3.septa.org/api/Alerts/index.php
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: now()          # snapshot: active alert set per poll
+    value_field: "[].isalert"
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "continuously updated"
+  pretraining_novelty: clean
+  novelty_notes: "Philadelphia transit; persistence via cron like LTA/WSDOT snapshots."
+  license: "Public (SEPTA API)"
+  sample_path: samples/septa_alerts_snapshot.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: launch_library_launches
+  name: Launch Library 2 — orbital launch events (status at poll)
+  domain: transport
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    # Anonymous quota is 15 req/hour — poll once daily.
+    url: https://ll.thespacedevs.com/2.2.0/launch/previous/?limit=100
+    auth: none
+    rate_limit: "15 req/hour anonymous"
+  schema:
+    timestamp_field: results[].net
+    value_field: results[].status.abbrev      # Success/Failure/Partial; categorical
+    variates: 1
+  history_available: P70Y
+  update_cadence_observed: "event-driven"
+  pretraining_novelty: partial
+  novelty_notes: "Launch cadence/outcome stream."
+  license: "Free tier (The Space Devs)"
+  sample_path: samples/launch_library_launches.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: biorxiv_preprint_stream
+  name: bioRxiv/medRxiv — preprint publication stream
+  domain: healthcare
+  dgp_class: alert_stream
+  archetypes: [count_discrete, smooth_periodic, categorical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.biorxiv.org/details/{SERVER}/{YYYY-MM-DD-30d}/{YYYY-MM-DD}/0
+    auth: none
+    rate_limit: "polite"
+  panel:
+    - {SERVER: "biorxiv"}
+    - {SERVER: "medrxiv"}
+  schema:
+    timestamp_field: collection[].date
+    value_field: collection[].category        # categorical (field)
+    variates: 1
+  history_available: P12Y
+  update_cadence_observed: "daily batches; strong weekly cycle"
+  pretraining_novelty: partial
+  novelty_notes: "Preprint arrival process; weekday seasonality in count aggregation."
+  license: "Public API (CSHL)"
+  sample_path: samples/biorxiv_preprint_stream.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+- id: worldbank_wdi_annual
+  name: World Bank WDI — annual development indicators (US/China panel)
+  domain: econ_fin
+  dgp_class: macro_economic_indicator
+  archetypes: [non_stationary_regime, hierarchical]
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://api.worldbank.org/v2/country/{COUNTRY}/indicator/{INDICATOR}?format=json&date=1960:2026&per_page=100
+    auth: none
+    rate_limit: "polite"
+  panel:
+    - {COUNTRY: "USA", INDICATOR: "NY.GDP.MKTP.CD"}
+    - {COUNTRY: "CHN", INDICATOR: "NY.GDP.MKTP.CD"}
+    - {COUNTRY: "USA", INDICATOR: "FP.CPI.TOTL.ZG"}
+    - {COUNTRY: "CHN", INDICATOR: "FP.CPI.TOTL.ZG"}
+    - {COUNTRY: "USA", INDICATOR: "SP.POP.TOTL"}
+    - {COUNTRY: "CHN", INDICATOR: "SP.POP.TOTL"}
+  schema:
+    timestamp_field: "[1][].date"
+    value_field: "[1][].value"
+    variates: 1
+  history_available: P65Y
+  update_cadence_observed: "annual revisions"
+  pretraining_novelty: contaminated
+  novelty_notes: "WDI is in every corpus — kept ONLY to populate the yearly cadence cell; floor-weight via unseen_frac forever."
+  license: "CC-BY-4.0 (World Bank)"
+  sample_path: samples/worldbank_wdi_annual.json  # PENDING
+  verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}

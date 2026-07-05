@@ -595,7 +595,15 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     if ep_type == "rest_json":
         data = json.loads(blob)
         # SDMX-JSON detection: response with both `dataSets` and `structure` needs
-        # a per-dimension-index decoder (OECD, Eurostat, ECB, IMF).
+        # a per-dimension-index decoder (OECD, Eurostat, ECB, IMF). SDMX-JSON 2.0
+        # (current OECD) nests them under `data` and pluralises `structures`.
+        if isinstance(data, dict) and isinstance(data.get("data"), dict) \
+                and "dataSets" in data["data"]:
+            inner = dict(data["data"])
+            structs = inner.get("structures")
+            if structs and "structure" not in inner:
+                inner["structure"] = structs[0] if isinstance(structs, list) else structs
+            data = inner
         if isinstance(data, dict) and "dataSets" in data and "structure" in data:
             return _records_from_sdmx_json(data, schema)
         return _records_from_json(data, schema)

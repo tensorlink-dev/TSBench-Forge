@@ -16,6 +16,8 @@ schedules:
   # ──────── 1-minute cadence ────────
   - every: PT1M
     sources:
+      - energinet_dk_power_system
+      - geonet_nz_quakes
       - usgs_earthquakes_realtime
       - swpc_planetary_k
       - swpc_solar_wind_plasma
@@ -52,6 +54,9 @@ schedules:
 
   - every: PT15M
     sources:
+      - pegelonline_rhine_gauges
+      - mbta_service_alerts
+      - septa_alerts_snapshot
       - ea_uk_rainfall_15min
       - tfl_road_disruptions
       - tsunami_alert_feed
@@ -71,6 +76,7 @@ schedules:
 
   - every: PT1H
     sources:
+      - cloudflare_status_incidents
       - noaa_tides_coops           # 6-min native; hourly poll captures 10 ticks
       - ndbc_buoy_realtime
       - open_meteo_forecast
@@ -87,6 +93,12 @@ schedules:
 
   - every: P1D
     sources:
+      - dshield_daily_summary
+      - fema_disaster_declarations
+      - fdic_bank_failures
+      - launch_library_launches
+      - biorxiv_preprint_stream
+      - worldbank_wdi_annual
       - nvd_cve_disclosures
       - cisa_kev_catalog
       - openfda_food_recalls
