@@ -90,6 +90,15 @@
     "times_proposed": 15
   },
   {
+    "key": "nature|archive-api.open-meteo.com",
+    "name": "OpenMeteo Historical Weather API \u2014 ERA5 reanalysis 1-hour soil moisture (multi-l",
+    "domain": "nature",
+    "frequency": "PT1H",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 14
+  },
+  {
     "key": "nature|www.spc.noaa.gov",
     "name": "NOAA SPC Storm Reports (real-time + archive)",
     "domain": "nature",
@@ -126,6 +135,15 @@
     "times_proposed": 7
   },
   {
+    "key": "transport|api.openchargemap.io",
+    "name": "Open Charge Map \u2014 EV Charging Station Availability (irregular status changes)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 7
+  },
+  {
     "key": "energy|www.oe.netl.doe.gov",
     "name": "DOE OE-417 electric disturbance event log",
     "domain": "energy",
@@ -156,15 +174,6 @@
     "key": "sales|api.producthunt.com",
     "name": "Product Hunt \u2014 product launch events (GraphQL API)",
     "domain": "sales",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-04",
-    "times_proposed": 6
-  },
-  {
-    "key": "transport|api.openchargemap.io",
-    "name": "Open Charge Map \u2014 EV Charging Station Availability (irregular status changes)",
-    "domain": "transport",
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
@@ -459,6 +468,15 @@
     "times_proposed": 2
   },
   {
+    "key": "energy|archive-api.open-meteo.com",
+    "name": "Open-Meteo Archive API \u2014 ERA5 hourly direct solar radiation (5-location panel)",
+    "domain": "energy",
+    "frequency": "PT1H",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
     "key": "energy|data.elexon.co.uk",
     "name": "Elexon BMRS \u2014 Great Britain electricity market data (frequency, prices, volumes)",
     "domain": "energy",
@@ -621,6 +639,15 @@
     "times_proposed": 2
   },
   {
+    "key": "transport|opensky-network.org",
+    "name": "OpenSky Network \u2014 irregular aircraft state-vector arrival stream (per-receiver e",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
     "key": "web_cloudops|api.openstreetmap.org",
     "name": "OpenStreetMap changeset event stream",
     "domain": "web_cloudops",
@@ -628,6 +655,15 @@
     "status": "proposed",
     "first_proposed": "2026-07-04",
     "times_proposed": 2
+  },
+  {
+    "key": "econ_fin|api-pub.bitfinex.com",
+    "name": "bitfinex_btcusd_30m_candles",
+    "domain": "econ_fin",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
   },
   {
     "key": "econ_fin|api.bls.gov",
@@ -648,6 +684,15 @@
     "times_proposed": 1
   },
   {
+    "key": "econ_fin|api.census.gov",
+    "name": "census_bureau_economic_indicators",
+    "domain": "econ_fin",
+    "frequency": "monthly",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "econ_fin|api.consumerfinance.gov",
     "name": "CFPB Consumer Complaint Database",
     "domain": "econ_fin",
@@ -657,12 +702,39 @@
     "times_proposed": 1
   },
   {
+    "key": "econ_fin|api.data.abs.gov.au",
+    "name": "ABS Data API \u2014 Australian Bureau of Statistics economic indicators",
+    "domain": "econ_fin",
+    "frequency": "monthly",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "econ_fin|api.opensea.io",
     "name": "OpenSea NFT Floor Prices",
     "domain": "econ_fin",
     "frequency": "PT30M",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.scb.se",
+    "name": "scb_statistics_sweden",
+    "domain": "econ_fin",
+    "frequency": "quarterly",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.stocktwits.com",
+    "name": "stocktwits_trending_symbols",
+    "domain": "econ_fin",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
     "times_proposed": 1
   },
   {
@@ -711,6 +783,42 @@
     "times_proposed": 1
   },
   {
+    "key": "econ_fin|data-api.ecb.europa.eu",
+    "name": "ecb_data_portal_statistics",
+    "domain": "econ_fin",
+    "frequency": "monthly",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|data.alpaca.markets",
+    "name": "alpaca_markets_stock_trades",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|emma.msrb.org",
+    "name": "msrb_emma_muni_bond_trades",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|fca_uk_firm_register",
+    "name": "fca_uk_firm_register",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "econ_fin|finnhub.io",
     "name": "Finnhub \u2014 real-time market news event stream",
     "domain": "econ_fin",
@@ -720,10 +828,64 @@
     "times_proposed": 1
   },
   {
+    "key": "econ_fin|gemini_exchange_ticker",
+    "name": "gemini_exchange_ticker",
+    "domain": "econ_fin",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "econ_fin|home.treasury.gov",
     "name": "OFAC recent sanctions designation actions (US Treasury)",
     "domain": "econ_fin",
     "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|imf_data_portal",
+    "name": "imf_data_portal",
+    "domain": "econ_fin",
+    "frequency": "monthly",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|nasdaq_trader_halts",
+    "name": "nasdaq_trader_halts",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|occ_enforcement_actions",
+    "name": "occ_enforcement_actions",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|ofac.treasury.gov",
+    "name": "OFAC sanctions list updates \u2014 RSS feed",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|opendata.cbs.nl",
+    "name": "cbs_statistics_netherlands",
+    "domain": "econ_fin",
+    "frequency": "monthly",
     "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
@@ -738,11 +900,47 @@
     "times_proposed": 1
   },
   {
+    "key": "econ_fin|quickstats.nass.usda.gov",
+    "name": "USDA NASS Quick Stats API \u2014 agricultural production statistics",
+    "domain": "econ_fin",
+    "frequency": "monthly",
+    "status": "key-gated",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "econ_fin|stats.oecd.org",
     "name": "OECD Main Economic Indicators (MEI) \u2014 monthly leading indicators & confidence in",
     "domain": "econ_fin",
     "frequency": "P1M",
     "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|uk_ons_time_series",
+    "name": "uk_ons_time_series",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.bankofcanada.ca",
+    "name": "bank_of_canada_valet_exchange_and_policy",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.bankofengland.co.uk",
+    "name": "bankofengland_statistical_database",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "rejected",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -756,6 +954,42 @@
     "times_proposed": 1
   },
   {
+    "key": "econ_fin|www.deribit.com",
+    "name": "deribit_options_market_data",
+    "domain": "econ_fin",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.finra.org",
+    "name": "finra_disciplinary_actions",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.ftc.gov",
+    "name": "ftc_enforcement_actions",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.metaculus.com",
+    "name": "metaculus_questions_api",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "econ_fin|www.okx.com",
     "name": "OKX \u2014 crypto-pairs 30-minute candlesticks (multi-symbol panel)",
     "domain": "econ_fin",
@@ -765,12 +999,48 @@
     "times_proposed": 1
   },
   {
+    "key": "econ_fin|www.opec.org",
+    "name": "opec_production_decisions",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.rba.gov.au",
+    "name": "rba_statistical_tables",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "econ_fin|www.treasurydirect.org",
     "name": "US TreasuryDirect \u2014 Treasury auction announcements and results",
     "domain": "econ_fin",
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|amprion_grid_events",
+    "name": "amprion_grid_events",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|api.elering.ee",
+    "name": "Elering Estonia \u2014 real-time electricity consumption & production",
+    "domain": "energy",
+    "frequency": "PT1M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -828,6 +1098,24 @@
     "times_proposed": 1
   },
   {
+    "key": "energy|data.rte-france.com",
+    "name": "rte_france_grid_alerts",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|eirgrid_smart_grid_dashboard",
+    "name": "eirgrid_smart_grid_dashboard",
+    "domain": "energy",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "energy|emoncms.org",
     "name": "OpenEnergyMonitor community IoT energy monitors (emoncms.org public feeds)",
     "domain": "energy",
@@ -837,11 +1125,65 @@
     "times_proposed": 1
   },
   {
+    "key": "energy|epexspot_power_market",
+    "name": "epexspot_power_market",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|flexalert.org",
+    "name": "caiso_flex_alert_feed",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|loadshedding.eskom.co.za",
+    "name": "eskom_loadshedding_status",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "energy|marketplace.spp.org",
     "name": "SPP Market Data \u2014 Southwest Power Pool real-time LMP (5-min)",
     "domain": "energy",
     "frequency": "PT5M",
     "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|nemweb.com.au",
+    "name": "aemo_nemweb_market_notices",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|nerc_reliability_alerts",
+    "name": "nerc_reliability_alerts",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|opennem.org.au",
+    "name": "opennem_australian_electricity",
+    "domain": "energy",
+    "frequency": "few-min",
+    "status": "rejected",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -855,10 +1197,55 @@
     "times_proposed": 1
   },
   {
+    "key": "energy|poweroutage_us_outage_counts",
+    "name": "poweroutage_us_outage_counts",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|pris.iaea.org",
+    "name": "iaea_pris_reactor_status",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|ree_spain_grid_data",
+    "name": "ree_spain_grid_data",
+    "domain": "energy",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "energy|reports.ieso.ca",
     "name": "IESO Ontario \u2014 real-time market price & demand (5-min)",
     "domain": "energy",
     "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|transparency.entsog.eu",
+    "name": "entsog_european_gas_flows",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|watttime_marginal_emissions",
+    "name": "watttime_marginal_emissions",
+    "domain": "energy",
+    "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
@@ -882,12 +1269,57 @@
     "times_proposed": 1
   },
   {
+    "key": "energy|www.emi.ea.govt.nz",
+    "name": "nz_electricity_authority_emi",
+    "domain": "energy",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.ferc.gov",
+    "name": "ferc_electric_reliability_events",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "energy|www.nordpoolgroup.com",
     "name": "Nord Pool Day-Ahead Electricity Prices (Nordic/Baltic)",
     "domain": "energy",
     "frequency": "half-hour",
     "status": "rejected",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.phmsa.dot.gov",
+    "name": "PHMSA Pipeline and Hazardous Materials Safety Administration \u2014 incident data",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.pse.pl",
+    "name": "PSE Poland (Polskie Sieci Elektroenergetyczne) grid data",
+    "domain": "energy",
+    "frequency": "few-min",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.statnett.no",
+    "name": "Statnett Norway real-time grid data",
+    "domain": "energy",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -927,12 +1359,66 @@
     "times_proposed": 1
   },
   {
+    "key": "healthcare|api.reporter.nih.gov",
+    "name": "nih_reporter_grant_awards",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "healthcare|api.safecast.org",
     "name": "Safecast \u2014 citizen radiation monitoring network (global)",
     "domain": "healthcare",
     "frequency": "irregular (event-driven: measurement timestamps)",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|austin_police_incidents",
+    "name": "austin_police_incidents",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|ca_chhs_facility_outbreaks",
+    "name": "ca_chhs_facility_outbreaks",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|covidactnow_us_county_metrics",
+    "name": "covidactnow_us_county_metrics",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|data.calgary.ca",
+    "name": "calgary_fire_ems_incidents",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|data.cityofchicago.org",
+    "name": "Chicago food safety inspections (Socrata open data portal)",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -945,12 +1431,57 @@
     "times_proposed": 1
   },
   {
+    "key": "healthcare|data.seattle.gov",
+    "name": "Seattle Real-Time Fire 911 Calls",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|data.sensor.community",
+    "name": "Sensor.Community \u2014 multi-sensor PM2.5 panel (10-sensor aggregate, 2.5-min cadenc",
+    "domain": "healthcare",
+    "frequency": "PT2M30S",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "healthcare|data.sfgov.org",
     "name": "SFFD Live Dispatch Feed",
     "domain": "healthcare",
     "frequency": "PT1M",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|delphi.cmu.edu",
+    "name": "delphi_epidata_epidemiology",
+    "domain": "healthcare",
+    "frequency": "weekly",
+    "status": "rejected",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|discomap.eea.europa.eu",
+    "name": "EEA Air Quality e-Reporting \u2014 European monitoring station panel",
+    "domain": "healthcare",
+    "frequency": "PT1H",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|echo.epa.gov",
+    "name": "epa_echo_compliance_violations",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -963,12 +1494,57 @@
     "times_proposed": 1
   },
   {
+    "key": "healthcare|eutils.ncbi.nlm.nih.gov",
+    "name": "pubmed_ncbi_publication_counts",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|nextstrain.org",
+    "name": "nextstrain_pathogen_genomics",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|ontario_er_wait_times",
+    "name": "ontario_er_wait_times",
+    "domain": "healthcare",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "healthcare|openaps.org",
     "name": "OpenAPS Data Commons",
     "domain": "healthcare",
     "frequency": "few-min",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|openprescribing_nhs_england",
+    "name": "openprescribing_nhs_england",
+    "domain": "healthcare",
+    "frequency": "monthly",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|optn.transplant.hrsa.gov",
+    "name": "optn_organ_transplant_events",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -981,12 +1557,39 @@
     "times_proposed": 1
   },
   {
+    "key": "healthcare|recalls-rappels.canada.ca",
+    "name": "health_canada_recalls",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "healthcare|uk-air.defra.gov.uk",
     "name": "DEFRA UK Automatic Urban and Rural Network (AURN) air quality monitoring",
     "domain": "healthcare",
     "frequency": "PT15M",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|vaers.hhs.gov",
+    "name": "vaers_vaccine_adverse_events",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|wastewaterscan_pathogen_data",
+    "name": "wastewaterscan_pathogen_data",
+    "domain": "healthcare",
+    "frequency": "weekly",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1008,6 +1611,15 @@
     "times_proposed": 1
   },
   {
+    "key": "healthcare|www.blood.co.uk",
+    "name": "nhsbt_blood_stock_levels",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "healthcare|www.cpsc.gov",
     "name": "CPSC Recalls RSS \u2014 Consumer Product Safety Commission recall announcements",
     "domain": "healthcare",
@@ -1023,6 +1635,15 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.ema.europa.eu",
+    "name": "ema_european_medicines_agency_regulatory_events",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1053,6 +1674,24 @@
     "times_proposed": 1
   },
   {
+    "key": "healthcare|www.gov.uk",
+    "name": "govuk_mhra_drug_safety_update",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.health.nsw.gov.au",
+    "name": "nsw_health_ed_wait_times",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "healthcare|www.healthmap.org",
     "name": "HealthMap \u2014 real-time infectious disease outbreak alerts",
     "domain": "healthcare",
@@ -1068,6 +1707,15 @@
     "frequency": "PT1H",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.paho.org",
+    "name": "paho_epidemiological_alerts",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1089,6 +1737,42 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|ads.atmosphere.copernicus.eu",
+    "name": "copernicus_cams_air_quality",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|ams_fireball_reports",
+    "name": "ams_fireball_reports",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.data.gov.sg",
+    "name": "Singapore NEA air-temperature readings (data.gov.sg)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.ebird.org",
+    "name": "ebird_bird_observations",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|api.gdeltproject.org",
     "name": "GDELT 2.0 Event Database \u2014 Global news event stream (15-min updates)",
     "domain": "nature",
@@ -1103,6 +1787,33 @@
     "domain": "nature",
     "frequency": "irregular",
     "status": "wired",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.globalforestwatch.org",
+    "name": "global_forest_watch_deforestation_alerts",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.inaturalist.org",
+    "name": "iNaturalist observations API \u2014 species observation arrival stream",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.kartverket.no",
+    "name": "Kartverket Norway \u2014 tide gauge water level observations",
+    "domain": "nature",
+    "frequency": "PT10M",
+    "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1125,6 +1836,24 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|api.urbanobservatory.ac.uk",
+    "name": "newcastle_urban_observatory_sensors",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.vedur.is",
+    "name": "vedur_islandic_weather",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|api.water.noaa.gov",
     "name": "NOAA National Water Prediction Service \u2014 river forecast & observation API",
     "domain": "nature",
@@ -1143,12 +1872,39 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|avalanche.state.co.us",
+    "name": "caic_avalanche_incidents_forecasts",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|avo.alaska.edu",
+    "name": "avo_alaska_volcano_alerts",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|blitzortung.org",
     "name": "Blitzortung.org Real-time Lightning Strikes",
     "domain": "nature",
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|cdec_california_water_stations",
+    "name": "cdec_california_water_stations",
+    "domain": "nature",
+    "frequency": "hourly",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
     "times_proposed": 1
   },
   {
@@ -1179,6 +1935,24 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|cosmos.ceh.ac.uk",
+    "name": "COSMOS-UK cosmic-ray soil moisture network",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|cwfis.cfs.nrcan.gc.ca",
+    "name": "cwfis_canadian_wildfire_events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|data-argo.ifremer.fr",
     "name": "Argo profiling float observations (Ifremer Coriolis DAC)",
     "domain": "nature",
@@ -1194,6 +1968,15 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|data.geosphere.at",
+    "name": "geosphere_austria_weather_observations",
+    "domain": "nature",
+    "frequency": "hourly",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1215,12 +1998,129 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|data.oceannetworks.ca",
+    "name": "ocean_networks_canada_sensors",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|dmigw.govcloud.dk",
+    "name": "dmi_danish_weather_observations",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|earthquakes.bgs.ac.uk",
+    "name": "bgs_uk_earthquakes",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|eida.ethz.ch",
+    "name": "Swiss Seismological Service (SED) FDSN earthquake events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|emergency.copernicus.eu",
+    "name": "copernicus_ems_activations",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|fdsnws.raspberryshake.net",
+    "name": "Raspberry Shake FDSN citizen seismology events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|firms.modaps.eosdata.nasa.gov",
     "name": "NASA FIRMS \u2014 VIIRS Active Fire Detections",
     "domain": "nature",
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|floodobservatory.colorado.edu",
+    "name": "dartmouth_flood_observatory",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|frost.met.no",
+    "name": "MET Norway Frost API \u2014 weather station observations (half-hourly)",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|geoscience_aus_earthquakes",
+    "name": "geoscience_aus_earthquakes",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|gios_poland_air_quality",
+    "name": "gios_poland_air_quality",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|glerl_great_lakes_levels",
+    "name": "glerl_great_lakes_levels",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|hubeau.eaufrance.fr",
+    "name": "hubeau_french_hydrometry",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|hydapi.nve.no",
+    "name": "NVE HydAPI \u2014 Norwegian water level and flow gauges",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1233,10 +2133,28 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|inciweb_wildfire_incidents",
+    "name": "inciweb_wildfire_incidents",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|intermagnet.org",
     "name": "INTERMAGNET \u2014 International Real-time Magnetic Observatory Network geomagnetic m",
     "domain": "nature",
     "frequency": "PT1M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|ismnp.geo.tuwien.ac.at",
+    "name": "ismn_soil_moisture_halfhourly",
+    "domain": "nature",
+    "frequency": "half-hour",
     "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
@@ -1260,11 +2178,83 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|mesonet.agron.iastate.edu",
+    "name": "iowa_env_mesonet_asos",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|msc_datamart_canada_weather",
+    "name": "msc_datamart_canada_weather",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|nl_luchtmeetnet_air_quality",
+    "name": "nl_luchtmeetnet_air_quality",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|oklahoma_mesonet",
+    "name": "oklahoma_mesonet",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|ooi_ocean_observatories",
+    "name": "ooi_ocean_observatories",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|ooinet.oceanobservatories.org",
+    "name": "ocean_observatories_initiative_realtime",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|opendata-download-metobs.smhi.se",
+    "name": "smhi_swedish_weather_observations",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|opendata.aemet.es",
     "name": "AEMET OpenData \u2014 Spanish weather observations (hourly/half-hourly)",
     "domain": "nature",
     "frequency": "PT30M",
     "status": "key-gated",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|opendata.cwa.gov.tw",
+    "name": "Taiwan CWA (Central Weather Administration) open data \u2014 surface observations",
+    "domain": "nature",
+    "frequency": "PT30M",
+    "status": "rejected",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1296,12 +2286,39 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|swe.ssa.esa.int",
+    "name": "esa_space_weather_events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|volcanoes.usgs.gov",
     "name": "USGS Volcano Notifications Service \u2014 Eruption & Unrest Alerts",
     "domain": "nature",
     "frequency": "irregular",
     "status": "wired",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|wateroffice.ec.gc.ca",
+    "name": "eccc_wateroffice_realtime_hydrometric",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|weatherflow_tempest_stations",
+    "name": "weatherflow_tempest_stations",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1341,12 +2358,48 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|www.ioc-sealevelmonitoring.org",
+    "name": "ioc_sea_level_monitoring",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.meteoalarm.org",
+    "name": "MeteoAlarm.eu \u2014 European national weather warning alerts",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|www.nhc.noaa.gov",
     "name": "NOAA NHC \u2014 Tropical Cyclone Advisories (Atlantic + Eastern Pacific)",
     "domain": "nature",
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.nmdb.eu",
+    "name": "nmdb_neutron_monitor_db",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.ozflux.org.au",
+    "name": "OzFlux ecosystem flux towers",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1368,6 +2421,24 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|www.waterqualitydata.us",
+    "name": "water_quality_portal_measurements",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www2.sepa.org.uk",
+    "name": "sepa_scotland_river_levels",
+    "domain": "nature",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "sales|api.crossref.org",
     "name": "Crossref DOI Registration Events",
     "domain": "sales",
@@ -1377,10 +2448,91 @@
     "times_proposed": 1
   },
   {
+    "key": "sales|api.deezer.com",
+    "name": "deezer_chart_snapshots",
+    "domain": "sales",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.discogs.com",
+    "name": "discogs_marketplace_sales",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.ebay.com",
+    "name": "ebay_browse_completed_items",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "sales|api.jikan.moe",
     "name": "Jikan (MyAnimeList unofficial API) \u2014 anime episode release events",
     "domain": "sales",
     "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.looksrare.org",
+    "name": "looksrare_nft_marketplace",
+    "domain": "sales",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.magiceden.dev",
+    "name": "magiceden_nft_trading",
+    "domain": "sales",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.openalex.org",
+    "name": "OpenAlex scholarly works API \u2014 publication event stream",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.semanticscholar.org",
+    "name": "semantic_scholar_publications",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.spotify.com",
+    "name": "spotify_artist_track_popularity",
+    "domain": "sales",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|api.themoviedb.org",
+    "name": "tmdb_movie_tv_popularity",
+    "domain": "sales",
+    "frequency": "few-min",
     "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
@@ -1395,6 +2547,15 @@
     "times_proposed": 1
   },
   {
+    "key": "sales|archive.org",
+    "name": "internet_archive_item_additions",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "sales|boardgamegeek.com",
     "name": "BoardGameGeek XMLAPI2 \u2014 game ratings and collection counts",
     "domain": "sales",
@@ -1404,11 +2565,92 @@
     "times_proposed": 1
   },
   {
+    "key": "sales|dev.to",
+    "name": "Dev.to article publication stream (by tag, few-minute poll)",
+    "domain": "sales",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|export.arxiv.org",
+    "name": "arXiv preprint submission stream (by category, hourly count)",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|f-droid.org",
+    "name": "fdroid_app_update_events",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|games.roblox.com",
+    "name": "Roblox \u2014 game concurrent player counts (top games panel)",
+    "domain": "sales",
+    "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|google_trends_realtime",
+    "name": "google_trends_realtime",
+    "domain": "sales",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|graphql.anilist.co",
+    "name": "anilist_anime_airing_popularity",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "sales|huggingface.co",
     "name": "HuggingFace Hub \u2014 model download counts (top-N panel)",
     "domain": "sales",
     "frequency": "PT5M",
     "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|itchio_new_game_releases",
+    "name": "itchio_new_game_releases",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|lichess.org",
+    "name": "lichess_realtime_api",
+    "domain": "sales",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|listenbrainz_user_listens",
+    "name": "listenbrainz_user_listens",
+    "domain": "sales",
+    "frequency": "few-min",
+    "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1422,8 +2664,80 @@
     "times_proposed": 1
   },
   {
+    "key": "sales|meetup_events_stream",
+    "name": "meetup_events_stream",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|mercadolibre_item_pricing",
+    "name": "mercadolibre_item_pricing",
+    "domain": "sales",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|modrinth_project_downloads",
+    "name": "modrinth_project_downloads",
+    "domain": "sales",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|musicbrainz.org",
+    "name": "musicbrainz_edit_activity",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|openapi.etsy.com",
+    "name": "etsy_shop_activity_stream",
+    "domain": "sales",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "sales|opencollective.com",
     "name": "Open Collective \u2014 public collective transaction stream",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|opendata.dc.gov",
+    "name": "DC 311 service requests (Socrata)",
+    "domain": "sales",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|openlibrary.org",
+    "name": "Open Library recent changes stream (book edit/publication events)",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|seeclickfix.com",
+    "name": "seeclickfix_citizen_reports",
     "domain": "sales",
     "frequency": "irregular",
     "status": "proposed",
@@ -1440,10 +2754,64 @@
     "times_proposed": 1
   },
   {
+    "key": "sales|tcgplayer_card_pricing",
+    "name": "tcgplayer_card_pricing",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|telegram_channel_subscriber_counts",
+    "name": "telegram_channel_subscriber_counts",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|tvmaze_show_updates",
+    "name": "tvmaze_show_updates",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|untappd_beer_checkins",
+    "name": "untappd_beer_checkins",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|world.openfoodfacts.org",
+    "name": "openfoodfacts_product_additions",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "sales|ws.audioscrobbler.com",
     "name": "Last.fm API \u2014 user recent scrobbles (play event stream)",
     "domain": "sales",
     "frequency": "PT5M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|www.eventbriteapi.com",
+    "name": "eventbrite_event_listings",
+    "domain": "sales",
+    "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
@@ -1467,11 +2835,29 @@
     "times_proposed": 1
   },
   {
+    "key": "sales|www.speedrun.com",
+    "name": "speedrun_com_run_submissions",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|511ny.org",
     "name": "511NY \u2014 New York State traffic events (Open511-compatible)",
     "domain": "transport",
     "frequency": "irregular",
     "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|ai.fmcsa.dot.gov",
+    "name": "fmcsa_motor_carrier_crashes",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1494,12 +2880,30 @@
     "times_proposed": 1
   },
   {
+    "key": "transport|api.odpt.org",
+    "name": "odpt_japan_train_information",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|api.opentransportdata.swiss",
     "name": "Swiss Open Transport Data \u2014 real-time SBB/CFF departures",
     "domain": "transport",
     "frequency": "PT30M (real-time updates; pollable at 30-min)",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|api.schiphol.nl",
+    "name": "schiphol_flight_movements",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1512,6 +2916,24 @@
     "times_proposed": 1
   },
   {
+    "key": "transport|api.trafikverket.se",
+    "name": "Trafikverket Sweden \u2014 real-time train announcements",
+    "domain": "transport",
+    "frequency": "PT30M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|api.transport.nsw.gov.au",
+    "name": "tfnsw_realtime_vehicle_positions",
+    "domain": "transport",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|apis.deutschebahn.com",
     "name": "Deutsche Bahn \u2014 real-time train departure/arrival API",
     "domain": "transport",
@@ -1521,12 +2943,57 @@
     "times_proposed": 1
   },
   {
+    "key": "transport|asrs.arc.nasa.gov",
+    "name": "asrs_aviation_safety_reports",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|atsb_au_transport_safety_reports",
+    "name": "atsb_au_transport_safety_reports",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|aviationstack_flight_tracking",
+    "name": "aviationstack_flight_tracking",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|bea.aero",
+    "name": "BEA France (Bureau d'Enqu\u00eates et d'Analyses) aviation occurrence reports",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|bwt.cbp.gov",
     "name": "US CBP Border Wait Times",
     "domain": "transport",
     "frequency": "PT30M",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|celestrak_satellite_tle",
+    "name": "celestrak_satellite_tle",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1548,12 +3015,39 @@
     "times_proposed": 1
   },
   {
+    "key": "transport|data.melbourne.vic.gov.au",
+    "name": "melbourne_parking_sensor_occupancy",
+    "domain": "transport",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|developer.trimet.org",
     "name": "TriMet Developer API \u2014 GTFS-RT service alerts",
     "domain": "transport",
     "frequency": "irregular",
     "status": "key-gated",
     "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|digitraffic.fi",
+    "name": "digitraffic_finland_transport",
+    "domain": "transport",
+    "frequency": "few-min",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|external-api.faa.gov",
+    "name": "faa_notam_api",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-06",
     "times_proposed": 1
   },
   {
@@ -1575,6 +3069,33 @@
     "times_proposed": 1
   },
   {
+    "key": "transport|navitia_transit_coverage",
+    "name": "navitia_transit_coverage",
+    "domain": "transport",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|opendata.ndw.nu",
+    "name": "ndw_dutch_traffic_data",
+    "domain": "transport",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|opendata.ratp.fr",
+    "name": "RATP Paris \u2014 real-time metro/bus arrival rates",
+    "domain": "transport",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|realtime.nationalrail.co.uk",
     "name": "Network Rail OpenLDBWS \u2014 Live Departure Boards Web Service (UK rail station depa",
     "domain": "transport",
@@ -1584,12 +3105,48 @@
     "times_proposed": 1
   },
   {
+    "key": "transport|safetydata.fra.dot.gov",
+    "name": "FRA Railroad Safety Data \u2014 accident/incident records (US)",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|services.marinetraffic.com",
     "name": "MarineTraffic (Vessel Positions)",
     "domain": "transport",
     "frequency": "PT1M",
     "status": "rejected",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|sf_bay_area_511_traffic",
+    "name": "sf_bay_area_511_traffic",
+    "domain": "transport",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|tfi_ireland_gtfs_rt_alerts",
+    "name": "tfi_ireland_gtfs_rt_alerts",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|tomtom_traffic_flow",
+    "name": "tomtom_traffic_flow",
+    "domain": "transport",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1638,6 +3195,15 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|abuseipdb_blacklist_events",
+    "name": "abuseipdb_blacklist_events",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|api.bgpstream.com",
     "name": "CAIDA BGPStream Hijack and Outage Events",
     "domain": "web_cloudops",
@@ -1656,6 +3222,24 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|api.datacite.org",
+    "name": "DataCite DOI registration events (by repository, daily count)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|api.greynoise.io",
+    "name": "GreyNoise Community API \u2014 internet scanner activity by IP/tag",
+    "domain": "web_cloudops",
+    "frequency": "PT30M",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|api.ioda.cmu.edu",
     "name": "CMU IODA \u2014 Internet Outage Detection and Analysis",
     "domain": "web_cloudops",
@@ -1671,6 +3255,51 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|api.osv.dev",
+    "name": "OSV (Open Source Vulnerabilities) disclosure stream",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|api.ransomware.live",
+    "name": "ransomware_live_attacks",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|api.shodan.io",
+    "name": "shodan_internet_scan_stream",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|apnic_labs_ipv6_adoption",
+    "name": "apnic_labs_ipv6_adoption",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|archive.routeviews.org",
+    "name": "routeviews_bgp_updates",
+    "domain": "web_cloudops",
+    "frequency": "few-min",
+    "status": "rejected",
+    "first_proposed": "2026-07-06",
     "times_proposed": 1
   },
   {
@@ -1701,6 +3330,15 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|censys_internet_scans",
+    "name": "censys_internet_scans",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|crt.sh",
     "name": "crt.sh \u2014 Certificate Transparency log search (new cert issuance events)",
     "domain": "web_cloudops",
@@ -1716,6 +3354,15 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|haveibeenpwned_breaches",
+    "name": "haveibeenpwned_breaches",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -1755,12 +3402,57 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|measurementlab.net",
+    "name": "mlab_network_performance_tests",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|netblocks_internet_disruptions",
+    "name": "netblocks_internet_disruptions",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|ossindex.sonatype.org",
+    "name": "sonatype_ossindex_vulnerability_disclosures",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|otx.alienvault.com",
     "name": "AlienVault OTX \u2014 Open Threat Exchange pulse stream (IOC bundles)",
     "domain": "web_cloudops",
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|phishtank.com",
+    "name": "phishtank_phishing_reports",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|rekor.sigstore.dev",
+    "name": "sigstore_rekor_transparency_log",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
     "times_proposed": 1
   },
   {
@@ -1773,12 +3465,48 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|rubygems.org",
+    "name": "rubygems_gem_releases_and_downloads",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|services.nvd.nist.gov",
     "name": "NIST NVD CVE API \u2014 vulnerability disclosure arrivals",
     "domain": "web_cloudops",
     "frequency": "irregular",
     "status": "wired",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|slack_status_incidents",
+    "name": "slack_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|stats.decix.net",
+    "name": "decix_ix_traffic_stats",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|status.atlassian.com",
+    "name": "atlassian_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
     "times_proposed": 1
   },
   {
@@ -1800,6 +3528,24 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|status.digitalocean.com",
+    "name": "digitalocean_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|status.fastly.com",
+    "name": "fastly_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|status.gitlab.com",
     "name": "GitLab.com status incidents (Statuspage.io API)",
     "domain": "web_cloudops",
@@ -1809,11 +3555,47 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|status.pagerduty.com",
+    "name": "pagerduty_statuspage_incidents",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|stripe_status_incidents",
+    "name": "stripe_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|thousandeyes_outage_events",
+    "name": "thousandeyes_outage_events",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|threatfox-api.abuse.ch",
     "name": "ThreatFox \u2014 IOC submission stream (abuse.ch)",
     "domain": "web_cloudops",
     "frequency": "irregular",
     "status": "key-gated",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|uptimerobot_monitors",
+    "name": "uptimerobot_monitors",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -1827,6 +3609,24 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|urlscan.io",
+    "name": "URLScan.io \u2014 public scan submission stream",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|virustotal_malware_submissions",
+    "name": "virustotal_malware_submissions",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|www.ams-ix.net",
     "name": "AMS-IX \u2014 Amsterdam Internet Exchange traffic statistics",
     "domain": "web_cloudops",
@@ -1836,12 +3636,39 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|www.exploit-db.com",
+    "name": "exploitdb_publication_stream",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|www.franceix.net",
+    "name": "France-IX internet exchange traffic statistics",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|www.githubstatus.com",
     "name": "GitHub Status \u2014 incident history (Statuspage API v2)",
     "domain": "web_cloudops",
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|www.peeringdb.com",
+    "name": "peeringdb_network_ixp_changes",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-06",
     "times_proposed": 1
   },
   {
