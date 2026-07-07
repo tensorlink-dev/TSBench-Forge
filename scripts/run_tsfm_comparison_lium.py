@@ -42,11 +42,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 LIUM = os.path.expanduser("~/.local/bin/lium")
 
-# Install is staged so a bad model wheel can't sink the harness: CORE (the eval's
-# own deps) and TORCH must succeed; each model lib is then installed independently
-# with `|| true`, and the load-probe skips whatever didn't take.
-CORE = "python -m pip install -q numpy pandas pyarrow scipy matplotlib pyyaml"
-TORCH = "python -m pip install -q torch --index-url https://download.pytorch.org/whl/cu121"
+# Lium pods are bare Ubuntu with a PEP-668 externally-managed python, so every
+# pip needs --break-system-packages (fine on a throwaway pod). Install is staged
+# so a bad model wheel can't sink the harness: CORE (the eval's own deps) + TORCH
+# must succeed (run with check=True), then each model lib installs independently
+# with `|| true` and the load-probe skips whatever didn't take.
+_PIP = "python3 -m pip install -q --break-system-packages"
+CORE = f"{_PIP} numpy pandas pyarrow scipy matplotlib pyyaml"
+TORCH = f"{_PIP} torch --index-url https://download.pytorch.org/whl/cu121"
 
 GROUPS = {
     "A": {
@@ -71,11 +74,9 @@ GROUPS = {
 }
 
 
-def _install_cmd(models: list[str]) -> str:
-    """CORE + TORCH must succeed; each model lib is best-effort (|| true)."""
-    parts = [CORE, TORCH]
-    parts += [f"python -m pip install -q '{spec}' || true" for spec in models]
-    return " && ".join(parts[:2]) + " ; " + " ; ".join(parts[2:])
+def _models_cmd(models: list[str]) -> str:
+    """Best-effort per-model installs (one bad wheel skips only that model)."""
+    return " ; ".join(f"{_PIP} '{spec}' || true" for spec in models)
 
 
 def _load_local_env() -> None:
@@ -198,15 +199,17 @@ def main() -> int:
         print(f"pod {name} status: {status}")
         _lium("rsync", name, str(stage) + "/", "/root/repo/")
         env_flags = ["-e", f"HF_TOKEN={tok}", "-e", f"HUGGING_FACE_HUB_TOKEN={tok}"] if tok else []
-        print("installing deps on GPU (core+torch must pass; model libs best-effort)…")
-        _lium("exec", name, *env_flags, f"cd /root/repo && {_install_cmd(grp['models'])}")
+        print("installing core deps + torch on GPU (must succeed)…")
+        _lium("exec", name, *env_flags, f"cd /root/repo && {CORE} && {TORCH}")  # check=True
+        print("installing model libs (best-effort; failures skip that model)…")
+        _lium("exec", name, *env_flags, f"cd /root/repo && {_models_cmd(grp['models'])}", check=False)
         print(_lium("exec", name, "nvidia-smi --query-gpu=name,memory.total --format=csv,noheader",
                     capture=True).stdout)
         run_env = env_flags + [
             "-e", f"ROSTER={','.join(roster)}", "-e", f"MOTIF={args.motif_len}",
             "-e", f"NCH={args.n_challenges}", "-e", f"SEED={args.seed}",
         ]
-        res = _lium("exec", name, *run_env, "cd /root/repo && PYTHONPATH=src python run_on_pod.py",
+        res = _lium("exec", name, *run_env, "cd /root/repo && PYTHONPATH=src python3 run_on_pod.py",
                     capture=True, check=False)
         print(res.stdout[-6000:])
         if res.returncode != 0:
