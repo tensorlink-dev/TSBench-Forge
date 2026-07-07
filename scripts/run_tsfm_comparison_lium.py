@@ -174,7 +174,7 @@ def main() -> int:
     _build_staging(eligible, stage)
 
     name = f"tsfm-cmp-{args.group.lower()}"
-    _lium("up", ex["id"], "--name", name, "--ttl", args.ttl)  # ttl = safety backstop
+    _lium("up", ex["id"], "--name", name, "--ttl", args.ttl, "-y")  # -y: skip confirm; ttl = safety backstop
     try:
         # wait until the pod reports ready
         for _ in range(60):
