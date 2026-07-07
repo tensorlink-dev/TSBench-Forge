@@ -50,6 +50,9 @@ schedules:
       - coinbase_btc_5min
       - aws_health_rss
       - polymarket_btc_history     # 60-fidelity ticks
+      - nasdaq_trader_halts
+      - caiso_grid_conditions
+      - lichess_realtime_api
     cron: "*/5 * * * *"
 
   - every: PT15M
@@ -64,6 +67,7 @@ schedules:
       - usgs_streamflow_iv
       - elia_solar_15min
       - gdacs_natural_disasters
+      - geoscience_aus_earthquakes
     cron: "*/15 * * * *"
 
   - every: PT30M
@@ -72,6 +76,10 @@ schedules:
       - uk_carbon_intensity_genmix
       - uk_neso_carbon_historic_30min
       - octopus_agile_tariff
+      - bitfinex_btcusd_30m_candles
+      - bgs_uk_earthquakes
+      - openlibrary_recent_changes
+      - inaturalist_observations
     cron: "*/30 * * * *"
 
   - every: PT1H
@@ -86,6 +94,14 @@ schedules:
       - reddit_top_daily
       - stackoverflow_questions    # respects 300 req/day anon
       - ingv_seismicity
+      - smhi_swedish_weather_observations
+      - nl_luchtmeetnet_air_quality
+      - seeclickfix_citizen_reports
+      - speedrun_com_run_submissions
+      - dc_311_service_requests
+      - digitalocean_status_incidents
+      - atlassian_status_incidents
+      - urlscan_public_scans   # unauth rate-limited: hourly, not its PT5M native
     cron: "5 * * * *"              # 5 minutes past every hour
 
   # ──────── daily / once-per-day ────────
@@ -149,6 +165,32 @@ schedules:
   - every: PT1H
     sources: [nyc_311_complaints]
     cron: "20 * * * *"
+
+  # ──────── sweep-2 keyless sources (2026-07-08 wiring) ────────
+  - every: P1D
+    sources:
+      - ofac_sanctions_updates
+      - vaers_vaccine_adverse_events
+      - pubmed_ncbi_publication_counts
+      - govuk_mhra_drug_safety_update
+      - chicago_food_inspections
+      - glerl_great_lakes_levels
+      - dartmouth_flood_observatory
+      - avo_alaska_volcano_alerts
+      - celestrak_satellite_tle
+      - inciweb_wildfire_incidents
+      - discogs_marketplace_sales
+      - tvmaze_show_updates
+      - musicbrainz_edit_activity
+      - deezer_chart_snapshots
+      - ransomware_live_attacks
+      - haveibeenpwned_breaches
+      - apnic_labs_ipv6_adoption
+      - semantic_scholar_publications   # shared unauth pool 429s; 1/day is safe
+      - uk_ons_time_series              # P1M native; daily poll, dedup stable
+      - wastewaterscan_pathogen_data    # P1W native
+      - peeringdb_network_ixp_changes   # P1W native
+    cron: "20 2 * * *"
 
 # ──────── operational notes ────────
 #
