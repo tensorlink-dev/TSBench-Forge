@@ -3695,3 +3695,1389 @@
   license: "CC-BY-4.0 (World Bank)"
   sample_path: samples/worldbank_wdi_annual.json  # PENDING
   verification: {last_verified: 2026-07-05T00:00:00Z, sample_rows: null, sample_freshness_hours: null}
+
+# ============================================================================
+# ADDED 2026-07-08 — sweep-2 keyless sources (rounds 114-155 vetting queue).
+# Live-probed from the AU scrape host; see discovery/2026-07-06-sweep2-vetting.md.
+# ============================================================================
+
+# ---- b6_econ ----
+- id: ofac_sanctions_updates
+  name: OFAC sanctions actions — Federal Register notices (event stream)
+  domain: econ_fin
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.federalregister.gov/api/v1/documents.json?conditions%5Bagencies%5D%5B%5D=foreign-assets-control-office&order=newest&per_page=50&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=document_number&fields%5B%5D=html_url
+    auth: none
+    rate_limit: "unauthenticated OK; be polite"
+  schema:
+    timestamp_field: results[].publication_date   # ISO date YYYY-MM-DD
+    value_field: results[].type                    # "Notice"/"Rule" — categorical; derive daily counts
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: "several notices per week; new OFAC sanctions actions appear within a day or two of designation (2589 total docs)"
+  pretraining_novelty: partial
+  novelty_notes: "OFAC's own recent-actions RSS was retired 2025-01-31; this reconstructs the sanctions-action event stream from the Federal Register API filtered to the Foreign Assets Control Office. Per-day counts of new designations are a fresh derived series."
+  license: "Public domain (US Federal Register / GPO)"
+  sample_path: samples/ofac_sanctions_updates.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 50
+    sample_freshness_hours: 48
+  notes: "OFAC's native recent-actions RSS (ofac.treasury.gov/media/rss/recent-actions.xml) 404s — retired Jan 2025. Federal Register API is the keyless replacement. Aggregate results[] to daily/weekly counts of 'Notice of OFAC Sanctions Action(s)' for a count_discrete alert stream; each result also carries html_url and document_number. Bulk SDN XML (treasury.gov/ofac/downloads/sdn.xml) exists but is a 28MB current-state snapshot, not a dated event list — avoid."
+
+- id: nasdaq_trader_halts
+  name: Nasdaq Trader trade halts RSS
+  domain: econ_fin
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: PT5M
+  endpoint:
+    type: rss
+    url: http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: pubDate                      # RFC-822 per <item>, e.g. "Tue, 07 Jul 2026 04:00:00 GMT"
+    value_field: ndaq:ReasonCode                  # halt reason (LUDP/T1/etc) — categorical; derive counts
+    variates: 1
+  history_available: P1D
+  update_cadence_observed: "rolling intraday list; channel <ndaq:numItems> ~39 during a trading day, feed ttl=1 min"
+  pretraining_novelty: clean
+  novelty_notes: "Live intraday exchange halt feed; per-halt events with reason codes are not in TSFM pretraining corpora."
+  license: "Nasdaq public RSS (nasdaqtrader.com terms of use)"
+  sample_path: samples/nasdaq_trader_halts.xml
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 39
+    sample_freshness_hours: 0.1
+  notes: "RSS with ndaq: namespace. Each <item> = one halt with HaltDate/HaltTime, IssueSymbol, Market, ReasonCode, ResumptionDate/Time. Poll every few minutes; the feed only carries the current trading day (empty outside US market hours). Aggregate to per-interval halt counts (count_discrete) or count by ReasonCode (categorical)."
+
+- id: bitfinex_btcusd_30m_candles
+  name: Bitfinex BTC/USD 30-minute OHLCV candles
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [non_stationary_regime, chaotic_nonlinear]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api-pub.bitfinex.com/v2/candles/trade:30m:tBTCUSD/hist?limit=100
+    auth: none
+    rate_limit: "public API ~30 req/min per IP"
+  schema:
+    timestamp_field: "[][0]"      # epoch ms (MTS), newest-first
+    value_field: "[][2]"          # close price (row = [MTS, open, close, high, low, volume])
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: "each 30m candle closes on the half-hour; newest-first array, limit up to 10000"
+  pretraining_novelty: partial
+  novelty_notes: "BTC/USD is widely modelled, but the live 30m OHLCV window and current regime post-cutoff are novel; Bitfinex venue-specific prints differ slightly from other exchanges."
+  license: "Bitfinex public API (terms of service)"
+  sample_path: samples/bitfinex_btcusd_30m_candles.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 100
+    sample_freshness_hours: 0.5
+  notes: "List-of-lists, newest-first. Row order is [MTS, OPEN, CLOSE, HIGH, LOW, VOLUME] — note CLOSE is index 2, not 3. value_field uses close ([][2]); for full OHLCV use [[][1],[][2],[][3],[][4],[][5]] with variates=5. Add ?start=&end=&sort=1 for chronological paging. Other tf: 1m,5m,15m,1h,1D."
+
+- id: stocktwits_trending_symbols
+  name: StockTwits trending symbols
+  domain: econ_fin
+  dgp_class: content_ranking
+  archetypes: [count_discrete, categorical]
+  frequency: PT30M
+  disabled: true
+  disabled_reason: "Cloudflare bot-wall (HTTP 403 'Attention Required') from this Australian host; endpoint requires browser/JS challenge, not keyless-scriptable."
+  endpoint:
+    type: rest_json
+    url: https://api.stocktwits.com/api/2/trending/symbols.json
+    auth: none
+    rate_limit: "~200 req/hr unauthenticated (when reachable)"
+  schema:
+    timestamp_field: now()                 # snapshot; response has no per-row timestamp, capture poll time
+    value_field: symbols[].watchlist_count # popularity count per trending symbol
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "unreachable from AU host (Cloudflare 403); intended cadence ~ every 30m snapshot of trending list"
+  pretraining_novelty: clean
+  novelty_notes: "Live retail-attention ranking; not in TSFM corpora — but currently unreachable."
+  license: "StockTwits API terms (non-commercial)"
+  sample_path: null
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 0
+    sample_freshness_hours: null
+  notes: "FAILED-blocked: api.stocktwits.com returns a Cloudflare challenge page (403) from this host. Field paths above are from prior known schema (symbols[] with .symbol and .watchlist_count); re-verify from a non-blocked region before enabling. Treat as a per-poll content_ranking snapshot (timestamp = capture time)."
+
+- id: uk_ons_time_series
+  name: UK ONS CPIH (overall index, UK, monthly)
+  domain: econ_fin
+  dgp_class: macro_economic_indicator
+  archetypes: [non_stationary_regime, smooth_periodic]
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://api.beta.ons.gov.uk/v1/datasets/cpih01/editions/time-series/versions/67/observations?time=*&geography=K02000001&aggregate=CP00
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: observations[].dimensions.Time.id   # "MMM-YY" e.g. "Jul-24" (month label, newest-first)
+    value_field: observations[].observation              # string decimal, Index 2015=100 — cast to float
+    variates: 1
+  history_available: P36Y
+  update_cadence_observed: "monthly; series Oct-1988 .. Jul-2024 (457 obs) at v67; new CPIH releases publish a new version number monthly"
+  pretraining_novelty: partial
+  novelty_notes: "CPIH history is well documented, but the beta ONS API version-pinned observation stream and post-cutoff releases are novel; overall-index level series."
+  license: "Open Government Licence v3.0 (ONS)"
+  sample_path: samples/uk_ons_time_series.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 457
+    sample_freshness_hours: null
+  notes: "Classic api.ons.gov.uk/timeseries was decommissioned 2024-11-25 (404); use api.beta.ons.gov.uk. Series pinned to version 67 — bump the version segment to get later data (GET /datasets/cpih01/editions/time-series to find latest_version). Dimensions fixed: geography=K02000001 (UK), aggregate=CP00 (Overall Index); vary aggregate for sub-indices (hierarchical). Observations are newest-first; Time.id is a month label not ISO — parse MMM-YY. value is a JSON string."
+
+# ---- b1_energy ----
+- id: amprion_pv_infeed
+  name: Amprion control-area photovoltaic infeed (online extrapolation)
+  disabled: true
+  disabled_reason: >-
+    2026-07-08: endpoint recovered & keyless (200) but two generic-scraper gaps block it: URL needs {START}/{END} date tokens AND the CSV data rows carry no per-row timestamp (values only) — they require a row-index->quarter-hour-grid deriver the generic rest_csv parser lacks. Re-enable once the scraper grows a `time_grid` schema (start-token + step) for headerless-time CSVs.
+  domain: energy
+  dgp_class: generation_mix
+  archetypes: [smooth_periodic, non_stationary_regime, bounded]
+  frequency: PT15M
+  endpoint:
+    type: rest_csv
+    url: https://www.amprion.net/api/grid-data/items/csv/PV_EINSPEISUNG/{START}/{END}   # {START}/{END} = YYYY-MM-DD; verified live 2026-07-06/2026-07-08
+    auth: none
+    rate_limit: null
+  schema:
+    # Payload is ';'-delimited, German decimals (comma), CRLF. Header declares
+    # 4 cols (Datum;Uhrzeit;8:00 Uhr Prognose [MW];Online Hochrechnung [MW]) but
+    # DATA ROWS contain ONLY the 2 MW value fields (forecast;actual) — NO per-row
+    # timestamp. Timestamps are a regular quarter-hour grid: row i = {START}
+    # 00:00 CET + i*PT15M (192 rows observed = 2 days x 96 quarter-hours).
+    timestamp_field: row_index          # derived: {START}T00:00 Europe/Berlin + row*PT15M
+    value_field: "Online Hochrechnung [MW]"   # 2nd ';' field per row = actual online extrapolation, MW
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "quarter-hourly; latest day fills through current quarter-hour"
+  pretraining_novelty: clean
+  novelty_notes: "Amprion /api/grid-data endpoint (Angular rebrush) not in TSFM corpora; per-quarter-hour PV extrapolation for the Amprion control area is not a standard benchmark series."
+  license: "Amprion grid data, free to use with attribution (Amprion Grid Data terms)"
+  sample_path: samples/amprion_pv_infeed.csv
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 192
+    sample_freshness_hours: 2
+  notes: "Column '8:00 Uhr Prognose [MW]' (1st field) is the day-ahead forecast — pair with actual for a noisy_clean_pair. Other data-types at same path: WIND_EINSPEISUNG, VERTIKALE_NETZLAST, ERZEUGUNG. Use fileType 'zip' for multi-year. Scraper must parse German decimal comma and synthesise the quarter-hour timestamp from the URL date range."
+
+- id: caiso_grid_conditions
+  name: CAISO Today's Outlook — current demand and net demand
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [smooth_periodic, non_stationary_regime]
+  frequency: PT5M
+  endpoint:
+    type: rest_csv
+    url: https://www.caiso.com/outlook/current/netdemand.csv
+    auth: none
+    rate_limit: null
+  schema:
+    # Columns: Time,Hour ahead forecast,Current demand,Net demand,Net demand forecast,Demand response
+    # 'Time' is HH:MM Pacific for the current operating day (no date in payload; date = today).
+    # Trailing rows have empty 'Current demand' (future intervals carry only the forecast columns).
+    timestamp_field: Time               # HH:MM America/Los_Angeles, date = fetch day
+    value_field: "Current demand"       # MW, actual system demand
+    variates: 1
+  history_available: P1D
+  update_cadence_observed: "5-minute intervals, rolling current day; updates through the current interval"
+  pretraining_novelty: partial
+  novelty_notes: "CAISO demand is referenced in some corpora, but the live intraday 5-min Today's Outlook CSV (per-interval, current day) is not a packaged benchmark series."
+  license: "CAISO — public, free to use (California ISO Today's Outlook)"
+  sample_path: samples/caiso_grid_conditions.csv
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 289
+    sample_freshness_hours: 0.1
+  notes: "Also 'Net demand' (col 4) = demand minus solar/wind, the key duck-curve series. Historical days: https://www.caiso.com/outlook/history/YYYYMMDD/netdemand.csv (verified). Renewables mix at .../fuelsource variant."
+
+- id: eskom_loadshedding_status
+  name: Eskom (South Africa) loadshedding stage schedule — eskom-calendar
+  disabled: true
+  disabled_reason: >-
+    2026-07-08: keyless CSV parses (18 rows) but data is STALE — eskom-calendar machine_friendly.csv latest rows are 2025-05 (SA load-shedding suspended). No live signal to forecast. Re-enable if load-shedding resumes / the feed refreshes.
+  domain: energy
+  dgp_class: alert_stream
+  archetypes: [count_discrete, non_stationary_regime, categorical]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://github.com/beyarkay/eskom-calendar/releases/download/latest/machine_friendly.csv
+    auth: none
+    rate_limit: null
+  schema:
+    # Columns: area_name,start,finsh,stage,source. One row per scheduled loadshedding block.
+    timestamp_field: start              # ISO-8601 with +02:00 offset (SAST)
+    value_field: stage                  # integer loadshedding stage 0-8 (ordinal)
+    variates: 1
+  history_available: P3Y
+  update_cadence_observed: "release 'latest' rebuilt when new schedules announced; latest rows observed 2025-05 (loadshedding largely suspended since — data effectively static)"
+  pretraining_novelty: clean
+  novelty_notes: "Community eskom-calendar CSV of per-area stage blocks; not a standard TSFM series."
+  license: "eskom-calendar (open-source community project); underlying data from Eskom announcements"
+  sample_path: samples/eskom_loadshedding.csv
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 59
+    sample_freshness_hours: 10000
+  notes: "Filter to one area_name (e.g. buffalo-city-block-1) for a single stage-vs-time series, or aggregate national stage per day. STALE: no new blocks since ~2025-05 as SA loadshedding is suspended — low forecasting value until it resumes. EskomSePush API is the live alternative but is key-gated."
+
+# ---- AEMO: live+keyless directory index, but no supported fetcher ----
+- id: aemo_nemweb_market_notices
+  name: AEMO NEMWeb market notices (directory of notice files)
+  disabled: true
+  disabled_reason: >-
+    2026-07-08: https://nemweb.com.au/Reports/Current/Market_Notice/ is keyless & fresh (2026-07-07) but is an HTML directory index of .txt files, not a table — html_table parser yields 0 rows. Needs a directory-listing fetcher (enumerate + fetch each notice). Endpoint preserved for that work.
+  domain: energy
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse]
+  frequency: PT30M
+  endpoint:
+    type: html_table       # BLOCKED — this is an HTML directory index, needs a directory/listing fetcher (none yet; html_table fetcher unsupported)
+    url: https://nemweb.com.au/Reports/Current/Market_Notice/
+    auth: none
+    rate_limit: null
+  schema:
+    # Directory index lists one file per notice: NEMITWEB1_MKTNOTICE_YYYYMMDD.R<id>.
+    # Each file is plain text ("Creation Date : DD/MM/YYYY HH:MM:SS", "Notice ID : <n>").
+    # No JSON/CSV table — value is a poll-window notice count (event stream).
+    timestamp_field: file_date          # YYYYMMDD parsed from filename (or 'Creation Date' inside the file)
+    value_field: item_count             # scraper counts new notice files per poll window
+    variates: 1
+  history_available: P1Y
+  update_cadence_observed: "new notice files appear intraday; directory 'Current' holds ~1 year, latest file dated 2026-07-07 (fresh)"
+  pretraining_novelty: clean
+  novelty_notes: "AEMO market-notice arrival stream is not a packaged TSFM series."
+  license: "AEMO NEMWeb — public data, free to use per AEMO terms"
+  sample_path: samples/aemo_market_notices.txt
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 60
+    sample_freshness_hours: 8
+  notes: "Endpoint is live+keyless (HTTP 200) but is an HTML directory index, not a table — current scrapers cannot consume it (same gap as html_table). Needs a directory-listing fetcher: enumerate hrefs, parse YYYYMMDD from filename for the timestamp, aggregate to per-hour/day notice counts. No keyless JSON market-notice report exists on visualisations.aemo.com.au (only price/summary reports)."
+
+# ---- b4_health ----
+- id: vaers_vaccine_adverse_events
+  name: openFDA FAERS drug adverse-event reports — daily report counts (VAERS-style surveillance proxy)
+  domain: healthcare
+  dgp_class: adverse_event_reports
+  archetypes: [count_discrete, non_stationary_regime, noisy_clean_pair]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/drug/event.json?search=receiptdate:%5B20260101+TO+20261231%5D&count=receiptdate
+    auth: none
+    rate_limit: "240 req/min, 1000/day per IP without key; higher with free key"
+  schema:
+    timestamp_field: results[].time      # YYYYMMDD date string (report receipt date)
+    value_field: results[].count         # number of adverse-event reports received that day
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: "quarterly bulk refresh (last_updated field); daily granularity within each refresh"
+  pretraining_novelty: partial
+  novelty_notes: "openFDA endpoint is public but per-day FAERS report-count series is rarely in TSFM corpora; strong day-of-week + reporting-lag structure."
+  license: "Public domain / openFDA terms (open.fda.gov/terms)"
+  sample_path: samples/vaers_vaccine_adverse_events.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 365
+    sample_freshness_hours: 1680
+  notes: "True VAERS is ZIP-only (no live per-date API); this uses openFDA FAERS drug/event count=receiptdate as the keyless queryable adverse-event surveillance proxy. Widen the receiptdate range in the URL to extend history. Data lags ~10 weeks (last_updated 2026-04-28). For a device-event variant use api.fda.gov/device/event.json?count=date_received."
+
+- id: pubmed_ncbi_publication_counts
+  name: PubMed / NCBI E-utilities — new publications indexed per day
+  domain: healthcare
+  dgp_class: publication_counts
+  archetypes: [count_discrete, non_stationary_regime, smooth_periodic]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=all%5Bsb%5D&datetype=edat&reldate=1&retmode=json&retmax=0
+    auth: none
+    rate_limit: "3 req/sec without API key, 10/sec with free key"
+  schema:
+    timestamp_field: now()               # snapshot: count of records added in the trailing reldate window at poll time
+    value_field: esearchresult.count     # string integer — records added to PubMed in last day
+    variates: 1
+  history_available: P1D
+  update_cadence_observed: "poll daily; reldate=1 returns count of records with Entry Date in the last 24h (~9000/day, strong weekday cycle)"
+  pretraining_novelty: clean
+  novelty_notes: "Daily PubMed indexing-throughput series is not a published dataset; must be polled forward. Substitute a disease term (e.g. term=covid-19) for a topic-specific count."
+  license: "Public domain (NLM); E-utilities usage policy applies"
+  sample_path: samples/pubmed_ncbi_publication_counts.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 1
+    sample_freshness_hours: 0.1
+  notes: "For a reconstructable historical series query fixed one-day windows: &datetype=pdat&mindate=YYYY/MM/DD&maxdate=YYYY/MM/DD (verified, returns esearchresult.count per day). Snapshot semantics here because reldate is relative to poll time."
+
+- id: wastewaterscan_pathogen_data
+  name: WastewaterSCAN — national SARS-CoV-2 variant lineage abundance (weekly)
+  domain: healthcare
+  dgp_class: environmental_biosurveillance
+  archetypes: [count_discrete, non_stationary_regime, bounded, categorical]
+  frequency: P1W
+  endpoint:
+    type: rest_csv
+    url: https://storage.googleapis.com/wastewater-dev-data/csv/seq/aggregates/national.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: end_week            # ISO date (week ending), one row per (end_week, lineage)
+    value_field: abundance               # fractional abundance 0..1 of that lineage that week
+    variates: 1
+  history_available: P3Y
+  update_cadence_observed: "weekly; latest end_week 2026-06-27 at probe (fresh)"
+  pretraining_novelty: clean
+  novelty_notes: "WastewaterSCAN/Verily public GCS mirror; per-lineage national abundance not in TSFM corpora."
+  license: "WastewaterSCAN public data (Verily/Stanford/Emory/Sequencing.com collaboration); attribution"
+  sample_path: samples/wastewaterscan_pathogen_data.csv
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 50
+    sample_freshness_hours: 264
+  notes: "Long-format: rows keyed by (end_week, lineage). Filter one lineage (e.g. lineage=XFG) for a univariate bounded series, or pivot to a per-lineage panel. Companion files on same bucket: json/plants.json, json/targets.json (pathogen assay catalog), csv/seq/data/plant-points.csv. Bucket listing is denied but individual objects are public."
+
+- id: govuk_mhra_drug_safety_update
+  name: UK MHRA drug & device safety alerts — GOV.UK medical_safety_alert stream
+  domain: healthcare
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.gov.uk/api/search.json?filter_content_store_document_type=medical_safety_alert&order=-public_timestamp&count=100&fields=title,public_timestamp,link
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: results[].public_timestamp   # ISO 8601 UTC, one row per published safety alert
+    value_field: results[].title                   # alert headline (categorical); each result = one alert, bin to per-day counts downstream
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "irregular event stream; latest 2026-07-07 at probe, total 1416 alerts indexed"
+  pretraining_novelty: clean
+  novelty_notes: "MHRA drug-safety-update / field-safety-notice publication cadence as a count series is novel; sparse (a handful per week)."
+  license: "Open Government Licence v3.0 (GOV.UK)"
+  sample_path: samples/govuk_mhra_drug_safety_update.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 20
+    sample_freshness_hours: 13
+  notes: "GOV.UK Search API. Each results[] element is one alert with public_timestamp; bin to daily/weekly counts of new alerts. Paginate with &start=N. Related document types: drug_safety_update. total field gives cumulative count."
+
+- id: chicago_food_inspections
+  name: Chicago food establishment inspections — Socrata event stream
+  domain: healthcare
+  dgp_class: inspection_events
+  archetypes: [count_discrete, non_stationary_regime, categorical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.cityofchicago.org/resource/4ijn-s7e5.json?$limit=1000&$order=inspection_date%20DESC
+    auth: none
+    rate_limit: "throttled without app token; higher with free Socrata app token"
+  schema:
+    timestamp_field: inspection_date     # ISO 8601 (floating, midnight) one row per inspection
+    value_field: results             # inspection outcome (Pass/Fail/...) per row; bin to per-day counts downstream (inspection_date is date-granular -> dedup keeps one row per date)
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: "daily business-day updates; latest inspection_date 2026-07-06 at probe"
+  pretraining_novelty: partial
+  novelty_notes: "Chicago inspections dataset is well known as tabular ML data but the per-day inspection-volume time series (with weekday/holiday structure) is not a standard TSFM series."
+  license: "Public domain (City of Chicago open data)"
+  sample_path: samples/chicago_food_inspections.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 50
+    sample_freshness_hours: 48
+  notes: "Socrata SoQL. Bin inspection_date to daily counts, or split by results (Pass/Fail/Out of Business) for a categorical/hierarchical panel. Use $where=inspection_date>'2026-01-01' to page history."
+
+- id: ca_chhs_facility_outbreaks
+  name: California CHHS — COVID-19 outbreaks by month and facility setting (DECOMMISSIONED)
+  domain: healthcare
+  dgp_class: disease_case_count
+  archetypes: [count_discrete, non_stationary_regime, hierarchical]
+  frequency: P1M
+  disabled: true
+  disabled_reason: "Dataset frozen: CDPH stopped reporting on 2025-06-02 (coverage Jan 2021 - Jun 2025). Endpoint serves HTTP 200 keyless data but is a static historical panel, not a live series."
+  endpoint:
+    type: rest_json
+    url: https://data.chhs.ca.gov/api/3/action/datastore_search?resource_id=cf208dba-89a2-4278-8b47-bfaf98317275&limit=1000
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: result.records[].MonthYear   # month label, e.g. "Jan 2021" (also literal "Before Jan 2021")
+    value_field: result.records[].Outbreaks        # integer outbreak count for that month/setting
+    variates: 1
+  history_available: P4Y
+  update_cadence_observed: "FROZEN — last data point June 2025; no further updates"
+  pretraining_novelty: partial
+  novelty_notes: "Monthly outbreaks by IndustrySector/IndividualSetting; hierarchical over setting. Historical only."
+  license: "California CHHS Terms of Use (open data)"
+  sample_path: samples/ca_chhs_facility_outbreaks.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 20
+    sample_freshness_hours: 9130
+  notes: "CKAN datastore_search (keyless, works). Rows keyed by (MonthYear, IndustrySector, IndividualSetting). No live CHHS facility-outbreak dataset exists post-decommission; enable only as a fixed historical panel. Cases column is an alternative value_field."
+
+- id: health_canada_recalls
+  name: Health Canada Recalls & Safety Alerts (recalls-rappels.canada.ca)
+  domain: healthcare
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse]
+  frequency: P1D
+  disabled: true
+  disabled_reason: "Bot-wall/WAF: recalls-rappels.canada.ca/api returns an HTML challenge page (not JSON) from this AU host. The keyless healthycanadians.gc.ca/recall-alert-rappel-avis/api/recent/en endpoint returns 200 JSON but is frozen at Oct 2021 (stale). No live keyless JSON reachable."
+  endpoint:
+    type: rest_json
+    url: https://recalls-rappels.canada.ca/api/search/v2?search=&cat=3&lang=en&lim=100&sort=date&order=desc
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: results[].date       # unverified — endpoint WAF-blocked, path from docs
+    value_field: item_count               # bin recalls to per-day counts
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "unverified (blocked)"
+  pretraining_novelty: clean
+  novelty_notes: "Recall/safety-alert publication cadence; novel as a count series if reachable."
+  license: "Open Government Licence - Canada"
+  sample_path: samples/health_canada_recalls.blocked.txt
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 0
+    sample_freshness_hours: null
+  notes: "Retry from a non-AU IP or with browser headers (both failed here). Frozen fallback: https://healthycanadians.gc.ca/recall-alert-rappel-avis/api/recent/en (results.ALL[].date_published epoch s, .category) — but stuck at 2021."
+
+# ---- b2_nature ----
+- id: smhi_swedish_weather_observations
+  name: SMHI metobs — hourly air temperature (Stockholm-Observatoriekullen, station 98230)
+  domain: nature
+  dgp_class: weather_field
+  archetypes: [smooth_periodic, non_stationary_regime, noisy_clean_pair]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata-download-metobs.smhi.se/api/version/1.0/parameter/1/station/98230/period/latest-months/data.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: value[].date      # epoch ms
+    value_field: value[].value         # air temperature deg C, JSON string -> float
+    variates: 1
+  history_available: P4M               # latest-months window (~4 months hourly); full archive via period=corrected-archive
+  update_cadence_observed: "hourly; latest-months returned 3133 rows, last row 2026-07-05 (fresh)"
+  pretraining_novelty: partial
+  novelty_notes: "SMHI open data is public but this specific station/parameter hourly slice is unlikely to be memorized verbatim; recent hours are post-cutoff."
+  license: "SMHI open data, CC BY 4.0"
+  sample_path: samples/smhi_swedish_weather_observations.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 3133
+    sample_freshness_hours: 1
+  notes: "parameter/1 = Lufttemperatur (air temp). Swap station key (integer) to build a hierarchical Swedish panel; other params: 3=wind speed, 7=precip, 8=snow depth. Use period=latest-hour for a single current value, latest-months for a series, corrected-archive for full history. value[].value arrives as a JSON string, cast to float."
+
+- id: glerl_great_lakes_levels
+  name: NOAA GLERL — Lake Superior daily mean water level (dashboard dailyObservations)
+  domain: nature
+  dgp_class: hydrology
+  archetypes: [smooth_periodic, non_stationary_regime, bounded]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://www.glerl.noaa.gov/data/wlevels/dashboard/data/dailyObservations/superior_daily.txt
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: date              # column "date" as MM-DD (day-of-year for the CURRENT calendar year); prepend current year
+    value_field: daily_current         # current-year daily mean lake level, metres (IGLD)
+    variates: 1
+  history_available: P1Y               # this file is one calendar year (365 daily rows); daily_prior column holds last year
+  update_cadence_observed: "daily; current-year rows populated through today then NA for future dates"
+  pretraining_novelty: clean
+  novelty_notes: "Current-year daily lake-level values are post-cutoff and regenerated daily."
+  license: "Public domain (NOAA GLERL)"
+  sample_path: samples/glerl_great_lakes_levels.txt
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 365
+    sample_freshness_hours: 24
+  notes: "TAB-DELIMITED text (not comma). Columns: date, daily_prior, mon_prior, daily_current, mon_current, record_max, record_mean, record_min. date has no year (MM-DD) — assign current year for daily_current, previous year for daily_prior. Other lakes: miHuron_daily.txt, clair_daily.txt, erie_daily.txt, ontario_daily.txt in same dir -> hierarchical panel. File list: https://www.glerl.noaa.gov/data/wlevels/dashboard/inventoryHTML5.csv"
+
+- id: nl_luchtmeetnet_air_quality
+  name: Luchtmeetnet NL — hourly air-quality measurements (all stations/components)
+  domain: nature
+  dgp_class: air_quality
+  archetypes: [smooth_periodic, non_stationary_regime, bounded, hierarchical]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.luchtmeetnet.nl/open_api/measurements
+    auth: none
+    rate_limit: "unspecified; polite polling"
+  schema:
+    timestamp_field: data[].timestamp_measured   # ISO 8601 with tz, e.g. 2026-07-07T14:00:00+00:00
+    value_field: data[].value                     # concentration in component units
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: "hourly; page 1 returned 10 rows, 90 pages total, latest timestamp 2026-07-07T14:00:00Z"
+  pretraining_novelty: clean
+  novelty_notes: "Recent hourly NL air-quality readings are post-cutoff; per-station/component slices not in TSFM corpora."
+  license: "Luchtmeetnet / RIVM open data (public)"
+  sample_path: samples/nl_luchtmeetnet_air_quality.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 10
+    sample_freshness_hours: 1
+  notes: "Raw feed MIXES stations and components (formula field: PM25, PM10, NO2, O3, ...) row-per-reading. For a clean univariate series filter by station_number+formula, e.g. ?station_number=NL10404&formula=NO2. Paginated (?page=N, last_page=90). Endpoint 302-redirects to a date-windowed URL — follow redirects (-L). data[].formula identifies the pollutant, data[].station_number the site."
+
+- id: geoscience_aus_earthquakes
+  name: Geoscience Australia — earthquakes in the last 7 days (RSS)
+  domain: nature
+  dgp_class: seismic_event
+  archetypes: [count_discrete, chaotic_nonlinear, zero_inflated_sparse]
+  frequency: PT15M
+  endpoint:
+    type: rss
+    url: https://earthquakes.ga.gov.au/feeds/all_recent.rss
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: description        # per item: ISO UTC in <description>, e.g. 2026-07-07T13:51:46.079Z(UTC)
+    value_field: title                  # magnitude parsed from <title> "Magnitude 2.5, Near ..."
+    variates: 1
+  history_available: P7D               # rolling 7-day feed
+  update_cadence_observed: "ttl 5 min; 59 items over last 7 days at probe time"
+  pretraining_novelty: clean
+  novelty_notes: "AU-region micro-seismicity per-event; recent events post-cutoff and GA catalogue distinct from USGS/EMSC feeds."
+  license: "Commonwealth of Australia (public, see GA copyright)"
+  sample_path: samples/geoscience_aus_earthquakes.xml
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 59
+    sample_freshness_hours: 12
+  notes: "SPA site blocks scraped API paths (all return index.html); the RSS feed is the reachable keyless surface. Per item: <title>='Magnitude X.X, Near <place>, <STATE>' (regex the number for value), <description>=ISO UTC origin time, <summary>=depth km, <georss:point>=lat lon. Aggregate to hourly/daily counts for count_discrete, or use magnitude as the value. No <pubDate> per item — use <description>."
+
+- id: dartmouth_flood_observatory
+  name: Dartmouth Flood Observatory — daily satellite river discharge (station 000001)
+  domain: nature
+  dgp_class: hydrology
+  archetypes: [non_stationary_regime, smooth_periodic, bounded]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://csdms.colorado.edu/pub/flood_observatory/DFODischarge/15_discharge.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Date              # column "Date", YYYY-MM-DD
+    value_field: Discharge (m3/s)      # column "Discharge (m3/s)"; blanks = missing
+    variates: 1
+  history_available: P28Y              # 1998-01-01 .. present
+  update_cadence_observed: "daily; 10415 rows, last row 2026-07-07 (satellite-derived, ~1-day latency)"
+  pretraining_novelty: clean
+  novelty_notes: "Daily satellite-observed discharge estimates regenerated continuously; recent values post-cutoff."
+  license: "Dartmouth Flood Observatory / CSDMS (public, attribute G.R. Brakenridge)"
+  sample_path: samples/dartmouth_flood_observatory.csv
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 10415
+    sample_freshness_hours: 24
+  notes: "DFO 'discharge from space' program; ~335 river stations. File name uses the DFO station number (here 15_discharge.csv, reached from wiki Station_000001). Enumerate other stations via https://floodobservatory.colorado.edu/wiki/DischargeFromSpace_Tab and the /pub/flood_observatory/DFODischarge/ directory to build a hierarchical panel. First data row (1998-01-01) has a blank value; skip blanks."
+
+- id: bgs_uk_earthquakes
+  name: British Geological Survey — recent UK earthquakes (RSS)
+  domain: nature
+  dgp_class: seismic_event
+  archetypes: [count_discrete, chaotic_nonlinear, zero_inflated_sparse]
+  frequency: PT30M
+  endpoint:
+    type: rss
+    url: http://quakes.bgs.ac.uk/feeds/MhSeismology.xml
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: pubDate           # per item, e.g. "Sun, 05 Jul 2026 01:53:21" (origin time)
+    value_field: description           # magnitude parsed from "... ; Magnitude:  1.0" in <description>
+    variates: 1
+  history_available: P30D              # rolling recent-events feed (~50 items)
+  update_cadence_observed: "lastBuildDate current; 50 items at probe time spanning recent weeks"
+  pretraining_novelty: clean
+  novelty_notes: "UK micro-earthquakes, mostly M<3; per-event stream not in TSFM corpora, recent events post-cutoff."
+  license: "British Geological Survey / UKRI (open, attribution)"
+  sample_path: samples/bgs_uk_earthquakes.xml
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 50
+    sample_freshness_hours: 24
+  notes: "Per item: <title>/<description> carry Location, Lat/long, Depth km, Magnitude; <pubDate> is origin time; <geo:lat>/<geo:long> present. Regex 'Magnitude:\\s*([-0-9.]+)' from description for the value. Aggregate to daily counts for count_discrete. Feed is served over http (not https)."
+
+- id: avo_alaska_volcano_alerts
+  name: AVO — Alaska Volcano Observatory elevated volcano alert stream (HANS)
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [categorical, zero_inflated_sparse, binary_state]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://volcanoes.usgs.gov/hans-public/api/volcano/getElevatedVolcanoes
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].sent_utc"     # notice time, e.g. "2026-07-06 19:34:56" (UTC)
+    value_field: "[].color_code"       # GREEN/YELLOW/ORANGE/RED, rank-encoded; filter to obs_abbr=='avo'
+    variates: 1
+  history_available: P0D               # snapshot of currently-elevated volcanoes (notice-driven)
+  update_cadence_observed: "notice-driven; at probe time 3 of 4 elevated volcanoes were AVO (Great Sitkin ORANGE, Kupreanof/Shishaldin YELLOW)"
+  pretraining_novelty: clean
+  novelty_notes: "Live Alaska volcanic alert levels are post-cutoff and event-driven."
+  license: "Public domain (USGS/AVO)"
+  sample_path: samples/avo_alaska_volcano_alerts.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 4
+    sample_freshness_hours: 24
+  notes: "Same USGS HANS endpoint as usgs_elevated_volcanoes but SCOPED to Alaska: scraper filters list to obs_abbr=='avo'. Rows carry color_code + alert_level (NORMAL/ADVISORY/WATCH/WARNING) + vnum. Alternative value: count of elevated AVO volcanoes per day (count_discrete). Distinct series from the all-US parent because Alaska dominates US volcanic unrest."
+
+- id: celestrak_satellite_tle
+  name: CelesTrak — ISS (NORAD 25544) orbital mean motion from GP/TLE
+  domain: nature
+  dgp_class: orbital_elements
+  archetypes: [non_stationary_regime, smooth_periodic]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=json
+    auth: none
+    rate_limit: "CelesTrak asks clients to cache and not poll faster than a few times/day"
+  schema:
+    timestamp_field: "[].EPOCH"        # ISO UTC element-set epoch, e.g. 2026-07-07T04:27:30.183264
+    value_field: "[].MEAN_MOTION"      # revolutions per day (orbits/day); slowly rises as the orbit decays
+    variates: 1
+  history_available: P0D               # each fetch is the latest element set; series is built by polling over time
+  update_cadence_observed: "element set updated a few times per day; single-object array returned"
+  pretraining_novelty: clean
+  novelty_notes: "Live orbital element sets are post-cutoff; mean-motion drift is regenerated continuously."
+  license: "CelesTrak (public, data from US Space Force 18 SDS); attribution requested"
+  sample_path: samples/celestrak_satellite_tle.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 1
+    sample_freshness_hours: 12
+  notes: "TLEs are orbital elements, not a classic time series. VALUE_FIELD = MEAN_MOTION (rev/day): for the ISS this trends upward between reboosts as atmospheric drag lowers the orbit, then steps down at each reboost -> non_stationary_regime with a periodic-ish reboost cadence. Build the series by polling this endpoint over days/weeks (one row per element-set EPOCH). Alternatives: gp.php?GROUP=stations&FORMAT=json returns many objects (count active sats in a group for a count_discrete series); ECCENTRICITY/INCLINATION are other numeric fields. Swap CATNR for any satellite."
+
+# ==================== FAILED (key-gated) — emitted disabled ====================
+- id: ocean_networks_canada_sensors
+  name: Ocean Networks Canada — Oceans 3.0 scalar sensor data
+  domain: nature
+  dgp_class: environmental_biosurveillance
+  archetypes: [smooth_periodic, non_stationary_regime]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.oceannetworks.ca/api/scalardata/location?locationCode=BACAX
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: sensorData[].data.sampleTimes[]
+    value_field: sensorData[].data.values[]
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "not observed — request rejected"
+  pretraining_novelty: clean
+  novelty_notes: "n/a"
+  license: "ONC Oceans 3.0 (free but token-gated)"
+  sample_path: null
+  disabled: true
+  disabled_reason: "KEY-GATED: HTTP 401 errorCode 128 'Either token or appToken must be specified'. Requires a free Oceans 3.0 account token; no keyless variant exists."
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 0
+    sample_freshness_hours: null
+  notes: "Confirmed key-gated per brief. Would need ONC token in query (?token=...). Left disabled."
+
+- id: ams_fireball_reports
+  name: American Meteor Society — fireball events API
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, chaotic_nonlinear]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.amsmeteors.org/members/api/open_api/get_events?year=2026
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: result[].avg_date_utc
+    value_field: result[].reports
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "not observed — request rejected"
+  pretraining_novelty: clean
+  novelty_notes: "n/a"
+  license: "AMS API (key-gated to members/partners)"
+  sample_path: null
+  disabled: true
+  disabled_reason: "KEY-GATED: get_events returns HTTP 400 'A required attribut is missing' for every param combination; AMS docs (amsmeteors.org/members/imo_api) state the API requires an api_key issued to paying members / invited organisations. No keyless variant."
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 0
+    sample_freshness_hours: null
+  notes: "Confirmed key-gated. The public fireball.amsmeteors.org browse pages are HTML only, not a data endpoint."
+
+- id: esa_space_weather_events
+  name: ESA SSA Space Weather Service Network — space weather events
+  domain: nature
+  dgp_class: space_weather
+  archetypes: [non_stationary_regime, zero_inflated_sparse]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://swe.ssa.esa.int/
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: now()
+    value_field: item_count
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "not observed — portal-gated"
+  pretraining_novelty: clean
+  novelty_notes: "n/a"
+  license: "ESA SSA (portal registration required for data services)"
+  sample_path: null
+  disabled: true
+  disabled_reason: "KEY-GATED: swe.ssa.esa.int is a Liferay portal; data services / HAPI endpoints sit behind portal registration and return the login portal HTML (no keyless JSON/CSV surface). Brief flagged this as likely key-gated."
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 0
+    sample_freshness_hours: null
+  notes: "Confirmed portal/key-gated. For keyless space weather use NOAA SWPC (services.swpc.noaa.gov) instead."
+
+# ==================== FAILED (site blocks scraped API) — RSS used instead ====
+- id: inciweb_wildfire_incidents
+  name: InciWeb — active US wildfire incidents (RSS)
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rss
+    url: https://inciweb.wildfire.gov/incidents/rss.xml
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: now()             # items carry a "Last updated: YYYY-MM-DD" string in <description>, no <pubDate>
+    value_field: item_count            # scraper counts <item> elements = number of active incidents
+    variates: 1
+  history_available: P0D               # snapshot of currently-active incidents
+  update_cadence_observed: "50 active incidents at probe time; feed refreshes as incidents open/close"
+  pretraining_novelty: clean
+  novelty_notes: "Count of currently-active US wildfire incidents is a live snapshot regenerated continuously."
+  license: "Public domain (US NWCG / InciWeb)"
+  sample_path: samples/inciweb_wildfire_incidents.xml
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 50
+    sample_freshness_hours: 24
+  notes: "RSS with no per-item <pubDate>; each <description> has a 'Last updated: DATE' line plus State/Coordinates. Use snapshot count semantics: poll daily, value = number of <item> (active incidents). Optionally regex 'State: XX' for a per-state hierarchical count. CONFIRMED live (HTTP 200) but modelled as a snapshot count, listed under partial-success in report."
+
+# ---- b5_sales ----
+- id: openlibrary_recent_changes
+  name: Open Library — recent changes stream
+  domain: sales
+  dgp_class: edit_stream
+  archetypes: [count_discrete, categorical, non_stationary_regime]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://openlibrary.org/recentchanges.json?limit=100
+    auth: none
+    rate_limit: "be polite; no published hard limit"
+  schema:
+    timestamp_field: "[].timestamp"      # ISO-8601, UTC (no tz suffix), microsecond precision
+    value_field: "[].kind"               # categorical: new-account, add-book, edit-book, merge, ...
+    variates: 1
+  history_available: P1D
+  update_cadence_observed: "continuous; top of feed within seconds, ~100 changes spans a few minutes"
+  pretraining_novelty: clean
+  novelty_notes: "Per-event editorial change log of a live wiki-catalog; the specific timestamp/kind sequence is not in any TSFM pretrain."
+  license: "Open Library data is public / CC0-ish; API open, attribution appreciated"
+  sample_path: samples/openlibrary_recent_changes.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 50
+    sample_freshness_hours: 0.05
+  notes: "Event stream: aggregate to counts of changes per interval (overall or per kind) for count_discrete. Dated feeds also at /recentchanges/YYYY/MM/DD.json for backfill."
+
+- id: inaturalist_observations
+  name: iNaturalist — cumulative observation count
+  domain: nature
+  dgp_class: biodiversity_observations
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api.inaturalist.org/v1/observations?per_page=1&order=desc&order_by=created_at
+    auth: none
+    rate_limit: "~60 req/min, 10k/day (unauthenticated); no key needed"
+  schema:
+    timestamp_field: now()               # snapshot poll time (endpoint returns a running total, no per-row time needed)
+    value_field: total_results           # cumulative count of all observations in the DB
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "total_results climbs by thousands per hour (365.4M and rising)"
+  pretraining_novelty: clean
+  novelty_notes: "Live monotonic biodiversity-observation counter; forward differencing gives observations-per-interval — not a series any TSFM has memorized."
+  license: "iNaturalist API — CC data; open access, attribution requested"
+  sample_path: samples/inaturalist_observations.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 5
+    sample_freshness_hours: 0.0
+  notes: "Snapshot cumulative counter; difference successive polls for arrivals. Alt: add created_d1=YYYY-MM-DD&created_d2=... to total_results for a per-day count directly. results[].time_observed_at gives per-event times if an event stream is preferred."
+
+- id: seeclickfix_citizen_reports
+  name: SeeClickFix / 311 — citizen issue reports
+  domain: sales
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://seeclickfix.com/api/v2/issues?per_page=100&sort=created_at&sort_direction=DESC
+    auth: none
+    rate_limit: "no published limit; be polite"
+  schema:
+    timestamp_field: "issues[].created_at"   # ISO-8601 with tz offset
+    value_field: "issues[].rating"            # numeric vote/support count on the issue
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: "continuous; new civic issues posted every few minutes across US municipalities"
+  pretraining_novelty: clean
+  novelty_notes: "Live cross-municipality 311/citizen-report stream; exact per-issue timing is novel to any pretrain."
+  license: "SeeClickFix Open311-style public API; ToS attribution"
+  sample_path: samples/seeclickfix_citizen_reports.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 20
+    sample_freshness_hours: 3.0
+  notes: "Event stream: aggregate to report counts per interval for count_discrete. issues[].rating gives support intensity; issues[].request_type.title is a categorical alt."
+
+- id: discogs_marketplace_sales
+  name: Discogs — catalogued releases per year (keyless proxy for marketplace)
+  domain: sales
+  dgp_class: catalog_growth
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.discogs.com/database/search?type=release&year=2026&per_page=1
+    auth: none
+    rate_limit: "~25 req/min unauthenticated; User-Agent header required"
+  schema:
+    timestamp_field: now()                 # snapshot poll time
+    value_field: pagination.items          # number of releases catalogued for the queried year
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "items count grows as contributors add releases (2026: ~99.9k and climbing)"
+  pretraining_novelty: clean
+  novelty_notes: "Live release-catalog growth counter; the daily trajectory is not memorizable by a TSFM."
+  license: "Discogs API — ToS, non-commercial; User-Agent required"
+  sample_path: samples/discogs_marketplace_sales.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 3
+    sample_freshness_hours: 0.0
+  notes: "Marketplace SALES/price-stats endpoints (marketplace/stats, marketplace/price_suggestions) are KEY-GATED (require OAuth/token) — not usable keyless. This CONFIRMED entry uses the keyless database/search release counter instead (difference polls for releases-added-per-day). Swap year= for other cohorts."
+
+- id: tvmaze_show_updates
+  name: TVmaze — shows updated in last 24h (count)
+  domain: sales
+  dgp_class: edit_stream
+  archetypes: [count_discrete]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.tvmaze.com/updates/shows?since=day
+    auth: none
+    rate_limit: "~20 req / 10s per IP; no key"
+  schema:
+    timestamp_field: now()               # snapshot poll time
+    value_field: item_count              # scraper counts entries in the returned {show_id: epoch} map
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "254 shows updated in the trailing day at probe time; window-scoped map"
+  pretraining_novelty: clean
+  novelty_notes: "Count of catalog records edited per day on a live TV database — a novel editorial-activity series."
+  license: "TVmaze API — CC BY-SA 4.0; attribution required"
+  sample_path: samples/tvmaze_show_updates.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 254
+    sample_freshness_hours: 12.0
+  notes: "Payload is a JSON object mapping show_id -> last-updated epoch (seconds); scraper takes its length as the count. since= accepts day/week/month; omit since for the full map (all shows' last-edit epochs, ~80k entries) if per-show update timestamps are wanted instead."
+
+- id: speedrun_com_run_submissions
+  name: speedrun.com — newest run submissions
+  domain: sales
+  dgp_class: submission_stream
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://www.speedrun.com/api/v1/runs?orderby=submitted&direction=desc&max=100
+    auth: none
+    rate_limit: "~100 req/min per IP; no key"
+  schema:
+    timestamp_field: "data[].submitted"       # ISO-8601 UTC (Z)
+    value_field: "data[].times.primary_t"     # run duration in seconds (float)
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: "continuous; runs submitted across all games every few minutes"
+  pretraining_novelty: clean
+  novelty_notes: "Live leaderboard-submission stream with per-run durations; neither timing nor durations are in any pretrain."
+  license: "speedrun.com API v1 — public, attribution/ToS"
+  sample_path: samples/speedrun_com_run_submissions.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 20
+    sample_freshness_hours: 1.0
+  notes: "Event stream: value is per-run wall-clock duration (times.primary_t, seconds). Aggregate to submissions-per-interval for count_discrete. Some rows have primary_t=0 (ingame-only) — filter or treat as sparse."
+
+- id: semantic_scholar_publications
+  name: Semantic Scholar — papers matching a query (count)
+  domain: sales
+  dgp_class: publication_count
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.semanticscholar.org/graph/v1/paper/search?query=time+series+forecasting&limit=1&fields=title,year,publicationDate
+    auth: none
+    rate_limit: "shared unauthenticated pool ~1 req/sec — frequent 429; retry with backoff"
+  schema:
+    timestamp_field: now()               # snapshot poll time
+    value_field: total                   # count of papers matching the query
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "total for 'time series forecasting' ~771,949 and climbing as papers are indexed"
+  pretraining_novelty: clean
+  novelty_notes: "Live indexed-publication counter for a topic query; the polling trajectory is not memorizable."
+  license: "Semantic Scholar Academic Graph API — open, keyless (rate-limited); attribution/ToS"
+  sample_path: samples/semantic_scholar_publications.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 1
+    sample_freshness_hours: 0.0
+  notes: "Keyless but the shared pool 429s heavily from this host — got 200 only after backoff. value=total (query match count); vary query= for a panel, or use data[].publicationDate as a per-paper event alt. Consider a low poll cadence to stay under the limit."
+
+- id: musicbrainz_edit_activity
+  name: MusicBrainz — total release count (catalog growth)
+  domain: sales
+  dgp_class: edit_stream
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://musicbrainz.org/ws/2/release?query=*&limit=1&fmt=json
+    auth: none
+    rate_limit: "1 req/sec per IP; descriptive User-Agent required"
+  schema:
+    timestamp_field: now()               # snapshot poll time
+    value_field: count                   # total releases in the DB matching query=*
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "count ~5,616,702 and rising as editors add releases"
+  pretraining_novelty: clean
+  novelty_notes: "Live crowd-edited music-catalog size; daily growth trajectory is novel to a TSFM."
+  license: "MusicBrainz API — CC0 core data; 1 req/s + User-Agent per ToS"
+  sample_path: samples/musicbrainz_edit_activity.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 1
+    sample_freshness_hours: 0.0
+  notes: "Snapshot catalog counter; difference polls for releases-added-per-interval. Swap entity (artist/recording/label) for a panel. MUST send a descriptive User-Agent or requests are rejected."
+
+- id: lichess_realtime_api
+  name: Lichess — featured TV game rating (live snapshot)
+  domain: sales
+  dgp_class: live_rating_snapshot
+  archetypes: [bounded, non_stationary_regime]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://lichess.org/api/tv/channels
+    auth: none
+    rate_limit: "be polite; no key for public read endpoints"
+  schema:
+    timestamp_field: now()               # snapshot poll time
+    value_field: best.rating             # rating of the currently featured top ('best') game
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "featured game rotates every few minutes; rating in the ~2900-3000 band at probe time"
+  pretraining_novelty: clean
+  novelty_notes: "Instantaneous rating of whatever game Lichess is featuring now — an intrinsically live, unmemorizable snapshot."
+  license: "Lichess API — free/open (AGPL project); attribution"
+  sample_path: samples/lichess_realtime_api.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 1
+    sample_freshness_hours: 0.0
+  notes: "Snapshot only (no per-row time). Object keyed by variant (bullet, blitz, best, chess960, ...); each has .rating and .user. Use best.rating, or build a panel over variants for multivariate. Alt live numeric: /api/tv/feed streams featured moves."
+
+- id: deezer_chart_snapshots
+  name: Deezer — global top-tracks chart snapshot
+  domain: sales
+  dgp_class: content_ranking
+  archetypes: [bounded, non_stationary_regime, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.deezer.com/chart
+    auth: none
+    rate_limit: "~50 req/5s per IP; no key"
+  schema:
+    timestamp_field: now()               # snapshot poll time (chart has no embedded timestamp)
+    value_field: "tracks.data[].rank"    # Deezer popularity score per charting track (top ranked first)
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "chart refreshes ~daily; top track rank ~980k at probe time"
+  pretraining_novelty: clean
+  novelty_notes: "Daily popularity-score snapshot of the current top tracks; the ongoing values are not in any pretrain."
+  license: "Deezer API — ToS, non-commercial; attribution"
+  sample_path: samples/deezer_chart_snapshots.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 10
+    sample_freshness_hours: 0.0
+  notes: "Snapshot ranked list — tracks.data[].rank is Deezer's popularity score (not ordinal position; higher = hotter). Also albums/artists/playlists blocks in the same payload for a hierarchical panel. Track by fixed track id across polls for a per-song popularity series."
+
+- id: dc_311_service_requests
+  name: DC 311 — city service requests (last 90 days)
+  domain: sales
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/ServiceRequests/MapServer/13/query?where=1%3D1&outFields=SERVICECODEDESCRIPTION,SERVICECALLCOUNT,ADDDATE,WARD&orderByFields=ADDDATE+DESC&resultRecordCount=1000&f=json
+    auth: none
+    rate_limit: "ArcGIS FeatureServer; be polite, no key"
+  schema:
+    timestamp_field: "features[].attributes.ADDDATE"        # epoch milliseconds
+    value_field: "features[].attributes.SERVICECODEDESCRIPTION"   # categorical request type
+    variates: 1
+  history_available: P90D
+  update_cadence_observed: "rolling 90-day layer; newest requests within minutes of intake"
+  pretraining_novelty: clean
+  novelty_notes: "Live DC 311 intake stream (ArcGIS layer 13); per-request timing/type sequence is novel."
+  license: "DC Open Data (opendata.dc.gov) — public domain"
+  sample_path: samples/dc_311_service_requests.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 25
+    sample_freshness_hours: 0.5
+  notes: "opendata.dc.gov is ArcGIS (not Socrata). Layer 13 = 'Last 90 Days'; per-year layers 0..21 for backfill. Aggregate ADDDATE to hourly/daily counts for count_discrete; SERVICECALLCOUNT is a numeric alt (usually 1). Increase resultRecordCount / page with resultOffset for more rows."
+
+# ---- b3_web ----
+- id: urlscan_public_scans
+  name: URLScan.io — public scan submission stream
+  domain: web_cloudops
+  dgp_class: alert_stream
+  archetypes: [count_discrete, non_stationary_regime, zero_inflated_sparse]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://urlscan.io/api/v1/search/?q=*&size=100
+    auth: none
+    rate_limit: "unauthenticated: ~ a few req/min, hourly/daily caps; 429 on abuse"
+  schema:
+    timestamp_field: results[].task.time     # ISO-8601 UTC, per scan submission
+    value_field: results[].page.status       # HTTP status per scanned page; each result = one scan, bin to submission-rate downstream
+    variates: 1
+  history_available: PT2H
+  update_cadence_observed: "continuous; each query returns the ~100 most recent public scans (seconds old)"
+  pretraining_novelty: clean
+  novelty_notes: "Per-second scan submission volume is a live operational stream; the specific rows never appear in any TSFM corpus."
+  license: "urlscan.io public search API; free unauthenticated tier, attribution expected"
+  sample_path: samples/urlscan_public_scans.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 50
+    sample_freshness_hours: 0.1
+  notes: "Pure event stream: aggregate row count per window for a submission-rate series. For a per-scan numeric instead use results[].stats.requests or results[].stats.uniqIPs. Pagination via search_after; size max 100 unauthenticated."
+
+- id: ransomware_live_attacks
+  name: ransomware.live — recent named ransomware victims
+  domain: web_cloudops
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.ransomware.live/v1/recentvictims
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].discovered"         # ISO-8601 with tz offset, when victim post was discovered
+    value_field: group_name                  # ransomware group per victim (categorical); each row = one disclosure, bin to rate downstream
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: "rolling recent-victims list, refreshed continuously; ~100 latest disclosures"
+  pretraining_novelty: clean
+  novelty_notes: "Daily ransomware victim-disclosure counts sourced from leak-site monitoring; not present in any pretraining corpus."
+  license: "ransomware.live free public API (CC-BY-style attribution)"
+  sample_path: samples/ransomware_live_attacks.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 100
+    sample_freshness_hours: 1
+  notes: "Top-level JSON array. Aggregate victims-per-day for a count series; alt timestamp [].published. Per-victim fields: group_name, country, activity (sector) enable hierarchical/panel splits. Full history via /v1/allcyberattacks or /v1/victims/{year}/{month}."
+
+- id: haveibeenpwned_breaches
+  name: Have I Been Pwned — data breach disclosures
+  domain: web_cloudops
+  dgp_class: alert_stream
+  archetypes: [count_discrete, non_stationary_regime, zero_inflated_sparse]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://haveibeenpwned.com/api/v3/breaches
+    auth: none
+    rate_limit: "cloudflare-fronted; polite polling (this all-breaches list needs no key)"
+  schema:
+    timestamp_field: "[].AddedDate"          # ISO-8601 UTC, when breach was loaded into HIBP
+    value_field: "[].PwnCount"               # number of accounts exposed in the breach
+    variates: 1
+  history_available: P12Y
+  update_cadence_observed: "full catalogue of all known breaches (1015 rows on probe); new breaches added irregularly"
+  pretraining_novelty: partial
+  novelty_notes: "The breach catalogue is public and may be partially seen, but the AddedDate/PwnCount magnitude series aligned to a forecasting split is novel."
+  license: "HIBP breach data licensed CC BY 4.0; /breaches (no account) is keyless"
+  sample_path: samples/haveibeenpwned_breaches.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 60
+    sample_freshness_hours: 24
+  notes: "Top-level JSON array of every breach. Sort by AddedDate for a disclosure time series; PwnCount is heavy-tailed (log-transform advisable). Alt timestamp [].BreachDate (when breach occurred). Per-account queries DO require an API key — those are out of scope."
+
+- id: apnic_labs_ipv6_adoption
+  name: APNIC Labs — IPv6 capable percentage (per-economy panel)
+  domain: web_cloudops
+  dgp_class: observability_metric
+  archetypes: [non_stationary_regime, bounded, smooth_periodic]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data1.labs.apnic.net/v6stats/v6economy/{CC}.json
+    auth: none
+    rate_limit: null
+  panel:
+    - {CC: 'AU'}    # Australia
+    - {CC: 'US'}    # United States
+    - {CC: 'DE'}    # Germany
+    - {CC: 'JP'}    # Japan
+    - {CC: 'BR'}    # Brazil
+    - {CC: 'IN'}    # India
+  schema:
+    timestamp_field: data[].date             # YYYY-MM-DD daily measurement
+    value_field: data[].raw.capable_pc       # % of sampled users IPv6-capable (0-100)
+    variates: 1
+  history_available: P12Y
+  update_cadence_observed: "daily; ~4591 rows per economy on probe (AU back to ~2013), 'updated' stamp refreshed each morning UTC"
+  pretraining_novelty: clean
+  novelty_notes: "Daily per-economy IPv6-capability measurement from APNIC's ad-based sampling; the raw v6economy time series is not in TSFM corpora."
+  license: "(C) APNIC Pty/Ltd — re-use with attribution permitted"
+  sample_path: samples/apnic_labs_ipv6_adoption.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 60
+    sample_freshness_hours: 72
+  notes: "data[] is a long daily time series; raw.capable_pc is the noisy raw estimate, smoothed variants at data[].['30'|'60'|'90'].capable_pc. Bounded 0-100 with weekly weekday/weekend structure and a strong secular uptrend. Panel enumerates economies via {CC}; any ISO-3166 alpha-2 works. Data source discovered from the chart in stats.labs.apnic.net/ipv6/<CC>."
+
+- id: netblocks_internet_disruptions
+  name: NetBlocks — internet disruption reports (RSS)
+  disabled: true
+  disabled_reason: >-
+    2026-07-08: keyless RSS returns 200 (10 items) but the feed is STALE — newest item is Aug-2023, the public /feed looks abandoned. No fresh disruptions to forecast. Re-enable if NetBlocks ships a live category feed.
+  domain: web_cloudops
+  dgp_class: alert_stream
+  archetypes: [count_discrete, zero_inflated_sparse, categorical]
+  frequency: P1D
+  endpoint:
+    type: rss
+    url: https://netblocks.org/feed
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: pubDate                 # RFC-822 date per report item
+    value_field: item_count                  # scraper counts disruption reports per window
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: "WordPress /feed returns the ~10 latest reports; on probe the newest item was Aug-2023 (feed appears stale/low-volume)"
+  pretraining_novelty: clean
+  novelty_notes: "Internet-shutdown report cadence keyed to real-world censorship/outage events; not in any TSFM corpus."
+  license: "NetBlocks content, attribution required (CC BY 4.0)"
+  sample_path: samples/netblocks_internet_disruptions.xml
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 10
+    sample_freshness_hours: null
+  notes: "Keyless RSS, HTTP 200, but the public /feed only carries ~10 items and looked stale at probe time (newest Aug-2023) — treat freshness with caution and consider category feeds (e.g. /category/reports/feed). Value = report count per window; item title/description are categorical event labels."
+
+- id: digitalocean_status_incidents
+  name: DigitalOcean Status — incident stream (Statuspage)
+  domain: web_cloudops
+  dgp_class: service_health
+  archetypes: [zero_inflated_sparse, categorical, count_discrete]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://status.digitalocean.com/api/v2/incidents.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: incidents[].created_at  # ISO-8601 UTC
+    value_field: incidents[].impact          # none/minor/major/critical; rank-encoded
+    variates: 1
+  history_available: P1Y
+  update_cadence_observed: "event-driven; incidents.json returns the recent incident history"
+  pretraining_novelty: partial
+  novelty_notes: "Third cloud-provider incident stream alongside cloudflare_status_incidents and aws_health_rss for cross-provider comparison."
+  license: "Public Statuspage feed"
+  sample_path: samples/digitalocean_status_incidents.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 40
+    sample_freshness_hours: 72
+  notes: "Standard Atlassian Statuspage v2 API. Rank-encode impact (none=0..critical=3) or aggregate incident counts per window. Component snapshot alt: /api/v2/components.json; unresolved: /api/v2/incidents/unresolved.json."
+
+- id: atlassian_status_incidents
+  name: Atlassian Status — incident stream (Statuspage)
+  domain: web_cloudops
+  dgp_class: service_health
+  archetypes: [zero_inflated_sparse, categorical, count_discrete]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://status.atlassian.com/api/v2/incidents.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: incidents[].created_at  # ISO-8601 UTC
+    value_field: incidents[].impact          # none/minor/major/critical; rank-encoded
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: "event-driven; returns recent incident history (probe rows back to 2025)"
+  pretraining_novelty: partial
+  novelty_notes: "Jira/Confluence/Bitbucket incident stream; another cross-provider service-health series."
+  license: "Public Statuspage feed"
+  sample_path: samples/atlassian_status_incidents.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 40
+    sample_freshness_hours: 72
+  notes: "Standard Atlassian Statuspage v2 API. Rank-encode impact or aggregate to incident counts per window. Alt endpoints: /api/v2/summary.json, /api/v2/components.json."
+
+- id: peeringdb_network_ixp_changes
+  name: PeeringDB — network registration stream
+  domain: web_cloudops
+  dgp_class: network_flow
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://www.peeringdb.com/api/net?limit=250&order=-created
+    auth: none
+    rate_limit: "anonymous read allowed; heavier use throttled — register for higher limits"
+  schema:
+    timestamp_field: data[].created          # ISO-8601 UTC (Z), when the network object was registered
+    value_field: data[].info_prefixes4       # advertised IPv4 prefix count per network (numeric); each row = one registration
+    variates: 1
+  history_available: P18Y
+  update_cadence_observed: "read API live; network objects carry created stamps from 2007 to present"
+  pretraining_novelty: clean
+  novelty_notes: "Rate of new autonomous-system/network registrations in the peering ecosystem; this derived count series is not in any TSFM corpus."
+  license: "PeeringDB data, CC BY 4.0; anonymous read keyless"
+  sample_path: samples/peeringdb_network_ixp_changes.json
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 50
+    sample_freshness_hours: 336
+  notes: "Aggregate created dates to registrations-per-week/month for a growth series (the API ignored order=-created on probe and returned oldest-first, but the scraper sorts by timestamp regardless). Per-net info_prefixes4/info_prefixes6 give numeric alternates. IXP variant: /api/ix or /api/ixlan for exchange-point objects."
+
+# ---------- FAILED (emitted disabled for the record) ----------
+
+- id: stripe_status_incidents
+  name: Stripe Status — incident stream
+  domain: web_cloudops
+  dgp_class: service_health
+  archetypes: [zero_inflated_sparse, categorical, count_discrete]
+  frequency: PT1H
+  disabled: true
+  disabled_reason: "status.stripe.com is a custom React app, not an Atlassian Statuspage — /api/v2/incidents.json returns HTTP 404 and there is no keyless JSON/RSS incident endpoint."
+  endpoint:
+    type: rest_json
+    url: https://status.stripe.com/api/v2/incidents.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: incidents[].created_at
+    value_field: incidents[].impact
+    variates: 1
+  history_available: null
+  update_cadence_observed: "n/a — endpoint 404s"
+  pretraining_novelty: clean
+  novelty_notes: "n/a"
+  license: "Public status page (no machine API)"
+  sample_path: null
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 0
+    sample_freshness_hours: null
+  notes: "FAILED-404: not a Statuspage host. Also intermittently connection-timed-out from AU. No keyless replacement found."
+
+- id: uptimerobot_monitors
+  name: UptimeRobot — monitor status
+  domain: web_cloudops
+  dgp_class: service_health
+  archetypes: [binary_state, count_discrete]
+  frequency: PT5M
+  disabled: true
+  disabled_reason: "UptimeRobot API (api.uptimerobot.com/v2/getMonitors) requires an api_key; public status pages need a per-PSP id and there is no global keyless monitor feed."
+  endpoint:
+    type: rest_json
+    url: https://api.uptimerobot.com/v2/getMonitors
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: now()
+    value_field: monitors[].status
+    variates: 1
+  history_available: null
+  update_cadence_observed: "n/a — key-gated"
+  pretraining_novelty: clean
+  novelty_notes: "n/a"
+  license: "UptimeRobot API — requires account API key"
+  sample_path: null
+  verification:
+    last_verified: 2026-07-08
+    sample_rows: 0
+    sample_freshness_hours: null
+  notes: "FAILED-keygated: probe returned {stat:fail, missing_parameter: api_key}; stats.uptimerobot.com PSP path 404s without a valid public-status-page slug. No keyless variant."
