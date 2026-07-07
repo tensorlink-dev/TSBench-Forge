@@ -42,29 +42,40 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 LIUM = os.path.expanduser("~/.local/bin/lium")
 
+# Install is staged so a bad model wheel can't sink the harness: CORE (the eval's
+# own deps) and TORCH must succeed; each model lib is then installed independently
+# with `|| true`, and the load-probe skips whatever didn't take.
+CORE = "python -m pip install -q numpy pandas pyarrow scipy matplotlib pyyaml"
+TORCH = "python -m pip install -q torch --index-url https://download.pytorch.org/whl/cu121"
+
 GROUPS = {
     "A": {
-        "pip": (
-            "pip install -q torch --index-url https://download.pytorch.org/whl/cu121 && "
-            "pip install -q 'chronos-forecasting>=2.0' "
-            "'git+https://github.com/google-research/timesfm.git' "
-            "toto-models 'tirex-ts[cuda]' uni2ts "
-            "'granite-tsfm @ git+https://github.com/ibm-granite/granite-tsfm.git' "
-            "tabpfn-time-series scipy pandas pyarrow matplotlib pyyaml"
-        ),
+        "models": [
+            "chronos-forecasting>=2.0",
+            "git+https://github.com/google-research/timesfm.git",
+            "toto-models",
+            "tirex-ts[cuda]",
+            "uni2ts",
+            "granite-tsfm @ git+https://github.com/ibm-granite/granite-tsfm.git",
+            "tabpfn-time-series",
+        ],
         "roster": [
             "chronos2", "chronos-bolt", "timesfm25", "toto2",
             "tirex", "moirai2", "flowstate", "tabpfn-ts",
         ],
     },
     "B": {
-        "pip": (
-            "pip install -q torch --index-url https://download.pytorch.org/whl/cu121 && "
-            "pip install -q transformers==4.40.1 scipy pandas pyarrow matplotlib pyyaml"
-        ),
+        "models": ["transformers==4.40.1"],
         "roster": ["sundial"],
     },
 }
+
+
+def _install_cmd(models: list[str]) -> str:
+    """CORE + TORCH must succeed; each model lib is best-effort (|| true)."""
+    parts = [CORE, TORCH]
+    parts += [f"python -m pip install -q '{spec}' || true" for spec in models]
+    return " && ".join(parts[:2]) + " ; " + " ; ".join(parts[2:])
 
 
 def _load_local_env() -> None:
@@ -187,8 +198,8 @@ def main() -> int:
         print(f"pod {name} status: {status}")
         _lium("rsync", name, str(stage) + "/", "/root/repo/")
         env_flags = ["-e", f"HF_TOKEN={tok}", "-e", f"HUGGING_FACE_HUB_TOKEN={tok}"] if tok else []
-        print("installing deps on GPU (several minutes)…")
-        _lium("exec", name, *env_flags, f"cd /root/repo && {grp['pip']}")
+        print("installing deps on GPU (core+torch must pass; model libs best-effort)…")
+        _lium("exec", name, *env_flags, f"cd /root/repo && {_install_cmd(grp['models'])}")
         print(_lium("exec", name, "nvidia-smi --query-gpu=name,memory.total --format=csv,noheader",
                     capture=True).stdout)
         run_env = env_flags + [
