@@ -148,14 +148,20 @@ def main() -> int:
         for sid in eligible:
             lium.rsync(ready, str(REPO / "src/sources/data" / sid) + "/",
                        f"/root/repo/src/sources/data/{sid}/")
+        # --- HF token: forwarded at EXEC TIME only (never via .env upload) so
+        # gated weights (TiRex community license, some TabPFN paths) can download.
+        tok = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN", "")
+        hf_env = f"HF_TOKEN={tok} HUGGING_FACE_HUB_TOKEN={tok} " if tok else ""
+        if tok:
+            print("forwarding HF token to the pod (exec-time env, not uploaded)")
         # --- install this group's deps ---
         print("installing deps (several minutes)…")
-        lium.exec(ready, command=f"cd /root/repo && pip install -q {grp['pip']}")
+        lium.exec(ready, command=f"{hf_env}cd /root/repo && pip install -q {grp['pip']}")
         print(lium.exec(ready, command="nvidia-smi --query-gpu=name,memory.total --format=csv,noheader")["stdout"])
         # --- run the comparison on GPU ---
         roster_arg = ",".join(roster)
         run = (
-            "cd /root/repo && PYTHONPATH=src python -c \""
+            f"{hf_env}cd /root/repo && PYTHONPATH=src python -c \""
             "import tsfm_comparison as tc; "
             f"tc.run_comparison('src/sources/data', catalog='src/sources/sources.yaml', "
             f"roster='{roster_arg}'.split(','), device='cuda', "
