@@ -48,8 +48,11 @@ LIUM = os.path.expanduser("~/.local/bin/lium")
 # must succeed (run with check=True), then each model lib installs independently
 # with `|| true` and the load-probe skips whatever didn't take.
 _PIP = "python3 -m pip install -q --break-system-packages"
-CORE = f"{_PIP} numpy pandas pyarrow scipy matplotlib pyyaml"
-TORCH = f"{_PIP} torch --index-url https://download.pytorch.org/whl/cu121"
+# accelerate: without it transformers' lazy import raises "Could not import module
+# 'PreTrainedModel'" (chronos-2/-bolt, flowstate). torchvision must match torch or
+# uni2ts/toto raise "operator torchvision::nms does not exist".
+CORE = f"{_PIP} numpy pandas pyarrow scipy matplotlib pyyaml accelerate"
+TORCH = f"{_PIP} torch torchvision --index-url https://download.pytorch.org/whl/cu121"
 
 GROUPS = {
     "A": {
@@ -199,6 +202,9 @@ def main() -> int:
         print(f"pod {name} status: {status}")
         _lium("rsync", name, str(stage) + "/", "/root/repo/")
         env_flags = ["-e", f"HF_TOKEN={tok}", "-e", f"HUGGING_FACE_HUB_TOKEN={tok}"] if tok else []
+        tabtok = os.environ.get("TABPFN_TOKEN", "")
+        if tabtok:  # TabPFN-TS LOCAL mode needs a priorlabs API key, not just license accept
+            env_flags += ["-e", f"TABPFN_TOKEN={tabtok}"]
         print("installing core deps + torch on GPU (must succeed)…")
         _lium("exec", name, *env_flags, f"cd /root/repo && {CORE} && {TORCH}")  # check=True
         print("installing model libs (best-effort; failures skip that model)…")
