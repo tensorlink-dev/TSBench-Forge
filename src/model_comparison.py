@@ -240,6 +240,74 @@ def _benjamini_hochberg(pvals: list[float]) -> list[float]:
     return list(adj)
 
 
+def scores_from_serialized(per_challenge: dict) -> dict[str, ModelScores]:
+    """Rebuild ``{name: ModelScores}`` from a results.json ``per_challenge`` block."""
+    sids = np.array(per_challenge["source_ids"])
+    return {
+        name: ModelScores(name, np.array(d["mase"]), np.array(d["crps"]), np.array(d["weight"]), sids)
+        for name, d in per_challenge["models"].items()
+    }
+
+
+def merge_group_scores(per_challenge_blocks: list[dict]) -> dict[str, ModelScores]:
+    """Union model scores across group runs sharing an identical challenge set.
+
+    Every group re-includes the classical panel on the *same* seeded challenges,
+    so ``source_ids`` must match exactly across blocks; the classical rungs are
+    deduped (kept from the first block) and each group's TSFMs are added. Raises
+    if the challenge sets differ (a mismatched seed/motif would make the merge a
+    lie).
+    """
+    ref = None
+    merged: dict[str, ModelScores] = {}
+    for pc in per_challenge_blocks:
+        if ref is None:
+            ref = pc["source_ids"]
+        elif pc["source_ids"] != ref:
+            raise ValueError("challenge sets differ across groups — cannot merge")
+        for name, ms in scores_from_serialized(pc).items():
+            merged.setdefault(name, ms)  # first-wins dedup for the shared classical panel
+    return merged
+
+
+def leaderboard_from_scores(
+    scores: dict[str, ModelScores], *, metrics=("mase", "crps"), baseline: str = "seasonal_naive"
+) -> list[dict]:
+    """Seasonal-naive-relative shifted-gmean leaderboard from stored per-challenge
+    scores (the merge-time equivalent of :func:`evaluate.leaderboard`, which needs
+    live forecasters). Ranked by ``crps_rel`` ascending."""
+    from evaluate import shifted_gmean
+
+    base = scores[baseline]
+    sids = base.source_ids
+    groups = {s: np.flatnonzero(sids == s) for s in dict.fromkeys(sids.tolist())}
+
+    def _rel(model_arr: np.ndarray, naive_arr: np.ndarray, w: np.ndarray) -> float:
+        ratios, weights = [], []
+        for idx in groups.values():
+            wg = w[idx]
+            nm = float(np.average(naive_arr[idx], weights=wg))
+            mm = float(np.average(model_arr[idx], weights=wg))
+            ratios.append(mm / max(nm, _EPS))
+            weights.append(float(wg.sum()))
+        return shifted_gmean(ratios, weights=weights)
+
+    rows = []
+    for name, s in scores.items():
+        row = {"model": name}
+        for m in metrics:
+            row[m] = float(np.average(s.metric(m), weights=s.weight))
+            row[f"{m}_rel"] = _rel(s.metric(m), base.metric(m), s.weight)
+        rows.append(row)
+    rows.sort(key=lambda r: r.get("crps_rel", r.get("mase_rel", 0.0)))
+    for i, r in enumerate(rows, 1):
+        r["rank"] = i
+    return rows
+
+
+_EPS = 1e-12
+
+
 def source_clustered_note(scores: dict[str, ModelScores]) -> str:
     """Warn when challenges cluster on few source series (tests overstate power)."""
     any_scores = next(iter(scores.values()))

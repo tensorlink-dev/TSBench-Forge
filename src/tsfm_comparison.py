@@ -143,6 +143,19 @@ def run_comparison(
     scores = mc.score_models(models, challenges)
     note = mc.source_clustered_note(scores)
 
+    # Per-challenge scores are what let separate group runs merge into ONE
+    # significance analysis: the challenge set is identical across groups (fixed
+    # seed), so aligning by source_ids and unioning the model arrays reconstructs
+    # the full paired matrix. See scripts/merge_tsfm_results.py.
+    _first = next(iter(scores.values()))
+    per_challenge = {
+        "source_ids": _first.source_ids.tolist(),
+        "models": {
+            name: {"mase": s.mase.tolist(), "crps": s.crps.tolist(), "weight": s.weight.tolist()}
+            for name, s in scores.items()
+        },
+    }
+
     out: dict = {
         "config": {
             "data_dir": str(data_dir),
@@ -154,6 +167,7 @@ def run_comparison(
         "load_report": load_report,
         "note": note,
         "leaderboard": [_clean(row) for row in board],
+        "per_challenge": per_challenge,
         "by_metric": {},
     }
     for metric in metrics:
