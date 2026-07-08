@@ -15,7 +15,23 @@ test = ["pytest>=7.0"]
 # Real TSFMs to put under test (loaded via tsfm_adapters.load_tsfm). Imported
 # lazily, so the numpy core, the demo, and the tests never need them.
 chronos = ["torch>=2.0", "chronos-forecasting>=1.4"]
+chronos2 = ["torch>=2.0", "chronos-forecasting>=2.0"]
 timesfm = ["timesfm>=1.2"]
+# TimesFM-2.5 classes ship from GitHub master (PyPI 2.0.x lacks them, as of 2026-07):
+#   pip install "git+https://github.com/google-research/timesfm.git"
+timesfm25 = ["torch>=2.0"]
+toto2 = ["torch>=2.0", "toto-models>=1.0"]            # import package is `toto2`
+tirex = ["torch>=2.0", "tirex-ts>=1.4"]               # import package is `tirex`; [cuda] for sLSTM kernels
+moirai2 = ["torch>=2.0", "uni2ts>=1.2"]
+flowstate = ["torch>=2.0", "granite-tsfm>=1.0"]       # provides tsfm_public.FlowStateForPrediction
+tabpfn-ts = ["torch>=2.0", "tabpfn-time-series>=1.2", "tabpfn>=8.0"]
+# Sundial pins transformers==4.40.1 — INSTALL IN A DEDICATED ENV; it does not
+# coexist with the newer-transformers models above.
+sundial = ["torch>=2.0", "transformers==4.40.1"]
+# Statistical model comparison (model_comparison.py): scipy for wilcoxon / ttest_rel / BH-FDR.
+stats = ["scipy>=1.11"]
+# Drive the TSFM-vs-TSFM comparison on a Lium GPU (scripts/run_tsfm_comparison_lium.py).
+lium = ["lium"]
 # Dynamical-systems (DSR) eval (dsr_eval/): scipy enables solve_ivp/RK45 integration;
 # without it the eval falls back to the numpy RK4 in dsr_eval/systems.py. dysts adds
 # Gilpin's chaotic-systems zoo as an optional backend. Both imported lazily.
