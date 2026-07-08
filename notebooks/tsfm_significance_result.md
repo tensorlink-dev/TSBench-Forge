@@ -8,9 +8,9 @@ collide), merged with `scripts/merge_tsfm_results.py`.
 **Setup.** 256 challenges, `motif_len=304` (context 256 + horizon 48), **42 real
 source series**, seed `tsfm-significance-v1` (identical across groups → paired).
 
-## Unified leaderboard — 5 TSFMs vs classical panel
+## Unified leaderboard — 6 TSFMs vs classical panel
 
-Seasonal-naive-relative shifted-gmean (lower = better). All five foundation models
+Seasonal-naive-relative shifted-gmean (lower = better). All six foundation models
 **sweep the top on CRPS**, each significantly beating seasonal-naive; the edge is
 probabilistic (CRPS), not point (MASE), where they're mixed.
 
@@ -21,24 +21,26 @@ probabilistic (CRPS), not point (MASE), where they're mixed.
 | 3 | **tirex** | 0.563 | 1.051 | 0.379 | 1.837 |
 | 4 | **chronos-bolt** | 0.668 | 1.268 | 0.391 | 2.256 |
 | 5 | **sundial** | 0.755 | 1.387 | 0.459 | 2.173 |
-| 6 | ewma | 0.874 | 0.761 | 0.562 | 1.903 |
-| 7 | strong | 0.929 | 0.801 | 0.599 | 2.065 |
-| 8 | seasonal_naive | 1.000 | 0.914 | 0.648 | 2.183 |
-| 9 | ar1 | 1.036 | 1.047 | 0.636 | 2.658 |
-| 10 | drift | 1.073 | 1.022 | 0.708 | 2.906 |
-| 11 | context_parrot | 1.173 | 1.182 | 0.724 | 2.790 |
+| 6 | **moirai2** | 0.759 | 1.326 | 0.385 | 2.950 |
+| 7 | ewma | 0.874 | 0.761 | 0.562 | 1.903 |
+| 8 | strong | 0.929 | 0.801 | 0.599 | 2.065 |
+| 9 | seasonal_naive | 1.000 | 0.914 | 0.648 | 2.183 |
+| 10 | ar1 | 1.036 | 1.047 | 0.636 | 2.658 |
+| 11 | drift | 1.073 | 1.022 | 0.708 | 2.906 |
+| 12 | context_parrot | 1.173 | 1.182 | 0.724 | 2.790 |
 
 ## Significance
 
-- **Friedman χ² = 1066, p = 6e-141** (CRPS) — the models genuinely differ.
+- **Friedman χ² = 1116, p = 2e-148** (CRPS) — the models genuinely differ.
 - **Every TSFM beats seasonal-naive on CRPS** (Holm-adjusted paired Wilcoxon):
 
   | model | median CRPS Δ vs naive | win-rate | Holm p | sig |
   |---|--:|--:|--:|:--:|
-  | chronos-bolt | −0.227 | 0.84 | 5e-32 | ✅ |
-  | tirex | −0.218 | 0.86 | 6e-32 | ✅ |
+  | chronos-bolt | −0.227 | 0.84 | 6e-32 | ✅ |
+  | tirex | −0.218 | 0.86 | 7e-32 | ✅ |
+  | moirai2 | −0.212 | 0.79 | 5e-25 | ✅ |
   | chronos2 | −0.210 | 0.86 | 3e-32 | ✅ |
-  | timesfm25 | −0.190 | 0.86 | 4e-32 | ✅ |
+  | timesfm25 | −0.190 | 0.86 | 5e-32 | ✅ |
   | sundial | −0.150 | 0.74 | 7e-20 | ✅ |
   | ewma | −0.009 | 0.65 | 2e-11 | ✅ |
   | strong | −0.000 | 0.52 | 1e-04 | ✅ |
@@ -53,11 +55,12 @@ probabilistic (CRPS), not point (MASE), where they're mixed.
   per-source-relative leaderboard is the primary ranking and the p-values
   corroborate. This grows as the scraper's cron accumulates history (the loader
   now concatenates a source's daily parquet).
-- **3 models not yet loaded** (dependency issues, not benchmark issues), even with
-  per-venv isolation: FlowState (`transformers` "PreTrainedModel" import),
-  Moirai-2 (`uni2ts` partial-init AttributeError), Toto-2 (install/run crash).
-  These need per-library version pinning — a focused follow-up. TabPFN-TS needs a
-  `TABPFN_TOKEN` (priorlabs API key) in `.env`.
+- **2 models not yet in the table.** Per-group venv recipes fixed the dependency
+  issues (Moirai-2 now loads via pinned `jax`/`jaxlib`); the last two now *import*
+  cleanly but hit **adapter-call bugs**, not dep issues: FlowState returns a
+  `FlowStateForPredictionOutput` object the adapter must unwrap (not tensor-ify),
+  and Toto-2 raises an einops shape error in its forecast call. Both are small
+  adapter fixes. TabPFN-TS needs a `TABPFN_TOKEN` (priorlabs API key) in `.env`.
 
 ## Reproduce
 
