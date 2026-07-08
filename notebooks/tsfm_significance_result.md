@@ -1,52 +1,70 @@
-# TSFM significance — first live GPU run (2026-07-08)
+# TSFM significance on live TSBench-Forge data (GPU run, 2026-07-09)
 
-First real run of `notebooks/tsfm_significance.ipynb` / `scripts/run_tsfm_comparison_lium.py`
-on an RTX 4090 (Lium), scoring foundation models against the live TSBench-Forge
-benchmark and testing the gaps with paired Wilcoxon / Friedman.
+Foundation models scored against the live benchmark and tested with paired
+Wilcoxon / Friedman. Run via `scripts/run_tsfm_comparison_lium.py --group all`
+(one RTX 4090 pod, a fresh venv per model group so conflicting libraries can't
+collide), merged with `scripts/merge_tsfm_results.py`.
 
-**Setup.** 256 challenges, `motif_len=304` (context 256 + horizon 48), drawn from
-**43 real source series** (post loader-concat fix). Seed `tsfm-significance-v1`.
+**Setup.** 256 challenges, `motif_len=304` (context 256 + horizon 48), **42 real
+source series**, seed `tsfm-significance-v1` (identical across groups → paired).
 
-## Result — TimesFM-2.5 and TiRex are significantly better on CRPS
+## Unified leaderboard — 5 TSFMs vs classical panel
 
-Two foundation models loaded cleanly (see coexistence note below); both **beat every
-classical baseline on probabilistic accuracy (CRPS) by a wide, highly-significant margin**,
-while being only middling on point accuracy (MASE). That split — big CRPS win, modest MASE —
-is the expected TSFM signature: the edge is calibrated *uncertainty*, not the point forecast.
+Seasonal-naive-relative shifted-gmean (lower = better). All five foundation models
+**sweep the top on CRPS**, each significantly beating seasonal-naive; the edge is
+probabilistic (CRPS), not point (MASE), where they're mixed.
 
-| rank | model | CRPS (rel to naive) | MASE (rel) | CRPS | win vs naive | Holm p (CRPS) | sig |
-|---:|---|---:|---:|---:|---:|---:|:--:|
-| — | **timesfm25** | **0.547** | 0.814 | 0.500 | 0.87 | 3e-31 | ✅ |
-| — | **tirex** | **0.581** | 0.935 | 0.493 | 0.87 | 4e-32 | ✅ |
-| 1 | strong (classical) | 0.925 | 0.778 | 0.708 | 0.52 | 8e-05 | ✅ |
-| 2 | ewma | 0.895 | 0.784 | 0.690 | 0.64 | 5e-08 | ✅ |
-| — | seasonal_naive | 1.000 | 0.888 | 0.753 | — | — | — |
-| — | drift | 1.003 | 0.893 | 0.783 | 0.34 | 1.0 | ❌ |
-| — | context_parrot | 1.188 | 1.363 | 0.849 | 0.32 | 1.0 | ❌ |
+| rank | model | crps_rel | mase_rel | CRPS | MASE |
+|---:|---|--:|--:|--:|--:|
+| 1 | **timesfm25** | 0.492 | 0.718 | 0.398 | 1.851 |
+| 2 | **chronos2** | 0.511 | 0.951 | 0.364 | 1.820 |
+| 3 | **tirex** | 0.563 | 1.051 | 0.379 | 1.837 |
+| 4 | **chronos-bolt** | 0.668 | 1.268 | 0.391 | 2.256 |
+| 5 | **sundial** | 0.755 | 1.387 | 0.459 | 2.173 |
+| 6 | ewma | 0.874 | 0.761 | 0.562 | 1.903 |
+| 7 | strong | 0.929 | 0.801 | 0.599 | 2.065 |
+| 8 | seasonal_naive | 1.000 | 0.914 | 0.648 | 2.183 |
+| 9 | ar1 | 1.036 | 1.047 | 0.636 | 2.658 |
+| 10 | drift | 1.073 | 1.022 | 0.708 | 2.906 |
+| 11 | context_parrot | 1.173 | 1.182 | 0.724 | 2.790 |
 
-- **Friedman χ² = 640, p = 5e-88** — the models genuinely differ.
-- `context_parrot` (repeat-the-context lower bound) ranks **last** → the benchmark is not
-  trivially memorizable.
-- Breadth caveat: 43 source series is still low, so challenges are not fully independent —
-  the leaderboard (per-source-relative) is the primary ranking; the p-values corroborate.
-  This grows as the scraper's cron accumulates history (loader now concatenates daily files).
+## Significance
 
-## Dependency-coexistence note (why only 2/8 this run)
+- **Friedman χ² = 1066, p = 6e-141** (CRPS) — the models genuinely differ.
+- **Every TSFM beats seasonal-naive on CRPS** (Holm-adjusted paired Wilcoxon):
 
-The other six were **skipped by the load-probe, not by the benchmark** — all dependency
-conflicts from co-installing many TSFM libraries in one environment:
+  | model | median CRPS Δ vs naive | win-rate | Holm p | sig |
+  |---|--:|--:|--:|:--:|
+  | chronos-bolt | −0.227 | 0.84 | 5e-32 | ✅ |
+  | tirex | −0.218 | 0.86 | 6e-32 | ✅ |
+  | chronos2 | −0.210 | 0.86 | 3e-32 | ✅ |
+  | timesfm25 | −0.190 | 0.86 | 4e-32 | ✅ |
+  | sundial | −0.150 | 0.74 | 7e-20 | ✅ |
+  | ewma | −0.009 | 0.65 | 2e-11 | ✅ |
+  | strong | −0.000 | 0.52 | 1e-04 | ✅ |
+  | ar1 / drift / context_parrot | ≥0 | ≤0.50 | ns | ❌ |
 
-| model | skip reason | class |
-|---|---|---|
-| toto2, moirai2 | `operator torchvision::nms does not exist` | a later model lib re-installs a torch that mismatches torchvision |
-| chronos2, chronos-bolt, flowstate | `Could not import module 'PreTrainedModel'` | a model lib pins an incompatible `transformers` |
-| tabpfn-ts | `TabPFNLicenseError` | LOCAL mode needs a `TABPFN_TOKEN` (priorlabs API key), not just a license accept |
+- `context_parrot` (repeat-the-context lower bound) ranks **last** → the benchmark
+  is not trivially memorizable.
 
-TimesFM-2.5 and TiRex win precisely because they carry self-contained stacks that the
-others' pins don't disturb. Getting all ten into one leaderboard requires **per-compatible-group
-isolation**: the runner already splits models into `--group` sets (identical challenge set →
-`results.json` files merge), so the fix is to partition the transformers-based vs
-uni2ts/toto vs timesfm stacks into separate groups and merge — a follow-up, plus a
-`TABPFN_TOKEN` in `.env` for TabPFN-TS.
+## Caveats
 
-Total GPU spend to reach this result: ≈ $2 (RTX 4090 @ $0.33/hr, several short iterations).
+- **Breadth**: 42 source series — challenges are not fully independent, so the
+  per-source-relative leaderboard is the primary ranking and the p-values
+  corroborate. This grows as the scraper's cron accumulates history (the loader
+  now concatenates a source's daily parquet).
+- **3 models not yet loaded** (dependency issues, not benchmark issues), even with
+  per-venv isolation: FlowState (`transformers` "PreTrainedModel" import),
+  Moirai-2 (`uni2ts` partial-init AttributeError), Toto-2 (install/run crash).
+  These need per-library version pinning — a focused follow-up. TabPFN-TS needs a
+  `TABPFN_TOKEN` (priorlabs API key) in `.env`.
+
+## Reproduce
+
+```bash
+python scripts/run_tsfm_comparison_lium.py --gpu RTX4090 --group all --ttl 90m --yes
+python scripts/merge_tsfm_results.py
+```
+
+Total GPU spend to this result: ≈ $16 across development iterations; a clean
+single-pod `--group all` run is ~$0.50 (one RTX 4090, ~45 min).
