@@ -42,41 +42,42 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 LIUM = os.path.expanduser("~/.local/bin/lium")
 
-# Lium pods are bare Ubuntu with a PEP-668 externally-managed python, so every
-# pip needs --break-system-packages (fine on a throwaway pod). Install is staged
-# so a bad model wheel can't sink the harness: CORE (the eval's own deps) + TORCH
-# must succeed (run with check=True), then each model lib installs independently
-# with `|| true` and the load-probe skips whatever didn't take.
-_PIP = "python3 -m pip install -q --break-system-packages"
-# accelerate: without it transformers' lazy import raises "Could not import module
-# 'PreTrainedModel'" (chronos-2/-bolt, flowstate). torchvision must match torch or
-# uni2ts/toto raise "operator torchvision::nms does not exist".
-CORE = f"{_PIP} numpy pandas pyarrow scipy matplotlib pyyaml accelerate"
-TORCH = f"{_PIP} torch torchvision --index-url https://download.pytorch.org/whl/cu121"
+# Per-group install RECIPES. Each group runs in its OWN venv, so groups can (and
+# must) pin DIFFERENT torch versions — co-installing them broke torch/transformers.
+# Each group: `torch` (index-pinned wheel, must succeed) + `core` (the eval's own
+# deps, must succeed) + `models` (best-effort; the load-probe skips a failed one).
+# Specs with shell-special chars (>=, [ ) are pre-quoted. Recipes verified 2026-07-09.
+_CU121 = "--index-url https://download.pytorch.org/whl/cu121"
+_CU126 = "--index-url https://download.pytorch.org/whl/cu126"
+_EVAL = "numpy pandas pyarrow scipy pyyaml matplotlib accelerate"
 
-# Isolated per-library groups: co-installing all TSFM libs in one env broke torch/
-# transformers (torchvision::nms, PreTrainedModel import). Each group installs only
-# its own libs → a minimal, consistent resolve. Every group re-scores the identical
-# seeded challenge set, so results merge (scripts/merge_tsfm_results.py). `self`
-# keeps timesfm25+tirex together (proven to coexist).
 GROUPS = {
-    "self":    {"roster": ["timesfm25", "tirex"],
-                "libs": ["git+https://github.com/google-research/timesfm.git", "tirex-ts[cuda]"]},
-    "chronos": {"roster": ["chronos2", "chronos-bolt"],
-                "libs": ["chronos-forecasting>=2.0"]},
-    "moirai":  {"roster": ["moirai2"], "libs": ["uni2ts"]},
-    "toto":    {"roster": ["toto2"], "libs": ["toto-models"]},
-    "flow":    {"roster": ["flowstate"],
-                "libs": ["granite-tsfm @ git+https://github.com/ibm-granite/granite-tsfm.git"]},
-    "tabpfn":  {"roster": ["tabpfn-ts"], "libs": ["tabpfn-time-series"]},
-    "sundial": {"roster": ["sundial"], "libs": ["transformers==4.40.1"]},
+    # proven-working cu121 groups
+    "self":    {"roster": ["timesfm25", "tirex"], "torch": f"torch torchvision {_CU121}",
+                "core": _EVAL,
+                "models": ["git+https://github.com/google-research/timesfm.git", "'tirex-ts[cuda]'"]},
+    "chronos": {"roster": ["chronos2", "chronos-bolt"], "torch": f"torch torchvision {_CU121}",
+                "core": _EVAL, "models": ["'chronos-forecasting>=2.0'"]},
+    "sundial": {"roster": ["sundial"], "torch": f"torch torchvision {_CU121}",
+                "core": _EVAL, "models": ["transformers==4.40.1"]},
+    # FlowState: granite-tsfm 0.3.6 needs torch>=2.10 (cu126) + transformers>=4.57.6 —
+    # cu121's old torch dragged in an old transformers → 'PreTrainedModel' import fail.
+    "flow":    {"roster": ["flowstate"], "torch": f"'torch>=2.10,<2.11' torchvision {_CU126}",
+                "core": _EVAL,
+                "models": ["granite-tsfm==0.3.6", "-U 'transformers>=4.57.6,<5' safetensors"]},
+    # Moirai-2: uni2ts 2.0.0 has the moirai2 module; its unpinned jax[cpu] mismatches
+    # jaxlib → circular import. Pin the jax pair; torch<2.5; numpy 1.26 (gluonts).
+    "moirai":  {"roster": ["moirai2"], "torch": f"torch==2.4.1 torchvision==0.19.1 {_CU121}",
+                "core": "'numpy~=1.26.0' pandas pyarrow scipy pyyaml matplotlib",
+                "models": ["uni2ts==2.0.0", "'jax[cpu]==0.4.34' jaxlib==0.4.34"]},
+    # Toto-2: no flash-attn/xformers; just torch>=2.4 (2.5.1). Earlier crash was a
+    # plain-torch wheel mismatch; pin the cu121 wheel.
+    "toto":    {"roster": ["toto2"], "torch": f"torch==2.5.1 torchvision==0.20.1 {_CU121}",
+                "core": _EVAL, "models": ["toto-models"]},
+    "tabpfn":  {"roster": ["tabpfn-ts"], "torch": f"torch torchvision {_CU121}",
+                "core": _EVAL, "models": ["tabpfn-time-series"]},
 }
 ALL_GROUPS = ["self", "chronos", "moirai", "toto", "flow", "tabpfn", "sundial"]
-
-
-def _models_cmd(libs: list[str]) -> str:
-    """Best-effort per-lib installs (one bad wheel skips only that model)."""
-    return " ; ".join(f"{_PIP} '{spec}' || true" for spec in libs)
 
 
 def _load_local_env() -> None:
@@ -189,43 +190,6 @@ def _provision(gname: str, execs: list[dict], args) -> str | None:
     return None
 
 
-def _run_one(gname: str, execs: list[dict], stage: Path, args, tok: str, tabtok: str) -> None:
-    """One group on one fresh pod: up → rsync → install → run → pull → teardown."""
-    grp = GROUPS[gname]
-    roster = grp["roster"]
-    name = f"tsfm-cmp-{gname}"
-    print(f"\n=== group '{gname}': {roster} ===")
-    target = _provision(gname, execs, args)
-    if not target:
-        print(f"could not provision a working pod for {gname}; skipping", file=sys.stderr)
-        return
-    try:
-        _lium("rsync", target, str(stage) + "/", "/root/repo/")
-        env_flags = ["-e", f"HF_TOKEN={tok}", "-e", f"HUGGING_FACE_HUB_TOKEN={tok}"] if tok else []
-        if tabtok:  # TabPFN-TS LOCAL mode needs a priorlabs API key, not just a license accept
-            env_flags += ["-e", f"TABPFN_TOKEN={tabtok}"]
-        print("installing core deps + torch (must succeed)…")
-        _lium("exec", target, *env_flags, f"cd /root/repo && {CORE} && {TORCH}")  # check=True
-        print("installing model libs (best-effort)…")
-        _lium("exec", target, *env_flags, f"cd /root/repo && {_models_cmd(grp['libs'])}", check=False)
-        run_env = env_flags + [
-            "-e", f"ROSTER={','.join(roster)}", "-e", f"MOTIF={args.motif_len}",
-            "-e", f"NCH={args.n_challenges}", "-e", f"SEED={args.seed}",
-        ]
-        res = _lium("exec", target, *run_env, "cd /root/repo && PYTHONPATH=src python3 run_on_pod.py",
-                    capture=True, check=False)
-        print(res.stdout[-4000:])
-        if res.returncode != 0:
-            print("RUN STDERR:", (res.stderr or "")[-2000:], file=sys.stderr)
-        out = REPO / "notebooks" / "results" / f"group_{gname}"
-        out.mkdir(parents=True, exist_ok=True)
-        _lium("scp", target, "/root/repo/results/results.json", str(out), "-d", check=False)
-        print(f"pulled results -> {out}/results.json")
-    finally:
-        _lium("rm", target or name, check=False)  # rm by resolved huid, else fall back to name
-        print(f"pod {target or name} torn down.")
-
-
 def _run_all_one_pod(groups: list[str], execs: list[dict], stage: Path, args,
                      tok: str, tabtok: str) -> None:
     """All groups on ONE pod, a fresh venv per group (sequential).
@@ -255,15 +219,16 @@ def _run_all_one_pod(groups: list[str], execs: list[dict], stage: Path, args,
             v = f"/root/v_{gname}"
             pip = f"{v}/bin/pip install -q"
             print(f"\n--- group '{gname}': {grp['roster']} (venv {v}) ---")
+            # torch (index-pinned) + core eval deps must succeed; per-group recipe.
             core = (f"python3 -m venv {v} && {v}/bin/pip install -q --upgrade pip && "
-                    f"{pip} numpy pandas pyarrow scipy matplotlib pyyaml accelerate && "
-                    f"{pip} torch torchvision --index-url https://download.pytorch.org/whl/cu121")
+                    f"{pip} {grp['torch']} && {pip} {grp['core']}")
             try:
-                _lium("exec", target, *env_flags, core, timeout=1800)  # must succeed
+                _lium("exec", target, *env_flags, core, timeout=2400)  # must succeed
             except Exception as e:  # noqa: BLE001
                 print(f"  core install failed for {gname}: {e}", file=sys.stderr); continue
-            models = " ; ".join(f"{pip} '{s}' || true" for s in grp["libs"])
-            _lium("exec", target, *env_flags, models, check=False, timeout=1800)
+            # model libs best-effort, in order (later specs override earlier pins).
+            models = " ; ".join(f"{pip} {s} || true" for s in grp["models"])
+            _lium("exec", target, *env_flags, models, check=False, timeout=2400)
             run_env = env_flags + [
                 "-e", f"ROSTER={','.join(grp['roster'])}", "-e", f"MOTIF={args.motif_len}",
                 "-e", f"NCH={args.n_challenges}", "-e", f"SEED={args.seed}",
@@ -287,7 +252,8 @@ def _run_all_one_pod(groups: list[str], execs: list[dict], stage: Path, args,
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gpu", default="RTX4090")
-    ap.add_argument("--group", default="self", choices=[*sorted(GROUPS), "all"])
+    ap.add_argument("--group", default="self",
+                    help="one group, 'all', or a comma-list (e.g. flow,moirai,toto)")
     ap.add_argument("--max-price", type=float, default=2.0)
     ap.add_argument("--n-challenges", type=int, default=256)
     ap.add_argument("--motif-len", type=int, default=304)
@@ -299,7 +265,15 @@ def main() -> int:
     _load_local_env()
     tok = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN", "")
     tabtok = os.environ.get("TABPFN_TOKEN", "")
-    groups = ALL_GROUPS if args.group == "all" else [args.group]
+    if args.group == "all":
+        groups = ALL_GROUPS
+    else:
+        groups = [g.strip() for g in args.group.split(",") if g.strip()]
+    bad = [g for g in groups if g not in GROUPS]
+    if bad:
+        print(f"unknown group(s) {bad}; valid: {ALL_GROUPS}", file=sys.stderr)
+        return 2
+    # >1 group → single-pod venv-per-group path; exactly 1 → multi-executor path.
 
     eligible = _eligible_source_dirs(args.motif_len)
     print(f"groups: {groups}")
@@ -319,16 +293,10 @@ def main() -> int:
     _build_staging(eligible, stage)
 
     avail = sorted(execs, key=lambda e: e["price_per_hour"])
-    if len(groups) > 1:
-        # Multi-group: ONE pod, a fresh venv per group (provision once → dodges the
-        # flaky repeated `up`; venvs isolate the conflicting libs).
-        _run_all_one_pod(groups, avail, stage, args, tok, tabtok)
-        print("\nMerge with:  python scripts/merge_tsfm_results.py")
-    else:
-        try:
-            _run_one(groups[0], avail, stage, args, tok, tabtok)
-        except Exception as e:  # noqa: BLE001
-            print(f"group {groups[0]} failed: {type(e).__name__}: {e}", file=sys.stderr)
+    # Always ONE pod, a fresh venv per group (provision once → dodges the flaky
+    # repeated `up`; venvs isolate each group's pinned torch/deps).
+    _run_all_one_pod(groups, avail, stage, args, tok, tabtok)
+    print("\nMerge with:  python scripts/merge_tsfm_results.py")
     return 0
 
 
