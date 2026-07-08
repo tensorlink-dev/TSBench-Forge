@@ -91,11 +91,15 @@ def _load_local_env() -> None:
         os.environ.setdefault(k.strip(), v.strip().strip("'").strip('"'))  # unquote
 
 
-def _lium(*args, capture=False, check=True, **kw):
+def _lium(*args, capture=False, check=True, timeout=1800, **kw):
+    # HARD timeout on every lium call: `lium up` opens an SSH session that can hang
+    # indefinitely (observed: an 8-hour hang). Without this a stuck call blocks the
+    # whole run forever. A timed-out call raises TimeoutExpired, which callers treat
+    # as a failed step (e.g. _provision rotates to the next executor).
     cmd = [LIUM, *args]
     print("  $ lium", " ".join(args if len(" ".join(args)) < 200 else [args[0], "…"]))
     return subprocess.run(
-        cmd, capture_output=capture, text=True, check=check,
+        cmd, capture_output=capture, text=True, check=check, timeout=timeout,
         env={**os.environ, "PATH": os.path.expanduser("~/.local/bin") + ":" + os.environ["PATH"]},
         **kw,
     )
@@ -165,8 +169,14 @@ def _provision(gname: str, execs: list[dict], args) -> str | None:
     name = f"tsfm-cmp-{gname}"
     for ex in execs[:4]:
         before = {p.get("huid") for p in _ps()}
-        _lium("up", ex["id"], "--name", name, "--ttl", args.ttl, "-y")
-        for _ in range(9):  # ~90s
+        try:
+            # up opens an SSH session; cap it so a hang can't block the run.
+            _lium("up", ex["id"], "--name", name, "--ttl", args.ttl, "-y", timeout=150)
+        except subprocess.TimeoutExpired:
+            print(f"up hung on {ex['huid']}; rotating executor", file=sys.stderr)
+            _lium("rm", name, check=False)
+            continue
+        for _ in range(9):  # ~90s for the pod to register in ps
             new = [p for p in _ps() if p.get("huid") not in before]
             if new:
                 huid = new[0]["huid"]
