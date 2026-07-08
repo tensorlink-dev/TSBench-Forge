@@ -150,34 +150,45 @@ print("NOTE:", out["note"])
 """
 
 
-def _run_one(gname: str, ex: dict, stage: Path, args, tok: str, tabtok: str) -> None:
+def _ps():
+    return json.loads(_lium("ps", "--format", "json", capture=True, check=False).stdout or "[]")
+
+
+def _provision(gname: str, execs: list[dict], args) -> str | None:
+    """Provision a pod that actually registers in `ps`, retrying across executors.
+
+    Some Lium nodes hand out ephemeral pods that vanish when the non-interactive
+    SSH from `up` drops — they never appear in `ps`. So: `up`, then wait for a NEW
+    huid to show up; if it doesn't within ~90s, that executor is no good — remove
+    and try the next. Returns the resolved huid (reliable id for exec/rsync/scp).
+    """
+    name = f"tsfm-cmp-{gname}"
+    for ex in execs[:4]:
+        before = {p.get("huid") for p in _ps()}
+        _lium("up", ex["id"], "--name", name, "--ttl", args.ttl, "-y")
+        for _ in range(9):  # ~90s
+            new = [p for p in _ps() if p.get("huid") not in before]
+            if new:
+                huid = new[0]["huid"]
+                print(f"pod {huid} registered on {ex['huid']} (${ex['price_per_hour']:.2f}/hr)")
+                return huid
+            time.sleep(10)
+        print(f"executor {ex['huid']} gave an ephemeral/missing pod; trying next", file=sys.stderr)
+        _lium("rm", name, check=False)
+    return None
+
+
+def _run_one(gname: str, execs: list[dict], stage: Path, args, tok: str, tabtok: str) -> None:
     """One group on one fresh pod: up → rsync → install → run → pull → teardown."""
     grp = GROUPS[gname]
     roster = grp["roster"]
     name = f"tsfm-cmp-{gname}"
     print(f"\n=== group '{gname}': {roster} ===")
-
-    def _ps():
-        return json.loads(_lium("ps", "--format", "json", capture=True, check=False).stdout or "[]")
-
-    # Snapshot existing pods so we can identify OURS as the new huid — name/index
-    # matching in ps/exec is flaky right after `up`.
-    before = {p.get("huid") for p in _ps()}
-    _lium("up", ex["id"], "--name", name, "--ttl", args.ttl, "-y")  # -y: skip confirm; ttl backstop
-    target = None
+    target = _provision(gname, execs, args)
+    if not target:
+        print(f"could not provision a working pod for {gname}; skipping", file=sys.stderr)
+        return
     try:
-        for _ in range(60):
-            new = [p for p in _ps() if p.get("huid") not in before]
-            me = next((p for p in new if str(p.get("status", "")).lower()
-                       in ("running", "ready", "active")), None)
-            if me:
-                target = me["huid"]
-                break
-            time.sleep(10)
-        if not target:  # never confirmed ready — bail rather than exec into the void
-            print(f"pod for {gname} never became ready; skipping", file=sys.stderr)
-            return
-        print(f"pod {target} ready")
         _lium("rsync", target, str(stage) + "/", "/root/repo/")
         env_flags = ["-e", f"HF_TOKEN={tok}", "-e", f"HUGGING_FACE_HUB_TOKEN={tok}"] if tok else []
         if tabtok:  # TabPFN-TS LOCAL mode needs a priorlabs API key, not just a license accept
@@ -250,7 +261,7 @@ def main() -> int:
             print(f"no {args.gpu} available for group {gname}; skipping", file=sys.stderr)
             continue
         try:
-            _run_one(gname, avail[0], stage, args, tok, tabtok)
+            _run_one(gname, avail, stage, args, tok, tabtok)
         except Exception as e:  # noqa: BLE001 — one group failing must not abort the rest
             print(f"group {gname} failed: {type(e).__name__}: {e}", file=sys.stderr)
 
