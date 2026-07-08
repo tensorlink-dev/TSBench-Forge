@@ -51,7 +51,14 @@ DEFAULT_ROSTER = (
 
 
 def _rng(*parts):
-    return np.random.default_rng(abs(hash(parts)) % (2**32))
+    # DETERMINISTIC across processes: Python's hash() is per-process randomized
+    # (PYTHONHASHSEED), which would give each group's pod a DIFFERENT challenge set
+    # and make cross-group merging invalid. hashlib is stable everywhere.
+    import hashlib
+
+    key = "|".join(map(str, parts)).encode()
+    seed = int.from_bytes(hashlib.sha256(key).digest()[:8], "big")
+    return np.random.default_rng(seed)
 
 
 def build_challenges(
