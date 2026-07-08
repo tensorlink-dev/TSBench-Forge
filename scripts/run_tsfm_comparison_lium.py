@@ -169,7 +169,7 @@ def _provision(gname: str, execs: list[dict], args) -> str | None:
     and try the next. Returns the resolved huid (reliable id for exec/rsync/scp).
     """
     name = f"tsfm-cmp-{gname}"
-    for ex in execs[:4]:
+    for ex in execs[:10]:  # some nodes hand out ephemeral pods; try more before giving up
         before = {p.get("huid") for p in _ps()}
         try:
             # up opens an SSH session; cap it so a hang can't block the run.
