@@ -1009,3 +1009,39 @@ All payload-inspected, dry-run, live-scraped on admission day. Gate verdicts:
   deferred (JSON-stat format; SDMX 2.1 endpoint 406s). NCEI storm events deferred
   (untemplatable compile-date filenames). Jikan skipped (weak snapshot semantics).
 - Scraper: SDMX-JSON 2.0 envelope (data.dataSets + structures) now unwrapped.
+
+## sweep-2 keyless wiring — 2026-07-08 (batch of 49; +37 live)
+
+Wired the probe-verified keyless queue from discovery/2026-07-06-sweep2-vetting.md.
+All 49 candidates re-probed live from the AU scrape host and dry-run-parsed through
+scraper.py before admission. 37 enabled, 12 disabled with reasons; ledger flipped
+(+37 wired, +8 key-gated, +3 rejected).
+
+- **Enabled & dry-run-clean (37):** ofac_sanctions_updates (Fed Register API — native
+  OFAC RSS retired 2025-01), nasdaq_trader_halts, bitfinex_btcusd_30m_candles,
+  uk_ons_time_series (beta API; classic decommissioned 2024-11), caiso_grid_conditions,
+  vaers_vaccine_adverse_events (openFDA FAERS proxy — no keyless true-VAERS API),
+  pubmed_ncbi_publication_counts, wastewaterscan_pathogen_data, govuk_mhra_drug_safety_update,
+  chicago_food_inspections, smhi_swedish_weather_observations, glerl_great_lakes_levels,
+  nl_luchtmeetnet_air_quality, geoscience_aus_earthquakes, dartmouth_flood_observatory,
+  bgs_uk_earthquakes, avo_alaska_volcano_alerts, celestrak_satellite_tle,
+  inciweb_wildfire_incidents, openlibrary_recent_changes, inaturalist_observations,
+  seeclickfix_citizen_reports, discogs_marketplace_sales, tvmaze_show_updates,
+  speedrun_com_run_submissions, semantic_scholar_publications, musicbrainz_edit_activity,
+  lichess_realtime_api, deezer_chart_snapshots, dc_311_service_requests (ArcGIS, not Socrata),
+  urlscan_public_scans, ransomware_live_attacks, haveibeenpwned_breaches,
+  apnic_labs_ipv6_adoption, digitalocean_status_incidents, atlassian_status_incidents,
+  peeringdb_network_ixp_changes.
+- **Disabled — key-gated / no public API (→ ledger key-gated):** ocean_networks_canada_sensors,
+  ams_fireball_reports, esa_space_weather_events, uptimerobot_monitors, watttime_marginal_emissions,
+  poweroutage_us_outage_counts, iaea_pris_reactor_status, nerc_reliability_alerts.
+- **Disabled — data dead/stale (→ ledger rejected):** eskom_loadshedding_status (feed frozen
+  2025-05, load-shedding suspended), netblocks_internet_disruptions (RSS stale since 2023),
+  ca_chhs_facility_outbreaks (dataset decommissioned 2025-06).
+- **Disabled — kept proposed (revisitable):** amprion_pv_infeed & aemo_nemweb_market_notices
+  (real keyless endpoints but need scraper features — a time-grid CSV deriver and a directory
+  fetcher, respectively); stripe_status_incidents, health_canada_recalls, stocktwits_trending_symbols
+  (real but AU-host blocked — WAF / bot-wall / no keyless API; revisit from a non-AU host).
+- Scraper note: RSS parser ignores schema.value_field (emits pubDate + category/title). JSON
+  event-stream value_fields repointed off the unsupported `item_count` token onto real per-row
+  fields (urlscan/ransomware/peeringdb/mhra/chicago).
