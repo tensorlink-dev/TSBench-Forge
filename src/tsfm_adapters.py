@@ -163,16 +163,23 @@ class Toto2Forecaster:
         model = self._ensure_model()
         hor = _meta_horizon(meta, self.horizon)
         ctx = np.asarray(context, dtype=np.float32)
-        target = torch.tensor(ctx, device=self._device).reshape(1, 1, -1)
+        # Toto-2 does NOT pad the context: its patch reduction requires the context
+        # length to be a multiple of patch_size (32) or einops raises a
+        # "(seq patch)" sum-reduction error. Trim to the nearest multiple (keep the
+        # most-recent points).
+        ps = int(getattr(model.config, "patch_size", 32))
+        L = max(ps, (len(ctx) // ps) * ps)
+        ctx = ctx[-L:]
+        mdtype = next(model.parameters()).dtype            # match weight dtype (may be bf16)
+        target = torch.tensor(ctx, device=self._device, dtype=mdtype).reshape(1, 1, -1)
         batch = {
             "target": target,
             "target_mask": torch.ones_like(target, dtype=torch.bool),
             "series_ids": torch.zeros(1, 1, dtype=torch.long, device=self._device),
         }
         with torch.no_grad():
-            q = model.forecast(batch, horizon=hor, decode_block_size=768,
-                               has_missing_values=False)
-        q_np = np.asarray(q.detach().cpu().numpy(), dtype=float)[:, 0, 0, :]  # (9, horizon)
+            q = model.forecast(batch, horizon=hor, has_missing_values=False)
+        q_np = np.asarray(q.float().detach().cpu().numpy(), dtype=float)[:, 0, 0, :]  # (9, horizon)
         quantiles = {lvl: q_np[i] for i, lvl in enumerate(self.quantiles)}
         return ProbForecast(mean=q_np[4], quantiles=quantiles)
 
@@ -435,14 +442,15 @@ class FlowStateForecaster:
         ctx = np.asarray(context, dtype=np.float32)
         x = torch.tensor(ctx, device=self._device).reshape(-1, 1, 1)   # (T, B=1, C=1)
         with torch.no_grad():
-            out = model(x, scale_factor=1.0, prediction_length=hor, batch_first=False)
-        arr = np.asarray(torch.as_tensor(out).float().cpu().numpy(), dtype=float)
-        arr = np.squeeze(arr)                                          # drop size-1 dims
+            out = model(x, scale_factor=1.0, prediction_length=hor,
+                        batch_first=False, return_dict=True)
+        # out.quantile_outputs: (num_channels, batch, n_quantiles, horizon, 1).
+        q = np.asarray(out.quantile_outputs.detach().float().cpu().numpy(), dtype=float)
+        arr = np.squeeze(q)                                            # -> (n_q, H)
         nq = len(self.quantiles)
-        # Orient so axis 0 is the quantile (decile) axis of length nq.
-        if arr.ndim == 1:
-            arr = np.repeat(arr[None, :], nq, axis=0)                  # point-only fallback
-        elif arr.shape[0] != nq:
+        if arr.ndim == 1:                                              # point-only fallback
+            arr = np.repeat(arr[None, :], nq, axis=0)
+        elif arr.shape[0] != nq:                                       # orient decile axis to 0
             qaxes = [ax for ax, s in enumerate(arr.shape) if s == nq]
             if qaxes:
                 arr = np.moveaxis(arr, qaxes[0], 0)
