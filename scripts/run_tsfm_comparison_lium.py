@@ -147,7 +147,8 @@ roster = os.environ["ROSTER"].split(",")
 out = tc.run_comparison(
     "src/sources/data", catalog="src/sources/sources.yaml", roster=roster,
     device="cuda", motif_len=int(os.environ["MOTIF"]),
-    n_challenges=int(os.environ["NCH"]), seed=os.environ["SEED"], out_dir="results",
+    n_challenges=int(os.environ["NCH"]), seed=os.environ["SEED"],
+    out_dir=os.environ.get("OUT_DIR", "results"),
 )
 print("LOADED:", [r["name"] for r in out["load_report"] if r["loaded"]])
 print("NOTE:", out["note"])
@@ -225,6 +226,64 @@ def _run_one(gname: str, execs: list[dict], stage: Path, args, tok: str, tabtok:
         print(f"pod {target or name} torn down.")
 
 
+def _run_all_one_pod(groups: list[str], execs: list[dict], stage: Path, args,
+                     tok: str, tabtok: str) -> None:
+    """All groups on ONE pod, a fresh venv per group (sequential).
+
+    Provisioning once dodges the flaky repeated `up` (ephemeral/hanging pods);
+    a per-group venv isolates the conflicting model libs (torch/torchvision/
+    transformers) that broke the single shared env. pip's wheel cache means
+    torch downloads once and installs fast into each later venv. Every group
+    scores the identical seeded challenge set → results merge.
+    """
+    target = _provision("all", execs, args)
+    if not target:
+        print("could not provision a pod; aborting", file=sys.stderr)
+        return
+    env_flags = ["-e", f"HF_TOKEN={tok}", "-e", f"HUGGING_FACE_HUB_TOKEN={tok}"] if tok else []
+    if tabtok:
+        env_flags += ["-e", f"TABPFN_TOKEN={tabtok}"]
+    try:
+        _lium("rsync", target, str(stage) + "/", "/root/repo/")
+        # venv support on the minimized-Ubuntu base
+        _lium("exec", target, "apt-get update -qq && apt-get install -y -qq python3-venv python3-pip",
+              check=False, timeout=600)
+        for gname in groups:
+            if gname == "tabpfn" and not tabtok:
+                print(f"skip '{gname}': no TABPFN_TOKEN"); continue
+            grp = GROUPS[gname]
+            v = f"/root/v_{gname}"
+            pip = f"{v}/bin/pip install -q"
+            print(f"\n--- group '{gname}': {grp['roster']} (venv {v}) ---")
+            core = (f"python3 -m venv {v} && {v}/bin/pip install -q --upgrade pip && "
+                    f"{pip} numpy pandas pyarrow scipy matplotlib pyyaml accelerate && "
+                    f"{pip} torch torchvision --index-url https://download.pytorch.org/whl/cu121")
+            try:
+                _lium("exec", target, *env_flags, core, timeout=1800)  # must succeed
+            except Exception as e:  # noqa: BLE001
+                print(f"  core install failed for {gname}: {e}", file=sys.stderr); continue
+            models = " ; ".join(f"{pip} '{s}' || true" for s in grp["libs"])
+            _lium("exec", target, *env_flags, models, check=False, timeout=1800)
+            run_env = env_flags + [
+                "-e", f"ROSTER={','.join(grp['roster'])}", "-e", f"MOTIF={args.motif_len}",
+                "-e", f"NCH={args.n_challenges}", "-e", f"SEED={args.seed}",
+                "-e", f"OUT_DIR=results_{gname}",
+            ]
+            res = _lium("exec", target, *run_env,
+                        f"cd /root/repo && PYTHONPATH=src {v}/bin/python run_on_pod.py",
+                        capture=True, check=False, timeout=1800)
+            print((res.stdout or "")[-2500:])
+            if res.returncode != 0:
+                print(f"  run stderr: {(res.stderr or '')[-1500:]}", file=sys.stderr)
+            out = REPO / "notebooks" / "results" / f"group_{gname}"
+            out.mkdir(parents=True, exist_ok=True)
+            _lium("scp", target, f"/root/repo/results_{gname}/results.json", str(out), "-d", check=False)
+            print(f"  pulled -> {out}/results.json")
+    finally:
+        _lium("rm", target, check=False)
+        print(f"pod {target} torn down.")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gpu", default="RTX4090")
@@ -259,24 +318,17 @@ def main() -> int:
     stage = Path("/tmp/tsfm_stage")
     _build_staging(eligible, stage)
 
-    for gname in groups:
-        if gname == "tabpfn" and not tabtok:
-            print("skip group 'tabpfn': no TABPFN_TOKEN in .env (priorlabs API key required)")
-            continue
-        # re-pick cheapest each group (marketplace shifts between runs)
-        js = json.loads(_lium("ls", "--gpu", args.gpu, "--format", "json", capture=True, check=False).stdout or "[]")
-        avail = sorted([e for e in js if e.get("price_per_hour", 1e9) <= args.max_price],
-                       key=lambda e: e["price_per_hour"])
-        if not avail:
-            print(f"no {args.gpu} available for group {gname}; skipping", file=sys.stderr)
-            continue
-        try:
-            _run_one(gname, avail, stage, args, tok, tabtok)
-        except Exception as e:  # noqa: BLE001 — one group failing must not abort the rest
-            print(f"group {gname} failed: {type(e).__name__}: {e}", file=sys.stderr)
-
+    avail = sorted(execs, key=lambda e: e["price_per_hour"])
     if len(groups) > 1:
+        # Multi-group: ONE pod, a fresh venv per group (provision once → dodges the
+        # flaky repeated `up`; venvs isolate the conflicting libs).
+        _run_all_one_pod(groups, avail, stage, args, tok, tabtok)
         print("\nMerge with:  python scripts/merge_tsfm_results.py")
+    else:
+        try:
+            _run_one(groups[0], avail, stage, args, tok, tabtok)
+        except Exception as e:  # noqa: BLE001
+            print(f"group {groups[0]} failed: {type(e).__name__}: {e}", file=sys.stderr)
     return 0
 
 
