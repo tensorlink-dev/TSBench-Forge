@@ -156,41 +156,52 @@ def _run_one(gname: str, ex: dict, stage: Path, args, tok: str, tabtok: str) -> 
     roster = grp["roster"]
     name = f"tsfm-cmp-{gname}"
     print(f"\n=== group '{gname}': {roster} ===")
+
+    def _ps():
+        return json.loads(_lium("ps", "--format", "json", capture=True, check=False).stdout or "[]")
+
+    # Snapshot existing pods so we can identify OURS as the new huid — name/index
+    # matching in ps/exec is flaky right after `up`.
+    before = {p.get("huid") for p in _ps()}
     _lium("up", ex["id"], "--name", name, "--ttl", args.ttl, "-y")  # -y: skip confirm; ttl backstop
+    target = None
     try:
-        status = ""
         for _ in range(60):
-            ps = json.loads(_lium("ps", "--format", "json", capture=True, check=False).stdout or "[]")
-            me = next((p for p in ps if p.get("name") == name or p.get("huid") == name), None)
-            status = (me or {}).get("status", "")
-            if me and str(status).lower() in ("running", "ready", "active"):
+            new = [p for p in _ps() if p.get("huid") not in before]
+            me = next((p for p in new if str(p.get("status", "")).lower()
+                       in ("running", "ready", "active")), None)
+            if me:
+                target = me["huid"]
                 break
             time.sleep(10)
-        print(f"pod {name} status: {status}")
-        _lium("rsync", name, str(stage) + "/", "/root/repo/")
+        if not target:  # never confirmed ready — bail rather than exec into the void
+            print(f"pod for {gname} never became ready; skipping", file=sys.stderr)
+            return
+        print(f"pod {target} ready")
+        _lium("rsync", target, str(stage) + "/", "/root/repo/")
         env_flags = ["-e", f"HF_TOKEN={tok}", "-e", f"HUGGING_FACE_HUB_TOKEN={tok}"] if tok else []
         if tabtok:  # TabPFN-TS LOCAL mode needs a priorlabs API key, not just a license accept
             env_flags += ["-e", f"TABPFN_TOKEN={tabtok}"]
         print("installing core deps + torch (must succeed)…")
-        _lium("exec", name, *env_flags, f"cd /root/repo && {CORE} && {TORCH}")  # check=True
+        _lium("exec", target, *env_flags, f"cd /root/repo && {CORE} && {TORCH}")  # check=True
         print("installing model libs (best-effort)…")
-        _lium("exec", name, *env_flags, f"cd /root/repo && {_models_cmd(grp['libs'])}", check=False)
+        _lium("exec", target, *env_flags, f"cd /root/repo && {_models_cmd(grp['libs'])}", check=False)
         run_env = env_flags + [
             "-e", f"ROSTER={','.join(roster)}", "-e", f"MOTIF={args.motif_len}",
             "-e", f"NCH={args.n_challenges}", "-e", f"SEED={args.seed}",
         ]
-        res = _lium("exec", name, *run_env, "cd /root/repo && PYTHONPATH=src python3 run_on_pod.py",
+        res = _lium("exec", target, *run_env, "cd /root/repo && PYTHONPATH=src python3 run_on_pod.py",
                     capture=True, check=False)
         print(res.stdout[-4000:])
         if res.returncode != 0:
             print("RUN STDERR:", (res.stderr or "")[-2000:], file=sys.stderr)
         out = REPO / "notebooks" / "results" / f"group_{gname}"
         out.mkdir(parents=True, exist_ok=True)
-        _lium("scp", name, "/root/repo/results/results.json", str(out), "-d", check=False)
+        _lium("scp", target, "/root/repo/results/results.json", str(out), "-d", check=False)
         print(f"pulled results -> {out}/results.json")
     finally:
-        _lium("rm", name, check=False)
-        print(f"pod {name} torn down.")
+        _lium("rm", target or name, check=False)  # rm by resolved huid, else fall back to name
+        print(f"pod {target or name} torn down.")
 
 
 def main() -> int:
