@@ -50,6 +50,22 @@ python src/sources/scraper.py --domain energy                  # a whole domain
 python src/sources/scraper.py --id binance_btcusdt_1m --dry-run # fetch+parse, no write
 ```
 
+### Publishing the mirror to a bucket
+
+`scripts/publish_data_bucket.sh` syncs `data/` + `sources.yaml` to a
+**private** S3-compatible bucket (AWS, Cloudflare R2, MinIO) so a downstream
+consumer — e.g. cascade's held-out eval-pool publisher (`cascade-pool publish
+--sources tsbench_forge`) — can mirror the catalog without access to this
+host. Append it to the scrape cron:
+
+```bash
+0 * * * *  python src/sources/scraper.py --all && TSFORGE_BUCKET=tsforge-raw scripts/publish_data_bucket.sh
+```
+
+The dated, append-only parquet layout makes the sync idempotent, and the dated
+bucket doubles as an audit trail: any consumer build pinned to an `as_of` can
+be re-run bit-for-bit against the same objects.
+
 ### Serving and freshness (`src/`)
 
 The snapshots are served through a small ingestion layer with the anti-staleness
