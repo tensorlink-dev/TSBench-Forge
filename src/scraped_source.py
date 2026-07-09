@@ -116,6 +116,48 @@ class ScrapedLiveSource(LiveSource):
 
     # ------------------------------------------------------------------ index
 
+    def _read_series_frame(self, paths):
+        """Concatenate a source's daily parquet files into one timestamp-ordered
+        frame, deduped by timestamp.
+
+        Reading every daily file (not just the newest) is what lets a series grow
+        with the cron: append-only feeds land one file per UTC day, and rolling
+        windows (USGS all_day, GDACS) overlap between consecutive days — so the
+        concatenation is deduped on ``timestamp`` (last write wins). Cached per
+        instance by the path tuple; today's still-growing file makes the cache
+        run-scoped, which is what the eval wants.
+        """
+        import pyarrow.parquet as pq
+
+        cache = self.__dict__.setdefault("_frame_cache", {})
+        key = tuple(str(p) for p in paths)
+        if key in cache:
+            return cache[key]
+        import pandas as pd
+
+        frames = []
+        for p in paths:
+            try:
+                frames.append(pq.read_table(p).to_pandas())
+            except Exception:  # noqa: BLE001 — a corrupt daily file must not sink the series
+                continue
+        if not frames:
+            cache[key] = None
+            return None
+        if len(frames) == 1:
+            # Single daily file: preserve exact prior behaviour (the scraper
+            # already deduped within the file) — no cross-day overlap to resolve.
+            cache[key] = frames[0]
+            return frames[0]
+        # Multiple daily files: concatenate and dedup on timestamp (rolling-window
+        # feeds re-report the same stamps across days; last write wins, matching
+        # the scraper's own per-file dedup semantics).
+        df = pd.concat(frames, ignore_index=True)
+        if "timestamp" in df.columns:
+            df = df.drop_duplicates(subset="timestamp", keep="last").reset_index(drop=True)
+        cache[key] = df
+        return df
+
     def _index_available_series(self) -> list[dict]:
         """Walk ``data_dir`` and enumerate every available panel-expanded series.
 
@@ -149,16 +191,18 @@ class ScrapedLiveSource(LiveSource):
                 parquets = fresh
                 if not parquets:
                     continue
-            # Read the latest parquet to enumerate panel rows.
-            try:
-                t = pq.read_table(parquets[-1])
-            except Exception:
+            # Concatenate ALL daily parquet files for the source (deduped by
+            # timestamp) so accumulated history counts — reading only the latest
+            # file would pin every daily/low-cadence series to one day's length
+            # and the eval could never grow as the cron accumulates.
+            df = self._read_series_frame(parquets)
+            if df is None or df.empty:
                 continue
-            cols = t.column_names
+            cols = list(df.columns)
             # Panel-expanded series appear as `_panel_<KEY>` columns; if none,
             # the whole file is one series.
             panel_cols = [c for c in cols if c.startswith("_panel_")]
-            n_avail = t.num_rows
+            n_avail = len(df)
             if n_avail < self.min_series_length:
                 continue
             if not panel_cols:
@@ -174,7 +218,6 @@ class ScrapedLiveSource(LiveSource):
                 continue
             # Enumerate unique panel-row values across the (possibly multiple)
             # panel keys. Cap per-source series count if requested.
-            df = t.to_pandas()
             panel_group = df.groupby(panel_cols).size().reset_index(name="_n")
             panel_group = panel_group[panel_group["_n"] >= self.min_series_length]
             if self.max_series_per_source is not None:
@@ -249,9 +292,9 @@ class ScrapedLiveSource(LiveSource):
         builder uses them to compute each challenge's ``unseen_frac`` against
         the daily cutoff.
         """
-        import pyarrow.parquet as pq
-        t = pq.read_table(series_spec["paths"][-1])
-        df = t.to_pandas()
+        df = self._read_series_frame(series_spec["paths"])
+        if df is None:
+            return np.zeros(length), None
         panel_row = series_spec.get("panel_row")
         if panel_row:
             for k, v in panel_row.items():
