@@ -151,10 +151,14 @@ class ScrapedLiveSource(LiveSource):
             return frames[0]
         # Multiple daily files: concatenate and dedup on timestamp (rolling-window
         # feeds re-report the same stamps across days; last write wins, matching
-        # the scraper's own per-file dedup semantics).
+        # the scraper's own per-file dedup semantics). Dedup must be per panel
+        # series — panel rows legitimately share timestamps (e.g. 8 reservoir
+        # gauges all reporting on the hour); deduping on timestamp alone
+        # collapsed such sources to a single interleaved series.
         df = pd.concat(frames, ignore_index=True)
         if "timestamp" in df.columns:
-            df = df.drop_duplicates(subset="timestamp", keep="last").reset_index(drop=True)
+            subset = ["timestamp"] + [c for c in df.columns if c.startswith("_panel_")]
+            df = df.drop_duplicates(subset=subset, keep="last").reset_index(drop=True)
         cache[key] = df
         return df
 

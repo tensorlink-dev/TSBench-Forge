@@ -28,6 +28,7 @@ schedules:
       - bart_realtime_etd
       - tfl_arrivals
       - tfl_bikepoints_status
+      - sg_taxi_availability          # ~30s native; PT1M poll
       - citibike_station_status
       - github_events_firehose
       - kalshi_markets_snapshot
@@ -68,6 +69,8 @@ schedules:
       - elia_solar_15min
       - gdacs_natural_disasters
       - geoscience_aus_earthquakes
+      - lobsters_hottest              # 2026-07-10 batch
+      - datalakes_eawag_lake_obs      # 2026-07-10 batch; stations update 10-60 min
     cron: "*/15 * * * *"
 
   - every: PT30M
@@ -80,6 +83,7 @@ schedules:
       - bgs_uk_earthquakes
       - openlibrary_recent_changes
       - inaturalist_observations
+      - gemini_btcusd_trades          # 2026-07-10 batch; 500 trades cover ~73 min
     cron: "*/30 * * * *"
 
   - every: PT1H
@@ -93,6 +97,8 @@ schedules:
       - coingecko_btc_hourly
       - reddit_top_daily
       - stackoverflow_questions    # respects 300 req/day anon
+      - usace_cwms_timeseries      # 2026-07-10 batch; hourly gauge data
+      - ripe_atlas_rootserver_ping # 2026-07-10 batch; 1-day rolling window
       - ingv_seismicity
       - smhi_swedish_weather_observations
       - nl_luchtmeetnet_air_quality
@@ -120,6 +126,7 @@ schedules:
       - openfda_food_recalls
       - sec_filer_submissions
       - usgs_elevated_volcanoes
+      - crw_virtual_station_sst       # 2026-07-10 batch; daily, ~2-day pub lag
       - nasa_eonet_events [defillama_chain_tvl_daily]
     cron: "10 1 * * *"
 

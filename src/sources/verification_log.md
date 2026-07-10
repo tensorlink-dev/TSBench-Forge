@@ -1045,3 +1045,25 @@ scraper.py before admission. 37 enabled, 12 disabled with reasons; ledger flippe
 - Scraper note: RSS parser ignores schema.value_field (emits pubDate + category/title). JSON
   event-stream value_fields repointed off the unsupported `item_count` token onto real per-row
   fields (urlscan/ransomware/peeringdb/mhra/chicago).
+
+## 2026-07-10 — autoresearch-100 wiring batch (8 investigated in depth, agents + live probes)
+
+- **Wired + scraped + ADMITTED by `--assess`:** gemini_btcusd_trades (1/1, first
+  market_orderbook source), crw_virtual_station_sst (8/8, 41y daily backfill in
+  first scrape), ripe_atlas_rootserver_ping (6/6, anchor-pinned root-server RTT),
+  usace_cwms_timeseries (6/8 after a 30-day CDA backfill).
+- **Wired, pending accumulation (snapshot pollers — assess after ~2 weeks of cron):**
+  lobsters_hottest, sg_taxi_availability, datalakes_eawag_lake_obs (12-station MIT panel).
+- **Wired disabled:** iowa_dot_plow_avl — live but 1 truck in July; re-enable ~Nov
+  (new dgp_class winter_road_ops).
+- **Skipped:** SEC EDGAR FTS (redundant with sec_filer_submissions, same domain+class),
+  krisinformation_events (real+clean but ~10-17 events/yr — below the daily-or-faster bar).
+- **Scraper fixes shipped with this batch:** (1) `_records_from_csv` header-scan +
+  tab/whitespace delimiters + multi-column timestamps — repairs ndbc_buoy_realtime
+  and glerl_great_lakes_levels, whose parquets were whole-line-in-timestamp garbage;
+  (2) `_read_series_frame` multi-file dedup now per panel series (timestamp+_panel_*),
+  not timestamp-alone — that collapse was destroying co-timestamped panels (USACE
+  assessed 0/1 before, 6/8 after; also affected NDBC/RIPE multi-day reads).
+- Proposed-URL corrections during verification: Iowa DOT ArcGIS org id was hallucinated
+  (real: 8lRhdTsQyJpO52F1/AVL_Direct_View); CRW is daily not half-hourly; Datalakes
+  raw file ids are ephemeral — use /data/{id}/{axis} snapshot endpoint.
