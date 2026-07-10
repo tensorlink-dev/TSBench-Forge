@@ -558,8 +558,11 @@ class TabPFNTSForecaster:
         ts = pd.date_range("2000-01-01", periods=len(ctx), freq="h")
         ctx_df = pd.DataFrame({"item_id": 0, "timestamp": ts, "target": ctx})
         pred = pipe.predict_df(ctx_df, prediction_length=hor)
-        quantiles = {lvl: np.asarray(pred[str(lvl)], dtype=float)[:hor] for lvl in self.quantiles}
-        mean = np.asarray(pred["0.5"], dtype=float)[:hor]
+        # predict_df columns: FLOAT quantile keys (0.1..0.9), not strings, plus a
+        # "target" point column (the median when tabpfn_output_selection="median").
+        quantiles = {lvl: np.asarray(pred[lvl], dtype=float)[:hor] for lvl in self.quantiles}
+        point_col = "target" if "target" in pred.columns else 0.5
+        mean = np.asarray(pred[point_col], dtype=float)[:hor]
         return ProbForecast(mean=mean, quantiles=quantiles)
 
 

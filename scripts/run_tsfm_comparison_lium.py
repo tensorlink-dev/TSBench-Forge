@@ -223,12 +223,12 @@ def _run_all_one_pod(groups: list[str], execs: list[dict], stage: Path, args,
             core = (f"python3 -m venv {v} && {v}/bin/pip install -q --upgrade pip && "
                     f"{pip} {grp['torch']} && {pip} {grp['core']}")
             try:
-                _lium("exec", target, *env_flags, core, timeout=2400)  # must succeed
+                _lium("exec", target, *env_flags, core, timeout=3600)  # must succeed
             except Exception as e:  # noqa: BLE001
                 print(f"  core install failed for {gname}: {e}", file=sys.stderr); continue
             # model libs best-effort, in order (later specs override earlier pins).
             models = " ; ".join(f"{pip} {s} || true" for s in grp["models"])
-            _lium("exec", target, *env_flags, models, check=False, timeout=2400)
+            _lium("exec", target, *env_flags, models, check=False, timeout=3600)
             run_env = env_flags + [
                 "-e", f"ROSTER={','.join(grp['roster'])}", "-e", f"MOTIF={args.motif_len}",
                 "-e", f"NCH={args.n_challenges}", "-e", f"SEED={args.seed}",
