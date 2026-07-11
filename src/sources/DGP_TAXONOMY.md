@@ -83,6 +83,7 @@ one series each.
 | `aviation_congestion` | FAA NASSTATUS | zero-inflated, weather-triggered spikes |
 | `shipping` | (MarineCadastre AIS once added) | port-cycle + trade flows |
 | `air_traffic_flow` | OpenSky states | slow-moving spatial density |
+| `winter_road_ops` | Iowa DOT plow AVL | weather-triggered fleet deployment; zero-inflated, seasonal on/off |
 
 ### `healthcare` (5 classes)
 

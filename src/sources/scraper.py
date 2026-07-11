@@ -438,23 +438,84 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
              "value": json.dumps(data)[:200000]}]
 
 
+def _sniff_delim(line: str) -> str | None:
+    """Best-effort delimiter for one line: tab, comma, or None (= whitespace)."""
+    if "\t" in line:
+        return "\t"
+    if "," in line:
+        return ","
+    return None
+
+
+def _split_cols(line: str, delim: str | None) -> list[str]:
+    line = line.lstrip("#").strip()
+    if delim is None:
+        return line.split()
+    return [t.strip() for t in line.split(delim)]
+
+
+def _compose_ts(parts: list[str]) -> str:
+    """Assemble a timestamp split across columns (NDBC 'YY MM DD hh mm',
+    CRW 'YYYY MM DD') into ISO-ish form; joined verbatim if non-numeric."""
+    if len(parts) >= 3 and all(p.isdigit() for p in parts[:3]):
+        ts = f"{parts[0]:0>4}-{parts[1]:0>2}-{parts[2]:0>2}"
+        if len(parts) >= 5 and parts[3].isdigit() and parts[4].isdigit():
+            ts += f"T{parts[3]:0>2}:{parts[4]:0>2}:00"
+        return ts
+    return " ".join(parts)
+
+
 def _records_from_csv(text: str, schema: dict) -> list[dict]:
-    f = io.StringIO(text)
-    reader = csv.DictReader(f)
     ts_field = schema.get("timestamp_field", "").split("/")[-1]
     val_fields = schema.get("value_field")
     if isinstance(val_fields, str):
         val_fields = [val_fields]
+    ts_cols = ts_field.split() if ts_field else []
+
+    # Many gov/science "csv" feeds are really tab- or whitespace-delimited text,
+    # sometimes behind a multi-line preamble or a '#'-prefixed header (NDBC,
+    # GLERL, Coral Reef Watch). Locate the header: the first early line whose
+    # tokens contain every schema-declared column. Comma files with a normal
+    # first-line header keep the csv.DictReader path.
+    lines = [l for l in text.splitlines() if l.strip()]
+    if not lines:
+        return []
+    want = set(ts_cols) | {vf.split("/")[-1] for vf in (val_fields or [])}
+    header_idx, delim, header = None, None, None
+    if want:
+        for i, l in enumerate(lines[:200]):
+            d = _sniff_delim(l)
+            toks = _split_cols(l, d)
+            if want <= set(toks):
+                header_idx, delim, header = i, d, toks
+                break
+
+    if header_idx is None or delim == ",":
+        start = 0 if header_idx is None else header_idx
+        reader = csv.DictReader(io.StringIO("\n".join(lines[start:])))
+        recs = list(reader)
+    else:
+        recs = []
+        for l in lines[header_idx + 1:]:
+            if l.lstrip().startswith("#"):  # NDBC units line / trailing comments
+                continue
+            toks = _split_cols(l, delim)
+            if len(toks) < 2:
+                continue
+            recs.append(dict(zip(header, toks)))
 
     rows = []
-    for r in reader:
-        ts_raw = r.get(ts_field) or next(iter(r.values()), None)
+    for r in recs:
+        if len(ts_cols) > 1 and all(c in r for c in ts_cols):
+            ts_raw = _compose_ts([r[c] for c in ts_cols])
+        else:
+            ts_raw = r.get(ts_field) or next(iter(r.values()), None)
         row = {"timestamp": _epoch_to_iso(ts_raw) or ts_raw}
         for vf in (val_fields or []):
             short = vf.split("/")[-1]
             row[short] = r.get(short)
         if not val_fields:
-            row.update({k: v for k, v in r.items() if k != ts_field})
+            row.update({k: v for k, v in r.items() if k != ts_field and k not in ts_cols})
         rows.append(row)
     return rows
 

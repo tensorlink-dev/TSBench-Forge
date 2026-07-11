@@ -5081,3 +5081,308 @@
     sample_rows: 0
     sample_freshness_hours: null
   notes: "FAILED-keygated: probe returned {stat:fail, missing_parameter: api_key}; stats.uptimerobot.com PSP path 404s without a valid public-status-page slug. No keyless variant."
+
+# ============================================================================
+# 2026-07-10 autoresearch batch — 100-round sweep candidates
+# (discovery/2026-07-10-autoresearch-100.md; probe-verified keyless endpoints,
+#  field paths validated against scraper._records_from_json on live payloads)
+# ============================================================================
+
+- id: lobsters_hottest
+  name: Lobste.rs hottest stories — score/comment snapshot
+  domain: sales
+  dgp_class: content_ranking
+  archetypes: [hierarchical, count_discrete, non_stationary_regime]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://lobste.rs/hottest.json
+    auth: none
+    rate_limit: "no published limit; be polite — identify via User-Agent, poll <=1 req/min"
+  schema:
+    timestamp_field: now()
+    value_field: "[].score"   # per-story; also [].comment_count, keyed by [].short_id
+    variates: 25
+  history_available: P0D
+  update_cadence_observed: "real-time on vote/comment; JSON regenerated within seconds"
+  pretraining_novelty: clean
+  novelty_notes: "Story text is in Common Crawl, but score/comment-count trajectories only exist via self-collected snapshot polling — no public archive of vote dynamics."
+  license: "lobste.rs is open-source (3-clause BSD); public JSON API, no auth; rate-limit etiquette applies"
+  sample_path: samples/lobsters_hottest.json
+  verification:
+    last_verified: 2026-07-10T10:31:07Z
+    sample_rows: 25
+    sample_freshness_hours: 0.01
+  notes: "Snapshot poll: top-25 hottest stories per request. Key series by short_id; score and comment_count are the attention variates. Ranked list churns as stories decay — panel membership is dynamic, like hn_top_stories. Also available: /newest.json, /t/{tag}.json."
+
+- id: sg_taxi_availability
+  name: Singapore data.gov.sg — available taxi count (national snapshot)
+  domain: transport
+  dgp_class: urban_transit_ridership
+  archetypes: [count_discrete, smooth_periodic, non_stationary_regime]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.data.gov.sg/v1/transport/taxi-availability
+    auth: none
+    rate_limit: "unspecified; API refreshes ~30s — poll at PT1M and be polite"
+  schema:
+    timestamp_field: features[].properties.timestamp  # API's own ts, ISO 8601 +08:00 (SGT)
+    value_field: features[].properties.taxi_count
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: "~30 s (properties.timestamp advances)"
+  pretraining_novelty: clean
+  novelty_notes: "data.gov.sg realtime API; single national taxi-supply count with strong daily/weekly rhythm — not in known TSFM pretrains as a series (only pollable live)."
+  license: "Singapore Open Data Licence — research permissive, attribution required"
+  sample_path: samples/sg_taxi_availability.json
+  verification:
+    last_verified: 2026-07-10T10:31:04Z
+    sample_rows: 1
+    sample_freshness_hours: 0.03
+  notes: "GeoJSON FeatureCollection with exactly one feature; geometry.coordinates lists every available taxi (len == taxi_count, 1685 at verification). Keyless. Distinct from lta_singapore_traffic_speeds (LTA DataMall, per-segment speeds, AccountKey required)."
+
+- id: gemini_btcusd_trades
+  name: Gemini BTC/USD public trades — irregular trade-event stream
+  domain: econ_fin
+  dgp_class: market_orderbook
+  archetypes: [non_stationary_regime, chaotic_nonlinear]
+  frequency: PT1M                 # poll cadence; events are irregular (median inter-arrival ~4.5s)
+  endpoint:
+    type: rest_json
+    url: https://api.gemini.com/v1/trades/btcusd?limit_trades=500
+    auth: none
+    rate_limit: "120 req/min (Gemini public API)"
+  schema:
+    timestamp_field: "[].timestampms"   # epoch ms, per-trade
+    value_field: ["[].price", "[].amount"]
+    variates: 2
+  history_available: P7D
+  update_cadence_observed: "real-time on trade; 500 trades covered ~73 min at probe"
+  pretraining_novelty: partial
+  novelty_notes: "BTC/USD bar-level price is contaminated in TSFM corpora, but per-trade irregular tick stream (marked point process: price + size + side) is structurally absent from pretrains; first order-flow-microstructure source in catalog."
+  license: "Gemini Master API Agreement — public market data, no key required; 120 req/min limit"
+  sample_path: samples/gemini_btcusd_trades.json
+  verification:
+    last_verified: 2026-07-10T10:31:17Z
+    sample_rows: 500
+    sample_freshness_hours: 0.0
+  notes: |
+    Only trade-level event stream in econ_fin — all other crypto sources are regular-grid
+    bars. Fills the empty market_orderbook DGP class. Payload also carries `type`
+    (buy/sell) and `tid` for dedup across polls (consecutive polls overlap heavily).
+    Use ?timestamp=<epoch> to page (7-day max lookback). Other symbols via /v1/trades/{symbol}.
+
+- id: iowa_dot_plow_avl
+  name: Iowa DOT snow plow AVL — live truck telemetry snapshot
+  disabled: true
+  disabled_reason: >-
+    2026-07-10: verified live but seasonally degenerate — exactly 1 summer
+    maintenance truck reporting (ROADTEMP/AIRTEMP null, plow states 9999).
+    Winter storms put hundreds of trucks in the layer. Re-enable ~November;
+    the quality gate would rightly reject a July scrape.
+  domain: transport
+  dgp_class: winter_road_ops
+  archetypes: [count_discrete, zero_inflated_sparse, non_stationary_regime]
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/AVL_Direct_View/FeatureServer/0/query?where=1%3D1&outFields=LABEL,VELOCITY,ROADTEMP,AIRTEMP,TOTAL_TRUCK_COUNT,ROUTE_NAME,MODIFIEDDT,REST_UPDATED&orderByFields=MODIFIEDDT+DESC&resultRecordCount=500&f=json
+    auth: none
+    rate_limit: "ArcGIS FeatureServer; be polite, no key"
+  schema:
+    timestamp_field: "features[].attributes.MODIFIEDDT"   # UTC epoch ms (LOGDT is local — do not use)
+    value_field:
+      - "features[].attributes.VELOCITY"                  # mph, per truck (key on LABEL)
+      - "features[].attributes.TOTAL_TRUCK_COUNT"         # fleet-wide active-truck count
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: "layer refreshes ~1-2 min (REST_UPDATED); record 91 s old at probe"
+  pretraining_novelty: clean
+  novelty_notes: "Live snapshot view only — ongoing Iowa DOT AVL telemetry is in no TSFM pretrain mix."
+  license: "CC BY 4.0 — Iowa DOT Open Data (Office of Maintenance), item 20a0c10c06a54240b5f2893e0187e22c"
+  sample_path: samples/iowa_dot_plow_avl.json
+  verification:
+    last_verified: 2026-07-10T10:32:28Z
+    sample_rows: 1
+    sample_freshness_hours: 0.03
+  notes: |
+    Idle trucks drop out of this live view, so a quiet-hour poll can return 0
+    features -> 0 rows; treat absent polls as count 0 downstream. TOTAL_TRUCK_COUNT
+    on any row IS the active-plow count. ROADTEMP/AIRTEMP (F) also present in winter.
+    The originally proposed org id 8l8JrQ1d0m6J0X2r / AVL_View was hallucinated —
+    real org 8lRhdTsQyJpO52F1, service AVL_Direct_View (owner IowaDOT_SODA,
+    data.iowadot.gov). Sibling: Winter_Storm_Analysis_48HR_View.
+
+- id: usace_cwms_timeseries
+  name: USACE CWMS reservoir elevations + project outflow (8-series, hourly)
+  domain: nature
+  dgp_class: hydrology
+  archetypes: [smooth_periodic, hierarchical, non_stationary_regime]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://cwms-data.usace.army.mil/cwms-data/timeseries?name={TSID}&office={OFFICE}
+    auth: none
+    rate_limit: null
+  panel:
+    - {TSID: 'EUFA.Elev.Inst.1Hour.0.Ccp-Rev', OFFICE: SWT}                       # Eufaula Lake, OK
+    - {TSID: 'DENI.Elev.Inst.1Hour.0.Ccp-Rev', OFFICE: SWT}                       # Denison Dam / Lake Texoma, TX-OK
+    - {TSID: 'BROK.Elev.Inst.1Hour.0.Ccp-Rev', OFFICE: SWT}                       # Broken Bow Lake, OK
+    - {TSID: 'KEYS.Elev.Inst.1Hour.0.Ccp-Rev', OFFICE: SWT}                       # Keystone Lake, OK
+    - {TSID: 'Arkabutla Lake.Elev.Inst.1Hour.0.DCP-rev', OFFICE: MVK}             # Arkabutla Lake, MS
+    - {TSID: 'Sardis Lake.Elev.Inst.1Hour.0.DCP-rev', OFFICE: MVK}                # Sardis Lake, MS
+    - {TSID: 'Grenada Lake.Elev.Inst.1Hour.0.DCP-rev', OFFICE: MVK}               # Grenada Lake, MS
+    - {TSID: 'DENI.Flow-Res Out.Ave.1Hour.1Hour.Rev-Regi-Flowgroup', OFFICE: SWT} # Denison outflow, cfs
+  schema:
+    timestamp_field: values[][0]    # epoch ms
+    value_field: values[][1]        # ft (elev) / cfs (flow); values[][2] is a quality code
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: "hourly; last value 35 min old at verification"
+  pretraining_novelty: clean
+  novelty_notes: >-
+    Additive to usgs_streamflow_iv, not duplicative: CWMS covers USACE-operated
+    projects and parameters USGS NWIS doesn't carry — reservoir pool elevations,
+    regulated project outflows — i.e. dam-regulation dynamics (guide-curve
+    seasonality + operator decisions) rather than natural channel discharge.
+  license: "US Government public domain (17 USC 105)"
+  sample_path: samples/usace_cwms_timeseries.json
+  verification:
+    last_verified: 2026-07-10T10:35:25Z
+    sample_rows: 24
+    sample_freshness_hours: 0.6
+  notes: |
+    No begin/end params => API defaults to trailing 24h window (verified), so the
+    poller needs no date templating. Response `values` rows are [epoch_ms, value,
+    quality_code]. MVK series names contain spaces — httpx percent-encodes them.
+    Avoid `USGS-raw`-suffixed tsids (several stale); SWT `Ccp-Rev` and MVK
+    `DCP-rev` versions are actively maintained. Series discovery:
+    /catalog/TIMESERIES?office=SWT&like=<regex>.
+
+- id: crw_virtual_station_sst
+  name: NOAA Coral Reef Watch virtual stations — daily SST / DHW (8-station panel)
+  domain: nature
+  dgp_class: weather_field       # ocean thermal state; same class as NDBC WTMP
+  archetypes: [smooth_periodic, hierarchical, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://coralreefwatch.noaa.gov/product/vs/data/{STATION}.txt
+    auth: none
+    rate_limit: null
+  panel:
+    - {STATION: 'florida_keys'}    # Caribbean/Atlantic, active DHW event at verification
+    - {STATION: 'bermuda'}
+    - {STATION: 'gbr_central'}     # Great Barrier Reef, southern hemisphere phase
+    - {STATION: 'fiji'}
+    - {STATION: 'guam'}            # W Pacific
+    - {STATION: 'maldives'}        # Indian Ocean
+    - {STATION: 'egypt'}           # Red Sea
+    - {STATION: 'galapagos'}       # E Pacific / ENSO-sensitive
+  schema:
+    timestamp_field: "YYYY MM DD"                       # three whitespace columns; parser composes the date
+    value_field: [SST_MIN, SST_MAX, "SST@90th_HS", "DHW_from_90th_HS>1"]
+    variates: 4
+  history_available: P41Y          # daily rows since 1985-01-01 in every file
+  update_cadence_observed: "daily; ~2-day publication lag (last row 2026-07-08 on 2026-07-10)"
+  pretraining_novelty: partial
+  novelty_notes: "Derived from NOAA CoralTemp/OISST which appears in climate corpora, but per-reef 5km virtual-station DHW/BAA series are post-cutoff daily and regenerated; bleaching-event regimes are novel targets."
+  license: "Public domain (NOAA CRW)"
+  sample_path: samples/crw_virtual_station.txt
+  verification:
+    last_verified: 2026-07-10T10:33:58Z
+    sample_rows: 15169
+    sample_freshness_hours: 58
+  notes: "Whitespace-delimited text with ~21-line preamble before the header row (handled by the scraper's header-scan since 2026-07-10). 214 stations total (names on product/vs/data.php); no JSON endpoint exists. The proposal's 'half-hourly' claim was wrong — product is daily. BAA_7day_max is a bounded 0-4 alert level; DHW is nonnegative degC-weeks."
+
+- id: ripe_atlas_rootserver_ping
+  name: RIPE Atlas built-in root-server ping RTT (6 msm x anchor pairs)
+  domain: web_cloudops
+  dgp_class: observability_metric
+  archetypes: [non_stationary_regime, noisy_clean_pair, hierarchical]
+  frequency: PT4M
+  endpoint:
+    type: rest_json
+    url: https://atlas.ripe.net/api/v2/measurements/{MSM_ID}/results/?start={YYYY-MM-DD-1d}&probe_ids={PROBE}
+    auth: none
+    rate_limit: "public data keyless; be polite — 6 small requests per poll"
+  panel:
+    # Built-in (Ongoing since 2010-2013) IPv4 ping measurements to DNS root
+    # servers, each pinned to one long-lived RIPE Atlas *anchor* probe so a
+    # panel row is a single coherent vantage-point series. 240s native step.
+    - {MSM_ID: "1001", PROBE: "6307"}   # k.root-servers.net <- NL anchor (AS3333, RIPE NCC)
+    - {MSM_ID: "1004", PROBE: "6251"}   # f.root-servers.net <- FI anchor
+    - {MSM_ID: "1006", PROBE: "6317"}   # m.root-servers.net <- CH anchor
+    - {MSM_ID: "1008", PROBE: "6307"}   # l.root-servers.net <- NL anchor
+    - {MSM_ID: "1009", PROBE: "6313"}   # a.root-servers.net <- DE anchor
+    - {MSM_ID: "1010", PROBE: "6316"}   # b.root-servers.net <- IT anchor
+  schema:
+    timestamp_field: "[].timestamp"       # epoch seconds
+    value_field: ["[].avg", "[].min", "[].max"]   # RTT ms (3-packet ping); min = propagation floor, avg = noisy
+    variates: 3
+  history_available: P15Y     # built-ins run since 2010; /results/?start=&stop= pages the full archive
+  update_cadence_observed: "240 s per probe; ~500 results/day per pair, fresh to <5 min"
+  pretraining_novelty: clean
+  novelty_notes: "Per-probe RIPE Atlas RTT series absent from LOTSA/Monash/M4/GIFT-Eval mixes; closest public analogue is Datadog BOOM (different DGP: vendor telemetry, not active probing)."
+  license: "RIPE Atlas T&C — open data, free for scientific/statistical use; commercial use needs RIPE NCC permission (not a CC license)"
+  sample_path: samples/ripe_atlas_rootserver_ping.json
+  verification:
+    last_verified: 2026-07-10T10:37:23Z
+    sample_rows: 509
+    sample_freshness_hours: 0.1
+  notes: >
+    1-day rolling window refetched each poll; cross-day overlap deduped by the
+    existing timestamp dedupe. Failed pings arrive as avg=-1 sentinel (rare) —
+    treat as missing downstream. If an anchor retires, swap its PROBE id
+    (anchors: /api/v2/probes/?is_anchor=true&status_name=Connected).
+    Other roots available: 1005 i, 1011 c, 1012 d, 1013 e, 1016 j.
+
+- id: datalakes_eawag_lake_obs
+  name: Datalakes (Eawag) Swiss lake water temperature (12-station panel)
+  domain: nature
+  dgp_class: hydrology            # lake thermal dynamics; split out as `limnology` if the taxonomy grows
+  archetypes: [hierarchical, smooth_periodic, non_stationary_regime]
+  frequency: PT10M
+  endpoint:
+    type: rest_json
+    url: https://api.datalakes-eawag.ch/data/{DATASET_ID}/{AXIS}
+    auth: none
+    rate_limit: null
+  panel:
+    # axis per dataset from /datasetparameters?datasets_id={id} (water-temp series)
+    - {DATASET_ID: '1264', AXIS: 'y'}    # Kastanienbaum, Lake Lucerne (0.5 m, ~1-min sensor)
+    - {DATASET_ID: '448',  AXIS: 'y1'}   # LeXPLORE surfacetemp, Lake Geneva
+    - {DATASET_ID: '854',  AXIS: 'y'}    # LeXPLORE skin temperature (radiometric), Lake Geneva
+    - {DATASET_ID: '956',  AXIS: 'y1'}   # Lake Murten surfacetemp
+    - {DATASET_ID: '1046', AXIS: 'y1'}   # Lake Hallwil surfacetemp
+    - {DATASET_ID: '1074', AXIS: 'y1'}   # Lake Aegeri surface_temp
+    - {DATASET_ID: '1333', AXIS: 'y5'}   # Lake Maggiore buoy (Porto Ronco), Temp_1m
+    - {DATASET_ID: '1334', AXIS: 'y5'}   # Upper Lake Lugano buoy (Castagnola), Temp_1m
+    - {DATASET_ID: '1399', AXIS: 'y'}    # Figino probe (Lake Lugano), temp 1 m
+    - {DATASET_ID: '1400', AXIS: 'y'}    # Magliaso probe (Lake Lugano), temp 1 m
+    - {DATASET_ID: '1401', AXIS: 'y'}    # Riva San Vitale probe (Lake Lugano), temp 1 m
+    - {DATASET_ID: '1402', AXIS: 'y'}    # Vico Morcote probe (Lake Lugano), temp 1 m
+  schema:
+    timestamp_field: ""             # payload {time, value} is a scalar snapshot; empty ts -> poll-time row
+    value_field: [time, value]      # time = observation ISO timestamp, value = degC (float)
+    variates: 1
+  history_available: P1Y            # youngest station 2024-09; LeXPLORE back to 2019; full history via per-day JSON files
+  update_cadence_observed: "10-60 min per station (obs 0.2-1.7 h old at verify time)"
+  pretraining_novelty: clean
+  novelty_notes: "Datalakes per-station Swiss lake temps not in LOTSA/Monash/Chronos/TimesFM/Moirai mixes; LeXPLORE data appears in papers but not as these live series."
+  license: "MIT — every panel dataset has licenses_id=6 (MIT) per /selectiontables/licenses; embargo 0"
+  sample_path: samples/datalakes_eawag.json
+  verification:
+    last_verified: 2026-07-10T10:45:00Z
+    sample_rows: 1
+    sample_freshness_hours: 0.27
+  notes: |
+    /data/{dataset_id}/{axis} returns the latest observation only ({"time","value"});
+    series accrue by polling (PT10M suggested). The parser's snapshot branch yields
+    {timestamp=poll time, time=obs time, value=float} — dedupe/downsample on `time`
+    downstream. Historical backfill (outside scraper): GET /files?datasets_id={id}&type=json,
+    then /files/{file_id}?get=raw -> {"x":[epoch s],"y":[...]} per-day arrays back to each
+    station's mindatetime. API spec: https://api.datalakes-eawag.ch/docs. Axis mapping per
+    dataset via /datasetparameters?datasets_id={id}. Ephemeral file ids rule out wiring
+    the raw daily files directly.

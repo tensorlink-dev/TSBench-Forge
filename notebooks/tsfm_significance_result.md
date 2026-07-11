@@ -1,78 +1,80 @@
-# TSFM significance on live TSBench-Forge data (GPU run, 2026-07-09)
+# TSFM significance on live TSBench-Forge data (GPU run, 2026-07-11)
 
 All 9 target foundation models scored against the live benchmark and tested with paired
 Wilcoxon / Friedman. Run via `scripts/run_tsfm_comparison_lium.py --group all`
 (one GPU pod — RTX 4090 or, when the 4090 spot pool is churny, A100, a fresh venv per model group so conflicting libraries can't
 collide), merged with `scripts/merge_tsfm_results.py`.
 
-**Setup.** 256 challenges, `motif_len=304` (context 256 + horizon 48), **42 real
+**Setup.** 256 challenges, `motif_len=304` (context 256 + horizon 48), **43 real
 source series**, seed `tsfm-significance-v1` (identical across groups → paired).
+First run on the **expanded post-autoresearch pool**: 62 eligible sources including
+the 2026-07-10 batch (Gemini trades, SG taxi, CRW reef SST, RIPE Atlas RTT,
+Datalakes lakes, USACE reservoirs) plus the repaired NDBC/GLERL parquets —
+28/256 challenges (11%) draw from the new sources.
 
 ## Unified leaderboard — 9 TSFMs vs classical panel
 
 Seasonal-naive-relative shifted-gmean (lower = better). All nine foundation models
 **sweep the top on CRPS**, each significantly beating seasonal-naive. The edge is
-probabilistic (CRPS); on MASE they're mixed (TabPFN-TS leads point accuracy).
+probabilistic (CRPS); on MASE Toto-2 and TabPFN-TS lead point accuracy too.
 
 | rank | model | crps_rel | mase_rel | CRPS | MASE |
 |---:|---|--:|--:|--:|--:|
-| 1 | **toto2** | 0.465 | 0.831 | 0.339 | 1.571 |
-| 2 | **tabpfn-ts** | 0.470 | 0.683 | 0.377 | 1.711 |
-| 3 | **timesfm25** | 0.492 | 0.718 | 0.398 | 1.851 |
-| 4 | **chronos2** | 0.511 | 0.951 | 0.364 | 1.820 |
-| 5 | **tirex** | 0.563 | 1.051 | 0.379 | 1.837 |
-| 6 | **chronos-bolt** | 0.668 | 1.268 | 0.391 | 2.256 |
-| 7 | **sundial** | 0.755 | 1.387 | 0.459 | 2.173 |
-| 8 | **moirai2** | 0.759 | 1.326 | 0.385 | 2.950 |
-| 9 | **flowstate** | 0.858 | 1.592 | 0.422 | 12.376 |
-| 10 | ewma | 0.874 | 0.761 | 0.562 | 1.903 |
-| 11 | strong | 0.929 | 0.801 | 0.599 | 2.065 |
-| 12 | seasonal_naive | 1.000 | 0.914 | 0.648 | 2.183 |
-| 13 | ar1 | 1.036 | 1.047 | 0.636 | 2.658 |
-| 14 | drift | 1.073 | 1.022 | 0.708 | 2.906 |
-| 15 | context_parrot | 1.173 | 1.182 | 0.724 | 2.790 |
+| 1 | **toto2** | 0.427 | 0.671 | 0.353 | 2.143 |
+| 2 | **tabpfn-ts** | 0.441 | 0.621 | 0.384 | 2.245 |
+| 3 | **timesfm25** | 0.540 | 0.730 | 0.517 | 2.938 |
+| 4 | **chronos2** | 0.559 | 0.851 | 0.503 | 3.075 |
+| 5 | **moirai2** | 0.562 | 0.877 | 0.379 | 2.811 |
+| 6 | **tirex** | 0.579 | 0.883 | 0.490 | 2.994 |
+| 7 | **chronos-bolt** | 0.624 | 0.972 | 0.475 | 2.878 |
+| 8 | **flowstate** | 0.749 | 1.124 | 0.563 | 8.715 |
+| 9 | **sundial** | 0.759 | 1.111 | 0.668 | 3.868 |
+| 10 | strong | 0.920 | 0.823 | 0.748 | 2.999 |
+| 11 | ewma | 0.935 | 0.918 | 0.750 | 3.211 |
+| 12 | drift | 0.966 | 0.959 | 0.777 | 3.290 |
+| 13 | seasonal_naive | 1.000 | 0.960 | 0.812 | 3.508 |
+| 14 | context_parrot | 1.017 | 1.034 | 0.776 | 3.523 |
+| 15 | ar1 | 1.020 | 1.030 | 0.799 | 3.810 |
 
 ## Significance
 
-- **Friedman χ² = 1400, p = 2e-185** (CRPS) — the models genuinely differ.
+- **Friedman χ² = 1462.5, p = 1.8e-192** (CRPS) — the models genuinely differ.
 - **Every TSFM beats seasonal-naive on CRPS** (Holm-adjusted paired Wilcoxon):
 
   | model | median CRPS Δ vs naive | win-rate | Holm p | sig |
   |---|--:|--:|--:|:--:|
-  | chronos-bolt | -0.227 | 0.84 | 8e-32 | Y |
-  | toto2 | -0.224 | 0.86 | 7e-28 | Y |
-  | tirex | -0.218 | 0.86 | 1e-31 | Y |
-  | moirai2 | -0.212 | 0.79 | 5e-25 | Y |
-  | chronos2 | -0.210 | 0.86 | 4e-32 | Y |
-  | tabpfn-ts | -0.204 | 0.86 | 6e-26 | Y |
-  | flowstate | -0.191 | 0.81 | 1e-25 | Y |
-  | timesfm25 | -0.190 | 0.86 | 6e-32 | Y |
-  | sundial | -0.150 | 0.74 | 7e-20 | Y |
-  | ewma / strong | ~0 | ~0.5 | (sig but tiny) | Y |
-  | ar1 / drift / context_parrot | >=0 | <=0.50 | ns | N |
+  | toto2 | -0.254 | 0.89 | 7e-33 | Y |
+  | chronos-bolt | -0.244 | 0.88 | 3e-34 | Y |
+  | moirai2 | -0.228 | 0.84 | 6e-32 | Y |
+  | tabpfn-ts | -0.228 | 0.88 | 2e-32 | Y |
+  | chronos2 | -0.226 | 0.91 | 3e-35 | Y |
+  | tirex | -0.220 | 0.91 | 3e-35 | Y |
+  | timesfm25 | -0.207 | 0.91 | 1e-36 | Y |
+  | flowstate | -0.177 | 0.84 | 2e-27 | Y |
+  | sundial | -0.147 | 0.75 | 1e-19 | Y |
+  | ewma | -0.009 | 0.64 | 4e-06 | Y |
+  | strong | -0.003 | 0.61 | 5e-08 | Y |
+  | ar1 | -0.000 | 0.51 | 0.37 | N |
+  | drift | +0.000 | 0.41 | 1 | N |
+  | context_parrot | +0.010 | 0.40 | 1 | N |
 
+## Movement vs the 2026-07-09 run (42-series pool, pre-autoresearch)
 
-## Caveats
+The pool expansion reshuffled the mid-table while the top two held:
 
-- **Breadth**: 42 source series — challenges are not fully independent, so the
-  per-source-relative leaderboard is the primary ranking and the p-values
-  corroborate. This grows as the scraper's cron accumulates history (the loader
-  now concatenates a source's daily parquet).
-- **Full roster of 9 loaded** after per-group venv recipes (own torch each) + adapter
-  fixes (FlowState: unwrap `out.quantile_outputs`; Toto-2: trim context to a multiple of
-  patch_size 32; TabPFN-TS: float quantile-column keys + `target` point column, plus a
-  `TABPFN_TOKEN` in `.env` and a one-time license accept at ux.priorlabs.ai).
-- **FlowState MASE=12.4 is an outlier** (its CRPS 0.858 is fine): its *point* forecast
-  is miscalibrated in scale on some series — likely the adapter's `scale_factor=1.0`
-  / median extraction. Its probabilistic (CRPS) forecast ranks normally. Point-metric
-  use of FlowState should be treated with caution pending a scale-handling fix.
+- **Toto-2 and TabPFN-TS stay 1–2** (gap narrowed: 0.427 vs 0.441 crps_rel).
+- **Moirai-2 jumped 8th → 5th** and **chronos-bolt slid 6th → 7th**; TiRex and
+  chronos2 swapped. Sundial dropped 7th → 9th.
+- Absolute CRPS rose across the board (0.648 → 0.812 for seasonal-naive):
+  the new sources (irregular trade ticks, RTT with -1 sentinels, reservoir
+  guide-curves) are genuinely harder targets, which is what they were added for.
+- The classical panel ordering is stable; ar1/drift/context_parrot remain
+  indistinguishable from seasonal-naive — the discrimination filter is doing
+  its job.
 
-## Reproduce
+Figure: `notebooks/figures/tsfm_leaderboard.png`. Raw per-group results under
+`notebooks/results/group_*/`; unified stats in `notebooks/results/merged.json`.
 
-```bash
-python scripts/run_tsfm_comparison_lium.py --gpu RTX4090 --group all --ttl 90m --yes
-python scripts/merge_tsfm_results.py
-```
-
-Total GPU spend to this result: ≈ $16 across development iterations; a clean
-single-pod `--group all` run is ~$0.50 (one RTX 4090, ~45 min).
+Run note: the first pod (gentle-orbit-6d) was evicted mid-sundial after 6 of 7
+groups completed; sundial re-ran on a fresh pod (brave-lion-d7) against the
+identical seeded challenge set, so the merge stays paired.

@@ -41,7 +41,12 @@ class VetResult:
 
 
 def _host(url: str) -> str:
+    # Models often emit scheme-less URLs ("api.wmata.com/Rail.svc/..."); without
+    # a scheme urlparse puts everything in `path` and the host comes back empty,
+    # which silently defeated the duplicate/ledger checks (2026-07-10 sweep).
     try:
+        if url and "://" not in url:
+            url = "//" + url
         return (urlparse(url).hostname or "").lower().removeprefix("www.")
     except Exception:
         return ""

@@ -37,6 +37,14 @@ class OpenRouterConfig:
     temperature: float = 0.4
     max_tokens: int = 8000
     timeout: float = 120.0
+    # Cap on hidden reasoning tokens (OpenRouter-normalized `reasoning.max_tokens`).
+    # 0 disables the cap. Without one, reasoning models can burn the whole
+    # completion budget deliberating and return content=None.
+    reasoning_max_tokens: int = 0
+    # Set false to disable hidden reasoning entirely (`reasoning.enabled: false`).
+    # z-ai/GLM ignores the max_tokens cap, so this is the only reliable control
+    # for it; verified to zero reasoning tokens where the cap did not.
+    reasoning_enabled: bool = True
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "OpenRouterConfig":
@@ -48,6 +56,11 @@ class OpenRouterConfig:
             temperature=float(e.get("OPENROUTER_TEMPERATURE", cls.temperature)),
             max_tokens=int(e.get("OPENROUTER_MAX_TOKENS", cls.max_tokens)),
             timeout=float(e.get("OPENROUTER_TIMEOUT", cls.timeout)),
+            reasoning_max_tokens=int(
+                e.get("OPENROUTER_REASONING_MAX_TOKENS", cls.reasoning_max_tokens)
+            ),
+            reasoning_enabled=e.get("OPENROUTER_REASONING_ENABLED", "true").strip().lower()
+            not in ("false", "0", "off", "no"),
         )
 
     @property
@@ -132,14 +145,17 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
             "candidates produced elsewhere."
         )
     def _call(max_tokens: int) -> dict:
-        payload = json.dumps(
-            {
-                "model": cfg.model,
-                "messages": assemble_messages(inputs),
-                "temperature": cfg.temperature,
-                "max_tokens": max_tokens,
-            }
-        ).encode()
+        body: dict = {
+            "model": cfg.model,
+            "messages": assemble_messages(inputs),
+            "temperature": cfg.temperature,
+            "max_tokens": max_tokens,
+        }
+        if not cfg.reasoning_enabled:
+            body["reasoning"] = {"enabled": False}
+        elif cfg.reasoning_max_tokens:
+            body["reasoning"] = {"max_tokens": cfg.reasoning_max_tokens}
+        payload = json.dumps(body).encode()
         req = urllib.request.Request(
             cfg.base_url,
             data=payload,
@@ -154,19 +170,29 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
         except urllib.error.URLError as exc:  # pragma: no cover - network path
             raise RuntimeError(f"OpenRouter call failed: {exc}") from exc
 
-    # Reasoning models (GLM, o-series, R1...) can spend the entire completion
-    # budget on hidden reasoning and return content=None with
-    # finish_reason="length". Retry once with a doubled budget before failing.
+    # Two recoverable failure modes, each retried once:
+    # - reasoning models (GLM, o-series, R1...) can spend the entire completion
+    #   budget on hidden reasoning and return content=None with
+    #   finish_reason="length" -> retry with a doubled budget;
+    # - GLM (non-thinking) sometimes ends cleanly right after the "Block 2"
+    #   header without emitting the candidate JSON -> one fresh retry.
     max_tokens = cfg.max_tokens
-    for attempt in range(2):
+    budget_retried = False
+    empty_retried = False
+    while True:
         body = _call(max_tokens)
         choice = (body.get("choices") or [{}])[0]
         msg = choice.get("message") or {}
         text = msg.get("content") or ""
         if text.strip():
-            return parse_response(text)
+            gap_analysis, candidates = parse_response(text)
+            if candidates or empty_retried:
+                return gap_analysis, candidates
+            empty_retried = True
+            continue
         finish = choice.get("finish_reason")
-        if finish == "length" and attempt == 0:
+        if finish == "length" and not budget_retried:
+            budget_retried = True
             max_tokens *= 2
             continue
         err = (body.get("error") or {}).get("message")
@@ -176,4 +202,3 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
             "For reasoning models raise OPENROUTER_MAX_TOKENS or pick a "
             "non-reasoning OPENROUTER_MODEL."
         )
-    raise AssertionError("unreachable")  # pragma: no cover

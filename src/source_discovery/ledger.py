@@ -33,7 +33,12 @@ def ledger_path(catalog_path: str | Path) -> Path:
 
 
 def candidate_key(candidate: dict) -> str:
-    host = urlparse(str(candidate.get("url_or_endpoint") or "")).netloc
+    url = str(candidate.get("url_or_endpoint") or "")
+    if url and "://" not in url:
+        # Scheme-less URLs parse to an empty netloc, collapsing the key to the
+        # (unstable) name and letting re-proposals through. Same fix as vet._host.
+        url = "//" + url
+    host = urlparse(url).netloc
     return f"{candidate.get('domain', '?')}|{host or candidate.get('name', '?')}"
 
 
