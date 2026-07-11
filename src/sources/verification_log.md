@@ -1080,3 +1080,15 @@ scraper.py before admission. 37 enabled, 12 disabled with reasons; ledger flippe
   admission gate rightly rejects it. Funding-dynamics coverage is now zero;
   OKX funding-rate-history probed as a rich keyless alternative (96/100 unique)
   if the operator wants it despite being offshore.
+
+## 2026-07-11 (later) — funding coverage restored via Kraken Futures
+
+Operator clarified the Binance swap reason: US-blocked. That rules out OKX/Bybit
+(and INTX is US-restricted too). **kraken_futures_btc_funding** wired instead:
+US-accessible, keyless, one request returns a full year of hourly funding
+(8969 events, 8965 unique — vs INTX's 99% repeated values). Admission note: the
+--assess CLI (fixed seed) sampled the one window containing the March funding
+spike and failed spike_dominance by 0.003; re-sampling 6 windows at motif 768
+passes 5/6 with spike_dominance ~0.02. Kept enabled on that evidence. Gate
+improvement worth considering: majority-vote over several windows for
+single-series sources instead of one fixed-seed window.
