@@ -1,8 +1,9 @@
 # Scheduled scrape of the live source catalog, mirrored to Hippius.
 #
-# Runs `scraper.py --all` on a schedule and mirrors the dated parquet to the
-# Hippius S3 bucket via src/sources/sync_storage.py — the same store the repo
-# already uses (default bucket: tsbench-forge-sources at s3.hippius.com).
+# Runs `scraper.py --all` on a schedule and mirrors the dated parquet +
+# sources.yaml to the Hippius S3 bucket via src/sources/sync_storage.py — the
+# same store the repo already uses (default bucket: tsbench-forge-sources at
+# s3.hippius.com), laid out as a drop-in cascade eval-pool relay.
 #
 # WHY THE PULL-BEFORE-SCRAPE: GitHub-hosted runners are ephemeral and
 # src/sources/data/ is gitignored, so nothing persists on the runner between
@@ -19,16 +20,20 @@
 # you need the sub-hourly feeds at native resolution, run cron.yaml on a
 # persistent host; keep this workflow as the reliable coarse baseline.
 #
-# REQUIRED REPO SECRETS (Settings -> Secrets and variables -> Actions) to
-# enable the mirror. With them unset, the job runs a scrape-only smoke test and
-# skips persistence.
-#   HIPPIUS_S3_ACCESS_KEY   Hippius S3 access key
-#   HIPPIUS_S3_SECRET_KEY   Hippius S3 secret key
-# OPTIONAL (sync_storage.py defaults shown):
-#   HIPPIUS_S3_ENDPOINT     https://s3.hippius.com
-#   HIPPIUS_S3_BUCKET       tsbench-forge-sources
-# OPTIONAL source-rate-limit secrets (see src/sources/cron.yaml notes):
-#   SOURCE_GITHUB_TOKEN, STACKEXCHANGE_KEY, REDDIT_USER_AGENT
+# SECRETS (Settings -> Secrets and variables -> Actions):
+#
+#   Persistence to Hippius (unset -> scrape-only smoke test, nothing persisted):
+#     HIPPIUS_S3_ACCESS_KEY   required
+#     HIPPIUS_S3_SECRET_KEY   required
+#     HIPPIUS_S3_ENDPOINT     optional (default https://s3.hippius.com)
+#     HIPPIUS_S3_BUCKET       optional (default tsbench-forge-sources)
+#
+#   Source API keys — the catalog has ~35+ keyed sources (see .env.example).
+#   Put your whole .env (KEY=value lines, exactly the .env.example format) into
+#   ONE secret named SCRAPER_ENV; it is sourced before the scrape so every
+#   env:VAR header and {ENVVAR} URL key resolves. Adding a source later means
+#   editing the secret, not this file. Unset -> only keyless sources succeed
+#   (the rest log an auth error to data/<id>/_errors.log and are skipped).
 
 name: Scrape live sources
 
@@ -59,11 +64,6 @@ jobs:
       HIPPIUS_S3_SECRET_KEY: ${{ secrets.HIPPIUS_S3_SECRET_KEY }}
       HIPPIUS_S3_ENDPOINT: ${{ secrets.HIPPIUS_S3_ENDPOINT }}
       HIPPIUS_S3_BUCKET: ${{ secrets.HIPPIUS_S3_BUCKET }}
-      # Passed through to the scraper for sources that need auth to lift anon
-      # rate limits. Unset secrets resolve to "" and are treated as absent.
-      GITHUB_TOKEN: ${{ secrets.SOURCE_GITHUB_TOKEN }}
-      STACKEXCHANGE_KEY: ${{ secrets.STACKEXCHANGE_KEY }}
-      REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
     steps:
       - uses: actions/checkout@v4
 
@@ -72,7 +72,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install httpx pyarrow pyyaml pandas numpy boto3
+        run: pip install httpx pyarrow pyyaml pandas numpy boto3 lxml beautifulsoup4 openpyxl
 
       - name: Pull today's archive from Hippius (append target)
         if: env.HIPPIUS_S3_ACCESS_KEY != ''
@@ -83,7 +83,18 @@ jobs:
         # data/<id>/_errors.log. Don't fail the whole run — still publish what
         # succeeded. A hard failure (network down) shows as a red step.
         continue-on-error: true
-        run: python src/sources/scraper.py ${{ github.event.inputs.scraper_args || '--all' }}
+        env:
+          # The operator's whole .env (all source API keys) as one secret.
+          SCRAPER_ENV: ${{ secrets.SCRAPER_ENV }}
+        run: |
+          if [ -n "$SCRAPER_ENV" ]; then
+            printf '%s\n' "$SCRAPER_ENV" > .env
+            set -a; . ./.env; set +a
+            echo "loaded source credentials from SCRAPER_ENV"
+          else
+            echo "SCRAPER_ENV not set — only keyless sources will succeed"
+          fi
+          python src/sources/scraper.py ${{ github.event.inputs.scraper_args || '--all' }}
 
       - name: Mirror to Hippius
         if: env.HIPPIUS_S3_ACCESS_KEY != ''
