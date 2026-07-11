@@ -33,7 +33,7 @@ schedules:
       - github_events_firehose
       - kalshi_markets_snapshot
       - manifold_markets_snapshot
-      - binance_btcusdt_1m
+      - coinbase_spot_1m           # 2026-07-11 swap off Binance
       - opensky_states_local       # respects 10/min anon limit
     cron: "* * * * *"
 
