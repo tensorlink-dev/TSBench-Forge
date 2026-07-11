@@ -1,16 +1,16 @@
-# Scheduled scrape of the live source catalog.
+# Scheduled scrape of the live source catalog, mirrored to Hippius.
 #
-# Runs `scraper.py --all` on a schedule and publishes the dated parquet +
-# sources.yaml to a private S3-compatible bucket (AWS S3 / Cloudflare R2 /
-# MinIO) via scripts/publish_data_bucket.sh.
+# Runs `scraper.py --all` on a schedule and mirrors the dated parquet to the
+# Hippius S3 bucket via src/sources/sync_storage.py — the same store the repo
+# already uses (default bucket: tsbench-forge-sources at s3.hippius.com).
 #
-# WHY THE BUCKET ROUND-TRIP: GitHub-hosted runners are ephemeral and
-# src/sources/data/ is gitignored, so nothing persists between runs on the
-# runner itself. The scraper appends+dedupes into data/<id>/<UTC-date>.parquet,
-# which assumes the day's file is already on disk. So each run first PULLS the
-# current day's data from the bucket, scrapes (appending), then PUSHES back.
-# Without the pull, the second run of a UTC day would overwrite that day's file
-# with only its own rows.
+# WHY THE PULL-BEFORE-SCRAPE: GitHub-hosted runners are ephemeral and
+# src/sources/data/ is gitignored, so nothing persists on the runner between
+# runs. The scraper appends+dedupes into data/<id>/<UTC-date>.parquet, which
+# assumes the day's file is already on disk. So each run first pulls the
+# current day's parquet back from Hippius (`sync_storage.py --download --today`),
+# scrapes (appending), then uploads. Without the pull, the second run of a UTC
+# day would overwrite that day's object with only its own rows.
 #
 # RESOLUTION NOTE: a 12h poll captures only ~2 points/day for snapshot sources
 # whose timestamp == now() (the 1-min / 5-min feeds in cron.yaml). Sources that
@@ -20,15 +20,13 @@
 # persistent host; keep this workflow as the reliable coarse baseline.
 #
 # REQUIRED REPO SECRETS (Settings -> Secrets and variables -> Actions) to
-# enable publishing. With none set, the job runs a scrape-only smoke test and
+# enable the mirror. With them unset, the job runs a scrape-only smoke test and
 # skips persistence.
-#   TSFORGE_BUCKET          target bucket name, e.g. "tsforge-raw"
-#   AWS_ACCESS_KEY_ID       bucket credentials (R2: an R2 API token key)
-#   AWS_SECRET_ACCESS_KEY   bucket credentials
-# OPTIONAL:
-#   S3_ENDPOINT_URL         custom endpoint (R2: https://<acct>.r2.cloudflarestorage.com)
-#   TSFORGE_BUCKET_PREFIX   key prefix inside the bucket (default: none)
-#   AWS_REGION              default "auto" (correct for R2)
+#   HIPPIUS_S3_ACCESS_KEY   Hippius S3 access key
+#   HIPPIUS_S3_SECRET_KEY   Hippius S3 secret key
+# OPTIONAL (sync_storage.py defaults shown):
+#   HIPPIUS_S3_ENDPOINT     https://s3.hippius.com
+#   HIPPIUS_S3_BUCKET       tsbench-forge-sources
 # OPTIONAL source-rate-limit secrets (see src/sources/cron.yaml notes):
 #   SOURCE_GITHUB_TOKEN, STACKEXCHANGE_KEY, REDDIT_USER_AGENT
 
@@ -46,8 +44,8 @@ on:
         required: false
         default: "--all"
 
-# Never let two scrape runs overlap — they'd race on the same day's parquet in
-# the bucket. A new run waits for the in-flight one rather than cancelling it.
+# Never let two scrape runs overlap — they'd race on the same day's parquet.
+# A new run waits for the in-flight one rather than cancelling it.
 concurrency:
   group: scrape-data
   cancel-in-progress: false
@@ -57,17 +55,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      TSFORGE_BUCKET: ${{ secrets.TSFORGE_BUCKET }}
-      TSFORGE_BUCKET_PREFIX: ${{ secrets.TSFORGE_BUCKET_PREFIX }}
-      S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION || 'auto' }}
-      # aws-cli v2's default integrity checksums are rejected by some
-      # S3-compatible backends (notably R2); only send them when the operation
-      # actually requires one.
-      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
-      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      HIPPIUS_S3_ACCESS_KEY: ${{ secrets.HIPPIUS_S3_ACCESS_KEY }}
+      HIPPIUS_S3_SECRET_KEY: ${{ secrets.HIPPIUS_S3_SECRET_KEY }}
+      HIPPIUS_S3_ENDPOINT: ${{ secrets.HIPPIUS_S3_ENDPOINT }}
+      HIPPIUS_S3_BUCKET: ${{ secrets.HIPPIUS_S3_BUCKET }}
       # Passed through to the scraper for sources that need auth to lift anon
       # rate limits. Unset secrets resolve to "" and are treated as absent.
       GITHUB_TOKEN: ${{ secrets.SOURCE_GITHUB_TOKEN }}
@@ -81,39 +72,29 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install httpx pyarrow pyyaml pandas numpy
+        run: pip install httpx pyarrow pyyaml pandas numpy boto3
 
-      - name: Install AWS CLI
-        if: env.TSFORGE_BUCKET != ''
-        run: pip install awscli
+      - name: Pull today's archive from Hippius (append target)
+        if: env.HIPPIUS_S3_ACCESS_KEY != ''
+        run: python src/sources/sync_storage.py --download --today
 
-      - name: Pull current day's data from bucket (append target)
-        if: env.TSFORGE_BUCKET != ''
-        run: |
-          DEST="s3://${TSFORGE_BUCKET}${TSFORGE_BUCKET_PREFIX:+/${TSFORGE_BUCKET_PREFIX}}"
-          ENDPOINT_ARGS=""
-          [ -n "${S3_ENDPOINT_URL:-}" ] && ENDPOINT_ARGS="--endpoint-url ${S3_ENDPOINT_URL}"
-          mkdir -p src/sources/data
-          # Sync is a no-op the first ever run (empty prefix); harmless.
-          aws s3 sync "${DEST}/data" src/sources/data --size-only ${ENDPOINT_ARGS}
-
-      - name: Scrape all sources
+      - name: Scrape sources
         # ~90 sources; transient upstream failures are expected and logged to
         # data/<id>/_errors.log. Don't fail the whole run — still publish what
-        # succeeded. A hard failure (network down) is visible as a red step.
+        # succeeded. A hard failure (network down) shows as a red step.
         continue-on-error: true
         run: python src/sources/scraper.py ${{ github.event.inputs.scraper_args || '--all' }}
 
-      - name: Publish to bucket
-        if: env.TSFORGE_BUCKET != ''
-        run: sh scripts/publish_data_bucket.sh
+      - name: Mirror to Hippius
+        if: env.HIPPIUS_S3_ACCESS_KEY != ''
+        run: python src/sources/sync_storage.py
 
-      - name: Smoke-test notice (no bucket configured)
-        if: env.TSFORGE_BUCKET == ''
+      - name: Smoke-test notice (no Hippius credentials)
+        if: env.HIPPIUS_S3_ACCESS_KEY == ''
         run: |
-          echo "TSFORGE_BUCKET secret is not set — ran a scrape-only smoke test."
-          echo "Set TSFORGE_BUCKET + AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY"
-          echo "(and S3_ENDPOINT_URL for R2/MinIO) to persist the output."
+          echo "HIPPIUS_S3_ACCESS_KEY / HIPPIUS_S3_SECRET_KEY are not set —"
+          echo "ran a scrape-only smoke test; nothing was persisted."
+          echo "Add those repo secrets to enable the Hippius mirror."
 
       - name: Upload scrape error logs
         if: always()
