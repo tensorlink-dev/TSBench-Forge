@@ -1,0 +1,125 @@
+# Scheduled scrape of the live source catalog.
+#
+# Runs `scraper.py --all` on a schedule and publishes the dated parquet +
+# sources.yaml to a private S3-compatible bucket (AWS S3 / Cloudflare R2 /
+# MinIO) via scripts/publish_data_bucket.sh.
+#
+# WHY THE BUCKET ROUND-TRIP: GitHub-hosted runners are ephemeral and
+# src/sources/data/ is gitignored, so nothing persists between runs on the
+# runner itself. The scraper appends+dedupes into data/<id>/<UTC-date>.parquet,
+# which assumes the day's file is already on disk. So each run first PULLS the
+# current day's data from the bucket, scrapes (appending), then PUSHES back.
+# Without the pull, the second run of a UTC day would overwrite that day's file
+# with only its own rows.
+#
+# RESOLUTION NOTE: a 12h poll captures only ~2 points/day for snapshot sources
+# whose timestamp == now() (the 1-min / 5-min feeds in cron.yaml). Sources that
+# return a rolling window (NOAA 6-min, hourly candles, daily files) are
+# unaffected — dedup on the timestamp backfills the whole window each poll. If
+# you need the sub-hourly feeds at native resolution, run cron.yaml on a
+# persistent host; keep this workflow as the reliable coarse baseline.
+#
+# REQUIRED REPO SECRETS (Settings -> Secrets and variables -> Actions) to
+# enable publishing. With none set, the job runs a scrape-only smoke test and
+# skips persistence.
+#   TSFORGE_BUCKET          target bucket name, e.g. "tsforge-raw"
+#   AWS_ACCESS_KEY_ID       bucket credentials (R2: an R2 API token key)
+#   AWS_SECRET_ACCESS_KEY   bucket credentials
+# OPTIONAL:
+#   S3_ENDPOINT_URL         custom endpoint (R2: https://<acct>.r2.cloudflarestorage.com)
+#   TSFORGE_BUCKET_PREFIX   key prefix inside the bucket (default: none)
+#   AWS_REGION              default "auto" (correct for R2)
+# OPTIONAL source-rate-limit secrets (see src/sources/cron.yaml notes):
+#   SOURCE_GITHUB_TOKEN, STACKEXCHANGE_KEY, REDDIT_USER_AGENT
+
+name: Scrape live sources
+
+on:
+  schedule:
+    # Every 12h at an off-peak minute (01:17 and 13:17 UTC). Change to
+    # "17 */6 * * *" for 6h or "17 5 * * *" for once daily.
+    - cron: "17 1,13 * * *"
+  workflow_dispatch:
+    inputs:
+      scraper_args:
+        description: "Args passed to scraper.py (e.g. --all, --domain energy, --id binance_btcusdt_1m)"
+        required: false
+        default: "--all"
+
+# Never let two scrape runs overlap — they'd race on the same day's parquet in
+# the bucket. A new run waits for the in-flight one rather than cancelling it.
+concurrency:
+  group: scrape-data
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TSFORGE_BUCKET: ${{ secrets.TSFORGE_BUCKET }}
+      TSFORGE_BUCKET_PREFIX: ${{ secrets.TSFORGE_BUCKET_PREFIX }}
+      S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION || 'auto' }}
+      # aws-cli v2's default integrity checksums are rejected by some
+      # S3-compatible backends (notably R2); only send them when the operation
+      # actually requires one.
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      # Passed through to the scraper for sources that need auth to lift anon
+      # rate limits. Unset secrets resolve to "" and are treated as absent.
+      GITHUB_TOKEN: ${{ secrets.SOURCE_GITHUB_TOKEN }}
+      STACKEXCHANGE_KEY: ${{ secrets.STACKEXCHANGE_KEY }}
+      REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install httpx pyarrow pyyaml pandas numpy
+
+      - name: Install AWS CLI
+        if: env.TSFORGE_BUCKET != ''
+        run: pip install awscli
+
+      - name: Pull current day's data from bucket (append target)
+        if: env.TSFORGE_BUCKET != ''
+        run: |
+          DEST="s3://${TSFORGE_BUCKET}${TSFORGE_BUCKET_PREFIX:+/${TSFORGE_BUCKET_PREFIX}}"
+          ENDPOINT_ARGS=""
+          [ -n "${S3_ENDPOINT_URL:-}" ] && ENDPOINT_ARGS="--endpoint-url ${S3_ENDPOINT_URL}"
+          mkdir -p src/sources/data
+          # Sync is a no-op the first ever run (empty prefix); harmless.
+          aws s3 sync "${DEST}/data" src/sources/data --size-only ${ENDPOINT_ARGS}
+
+      - name: Scrape all sources
+        # ~90 sources; transient upstream failures are expected and logged to
+        # data/<id>/_errors.log. Don't fail the whole run — still publish what
+        # succeeded. A hard failure (network down) is visible as a red step.
+        continue-on-error: true
+        run: python src/sources/scraper.py ${{ github.event.inputs.scraper_args || '--all' }}
+
+      - name: Publish to bucket
+        if: env.TSFORGE_BUCKET != ''
+        run: sh scripts/publish_data_bucket.sh
+
+      - name: Smoke-test notice (no bucket configured)
+        if: env.TSFORGE_BUCKET == ''
+        run: |
+          echo "TSFORGE_BUCKET secret is not set — ran a scrape-only smoke test."
+          echo "Set TSFORGE_BUCKET + AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY"
+          echo "(and S3_ENDPOINT_URL for R2/MinIO) to persist the output."
+
+      - name: Upload scrape error logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrape-errors
+          path: src/sources/data/**/_errors.log
+          if-no-files-found: ignore
+          retention-days: 14
