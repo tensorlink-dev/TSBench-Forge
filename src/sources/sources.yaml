@@ -133,6 +133,10 @@
   notes: "Calibration baseline. For novelty, switch to long-tail coin id or Polymarket."
 
 - id: binance_btcusdt_1m
+  disabled: true
+  disabled_reason: >-
+    2026-07-11: swapped to coinbase_spot_1m (operator request — move off Binance).
+    Accumulated parquet under data/binance_btcusdt_1m/ retained for history.
   name: Binance crypto-pairs 1-minute klines (10-symbol panel)
   domain: econ_fin
   dgp_class: market_price
@@ -1848,6 +1852,10 @@
   notes: "Single-call snapshot — must poll. Sister endpoints: /api/v1/fees/recommended, /api/blocks."
 
 - id: binance_btcusdt_funding_rate
+  disabled: true
+  disabled_reason: >-
+    2026-07-11: swapped to coinbase_intx_btc_funding (operator request — move off Binance).
+    Accumulated parquet under data/binance_btcusdt_funding_rate/ retained for history.
   name: Binance BTCUSDT perpetual-futures funding rate
   domain: econ_fin
   dgp_class: market_price
@@ -5386,3 +5394,107 @@
     station's mindatetime. API spec: https://api.datalakes-eawag.ch/docs. Axis mapping per
     dataset via /datasetparameters?datasets_id={id}. Ephemeral file ids rule out wiring
     the raw daily files directly.
+
+# ============================================================================
+# 2026-07-11 — Binance -> Coinbase swap (operator request)
+# ============================================================================
+
+- id: coinbase_spot_1m
+  name: Coinbase Exchange 1-minute candles (10-symbol panel)
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [non_stationary_regime, chaotic_nonlinear, noisy_clean_pair]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.exchange.coinbase.com/products/{PRODUCT}/candles?granularity=60
+    auth: none
+    rate_limit: "10 req/s"
+  panel:
+    - {PRODUCT: BTC-USD}
+    - {PRODUCT: ETH-USD}
+    - {PRODUCT: SOL-USD}
+    - {PRODUCT: BNB-USD}
+    - {PRODUCT: XRP-USD}
+    - {PRODUCT: ADA-USD}
+    - {PRODUCT: DOGE-USD}
+    - {PRODUCT: AVAX-USD}
+    - {PRODUCT: POL-USD}    # MATIC's successor; MATIC-USD candles frozen 2025-10-14
+    - {PRODUCT: LINK-USD}
+  schema:
+    timestamp_field: "[][0]"    # epoch s
+    value_field: ["[][1]","[][2]","[][3]","[][4]","[][5]"]   # low,high,open,close,volume
+    variates: 5
+  history_available: P10Y
+  update_cadence_observed: "1 minute; 350 candles per request"
+  pretraining_novelty: partial
+  novelty_notes: "Major-pair 1m bars partially contaminated; replaces binance_btcusdt_1m (same panel role, US-jurisdiction exchange)."
+  license: "Coinbase market data ToS — research use ok"
+  sample_path: samples/coinbase_spot_1m.json
+  verification:
+    last_verified: 2026-07-11T10:35:00Z
+    sample_rows: 350
+    sample_freshness_hours: 0.05
+  notes: "Candle order is [time, low, high, open, close, volume] — NOT OHLCV. All 10 products probed live 2026-07-11 (BNB-USD is listed on Coinbase despite being Binance's token). Use ?start=&end= (ISO) for paging, 350-candle cap."
+
+- id: coinbase_intx_btc_funding
+  disabled: true
+  disabled_reason: >-
+    2026-07-11: FAILS the data admission gate — INTX clamps funding hard, so the
+    rate series is ~99% repeated values (unique_ratio 0.0095 over 6000 hourly
+    events vs 0.05 floor); a quantized near-constant is not a forecasting target.
+    6000-event backfill retained under data/. If funding-dynamics coverage is
+    wanted, OKX funding-rate-history probed keyless with 96/100 unique values
+    (offshore exchange — operator call).
+  name: Coinbase International (INTX) BTC-PERP hourly funding rate
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [chaotic_nonlinear, non_stationary_regime, bounded]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.international.coinbase.com/api/v1/instruments/BTC-PERP/funding?result_limit=100
+    auth: none
+    rate_limit: unspecified
+  schema:
+    timestamp_field: "results[].event_time"
+    value_field: ["results[].funding_rate", "results[].mark_price"]
+    variates: 2
+  history_available: P3Y
+  update_cadence_observed: "hourly funding events; 87/100 nonzero at probe"
+  pretraining_novelty: clean
+  novelty_notes: "INTX (launched 2023) hourly funding series absent from TSFM corpora; replaces binance_btcusdt_funding_rate at 8x the cadence."
+  license: "Coinbase market data ToS — research use ok"
+  sample_path: samples/coinbase_intx_btc_funding.json
+  verification:
+    last_verified: 2026-07-11T10:35:00Z
+    sample_rows: 100
+    sample_freshness_hours: 0.6
+  notes: "Keyless public endpoint. result_offset pages history. mark_price rides along as a second variate. ETH-PERP etc. available via /instruments/{X}-PERP/funding."
+
+- id: kraken_futures_btc_funding
+  name: Kraken Futures PF_XBTUSD hourly funding rate
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [chaotic_nonlinear, non_stationary_regime, bounded]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://futures.kraken.com/derivatives/api/v4/historicalfundingrates?symbol=PF_XBTUSD
+    auth: none
+    rate_limit: "public endpoint; poll hourly"
+  schema:
+    timestamp_field: "rates[].timestamp"
+    value_field: ["rates[].relativeFundingRate", "rates[].fundingRate"]
+    variates: 2
+  history_available: P1Y
+  update_cadence_observed: "hourly; one request returns ~1 year (8969 events, 8965 unique rates at probe)"
+  pretraining_novelty: clean
+  novelty_notes: "Kraken perp funding series absent from TSFM corpora; replaces binance_btcusdt_funding_rate — Kraken is US-accessible (the reason for the Binance swap), unlike OKX/Bybit/INTX."
+  license: "Kraken Futures public market data — research use ok"
+  sample_path: samples/kraken_futures_btc_funding.json
+  verification:
+    last_verified: 2026-07-11T10:55:00Z
+    sample_rows: 8969
+    sample_freshness_hours: 1.0
+  notes: "relativeFundingRate is the per-period rate (the funding signal); fundingRate is the absolute USD figure. Full year in one response — no paging needed, admission-eligible from the first scrape. Other perps: PF_ETHUSD etc."

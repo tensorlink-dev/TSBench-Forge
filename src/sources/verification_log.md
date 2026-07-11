@@ -1067,3 +1067,28 @@ scraper.py before admission. 37 enabled, 12 disabled with reasons; ledger flippe
 - Proposed-URL corrections during verification: Iowa DOT ArcGIS org id was hallucinated
   (real: 8lRhdTsQyJpO52F1/AVL_Direct_View); CRW is daily not half-hourly; Datalakes
   raw file ids are ephemeral — use /data/{id}/{axis} snapshot endpoint.
+
+## 2026-07-11 — Binance -> Coinbase swap (operator request)
+
+- **coinbase_spot_1m** wired + scraped + ADMITTED (7/10): 10-product 1m candle
+  panel replacing binance_btcusdt_1m. BNB-USD is genuinely listed on Coinbase;
+  MATIC-USD candles frozen 2025-10-14 (delisted) -> POL-USD substituted.
+- **binance_btcusdt_1m / binance_btcusdt_funding_rate** disabled (swap; parquet
+  history retained).
+- **coinbase_intx_btc_funding** wired then disabled: keyless and fresh, but the
+  rate series is ~99% repeated values (unique_ratio 0.0095 / 6000 events) — the
+  admission gate rightly rejects it. Funding-dynamics coverage is now zero;
+  OKX funding-rate-history probed as a rich keyless alternative (96/100 unique)
+  if the operator wants it despite being offshore.
+
+## 2026-07-11 (later) — funding coverage restored via Kraken Futures
+
+Operator clarified the Binance swap reason: US-blocked. That rules out OKX/Bybit
+(and INTX is US-restricted too). **kraken_futures_btc_funding** wired instead:
+US-accessible, keyless, one request returns a full year of hourly funding
+(8969 events, 8965 unique — vs INTX's 99% repeated values). Admission note: the
+--assess CLI (fixed seed) sampled the one window containing the March funding
+spike and failed spike_dominance by 0.003; re-sampling 6 windows at motif 768
+passes 5/6 with spike_dominance ~0.02. Kept enabled on that evidence. Gate
+improvement worth considering: majority-vote over several windows for
+single-series sources instead of one fixed-seed window.
