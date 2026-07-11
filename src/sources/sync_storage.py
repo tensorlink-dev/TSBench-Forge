@@ -1,9 +1,10 @@
-"""Mirror the scraped parquet archive to/from an S3-compatible bucket (Hippius).
+"""Mirror the scraped forge dir to/from an S3-compatible bucket (Hippius).
 
-The dated parquet under ``src/sources/data`` is the benchmark's accumulating
-asset — freshness history, unseen-weight provenance, and future contiguity for
-the fast bins — and without this step it exists as a single copy on the scrape
-host. Run after a scrape (or from the same cron):
+The dated parquet under ``src/sources/data`` — plus the ``sources.yaml`` catalog
+that interprets it — is the benchmark's accumulating asset (freshness history,
+unseen-weight provenance, future contiguity for the fast bins), and without this
+step it exists as a single copy on the scrape host. Run after a scrape (or from
+the same cron):
 
     set -a; source .env; set +a
     python src/sources/sync_storage.py                    # upload new/changed
@@ -16,17 +17,25 @@ Environment (``.env``):
     HIPPIUS_S3_ENDPOINT     default https://s3.hippius.com
     HIPPIUS_S3_BUCKET       default tsbench-forge-sources
 
+Bucket layout — the mirror reproduces the forge dir so the bucket is a drop-in
+relay for a downstream consumer (cascade's eval-pool publisher does
+``aws s3 sync s3://<bucket> ./tsforge`` and reads ``./tsforge/sources.yaml`` +
+``./tsforge/data/<id>/<date>.parquet``):
+
+    sources.yaml                       <- the catalog, at the bucket root
+    data/<source_id>/<YYYY-MM-DD>.parquet
+
 Sync rule: transfer when the object is missing on the destination or the size
 differs — today's parquet grows as re-scrapes append, so a size change means
 new rows. Objects are never deleted; the bucket is an append-only mirror.
 
-``--download`` runs the mirror in reverse (remote -> local), pulling objects
-whose local copy is missing or a different size. It exists for ephemeral
-runners (GitHub Actions): pull the current day's parquet down before scraping
-so the scraper appends to it, rather than starting empty and later overwriting
-the day's remote object. ``--today`` restricts the pull to
-``*/<UTC-today>.parquet`` — the only files a fresh scrape will touch — so the
-transfer stays small.
+``--download`` runs the mirror in reverse (remote -> local), pulling ``data/``
+parquet whose local copy is missing or a different size. It exists for ephemeral
+runners (GitHub Actions): pull the current day's parquet down before scraping so
+the scraper appends to it, rather than starting empty and later overwriting the
+day's remote object. ``--today`` restricts the pull to ``data/*/<UTC-today>.parquet``
+— the only files a fresh scrape will touch — so the transfer stays small.
+(``sources.yaml`` is not downloaded; a scrape run already has it from checkout.)
 """
 
 from __future__ import annotations
@@ -37,7 +46,11 @@ import os
 import sys
 from pathlib import Path
 
-DATA_DIR = Path(__file__).parent / "data"
+# The forge dir holds ``sources.yaml`` and ``data/``; the mirror is rooted here
+# so bucket keys are forge-dir-relative (``sources.yaml``, ``data/<id>/...``).
+FORGE_DIR = Path(__file__).parent
+DATA_DIR = FORGE_DIR / "data"
+CATALOG_NAME = "sources.yaml"
 DEFAULT_ENDPOINT = "https://s3.hippius.com"
 DEFAULT_BUCKET = "tsbench-forge-sources"
 
@@ -76,10 +89,14 @@ def _remote_sizes(s3, bucket: str) -> dict[str, int]:
         token = resp.get("NextContinuationToken")
 
 
-def _upload(s3, bucket: str, data: Path, dry_run: bool) -> int:
-    local = sorted(p for p in data.rglob("*.parquet"))
+def _upload(s3, bucket: str, forge_dir: Path, dry_run: bool) -> int:
+    data = forge_dir / "data"
+    catalog = forge_dir / CATALOG_NAME
+    # Catalog first in the manifest so a consumer that lists the bucket sees the
+    # file it needs to interpret the data; upload order does the same (below).
+    local = ([catalog] if catalog.is_file() else []) + sorted(data.rglob("*.parquet"))
     if not local:
-        sys.exit(f"no parquet under {data}")
+        sys.exit(f"nothing to upload under {forge_dir} (no {CATALOG_NAME}, no parquet)")
 
     try:
         s3.head_bucket(Bucket=bucket)
@@ -104,10 +121,14 @@ def _upload(s3, bucket: str, data: Path, dry_run: bool) -> int:
 
     uploaded = skipped = failed = 0
     up_bytes = 0
+    # Parquet is append-only (skip on size match); the catalog is rewritten in
+    # place each scrape, so always re-upload it — its size can be unchanged
+    # while contents differ (e.g. a disabled flag flip).
     for p in local:
-        key = str(p.relative_to(data))
+        key = str(p.relative_to(forge_dir))
         size = p.stat().st_size
-        if remote.get(key) == size:
+        is_catalog = key == CATALOG_NAME
+        if not is_catalog and remote.get(key) == size:
             skipped += 1
             continue
         if dry_run:
@@ -129,7 +150,7 @@ def _upload(s3, bucket: str, data: Path, dry_run: bool) -> int:
     return 1 if failed else 0
 
 
-def _download(s3, bucket: str, data: Path, dry_run: bool, only_date: str | None) -> int:
+def _download(s3, bucket: str, forge_dir: Path, dry_run: bool, only_date: str | None) -> int:
     try:
         s3.head_bucket(Bucket=bucket)
     except Exception:
@@ -147,9 +168,9 @@ def _download(s3, bucket: str, data: Path, dry_run: bool, only_date: str | None)
     for key, size in sorted(remote.items()):
         if not key.endswith(".parquet"):
             continue
-        if suffix and not (key.endswith(suffix) or key == f"{only_date}.parquet"):
+        if suffix and not key.endswith(suffix):
             continue
-        dest = data / key
+        dest = forge_dir / key
         if dest.exists() and dest.stat().st_size == size:
             skipped += 1
             continue
@@ -176,24 +197,25 @@ def _download(s3, bucket: str, data: Path, dry_run: bool, only_date: str | None)
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--data-dir", default=str(DATA_DIR))
+    ap.add_argument("--data-dir", default=str(DATA_DIR),
+                    help="the forge data/ dir; its parent (holding sources.yaml) is the sync root")
     ap.add_argument("--bucket", default=os.environ.get("HIPPIUS_S3_BUCKET", DEFAULT_BUCKET))
     ap.add_argument("--download", action="store_true",
                     help="pull remote -> local (missing or size-changed) instead of uploading")
     ap.add_argument("--today", action="store_true",
-                    help="with --download, only pull */<UTC-today>.parquet (the scrape's append target)")
+                    help="with --download, only pull data/*/<UTC-today>.parquet (the scrape's append target)")
     ap.add_argument("--dry-run", action="store_true", help="list what would transfer, transfer nothing")
     args = ap.parse_args()
 
-    data = Path(args.data_dir)
+    forge_dir = Path(args.data_dir).resolve().parent
     s3 = _client()
 
     if args.download:
-        data.mkdir(parents=True, exist_ok=True)
+        (forge_dir / "data").mkdir(parents=True, exist_ok=True)
         only_date = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d") if args.today else None
-        return _download(s3, args.bucket, data, args.dry_run, only_date)
+        return _download(s3, args.bucket, forge_dir, args.dry_run, only_date)
 
-    return _upload(s3, args.bucket, data, args.dry_run)
+    return _upload(s3, args.bucket, forge_dir, args.dry_run)
 
 
 if __name__ == "__main__":
