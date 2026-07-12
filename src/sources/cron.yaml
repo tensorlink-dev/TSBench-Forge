@@ -71,6 +71,7 @@ schedules:
       - geoscience_aus_earthquakes
       - lobsters_hottest              # 2026-07-10 batch
       - datalakes_eawag_lake_obs      # 2026-07-10 batch; stations update 10-60 min
+      - coinbase_spot_15m             # 2026-07-12; replaces binance_btcusdt_15m (US-accessible)
     cron: "*/15 * * * *"
 
   - every: PT30M

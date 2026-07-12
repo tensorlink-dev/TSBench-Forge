@@ -1092,3 +1092,20 @@ spike and failed spike_dominance by 0.003; re-sampling 6 windows at motif 768
 passes 5/6 with spike_dominance ~0.02. Kept enabled on that evidence. Gate
 improvement worth considering: majority-vote over several windows for
 single-series sources instead of one fixed-seed window.
+
+## 2026-07-12 — retire remaining Binance interval feeds (operator request)
+
+Operator asked to replace the two still-enabled Binance klines feeds with
+Coinbase/OKX. OKX/Bybit remain ruled out (US-blocked, per the 2026-07-11 note).
+
+- **coinbase_spot_15m** wired + scraped + ADMITTED (10/10 series, discrimination
+  spread 0.177). 10-product 15m candle panel (granularity=900), same panel as
+  coinbase_spot_1m; all 10 products probed live from a US host. Replaces
+  binance_btcusdt_15m; added to cron.yaml PT15M band.
+- **binance_btcusdt_15m** disabled (swap; parquet history retained).
+- **binance_btcusdt_30m** disabled. Coinbase has NO 30m granularity
+  (granularity=1800 → HTTP 400 "Unsupported granularity"), so no like-for-like
+  Coinbase swap exists. PT30M crypto coverage is already served by the working
+  bitfinex_btcusd_30m_candles, so 30m is retired there rather than re-homed. (If
+  a multi-symbol 30m panel is wanted back, Kraken spot OHLC interval=30 is
+  US-accessible — probed live, 721 rows — but has fiddly pair-name mapping.)
