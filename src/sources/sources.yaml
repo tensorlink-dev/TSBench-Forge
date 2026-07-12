@@ -2164,6 +2164,10 @@
 # ============================================================================
 
 - id: binance_btcusdt_15m
+  disabled: true
+  disabled_reason: >-
+    2026-07-12: swapped to coinbase_spot_15m (operator request — move off Binance,
+    US-blocked). Accumulated parquet under data/binance_btcusdt_15m/ retained.
   name: Binance BTCUSDT 15-minute klines
   domain: econ_fin
   dgp_class: market_price
@@ -2199,6 +2203,11 @@
     sample_freshness_hours: 0.05
 
 - id: binance_btcusdt_30m
+  disabled: true
+  disabled_reason: >-
+    2026-07-12: disabled (operator request — move off Binance, US-blocked).
+    Coinbase has no 30m granularity; PT30M crypto coverage is served by the
+    working bitfinex_btcusd_30m_candles. Accumulated parquet retained.
   name: Binance crypto-pairs 30-minute klines (8-symbol panel)
   domain: econ_fin
   dgp_class: market_price
@@ -5436,6 +5445,44 @@
     sample_rows: 350
     sample_freshness_hours: 0.05
   notes: "Candle order is [time, low, high, open, close, volume] — NOT OHLCV. All 10 products probed live 2026-07-11 (BNB-USD is listed on Coinbase despite being Binance's token). Use ?start=&end= (ISO) for paging, 350-candle cap."
+
+- id: coinbase_spot_15m
+  name: Coinbase Exchange 15-minute candles (10-symbol panel)
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes: [non_stationary_regime, chaotic_nonlinear]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.exchange.coinbase.com/products/{PRODUCT}/candles?granularity=900
+    auth: none
+    rate_limit: "10 req/s"
+  panel:
+    - {PRODUCT: BTC-USD}
+    - {PRODUCT: ETH-USD}
+    - {PRODUCT: SOL-USD}
+    - {PRODUCT: BNB-USD}
+    - {PRODUCT: XRP-USD}
+    - {PRODUCT: ADA-USD}
+    - {PRODUCT: DOGE-USD}
+    - {PRODUCT: AVAX-USD}
+    - {PRODUCT: POL-USD}    # MATIC's successor; MATIC-USD candles frozen 2025-10-14
+    - {PRODUCT: LINK-USD}
+  schema:
+    timestamp_field: "[][0]"    # epoch s
+    value_field: ["[][1]","[][2]","[][3]","[][4]","[][5]"]   # low,high,open,close,volume
+    variates: 5
+  history_available: P10Y
+  update_cadence_observed: "15 min; 350 candles per request"
+  pretraining_novelty: partial
+  novelty_notes: "Major-pair 15m bars partially contaminated; replaces binance_btcusdt_15m (same panel role, US-jurisdiction exchange)."
+  license: "Coinbase market data ToS — research use ok"
+  sample_path: samples/coinbase_spot_15m.json
+  verification:
+    last_verified: 2026-07-12T06:50:00Z
+    sample_rows: 350
+    sample_freshness_hours: 0.05
+  notes: "Candle order is [time, low, high, open, close, volume] — NOT OHLCV. All 10 products probed live 2026-07-12 at granularity=900. Coinbase has no 30m granularity, so binance_btcusdt_30m is retired to bitfinex_btcusd_30m_candles rather than swapped here."
 
 - id: coinbase_intx_btc_funding
   disabled: true
