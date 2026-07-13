@@ -52,15 +52,32 @@ python src/sources/scraper.py --id binance_btcusdt_1m --dry-run # fetch+parse, n
 
 ### Publishing the mirror to a bucket
 
-`scripts/publish_data_bucket.sh` syncs `data/` + `sources.yaml` to a
-**private** S3-compatible bucket (AWS, Cloudflare R2, MinIO) so a downstream
-consumer — e.g. cascade's held-out eval-pool publisher (`cascade-pool publish
---sources tsbench_forge`) — can mirror the catalog without access to this
-host. Append it to the scrape cron:
+The canonical relay is `src/sources/sync_storage.py`: a boto3 mirror of
+`data/` + `sources.yaml` to one **private** S3-compatible bucket — default
+`tsbench-forge-sources` on Hippius (`https://s3.hippius.com`), credentials
+`HIPPIUS_S3_ACCESS_KEY` / `HIPPIUS_S3_SECRET_KEY`, overridable via
+`HIPPIUS_S3_ENDPOINT` / `HIPPIUS_S3_BUCKET`. The scheduled scrape workflow
+(`.github/workflows/scrape-data.yml`) runs it after every scrape, so the
+bucket tracks the catalog with no operator involvement.
+
+The downstream consumer — cascade's held-out eval-pool publisher
+(`cascade-pool publish --sources tsbench_forge`, see cascade's
+`docs/EVAL_POOL.md`) — syncs the **same** bucket down:
 
 ```bash
-0 * * * *  python src/sources/scraper.py --all && TSFORGE_BUCKET=tsforge-raw scripts/publish_data_bucket.sh
+AWS_ACCESS_KEY_ID=$HIPPIUS_S3_ACCESS_KEY AWS_SECRET_ACCESS_KEY=$HIPPIUS_S3_SECRET_KEY \
+  aws s3 sync s3://tsbench-forge-sources ./tsforge --endpoint-url https://s3.hippius.com
 ```
+
+Only the owner orchestrator holds these credentials. Subnet validators never
+read this bucket — they consume the built pool snapshots cascade publishes
+downstream, so forge access stays a producer-side secret.
+
+`scripts/publish_data_bucket.sh` remains as the aws-cli alternative for a
+self-managed relay (AWS, Cloudflare R2, MinIO). If you use it, point
+`TSFORGE_BUCKET` / `S3_ENDPOINT_URL` at the same bucket the consumer syncs
+from — producer and consumer must share one bucket contract, or the consumer
+syncs a bucket nothing populates.
 
 The dated, append-only parquet layout makes the sync idempotent, and the dated
 bucket doubles as an audit trail: any consumer build pinned to an `as_of` can
