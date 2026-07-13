@@ -1,8 +1,14 @@
 #!/usr/bin/env sh
 # Publish the scraper's output to a private S3-compatible bucket, so a
 # downstream consumer (e.g. cascade's eval-pool publisher) can mirror the
-# catalog + dated parquet without touching this host. Append this to the
-# scrape cron:
+# catalog + dated parquet without touching this host.
+#
+# NOTE: the canonical automated relay is src/sources/sync_storage.py (run by
+# .github/workflows/scrape-data.yml after every scheduled scrape, targeting
+# the Hippius bucket `tsbench-forge-sources`). This script is the aws-cli
+# alternative for a self-managed relay — if you use it, TSFORGE_BUCKET /
+# S3_ENDPOINT_URL must name the same bucket the consumer syncs from, or the
+# consumer will sync a bucket nothing populates. Append to a scrape cron:
 #
 #   0 * * * *  python src/sources/scraper.py --all && TSFORGE_BUCKET=... scripts/publish_data_bucket.sh
 #
