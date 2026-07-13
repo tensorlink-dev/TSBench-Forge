@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Render a small-multiples gallery of the scraped series (most recent points).
+"""Render the scraped series as paginated small-multiples galleries.
 
-    PYTHONPATH=src python3 scripts/plot_series_gallery.py [--n 20] [--points 1000]
+    PYTHONPATH=src python3 scripts/plot_series_gallery.py                # ALL series, 16/page
+    PYTHONPATH=src python3 scripts/plot_series_gallery.py --sample 20   # one-page sample
 
-Picks one series per source — every 2026-07 batch source first, then a
-deterministic domain-diverse sample of the rest — and plots each one's most
-recent <=points observations. Output: notebooks/figures/series_gallery.png
+Every panel-expanded series in the catalog gets a facet showing its most
+recent <=points observations, extracted through the benchmark's own loader so
+panels show exactly what the eval serves. Pages are written to
+notebooks/figures/series_gallery/page_NN.png (sample mode: series_gallery.png).
 """
 from __future__ import annotations
 
@@ -50,7 +52,6 @@ def tail_series(src, spec, n_points):
                 break
     # Year-less feed stamps (e.g. GLERL "MM-DD") can parse into nonsense dates;
     # keep only plausibly-modern timestamps.
-    import pandas as pd
     lo, hi = pd.Timestamp("2000-01-01", tz="UTC"), pd.Timestamp("2100-01-01", tz="UTC")
     keep = ts.notna() & (ts >= lo) & (ts < hi)
     if keep.mean() < 0.5:
@@ -76,11 +77,49 @@ def tail_series(src, spec, n_points):
     return vals, stamps
 
 
+def draw_panel(ax, mdates, spec, vals, stamps):
+    ax.plot(stamps, vals, color=LINE, lw=1.0)
+    pk = spec.get("panel_row") or {}
+    sub = next(iter(pk.values()), "")
+    title = spec["source_id"] + (f" · {str(sub)[:22]}" if sub else "")
+    ax.set_title(title, fontsize=8.5, color=INK, loc="left", pad=3)
+    span = (stamps[-1] - stamps[0]).astype("timedelta64[h]").astype(int)
+    span_txt = f"{span/24:.1f}d" if span >= 48 else f"{span}h"
+    ax.text(0.995, 0.98, f"{len(vals)} pts · {span_txt} · {spec['domain']}",
+            transform=ax.transAxes, ha="right", va="top", fontsize=7, color=MUTED)
+    ax.grid(True, color=GRID, lw=0.5)
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color(GRID)
+    ax.tick_params(labelsize=7, colors=MUTED, length=2)
+    loc = mdates.AutoDateLocator(maxticks=4)
+    ax.xaxis.set_major_locator(loc)
+    ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(loc))
+
+
+def render_page(plt, mdates, panels, title, out_path, per_row=4):
+    nrows = max(1, int(np.ceil(len(panels) / per_row)))
+    fig, axes = plt.subplots(nrows, per_row, figsize=(16, 3.0 * nrows), dpi=150,
+                             squeeze=False)
+    fig.patch.set_facecolor("white")
+    for ax, (spec, vals, stamps) in zip(axes.flat, panels):
+        draw_panel(ax, mdates, spec, vals, stamps)
+    for ax in axes.flat[len(panels):]:
+        ax.axis("off")
+    fig.suptitle(title, fontsize=12, color=INK, x=0.01, ha="left", y=0.998)
+    fig.tight_layout(rect=(0, 0, 1, 0.985))
+    fig.savefig(out_path, bbox_inches="tight")
+    plt.close(fig)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--n", type=int, default=20)
+    ap.add_argument("--sample", type=int, default=0,
+                    help="plot only N series on one page (default: ALL series, paginated)")
+    ap.add_argument("--per-page", type=int, default=16)
     ap.add_argument("--points", type=int, default=1000)
-    ap.add_argument("--out", default=str(REPO / "notebooks/figures/series_gallery.png"))
+    ap.add_argument("--out-dir", default=str(REPO / "notebooks/figures/series_gallery"))
     args = ap.parse_args()
 
     import matplotlib
@@ -96,64 +135,50 @@ def main() -> int:
     for s in specs:
         by_source.setdefault(s["source_id"], []).append(s)
 
-    candidates: list[dict] = []
+    # Order: priority sources first, then the rest alphabetically; panel rows
+    # stay grouped under their source so facets read source-by-source.
+    ordered: list[dict] = []
     for sid in PRIORITY:
-        if sid in by_source:
-            candidates.append(by_source[sid][0])
-    rng = np.random.default_rng(20260713)
-    rest = [sid for sid in sorted(by_source) if sid not in PRIORITY]
-    # domain-diverse fill: round-robin over domains
-    by_domain: dict[str, list[str]] = {}
-    for sid in rest:
-        by_domain.setdefault(by_source[sid][0]["domain"], []).append(sid)
-    for sids in by_domain.values():
-        rng.shuffle(sids)
-    while any(by_domain.values()):
-        for d in sorted(by_domain):
-            if by_domain[d]:
-                candidates.append(by_source[by_domain[d].pop()][0])
+        ordered.extend(by_source.get(sid, []))
+    for sid in sorted(by_source):
+        if sid not in PRIORITY:
+            ordered.extend(by_source[sid])
 
-    # Extract first; only successfully-extracted series get a panel.
-    picked: list[tuple[dict, np.ndarray, np.ndarray]] = []
-    for spec in candidates:
-        if len(picked) >= args.n:
-            break
+    if args.sample:
+        # one series per source until --sample panels, single page
+        seen: set[str] = set()
+        ordered = [s for s in ordered if not (s["source_id"] in seen or seen.add(s["source_id"]))]
+        ordered = ordered[: args.sample]
+
+    panels: list[tuple[dict, np.ndarray, np.ndarray]] = []
+    skipped = 0
+    for spec in ordered:
         got = tail_series(src, spec, args.points)
-        if got is not None:
-            picked.append((spec, *got))
+        if got is None:
+            skipped += 1
+            continue
+        panels.append((spec, *got))
 
-    ncols, nrows = 4, int(np.ceil(len(picked) / 4))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(16, 3.0 * nrows), dpi=150)
-    fig.patch.set_facecolor("white")
+    if args.sample:
+        out = REPO / "notebooks/figures/series_gallery.png"
+        render_page(plt, mdates, panels,
+                    f"TSBench-Forge series gallery — most recent ≤{args.points} points per series",
+                    out)
+        print(f"plotted {len(panels)} series ({skipped} skipped) -> {out}")
+        return 0
 
-    plotted = 0
-    for ax, (spec, vals, stamps) in zip(axes.flat, picked):
-        ax.plot(stamps, vals, color=LINE, lw=1.0)
-        pk = spec.get("panel_row") or {}
-        sub = next(iter(pk.values()), "")
-        title = spec["source_id"] + (f" · {str(sub)[:22]}" if sub else "")
-        ax.set_title(title, fontsize=8.5, color=INK, loc="left", pad=3)
-        span = (stamps[-1] - stamps[0]).astype("timedelta64[h]").astype(int)
-        span_txt = f"{span/24:.1f}d" if span >= 48 else f"{span}h"
-        ax.text(0.995, 0.98, f"{len(vals)} pts · {span_txt} · {spec['domain']}",
-                transform=ax.transAxes, ha="right", va="top", fontsize=7, color=MUTED)
-        ax.grid(True, color=GRID, lw=0.5)
-        for side in ("top", "right"):
-            ax.spines[side].set_visible(False)
-        for side in ("left", "bottom"):
-            ax.spines[side].set_color(GRID)
-        ax.tick_params(labelsize=7, colors=MUTED, length=2)
-        ax.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=4))
-        ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(mdates.AutoDateLocator(maxticks=4)))
-        plotted += 1
-    for ax in axes.flat[len(picked):]:
-        ax.axis("off")
-
-    fig.suptitle(f"TSBench-Forge series gallery — most recent ≤{args.points} points per series",
-                 fontsize=12, color=INK, x=0.01, ha="left", y=0.998)
-    fig.tight_layout(rect=(0, 0, 1, 0.985))
-    fig.savefig(args.out, bbox_inches="tight")
-    print(f"plotted {plotted}/{len(picked)} series -> {args.out}")
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for old in out_dir.glob("page_*.png"):
+        old.unlink()
+    pages = [panels[i:i + args.per_page] for i in range(0, len(panels), args.per_page)]
+    for p, chunk in enumerate(pages, 1):
+        out = out_dir / f"page_{p:02d}.png"
+        render_page(plt, mdates, chunk,
+                    f"TSBench-Forge series gallery — page {p}/{len(pages)} "
+                    f"(most recent ≤{args.points} points per series)", out)
+        print(f"page {p:02d}: {len(chunk)} series -> {out}")
+    print(f"total {len(panels)} series on {len(pages)} pages ({skipped} skipped)")
     return 0
 
 
