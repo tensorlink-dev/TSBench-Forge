@@ -202,6 +202,42 @@ def _inputs() -> dict:
     return runner.build_inputs(CATALOG)
 
 
+def test_from_env_blank_model_falls_back_to_default() -> None:
+    # GitHub Actions passes an unset `${{ vars.OPENROUTER_MODEL }}` as "" — the
+    # var is present-but-blank, so it must NOT override the code default (an empty
+    # model is a 400 "No models provided").
+    cfg = llm.OpenRouterConfig.from_env({"OPENROUTER_API_KEY": "k", "OPENROUTER_MODEL": ""})
+    assert cfg.model == llm.OpenRouterConfig.model
+    assert cfg.model  # non-empty
+
+
+def test_from_env_explicit_model_overrides_default() -> None:
+    cfg = llm.OpenRouterConfig.from_env(
+        {"OPENROUTER_API_KEY": "k", "OPENROUTER_MODEL": "vendor/some-model"}
+    )
+    assert cfg.model == "vendor/some-model"
+
+
+def test_from_env_blank_numeric_envs_fall_back() -> None:
+    # Blank numeric knobs must fall back to defaults, not crash on float("")/int("").
+    cfg = llm.OpenRouterConfig.from_env({
+        "OPENROUTER_API_KEY": "k",
+        "OPENROUTER_TEMPERATURE": "",
+        "OPENROUTER_MAX_TOKENS": "  ",
+        "OPENROUTER_TIMEOUT": "",
+        "OPENROUTER_REASONING_MAX_TOKENS": "",
+    })
+    assert cfg.temperature == llm.OpenRouterConfig.temperature
+    assert cfg.max_tokens == llm.OpenRouterConfig.max_tokens
+    assert cfg.timeout == llm.OpenRouterConfig.timeout
+    assert cfg.reasoning_max_tokens == llm.OpenRouterConfig.reasoning_max_tokens
+
+
+def test_from_env_blank_api_key_is_disabled() -> None:
+    cfg = llm.OpenRouterConfig.from_env({"OPENROUTER_API_KEY": ""})
+    assert not cfg.enabled
+
+
 def test_request_body_drops_temperature_when_reasoning_budget_set() -> None:
     # A reasoning budget enables Anthropic-style "thinking"; sending a custom
     # temperature alongside it is a hard HTTP 400. The body must omit temperature.

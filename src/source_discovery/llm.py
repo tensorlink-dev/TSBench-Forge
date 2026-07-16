@@ -49,17 +49,28 @@ class OpenRouterConfig:
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "OpenRouterConfig":
         e = env if env is not None else os.environ
+
+        def _get(key: str, default):
+            # GitHub Actions substitutes an unset `${{ vars.X }}` as an *empty
+            # string*, so the var is present-but-blank and os.environ.get's default
+            # never fires. Treat blank (or whitespace) as absent, so we fall back to
+            # the real default instead of sending e.g. model="" — which OpenRouter
+            # rejects with "No models provided" (HTTP 400) — or crashing on
+            # float("")/int("") for the numeric knobs.
+            v = e.get(key)
+            return v if v is not None and v.strip() != "" else default
+
         return cls(
-            api_key=e.get("OPENROUTER_API_KEY"),
-            model=e.get("OPENROUTER_MODEL", cls.model),
-            base_url=e.get("OPENROUTER_BASE_URL", cls.base_url),
-            temperature=float(e.get("OPENROUTER_TEMPERATURE", cls.temperature)),
-            max_tokens=int(e.get("OPENROUTER_MAX_TOKENS", cls.max_tokens)),
-            timeout=float(e.get("OPENROUTER_TIMEOUT", cls.timeout)),
+            api_key=_get("OPENROUTER_API_KEY", None),
+            model=_get("OPENROUTER_MODEL", cls.model),
+            base_url=_get("OPENROUTER_BASE_URL", cls.base_url),
+            temperature=float(_get("OPENROUTER_TEMPERATURE", cls.temperature)),
+            max_tokens=int(_get("OPENROUTER_MAX_TOKENS", cls.max_tokens)),
+            timeout=float(_get("OPENROUTER_TIMEOUT", cls.timeout)),
             reasoning_max_tokens=int(
-                e.get("OPENROUTER_REASONING_MAX_TOKENS", cls.reasoning_max_tokens)
+                _get("OPENROUTER_REASONING_MAX_TOKENS", cls.reasoning_max_tokens)
             ),
-            reasoning_enabled=e.get("OPENROUTER_REASONING_ENABLED", "true").strip().lower()
+            reasoning_enabled=_get("OPENROUTER_REASONING_ENABLED", "true").strip().lower()
             not in ("false", "0", "off", "no"),
         )
 
