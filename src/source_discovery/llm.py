@@ -32,7 +32,7 @@ def system_prompt() -> str:
 @dataclass(frozen=True)
 class OpenRouterConfig:
     api_key: str | None = None
-    model: str = "anthropic/claude-opus-4.8"
+    model: str = "z-ai/glm-5.2"
     base_url: str = "https://openrouter.ai/api/v1/chat/completions"
     temperature: float = 0.4
     max_tokens: int = 8000
