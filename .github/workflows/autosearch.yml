@@ -1,0 +1,117 @@
+# Daily source-discovery sweep: propose + vet new catalog sources, open a PR.
+#
+# The ONLY non-deterministic step is the OpenRouter model call in
+# source_discovery.llm.propose (one call per run — no loop). Everything else
+# (coverage matrix, vetting, ledger dedup) is deterministic. A human reviews and
+# merges the PR — nothing enters sources.yaml automatically (licensing / legal
+# sign-off stays human, by the module's design).
+#
+# COST CONTROL (this is the "don't chew through tokens" part):
+#   * The FREE, deterministic `--coverage` check runs first. The paid model call
+#     only fires when there are under-target cells (or you force it via dispatch).
+#     Once the catalog meets its coverage targets, a daily run costs ZERO tokens.
+#   * OPENROUTER_REASONING_MAX_TOKENS caps hidden reasoning burn — the code's
+#     default is 0 (uncapped), which is the main runaway-cost risk on a reasoning
+#     model. 3000 is plenty for this task.
+#   * Set the OPENROUTER_MODEL repo VARIABLE to run a cheaper model on the daily
+#     cadence (code default: anthropic/claude-opus-4.8).
+#   NOTE: while coverage gaps exist (they do today), a daily run = ~1 model call
+#   per day until humans wire accepted proposals into sources.yaml and the gap
+#   count falls. The gate saves tokens once coverage is actually met.
+#
+# REQUIRED: repo secret OPENROUTER_API_KEY.
+
+name: Auto-search sources
+
+on:
+  schedule:
+    - cron: "0 6 * * *"          # daily 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Call the model even if there are no coverage gaps"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write                # commit the proposal branch
+  pull-requests: write           # open the review PR
+
+concurrency:
+  group: autosearch
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
+      OPENROUTER_REASONING_MAX_TOKENS: "3000"
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # stdlib urllib handles the OpenRouter call; the module needs pyyaml
+      # (catalog) and numpy (quality.py is imported by the CLI entrypoint).
+      - name: Install deps
+        run: pip install pyyaml numpy
+
+      - name: Coverage gaps (free, deterministic — no model call)
+        id: gaps
+        run: |
+          n=$(python -m source_discovery --coverage 2>/dev/null \
+              | python -c "import sys,json;print(len(json.load(sys.stdin).get('gap_cells',[])))")
+          echo "count=$n" >> "$GITHUB_OUTPUT"
+          echo "under-target cells: $n"
+
+      - name: No gaps → skip the paid run
+        if: steps.gaps.outputs.count == '0' && github.event.inputs.force != 'true'
+        run: echo "Catalog meets coverage targets; skipping the model call (0 tokens)."
+
+      - name: Missing API key → warn and skip
+        if: >-
+          env.OPENROUTER_API_KEY == '' &&
+          (steps.gaps.outputs.count != '0' || github.event.inputs.force == 'true')
+        run: echo "::warning::OPENROUTER_API_KEY not set — add it as a repo secret to enable discovery."
+
+      - name: Propose + vet (the one model call)
+        if: >-
+          env.OPENROUTER_API_KEY != '' &&
+          (steps.gaps.outputs.count != '0' || github.event.inputs.force == 'true')
+        run: |
+          python -m source_discovery --out src/sources/discovery/proposals
+          echo "### Auto-search run" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          tail -n 20 src/sources/discovery/proposals/candidates.json >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open / update proposals PR
+        if: >-
+          env.OPENROUTER_API_KEY != '' &&
+          (steps.gaps.outputs.count != '0' || github.event.inputs.force == 'true')
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: autosearch/proposals
+          base: main
+          add-paths: src/sources/discovery/**
+          commit-message: "Auto-search: propose + vet new sources"
+          title: "Auto-search: new source proposals"
+          labels: autosearch
+          body: |
+            Automated daily source-discovery sweep (`python -m source_discovery`).
+
+            - **Deterministic vetting is done**: `candidates.json` carries a
+              `_verdict` (accept / flag / reject) and `_vet_reasons` per proposal.
+            - **Human sign-off required** before anything is wired into
+              `sources.yaml` (licensing / legal, per the module's design).
+            - The proposal **ledger** update is included so tomorrow's run dedups
+              against these instead of re-proposing them.
+
+            Review `src/sources/discovery/proposals/` (gap_analysis.md +
+            candidates.json) and the `proposal_ledger.json` diff.
