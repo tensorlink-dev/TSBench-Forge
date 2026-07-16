@@ -32,7 +32,7 @@ def system_prompt() -> str:
 @dataclass(frozen=True)
 class OpenRouterConfig:
     api_key: str | None = None
-    model: str = "anthropic/claude-opus-4.8"
+    model: str = "z-ai/glm-5.2"
     base_url: str = "https://openrouter.ai/api/v1/chat/completions"
     temperature: float = 0.4
     max_tokens: int = 8000
@@ -102,6 +102,64 @@ def assemble_messages(inputs: dict) -> list[dict]:
     ]
 
 
+def build_request_body(inputs: dict, cfg: OpenRouterConfig, max_tokens: int) -> dict:
+    """Assemble the OpenRouter chat-completions request body.
+
+    Kept module-level (not buried in ``propose``) so the parameter interplay is
+    testable without a network call — in particular the temperature/reasoning
+    interaction below, which was a silent source of HTTP 400s.
+    """
+    body: dict = {
+        "model": cfg.model,
+        "messages": assemble_messages(inputs),
+        "max_tokens": max_tokens,
+    }
+    reasoning_enabled_here = False
+    if not cfg.reasoning_enabled:
+        body["reasoning"] = {"enabled": False}
+    elif cfg.reasoning_max_tokens:
+        body["reasoning"] = {"max_tokens": cfg.reasoning_max_tokens}
+        reasoning_enabled_here = True
+
+    # Providers whose reasoning OpenRouter normalizes to Anthropic-style
+    # "thinking" (Claude — the default model here — among them) reject any
+    # temperature other than 1 while thinking is enabled: sending 0.4 next to a
+    # reasoning budget is a hard HTTP 400 ("temperature may only be set to 1 when
+    # thinking is enabled"). Only pin a custom temperature when we are NOT asking
+    # for a reasoning budget; otherwise let the provider default (1) stand.
+    if not reasoning_enabled_here:
+        body["temperature"] = cfg.temperature
+    return body
+
+
+def _http_error_detail(exc: urllib.error.HTTPError) -> str:
+    """Best-effort extraction of the provider's error message from a 4xx/5xx body.
+
+    A bare ``HTTP Error 400: Bad Request`` says nothing about *why* the request
+    was rejected (bad model slug, unsupported parameter, out-of-range value).
+    OpenRouter puts the real reason in the JSON response body, which ``HTTPError``
+    otherwise discards. Read it back so the surfaced error is actionable. Returns
+    a leading ``": <detail>"`` fragment, or ``""`` if nothing useful is present.
+    """
+    try:
+        raw = exc.read().decode("utf-8", errors="replace")
+    except Exception:  # pragma: no cover - defensive; body already consumed/closed
+        return ""
+    raw = raw.strip()
+    if not raw:
+        return ""
+    try:
+        obj = json.loads(raw)
+    except json.JSONDecodeError:
+        return f": {raw[:500]}"
+    msg = obj.get("error")
+    if isinstance(msg, dict):
+        msg = msg.get("message") or msg.get("code")
+    if not msg:
+        msg = obj.get("message")
+    return f": {msg}" if msg else f": {raw[:500]}"
+
+
 def parse_response(text: str) -> tuple[str, list[dict]]:
     """Split the model reply into (gap_analysis_prose, candidates list).
 
@@ -145,17 +203,7 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
             "candidates produced elsewhere."
         )
     def _call(max_tokens: int) -> dict:
-        body: dict = {
-            "model": cfg.model,
-            "messages": assemble_messages(inputs),
-            "temperature": cfg.temperature,
-            "max_tokens": max_tokens,
-        }
-        if not cfg.reasoning_enabled:
-            body["reasoning"] = {"enabled": False}
-        elif cfg.reasoning_max_tokens:
-            body["reasoning"] = {"max_tokens": cfg.reasoning_max_tokens}
-        payload = json.dumps(body).encode()
+        payload = json.dumps(build_request_body(inputs, cfg, max_tokens)).encode()
         req = urllib.request.Request(
             cfg.base_url,
             data=payload,
@@ -167,6 +215,11 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
         try:
             with urllib.request.urlopen(req, timeout=cfg.timeout) as resp:
                 return json.loads(resp.read().decode())
+        except urllib.error.HTTPError as exc:  # pragma: no cover - network path
+            raise RuntimeError(
+                f"OpenRouter call failed: HTTP {exc.code} "
+                f"(model={cfg.model}){_http_error_detail(exc)}"
+            ) from exc
         except urllib.error.URLError as exc:  # pragma: no cover - network path
             raise RuntimeError(f"OpenRouter call failed: {exc}") from exc
 

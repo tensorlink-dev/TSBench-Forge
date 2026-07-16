@@ -8,8 +8,10 @@ via ``llm.parse_response``.
 
 from __future__ import annotations
 
+import io
 import json
 import os
+import urllib.error
 
 from source_discovery import config, coverage, llm, runner, vet
 
@@ -194,6 +196,59 @@ def test_run_vet_writes_outputs(tmp_path) -> None:
     assert res["accept"] == 1 and res["reject"] == 1
     written = json.loads((tmp_path / "out" / "candidates.json").read_text())
     assert all("_verdict" in c for c in written)
+
+
+def _inputs() -> dict:
+    return runner.build_inputs(CATALOG)
+
+
+def test_request_body_drops_temperature_when_reasoning_budget_set() -> None:
+    # A reasoning budget enables Anthropic-style "thinking"; sending a custom
+    # temperature alongside it is a hard HTTP 400. The body must omit temperature.
+    cfg = llm.OpenRouterConfig(api_key="k", reasoning_max_tokens=3000, temperature=0.4)
+    body = llm.build_request_body(_inputs(), cfg, cfg.max_tokens)
+    assert "temperature" not in body
+    assert body["reasoning"] == {"max_tokens": 3000}
+
+
+def test_request_body_keeps_temperature_without_reasoning_budget() -> None:
+    cfg = llm.OpenRouterConfig(api_key="k", reasoning_max_tokens=0, temperature=0.4)
+    body = llm.build_request_body(_inputs(), cfg, cfg.max_tokens)
+    assert body["temperature"] == 0.4
+    assert "reasoning" not in body
+
+
+def test_request_body_disables_reasoning_explicitly() -> None:
+    cfg = llm.OpenRouterConfig(api_key="k", reasoning_enabled=False, temperature=0.4)
+    body = llm.build_request_body(_inputs(), cfg, cfg.max_tokens)
+    assert body["reasoning"] == {"enabled": False}
+    # Reasoning is off, so the custom temperature is safe to send.
+    assert body["temperature"] == 0.4
+
+
+def _http_error(code: int, body: str) -> urllib.error.HTTPError:
+    return urllib.error.HTTPError(
+        url="https://openrouter.ai/api/v1/chat/completions",
+        code=code,
+        msg="Bad Request",
+        hdrs=None,
+        fp=io.BytesIO(body.encode()),
+    )
+
+
+def test_http_error_detail_extracts_openrouter_message() -> None:
+    exc = _http_error(400, json.dumps({"error": {"message": "not a valid model id"}}))
+    assert llm._http_error_detail(exc) == ": not a valid model id"
+
+
+def test_http_error_detail_falls_back_to_raw_body() -> None:
+    exc = _http_error(400, "upstream is on fire")
+    assert llm._http_error_detail(exc) == ": upstream is on fire"
+
+
+def test_http_error_detail_handles_empty_body() -> None:
+    exc = _http_error(400, "")
+    assert llm._http_error_detail(exc) == ""
 
 
 def test_propose_without_key_raises() -> None:

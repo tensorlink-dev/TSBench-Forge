@@ -60,7 +60,7 @@ python -m source_discovery --dry-run
 
 # Full run — needs OPENROUTER_API_KEY. Writes gap_analysis.md + candidates.json:
 export OPENROUTER_API_KEY=sk-or-...
-export OPENROUTER_MODEL=anthropic/claude-opus-4.8   # default; any OpenRouter model
+export OPENROUTER_MODEL=z-ai/glm-5.2   # default; any OpenRouter model
 python -m source_discovery --out src/sources/discovered
 
 # Vet a candidate list produced elsewhere (e.g. by an interactive Claude session):
