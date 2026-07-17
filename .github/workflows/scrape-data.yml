@@ -65,9 +65,9 @@ jobs:
       STACKEXCHANGE_KEY: ${{ secrets.STACKEXCHANGE_KEY }}
       REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload scrape error logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scrape-errors
           path: src/sources/data/**/_errors.log
