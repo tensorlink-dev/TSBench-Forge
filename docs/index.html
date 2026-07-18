@@ -111,6 +111,11 @@
     .hero{padding:44px 0 4px}
     .lead{font-size:1.12rem}
   }
+
+  .hero-motif{display:block; width:100%; height:96px; margin:26px 0 4px}
+  .motif-cap{font-family:var(--font-head); font-size:.76rem; color:var(--muted); margin:0}
+  .motif-cap .fresh{color:var(--accent); font-weight:700}
+  @media (max-width:640px){.hero-motif{height:74px}}
 </style>
 </head>
 <body>
@@ -130,6 +135,14 @@
     <p class="kicker">Live-data evaluation</p>
     <h1>The benchmark your foundation model has not memorised</h1>
     <p class="lead">TSBench-Forge evaluates time-series foundation models using live data, with more weight given to observations generated after model training. An automated discovery system helps the benchmark keep growing as old data becomes stale.</p>
+    <svg class="hero-motif" viewBox="0 0 680 120" preserveAspectRatio="none" role="img" aria-label="A real time series whose newest observations extend past the model's training cutoff">
+  <polygon points="472.5,114 472.5,48.5 483.1,55.1 493.7,53.9 504.3,59.6 515.0,64.1 525.6,59.9 536.2,62.3 546.8,64.2 557.4,66.2 568.0,60.9 578.6,64.1 589.2,68.2 599.8,65.2 610.4,70.2 621.0,74.9 631.6,78.5 642.2,72.9 652.8,73.3 663.4,71.9 674.0,61.5 674.0,114" fill="var(--accent)" opacity="0.10"></polygon>
+  <line x1="472.5" y1="8" x2="472.5" y2="114" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"></line>
+  <polyline points="6.0,61.3 16.6,59.4 27.2,59.1 37.8,60.1 48.4,54.7 59.0,57.6 69.6,60.7 80.2,55.7 90.8,57.7 101.4,59.0 112.0,59.6 122.6,52.4 133.2,53.4 143.8,55.3 154.4,50.8 165.0,55.7 175.7,61.9 186.3,69.1 196.9,69.1 207.5,76.3 218.1,82.5 228.7,79.4 239.3,82.3 249.9,83.5 260.5,83.4 271.1,74.9 281.7,73.9 292.3,73.4 302.9,66.0 313.5,67.2 324.1,69.1 334.7,71.2 345.3,65.4 355.9,66.5 366.5,66.6 377.1,57.7 387.7,55.6 398.3,52.9 408.9,50.3 419.5,40.8 430.1,40.5 440.7,41.9 451.3,37.5 461.9,42.4 472.5,48.5" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"></polyline>
+  <polyline points="472.5,48.5 483.1,55.1 493.7,53.9 504.3,59.6 515.0,64.1 525.6,59.9 536.2,62.3 546.8,64.2 557.4,66.2 568.0,60.9 578.6,64.1 589.2,68.2 599.8,65.2 610.4,70.2 621.0,74.9 631.6,78.5 642.2,72.9 652.8,73.3 663.4,71.9 674.0,61.5" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></polyline>
+  <circle cx="674.0" cy="61.5" r="3.4" fill="var(--accent)"></circle>
+</svg>
+    <p class="motif-cap">&mdash; history &mdash; &nbsp; a real series &nbsp; <span class="fresh">&mdash; observations after the training cutoff &mdash;</span></p>
     <p class="byline">TSBench-Forge &middot; open-source live benchmark for time-series foundation models</p>
   </section>
 </div>
