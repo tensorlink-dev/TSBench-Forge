@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The benchmark your foundation model has not memorised — TSBench-Forge</title>
+<meta name="description" content="TSBench-Forge evaluates time-series foundation models on live data, weighting observations generated after model training, with an automated discovery system that keeps the benchmark growing.">
+<meta property="og:title" content="The benchmark your foundation model has not memorised">
+<meta property="og:description" content="A live-data benchmark for time-series foundation models — fresh data, memorisation defences, automated source discovery.">
+<meta property="og:type" content="article">
+<style>
+  :root{
+    --bg:#fcfcfd; --surface:#ffffff; --text:#1c1c24; --muted:#5f5f6d;
+    --border:#e7e7ee; --accent:#0f766e; --accent-soft:#e7f4f1;
+    --shadow:0 1px 2px rgba(20,20,40,.04),0 8px 24px rgba(20,20,40,.05);
+    --font-body:"Charter","Iowan Old Style",Georgia,Cambria,"Times New Roman",serif;
+    --font-head:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+    --maxw:720px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1115; --surface:#16181d; --text:#e7e8ec; --muted:#9a9ba7;
+      --border:#272a33; --accent:#4fd1c5; --accent-soft:#15302c;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1115; --surface:#16181d; --text:#e7e8ec; --muted:#9a9ba7;
+    --border:#272a33; --accent:#4fd1c5; --accent-soft:#15302c;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --bg:#fcfcfd; --surface:#ffffff; --text:#1c1c24; --muted:#5f5f6d;
+    --border:#e7e7ee; --accent:#0f766e; --accent-soft:#e7f4f1;
+    --shadow:0 1px 2px rgba(20,20,40,.04),0 8px 24px rgba(20,20,40,.05);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--font-body); font-size:19px; line-height:1.72;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px}
+
+  /* ---- header / hero ---- */
+  header.top{border-bottom:1px solid var(--border)}
+  .top .wrap{display:flex; align-items:center; justify-content:space-between; padding-top:18px; padding-bottom:18px}
+  .brand{font-family:var(--font-head); font-weight:700; font-size:.95rem; letter-spacing:.02em; color:var(--text); text-decoration:none}
+  .brand .spark{color:var(--accent)}
+  .top nav a{font-family:var(--font-head); font-size:.85rem; color:var(--muted); text-decoration:none; margin-left:18px}
+  .top nav a:hover{color:var(--accent)}
+
+  .hero{padding:64px 0 8px}
+  .kicker{font-family:var(--font-head); font-size:.78rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 18px}
+  h1{font-family:var(--font-head); font-weight:800; font-size:clamp(2rem,5.2vw,3.05rem); line-height:1.08; letter-spacing:-.02em; margin:0 0 24px}
+  .lead{font-size:1.24rem; line-height:1.55; color:var(--text); font-weight:400; margin:0 0 6px}
+  .byline{font-family:var(--font-head); font-size:.82rem; color:var(--muted); margin-top:26px; padding-top:20px; border-top:1px solid var(--border)}
+
+  /* ---- article ---- */
+  article{padding:20px 0 40px}
+  article h2{font-family:var(--font-head); font-weight:700; font-size:1.62rem; line-height:1.2; letter-spacing:-.01em; margin:2.6em 0 .6em}
+  article h3{font-family:var(--font-head); font-weight:700; font-size:1.16rem; margin:2em 0 .4em; color:var(--text)}
+  article p{margin:0 0 1.15em}
+  article ul{margin:0 0 1.3em; padding-left:1.25em}
+  article li{margin:.34em 0}
+  a{color:var(--accent); text-decoration:none; border-bottom:1px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+  a:hover{border-bottom-color:var(--accent)}
+  strong{font-weight:700}
+  hr{border:none; border-top:1px solid var(--border); margin:2.4em 0}
+
+  /* first section lead-in */
+  .section-lead{font-size:1.06rem}
+
+  /* ---- table ---- */
+  .table-wrap{overflow-x:auto; margin:1.6em 0; border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); background:var(--surface)}
+  table{border-collapse:collapse; width:100%; font-family:var(--font-head); font-size:.92rem}
+  caption{caption-side:top; text-align:left; font-family:var(--font-head); font-size:.85rem; color:var(--muted); padding:14px 16px 0}
+  th,td{padding:11px 16px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap}
+  thead th{font-size:.74rem; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:700; background:transparent}
+  td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
+  tbody tr:last-child td{border-bottom:none}
+  tr.top1 td{background:var(--accent-soft)}
+  tr.top1 td .model{font-weight:700}
+  tr.baseline td{color:var(--muted); font-style:italic; border-top:1px solid var(--border)}
+  .rank{color:var(--muted); font-variant-numeric:tabular-nums}
+
+  /* ---- figure placeholder ---- */
+  figure{margin:1.8em 0}
+          padding:38px 20px; text-align:center; color:var(--muted); font-family:var(--font-head)}
+  figcaption{font-family:var(--font-head); font-size:.82rem; color:var(--muted); text-align:center; margin-top:10px}
+  figure img{max-width:100%; height:auto; border-radius:12px; border:1px solid var(--border); display:block}
+
+  /* ---- callout ---- */
+  .callout{border-left:3px solid var(--accent); background:var(--accent-soft); padding:2px 20px; border-radius:0 10px 10px 0; margin:1.6em 0}
+  .callout p{margin:1em 0}
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--border); margin-top:40px; padding:36px 0 60px; color:var(--muted); font-family:var(--font-head); font-size:.88rem}
+  footer a{border-bottom:none}
+  .theme-toggle{font-family:var(--font-head); font-size:.8rem; background:none; border:1px solid var(--border); color:var(--muted); border-radius:20px; padding:5px 12px; cursor:pointer}
+  .theme-toggle:hover{border-color:var(--accent); color:var(--accent)}
+
+  @media (max-width:640px){
+    body{font-size:18px}
+    .hero{padding:44px 0 4px}
+    .lead{font-size:1.12rem}
+  }
+
+  .hero-motif{display:block; width:100%; height:96px; margin:26px 0 4px}
+  .motif-cap{font-family:var(--font-head); font-size:.76rem; color:var(--muted); margin:0}
+  .motif-cap .fresh{color:var(--accent); font-weight:700}
+  @media (max-width:640px){.hero-motif{height:74px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="https://github.com/tensorlink-dev/TSBench-Forge">TSBench<span class="spark">·</span>Forge</a>
+    <nav>
+      <a href="https://github.com/tensorlink-dev/TSBench-Forge">Repository</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle colour theme">Theme</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <p class="kicker">Live-data evaluation</p>
+    <h1>The benchmark your foundation model has not memorised</h1>
+    <p class="lead">TSBench-Forge evaluates time-series foundation models using live data, with more weight given to observations generated after model training. An automated discovery system helps the benchmark keep growing as old data becomes stale.</p>
+    <svg class="hero-motif" viewBox="0 0 680 120" preserveAspectRatio="none" role="img" aria-label="A real time series whose newest observations extend past the model's training cutoff">
+  <polygon points="472.5,114 472.5,48.5 483.1,55.1 493.7,53.9 504.3,59.6 515.0,64.1 525.6,59.9 536.2,62.3 546.8,64.2 557.4,66.2 568.0,60.9 578.6,64.1 589.2,68.2 599.8,65.2 610.4,70.2 621.0,74.9 631.6,78.5 642.2,72.9 652.8,73.3 663.4,71.9 674.0,61.5 674.0,114" fill="var(--accent)" opacity="0.10"></polygon>
+  <line x1="472.5" y1="8" x2="472.5" y2="114" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"></line>
+  <polyline points="6.0,61.3 16.6,59.4 27.2,59.1 37.8,60.1 48.4,54.7 59.0,57.6 69.6,60.7 80.2,55.7 90.8,57.7 101.4,59.0 112.0,59.6 122.6,52.4 133.2,53.4 143.8,55.3 154.4,50.8 165.0,55.7 175.7,61.9 186.3,69.1 196.9,69.1 207.5,76.3 218.1,82.5 228.7,79.4 239.3,82.3 249.9,83.5 260.5,83.4 271.1,74.9 281.7,73.9 292.3,73.4 302.9,66.0 313.5,67.2 324.1,69.1 334.7,71.2 345.3,65.4 355.9,66.5 366.5,66.6 377.1,57.7 387.7,55.6 398.3,52.9 408.9,50.3 419.5,40.8 430.1,40.5 440.7,41.9 451.3,37.5 461.9,42.4 472.5,48.5" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"></polyline>
+  <polyline points="472.5,48.5 483.1,55.1 493.7,53.9 504.3,59.6 515.0,64.1 525.6,59.9 536.2,62.3 546.8,64.2 557.4,66.2 568.0,60.9 578.6,64.1 589.2,68.2 599.8,65.2 610.4,70.2 621.0,74.9 631.6,78.5 642.2,72.9 652.8,73.3 663.4,71.9 674.0,61.5" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></polyline>
+  <circle cx="674.0" cy="61.5" r="3.4" fill="var(--accent)"></circle>
+</svg>
+    <p class="motif-cap">&mdash; history &mdash; &nbsp; a real series &nbsp; <span class="fresh">&mdash; observations after the training cutoff &mdash;</span></p>
+    <p class="byline">TSBench-Forge &middot; open-source live benchmark for time-series foundation models</p>
+  </section>
+</div>
+
+<div class="wrap">
+<article>
+
+  <h2>Time-series leaderboards look great. That is the problem.</h2>
+  <p>Time-series foundation models have improved rapidly.</p>
+  <p>Chronos, TimesFM, Moirai, Toto, TiRex and others now report impressive zero-shot results across benchmarks such as GIFT-Eval, BOOM, TIME, Monash and the M competitions.</p>
+  <p>These are valuable benchmarks, built carefully by serious research teams. But static benchmarks have a structural weakness. Once they are published, they begin to decay.</p>
+  <p>The data can enter model-training corpora. Nobody needs to cheat for this to happen. Public datasets are naturally swept into increasingly large training mixtures.</p>
+  <p>A fixed test set also invites optimisation around its particular characteristics. Architecture choices, preprocessing and inference strategies gradually become tuned to the benchmark.</p>
+  <p>Meanwhile, the world keeps changing. A dataset frozen several years ago measures performance on the dynamics of several years ago.</p>
+  <p>The result is a credibility gap. Leaderboard scores keep improving, but it becomes harder to know whether the models are improving with them.</p>
+  <p>This matters beyond academic benchmarking. Developers need to know whether an apparent model improvement will hold up on new data. Businesses choosing between models need evidence that does not come only from vendors. Operators need to know whether a model remains useful as markets, infrastructure and human behaviour change.</p>
+  <p>As foundation models become more capable and more expensive to deploy, trustworthy evaluation becomes infrastructure.</p>
+
+  <h2>Keep the data ahead of the models</h2>
+  <p>TSBench-Forge evaluates forecasting models on real data that continues to arrive.</p>
+  <p>The benchmark collects time series from energy grids, river gauges, earthquake feeds, financial markets, transport systems, health services, environmental sensors and internet infrastructure.</p>
+  <p>Each source is polled on its own schedule by deterministic scrapers. The benchmark then constructs forecasting challenges from the resulting archive. A model receives 256 recent observations from a real series and must forecast the next 48.</p>
+  <p>Forecasts are scored using standard point and probabilistic measures, including MASE and CRPS. Each result is expressed relative to seasonal naive, which predicts that the next value will resemble the value from the same point in the previous cycle.</p>
+  <p>A score below 1.0 means the model beat that baseline.</p>
+  <p>Every model receives the same seeded challenge set. Comparisons are paired across the same examples, so a small or inconsistent advantage does not automatically become a leaderboard claim.</p>
+  <p>The benchmark follows four main principles.</p>
+
+  <h3>1. Give more weight to fresh data</h3>
+  <p>A large share of challenges is sampled from the newest end of each series.</p>
+  <p>Each challenge is tagged according to how much of its forecast target falls after the relevant training cutoff. Newer answers have more influence on the final result.</p>
+  <p>Historical windows still provide useful breadth, but their weight is reduced. They cannot dominate the ranking simply because more historical data is available.</p>
+  <p>The next scoring release will introduce a hard freshness barrier. Forecast targets older than the newest model cutoff used in an evaluation will be rejected before scoring.</p>
+  <p>The current system strongly rewards freshness and reduces the influence of older observations, but it does not yet eliminate historical exposure completely. We think that distinction is worth stating clearly.</p>
+
+  <h3>2. Make memorisation difficult and visible</h3>
+  <p>Every served window receives light, truth-preserving changes such as smooth rescaling, time stretching or small patches of hidden history.</p>
+  <p>The continuation remains real, but the input is no longer byte-identical to a series that may exist in a training corpus. Exact-match lookup becomes much less useful.</p>
+  <p>TSBench-Forge also includes a behavioural memorisation probe. It checks whether a model performs suspiciously better on previously served windows than on genuinely fresh ones.</p>
+  <p>No single defence solves contamination. The aim is to combine several protections and measure the remaining risk rather than ignore it.</p>
+
+  <h3>3. Reject bad data automatically</h3>
+  <p>Not every live feed creates a useful forecasting problem.</p>
+  <p>Sensors can become stuck. APIs can return almost constant values. Some series are effectively random. Others are so predictable that seasonal naive already solves them.</p>
+  <p>Every proposed source must pass an automatic quality gate. It checks for degenerate values, flatlines, broken timestamps, excessive duplication and series that appear either unforecastable or trivial.</p>
+  <p>During a recent source expansion, the system rejected Coinbase&rsquo;s funding-rate feed because the retrieved series was heavily clamped and repeated. A more informative Kraken feed passed.</p>
+  <p>A source does not enter the benchmark simply because it sounds interesting.</p>
+
+  <h3>4. Use baselines that are hard to beat</h3>
+  <p>Seasonal naive is only one comparison.</p>
+  <p>TSBench-Forge also evaluates exponential moving averages, drift, a simple autoregression and a &ldquo;context parrot&rdquo; that copies patterns from recent history.</p>
+  <p>A foundation model should not rank highly if it cannot separate itself from those approaches.</p>
+
+  <h2>A live benchmark still needs maintenance</h2>
+  <p>Live data solves part of the staleness problem, but it creates a new one.</p>
+  <p>Feeds disappear. APIs change. Sites add bot protection. Sensors break. Useful series can become trivial. Coverage gaps emerge as the catalogue changes.</p>
+  <p>A fixed catalogue of live sources eventually becomes stale too.</p>
+  <p>Manual curation does not scale well enough to solve this. Finding a promising source, checking its schema, testing it from the real scrape environment, assessing its history and wiring it into the pipeline takes time.</p>
+  <p>TSBench-Forge includes an LLM-driven discovery system called Autoresearch to reduce that bottleneck.</p>
+  <p>Its role is deliberately limited.</p>
+  <p>The agent reads the existing catalogue, identifies weak coverage by domain and update frequency, and proposes candidate sources.</p>
+  <p>Deterministic code then checks the proposal schema, compares it against a denylist of known training datasets, detects duplicates, probes the endpoint and runs the same quality gate applied to existing sources.</p>
+  <div class="callout">
+    <p>The agent proposes candidates. Code decides whether the data passes. A human approves the final change.</p>
+    <p><strong>The LLM never touches a benchmark score.</strong></p>
+  </div>
+
+  <h2>The discovery ledger</h2>
+  <p>Every proposed source is recorded in a persistent ledger, whether it was accepted, rejected, already known, inaccessible or dependent on an API key.</p>
+  <p>That history is included in future discovery runs.</p>
+  <p>Early searches proposed Steam player counts dozens of times. Once the ledger became part of the agent&rsquo;s context, those repeated suggestions disappeared.</p>
+  <p>The search moved further into the long tail, including unusual government feeds, environmental sensors, infrastructure telemetry and specialised APIs that are less likely to appear in standard machine-learning corpora.</p>
+  <p>This is where the process begins to compound.</p>
+  <p>The catalogue grows, but the system also learns where it has already searched, what failed, why it failed and which areas remain underrepresented.</p>
+  <p>In one recent sweep:</p>
+  <ul>
+    <li>100 discovery rounds generated 1,295 proposals.</li>
+    <li>Those became 663 unique candidates.</li>
+    <li>454 passed the metadata checks.</li>
+    <li>273 unique hosts were probed from the actual scrape environment.</li>
+    <li>118 were confirmed live without requiring an API key.</li>
+    <li>Nine sources were investigated end to end and integrated.</li>
+  </ul>
+  <p>The additions included Gemini trade ticks, NOAA coral reef temperatures, RIPE Atlas root-server latency, US Army Corps reservoir gauges, Swiss lake sensors and Singapore&rsquo;s live taxi count.</p>
+  <p>Where APIs exposed enough history, the run also recovered roughly 845,000 rows of backfill.</p>
+  <p>The search itself cost cents. Human attention was reserved for the small number of candidates that survived the automated stages.</p>
+
+  <h2>Auditing the benchmark itself</h2>
+  <p>The same quality system used to inspect external sources has also exposed failures inside TSBench-Forge.</p>
+  <p>During the latest expansion work, the gates identified:</p>
+  <ul>
+    <li>a CSV parser silently dropping data from two sources;</li>
+    <li>a deduplication step collapsing separate series that shared timestamps;</li>
+    <li>malformed URLs bypassing duplicate detection.</li>
+  </ul>
+  <p>Each problem was caught before the affected data could influence a model score.</p>
+  <p>This matters for the economics of maintaining the benchmark. Most bad candidates are rejected automatically, with the reason recorded. Engineers can focus on the shortlist instead of inspecting every proposal manually.</p>
+  <p>The gates also pressure-test the ingestion pipeline as the catalogue grows.</p>
+  <p>The automation is not only helping the benchmark expand. It is also helping us find faults in our own system.</p>
+
+  <h2>Does the live data resemble established benchmarks?</h2>
+  <p>A live benchmark would not be useful if its series represented completely different forecasting problems from those used in established research.</p>
+  <p>We compared TSBench-Forge with GIFT-Eval, TIME and BOOM using statistical characteristics such as autocorrelation, trend, seasonality, volatility and spectral structure.</p>
+  <p>The analysis found that TSBench-Forge occupies the same heavily populated regions of forecasting character space as the established suites.</p>
+  <p>Its centre was especially close to GIFT-Eval&rsquo;s, and the typical distance from a reference series to its nearest TSBench-Forge neighbour was small.</p>
+  <p>In practical terms, TSBench-Forge is testing familiar kinds of forecasting problems using data that continues to change.</p>
+  <p>The comparison also showed where the catalogue lacks coverage. BOOM contains a wider range of observability and infrastructure telemetry. The new RIPE Atlas latency source is an early step towards closing that gap.</p>
+  <figure>
+    <img src="figures/character-space.png" alt="Benchmark character-space" loading="lazy">
+    <figcaption>TSBench-Forge series projected against GIFT-Eval, TIME and BOOM in forecasting character space.</figcaption>
+  </figure>
+
+  <h2>Results from the expanded benchmark</h2>
+  <p>We evaluated nine time-series foundation models on the same set of 256 seeded challenges, drawn from 43 series across 62 eligible sources.</p>
+  <p>Eleven per cent of the challenges came from newly added sources.</p>
+  <p>Lower scores are better. A relative score of 1.0 means the model performed no better than seasonal naive.</p>
+
+  <div class="table-wrap">
+    <table>
+      <caption>Nine time-series foundation models, scored relative to seasonal naive (lower is better).</caption>
+      <thead>
+        <tr><th class="num">Rank</th><th>Model</th><th class="num">CRPS&nbsp;(rel.)</th><th class="num">MASE&nbsp;(rel.)</th></tr>
+      </thead>
+      <tbody>
+        <tr class="top1"><td class="num rank">1</td><td><span class="model">Toto-2</span></td><td class="num">0.427</td><td class="num">0.671</td></tr>
+        <tr><td class="num rank">2</td><td>TabPFN-TS</td><td class="num">0.441</td><td class="num">0.621</td></tr>
+        <tr><td class="num rank">3</td><td>TimesFM-2.5</td><td class="num">0.540</td><td class="num">0.730</td></tr>
+        <tr><td class="num rank">4</td><td>Chronos-2</td><td class="num">0.559</td><td class="num">0.851</td></tr>
+        <tr><td class="num rank">5</td><td>Moirai-2</td><td class="num">0.562</td><td class="num">0.877</td></tr>
+        <tr><td class="num rank">6</td><td>TiRex</td><td class="num">0.579</td><td class="num">0.883</td></tr>
+        <tr><td class="num rank">7</td><td>Chronos-Bolt</td><td class="num">0.624</td><td class="num">0.972</td></tr>
+        <tr><td class="num rank">8</td><td>FlowState</td><td class="num">0.749</td><td class="num">1.124</td></tr>
+        <tr><td class="num rank">9</td><td>Sundial</td><td class="num">0.759</td><td class="num">1.111</td></tr>
+        <tr class="baseline"><td class="num rank">&mdash;</td><td>Best classical baseline</td><td class="num">0.920</td><td class="num">0.823</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Several results stood out.</p>
+
+  <h3>Probabilistic forecasting held up on live data</h3>
+  <p>All nine foundation models beat seasonal naive on probabilistic accuracy with strong statistical significance.</p>
+  <p>The useful result is not simply that the models performed well. Their advantage remained visible when the evaluation shifted towards continually arriving observations.</p>
+
+  <h3>The strongest advantage was in uncertainty estimates</h3>
+  <p>The models performed consistently well on probabilistic forecasts.</p>
+  <p>The point-forecasting result was more mixed. Only the strongest models clearly beat the best tuned classical baselines on MASE.</p>
+  <p>For users who need a single predicted value, a well-chosen moving average remains surprisingly competitive. The larger advantage of foundation models may be their ability to represent a range of possible outcomes.</p>
+
+  <h3>Harder sources changed the ranking</h3>
+  <p>Adding irregular trade ticks, latency streams with failure spikes and reservoir series with operational guide curves increased error across the board.</p>
+  <p>The middle of the leaderboard changed. Moirai-2 moved up three places, while Toto-2 and TabPFN-TS remained at the top.</p>
+  <p>That movement is part of what a live benchmark should expose.</p>
+  <p>A static benchmark produces a ranking for one fixed dataset. A live benchmark can show which models remain reliable as the data changes.</p>
+  <p>The exact ordering from one run matters less than whether the results hold up next month.</p>
+  <figure>
+    <img src="figures/leaderboard.png" alt="Nine-model leaderboard" loading="lazy">
+    <figcaption>Foundation-model leaderboard on live data: relative CRPS vs seasonal naive (left) and BH-adjusted pairwise significance on CRPS (right). MASE is in the table above.</figcaption>
+  </figure>
+
+  <h2>Current limitations</h2>
+  <p>TSBench-Forge is still early.</p>
+  <p>Breadth remains its clearest weakness. The characterised pool contains hundreds of series rather than hundreds of thousands, and this run drew challenges from 43 of them.</p>
+  <p>Challenges from the same source may also be correlated. The statistical comparisons are paired per challenge rather than treating every example as completely independent.</p>
+  <p>Freshness is currently weighted rather than absolute. Historical windows are perturbed, down-weighted and audited, but part of the score may still come from observations a model could theoretically have encountered.</p>
+  <p>The hard post-cutoff barrier is intended to close that gap in the next scoring release.</p>
+  <p>Live sources also have lifecycles. Some begin with deep public histories. Others only accumulate data after the scraper is activated. Seasonal feeds can remain silent for months. An Iowa snow-plough source, for example, is wired but has to wait for winter before it becomes useful.</p>
+  <p>A live benchmark is also not reproducible in exactly the same way as a frozen archive.</p>
+  <p>Given the same data pool and seed, TSBench-Forge produces the same challenge set. The pool itself, however, continues to grow.</p>
+  <p>We see that as a worthwhile trade-off.</p>
+
+  <h2>What comes next</h2>
+  <p>The next scoring release will enforce the hard freshness barrier, making post-cutoff targets a property of the benchmark rather than a weighting preference.</p>
+  <p>We also plan to run the leaderboard regularly using newly arrived challenges and publish changes in model performance over time.</p>
+  <p>The discovery system will continue expanding the catalogue, with an initial focus on observability and infrastructure telemetry.</p>
+  <p>The public results will also include richer measures of calibration and interval coverage.</p>
+  <p>Forecast quality is not only about predicting the centre correctly. When a forecast informs a real decision, users need to know whether its uncertainty estimates can be trusted.</p>
+  <p>The longer-term goal is independent validation. Challenge seeds could be committed before the future observations they select exist, with scores reproduced by parties other than us.</p>
+  <p>The ideal benchmark is one whose results do not depend on trusting the people who built it.</p>
+
+  <h2>Takeaway</h2>
+  <p>Static benchmarks ask which model performed best on the published past.</p>
+  <p>TSBench-Forge asks which model forecasts new observations best as data arrives and real systems change.</p>
+  <p>The full pipeline, including the scrapers, quality gates, source-discovery system, proposal ledger and statistical evaluation harness, is open source in the <a href="https://github.com/tensorlink-dev/TSBench-Forge">TSBench-Forge repository</a>.</p>
+  <p>To propose a source, open an issue with the feed URL and update frequency, or run the vetting tools against your own candidate list.</p>
+  <p>The same deterministic gates used for the discovery agent&rsquo;s proposals will evaluate yours.</p>
+
+</article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p><strong>TSBench-Forge</strong> — a live-data benchmark for time-series foundation models.<br>
+    <a href="https://github.com/tensorlink-dev/TSBench-Forge">github.com/tensorlink-dev/TSBench-Forge</a></p>
+  </div>
+</footer>
+
+<script>
+  // Theme toggle: respects OS by default, lets the reader override (persisted).
+  (function(){
+    var root=document.documentElement, key="tsbf-theme";
+    try{var saved=localStorage.getItem(key); if(saved) root.setAttribute("data-theme",saved);}catch(e){}
+    document.getElementById("themeToggle").addEventListener("click",function(){
+      var cur=root.getAttribute("data-theme");
+      if(!cur){cur=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";}
+      var next=cur==="dark"?"light":"dark";
+      root.setAttribute("data-theme",next);
+      try{localStorage.setItem(key,next);}catch(e){}
+    });
+  })();
+</script>
+</body>
+</html>
