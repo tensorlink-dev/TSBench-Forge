@@ -88,11 +88,7 @@
 
   /* ---- figure placeholder ---- */
   figure{margin:1.8em 0}
-  .fig-ph{border:1.5px dashed var(--border); border-radius:12px; background:var(--accent-soft);
           padding:38px 20px; text-align:center; color:var(--muted); font-family:var(--font-head)}
-  .fig-ph .ph-title{font-weight:700; color:var(--text); font-size:.98rem; margin-bottom:6px}
-  .fig-ph .ph-path{font-size:.8rem; opacity:.8}
-  .fig-ph code{background:color-mix(in srgb,var(--muted) 16%,transparent); padding:1px 6px; border-radius:5px; font-size:.85em}
   figcaption{font-family:var(--font-head); font-size:.82rem; color:var(--muted); text-align:center; margin-top:10px}
   figure img{max-width:100%; height:auto; border-radius:12px; border:1px solid var(--border); display:block}
 
@@ -250,12 +246,7 @@
   <p>In practical terms, TSBench-Forge is testing familiar kinds of forecasting problems using data that continues to change.</p>
   <p>The comparison also showed where the catalogue lacks coverage. BOOM contains a wider range of observability and infrastructure telemetry. The new RIPE Atlas latency source is an early step towards closing that gap.</p>
   <figure>
-    <!-- When you have the image, replace this block with:
-         <img src="figures/character-space.png" alt="Benchmark character-space comparison"> -->
-    <div class="fig-ph">
-      <div class="ph-title">Benchmark character-space figure</div>
-      <div class="ph-path">drop the image at <code>docs/figures/character-space.png</code></div>
-    </div>
+    <img src="figures/character-space.png" alt="Benchmark character-space" loading="lazy">
     <figcaption>TSBench-Forge series projected against GIFT-Eval, TIME and BOOM in forecasting character space.</figcaption>
   </figure>
 
@@ -303,12 +294,7 @@
   <p>A static benchmark produces a ranking for one fixed dataset. A live benchmark can show which models remain reliable as the data changes.</p>
   <p>The exact ordering from one run matters less than whether the results hold up next month.</p>
   <figure>
-    <!-- When you have the image, replace this block with:
-         <img src="figures/leaderboard.png" alt="Nine-model leaderboard"> -->
-    <div class="fig-ph">
-      <div class="ph-title">Nine-model leaderboard figure</div>
-      <div class="ph-path">drop the image at <code>docs/figures/leaderboard.png</code></div>
-    </div>
+    <img src="figures/leaderboard.png" alt="Nine-model leaderboard" loading="lazy">
     <figcaption>Relative CRPS and MASE across the nine evaluated foundation models.</figcaption>
   </figure>
 
