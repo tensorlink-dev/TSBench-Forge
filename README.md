@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="TSBench-Forge" width="620">
+</p>
+
 # tsbench-forge
 
 A **live-data benchmark for time-series foundation models (TSFMs)**. It fetches
@@ -185,3 +189,14 @@ These modules are out of the benchmark's scope and slated for deletion:
   behind extras); the source-discovery LLM step needs `OPENROUTER_API_KEY`.
 - The catalog grows as the cron scrapes daily; sources accumulate history over
   time before they have enough depth to serve.
+
+## Brand assets
+
+The logo lives in `assets/`:
+
+- `assets/logo.png` — full lockup (mark + wordmark) on brand navy, used above.
+- `assets/logo-mark.png` — the mark only, transparent background.
+- `assets/logo-mark.svg` — scalable vector mark (favicons, embeds).
+
+Palette: navy `#142138`, cream `#F4ECDD`, forge orange `#EC6442`. The raster
+assets are generated (and reproducible) with `python scripts/make_logo.py`.
