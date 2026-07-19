@@ -20,11 +20,14 @@
 #   count falls. The gate saves tokens once coverage is actually met.
 #
 # REQUIRED: repo secret OPENROUTER_API_KEY.
-# REQUIRED: repo setting "Allow GitHub Actions to create and approve pull
-#   requests" (Settings → Actions → General → Workflow permissions). Without it
-#   the proposal branch still pushes, but the create-pull-request step dies with
-#   "GitHub Actions is not permitted to create or approve pull requests" and no
-#   PR ever appears — the sweep's output silently rots on autosearch/proposals.
+# REQUIRED (one of the two) for the PR step to work:
+#   * repo secret PAT_AUTOSEARCH — a fine-grained PAT scoped to this repo with
+#     Contents + Pull requests read/write (preferred: its PRs also trigger CI); or
+#   * repo setting "Allow GitHub Actions to create and approve pull requests"
+#     (Settings → Actions → General → Workflow permissions).
+#   With neither, the proposal branch still pushes, but create-pull-request dies
+#   with "GitHub Actions is not permitted to create or approve pull requests"
+#   and no PR ever appears — the sweep's output silently rots on the branch.
 
 name: Auto-search sources
 
@@ -103,6 +106,13 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
+          # Fine-grained PAT (Contents + Pull requests: read/write on this
+          # repo). The default github.token can only open PRs if the repo
+          # setting "Allow GitHub Actions to create and approve pull requests"
+          # is enabled — the PAT sidesteps that, and PRs it opens also trigger
+          # CI (github.token-created PRs don't). Both secret spellings are
+          # accepted; the last fallback keeps the step runnable without either.
+          token: ${{ secrets.PAT_AUTOSEARCH || secrets.PAT_AUTOSEARH || github.token }}
           branch: autosearch/proposals
           base: main
           add-paths: src/sources/discovery/**
