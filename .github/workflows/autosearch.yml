@@ -10,9 +10,11 @@
 #   * The FREE, deterministic `--coverage` check runs first. The paid model call
 #     only fires when there are under-target cells (or you force it via dispatch).
 #     Once the catalog meets its coverage targets, a daily run costs ZERO tokens.
-#   * OPENROUTER_REASONING_MAX_TOKENS caps hidden reasoning burn — the code's
-#     default is 0 (uncapped), which is the main runaway-cost risk on a reasoning
-#     model. 3000 is plenty for this task.
+#   * OPENROUTER_REASONING_ENABLED=false turns hidden reasoning off entirely —
+#     the main runaway-cost (and empty-response) risk on a reasoning model.
+#     GLM ignores the softer OPENROUTER_REASONING_MAX_TOKENS cap (see
+#     source_discovery/llm.py), and with reasoning on it can burn the whole
+#     completion budget and return no content (finish_reason='length').
 #   * Set the OPENROUTER_MODEL repo VARIABLE to run a cheaper model on the daily
 #     cadence (code default: z-ai/glm-5.2).
 #   NOTE: while coverage gaps exist (they do today), a daily run = ~1 model call
@@ -56,7 +58,7 @@ jobs:
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
-      OPENROUTER_REASONING_MAX_TOKENS: "3000"
+      OPENROUTER_REASONING_ENABLED: "false"
       PYTHONPATH: src
     steps:
       - uses: actions/checkout@v5
