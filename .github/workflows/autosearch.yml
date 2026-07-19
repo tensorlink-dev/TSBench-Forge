@@ -20,6 +20,11 @@
 #   count falls. The gate saves tokens once coverage is actually met.
 #
 # REQUIRED: repo secret OPENROUTER_API_KEY.
+# REQUIRED: repo setting "Allow GitHub Actions to create and approve pull
+#   requests" (Settings → Actions → General → Workflow permissions). Without it
+#   the proposal branch still pushes, but the create-pull-request step dies with
+#   "GitHub Actions is not permitted to create or approve pull requests" and no
+#   PR ever appears — the sweep's output silently rots on autosearch/proposals.
 
 name: Auto-search sources
 
@@ -95,6 +100,7 @@ jobs:
         if: >-
           env.OPENROUTER_API_KEY != '' &&
           (steps.gaps.outputs.count != '0' || github.event.inputs.force == 'true')
+        id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
           branch: autosearch/proposals
@@ -115,3 +121,9 @@ jobs:
 
             Review `src/sources/discovery/proposals/` (gap_analysis.md +
             candidates.json) and the `proposal_ledger.json` diff.
+
+      - name: PR creation blocked → say how to unblock it
+        if: >-
+          failure() && steps.cpr.conclusion == 'failure'
+        run: |
+          echo "::error::create-pull-request failed. Most likely cause: the repo setting 'Allow GitHub Actions to create and approve pull requests' (Settings → Actions → General → Workflow permissions) is disabled. The proposal branch WAS pushed — open a PR from 'autosearch/proposals' manually, then enable the setting so future runs open it themselves."
