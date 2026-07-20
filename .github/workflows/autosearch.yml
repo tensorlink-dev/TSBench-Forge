@@ -59,6 +59,10 @@ jobs:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
       OPENROUTER_REASONING_ENABLED: "false"
+      # Ceiling, not a spend: billing is per token actually generated. 64k gives
+      # the response ample headroom (code default is 8k, doubled once on a
+      # length-cut retry) so a long candidate list can never be truncated.
+      OPENROUTER_MAX_TOKENS: "64000"
       PYTHONPATH: src
     steps:
       - uses: actions/checkout@v5
