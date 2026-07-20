@@ -36,6 +36,15 @@
     "times_proposed": 27
   },
   {
+    "key": "energy|web-api.tp.entsoe.eu",
+    "name": "ENTSO-E Transparency Platform \u2014 generation unit unavailability",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 25
+  },
+  {
     "key": "nature|firms.modaps.eosdis.nasa.gov",
     "name": "NASA FIRMS active fire detections (MODIS + VIIRS)",
     "domain": "nature",
@@ -43,15 +52,6 @@
     "status": "key-gated",
     "first_proposed": "2026-07-04",
     "times_proposed": 25
-  },
-  {
-    "key": "energy|web-api.tp.entsoe.eu",
-    "name": "ENTSO-E Transparency Platform \u2014 generation unit unavailability",
-    "domain": "energy",
-    "frequency": "irregular",
-    "status": "key-gated",
-    "first_proposed": "2026-07-04",
-    "times_proposed": 24
   },
   {
     "key": "sales|api.twitch.tv",
@@ -1107,6 +1107,15 @@
     "times_proposed": 3
   },
   {
+    "key": "energy|www.ferc.gov",
+    "name": "ferc_electric_reliability_events",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 3
+  },
+  {
     "key": "energy|www.transnetbw.de",
     "name": "TransnetBW \u2014 European grid frequency (real-time)",
     "domain": "energy",
@@ -1163,6 +1172,15 @@
   {
     "key": "healthcare|ambulancefleetlocation.uk",
     "name": "london_ambulance_service_dispatches",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "rejected",
+    "first_proposed": "2026-07-10",
+    "times_proposed": 3
+  },
+  {
+    "key": "healthcare|api.sykehusinnkjop.no",
+    "name": "Norway Patient Healthcare Calls (Sykehusinnkj\u00f8p)",
     "domain": "healthcare",
     "frequency": "few-min",
     "status": "rejected",
@@ -1530,6 +1548,15 @@
     "times_proposed": 3
   },
   {
+    "key": "econ_fin|api.dtcc.com",
+    "name": "DTCC Corporate Action Alerts",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-10",
+    "times_proposed": 2
+  },
+  {
     "key": "econ_fin|api.kraken.com",
     "name": "Kraken OHLC 30-minute candles",
     "domain": "econ_fin",
@@ -1575,12 +1602,30 @@
     "times_proposed": 2
   },
   {
+    "key": "econ_fin|www.isda.org",
+    "name": "ISDA Credit Event Determinations",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-10",
+    "times_proposed": 2
+  },
+  {
     "key": "econ_fin|www.nasdaqtrader.com",
     "name": "nasdaq_trader_volatility_halts",
     "domain": "econ_fin",
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-10",
+    "times_proposed": 2
+  },
+  {
+    "key": "econ_fin|www.treasurydirect.org",
+    "name": "US TreasuryDirect \u2014 Treasury auction announcements and results",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
     "times_proposed": 2
   },
   {
@@ -1638,12 +1683,39 @@
     "times_proposed": 2
   },
   {
+    "key": "energy|api.energy-charts.info",
+    "name": "Energy Charts \u2014 Grid Frequency (50Hertz)",
+    "domain": "energy",
+    "frequency": "PT1S",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
     "key": "energy|api.nve.no",
     "name": "NVE Norway Hydropower Reservoir Levels",
     "domain": "energy",
     "frequency": "weekly",
     "status": "proposed",
     "first_proposed": "2026-07-10",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|api.opendata.onse.fr",
+    "name": "data_gouv_fr_power_outages",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-10",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|apim.pge.com",
+    "name": "PG&E Outage Map API",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
     "times_proposed": 2
   },
   {
@@ -1674,11 +1746,29 @@
     "times_proposed": 2
   },
   {
+    "key": "energy|marketplace.spp.org",
+    "name": "SPP Market Data \u2014 Southwest Power Pool real-time LMP (5-min)",
+    "domain": "energy",
+    "frequency": "PT5M",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
     "key": "energy|pvoutput.org",
     "name": "PVOutput.org \u2014 rooftop solar PV generation (citizen sensor network)",
     "domain": "energy",
     "frequency": "sub-min",
     "status": "proposed",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|www.50hertz.com",
+    "name": "50Hertz grid frequency measurements (1-second)",
+    "domain": "energy",
+    "frequency": "PT1S",
+    "status": "rejected",
     "first_proposed": "2026-07-04",
     "times_proposed": 2
   },
@@ -1701,6 +1791,15 @@
     "times_proposed": 2
   },
   {
+    "key": "energy|www.nerc.com",
+    "name": "nerc_disturbance_events",
+    "domain": "energy",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-10",
+    "times_proposed": 2
+  },
+  {
     "key": "energy|www.nrc.gov",
     "name": "NRC Event Notification Reports \u2014 nuclear reactor incident/event stream",
     "domain": "energy",
@@ -1710,10 +1809,28 @@
     "times_proposed": 2
   },
   {
+    "key": "energy|www.orkustofnun.is",
+    "name": "Icelandic Energy Authority Monthly Fuel Stocks",
+    "domain": "energy",
+    "frequency": "monthly",
+    "status": "rejected",
+    "first_proposed": "2026-07-10",
+    "times_proposed": 2
+  },
+  {
     "key": "energy|www.phmsa.dot.gov",
     "name": "PHMSA Pipeline and Hazardous Materials Safety Administration \u2014 incident data",
     "domain": "energy",
     "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
+    "key": "energy|www.statnett.no",
+    "name": "Statnett Norway real-time grid data",
+    "domain": "energy",
+    "frequency": "sub-min",
     "status": "rejected",
     "first_proposed": "2026-07-05",
     "times_proposed": 2
@@ -1962,15 +2079,6 @@
     "times_proposed": 2
   },
   {
-    "key": "healthcare|api.sykehusinnkjop.no",
-    "name": "Norway Patient Healthcare Calls (Sykehusinnkj\u00f8p)",
-    "domain": "healthcare",
-    "frequency": "few-min",
-    "status": "rejected",
-    "first_proposed": "2026-07-10",
-    "times_proposed": 2
-  },
-  {
     "key": "healthcare|api.tfl.gov.uk",
     "name": "london_ambulance_dispatches",
     "domain": "healthcare",
@@ -2031,6 +2139,15 @@
     "frequency": "few-min",
     "status": "rejected",
     "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "healthcare|openprescribing.net",
+    "name": "OpenPrescribing NHS England (Half-hour)",
+    "domain": "healthcare",
+    "frequency": "half-hour",
+    "status": "rejected",
+    "first_proposed": "2026-07-10",
     "times_proposed": 2
   },
   {
@@ -3177,15 +3294,6 @@
     "times_proposed": 1
   },
   {
-    "key": "econ_fin|api.dtcc.com",
-    "name": "DTCC Corporate Action Alerts",
-    "domain": "econ_fin",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
     "key": "econ_fin|api.fomcsentiment.com",
     "name": "fomc_statement_sentiment_stream",
     "domain": "econ_fin",
@@ -3564,15 +3672,6 @@
     "times_proposed": 1
   },
   {
-    "key": "econ_fin|www.isda.org",
-    "name": "ISDA Credit Event Determinations",
-    "domain": "econ_fin",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
     "key": "econ_fin|www.metaculus.com",
     "name": "metaculus_questions_api",
     "domain": "econ_fin",
@@ -3642,15 +3741,6 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
-    "key": "econ_fin|www.treasurydirect.org",
-    "name": "US TreasuryDirect \u2014 Treasury auction announcements and results",
-    "domain": "econ_fin",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-04",
     "times_proposed": 1
   },
   {
@@ -3852,6 +3942,15 @@
     "times_proposed": 1
   },
   {
+    "key": "energy|api.aeso.ca",
+    "name": "aeso_alberta_power_market",
+    "domain": "energy",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-20",
+    "times_proposed": 1
+  },
+  {
     "key": "energy|api.elering.ee",
     "name": "Elering Estonia \u2014 real-time electricity consumption & production",
     "domain": "energy",
@@ -3870,15 +3969,6 @@
     "times_proposed": 1
   },
   {
-    "key": "energy|api.energy-charts.info",
-    "name": "Energy Charts \u2014 Grid Frequency (50Hertz)",
-    "domain": "energy",
-    "frequency": "PT1S",
-    "status": "proposed",
-    "first_proposed": "2026-07-04",
-    "times_proposed": 1
-  },
-  {
     "key": "energy|api.misoenergy.org",
     "name": "MISO Real-Time 5-Minute LMPs",
     "domain": "energy",
@@ -3888,21 +3978,12 @@
     "times_proposed": 1
   },
   {
-    "key": "energy|api.opendata.onse.fr",
-    "name": "data_gouv_fr_power_outages",
+    "key": "energy|api.ree.es",
+    "name": "ree_spain_grid_data",
     "domain": "energy",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
-    "key": "energy|apim.pge.com",
-    "name": "PG&E Outage Map API",
-    "domain": "energy",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-04",
+    "frequency": "few-min",
+    "status": "rejected",
+    "first_proposed": "2026-07-20",
     "times_proposed": 1
   },
   {
@@ -4023,15 +4104,6 @@
     "times_proposed": 1
   },
   {
-    "key": "energy|marketplace.spp.org",
-    "name": "SPP Market Data \u2014 Southwest Power Pool real-time LMP (5-min)",
-    "domain": "energy",
-    "frequency": "PT5M",
-    "status": "proposed",
-    "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
     "key": "energy|nemweb.com.au",
     "name": "aemo_nemweb_market_notices",
     "domain": "energy",
@@ -4131,12 +4203,21 @@
     "times_proposed": 1
   },
   {
-    "key": "energy|www.50hertz.com",
-    "name": "50Hertz grid frequency measurements (1-second)",
+    "key": "energy|www.acer.europa.eu",
+    "name": "acer_energy_market_events",
     "domain": "energy",
-    "frequency": "PT1S",
+    "frequency": "monthly",
+    "status": "rejected",
+    "first_proposed": "2026-07-20",
+    "times_proposed": 1
+  },
+  {
+    "key": "energy|www.eirgridgroup.com",
+    "name": "eirgrid_smart_grid_dashboard",
+    "domain": "energy",
+    "frequency": "few-min",
     "status": "proposed",
-    "first_proposed": "2026-07-04",
+    "first_proposed": "2026-07-20",
     "times_proposed": 1
   },
   {
@@ -4158,24 +4239,6 @@
     "times_proposed": 1
   },
   {
-    "key": "energy|www.ferc.gov",
-    "name": "ferc_electric_reliability_events",
-    "domain": "energy",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
-    "key": "energy|www.nerc.com",
-    "name": "nerc_disturbance_events",
-    "domain": "energy",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
     "key": "energy|www.nordpoolgroup.com",
     "name": "Nord Pool Day-Ahead Electricity Prices (Nordic/Baltic)",
     "domain": "energy",
@@ -4185,29 +4248,11 @@
     "times_proposed": 1
   },
   {
-    "key": "energy|www.orkustofnun.is",
-    "name": "Icelandic Energy Authority Monthly Fuel Stocks",
-    "domain": "energy",
-    "frequency": "monthly",
-    "status": "proposed",
-    "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
     "key": "energy|www.pse.pl",
     "name": "PSE Poland (Polskie Sieci Elektroenergetyczne) grid data",
     "domain": "energy",
     "frequency": "few-min",
     "status": "rejected",
-    "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
-    "key": "energy|www.statnett.no",
-    "name": "Statnett Norway real-time grid data",
-    "domain": "energy",
-    "frequency": "sub-min",
-    "status": "proposed",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -4752,15 +4797,6 @@
     "times_proposed": 1
   },
   {
-    "key": "healthcare|openprescribing.net",
-    "name": "OpenPrescribing NHS England (Half-hour)",
-    "domain": "healthcare",
-    "frequency": "half-hour",
-    "status": "proposed",
-    "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
     "key": "healthcare|openprescribing_nhs_england",
     "name": "openprescribing_nhs_england",
     "domain": "healthcare",
@@ -4974,6 +5010,15 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-10",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|www.health.qld.gov.au",
+    "name": "queensland_health_emergency_surgery_waitlist",
+    "domain": "healthcare",
+    "frequency": "monthly",
+    "status": "proposed",
+    "first_proposed": "2026-07-20",
     "times_proposed": 1
   },
   {
@@ -6057,6 +6102,15 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|stationview.raspberryshake.org",
+    "name": "raspberry_shake_station_velocity",
+    "domain": "nature",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-20",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|swpc_solar_flare_event_reports",
     "name": "swpc_solar_flare_event_reports",
     "domain": "nature",
@@ -6237,6 +6291,15 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|www.brmo.org",
+    "name": "brmo_meteor_detections",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-20",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|www.datalakes-eawag.ch",
     "name": "Geneva Lake Temperature Monitoring",
     "domain": "nature",
@@ -6252,6 +6315,15 @@
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-05",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|www.gdacs.org",
+    "name": "glaciocast_lake_outburst_events",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-20",
     "times_proposed": 1
   },
   {
