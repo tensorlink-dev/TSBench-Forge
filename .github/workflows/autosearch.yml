@@ -105,6 +105,15 @@ jobs:
           tail -n 20 src/sources/discovery/proposals/candidates.json >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
+      # Secrets resolve to "" when absent/misnamed — the token line below then
+      # silently falls back to github.token, which this repo forbids from
+      # creating PRs. This makes the fallback visible in the run log.
+      - name: Which PR token is in play (diagnostic)
+        run: |
+          echo "PAT_AUTOSEARCH resolves: ${{ secrets.PAT_AUTOSEARCH != '' }}"
+          echo "PAT_AUTOSEARH resolves: ${{ secrets.PAT_AUTOSEARH != '' }}"
+          echo "If both are false, the step below runs on github.token: the secret is missing or misnamed under Settings → Secrets and variables → Actions → Repository secrets (a *Variable* or Codespaces/Dependabot/Environment secret will NOT resolve here)."
+
       - name: Open / update proposals PR
         if: >-
           env.OPENROUTER_API_KEY != '' &&
