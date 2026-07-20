@@ -26,7 +26,8 @@
 #
 # REQUIRED: repo secret OPENROUTER_API_KEY.
 # REQUIRED (one of the two) for the PR step to work:
-#   * repo secret PAT_AUTOSEARCH — a fine-grained PAT scoped to this repo with
+#   * repo secret PAT_AUTOSEARCH (also accepted: AUTOSEARCH_PAT, PAT_AUTOSEARH)
+#     — a fine-grained PAT scoped to this repo with
 #     Contents + Pull requests read/write (preferred: its PRs also trigger CI); or
 #   * repo setting "Allow GitHub Actions to create and approve pull requests"
 #     (Settings → Actions → General → Workflow permissions).
@@ -113,8 +114,9 @@ jobs:
       - name: Which PR token is in play (diagnostic)
         run: |
           echo "PAT_AUTOSEARCH resolves: ${{ secrets.PAT_AUTOSEARCH != '' }}"
+          echo "AUTOSEARCH_PAT resolves: ${{ secrets.AUTOSEARCH_PAT != '' }}"
           echo "PAT_AUTOSEARH resolves: ${{ secrets.PAT_AUTOSEARH != '' }}"
-          echo "If both are false, the step below runs on github.token: the secret is missing or misnamed under Settings → Secrets and variables → Actions → Repository secrets (a *Variable* or Codespaces/Dependabot/Environment secret will NOT resolve here)."
+          echo "If all are false, the step below runs on github.token: the secret is missing or misnamed under Settings → Secrets and variables → Actions → Repository secrets (a *Variable* or Codespaces/Dependabot/Environment secret will NOT resolve here)."
 
       - name: Open / update proposals PR
         if: >-
@@ -127,9 +129,9 @@ jobs:
           # repo). The default github.token can only open PRs if the repo
           # setting "Allow GitHub Actions to create and approve pull requests"
           # is enabled — the PAT sidesteps that, and PRs it opens also trigger
-          # CI (github.token-created PRs don't). Both secret spellings are
-          # accepted; the last fallback keeps the step runnable without either.
-          token: ${{ secrets.PAT_AUTOSEARCH || secrets.PAT_AUTOSEARH || github.token }}
+          # CI (github.token-created PRs don't). All three secret spellings are
+          # accepted; the last fallback keeps the step runnable without any.
+          token: ${{ secrets.PAT_AUTOSEARCH || secrets.AUTOSEARCH_PAT || secrets.PAT_AUTOSEARH || github.token }}
           branch: autosearch/proposals
           base: main
           add-paths: src/sources/discovery/**
