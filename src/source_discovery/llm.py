@@ -17,12 +17,20 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
 _PROMPT_PATH = Path(__file__).with_name("system_prompt.md")
+
+# A ``finish_reason="error"`` choice is an upstream provider failure (rate limit,
+# timeout, transient outage) returned mid-generation, not budget exhaustion.
+# OpenRouter may re-route to a healthy provider on a fresh attempt, so retry a
+# few times with exponential backoff before giving up.
+_MAX_ERROR_RETRIES = 3
+_ERROR_BACKOFF_BASE = 2.0  # seconds; sleep = base * 2**(attempt - 1)
 
 
 def system_prompt() -> str:
@@ -47,7 +55,7 @@ class OpenRouterConfig:
     reasoning_enabled: bool = True
 
     @classmethod
-    def from_env(cls, env: dict[str, str] | None = None) -> "OpenRouterConfig":
+    def from_env(cls, env: dict[str, str] | None = None) -> OpenRouterConfig:
         e = env if env is not None else os.environ
 
         def _get(key: str, default):
@@ -171,6 +179,26 @@ def _http_error_detail(exc: urllib.error.HTTPError) -> str:
     return f": {msg}" if msg else f": {raw[:500]}"
 
 
+def _extract_error(body: dict, choice: dict, msg: dict) -> str | None:
+    """Pull the provider error message out of an OpenRouter response.
+
+    When a provider errors mid-generation OpenRouter returns HTTP 200 with
+    ``finish_reason="error"`` and attaches the real reason to the *choice*
+    (``choice["error"]``) or the message — not always at the top level, which is
+    why the top-level ``error`` reads ``None`` for these failures. Check all
+    three, most-specific first, so the surfaced error is actionable instead of
+    ``error=None``.
+    """
+    for src in (choice.get("error"), msg.get("error"), body.get("error")):
+        if isinstance(src, dict):
+            detail = src.get("message") or src.get("code")
+            if detail:
+                return str(detail)
+        elif isinstance(src, str) and src.strip():
+            return src.strip()
+    return None
+
+
 def parse_response(text: str) -> tuple[str, list[dict]]:
     """Split the model reply into (gap_analysis_prose, candidates list).
 
@@ -234,15 +262,19 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
         except urllib.error.URLError as exc:  # pragma: no cover - network path
             raise RuntimeError(f"OpenRouter call failed: {exc}") from exc
 
-    # Two recoverable failure modes, each retried once:
+    # Three recoverable failure modes:
     # - reasoning models (GLM, o-series, R1...) can spend the entire completion
     #   budget on hidden reasoning and return content=None with
-    #   finish_reason="length" -> retry with a doubled budget;
+    #   finish_reason="length" -> retry once with a doubled budget;
     # - GLM (non-thinking) sometimes ends cleanly right after the "Block 2"
-    #   header without emitting the candidate JSON -> one fresh retry.
+    #   header without emitting the candidate JSON -> one fresh retry;
+    # - finish_reason="error" is a transient upstream provider failure (rate
+    #   limit, timeout, outage) -> retry a few times with backoff, since
+    #   OpenRouter may re-route to a healthy provider.
     max_tokens = cfg.max_tokens
     budget_retried = False
     empty_retried = False
+    error_retries = 0
     while True:
         body = _call(max_tokens)
         choice = (body.get("choices") or [{}])[0]
@@ -259,10 +291,27 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
             budget_retried = True
             max_tokens *= 2
             continue
-        err = (body.get("error") or {}).get("message")
+        if finish == "error" and error_retries < _MAX_ERROR_RETRIES:
+            error_retries += 1
+            time.sleep(_ERROR_BACKOFF_BASE * 2 ** (error_retries - 1))
+            continue
+        err = _extract_error(body, choice, msg)
+        if finish == "error":
+            # Budget is not the problem here; don't send the reader chasing
+            # OPENROUTER_MAX_TOKENS. This is an upstream provider fault.
+            retried = f" after {error_retries} retries" if error_retries else ""
+            hint = (
+                f"Upstream provider error{retried}; not a budget issue. See the "
+                "error detail above, retry later, or set OPENROUTER_MODEL to a "
+                "different model/provider."
+            )
+        else:
+            hint = (
+                "For reasoning models raise OPENROUTER_MAX_TOKENS or pick a "
+                "non-reasoning OPENROUTER_MODEL."
+            )
         raise RuntimeError(
             f"OpenRouter returned no content (model={cfg.model}, "
             f"finish_reason={finish!r}, error={err!r}, max_tokens={max_tokens}). "
-            "For reasoning models raise OPENROUTER_MAX_TOKENS or pick a "
-            "non-reasoning OPENROUTER_MODEL."
+            + hint
         )

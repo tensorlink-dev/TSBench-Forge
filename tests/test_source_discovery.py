@@ -296,3 +296,92 @@ def test_propose_without_key_raises() -> None:
         assert "OPENROUTER_API_KEY" in str(e)
     else:
         raise AssertionError("expected RuntimeError when no API key is set")
+
+
+# --------------------------------------------------------------------------- #
+# propose: recovery from a mid-generation provider error (finish_reason=error)
+# --------------------------------------------------------------------------- #
+
+
+def _error_choice(message: str | None = "provider timed out") -> dict:
+    """An OpenRouter choice for a mid-generation upstream failure.
+
+    The real reason rides on the *choice*, not the top-level ``error`` — mirror
+    that so the extraction path is exercised.
+    """
+    choice: dict = {"message": {"content": None}, "finish_reason": "error"}
+    if message is not None:
+        choice["error"] = {"code": 502, "message": message}
+    return {"choices": [choice]}
+
+
+def _content_choice(text: str) -> dict:
+    return {"choices": [{"message": {"content": text}, "finish_reason": "stop"}]}
+
+
+class _FakeResp:
+    def __init__(self, body: dict) -> None:
+        self._body = json.dumps(body).encode()
+
+    def read(self) -> bytes:
+        return self._body
+
+    def __enter__(self) -> _FakeResp:
+        return self
+
+    def __exit__(self, *exc) -> None:
+        return None
+
+
+def _patch_calls(monkeypatch, bodies: list[dict]) -> list[int]:
+    """Feed ``bodies`` to successive urlopen calls; no real sleeping."""
+    seq = iter(bodies)
+    calls = [0]
+
+    def fake_urlopen(req, timeout=None):
+        calls[0] += 1
+        return _FakeResp(next(seq))
+
+    monkeypatch.setattr(llm.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(llm.time, "sleep", lambda *_: None)
+    return calls
+
+
+def test_extract_error_prefers_choice_level_detail() -> None:
+    body = _error_choice("rate limited by upstream")
+    choice = body["choices"][0]
+    assert llm._extract_error(body, choice, choice["message"]) == "rate limited by upstream"
+
+
+def test_extract_error_falls_back_to_top_level_and_none() -> None:
+    assert llm._extract_error({"error": {"message": "top"}}, {}, {}) == "top"
+    assert llm._extract_error({}, {}, {}) is None
+
+
+def test_propose_retries_finish_reason_error_then_succeeds(monkeypatch) -> None:
+    reply = 'Gap analysis.\n\n```json\n[{"name": "x"}]\n```'
+    calls = _patch_calls(monkeypatch, [_error_choice(), _content_choice(reply)])
+    cfg = llm.OpenRouterConfig(api_key="k")
+
+    gap, cands = llm.propose(_inputs(), cfg)
+
+    assert gap == "Gap analysis."
+    assert cands == [{"name": "x"}]
+    assert calls[0] == 2  # errored once, retried, then succeeded
+
+
+def test_propose_surfaces_choice_error_after_exhausting_retries(monkeypatch) -> None:
+    bodies = [_error_choice("host is on fire")] * (llm._MAX_ERROR_RETRIES + 1)
+    calls = _patch_calls(monkeypatch, bodies)
+    cfg = llm.OpenRouterConfig(api_key="k")
+
+    try:
+        llm.propose(_inputs(), cfg)
+    except RuntimeError as e:
+        text = str(e)
+        assert "host is on fire" in text  # choice-level detail, not error=None
+        assert "Upstream provider error" in text
+        assert "OPENROUTER_MAX_TOKENS" not in text  # don't misdirect to the budget
+    else:
+        raise AssertionError("expected RuntimeError after retries are exhausted")
+    assert calls[0] == llm._MAX_ERROR_RETRIES + 1  # first attempt + N retries
