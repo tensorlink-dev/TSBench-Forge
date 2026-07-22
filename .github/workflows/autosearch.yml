@@ -12,12 +12,17 @@
 #     Once the catalog meets its coverage targets, a daily run costs ZERO tokens.
 #   * Hidden reasoning is ON (operator's choice — better proposals, costs a few
 #     thousand extra tokens per run). GLM ignores the soft
-#     OPENROUTER_REASONING_MAX_TOKENS cap (see source_discovery/llm.py), so the
-#     real guard is the 64k completion ceiling: at the old 8k/16k budgets GLM
-#     sometimes spent everything on reasoning and returned no content
-#     (finish_reason='length'); 64k leaves room for both. If runs ever start
-#     dying that way again, set OPENROUTER_REASONING_ENABLED: "false" — the one
-#     control GLM reliably honors.
+#     OPENROUTER_REASONING_MAX_TOKENS cap (see source_discovery/llm.py), so token
+#     budget alone can't bound its deliberation. Two guards keep it in check:
+#     the 64k completion ceiling (room for reasoning AND the answer), and
+#     OPENROUTER_DEADLINE — a hard total wall-clock budget on the model call. The
+#     socket-level OPENROUTER_TIMEOUT does NOT bound total time (the provider
+#     keeps a long generation's connection alive, so a reasoning run sailed past
+#     it to this job's 20-min cap once); the deadline is the real stop. On
+#     overrun the call fails fast and tomorrow's cron retries. Turning reasoning
+#     OFF (OPENROUTER_REASONING_ENABLED: "false") is the last resort, not the
+#     first: without reasoning GLM re-proposes already-ledgered hosts that the
+#     vet hard-rejects, so a run can finish fast yet surface zero NEW sources.
 #   * Set the OPENROUTER_MODEL repo VARIABLE to run a cheaper model on the daily
 #     cadence (code default: z-ai/glm-5.2).
 #   NOTE: while coverage gaps exist (they do today), a daily run = ~1 model call
@@ -66,6 +71,10 @@ jobs:
       # hold hidden reasoning AND the answer (code default is 8k, doubled once
       # on a length-cut retry) — see the reasoning note in the header.
       OPENROUTER_MAX_TOKENS: "64000"
+      # Hard total wall-clock budget for the model call (see the reasoning note in
+      # the header). Bounds a runaway reasoning run well under this job's 20-min
+      # timeout-minutes so a stuck run fails fast instead of being cancelled.
+      OPENROUTER_DEADLINE: "600"
       PYTHONPATH: src
     steps:
       - uses: actions/checkout@v5

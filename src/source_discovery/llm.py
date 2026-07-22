@@ -17,6 +17,8 @@ from __future__ import annotations
 import json
 import os
 import re
+import threading
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -36,7 +38,17 @@ class OpenRouterConfig:
     base_url: str = "https://openrouter.ai/api/v1/chat/completions"
     temperature: float = 0.4
     max_tokens: int = 8000
+    # Per-socket-operation timeout handed to urlopen. NOT a total deadline: it
+    # bounds a single blocking read, and OpenRouter keeps a long generation's
+    # connection alive, so a reasoning model can deliberate far past it. `deadline`
+    # below is the real bound.
     timeout: float = 120.0
+    # Hard total wall-clock budget for the whole propose() call (all retries
+    # included), enforced out-of-band by a watchdog. This is what actually stops a
+    # reasoning model from running until the CI job's own timeout cancels it: on
+    # overrun the call fails fast with an actionable error and the daily cron just
+    # retries next run. 0 disables the watchdog (block indefinitely, old behaviour).
+    deadline: float = 600.0
     # Cap on hidden reasoning tokens (OpenRouter-normalized `reasoning.max_tokens`).
     # 0 disables the cap. Without one, reasoning models can burn the whole
     # completion budget deliberating and return content=None.
@@ -67,6 +79,7 @@ class OpenRouterConfig:
             temperature=float(_get("OPENROUTER_TEMPERATURE", cls.temperature)),
             max_tokens=int(_get("OPENROUTER_MAX_TOKENS", cls.max_tokens)),
             timeout=float(_get("OPENROUTER_TIMEOUT", cls.timeout)),
+            deadline=float(_get("OPENROUTER_DEADLINE", cls.deadline)),
             reasoning_max_tokens=int(
                 _get("OPENROUTER_REASONING_MAX_TOKENS", cls.reasoning_max_tokens)
             ),
@@ -171,6 +184,38 @@ def _http_error_detail(exc: urllib.error.HTTPError) -> str:
     return f": {msg}" if msg else f": {raw[:500]}"
 
 
+def _run_with_deadline(fn, seconds: float | None):
+    """Run ``fn()`` on a daemon thread, aborting if it outlives ``seconds``.
+
+    urllib's socket ``timeout`` bounds a single blocking read, not the whole
+    call: OpenRouter holds a long generation's connection open, so a reasoning
+    model can deliberate for tens of minutes under a 120s socket timeout (the
+    observed 20-minute CI hang). This is the out-of-band total-time bound.
+
+    Raises :class:`TimeoutError` if ``fn`` is still running after ``seconds``;
+    re-raises whatever ``fn`` raised otherwise; returns ``fn``'s value on success.
+    ``seconds=None`` waits indefinitely (watchdog disabled). The worker is a
+    daemon, so an abandoned (timed-out) call never blocks interpreter exit — the
+    short-lived CLI exits immediately and the leaked socket dies with the process.
+    """
+    box: dict = {}
+
+    def target() -> None:
+        try:
+            box["value"] = fn()
+        except BaseException as exc:  # noqa: BLE001 - re-raised on the caller thread
+            box["error"] = exc
+
+    t = threading.Thread(target=target, daemon=True)
+    t.start()
+    t.join(seconds)
+    if t.is_alive():
+        raise TimeoutError
+    if "error" in box:
+        raise box["error"]
+    return box["value"]
+
+
 def parse_response(text: str) -> tuple[str, list[dict]]:
     """Split the model reply into (gap_analysis_prose, candidates list).
 
@@ -240,11 +285,31 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
     #   finish_reason="length" -> retry with a doubled budget;
     # - GLM (non-thinking) sometimes ends cleanly right after the "Block 2"
     #   header without emitting the candidate JSON -> one fresh retry.
+    deadline_at = time.monotonic() + cfg.deadline if cfg.deadline else None
+
+    def _guarded_call(max_tokens: int) -> dict:
+        remaining = None
+        if deadline_at is not None:
+            remaining = deadline_at - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError
+        try:
+            return _run_with_deadline(lambda: _call(max_tokens), remaining)
+        except TimeoutError:
+            raise RuntimeError(
+                f"OpenRouter call exceeded OPENROUTER_DEADLINE={cfg.deadline:.0f}s "
+                f"(model={cfg.model}, reasoning_enabled={cfg.reasoning_enabled}, "
+                f"max_tokens={max_tokens}). A reasoning model is deliberating past "
+                "the budget rather than answering. Lower OPENROUTER_MAX_TOKENS, set "
+                "OPENROUTER_REASONING_ENABLED=false, pick a non-reasoning "
+                "OPENROUTER_MODEL, or raise OPENROUTER_DEADLINE."
+            ) from None
+
     max_tokens = cfg.max_tokens
     budget_retried = False
     empty_retried = False
     while True:
-        body = _call(max_tokens)
+        body = _guarded_call(max_tokens)
         choice = (body.get("choices") or [{}])[0]
         msg = choice.get("message") or {}
         text = msg.get("content") or ""

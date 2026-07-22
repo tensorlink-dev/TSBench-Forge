@@ -11,6 +11,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import time
 import urllib.error
 
 from source_discovery import config, coverage, llm, runner, vet
@@ -285,6 +286,42 @@ def test_http_error_detail_falls_back_to_raw_body() -> None:
 def test_http_error_detail_handles_empty_body() -> None:
     exc = _http_error(400, "")
     assert llm._http_error_detail(exc) == ""
+
+
+def test_from_env_parses_deadline_and_blank_falls_back() -> None:
+    cfg = llm.OpenRouterConfig.from_env({"OPENROUTER_API_KEY": "k", "OPENROUTER_DEADLINE": "42"})
+    assert cfg.deadline == 42.0
+    blank = llm.OpenRouterConfig.from_env({"OPENROUTER_API_KEY": "k", "OPENROUTER_DEADLINE": ""})
+    assert blank.deadline == llm.OpenRouterConfig.deadline
+
+
+def test_run_with_deadline_returns_fast_result() -> None:
+    assert llm._run_with_deadline(lambda: 7, 5.0) == 7
+
+
+def test_run_with_deadline_reraises_worker_error() -> None:
+    def boom():
+        raise ValueError("nope")
+
+    try:
+        llm._run_with_deadline(boom, 5.0)
+    except ValueError as e:
+        assert "nope" in str(e)
+    else:
+        raise AssertionError("expected the worker's exception to propagate")
+
+
+def test_run_with_deadline_times_out_on_slow_worker() -> None:
+    # A worker that outlives the budget must raise TimeoutError promptly, not
+    # block for the worker's full duration.
+    started = time.monotonic()
+    try:
+        llm._run_with_deadline(lambda: time.sleep(5), 0.05)
+    except TimeoutError:
+        pass
+    else:
+        raise AssertionError("expected TimeoutError when the worker overruns")
+    assert time.monotonic() - started < 2.0, "watchdog should return near the deadline"
 
 
 def test_propose_without_key_raises() -> None:
