@@ -1,18 +1,17 @@
 ## Block 1 — Gap Analysis
 
-The current pool of 176 sources is strong on daily cadence (56 sources) and well-stocked in nature (45) and econ_fin (31), but it has a critical structural weakness: **irregular/event-driven cadences are almost absent** (only 1 source across all 7 domains, vs. a target of 2–3 per domain = 14–21 cells). This is the single largest gap by cell-count and also the highest-value gap because event-driven data is both contamination-resistant (future events can't have been pretrained on) and discriminative (models can't lean on simple seasonality).
+**What the current pool over-covers:** The benchmark is heavily weighted toward daily cadence (56 sources) and sub-hourly real-time feeds (67 sources across sub-min, few-min, half-hour). Nature (45) and econ_fin (31) dominate the domain mix. Within nature, earthquake/volcano/seismic monitoring is saturated across six independent feeds (USGS, INGV, EMSC, GeoNet, BGS, Geoscience Australia), and weather is well-covered by Open-Meteo's multiple endpoints plus SMHI, JMA, and NDBC. Within econ_fin, crypto market data alone accounts for ~15 sources. The pool is strong on live/streaming feeds (22) and open APIs (147), which is excellent for contamination resistance.
 
-**Over-represented:** Daily cadence (56 sources, many domains already at target), US-centric public-sector feeds, and air-quality/seismic/space-weather nature sources. The nature domain alone has 45 sources — more than energy (17), healthcare (19), and transport (19) combined with sales (21).
+**What is thin or absent:** The most critical gaps are the **irregular/event-driven** cells across nearly every domain — 9 of 10 domain×irregular cells have zero sources. Healthcare is the most severely under-served domain for high-frequency data: sub-min, few-min, half-hour, and irregular are all empty (deficit 3 each). This matters because healthcare event streams (outbreaks, adverse events, emergency dispatch) are among the hardest forecasting problems and are essentially absent from standard TSFM pretraining corpora. The web_cloudops/half-hour cell is also empty (deficit 3), and energy/irregular is missing entirely (deficit 3). Transport/irregular and sales/irregular are similarly empty.
 
-**Under-represented and high-priority:**
-1. **Irregular/event-driven across all 7 domains** — deficit 3 in econ_fin, energy, healthcare, nature, sales, transport; deficit 2 in web_cloudops. This is the top priority.
-2. **Healthcare sub-hourly (sub-min, few-min, half-hour)** — all at 0/3. Genuinely very hard to fill: most real-time health data is private (CGM, patient monitors), already rejected (PulsePoint, NHS, NightScout, OpenBCI), or already proposed (OpenAQ, ProMED, CDC HAN). I note this explicitly and focus my proposals where I can find genuinely new sources.
-3. **web_cloudops/half-hour** (0/3) and **transport/half-hour** (1/3) — high-value sub-hourly cells with no or thin coverage.
-4. **energy/sub-min** (1/3) and **energy/irregular** (0/3) — energy has strong few-min/hourly coverage from ISO/RTO feeds but lacks event-driven and sub-minute sources.
+**Ranked gaps targeted:**
 
-**Contamination posture is healthy:** 116/176 sources are low-risk, and most are live/streaming APIs whose future values don't yet exist. The 6 high-risk sources are a small fraction. The main contamination concern is that the pool leans heavily on well-known US/EU government APIs (USGS, NOAA, EIA, CDC, SEC) that could plausibly appear in future pretraining corpora — reinforcing the need for obscure and regional sources.
+1. **Irregular/event-driven cells across all domains** (deficit 3 each) — highest priority because they are both scarce and contamination-resistant by construction (future events cannot have been pretrained on).
+2. **Healthcare high-frequency cells** (sub-min, few-min, half-hour — all deficit 3) — hardest to fill with public data, but highest discriminative value.
+3. **web_cloudops/half-hour** (deficit 3) — no sources at all; internet traffic exchange data could fill this.
+4. **transport/half-hour** (deficit 2) and **energy/irregular** (deficit 3) — moderate priority, fillable with government/infrastructure feeds.
 
-I was unable to find genuinely new public sources for healthcare/sub-min, healthcare/few-min, healthcare/half-hour, transport/irregular, and web_cloudops/half-hour that aren't already in CURRENT_SOURCES or ALREADY_PROPOSED. These gaps require either licensed data, private APIs, or creative repackaging of existing feeds — all flagged for human follow-up.
+Contamination concentration is well-managed (116 low, 54 medium, 6 high), so the primary concern is diversity and gap-filling rather than decontamination.
 
 ---
 
