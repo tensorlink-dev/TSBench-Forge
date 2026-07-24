@@ -2061,6 +2061,15 @@
     "times_proposed": 2
   },
   {
+    "key": "healthcare|api.londonair.org.uk",
+    "name": "london_ambulance_service_dispatches",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "rejected",
+    "first_proposed": "2026-07-10",
+    "times_proposed": 2
+  },
+  {
     "key": "healthcare|api.nhs.uk",
     "name": "nhs_england_111_calls_half_hourly",
     "domain": "healthcare",
@@ -2124,6 +2133,15 @@
     "times_proposed": 2
   },
   {
+    "key": "healthcare|data.sfgov.org",
+    "name": "SFFD Live Dispatch Feed",
+    "domain": "healthcare",
+    "frequency": "PT1M",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
     "key": "healthcare|emergency.cdc.gov",
     "name": "CDC Health Alert Network (HAN) \u2014 health alert feed",
     "domain": "healthcare",
@@ -2184,6 +2202,15 @@
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-06",
+    "times_proposed": 2
+  },
+  {
+    "key": "healthcare|www.cpsc.gov",
+    "name": "CPSC Recalls RSS \u2014 Consumer Product Safety Commission recall announcements",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
     "times_proposed": 2
   },
   {
@@ -2799,6 +2826,15 @@
     "times_proposed": 2
   },
   {
+    "key": "sales|boardgamegeek.com",
+    "name": "BoardGameGeek XMLAPI2 \u2014 game ratings and collection counts",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
     "key": "sales|graphql.anilist.co",
     "name": "anilist_anime_airing_popularity",
     "domain": "sales",
@@ -3105,6 +3141,24 @@
     "times_proposed": 2
   },
   {
+    "key": "web_cloudops|mb-api.abuse.ch",
+    "name": "MalwareBazaar \u2014 malware sample submission stream (abuse.ch)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "key-gated",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
+    "key": "web_cloudops|otx.alienvault.com",
+    "name": "AlienVault OTX \u2014 Open Threat Exchange pulse stream (IOC bundles)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
     "key": "web_cloudops|ris-live.ripe.net",
     "name": "RIPE RIS Live \u2014 real-time BGP update event stream",
     "domain": "web_cloudops",
@@ -3134,6 +3188,15 @@
   {
     "key": "web_cloudops|www.githubstatus.com",
     "name": "GitHub Status \u2014 incident history (Statuspage API v2)",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "web_cloudops|www.spamhaus.org",
+    "name": "Spamhaus DROP List",
     "domain": "web_cloudops",
     "frequency": "irregular",
     "status": "rejected",
@@ -3840,6 +3903,15 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|www.pbgc.gov",
+    "name": "PBGC Pension Plan Termination Events",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-24",
     "times_proposed": 1
   },
   {
@@ -4671,15 +4743,6 @@
     "times_proposed": 1
   },
   {
-    "key": "healthcare|api.londonair.org.uk",
-    "name": "london_ambulance_service_dispatches",
-    "domain": "healthcare",
-    "frequency": "few-min",
-    "status": "proposed",
-    "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
     "key": "healthcare|api.openaq.org",
     "name": "OpenAQ Global Air Quality",
     "domain": "healthcare",
@@ -4785,15 +4848,6 @@
     "frequency": "PT2M30S",
     "status": "proposed",
     "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
-    "key": "healthcare|data.sfgov.org",
-    "name": "SFFD Live Dispatch Feed",
-    "domain": "healthcare",
-    "frequency": "PT1M",
-    "status": "proposed",
-    "first_proposed": "2026-07-04",
     "times_proposed": 1
   },
   {
@@ -5118,15 +5172,6 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-20",
-    "times_proposed": 1
-  },
-  {
-    "key": "healthcare|www.cpsc.gov",
-    "name": "CPSC Recalls RSS \u2014 Consumer Product Safety Commission recall announcements",
-    "domain": "healthcare",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -5985,6 +6030,15 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|geofon.gfz-potsdam.de",
+    "name": "GEOFON Seismic Event Stream",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-24",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|geoscience_aus_earthquakes",
     "name": "geoscience_aus_earthquakes",
     "domain": "nature",
@@ -6837,15 +6891,6 @@
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-06",
-    "times_proposed": 1
-  },
-  {
-    "key": "sales|boardgamegeek.com",
-    "name": "BoardGameGeek XMLAPI2 \u2014 game ratings and collection counts",
-    "domain": "sales",
-    "frequency": "irregular",
-    "status": "key-gated",
-    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -7818,6 +7863,15 @@
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-10",
+    "times_proposed": 1
+  },
+  {
+    "key": "transport|api.marinetraffic.com",
+    "name": "MarineTraffic Port Call Events",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-24",
     "times_proposed": 1
   },
   {
@@ -9009,15 +9063,6 @@
     "times_proposed": 1
   },
   {
-    "key": "web_cloudops|mb-api.abuse.ch",
-    "name": "MalwareBazaar \u2014 malware sample submission stream (abuse.ch)",
-    "domain": "web_cloudops",
-    "frequency": "irregular",
-    "status": "key-gated",
-    "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
     "key": "web_cloudops|measurementlab.net",
     "name": "mlab_network_performance_tests",
     "domain": "web_cloudops",
@@ -9041,15 +9086,6 @@
     "domain": "web_cloudops",
     "frequency": "irregular",
     "status": "key-gated",
-    "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
-    "key": "web_cloudops|otx.alienvault.com",
-    "name": "AlienVault OTX \u2014 Open Threat Exchange pulse stream (IOC bundles)",
-    "domain": "web_cloudops",
-    "frequency": "irregular",
-    "status": "rejected",
     "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
@@ -9276,15 +9312,6 @@
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
-    "key": "web_cloudops|www.spamhaus.org",
-    "name": "Spamhaus DROP List",
-    "domain": "web_cloudops",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-04",
     "times_proposed": 1
   }
 ]
