@@ -5545,3 +5545,69 @@
     sample_rows: 8969
     sample_freshness_hours: 1.0
   notes: "relativeFundingRate is the per-period rate (the funding signal); fundingRate is the absolute USD figure. Full year in one response — no paging needed, admission-eligible from the first scrape. Other perps: PF_ETHUSD etc."
+
+# ── autosearch integrations (endpoint-verified 2026-07-25) ──────────────────
+- id: ercot_supply_demand
+  name: ERCOT Texas grid demand & capacity (real-time dashboard)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [smooth_periodic, non_stationary_regime, bounded]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.ercot.com/api/1/services/read/dashboards/supply-demand.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "data[].timestamp"
+    value_field: ["data[].demand", "data[].capacity"]
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: 5 minutes; rolling ~1-day window (dedupe backfills each poll)
+  pretraining_novelty: clean
+  novelty_notes: ERCOT public dashboard JSON; real-time Texas grid demand, not in Monash/LOTSA.
+  license: ERCOT public data — research use ok
+  sample_path: samples/ercot_supply_demand.json
+  verification:
+    last_verified: 2026-07-25T00:00:00Z
+    sample_rows: 289
+    sample_freshness_hours: 0.1
+  notes: Wired from autosearch proposal "ERCOT Real-Time"; real endpoint discovered at the ercot.com dashboards API.
+
+- id: steam_concurrent_players
+  name: Steam concurrent players (10-game panel)
+  domain: sales
+  dgp_class: content_ranking
+  archetypes: [smooth_periodic, non_stationary_regime, bounded, count_discrete]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid={APPID}
+    auth: none
+    rate_limit: null
+  panel:
+    - {APPID: '730'}
+    - {APPID: '570'}
+    - {APPID: '578080'}
+    - {APPID: '1172470'}
+    - {APPID: '271590'}
+    - {APPID: '440'}
+    - {APPID: '1085660'}
+    - {APPID: '252490'}
+    - {APPID: '359550'}
+    - {APPID: '230410'}
+  schema:
+    timestamp_field: "now()"
+    value_field: "response.player_count"
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: snapshot; poll at PT5M to accumulate (strong daily/weekly cycle)
+  pretraining_novelty: clean
+  novelty_notes: Live Steam concurrent-player counts per game; not a known TSFM dataset.
+  license: Steam Web API — public (GetNumberOfCurrentPlayers needs no key)
+  sample_path: samples/steam_concurrent_players.json
+  verification:
+    last_verified: 2026-07-25T00:00:00Z
+    sample_rows: 1
+    sample_freshness_hours: 0.02
+  notes: Wired from autosearch proposal "Steam Web API — concurrent players". 730=CS2,570=Dota2,578080=PUBG,1172470=Apex,271590=GTAV,440=TF2,1085660=Destiny2,252490=Rust,359550=R6,230410=Warframe.

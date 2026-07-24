@@ -54,6 +54,8 @@ schedules:
       - nasdaq_trader_halts
       - caiso_grid_conditions
       - lichess_realtime_api
+      - ercot_supply_demand            # 2026-07-25 autosearch wire (TX grid demand)
+      - steam_concurrent_players       # 2026-07-25 autosearch wire (player counts)
     cron: "*/5 * * * *"
 
   - every: PT15M
