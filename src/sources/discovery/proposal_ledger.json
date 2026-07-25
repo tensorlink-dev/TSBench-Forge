@@ -454,9 +454,10 @@
     "name": "Eurostat \u2014 monthly economic and social indicators (JSON-stat API)",
     "domain": "econ_fin",
     "frequency": "P1M",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-04",
-    "times_proposed": 5
+    "times_proposed": 5,
+    "wired_as": "eurostat_hicp_ea_annual_rate"
   },
   {
     "key": "energy|api.eia.gov",
@@ -661,9 +662,10 @@
     "name": "SEC EDGAR \u2014 filing submission arrival rate",
     "domain": "econ_fin",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "key-gated",
     "first_proposed": "2026-07-04",
-    "times_proposed": 4
+    "times_proposed": 4,
+    "note": "needs SEC_USER_AGENT contact UA"
   },
   {
     "key": "econ_fin|www.finra.org",
@@ -2137,9 +2139,10 @@
     "name": "SFFD Live Dispatch Feed",
     "domain": "healthcare",
     "frequency": "PT1M",
-    "status": "rejected",
+    "status": "wired",
     "first_proposed": "2026-07-04",
-    "times_proposed": 2
+    "times_proposed": 2,
+    "wired_as": "sffd_dispatch_call_volume"
   },
   {
     "key": "healthcare|emergency.cdc.gov",
@@ -3829,9 +3832,10 @@
     "name": "deribit_options_market_data",
     "domain": "econ_fin",
     "frequency": "half-hour",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-06",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "deribit_btc_perp_trades"
   },
   {
     "key": "econ_fin|www.fatf-gafi.org",
@@ -4783,9 +4787,10 @@
     "name": "Safecast \u2014 citizen radiation monitoring network (global)",
     "domain": "healthcare",
     "frequency": "irregular (event-driven: measurement timestamps)",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-04",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "safecast_radiation_measurements"
   },
   {
     "key": "healthcare|api.service.nhs.uk",
@@ -5710,9 +5715,10 @@
     "name": "GDELT 2.0 Event Database \u2014 Global news event stream (15-min updates)",
     "domain": "nature",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-04",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "gdelt_news_volume_weather"
   },
   {
     "key": "nature|api.geonet.org.nz",
@@ -6079,9 +6085,10 @@
     "name": "hubeau_french_hydrometry",
     "domain": "nature",
     "frequency": "half-hour",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-05",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "hubeau_hydrometry_river_stage"
   },
   {
     "key": "nature|hydapi.nve.no",
@@ -6610,9 +6617,10 @@
     "name": "water_quality_portal_measurements",
     "domain": "nature",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-05",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "wqp_delaware_water_temperature"
   },
   {
     "key": "nature|www2.sepa.org.uk",
@@ -6745,9 +6753,10 @@
     "name": "UK ONS Monthly Retail Sales Index",
     "domain": "sales",
     "frequency": "monthly",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "ons_retail_sales_index"
   },
   {
     "key": "sales|Wikimedia Recent Changes Stream",
@@ -6925,9 +6934,10 @@
     "name": "arXiv preprint submission stream (by category, hourly count)",
     "domain": "sales",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-05",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "arxiv_cslg_submission_rate"
   },
   {
     "key": "sales|f-droid.org",
@@ -7105,9 +7115,10 @@
     "name": "RubyGems.org Version Release API",
     "domain": "sales",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-20",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "rubygems_rails_version_downloads"
   },
   {
     "key": "sales|steamdb.info",
@@ -8410,9 +8421,10 @@
     "name": "uscg_navigational_warnings",
     "domain": "transport",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "nga_navarea_broadcast_warnings"
   },
   {
     "key": "transport|webtris.nationalhighways.co.uk",
@@ -8887,9 +8899,10 @@
     "name": "MalwareBazaar Threat Intelligence Feed",
     "domain": "web_cloudops",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-23",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "malwarebazaar_sample_submissions"
   },
   {
     "key": "web_cloudops|bgp_hijack_events",

@@ -6340,3 +6340,332 @@
   notes: Autosearch grind wire. Plain GET JSON, no key. Screen used days=7 (only 4
     distinct auctionDates) and interestRate (empty for T-bills). Widened to days=250
     (rolling window, no hardcoded dates) and switche
+
+# ============================================================================
+# autosearch unlock-wave (2026-07-25) — feature-unlock + pre-probed backlog
+# 12 sources, each verified end-to-end against scraper.fetch_payload+parse_payload
+# ============================================================================
+- id: deribit_btc_perp_trades
+  name: Deribit BTC-PERPETUAL public trade tape (last 1000 trades)
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes:
+  - non_stationary_regime
+  - chaotic_nonlinear
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.deribit.com/api/v2/public/get_last_trades_by_instrument?instrument_name=BTC-PERPETUAL&count=1000
+    auth: none
+    rate_limit: 20 req/s public
+  schema:
+    timestamp_field: result.trades[].timestamp
+    value_field: result.trades[].price
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous tick (poll every 5 min for last 1000 trades)
+  pretraining_novelty: partial
+  novelty_notes: Tick-level BTC perp trade prices; irregular high-frequency tape, less contaminated than
+    daily OHLC.
+  license: Deribit public market data API - research use
+  notes: Plain rest_json GET; result.trades[] carries epoch-ms timestamp + numeric price (amount/direction
+    also available). Switched off the snapshot ticker to this trade-tape endpoint for a real time series.
+- id: hubeau_hydrometry_river_stage
+  name: Hub'Eau — French real-time river stage (station K001002010, height H)
+  domain: nature
+  dgp_class: hydrology_river_stage
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://hubeau.eaufrance.fr/api/v2/hydrometrie/observations_tr?code_entite=K001002010&grandeur_hydro=H&size=500
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].date_obs
+    value_field: data[].resultat_obs
+    variates: 1
+  history_available: P1M
+  pretraining_novelty: clean
+  novelty_notes: French national hydrometry network (Hub'Eau / SANDRE) real-time water-level (stage H)
+    at a single gauging station. Sub-hourly instrument series; complements existing river-level hydrology
+    sources with a EU/French basin.
+  license: public (autosearch-wired)
+  notes: plain rest_json GET; returns HTTP 206 Partial Content (scraper accepts 206). Default desc sort
+    returns the most-recent 500 obs each poll (distinct sub-hourly timestamps ending at poll time), so
+    hourly polling with row-dedup captures the full series. The unscoped all-stations query returns only
+    the single latest timestamp across stations — must scope by code_entite + grandeur_hydro.
+- id: rubygems_rails_version_downloads
+  name: RubyGems rails — per-version download counts
+  domain: sales
+  dgp_class: release_downloads
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://rubygems.org/api/v1/versions/rails.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].created_at'
+    value_field: '[].downloads_count'
+    variates: 1
+  history_available: P0D
+  pretraining_novelty: clean
+  novelty_notes: RubyGems per-version download counts for the rails gem; keyless JSON array indexed by
+    release created_at. Not present in LOTSA/Monash/Chronos/TimesFM mixes.
+  license: public (RubyGems.org API — research use ok)
+  notes: 'Autosearch grind wire. Plain rest_json GET; array of 516 versions each with distinct created_at
+    (480 distinct) + numeric downloads_count. Verified with real scraper: 516 rows, numeric.'
+- id: ons_retail_sales_index
+  name: UK ONS Monthly Retail Sales Index (all series)
+  domain: sales
+  dgp_class: retail_index
+  archetypes:
+  - seasonal
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://static.ons.gov.uk/datasets/retail-sales-index-time-series-v45.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Time
+    value_field: v4_1
+    variates: 1
+    panel_field:
+    - sic-unofficial
+    - type-of-prices
+    - seasonal-adjustment
+  history_available: P0D
+  pretraining_novelty: clean
+  novelty_notes: UK retail sales index split into 100 per-(sector x price-type x adjustment) monthly series
+    via field-paneling.
+  license: Open Government Licence v3.0 (ONS)
+  notes: 'Autosearch wire. Verified via scraper._records_from_csv: 45700 rows, 457 distinct Time (mmm-yy
+    month labels back to 2000), v4_1 numeric (~94%; blanks are Data-Marking rows), 100 distinct panels.
+    Uses schema.panel_field to split the flat CSV into per-series panels. WARNING: URL is version-pinned
+    (v45) — bump the vNN segment when ONS publishes a new edition (old version may 404).'
+- id: nga_navarea_broadcast_warnings
+  name: NGA MSI — active maritime broadcast (NAVAREA) warnings
+  domain: transport
+  dgp_class: alert_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://msi.nga.mil/api/publications/broadcast-warn?output=json&status=active
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: broadcast-warn[].issueDate
+    value_field: broadcast-warn[].msgNumber
+    variates: 1
+  history_available: P0D
+  pretraining_novelty: clean
+  novelty_notes: US NGA Maritime Safety Information broadcast warnings — authoritative global NAVAREA
+    maritime-hazard stream (offshore rig positions, missing buoys, military exercises). Per-warning issue
+    DTG + message number; not in known TSFM pretrains.
+  license: public (autosearch-wired)
+  notes: Plain rest_json array under broadcast-warn[]. Timestamp is a military date-time-group string
+    (DDHHMMZ MON YYYY) kept verbatim (not ISO — schema.aggregate would NaT-coerce it, so a plain msgNumber
+    series is used instead). value_field is msgNumber (per-year message sequence). 386 rows / 385 distinct
+    at verification.
+- id: eurostat_hicp_ea_annual_rate
+  name: eurostat_hicp_euro_area_annual_rate
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_manr/M.RCH_A.CP00.EA?format=SDMX-CSV
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    variates: 1
+  history_available: P0D
+  pretraining_novelty: clean
+  novelty_notes: Euro-area HICP all-items annual rate of change (prc_hicp_manr, series M.RCH_A.CP00.EA)
+    — the headline euro-area inflation print, monthly since 1997. Non-stationary regime series covering
+    the 2021-2023 inflation shock.
+  license: public (autosearch-wired)
+  notes: 'Plain rest_csv GET. The pre-probed JSON-stat endpoint (?format=JSON) is NOT wireable — the scraper
+    only decodes SDMX-JSON (dataSets+structure), not JSON-stat''s index-keyed value{} map. Switched to
+    the SDMX 2.1 REST endpoint with a fully-specified series key and format=SDMX-CSV, which yields a normal
+    comma CSV (TIME_PERIOD, OBS_VALUE). Verified: 348 monthly rows, 348 distinct timestamps, numeric.
+    Swap dataset code / series key for other indicators.'
+- id: wqp_delaware_water_temperature
+  name: Water Quality Portal — Delaware water temperature measurements
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - seasonal
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://www.waterqualitydata.us/data/Result/search?statecode=US:10&characteristicName=Temperature%2C+water&mimeType=csv&zip=no&startDateLo=01-01-2023
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: ActivityStartDate
+    value_field: ResultMeasureValue
+    variates: 1
+  history_available: P0D
+  pretraining_novelty: clean
+  novelty_notes: Field water-temperature grab samples aggregated across Delaware monitoring stations;
+    irregular multi-station environmental series not in standard TS pretraining mixes.
+  license: Public domain (USGS/EPA Water Quality Portal)
+  notes: 'Autosearch wire. Verified via scraper._records_from_csv: 3463 rows, 265 distinct ActivityStartDate,
+    ResultMeasureValue 100% numeric, HTTP 200, no key. WQP legacy /data/Result/search no longer serves
+    USGS-* sites (migrated to USGS OGC API 2024) — query STORET providers via statecode instead. startDateLo
+    must be MM-DD-YYYY; pinned a literal date because the {YYYY-MM-DD-Nd} offset token renders YYYY-MM-DD
+    which WQP rejects (400). Plain GET csv.'
+- id: malwarebazaar_sample_submissions
+  name: abuse.ch MalwareBazaar — recent malware sample submissions (hourly count)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_csv
+    url: https://bazaar.abuse.ch/export/csv/recent/
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: first_seen_utc
+    value_field: sha256_hash
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  pretraining_novelty: clean
+  novelty_notes: abuse.ch MalwareBazaar community malware-sample submissions — a threat-intel event feed.
+    Aggregated to samples-per-hour; a count_discrete cyber-security series not present in known TSFM pretrains.
+  license: public (autosearch-wired)
+  notes: Event feed aggregated via schema.aggregate (op:count, bin PT1H). The CSV ships a commented, quoted
+    header the generic reader cannot align — value_field is a sentinel column name (sha256_hash) purely
+    to suppress the ragged None-restkey column that would otherwise crash aggregation; count ignores the
+    value. first_seen_utc resolves via first-column fallback; comment lines drop as NaT. 48 hourly bins
+    over ~2 days at verification.
+- id: sffd_dispatch_call_volume
+  name: SF Fire Dept live dispatch calls (hourly call volume)
+  domain: healthcare
+  dgp_class: count_process
+  archetypes:
+  - count_discrete
+  - seasonal_daily
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.sfgov.org/resource/nuek-vuh3.json?$order=received_dttm%20DESC&$limit=1000
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].received_dttm'
+    value_field: value
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: rolling
+  update_cadence_observed: continuous live dispatch; ~1000 events span ~26h
+  pretraining_novelty: partial
+  novelty_notes: SF Fire dispatch firehose (Socrata nuek-vuh3) binned to hourly call volume; strong daily
+    seasonality, healthcare/irregular arrival-count DGP.
+  license: Public domain (DataSF open data)
+  notes: Uses schema.aggregate {op:count, bin:PT1H} to turn the per-unit dispatch event stream into hourly
+    call counts. Each poll returns the most recent ~1000 dispatches (~26h ordered received_dttm DESC).
+  verification:
+    last_verified: '2026-07-25 00:00:00+00:00'
+    sample_rows: null
+    sample_freshness_hours: null
+- id: safecast_radiation_measurements
+  name: Safecast citizen radiation monitoring network - latest measurements
+  domain: healthcare
+  dgp_class: sensor
+  archetypes:
+  - event_stream
+  - spatially_distributed
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.safecast.org/measurements.json?page=1
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].captured_at'
+    value_field: '[].value'
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: continuous crowd-sourced ingest (poll hourly for newest page)
+  pretraining_novelty: novel
+  novelty_notes: Crowd-sourced ionizing-radiation readings (cpm/usv); niche geospatial sensor feed absent
+    from TSFM mixes.
+  license: Safecast data CC0
+  notes: Plain rest_json GET; top-level JSON array, each element has captured_at ISO ts + numeric value.
+- id: arxiv_cslg_submission_rate
+  name: arXiv cs.LG submission rate (hourly counts)
+  domain: sales
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rss
+    url: https://export.arxiv.org/api/query?search_query=cat:cs.LG&sortBy=submittedDate&sortOrder=descending&max_results=100
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: updated
+    value_field: ''
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P0D
+  pretraining_novelty: clean
+  novelty_notes: Hourly count of new arXiv cs.LG submissions — event-arrival intensity series, not in
+    standard TS pretraining corpora.
+  license: arXiv API Terms of Use — non-commercial research
+  notes: 'Autosearch wire. Atom feed parsed by _records_from_rss (per-<entry> <updated> timestamps), then
+    schema.aggregate {op:count,bin:PT1H} bins the 100 most-recent submissions into hourly counts. Verified:
+    24 rows, 24 distinct timestamps, value numeric, HTTP 200, no key. rest_xml does NOT work (single root
+    timestamp only) — must use type: rss. Window is the last ~100 papers (~2 days); poll hourly to accumulate
+    the ongoing rate.'
+- id: gdelt_news_volume_weather
+  name: GDELT DOC 2.0 — news coverage volume timeline (query 'weather')
+  domain: nature
+  dgp_class: media_attention_volume
+  archetypes:
+  - bounded
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.gdeltproject.org/api/v2/doc/doc?query=weather&mode=timelinevol&format=json&timespan=1d
+    auth: none
+    rate_limit: 1 req/5s
+  schema:
+    timestamp_field: timeline[].data[].date
+    value_field: timeline[].data[].value
+    variates: 1
+  history_available: null
+  pretraining_novelty: clean
+  novelty_notes: 'GDELT global news-monitoring volume-intensity series: percent of worldwide monitored
+    coverage matching the query term, binned every 15 minutes over a rolling 1-day window. A pure attention/media-volume
+    DGP distinct from the existing pageview and content-ranking sources.'
+  license: public (autosearch-wired)
+  notes: plain rest_json GET; nested timeline[].data[] arrays; endpoint 429-throttles at 1 req/5s (no
+    key) — scraper's built-in 429 retry handles it.

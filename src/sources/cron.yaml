@@ -271,3 +271,29 @@ schedules:
       - sepa_scotland_river_levels
       - treasury_auction_results
     cron: "25 3 * * *"
+
+  # ──────── autosearch unlock-wave batch (2026-07-25) ────────
+  - every: PT5M
+    sources:
+      - deribit_btc_perp_trades
+    cron: "*/5 * * * *"
+  - every: PT15M
+    sources:
+      - gdelt_news_volume_weather
+    cron: "*/15 * * * *"
+  - every: PT1H
+    sources:
+      - hubeau_hydrometry_river_stage
+      - malwarebazaar_sample_submissions
+      - sffd_dispatch_call_volume
+      - safecast_radiation_measurements
+      - arxiv_cslg_submission_rate
+    cron: "9 * * * *"
+  - every: P1D
+    sources:
+      - rubygems_rails_version_downloads
+      - ons_retail_sales_index
+      - nga_navarea_broadcast_warnings
+      - eurostat_hicp_ea_annual_rate
+      - wqp_delaware_water_temperature
+    cron: "35 3 * * *"
