@@ -415,6 +415,20 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
             return [{"timestamp": now_iso, "value": json.dumps(data)[:200000]}]
 
     if isinstance(ts_seq, list):
+        # Field-based paneling: split one payload into per-entity series by
+        # tagging each row with `_panel_<key>` columns (downstream groups on
+        # them). `panel_field` is a path (or list of paths) aligned by index
+        # with the timestamp array — e.g. NVE returns every region's weekly
+        # reservoir fill in one flat array, panel_field: ['[].omrType','[].omrnr'].
+        panel_paths = schema.get("panel_field")
+        if isinstance(panel_paths, str):
+            panel_paths = [panel_paths]
+        panel_seqs = []
+        for pp in (panel_paths or []):
+            try:
+                panel_seqs.append(("_panel_" + pp.split(".")[-1].strip("[]"), _walk(data, pp)))
+            except Exception:  # noqa: BLE001
+                pass
         rows: list[dict] = []
         for i, ts in enumerate(ts_seq):
             row = {"timestamp": _epoch_to_iso(ts) or now_iso}
@@ -423,6 +437,9 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
                     row[name] = seq[i]
                 else:
                     row[name] = seq
+            for pname, pseq in panel_seqs:
+                if isinstance(pseq, list) and i < len(pseq):
+                    row[pname] = str(pseq[i])
             rows.append(row)
         return rows
 
@@ -455,8 +472,21 @@ def _split_cols(line: str, delim: str | None) -> list[str]:
 
 
 def _compose_ts(parts: list[str]) -> str:
-    """Assemble a timestamp split across columns (NDBC 'YY MM DD hh mm',
-    CRW 'YYYY MM DD') into ISO-ish form; joined verbatim if non-numeric."""
+    """Assemble a timestamp split across columns into ISO-ish form.
+
+    Handles three shapes, else joins verbatim:
+      * a date string + an integer hour ('2026-01-01' + '1'): common in grid /
+        gov hourly CSVs (IESO 'Date','Hour'). Hour is treated as hour-ENDING
+        1..24 (the usual grid convention) -> hour-of-day 0..23.
+      * NDBC 'YY MM DD hh mm' / CRW 'YYYY MM DD': all-numeric parts.
+    """
+    parts = [p.strip() for p in parts]
+    # date-string + integer hour (e.g. IESO 'Date'='2026-01-01', 'Hour'='1'..'24')
+    if len(parts) == 2 and re.match(r"^\d{4}[-/]\d{1,2}[-/]\d{1,2}$", parts[0]) and parts[1].isdigit():
+        d = parts[0].replace("/", "-")
+        h = int(parts[1])
+        hod = (h - 1) % 24 if 1 <= h <= 24 else h % 24   # hour-ending 1..24 -> 0..23
+        return f"{d}T{hod:02d}:00:00"
     if len(parts) >= 3 and all(p.isdigit() for p in parts[:3]):
         ts = f"{parts[0]:0>4}-{parts[1]:0>2}-{parts[2]:0>2}"
         if len(parts) >= 5 and parts[3].isdigit() and parts[4].isdigit():
@@ -504,6 +534,11 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
                 continue
             recs.append(dict(zip(header, toks)))
 
+    panel_cols = schema.get("panel_field")
+    if isinstance(panel_cols, str):
+        panel_cols = [panel_cols]
+    panel_cols = [p.split("/")[-1] for p in (panel_cols or [])]
+
     rows = []
     for r in recs:
         if len(ts_cols) > 1 and all(c in r for c in ts_cols):
@@ -516,6 +551,9 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
             row[short] = r.get(short)
         if not val_fields:
             row.update({k: v for k, v in r.items() if k != ts_field and k not in ts_cols})
+        for pc in panel_cols:
+            if pc in r:
+                row["_panel_" + pc] = str(r[pc])
         rows.append(row)
     return rows
 

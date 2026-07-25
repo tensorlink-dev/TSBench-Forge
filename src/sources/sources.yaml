@@ -5545,3 +5545,38 @@
     sample_rows: 8969
     sample_freshness_hours: 1.0
   notes: "relativeFundingRate is the per-period rate (the funding signal); fundingRate is the absolute USD figure. Full year in one response — no paging needed, admission-eligible from the first scrape. Other perps: PF_ETHUSD etc."
+
+# ── autosearch batch-2 (unlocked by composite-ts + field-panel scraper features) ──
+- id: ieso_ontario_demand
+  name: IESO Ontario electricity demand (hourly)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [smooth_periodic, non_stationary_regime, bounded]
+  frequency: PT1H
+  endpoint: {type: rest_csv, url: "http://reports.ieso.ca/public/Demand/PUB_Demand.csv", auth: none, rate_limit: null}
+  schema: {timestamp_field: "Date Hour", value_field: "Ontario Demand", variates: 1}
+  history_available: P1Y
+  update_cadence_observed: hourly; rolling year-to-date CSV (dedupe backfills)
+  pretraining_novelty: clean
+  novelty_notes: IESO Ontario hourly demand; composite Date+Hour timestamp.
+  license: IESO public data
+  sample_path: samples/ieso_ontario_demand.csv
+  verification: {last_verified: 2026-07-25T00:00:00Z, sample_rows: 100, sample_freshness_hours: 0.5}
+  notes: Unlocked by the composite-timestamp scraper feature (Date + hour-ending 1..24).
+
+- id: nve_norway_reservoirs
+  name: NVE Norway hydropower reservoir fill (weekly, 9-region panel)
+  domain: energy
+  dgp_class: hydrology
+  archetypes: [smooth_periodic, non_stationary_regime, bounded]
+  frequency: P1W
+  endpoint: {type: rest_json, url: "https://biapi.nve.no/magasinstatistikk/api/Magasinstatistikk/HentOffentligData", auth: none, rate_limit: null}
+  schema: {timestamp_field: "[].dato_Id", value_field: "[].fyllingsgrad", panel_field: ["[].omrType", "[].omrnr"], variates: 1}
+  history_available: P30Y
+  update_cadence_observed: weekly; full-history payload, one series per region
+  pretraining_novelty: clean
+  novelty_notes: Weekly reservoir fill fraction per Norwegian region; weekly so catalog-only (below the pool's daily-or-faster bar).
+  license: NVE open data
+  sample_path: samples/nve_norway_reservoirs.json
+  verification: {last_verified: 2026-07-25T00:00:00Z, sample_rows: 100, sample_freshness_hours: 24}
+  notes: Unlocked by the field-paneling scraper feature (splits the single all-regions payload into 9 series via _panel_omrType/_panel_omrnr).

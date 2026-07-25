@@ -99,6 +99,7 @@ schedules:
       - reddit_top_daily
       - stackoverflow_questions    # respects 300 req/day anon
       - usace_cwms_timeseries      # 2026-07-10 batch; hourly gauge data
+      - ieso_ontario_demand        # 2026-07-25 autosearch batch-2 (Ontario hourly demand)
       - kraken_futures_btc_funding # 2026-07-11; US-accessible funding (Binance swap)
       - ripe_atlas_rootserver_ping # 2026-07-10 batch; 1-day rolling window
       - ingv_seismicity
@@ -199,6 +200,7 @@ schedules:
       - uk_ons_time_series              # P1M native; daily poll, dedup stable
       - wastewaterscan_pathogen_data    # P1W native
       - peeringdb_network_ixp_changes   # P1W native
+      - nve_norway_reservoirs           # 2026-07-25 autosearch batch-2 (weekly reservoir fill)
     cron: "20 2 * * *"
 
 # ──────── operational notes ────────
