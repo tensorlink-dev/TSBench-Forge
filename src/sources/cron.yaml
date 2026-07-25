@@ -253,6 +253,7 @@ schedules:
   - swpc_solar_flare_events
   - aviationweather_pirep_flightlevel
   - ripestat_bgp_updates_as3333
+  - laqn_london_no2_marylebone
   cron: 11 * * * *
 - every: P1D
   sources:
@@ -295,3 +296,4 @@ schedules:
 - every: P1D
   sources:
   - defra_aurn_marylebone_road_hourly
+  - fda_drug_recalls_daily_count

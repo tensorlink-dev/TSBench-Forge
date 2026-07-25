@@ -7476,3 +7476,37 @@
   novelty_notes: "Hourly AURN pollutant concentrations (NO2, NOx, O3, PM2.5, PM10, CO, SO2 + ~35 speciated VOCs) at the iconic Marylebone Road roadside supersite. Recent-year hourly readings are post-cutoff and the wide roadside VOC panel is a distinct DGP."
   license: "Open Government Licence"
   notes: "Composite timestamp: timestamp_field 'Date time' combines the Date + time columns. {YYYY} token selects the current-year annual file (year-to-date, hour-ending GMT). value_field intentionally omitted: pollutant column names are double-quoted in the header, which blocks the scraper's want-subset header detection when a quoted name is added to the wanted set; with only unquoted Date+time wanted the multi-line-preamble header is located and csv.DictReader emits every pollutant as its own numeric column (wide multivariate). 4900+ distinct hourly timestamps year-to-date."
+
+# ── proposal-grind wave 5 (2026-07-25) ──
+- id: fda_drug_recalls_daily_count
+  name: FDA drug recalls & safety alerts — daily count
+  domain: healthcare
+  dgp_class: alert_stream
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/drug/enforcement.json?count=report_date
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  novelty_notes: "openFDA server-side count of drug recall/enforcement (Class I/II/III) events per report_date — a daily recall-count series not present in TSFM corpora."
+  notes: "plain rest_json; uses openFDA count=report_date to return a pre-binned per-day count series (no key required)."
+- id: laqn_london_no2_marylebone
+  name: London Air Quality Network — NO2 hourly, Marylebone Road (MY1)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.erg.ic.ac.uk/AirQuality/Data/SiteSpecies/SiteCode=MY1/SpeciesCode=NO2/StartDate={YYYY-MM-DD-7d}/EndDate={YYYY-MM-DD}/Json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: RawAQData.Data[].@MeasurementDateGMT
+    value_field: RawAQData.Data[].@Value
+    variates: 1
+  novelty_notes: "Imperial College ERG LAQN keyless API; hourly NO2 at Marylebone Road — recent hourly slice novel to pretraining."
+  notes: "plain rest_json; uses relative URL date tokens {YYYY-MM-DD-7d}/{YYYY-MM-DD} for a rolling 7-day hourly window."
