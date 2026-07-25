@@ -54,6 +54,8 @@ schedules:
       - nasdaq_trader_halts
       - caiso_grid_conditions
       - lichess_realtime_api
+      - ercot_supply_demand            # autosearch wire (TX grid demand)
+      - steam_concurrent_players       # autosearch wire (player counts)
     cron: "*/5 * * * *"
 
   - every: PT15M
@@ -72,6 +74,7 @@ schedules:
       - lobsters_hottest              # 2026-07-10 batch
       - datalakes_eawag_lake_obs      # 2026-07-10 batch; stations update 10-60 min
       - coinbase_spot_15m             # 2026-07-12; replaces binance_btcusdt_15m (US-accessible)
+      - elexon_gb_system_frequency     # autosearch batch-1 (GB grid frequency)
     cron: "*/15 * * * *"
 
   - every: PT30M
@@ -99,6 +102,7 @@ schedules:
       - reddit_top_daily
       - stackoverflow_questions    # respects 300 req/day anon
       - usace_cwms_timeseries      # 2026-07-10 batch; hourly gauge data
+      - ree_spain_grid_demand      # autosearch re-wire (Spain grid demand)
       - ieso_ontario_demand        # 2026-07-25 autosearch batch-2 (Ontario hourly demand)
       - kraken_futures_btc_funding # 2026-07-11; US-accessible funding (Binance swap)
       - ripe_atlas_rootserver_ping # 2026-07-10 batch; 1-day rolling window
