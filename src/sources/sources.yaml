@@ -8437,3 +8437,22 @@
     heavy-tailed severity.
   notes: Positional JSON path cves[].* ; keyless Shodan CVEDB (cvedb.shodan.io, no API key). Distinct host
     from nvd_cve_disclosures.
+
+# -- keyless quality-hold revisit: peeringdb (429 was transient) --
+- id: peeringdb_network_registrations
+  name: PeeringDB network (ASN) registrations per month
+  domain: web_cloudops
+  dgp_class: count_discrete
+  frequency: P30D
+  endpoint:
+    type: rest_json
+    url: https://www.peeringdb.com/api/net?fields=id,created&limit=0
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "data[].created"
+    value_field: "data[].id"
+    variates: 1
+    aggregate: {op: count, bin: P30D}
+  novelty_notes: "Rate of new networks (ASNs) joining the PeeringDB interconnection registry, 2004-present — a growth/adoption signal for the peering ecosystem, novel to TSFM corpora."
+  notes: "Keyless PeeringDB REST API. Single call returns all ~35k net objects (id+created only, ~2MB) which schema.aggregate bins into a monthly registration-count series (269 bins from 2004). Use data[].created for registrations or data[].updated for record-change churn. Rate-limited (HTTP 429) on bursts; poll infrequently. Companion objects: /api/ix (exchanges), /api/fac (facilities). feature: schema.aggregate count."
