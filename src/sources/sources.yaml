@@ -7999,3 +7999,22 @@
     variates: univariate
   novelty_notes: "GDELT DOC 2.0 timelinevol mode returns a 15-minute normalized coverage-intensity series over the trailing week for a news query; a single call yields ~150+ distinct timestamps."
   notes: "positional [] iteration over timeline[].data[]; compact YYYYMMDDThhmmssZ timestamps."
+
+# ── proposal-grind wave 14 (2026-07-25) ──
+- id: exploitdb_publication_stream
+  name: Exploit-DB exploit publications per day
+  domain: web_cloudops
+  dgp_class: count_discrete
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://gitlab.com/exploit-database/exploitdb/-/raw/main/files_exploits.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: date_published
+    value_field: id
+    variates: 1
+    aggregate: {op: count, bin: P1D}
+  novelty_notes: "Daily count of public exploits published to Exploit-DB (Offensive Security), 1988-present — a security-disclosure event-rate series novel to TSFM corpora."
+  notes: "Keyless CSV mirror of the official Exploit-DB git repo (~10MB, HTTP 200). schema.aggregate bins date_published into a daily publication-count series (7272 bins, fresh to within days). date_added is an alternative timestamp. feature: rest_csv + schema.aggregate count."
