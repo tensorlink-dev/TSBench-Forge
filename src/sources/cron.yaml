@@ -21,6 +21,7 @@ schedules:
   - coinbase_spot_1m
   - opensky_states_local
   - intermagnet_esk_geomag_minute
+  - crossref_doi_registration_events
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -258,6 +259,8 @@ schedules:
   - laqn_london_no2_marylebone
   - geosphere_at_weather_hourly
   - geofon_seismic_events
+  - magiceden_nft_trading
+  - opencollective_transaction_events
   cron: 11 * * * *
 - every: P1D
   sources:

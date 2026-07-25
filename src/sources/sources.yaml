@@ -7673,3 +7673,57 @@
     vector that the parser's one-level flatten misaligns, so magnitude is used).
     best-avail lags ~10d, so relative date tokens {YYYY-MM-DD-14d}/{YYYY-MM-DD-13d}
     pull a settled 24h window. Verified 1440 rows, 1440 distinct minutes, numeric.
+
+# ── proposal-grind wave 9 (2026-07-25) ──
+- id: crossref_doi_registration_events
+  name: Crossref DOI registration event rate (per-minute)
+  domain: sales
+  dgp_class: count_process
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.crossref.org/works?sort=created&order=desc&rows=1000&select=DOI,created
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: message.items[].created.date-time
+    value_field: value
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1M
+  novelty_notes: "Crossref work-registration firehose (newest 1000 DOIs, ~100 min of activity) binned to DOIs-registered-per-minute. A scholarly-publishing count_process not present in typical TSFM pretrains."
+  notes: "Uses schema.aggregate {op:count, bin:PT1M} to turn the per-DOI created.date-time event stream into per-minute registration counts. value_field 'value' is a sentinel (count ignores it). Poll <=PT30M so consecutive 1000-row windows overlap."
+- id: magiceden_nft_trading
+  name: Magic Eden NFT marketplace activity (Solana, DeGods)
+  domain: sales
+  dgp_class: market_activity
+  frequency: irregular
+  endpoint:
+    type: rest_json
+    url: https://api-mainnet.magiceden.dev/v2/collections/degods/activities?offset=0&limit=500
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].blockTime'
+    value_field: '[].price'
+    variates: 1
+  novelty_notes: "Magic Eden Solana marketplace activity feed for the DeGods collection: bids/listings/sales with on-chain blockTime and SOL price. High-frequency NFT trading event stream, novel vs typical TSFM pretrains."
+  notes: "Plain rest_json over a top-level array; positional [] iteration. blockTime is epoch-seconds (auto-converted). 500 events -> ~192 distinct block times. Live API host is api-mainnet.magiceden.dev (candidate api.magiceden.dev is the docs host). Swap the collection symbol to panel across collections."
+- id: opencollective_transaction_events
+  name: Open Collective global financial transaction stream
+  domain: sales
+  dgp_class: transaction_stream
+  frequency: irregular
+  endpoint:
+    type: graphql
+    url: https://api.opencollective.com/graphql/v2
+    auth: none
+    rate_limit: null
+    query: '{ transactions(limit:1000){ nodes { createdAt amount { value } } } }'
+  schema:
+    timestamp_field: data.transactions.nodes[].createdAt
+    value_field: data.transactions.nodes[].amount.value
+    variates: 1
+  novelty_notes: "Open Collective platform-wide transaction firehose (credits/debits across all collectives); each row is a transaction timestamp and signed amount. ~1000 transactions span ~20h. A fintech transaction-stream DGP novel vs typical TSFM pretrains."
+  notes: "Uses endpoint.type graphql (keyless public API). timestamp_field/value_field walk the nested GraphQL response (data.transactions.nodes[].amount.value). 1000 rows, 998 distinct createdAt over ~20h; poll hourly for overlapping windows. Amounts are mixed-currency signed values."
