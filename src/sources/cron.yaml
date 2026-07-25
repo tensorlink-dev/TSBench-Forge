@@ -297,3 +297,31 @@ schedules:
       - eurostat_hicp_ea_annual_rate
       - wqp_delaware_water_temperature
     cron: "35 3 * * *"
+
+  # ──────── autosearch untried-shortlist wave (2026-07-25) ────────
+  - every: PT5M
+    sources:
+      - energinet_dk_co2_intensity_5min
+    cron: "*/5 * * * *"
+  - every: PT15M
+    sources:
+      - swpc_solar_flare_event_counts
+    cron: "*/15 * * * *"
+  - every: PT1H
+    sources:
+      - energinet_dk_elspot_hourly
+      - londonair_kc1_hourly_pollution
+      - swpc_solar_flare_events
+      - aviationweather_pirep_flightlevel
+      - ripestat_bgp_updates_as3333
+    cron: "11 * * * *"
+  - every: P1D
+    sources:
+      - mempool_btc_hashrate_daily
+      - openfda_maude_device_events_daily
+      - openfda_device_recalls
+      - cdc_nssp_ed_visits_state_regions
+      - ndbc_spectral_wave_density_41013
+      - openfda_food_adverse_events_daily
+      - usgs_earthquakes_fdsn_m4_30d
+    cron: "45 3 * * *"

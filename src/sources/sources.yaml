@@ -6669,3 +6669,415 @@
   license: public (autosearch-wired)
   notes: plain rest_json GET; nested timeline[].data[] arrays; endpoint 429-throttles at 1 req/5s (no
     key) — scraper's built-in 429 retry handles it.
+
+# ============================================================================
+# autosearch untried-shortlist wave (2026-07-25) — same-host-new-series + event-stream
+# 14 sources, each verified end-to-end against scraper.fetch_payload+parse_payload
+# ============================================================================
+- id: mempool_btc_hashrate_daily
+  name: Bitcoin network hashrate daily (mempool.space)
+  domain: econ_fin
+  dgp_class: network_activity
+  archetypes:
+  - trending
+  - positive
+  - high_dynamic_range
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://mempool.space/api/v1/mining/hashrate/1y
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: hashrates[].timestamp
+    value_field: hashrates[].avgHashrate
+    variates: 1
+  history_available: P1Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  novelty_notes: Daily estimated network hashrate (H/s) — a large-magnitude trending compute-supply series
+    not in standard TSFM pretrain mixes.
+  license: MIT (mempool.space)
+  notes: Plain rest_json GET. hashrates[] carries one point per UTC day; use /3y or /all for a longer
+    window. Same payload also exposes difficulty[]. avgHashrate is ~1e21 magnitude.
+  sample_path: samples/mempool_btc_hashrate_daily.json
+- id: energinet_dk_co2_intensity_5min
+  name: Energinet — Danish grid CO2 emission intensity (5-min, DK1/DK2)
+  domain: energy
+  dgp_class: generation_mix
+  archetypes:
+  - bounded
+  - positive
+  - smooth_periodic
+  - panel
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/CO2Emis?limit=1000&sort=Minutes5UTC%20DESC
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: records[].Minutes5UTC
+    value_field: records[].CO2Emission
+    panel_field: records[].PriceArea
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: 5 minutes
+  pretraining_novelty: clean
+  novelty_notes: Real-time 5-minute carbon intensity (g CO2/kWh) per Danish price area — high-resolution
+    grid emissions rarely in TSFM corpora.
+  license: CC-BY-4.0 (Energinet / Energi Data Service)
+  notes: Uses schema.panel_field to split one payload into DK1/DK2 _panel_ series. Raise limit or add
+    &start=/&end= for history.
+  sample_path: samples/energinet_dk_co2_intensity_5min.json
+- id: energinet_dk_elspot_hourly
+  name: Energinet — Nordpool day-ahead spot price EUR (hourly, per price area)
+  domain: energy
+  dgp_class: market_price
+  archetypes:
+  - smooth_periodic
+  - panel
+  - spiky
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/Elspotprices?limit=1000&sort=HourUTC%20DESC
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: records[].HourUTC
+    value_field: records[].SpotPriceEUR
+    panel_field: records[].PriceArea
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: hourly (day-ahead, published once daily)
+  pretraining_novelty: clean
+  novelty_notes: Hourly day-ahead electricity spot price (EUR/MWh) per Nordpool/Danish price area — strong
+    diurnal + weekly seasonality with negative-price spikes.
+  license: CC-BY-4.0 (Energinet / Energi Data Service)
+  notes: Uses schema.panel_field to split into per-PriceArea _panel_ series (DK1/DK2/DE/NO2/SE3/SE4...).
+    Add &start=/&end= tokens for longer history.
+  sample_path: samples/energinet_dk_elspot_hourly.json
+- id: openfda_maude_device_events_daily
+  name: openFDA MAUDE — medical device adverse-event reports per day
+  domain: healthcare
+  dgp_class: event_count
+  archetypes:
+  - count
+  - trending
+  - spiky
+  - weekly_seasonal
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/device/event.json?count=date_received
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: weekly refresh, daily granularity
+  pretraining_novelty: clean
+  novelty_notes: Daily count of MAUDE medical-device adverse-event reports by date_received — a public-health
+    surveillance count series with strong day-of-week and reporting-lag structure, rarely in TSFM corpora.
+  license: Public domain / openFDA terms (open.fda.gov/terms)
+  notes: count=date_received returns the pre-aggregated daily series (results[].time = YYYYMMDD, results[].count
+    = numeric), so no schema.aggregate is needed. openFDA refreshes ~weekly with ~weeks of lag; sister
+    source is the FAERS drug/event count series.
+  sample_path: samples/openfda_maude_device_events_daily.json
+- id: openfda_device_recalls
+  name: openFDA — device recall counts by event_date_initiated
+  domain: healthcare
+  dgp_class: recall_event_counts
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/device/recall.json?count=event_date_initiated
+    auth: none
+    rate_limit: 1000 req/day anonymous; 120000/day with app token
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: openFDA device recall endpoint refreshes ~weekly (meta.last_updated 2026-07-23);
+    full dated count series returned each poll
+  pretraining_novelty: clean
+  novelty_notes: Medical-device recall initiation counts per day; low-rate irregular count series distinct
+    from adverse-event and food-recall feeds.
+  license: Public domain (openFDA; CC0)
+  notes: Plain rest_json GET; count=event_date_initiated returns time/count histogram (results[].time
+    YYYYMMDD, results[].count numeric). No feature beyond plain GET.
+  sample_path: samples/openfda_device_recalls.json
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+- id: cdc_nssp_ed_visits_state_regions
+  name: CDC NSSP — ED visit % by state & HHS sub-state region (pathogen panel)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes:
+  - hierarchical
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/7mra-9cq9.json?$order=week_end&$limit=50000
+    auth: none
+    rate_limit: 1000 req/h anonymous; higher with app token
+  schema:
+    timestamp_field: '[].week_end'
+    value_field: '[].percent_visits'
+    panel_field:
+    - '[].geography'
+    - '[].pathogen'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: weekly publication (Fridays), weekly week_end bins; 107 distinct weeks observed
+  pretraining_novelty: clean
+  novelty_notes: State + HHS-region NSSP ED-visit percent panel (7mra-9cq9); finer geography than the
+    national vutn-jzwm series and not in known TSFM pretrains.
+  license: Public domain (US Government)
+  notes: Uses schema.panel_field to split one Socrata payload into per-(geography,pathogen) series. Complements
+    existing cdc_nssp_ed_visits (national vutn-jzwm) with state/HHS-region granularity. percent_visits
+    numeric, week_end weekly.
+  sample_path: samples/cdc_nssp_ed_visits_state_regions.json
+  verification:
+    last_verified: PENDING
+    sample_rows: null
+    sample_freshness_hours: null
+- id: ndbc_spectral_wave_density_41013
+  name: NDBC realtime spectral wave density (buoy 41013, Frying Pan Shoals NC)
+  domain: nature
+  dgp_class: weather_field
+  archetypes:
+  - bounded
+  - chaotic_nonlinear
+  frequency: PT30M
+  endpoint:
+    type: rest_csv
+    url: https://www.ndbc.noaa.gov/data/realtime2/41013.data_spec
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: YY MM DD hh mm
+    value_field: Sep_Freq
+    variates: 1
+  history_available: P45D
+  update_cadence_observed: ~30 minutes
+  pretraining_novelty: clean
+  novelty_notes: Realtime ocean-wave spectral separation frequency; not in mainstream TSFM corpora.
+  license: Public domain (NOAA NDBC)
+  notes: whitespace-delimited .data_spec; composite timestamp YY MM DD hh mm via _compose_ts. Sep_Freq
+    is the swell/wind-sea separation frequency (Hz).
+- id: swpc_solar_flare_event_counts
+  name: NOAA SWPC edited solar events hourly counts
+  domain: nature
+  dgp_class: space_weather
+  archetypes:
+  - bursty
+  - chaotic_nonlinear
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://services.swpc.noaa.gov/json/edited_events.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].begin_datetime'
+    value_field: '[].coded_type'
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P30D
+  update_cadence_observed: minutes (irregular event arrivals)
+  pretraining_novelty: clean
+  novelty_notes: Solar flare / radio-burst event arrivals binned to hourly counts; a bursty space-weather
+    event-rate series.
+  license: Public domain (NOAA SWPC)
+  notes: aggregate op:count bin:PT1H turns the irregular edited_events stream into an hourly event-count
+    series.
+- id: openfda_food_adverse_events_daily
+  name: openFDA CFSAN food adverse events — reports per onset date
+  domain: healthcare
+  dgp_class: adverse_event_counts
+  archetypes:
+  - count
+  - long_memory
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/food/event.json?count=date_started
+    auth: none
+    rate_limit: 240 req/min, 120k req/day (keyless)
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P70Y
+  update_cadence_observed: openFDA food event dataset refreshed ~weekly
+  pretraining_novelty: clean
+  novelty_notes: CAERS food/cosmetic adverse-event report counts by symptom onset date; count histogram
+    not present in TSFM corpora.
+  license: Public domain (openFDA / FDA)
+  notes: Plain keyless GET. count=date_started returns the full {time:YYYYMMDD, count} histogram of CAERS
+    reports per onset date each poll.
+  verification:
+    last_verified: '2026-07-25 06:00:00+00:00'
+    sample_rows: 9529
+    sample_freshness_hours: 0.05
+- id: londonair_kc1_hourly_pollution
+  name: LondonAir Kensington (KC1) hourly pollutant concentrations
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - hierarchical
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.erg.ic.ac.uk/AirQuality/Data/Site/SiteCode=KC1/StartDate={YYYY-MM-DD-3d}/EndDate={YYYY-MM-DD}/Json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: AirQualityData.Data[].@MeasurementDateGMT
+    value_field: AirQualityData.Data[].@Value
+    panel_field: AirQualityData.Data[].@SpeciesCode
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: hourly (provisional, ratified later)
+  pretraining_novelty: clean
+  novelty_notes: Imperial ERG LondonAir network; per-species hourly concentrations (CO/NO2/O3/PM10/PM25/SO2)
+    at North Kensington. Rolling 3-day window keeps values non-empty.
+  license: LondonAir / Imperial ERG open data
+  notes: Uses URL date tokens ({YYYY-MM-DD-3d}/{YYYY-MM-DD}) for a rolling window and schema.panel_field
+    to split one payload into per-species series. MY1 was inactive; KC1 is a currently-reporting site.
+  verification:
+    last_verified: '2026-07-25 06:02:00+00:00'
+    sample_rows: 432
+    sample_freshness_hours: 0.05
+- id: swpc_solar_flare_events
+  name: NOAA SWPC GOES X-ray flare events (7-day list)
+  domain: nature
+  dgp_class: space_weather
+  archetypes:
+  - zero_inflated_sparse
+  - chaotic_nonlinear
+  - count_discrete
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://services.swpc.noaa.gov/json/goes/primary/xray-flares-7-day.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].begin_time'
+    value_field: '[].current_int_xrlong'
+    variates: 1
+  history_available: P7D
+  update_cadence_observed: list refreshed ~every minute; new rows appear only when a flare begins (sparse
+    events)
+  pretraining_novelty: clean
+  novelty_notes: Discrete per-flare event list (one row per solar flare) — distinct from continuous 1-min
+    xray flux (swpc_solar_xray_flux). Sparse irregular arrival stream with numeric integrated flux per
+    event.
+  license: Public domain (NOAA SWPC)
+  notes: Plain rest_json. Guessed max_time/max_xrlong had nulls for in-progress flares; use begin_time
+    + current_int_xrlong (both always populated). Aggregate to daily/weekly counts (schema.aggregate op:count)
+    for a flare-rate count_discrete series.
+  sample_path: samples/swpc_solar_flare_events.json
+- id: usgs_earthquakes_fdsn_m4_30d
+  name: USGS FDSN — global M>=4 earthquakes (rolling 30 days)
+  domain: nature
+  dgp_class: seismic_event
+  archetypes:
+  - count_discrete
+  - chaotic_nonlinear
+  - zero_inflated_sparse
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={YYYY-MM-DD-30d}&endtime={YYYY-MM-DD}&minmagnitude=4
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: features[].properties.time
+    value_field: features[].properties.mag
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: rolling 30-day window; ~30-40 new M4+ events per day
+  pretraining_novelty: partial
+  novelty_notes: Significant-quake (M>=4) global irregular event stream over a rolling 30-day window;
+    distinct from usgs_earthquakes_realtime (all-magnitude 24h all_day feed). FDSN query supports arbitrary
+    historical windows for backfill.
+  license: Public domain (USGS)
+  notes: Uses URL date tokens {YYYY-MM-DD-30d}/{YYYY-MM-DD} to keep a self-updating rolling window (candidate's
+    fixed 2026-01-01..02 range would be static). Aggregate to daily counts (schema.aggregate op:count)
+    for a M4+ seismicity-rate series.
+  sample_path: samples/usgs_earthquakes_fdsn_m4_30d.json
+- id: aviationweather_pirep_flightlevel
+  name: AviationWeather.gov PIREP pilot-report flight levels (CONUS event stream)
+  domain: nature
+  dgp_class: weather_field
+  archetypes:
+  - event_driven
+  - zero_inflated_sparse
+  - chaotic_nonlinear
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://aviationweather.gov/api/data/pirep?format=json&age=6&bbox=24,-125,49,-66
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].obsTime'
+    value_field: '[].fltLvl'
+    variates: 1
+  history_available: PT6H
+  update_cadence_observed: irregular, continuous (rolling 6h window)
+  pretraining_novelty: clean
+  novelty_notes: Irregular pilot-report event stream; PIREP flight levels absent from TSFM corpora (METAR
+    panel covers airports only).
+  license: Public domain (NOAA/FAA via aviationweather.gov)
+  notes: 'Plain rest_json; obsTime is unix epoch (auto-converted). Event stream — schema.aggregate {op:
+    count, bin: PT1H} also valid for a reports/hour series.'
+- id: ripestat_bgp_updates_as3333
+  name: RIPEstat BGP Updates — AS3333 (RIPE NCC) hourly routing-update count
+  domain: web_cloudops
+  dgp_class: routing_event_intensity
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://stat.ripe.net/data/bgp-updates/data.json?resource=3333
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.updates[].timestamp
+    value_field: ''
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: rolling
+  update_cadence_observed: rolling 48h window of live BGP updates; ~2155 events span ~48h
+  pretraining_novelty: clean
+  novelty_notes: Hourly count of BGP routing updates (announcements + withdrawals) observed for AS3333
+    (RIPE NCC) across the RIS collectors — an event-arrival intensity series capturing routing churn,
+    not present in standard TS pretraining corpora.
+  license: RIPEstat Data — free public API, RIPE NCC terms
+  notes: 'Autosearch wire. Uses schema.aggregate {op:count,bin:PT1H}. The bgp-updates data call returns
+    a rolling ~48h window of per-event rows under data.updates[] with no numeric value, so timestamp_field:
+    data.updates[].timestamp is aggregated into hourly event counts. Verified with real scraper: 48 rows,
+    48 distinct timestamps, values numeric (int counts), HTTP 200, no key. Poll hourly to accumulate the
+    ongoing routing-churn rate.'

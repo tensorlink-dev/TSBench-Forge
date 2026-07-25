@@ -3679,9 +3679,10 @@
     "name": "Mempool.space Transaction Stream",
     "domain": "econ_fin",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "mempool_btc_hashrate_daily"
   },
   {
     "key": "econ_fin|nasdaq_trader_halts",
@@ -4067,9 +4068,10 @@
     "name": "Energinet DK CO2 Emission Intensity",
     "domain": "energy",
     "frequency": "sub-min",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "energinet_dk_co2_intensity_5min"
   },
   {
     "key": "energy|Energinet DK Electricity Spot Prices",
@@ -4265,9 +4267,10 @@
     "name": "energinet_intraday_grid_alerts_irregular",
     "domain": "energy",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "energinet_dk_elspot_hourly"
   },
   {
     "key": "energy|entsoe_unavailability_events",
@@ -4526,9 +4529,10 @@
     "name": "FDA MAUDE Adverse Event Device Reports",
     "domain": "healthcare",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "openfda_maude_device_events_daily"
   },
   {
     "key": "healthcare|NHS England 999 Call Queue",
@@ -4589,9 +4593,10 @@
     "name": "OpenFDA Device Recall Events",
     "domain": "healthcare",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "openfda_device_recalls"
   },
   {
     "key": "healthcare|OpenFDA Device Recalls (Few-Minute)",
@@ -4824,9 +4829,10 @@
     "name": "cdc_ed_visit_counts",
     "domain": "healthcare",
     "frequency": "half-hour",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "cdc_nssp_ed_visits_state_regions"
   },
   {
     "key": "healthcare|covidactnow_us_county_metrics",
@@ -4905,9 +4911,10 @@
     "name": "fda_foods_cfsan_adverse_events",
     "domain": "healthcare",
     "frequency": "quarterly",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "openfda_food_adverse_events_daily"
   },
   {
     "key": "healthcare|kinsa_health_weather",
@@ -4923,9 +4930,10 @@
     "name": "londonair_realtime_pollution",
     "domain": "healthcare",
     "frequency": "half-hour",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "londonair_kc1_hourly_pollution"
   },
   {
     "key": "healthcare|nextstrain.org",
@@ -5436,18 +5444,20 @@
     "name": "NOAA NDBC Real-Time Spectral Wave Density",
     "domain": "nature",
     "frequency": "half-hour",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "ndbc_spectral_wave_density_41013"
   },
   {
     "key": "nature|NOAA SWPC Solar Flare Event Reports (Irregular Event Stream)",
     "name": "NOAA SWPC Solar Flare Event Reports (Irregular Event Stream)",
     "domain": "nature",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "swpc_solar_flare_event_counts"
   },
   {
     "key": "nature|NOAA SWPC Solar Wind Mag Bulk Plasma",
@@ -6311,9 +6321,10 @@
     "name": "swpc_solar_flare_event_reports",
     "domain": "nature",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "swpc_solar_flare_events"
   },
   {
     "key": "nature|usace_river_gage_hourly_heights",
@@ -6365,9 +6376,10 @@
     "name": "usgs_earthquakes_archived_irregular",
     "domain": "nature",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "usgs_earthquakes_fdsn_m4_30d"
   },
   {
     "key": "nature|usgs_earthquakes_realtime",
@@ -6482,9 +6494,10 @@
     "name": "metoffice_aircraft_icing_reports",
     "domain": "nature",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "aviationweather_pirep_flightlevel"
   },
   {
     "key": "nature|www.brmo.org",
@@ -8927,9 +8940,10 @@
     "name": "RIPE NCC BGPStream (Live Routing Updates)",
     "domain": "web_cloudops",
     "frequency": "irregular",
-    "status": "proposed",
+    "status": "wired",
     "first_proposed": "2026-07-04",
-    "times_proposed": 1
+    "times_proposed": 1,
+    "wired_as": "ripestat_bgp_updates_as3333"
   },
   {
     "key": "web_cloudops|bgpstream.crosswork.cisco.com",
