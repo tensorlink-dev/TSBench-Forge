@@ -224,6 +224,48 @@ def _http_get(url: str, headers: dict[str, str]) -> httpx.Response:
         return client.get(url, headers=headers)
 
 
+def _http_post(url: str, headers: dict[str, str], body: Any) -> httpx.Response:
+    """POST a JSON body — used by GraphQL and POST-only JSON APIs. `body` is the
+    request payload (e.g. {"query": "...", "variables": {...}} for GraphQL)."""
+    headers = {"User-Agent": "timeframe-scraper/0.1 (+https://github.com/timeframe-bench)", **headers}
+    timeout = httpx.Timeout(30.0, connect=10.0)
+    with httpx.Client(timeout=timeout, follow_redirects=True) as client:
+        return client.post(url, headers=headers, json=body)
+
+
+def _paginate_json(first: bytes, url: str, headers: dict[str, str], pg: dict) -> bytes:
+    """Follow cursor/next-link pagination for a JSON API and merge item arrays.
+
+    `pg` config: {items: <top-level array key>, next: <top-level next-URL key>,
+    max_pages: N}. Handles APIs (hubeau, OONI, ...) that return HTTP 206 + a
+    `next` URL with the remaining rows. Returns one merged JSON payload."""
+    items_key = pg.get("items")
+    next_key = pg.get("next")
+    max_pages = int(pg.get("max_pages", 5))
+    try:
+        doc = json.loads(first)
+    except Exception:  # noqa: BLE001
+        return first
+    if not isinstance(doc, dict) or items_key not in doc:
+        return first
+    merged = list(doc.get(items_key) or [])
+    nxt = doc.get(next_key) if next_key else None
+    pages = 1
+    while nxt and isinstance(nxt, str) and nxt.startswith("http") and pages < max_pages:
+        try:
+            r = _http_get(nxt, headers)
+            if r.status_code not in (200, 206):
+                break
+            d = json.loads(r.content)
+        except Exception:  # noqa: BLE001
+            break
+        merged += list(d.get(items_key) or [])
+        nxt = d.get(next_key) if next_key else None
+        pages += 1
+    doc[items_key] = merged
+    return json.dumps(doc).encode()
+
+
 def _expand_panel(url: str, panel_row: dict[str, str]) -> str:
     """Substitute panel placeholders ({ARTICLE}, {PACKAGE}, {CRATE}, ...)."""
     for key, val in panel_row.items():
@@ -246,13 +288,19 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
             f"unresolved placeholders {leftover} in URL — define `panel` in sources.yaml or pass --panel"
         )
     headers = _resolve_auth(ep.get("auth"))
+    # POST/GraphQL: type: graphql (body defaults to {"query": ...}) or an explicit
+    # method: POST with a `body` JSON payload. Everything else is a GET.
+    is_post = (ep.get("method", "").upper() == "POST") or ep.get("type") == "graphql"
+    body = ep.get("body")
+    if body is None and ep.get("query"):
+        body = {"query": ep["query"], "variables": ep.get("variables", {})}
     # Up to 3 attempts. Two failure modes are retried: transient transport
     # faults (DNS blips, SSL handshake stalls — observed on WSL2 / long-haul
     # routes), and 429/503 throttling with Retry-After honoured (capped) —
     # pypistats in particular 429s bursts of panel rows.
     for attempt in range(3):
         try:
-            resp = _http_get(url, headers)
+            resp = _http_post(url, headers, body) if is_post else _http_get(url, headers)
         except httpx.TransportError as e:
             if attempt == 2:
                 raise
@@ -269,9 +317,13 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
             time.sleep(wait)
             continue
         break
-    if resp.status_code != 200:
+    # Accept 206 Partial Content: paginated JSON APIs (hubeau, OONI) return it.
+    if resp.status_code not in (200, 206):
         raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
-    return resp.content, resp.headers.get("content-type", "")
+    content = resp.content
+    if ep.get("paginate"):
+        content = _paginate_json(content, url, headers, ep["paginate"])
+    return content, resp.headers.get("content-type", "")
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -680,6 +732,54 @@ def log_error(sid: str, msg: str) -> None:
 
 
 def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
+    """Parse a payload into records, then apply optional aggregation.
+
+    `schema.aggregate: {op: count|sum, bin: PT1H}` turns an irregular event
+    stream (per-event rows) into a regular per-bin series — count of events (or
+    sum of the value) in each time bin, preserving `_panel_*` grouping."""
+    recs = _dispatch_parse(src, blob, content_type)
+    agg = src.get("schema", {}).get("aggregate")
+    return _aggregate_records(recs, agg) if agg else recs
+
+
+def _aggregate_records(records: list[dict], agg: dict) -> list[dict]:
+    if not records:
+        return records
+    import pandas as pd
+
+    bin_iso = agg.get("bin", "PT1H")
+    op = agg.get("op", "count")
+    # ISO-8601 duration -> pandas offset (PT1H->1h, PT15M->15min, P1D->1D)
+    m = re.match(r"^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$", str(bin_iso))
+    if not m:
+        return records
+    days, hrs, mins, secs = (int(x) if x else 0 for x in m.groups())
+    freq = f"{days}D" if days else f"{hrs}h" if hrs else f"{mins}min" if mins else f"{secs}s"
+    df = pd.DataFrame(records)
+    if "timestamp" not in df.columns:
+        return records
+    df["_t"] = pd.to_datetime(df["timestamp"], errors="coerce", utc=True)
+    df = df[df["_t"].notna()]
+    if df.empty:
+        return records
+    df["_bin"] = df["_t"].dt.floor(freq)
+    panel_cols = [c for c in df.columns if c.startswith("_panel_")]
+    val_cols = [c for c in df.columns if c not in ("timestamp", "_t", "_bin") and not c.startswith("_panel_")]
+    out = []
+    for key, sub in df.groupby(["_bin"] + panel_cols, sort=True):
+        key = key if isinstance(key, tuple) else (key,)
+        row = {"timestamp": pd.Timestamp(key[0]).isoformat()}
+        if op == "sum" and val_cols:
+            row["value"] = float(pd.to_numeric(sub[val_cols[0]], errors="coerce").sum())
+        else:
+            row["value"] = int(len(sub))
+        for pc, kv in zip(panel_cols, key[1:]):
+            row[pc] = kv
+        out.append(row)
+    return out
+
+
+def _dispatch_parse(src: dict, blob: bytes, content_type: str) -> list[dict]:
     ep_type = src["endpoint"]["type"]
     schema = src.get("schema", {})
 
@@ -691,6 +791,8 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
 
     if ep_type == "ndjson_minute_counts":
         return _records_from_ndjson_minute_counts(blob)
+    if ep_type == "graphql":
+        return _records_from_json(json.loads(blob), schema)
     if ep_type == "rest_json":
         data = json.loads(blob)
         # SDMX-JSON detection: response with both `dataSets` and `structure` needs

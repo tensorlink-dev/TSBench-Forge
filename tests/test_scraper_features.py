@@ -46,3 +46,48 @@ def test_csv_field_paneling():
         csv_text, {"timestamp_field": "ts", "value_field": "level", "panel_field": "station"}
     )
     assert {r["_panel_station"] for r in recs} == {"X", "Y"}
+
+
+def test_graphql_parse_data_path():
+    # GraphQL results nest under data.*; the rest_json path handles it.
+    payload = {"data": {"transactions": {"nodes": [
+        {"createdAt": "2026-07-01T00:00:00Z", "amount": {"value": 10}},
+        {"createdAt": "2026-07-01T01:00:00Z", "amount": {"value": 20}},
+    ]}}}
+    recs = scraper._records_from_json(payload, {
+        "timestamp_field": "data.transactions.nodes[].createdAt",
+        "value_field": "data.transactions.nodes[].amount.value",
+    })
+    assert [r["timestamp"] for r in recs] == ["2026-07-01T00:00:00Z", "2026-07-01T01:00:00Z"]
+    assert [r["value"] for r in recs] == [10, 20]
+
+
+def test_paginate_single_page_noop():
+    import json
+    first = json.dumps({"data": [{"t": 1}, {"t": 2}], "next": None}).encode()
+    out = scraper._paginate_json(first, "http://x", {}, {"items": "data", "next": "next", "max_pages": 3})
+    import json as j
+    assert len(j.loads(out)["data"]) == 2
+
+
+def test_aggregate_count_per_hour():
+    recs = [
+        {"timestamp": "2026-07-01T00:05:00Z", "value": 1},
+        {"timestamp": "2026-07-01T00:40:00Z", "value": 1},
+        {"timestamp": "2026-07-01T01:10:00Z", "value": 1},
+    ]
+    out = scraper._aggregate_records(recs, {"op": "count", "bin": "PT1H"})
+    counts = {r["timestamp"][:13]: r["value"] for r in out}
+    assert sum(counts.values()) == 3
+    assert len(out) == 2  # two distinct hours
+
+
+def test_aggregate_count_preserves_panel():
+    recs = [
+        {"timestamp": "2026-07-01T00:05:00Z", "value": 1, "_panel_region": "A"},
+        {"timestamp": "2026-07-01T00:40:00Z", "value": 1, "_panel_region": "B"},
+        {"timestamp": "2026-07-01T00:50:00Z", "value": 1, "_panel_region": "A"},
+    ]
+    out = scraper._aggregate_records(recs, {"op": "count", "bin": "PT1H"})
+    by = {(r["_panel_region"]): r["value"] for r in out}
+    assert by == {"A": 2, "B": 1}
