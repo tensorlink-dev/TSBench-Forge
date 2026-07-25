@@ -231,3 +231,43 @@ schedules:
 # 4. URL templates in sources.yaml use {YYYYMMDD}, {YYYYMM}, etc. tokens that
 #    scraper.py expands automatically; nothing extra is needed for daily
 #    file-rolling sources (NYISO, AEMO).
+
+  # ──────── autosearch grind batch (2026-07-25) ────────
+  - every: PT15M
+    sources:
+      - cabi_station_status
+      - devto_articles_react_reactions
+      - iem_sbw_storm_based_warnings
+      - intermagnet_geomag_minute_bou
+      - magiceden_degods_activities
+      - noaa_nwps_river_stageflow
+      - transport_ch_stationboard_bern
+    cron: "*/15 * * * *"
+  - every: PT1H
+    sources:
+      - chesscom_hikaru_game_ratings
+      - cwfis_canadian_wildfire_events
+      - geosphere_austria_weather_observations
+      - gios_poland_air_quality
+      - laqn_hourly_pollutant_concentrations
+      - open_meteo_berlin_direct_radiation
+    cron: "7 * * * *"
+  - every: P1D
+    sources:
+      - abs_australia_cpi
+      - bis_cbpol_us_policy_rate
+      - cbs_netherlands_hicp
+      - cneos_fireball_events
+      - dol_ui_initial_claims_state
+      - fdic_bank_failures_deposits
+      - gvp_holocene_eruptions
+      - modrinth_fabric_api_version_downloads
+      - nifc_wildfire_incidents_current
+      - noaa_crw_sst_daily_point
+      - oecd_mei_composite_leading_indicators
+      - ons_cpi_d7g7_monthly
+      - ooni_censorship_measurements_us
+      - rki_germany_covid_hospitalizations
+      - sepa_scotland_river_levels
+      - treasury_auction_results
+    cron: "25 3 * * *"

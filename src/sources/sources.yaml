@@ -5697,3 +5697,646 @@
   sample_path: samples/ree_spain_grid_demand.json
   verification: {last_verified: 2026-07-25T00:00:00Z, sample_rows: 24, sample_freshness_hours: 0.5}
   notes: Wired from autosearch backlog re-wire pass; screen gave a hardcoded-date URL, tokenized to {YYYY-MM-DD}.
+
+# ── autosearch grind batch (29 scraper-verified sources) ──
+- id: abs_australia_cpi
+  name: ABS Data API — Australian Bureau of Statistics economic indicators
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - non_stationary_regime
+  frequency: P3M
+  endpoint:
+    type: rest_json
+    url: https://data.api.abs.gov.au/rest/data/CPI/1.10001.10.50.Q?startPeriod=2023&format=jsondata
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: value
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. SDMX-JSON via &format=jsondata query param (no key/header).
+    Scraper SDMX decoder yields 13 distinct quarterly timestamps, max 2026-Q1 (fresh),
+    CPI index numeric with variance. star
+- id: bis_cbpol_us_policy_rate
+  name: BIS Central Bank Policy Rate (US)
+  domain: econ_fin
+  dgp_class: policy_interest_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CBPOL/1.0/D.US?format=csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Verified via scraper._records_from_csv: 26318 distinct
+    daily timestamps, OBS_VALUE numeric with variance, fresh (max 2026-07-21). Single
+    series D.US, no paneling needed. URL has no'
+- id: cabi_station_status
+  name: cabi_station_status
+  domain: transport
+  dgp_class: bikeshare_availability
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.capitalbikeshare.com/gbfs/en/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field: data.stations[].num_bikes_available
+    variates: 1
+    panel_field:
+    - data.stations[].station_id
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. verified via scraper._records_from_json: 134 distinct
+    last_reported epochs, num_bikes_available numeric with variance, fresh (max=today).
+    Paneled by station_id so each dock is its '
+- id: cbs_netherlands_hicp
+  name: cbs_statistics_netherlands
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://datasets.cbs.nl/odata/v1/CBS/83133NED/Observations?$orderby=Id%20desc&$top=500
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: value[].Perioden
+    value_field: value[].Value
+    variates: 1
+    panel_field:
+    - value[].Measure
+    - value[].Bestedingscategorieen
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. The guessed OData v3 TypedDataSet 500s (>10k rows)
+    and ignores $orderby. Switched to CBS OData v4 Observations endpoint which supports
+    $orderby=Id desc to always return the newest '
+- id: chesscom_hikaru_game_ratings
+  name: chess_com_game_completions
+  domain: sales
+  dgp_class: game_activity_ratings
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.chess.com/pub/player/hikaru/games/{YYYY}/{MM}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: games[].end_time
+    value_field: games[].white.rating
+    variates: 1
+    panel_field:
+    - games[].time_class
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. Chess.com public monthly archive (GET/JSON, no key).
+    Tokenized year/month to {YYYY}/{MM} so it always fetches the current month. games[].end_time
+    epoch, white.rating numeric, panel
+- id: cneos_fireball_events
+  name: cneos_fireball_events
+  domain: nature
+  dgp_class: event_magnitude
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://ssd-api.jpl.nasa.gov/fireball.api?limit=500
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][1]
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. CNEOS bolide/fireball catalog: data[][0]=date, data[][1]=total
+    radiated energy (J). Scraper extracted 500 distinct timestamps, 500 numeric values
+    with variance, max ts 2026-07-21 ('
+- id: cwfis_canadian_wildfire_events
+  name: cwfis_canadian_wildfire_events
+  domain: nature
+  dgp_class: hazard_intensity
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://cwfis.cfs.nrcan.gc.ca/geoserver/public/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=public:hotspots_last24hrs&outputFormat=application/json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: features[].properties.rep_date
+    value_field: features[].properties.frp
+    variates: 1
+    panel_field:
+    - features[].properties.agency
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. Canadian Wildland Fire Info System hotspots (rolling
+    last-24h WFS GeoJSON, inherently live). 11943 features -> 77 distinct rep_date
+    timestamps, frp (fire radiative power) numeric w
+- id: devto_articles_react_reactions
+  name: Dev.to article publication stream (by tag, few-minute poll)
+  domain: sales
+  dgp_class: content_engagement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://dev.to/api/articles?tag=react&per_page=30
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].published_timestamp'
+    value_field: '[].public_reactions_count'
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. Dev.to public articles API (GET/JSON, no key). published_timestamp
+    ISO, public_reactions_count numeric. Single tag=react stream so no panel needed.
+    Scraper extracted 30 recs, 30 di
+- id: dol_ui_initial_claims_state
+  name: DOL weekly unemployment insurance initial claims (US, state + national pane
+  domain: econ_fin
+  dgp_class: labor_market_claims
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_csv
+    url: https://oui.doleta.gov/unemploy/csv/ar539.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: rptdate
+    value_field: c3
+    variates: 1
+    panel_field:
+    - st
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Verified via scraper._records_from_csv: 111755 recs
+    across 53 state panels, 2131 distinct weekly report dates, c3 (initial claims)
+    numeric with variance, max rptdate 2026-06-27 (fr'
+- id: fdic_bank_failures_deposits
+  name: FDIC Bank Failures
+  domain: econ_fin
+  dgp_class: bank_failure_event
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fdic.gov/banks/failures?limit=50&format=json&sort_by=FAILDATE&sort_order=DESC
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].data.FAILDATE
+    value_field: data[].data.QBFDEP
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Verified via scraper._records_from_json: 47 distinct
+    FAILDATE timestamps of 50 records, QBFDEP (total deposits) numeric with variance.
+    Fresh (max FAILDATE 5/1/2026; M/D/YYYY string'
+- id: geosphere_austria_weather_observations
+  name: geosphere_austria_weather_observations
+  domain: nature
+  dgp_class: weather_observation
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://dataset.api.hub.geosphere.at/v1/station/historical/klima-v2-1h?parameters=tl&station_ids=5925&start={YYYY-MM-DD-4d}T00:00&end={YYYY-MM-DD}T00:00
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: timestamps[]
+    value_field: features[].properties.parameters.tl.data[]
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. GeoSphere Austria hourly climate (tl=2m air temp degC).
+    Screen's station_ids=1 was invalid; used valid station 5925 (Wien Hohe Warte)
+    and tokenized the hardcoded start/end dates so
+- id: gios_poland_air_quality
+  name: gios_poland_air_quality
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/data/getData/400
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Lista danych pomiarowych[].Data
+    value_field: Lista danych pomiarowych[].Wartość
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Polish GIOS air-quality getData. Screen''s sensor
+    92 returns 20 rows all-null (dead sensor); switched to active sensor 400 (Olawa
+    PM10, ug/m3). Scraper extracted 20 distinct hourly '
+- id: gvp_holocene_eruptions
+  name: Smithsonian Global Volcanism Program — volcanic eruption events
+  domain: nature
+  dgp_class: event_magnitude
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://webservices.volcano.si.edu/geoserver/GVP-VOTW/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=GVP-VOTW:Smithsonian_VOTW_Holocene_Eruptions&outputFormat=csv&count=1000&sortBy=StartDateYear+D
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: StartDateYear StartDateMonth StartDateDay
+    value_field: ExplosivityIndexMax
+    variates: 1
+    panel_field:
+    - Volcano_Name
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. The screen's application/json WFS output splits the
+    date across integer StartDateYear/Month/Day fields, which the JSON extractor cannot
+    combine (a bare integer year like 2026 is mi
+- id: iem_sbw_storm_based_warnings
+  name: Iowa Environmental Mesonet (IEM) Storm Based Warnings
+  domain: nature
+  dgp_class: severe_weather_warnings
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://mesonet.agron.iastate.edu/geojson/sbw.py
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: features[].properties.issue
+    value_field: features[].properties.eventid
+    variates: 1
+    panel_field:
+    - features[].properties.wfo
+    - features[].properties.phenomena
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Verified via scraper._records_from_json: live GeoJSON
+    snapshot of currently-active NWS storm-based warnings. 31 features -> 30 distinct
+    issue timestamps, numeric eventid with varia'
+- id: intermagnet_geomag_minute_bou
+  name: INTERMAGNET — International Real-time Magnetic Observatory Network geomagne
+  domain: nature
+  dgp_class: geomagnetic_field
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://imag-data.bgs.ac.uk/GIN_V1/GINServices?Request=GetData&format=json&observatoryIagaCode=BOU&elements=XYZ&samplesPerDay=minute&publicationState=adj-or-rep&dataStartDate={YYYY-MM-DD-3d}&dataDuration=1
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: datetime[]
+    value_field: X[]
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. FIXED station: guessed ESK (and other BGS UK stations
+    HAD/LER) return all-null X/Y/Z via adj-or-rep. Switched observatory to BOU (Boulder)
+    which returns numeric XYZ. Scraper _recor'
+- id: laqn_hourly_pollutant_concentrations
+  name: London Air Quality Network (LAQN) API — hourly pollutant concentrations
+  domain: healthcare
+  dgp_class: air_pollutant_concentration
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.erg.ic.ac.uk/AirQuality/Data/Site/SiteCode=MY1/StartDate={YYYY-MM-DD-3d}/EndDate={YYYY-MM-DD}/Json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: AirQualityData.Data[].@MeasurementDateGMT
+    value_field: AirQualityData.Data[].@Value
+    variates: 1
+    panel_field:
+    - AirQualityData.Data[].@SpeciesCode
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Verified via scraper._records_from_json on tokenized
+    URL expanded to today: 46 distinct hourly timestamps, numeric @Value with variance
+    (75 distinct numeric values), fresh (max 202'
+- id: magiceden_degods_activities
+  name: magiceden_nft_trading
+  domain: sales
+  dgp_class: nft_marketplace_activity
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api-mainnet.magiceden.dev/v2/collections/degods/activities?offset=0&limit=100
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].blockTime'
+    value_field: '[].price'
+    variates: 1
+    panel_field:
+    - '[].type'
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. Magic Eden public v2 activities endpoint (GET/JSON,
+    no key). blockTime epoch->ISO, price in SOL. Price meaning differs by activity
+    kind so paneled on [].type (bid/buy/list). Scrape
+- id: modrinth_fabric_api_version_downloads
+  name: modrinth_project_downloads
+  domain: sales
+  dgp_class: release_downloads
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.modrinth.com/v2/project/fabric-api/version
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].date_published'
+    value_field: '[].downloads'
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. wireable: switched from the /project endpoint (single
+    snapshot row, distinct=1) to /project/{id}/version, which returns 1165 versions
+    each with date_published + numeric downloads. '
+- id: nifc_wildfire_incidents_current
+  name: nifc_fire_incidents
+  domain: nature
+  dgp_class: wildfire_incident
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&f=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: features[].attributes.FireDiscoveryDateTime
+    value_field: features[].attributes.IncidentSize
+    variates: 1
+    panel_field:
+    - features[].attributes.UniqueFireIdentifier
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. FIXED value_field: guessed DailyAcres (and CalculatedAcres)
+    are 100% null; IncidentSize has 565 numeric values across 650 features. FireDiscoveryDateTime
+    is epoch-ms -> 618 distinc'
+- id: noaa_crw_sst_daily_point
+  name: noaa_coral_reef_watch_half_hourly_sst
+  domain: nature
+  dgp_class: sea_surface_temperature
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://oceanwatch.pifsc.noaa.gov/erddap/griddap/CRW_sst_v3_1.csv?analysed_sst%5B({YYYY-MM-DD-20d}):({YYYY-MM-DD-1d})%5D%5B(21.0)%5D%5B(202.0)%5D
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: time
+    value_field: analysed_sst
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. FIXED: guessed [(last)] time selector yields a single
+    timestamp (1 ts, fails distinct>=5). Rewrote ERDDAP griddap time index to a tokenized
+    range [({YYYY-MM-DD-20d}):({YYYY-MM-DD-1'
+- id: noaa_nwps_river_stageflow
+  name: NOAA National Water Prediction Service — river forecast & observation API
+  domain: nature
+  dgp_class: hydrology_river_stage
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.water.noaa.gov/nwps/v1/gauges/01646500/stageflow
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: observed.data[].validTime
+    value_field: observed.data[].primary
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. PASS via scraper._records_from_json: 2853 records,
+    2853 distinct timestamps (15-min cadence), numeric ''value'' (105 distinct stage
+    values, real variance), max ts 2026-07-25T01:45Z ('
+- id: oecd_mei_composite_leading_indicators
+  name: OECD Main Economic Indicators (MEI) — monthly leading indicators & confiden
+  domain: econ_fin
+  dgp_class: macro_leading_indicators
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CLI,/all?startPeriod={YYYY}-01&format=csvfilewithlabels
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    variates: 1
+    panel_field:
+    - REF_AREA
+    - MEASURE
+    - TRANSFORMATION
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Verified via scraper._records_from_csv: SDMX csvfilewithlabels,
+    1711 recs, 9 distinct TIME_PERIOD, OBS_VALUE numeric (e.g. 99.93, 101.87), max
+    2026-03 (fresh). Tokenized startPerio'
+- id: ons_cpi_d7g7_monthly
+  name: UK ONS Time Series (CPI d7g7)
+  domain: econ_fin
+  dgp_class: inflation_index
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7g7/mm23/data
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: months[].date
+    value_field: months[].value
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Verified via scraper._records_from_json: 450 distinct
+    monthly timestamps (months[].date), months[].value numeric with variance, fresh
+    (last = 2026 JUN, value 2.6). Single indicator'
+- id: ooni_censorship_measurements_us
+  name: OONI Internet Censorship Measurements
+  domain: web_cloudops
+  dgp_class: internet_measurement_daily_count
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.ooni.org/api/v1/aggregation?probe_cc=US&axis_x=measurement_start_day&since={YYYY-MM-DD-60d}&until={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: result[].measurement_start_day
+    value_field: result[].measurement_count
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. Scraper _records_from_json yields 60 distinct daily
+    timestamps, 60 numeric measurement_count values (59 distinct, strong variance),
+    max ts 2026-07-24 (1 day old). Tokenized since/u
+- id: open_meteo_berlin_direct_radiation
+  name: Open-Meteo Archive API — ERA5 hourly direct solar radiation (5-location pan
+  domain: energy
+  dgp_class: weather
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://archive-api.open-meteo.com/v1/archive?latitude=52.52&longitude=13.41&start_date={YYYY-MM-DD-30d}&end_date={YYYY-MM-DD-5d}&hourly=direct_radiation
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: hourly.time[]
+    value_field: hourly.direct_radiation[]
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. Plain GET JSON, no key. Tokenized the hardcoded start_date/end_date
+    with a rolling 30d..5d window ({YYYY-MM-DD-30d}/{YYYY-MM-DD-5d}); the -5d end
+    respects the ERA5 archive's ~5-day
+- id: rki_germany_covid_hospitalizations
+  name: RKI Germany Hospitalizations (Irregular Event Stream)
+  domain: healthcare
+  dgp_class: epidemiology_hospitalization_counts
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/robert-koch-institut/COVID-19-Hospitalisierungen_in_Deutschland/main/Aktuell_Deutschland_COVID-19-Hospitalisierungen.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Datum
+    value_field: 7T_Hospitalisierung_Faelle
+    variates: 1
+    panel_field:
+    - Bundesland
+    - Altersgruppe
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. Verified via _records_from_csv: 278103 rows, distinct_ts=2337,
+    value 7T_Hospitalisierung_Faelle numeric with variance, max ts 2026-07-24 (fresh).
+    Payload mixes 16 Bundeslaender x a'
+- id: sepa_scotland_river_levels
+  name: sepa_scotland_river_levels
+  domain: nature
+  dgp_class: hydrology_river_level
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://timeseries.sepa.org.uk/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=0&format=json&ts_id=56184010&period=P7D
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].data[][0]'
+    value_field: '[].data[][1]'
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. SEPA KiWIS getTimeseriesValues (GET/JSON, no key).
+    Nested data[] rows of [ts,value]. Scraper extracted 6 distinct daily timestamps,
+    numeric river-level values (0.276-0.281 m), max '
+- id: transport_ch_stationboard_bern
+  name: Transport Opendata Switzerland — Stationboard
+  domain: transport
+  dgp_class: transit_departure_delay
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: http://transport.opendata.ch/v1/stationboard?station=Bern&limit=10
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: stationboard[].stop.departureTimestamp
+    value_field: stationboard[].stop.delay
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: 'Autosearch grind wire. verified via scraper._records_from_json: 9 distinct
+    departureTimestamps, delay numeric with non-zero variance (values include 0 and
+    1), fresh (max=today). Single station board (Ber'
+- id: treasury_auction_results
+  name: US Treasury Auction Announcements
+  domain: econ_fin
+  dgp_class: price
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&days=250
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].auctionDate'
+    value_field: '[].pricePer100'
+    variates: 1
+    panel_field:
+    - '[].securityType'
+    - '[].securityTerm'
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  notes: Autosearch grind wire. Plain GET JSON, no key. Screen used days=7 (only 4
+    distinct auctionDates) and interestRate (empty for T-bills). Widened to days=250
+    (rolling window, no hardcoded dates) and switche
