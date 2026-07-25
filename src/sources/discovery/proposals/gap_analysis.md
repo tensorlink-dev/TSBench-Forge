@@ -1,22 +1,25 @@
 ## Block 1 — Gap Analysis
 
-The current pool of 176 sources is strong on daily and sub-hourly cadences but has critical holes in **irregular/event-driven** cells across nearly every domain, and in **healthcare sub-hourly** cells specifically. The pool is also heavily concentrated in nature (45) and econ_fin (31), while energy (17) and healthcare (19) are thinner.
+The current pool of 238 sources is strong on daily and hourly cadences across most domains, and contamination risk is well-managed (174 low, only 6 high). However, several **high-value gaps** remain, concentrated in the scarcest cadence bands:
 
-**Over-represented:** Daily cadence (56 sources) and nature domain (45 sources). Many nature sources are seismic/meteorological feeds that, while live, may overlap in signal structure (event-driven geophysical processes). The econ_fin bucket is crypto-heavy (Binance, Coinbase, Kraken, Gemini, Bitfinex, Polymarket) — a monoculture within the domain.
+**Healthcare is the biggest hole.** It has zero sources at sub-minute, few-minute, half-hour, or irregular cadences — all high-value cells with a target of 3. The existing healthcare sources are almost all daily or weekly (CDC, FDA, RKI, VAERS, etc.), which are useful but don't test models on rapid health-related dynamics. Air quality data is the most viable bridge: several citizen-science and environmental networks publish health-relevant sensor data at high frequency, and these are genuinely unlikely to appear in TSFM pretraining corpora.
 
-**Under-represented (ranked by impact):**
+**Irregular/event-driven cadence is under-filled everywhere.** Nature, sales, transport, and web_cloudops all have zero or near-zero irregular sources despite targets of 3. Irregular event streams are the gold standard for contamination resistance (future events can't be memorized) and for discriminating models (they're inherently non-periodic and bursty). The few existing irregular sources (elexon frequency, ripe atlas, abs cpi) are isolated.
 
-1. **Irregular/event-driven cells (deficit 3 each in 7 domains):** This is the single largest gap. Only 1 irregular source exists (ripe_atlas). Irregular data is the gold standard for contamination resistance (future events can't be pretrained on) and for discriminating models (bursty, non-periodic, regime-switching patterns defeat seasonal-naive baselines).
+**Web_cloudops × half-hour is empty.** The pool has many status-page sources at hourly or few-minute cadence, but none at half-hour. Statuspage.io-powered services expose a consistent JSON API (`/api/v2/incidents.json`) that can be polled at any cadence, making this an easy, high-confidence fill.
 
-2. **Healthcare sub-hourly (sub-min, few-min, half-hour — deficit 3 each):** Healthcare is the hardest domain to find real-time public data for. Most health surveillance is daily or weekly. The few sub-hourly sources (NYC 311, OpenAQ, NWS heat advisories) are already wired or rejected. This gap hurts because health signals have complex non-stationary dynamics (outbreak waves, policy interventions, seasonal surges).
+**Transport × irregular and × half-hour are thin.** Most transport sources are sub-minute realtime feeds (TfL, BART, CitiBike). GTFS-RT Service Alert feeds from transit agencies not yet in rotation provide genuinely irregular event streams — service disruptions, elevator outages, weather-related suspensions — that are impossible to memorize and hard to forecast.
 
-3. **web_cloudops/half-hour (deficit 3):** Only status-page incident feeds exist at hourly; no half-hourly cybersecurity or infrastructure telemetry source is in rotation.
+**Energy × sub-min and × irregular remain thin** despite many proposed sources. Most TSOs publish at 5-minute or coarser; true sub-minute public energy data is rare (mostly grid frequency). I'm not confident enough in specific new endpoints to propose them without verification.
 
-4. **energy/irregular (deficit 3):** Grid disturbance events, outage events, and emergency actions are absent. Most TSOs are either key-gated (ENTSO-E, PJM) or already proposed/rejected.
+**Sales × irregular and × half-hour are thin.** The pool has many daily sales/download sources but few irregular event streams. New decentralized social platforms (Bluesky, Farcaster) are ideal: they postdate all model cutoffs, so their data is contamination-free by construction.
 
-5. **Lower-priority gaps:** Monthly/quarterly/yearly cells across all domains have deficits, but these are less valuable because they're easier to find (national statistics offices) and less contamination-resistant (historical data is more likely in pretraining corpora).
-
-**Contamination posture:** Good overall — 116 of 176 sources are low-risk. The main risk is that many "live" feeds (USGS, NWS, Open-Meteo) are well-known public APIs that could plausibly be in future TSFM training corpora. The irregular/event-driven gap is the most contamination-resistant cell to fill.
+**Ranked gaps targeted:**
+1. Healthcare × sub-min/few-min/half-hour/irregular (deficit 3 each)
+2. Web_cloudops × half-hour (deficit 3)
+3. Sales × irregular (deficit 3) and × half-hour (deficit 2)
+4. Nature × irregular (deficit 3)
+5. Transport × irregular (deficit 3)
 
 ---
 

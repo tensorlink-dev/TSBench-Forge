@@ -2145,6 +2145,15 @@
     "wired_as": "sffd_dispatch_call_volume"
   },
   {
+    "key": "healthcare|discomap.eea.europa.eu",
+    "name": "EEA Air Quality e-Reporting \u2014 European monitoring station panel",
+    "domain": "healthcare",
+    "frequency": "PT1H",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
     "key": "healthcare|emergency.cdc.gov",
     "name": "CDC Health Alert Network (HAN) \u2014 health alert feed",
     "domain": "healthcare",
@@ -2219,6 +2228,15 @@
   {
     "key": "healthcare|www.ecdc.europa.eu",
     "name": "ECDC Outbreak News RSS",
+    "domain": "healthcare",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "healthcare|www.fda.gov",
+    "name": "FDA Recalls, Market Withdrawals, & Safety Alerts",
     "domain": "healthcare",
     "frequency": "irregular",
     "status": "rejected",
@@ -2613,6 +2631,15 @@
     "times_proposed": 2
   },
   {
+    "key": "nature|www.meteoalarm.org",
+    "name": "MeteoAlarm.eu \u2014 European national weather warning alerts",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
     "key": "nature|www.navcen.uscg.gov",
     "name": "USCG Marine Casualty and Pollution Reports (Irregular)",
     "domain": "nature",
@@ -2817,6 +2844,15 @@
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-05",
+    "times_proposed": 2
+  },
+  {
+    "key": "sales|api.opencollective.com",
+    "name": "OpenCollective Financial Transaction Events",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-23",
     "times_proposed": 2
   },
   {
@@ -3177,6 +3213,15 @@
     "frequency": "irregular",
     "status": "wired",
     "first_proposed": "2026-07-04",
+    "times_proposed": 2
+  },
+  {
+    "key": "web_cloudops|status.cloud.google.com",
+    "name": "Google Cloud Status Atom feed",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "rejected",
+    "first_proposed": "2026-07-05",
     "times_proposed": 2
   },
   {
@@ -4779,6 +4824,15 @@
     "times_proposed": 1
   },
   {
+    "key": "healthcare|api.opensensemap.org",
+    "name": "opensensemap_api",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "healthcare|api.reporter.nih.gov",
     "name": "nih_reporter_grant_awards",
     "domain": "healthcare",
@@ -4804,6 +4858,15 @@
     "frequency": "half-hour",
     "status": "proposed",
     "first_proposed": "2026-07-10",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|api.smartcitizen.me",
+    "name": "smart_citizen_kit_api",
+    "domain": "healthcare",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
     "times_proposed": 1
   },
   {
@@ -4877,15 +4940,6 @@
     "frequency": "sub-min",
     "status": "proposed",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
-    "key": "healthcare|discomap.eea.europa.eu",
-    "name": "EEA Air Quality e-Reporting \u2014 European monitoring station panel",
-    "domain": "healthcare",
-    "frequency": "PT1H",
-    "status": "proposed",
-    "first_proposed": "2026-07-05",
     "times_proposed": 1
   },
   {
@@ -5194,15 +5248,6 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
-    "key": "healthcare|www.fda.gov",
-    "name": "FDA Recalls, Market Withdrawals, & Safety Alerts",
-    "domain": "healthcare",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-04",
     "times_proposed": 1
   },
   {
@@ -6554,15 +6599,6 @@
     "times_proposed": 1
   },
   {
-    "key": "nature|www.meteoalarm.org",
-    "name": "MeteoAlarm.eu \u2014 European national weather warning alerts",
-    "domain": "nature",
-    "frequency": "irregular",
-    "status": "rejected",
-    "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
     "key": "nature|www.meteolux.lu",
     "name": "meteolux_luxembourg_alerts",
     "domain": "nature",
@@ -6862,15 +6898,6 @@
     "times_proposed": 1
   },
   {
-    "key": "sales|api.opencollective.com",
-    "name": "OpenCollective Financial Transaction Events",
-    "domain": "sales",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-23",
-    "times_proposed": 1
-  },
-  {
     "key": "sales|api.setlist.fm",
     "name": "Setlist.fm Concert Event Stream",
     "domain": "sales",
@@ -6907,12 +6934,30 @@
     "times_proposed": 1
   },
   {
+    "key": "sales|api.warpcast.com",
+    "name": "farcaster_recent_casts",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "sales|archive.org",
     "name": "internet_archive_item_additions",
     "domain": "sales",
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|bsky.social",
+    "name": "bluesky_firehose",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
     "times_proposed": 1
   },
   {
@@ -8521,6 +8566,15 @@
     "times_proposed": 1
   },
   {
+    "key": "transport|www.transitchicago.com",
+    "name": "chicago_cta_gtfsrt_alerts",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|www.translink.ca",
     "name": "TransLink (Vancouver) Transit Alerts",
     "domain": "transport",
@@ -9027,6 +9081,15 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|fastlystatus.com",
+    "name": "fastly_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|github.com",
     "name": "github_traffic_half_hour",
     "domain": "web_cloudops",
@@ -9207,15 +9270,6 @@
     "times_proposed": 1
   },
   {
-    "key": "web_cloudops|status.cloud.google.com",
-    "name": "Google Cloud Status Atom feed",
-    "domain": "web_cloudops",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-05",
-    "times_proposed": 1
-  },
-  {
     "key": "web_cloudops|status.fastly.com",
     "name": "fastly_status_incidents",
     "domain": "web_cloudops",
@@ -9231,6 +9285,15 @@
     "frequency": "irregular",
     "status": "proposed",
     "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "web_cloudops|status.sentry.io",
+    "name": "sentry_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
     "times_proposed": 1
   },
   {
