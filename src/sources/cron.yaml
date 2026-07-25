@@ -118,6 +118,7 @@ schedules:
   - usgs_elevated_volcanoes
   - crw_virtual_station_sst
   - nasa_eonet_events [defillama_chain_tvl_daily]
+  - cdc_nssp_ed_respiratory_daily
   cron: 10 1 * * *
 - every: P1D
   sources:
@@ -265,6 +266,7 @@ schedules:
   - geofon_seismic_events
   - magiceden_nft_trading
   - opencollective_transaction_events
+  - open_meteo_era5_soil_moisture
   cron: 11 * * * *
 - every: P1D
   sources:
@@ -321,3 +323,4 @@ schedules:
   - osv_vuln_disclosure_rate
   - exploitdb_publication_stream
   - eurostat_energy_electricity_monthly
+  - bis_eer_nominal_broad_panel

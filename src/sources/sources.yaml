@@ -8067,3 +8067,102 @@
   novelty_notes: "Citizen-science SDS011 particulate network; the global live snapshot as a wide multi-sensor PM2.5 panel is not a packaged TSFM benchmark."
   license: "sensor.community — data under DbCL 1.0 (open)"
   notes: "Paneled snapshot: schema.panel_field splits the single global payload into per-sensor series (_panel_id). Verified: 9760 rows / distinct sensors, 9693 numeric PM2.5 values (>=20 numeric entities). value is positional-index sensordatavalues[1].value (P2/PM2.5 for the SDS011 majority; a handful of single-value sensor models yield null there)."
+
+# -- proposal-grind r2w2 (2026-07-25) --
+- id: open_meteo_era5_soil_moisture
+  name: Open-Meteo Archive API — ERA5 hourly soil moisture (3 depth layers, Berlin)
+  domain: nature
+  dgp_class: weather
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://archive-api.open-meteo.com/v1/archive?latitude=52.52&longitude=13.41&start_date={YYYY-MM-DD-30d}&end_date={YYYY-MM-DD-7d}&hourly=soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: hourly.time
+    value_field:
+    - hourly.soil_moisture_0_to_7cm
+    - hourly.soil_moisture_7_to_28cm
+    - hourly.soil_moisture_28_to_100cm
+    variates: 3
+  history_available: P80Y
+  update_cadence_observed: ERA5 reanalysis ~5-day lag; trailing 30d..7d window via relative date tokens
+  pretraining_novelty: clean
+  novelty_notes: ERA5 reanalysis volumetric soil moisture (m3/m3) at three root-zone depths — a slow, layered
+    soil-hydrology state variable distinct from surface weather; not the surface-forecast fields already
+    wired (open_meteo_forecast) nor the UK COSMOS ground network. Multivariate depth profile shows infiltration/drydown
+    dynamics.
+  license: Open-Meteo (CC-BY 4.0); ERA5 Copernicus
+  notes: 'Parallel-array JSON: timestamp_field hourly.time aligned index-wise with a value_field LIST of
+    three depth layers. Relative date tokens {YYYY-MM-DD-30d}/ {YYYY-MM-DD-7d} keep the poll inside the
+    ERA5 archive lag. 576 hourly rows, 576 distinct timestamps, all numeric at verification.'
+- id: bis_eer_nominal_broad_panel
+  name: BIS nominal broad effective exchange rate index (20-economy monthly panel)
+  domain: econ_fin
+  dgp_class: macro_economic_indicator
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://stats.bis.org/api/v2/data/dataflow/BIS/WS_EER/1.0/M.N.B.US+GB+JP+XM+CH+CA+AU+SE+BR+IN+MX+KR+ZA+TR+ID+PL+CL+CO+IL+CN?format=csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    panel_field: REF_AREA
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: monthly; index base 2020=100, broad basket (64 economies)
+  pretraining_novelty: clean
+  novelty_notes: BIS nominal broad effective exchange rate indices — trade-weighted currency strength for
+    20 economies in one panel. A distinct BIS dataflow (WS_EER) from the already-wired US policy rate (bis_cbpol_us_policy_rate,
+    WS_CBPOL); a cross-country FX macro panel novel vs typical TSFM pretrains.
+  license: BIS statistics (free use with attribution)
+  notes: 'BIS SDMX-CSV (?format=csv) — clean single-line header, standard rest_csv. timestamp_field TIME_PERIOD,
+    value_field OBS_VALUE, panel_field REF_AREA tags each of 20 economies. 7800 rows / 390 distinct months,
+    all numeric at verification. NOTE: BIS v2 needs ?format=csv (JSON needs an Accept header the scraper
+    can''t send; XML default returns 406/uses Accept negotiation).'
+
+# -- proposal-grind r2w2 (cdc daily, panel-URL) --
+- id: cdc_nssp_ed_respiratory_daily
+  name: CDC NSSP Emergency Department Respiratory Daily (US national, by pathogen)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes: [smooth_periodic, non_stationary_regime, count_discrete, hierarchical]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: "https://data.cdc.gov/resource/vjzj-u7u8.json?geography=United States&pathogen={PATHOGEN}&$order=date DESC&$limit=5000"
+    auth: none
+    rate_limit: "1000 req/h anonymous; higher with app token"
+  panel:
+    - {PATHOGEN: 'COVID-19'}
+    - {PATHOGEN: 'Influenza'}
+    - {PATHOGEN: 'RSV'}
+    - {PATHOGEN: 'ARI'}
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].percent_visits'
+    variates: 1
+  history_available: rolling (2022-09 onwards)
+  update_cadence_observed: "daily percent-of-ED-visits; ~1045 daily points per pathogen"
+  pretraining_novelty: partial
+  novelty_notes: >-
+    NSSP DAILY emergency-department respiratory dataset (Socrata vjzj-u7u8) —
+    percent of ED visits attributable to each pathogen, national. Distinct from the
+    already-wired weekly vutn-jzwm (cdc_nssp_ed_visits): daily granularity, ARI
+    aggregate syndrome plus COVID-19/Influenza/RSV, showing intra-week structure.
+  license: "US Government public domain (CDC open data)"
+  notes: >-
+    Socrata keyless JSON; positional [] iteration on date/percent_visits. Paneled
+    over four pathogens via {PATHOGEN} URL token. 4179 rows / 1393 distinct dates,
+    all numeric at verification.
