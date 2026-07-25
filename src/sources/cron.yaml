@@ -286,3 +286,9 @@ schedules:
   - scb_sweden_cpi_monthly
   - oecd_cli_usa_monthly
   - abs_cpi_monthly_indicator
+- every: PT15M
+  sources:
+  - eirgrid_system_demand
+- every: P1D
+  sources:
+  - rggi_co2_auction_results

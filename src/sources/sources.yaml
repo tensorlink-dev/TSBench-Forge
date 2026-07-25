@@ -7417,3 +7417,39 @@
   notes: 'ABS SDMX API, dataflow CPI_M, series key 1.20004.10.50.M (MEASURE.INDEX.TSEST.REGION.FREQ),
     format=jsondata -> SDMX-JSON, auto-detected by scraper. Distinct from existing abs_australia_cpi
     (quarterly CPI). Verified with real scraper: 93 rows, 93 distinct months, numeric.'
+
+# ── proposal-grind wave 3 (2026-07-25) ──
+- id: rggi_co2_auction_results
+  name: RGGI CO2 allowance auction results — quantity sold per auction
+  domain: econ_fin
+  dgp_class: auction_clearing
+  archetypes: [irregular, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: html_table
+    url: https://www.rggi.org/auctions/auction-results/prices-volumes
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Date
+    value_field: Quantity Sold
+    variates: 1
+  novelty_notes: "Full history of RGGI CO2 allowance auctions (2008-present); quarterly cap-and-trade clearing outcomes, niche carbon-market series."
+  notes: "html_table parser (single table on page, 84 rows/72 distinct auction dates). value=Quantity Sold (numeric after comma-strip). Clearing Price/Total Proceeds columns carry a '$' prefix the html_table float-coercion can't strip, so Quantity Sold is used as the numeric variate. Source updates ~quarterly; P1D poll dedupes on Date."
+- id: eirgrid_system_demand
+  name: EirGrid Smart Grid Dashboard — all-island system demand (15-min)
+  domain: energy
+  dgp_class: grid_load
+  archetypes: [seasonal, diurnal]
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://www.smartgriddashboard.com/DashboardService.svc/data?area=demandactual&region=ALL&datefrom={YYYY-MM-DD-1d}+00%3A00&dateto={YYYY-MM-DD}+23%3A59
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Rows[].EffectiveTime
+    value_field: Rows[].Value
+    variates: 1
+  novelty_notes: "All-island (ROI+NI) transmission system demand at 15-min resolution; live grid telemetry unlikely in TSFM pretraining mixes."
+  notes: "rest_json GET. Uses relative-date URL tokens {YYYY-MM-DD-1d} and {YYYY-MM-DD}; API requires ISO datefrom/dateto (DD-MMM also accepted but only ISO is scraper-templatable). Rolling 2-day window (~192 rows, 15-min). Trailing rows for future slots are null until measured. region=ALL; also ROI/NI. Other areas: generationactual, windactual, co2intensity, interconnection, frequency."
