@@ -5545,3 +5545,27 @@
     sample_rows: 8969
     sample_freshness_hours: 1.0
   notes: "relativeFundingRate is the per-period rate (the funding signal); fundingRate is the absolute USD figure. Full year in one response — no paging needed, admission-eligible from the first scrape. Other perps: PF_ETHUSD etc."
+
+- id: ree_spain_grid_demand
+  name: REE Spain electricity demand (real-time)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [smooth_periodic, non_stationary_regime, bounded]
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: "https://apidatos.ree.es/en/datos/demanda/demanda-tiempo-real?start_date={YYYY-MM-DD}T00:00&end_date={YYYY-MM-DD}T23:59&time_trunc=hour"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "included[0].attributes.values[].datetime"
+    value_field: "included[0].attributes.values[].value"
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: hourly; rolling current-day window (dedupe backfills)
+  pretraining_novelty: clean
+  novelty_notes: REE (Red Eléctrica) Spain real-time demand; date-tokenized for a live rolling feed.
+  license: REE apidatos — public
+  sample_path: samples/ree_spain_grid_demand.json
+  verification: {last_verified: 2026-07-25T00:00:00Z, sample_rows: 24, sample_freshness_hours: 0.5}
+  notes: Wired from autosearch backlog re-wire pass; screen gave a hardcoded-date URL, tokenized to {YYYY-MM-DD}.
