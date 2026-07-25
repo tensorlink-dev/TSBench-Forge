@@ -7275,3 +7275,145 @@
   sample_path: samples/osm_changeset_stream.json
   verification: {last_verified: 2026-07-25T00:00:00Z, sample_rows: 100, sample_freshness_hours: 0.02}
   notes: "Plain rest_json. Returns the 100 most-recent changesets (created_at + changes_count). Poll >=PT5M to minimise gaps (100-row cap covers only ~minutes). For a pure edit-rate series add schema.aggregate {op: count, bin: PT1M}; for total edits per bin use {op: sum, bin: PT1M} over changes_count."
+
+# ── proposal-grind wave 2 (monthly macro, 2026-07-25) ──
+- id: cfpb_consumer_complaints_monthly
+  name: CFPB Consumer Complaint Database — monthly complaint volume
+  domain: econ_fin
+  dgp_class: complaint_volume
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/trends/?lens=overview&trend_interval=month&date_received_min=2012-01-01
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: aggregations.dateRangeBrush.dateRangeBrush.buckets[].key_as_string
+    value_field: aggregations.dateRangeBrush.dateRangeBrush.buckets[].doc_count
+    variates: 1
+  history_available: rolling (2011-12-present)
+  update_cadence_observed: complaints ingested continuously; monthly bucket refreshes daily
+  pretraining_novelty: clean
+  novelty_notes: Monthly count of US consumer-finance complaints filed with the CFPB — a
+    regulatory-demand / consumer-distress intensity series absent from TS pretraining corpora.
+  license: public domain (US Gov, CFPB open data)
+  notes: 'Keyless CFPB /trends search API. Uses a nested JSON path into
+    aggregations.dateRangeBrush.dateRangeBrush.buckets[]; key_as_string is the month, doc_count the
+    complaint count. Verified with real scraper: 176 rows, 176 distinct months, numeric, HTTP 200.'
+- id: cbs_netherlands_hicp_monthly
+  name: cbs_statistics_netherlands — HICP consumer price index (all items, monthly)
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.cbs.nl/ODataApi/odata/83133NED/TypedDataSet?$filter=Bestedingscategorieen%20eq%20%27T001112%20%20%27
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: value[].Perioden
+    value_field: value[].HICP_1
+    variates: 1
+  history_available: P29Y (1996M01-present)
+  update_cadence_observed: monthly HICP release
+  pretraining_novelty: clean
+  novelty_notes: Netherlands harmonised CPI (all-items index), 1996-present monthly. National
+    price-index series from CBS StatLine OData; not in LOTSA/Monash/M-competitions.
+  license: CBS open data (CC-BY 4.0)
+  notes: 'CBS StatLine OData v3 TypedDataSet. $filter pins the all-items category (key ''T001112  '')
+    so the response stays under the 10k-row table cap (unfiltered = HTTP 500). rest_json value[]
+    array; Perioden month labels (1996MM01). Verified with real scraper: 390 rows, 390 distinct, numeric.'
+- id: scb_sweden_cpi_monthly
+  name: scb_statistics_sweden — Consumer Price Index (CPI, total, monthly)
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    method: POST
+    url: https://api.scb.se/OV0104/v1/doris/en/ssd/START/PR/PR0101/PR0101A/KPItotM
+    auth: none
+    rate_limit: polite
+    body:
+      query:
+      - code: ContentsCode
+        selection:
+          filter: item
+          values:
+          - 000004VU
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P45Y (1980M01-present)
+  update_cadence_observed: monthly CPI release (~mid-month)
+  pretraining_novelty: clean
+  novelty_notes: Swedish CPI fixed index numbers (1980=100), 1980-present monthly. National
+    statistics-office series; catalog-quality macro indicator.
+  license: SCB open data (CC0)
+  notes: 'Uses the JSON-stat 2.0 parser + POST feature. SCB PxWeb API; POST body selects the CPI
+    fixed-index ContentsCode (000004VU) and requests format=json-stat2. Time labels normalised
+    (1980M01 -> 1980-01). Verified with real scraper: 552 rows, 552 distinct months, numeric.'
+- id: oecd_cli_usa_monthly
+  name: OECD Main Economic Indicators — Composite Leading Indicator (USA, monthly)
+  domain: econ_fin
+  dgp_class: leading_indicator
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CLI,/USA.M.LI...AA...H?startPeriod=2000-01&format=jsondata
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: rolling (long history from 2000)
+  update_cadence_observed: monthly MEI/CLI release
+  pretraining_novelty: clean
+  novelty_notes: OECD Composite Leading Indicator for the USA — a cyclical turning-point signal
+    (amplitude-adjusted, normalised) from the MEI/STES database; monthly macro leading indicator.
+  license: OECD terms (public dissemination API)
+  notes: 'Candidate host stats.oecd.org is the deprecated SDMX-JSON service (returns empty); discovered
+    the current OECD public REST at sdmx.oecd.org. Dataflow DSD_STES@DF_CLI, series key USA.M.LI...AA...H,
+    format=jsondata -> SDMX-JSON 2.0, auto-detected by the scraper (data.dataSets + structures[]).
+    Verified with real scraper: 198 rows, 198 distinct months, numeric.'
+- id: abs_cpi_monthly_indicator
+  name: ABS Data API — Monthly CPI Indicator (all groups, Australia)
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://data.api.abs.gov.au/rest/data/CPI_M/1.20004.10.50.M?startPeriod=2018&format=jsondata
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: value
+    variates: 1
+  history_available: rolling (2018-present, monthly CPI indicator series)
+  update_cadence_observed: monthly CPI-indicator release
+  pretraining_novelty: clean
+  novelty_notes: ABS Monthly CPI Indicator (all groups, index numbers, weighted average of eight
+    capital cities) — the newer monthly companion to the quarterly CPI; higher-frequency AU inflation.
+  license: ABS open data (CC-BY 4.0)
+  notes: 'ABS SDMX API, dataflow CPI_M, series key 1.20004.10.50.M (MEASURE.INDEX.TSEST.REGION.FREQ),
+    format=jsondata -> SDMX-JSON, auto-detected by scraper. Distinct from existing abs_australia_cpi
+    (quarterly CPI). Verified with real scraper: 93 rows, 93 distinct months, numeric.'
