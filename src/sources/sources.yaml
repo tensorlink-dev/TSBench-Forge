@@ -7453,3 +7453,26 @@
     variates: 1
   novelty_notes: "All-island (ROI+NI) transmission system demand at 15-min resolution; live grid telemetry unlikely in TSFM pretraining mixes."
   notes: "rest_json GET. Uses relative-date URL tokens {YYYY-MM-DD-1d} and {YYYY-MM-DD}; API requires ISO datefrom/dateto (DD-MMM also accepted but only ISO is scraper-templatable). Rolling 2-day window (~192 rows, 15-min). Trailing rows for future slots are null until measured. region=ALL; also ROI/NI. Other areas: generationactual, windactual, co2intensity, interconnection, frequency."
+
+# ── proposal-grind wave 4 (2026-07-25) ──
+- id: defra_aurn_marylebone_road_hourly
+  name: DEFRA UK-AIR AURN — London Marylebone Road hourly air quality (multivariate)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_csv
+    url: https://uk-air.defra.gov.uk/datastore/data_files/site_data/MY1_{YYYY}.csv
+    auth: none
+    rate_limit: "polite"
+  schema:
+    timestamp_field: Date time
+    variates: 44
+  history_available: P1Y
+  pretraining_novelty: partial
+  novelty_notes: "Hourly AURN pollutant concentrations (NO2, NOx, O3, PM2.5, PM10, CO, SO2 + ~35 speciated VOCs) at the iconic Marylebone Road roadside supersite. Recent-year hourly readings are post-cutoff and the wide roadside VOC panel is a distinct DGP."
+  license: "Open Government Licence"
+  notes: "Composite timestamp: timestamp_field 'Date time' combines the Date + time columns. {YYYY} token selects the current-year annual file (year-to-date, hour-ending GMT). value_field intentionally omitted: pollutant column names are double-quoted in the header, which blocks the scraper's want-subset header detection when a quoted name is added to the wanted set; with only unquoted Date+time wanted the multi-line-preamble header is located and csv.DictReader emits every pollutant as its own numeric column (wide multivariate). 4900+ distinct hourly timestamps year-to-date."
