@@ -269,6 +269,7 @@ schedules:
   - opencollective_transaction_events
   - open_meteo_era5_soil_moisture
   - oklahoma_mesonet_mdf_snapshot
+  - jikan_top_anime_scores
   cron: 11 * * * *
 - every: P1D
   sources:
@@ -289,6 +290,7 @@ schedules:
   - osm_changeset_stream
   - datalakes_lexplore_skin_temp
   - openfoodfacts_product_additions
+  - listenbrainz_user_listens
 - every: P1D
   sources:
   - who_disease_outbreak_news
@@ -326,3 +328,5 @@ schedules:
   - exploitdb_publication_stream
   - eurostat_energy_electricity_monthly
   - bis_eer_nominal_broad_panel
+  - nyc_restaurant_inspections_daily
+  - lemmy_new_post_stream

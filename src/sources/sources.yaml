@@ -8232,3 +8232,99 @@
     (YYYY MM DD hh mm) over a wide fixed-width text feed. Verified via scraper._records_from_csv: 898 rows,
     898 distinct STN entities, PRES numeric for 636 stations / ATMP 622 (>=20 numeric entities). Snapshot:
     one obs per station per poll.'
+
+# -- proposal-grind r2w4 (2026-07-25) --
+- id: nyc_restaurant_inspections_daily
+  name: NYC restaurant inspection violations — daily count
+  domain: sales
+  dgp_class: count_discrete
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.cityofnewyork.us/resource/43nn-pn8j.json?$select=inspection_date&$where=inspection_date%20IS%20NOT%20NULL%20AND%20inspection_date%3E%272024-01-01%27&$order=inspection_date%20DESC&$limit=50000
+    auth: none
+    rate_limit: throttled without app token; higher with free Socrata app token
+  schema:
+    timestamp_field: '[].inspection_date'
+    value_field: ''
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  pretraining_novelty: clean
+  license: public (NYC OpenData, autosearch-wired)
+  novelty_notes: NYC DOHMH restaurant inspection results (Socrata 43nn-pn8j) binned to daily inspection
+    volume — a count_discrete series with strong weekly seasonality (few weekend inspections).
+  notes: Keyless Socrata SoQL. Uses schema.aggregate {op:count, bin:P1D} over the inspection_date event
+    stream ($where inspection_date IS NOT NULL). 166 daily bins.
+- id: jikan_top_anime_scores
+  name: Jikan (MyAnimeList) top-anime score panel
+  domain: sales
+  dgp_class: content_engagement
+  archetypes:
+  - bounded_range
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.jikan.moe/v4/top/anime?limit=25
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].aired.from
+    value_field: data[].score
+    panel_field: data[].mal_id
+    variates: 1
+  panel: mal_id
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  novelty_notes: Jikan (unofficial MyAnimeList API) top-anime leaderboard; per-title community score (0-10)
+    polled over time forms a bounded-range engagement panel across 25 titles keyed by mal_id.
+  notes: Keyless Jikan API. Uses schema.panel_field (data[].mal_id) to split the payload into a per-title
+    score series; 25 numeric entities. aired.from used as the per-row timestamp.
+- id: lemmy_new_post_stream
+  name: Lemmy (lemmy.world) new-post engagement stream
+  domain: sales
+  dgp_class: content_engagement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT10M
+  endpoint:
+    type: rest_json
+    url: https://lemmy.world/api/v3/post/list?limit=50&sort=New
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: posts[].post.published
+    value_field: posts[].counts.score
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  novelty_notes: Lemmy.world (federated Reddit-alternative) newest-posts firehose; each row is a post with
+    ISO published time and its net score (upvotes-downvotes) — an irregular content-engagement event stream,
+    keyless.
+  notes: Keyless Lemmy API v3. Nested JSON paths (posts[].post.published, posts[].counts.score); 50 posts
+    -> 50 distinct timestamps, numeric.
+- id: listenbrainz_user_listens
+  name: ListenBrainz user listens stream
+  domain: sales
+  dgp_class: content_engagement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.listenbrainz.org/1/user/rob/listens?count=100
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: payload.listens[].listened_at
+    value_field: payload.listens[].track_metadata.additional_info.duration_ms
+    variates: 1
+  pretraining_novelty: clean
+  license: public (autosearch-wired)
+  novelty_notes: ListenBrainz (MusicBrainz open scrobble service) live user listen events; each row is a
+    play with epoch listened_at and track duration_ms — an irregular content-consumption event stream, keyless.
+  notes: Keyless ListenBrainz listens API. Positional epoch-seconds timestamp (listened_at) auto-converted;
+    value_field is a nested JSON path to duration_ms. 100 listens -> 100 distinct timestamps, numeric.
