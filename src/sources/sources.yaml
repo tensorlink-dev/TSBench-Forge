@@ -7919,3 +7919,83 @@
     2026 YTD: 205 distinct daily bins, numeric counts. value_field JASCCode only
     keeps raw rows well-formed; op:count ignores it. For history the operator can
     union SDR-2007.csv .. SDR-{YYYY}.csv (same schema).
+
+# ── proposal-grind wave 13 (2026-07-25) ──
+- id: ransomware_live_victim_rate
+  name: Ransomware.live Daily Victim Disclosure Count
+  domain: web_cloudops
+  dgp_class: irregular-event-count
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: "https://api.ransomware.live/v2/victims/2025"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].attackdate"
+    value_field: ""
+    variates: univariate
+    aggregate:
+      op: count
+      bin: P1D
+  novelty_notes: "Ransomware.live keyless v2 victims-by-year endpoint returns thousands of leak-site victim disclosures with attack dates; daily binning gives a long ransomware-activity count series. Host rate-limited to 1 req/min (fine for daily cron)."
+  notes: "schema.aggregate count over P1D bins; top-level array iteration [].attackdate."
+- id: datacite_doi_registration_rate
+  name: DataCite DOI Registration Rate
+  domain: web_cloudops
+  dgp_class: irregular-event-count
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: "https://api.datacite.org/dois?page%5Bsize%5D=1000&sort=-created"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "data[].attributes.created"
+    value_field: ""
+    variates: univariate
+    aggregate:
+      op: count
+      bin: PT1M
+  novelty_notes: "The 1000 most-recently-created DOIs (sorted by -created) span tens of minutes; binning creation timestamps per minute yields a live DOI registration-rate series."
+  notes: "schema.aggregate count over PT1M bins; URL-encoded page[size] query param."
+- id: osv_vuln_disclosure_rate
+  name: OSV Open Source Vulnerability Disclosure Rate (tensorflow/PyPI)
+  domain: web_cloudops
+  dgp_class: irregular-event-count
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: "https://api.osv.dev/v1/query"
+    method: POST
+    body:
+      package:
+        name: tensorflow
+        ecosystem: PyPI
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "vulns[].published"
+    value_field: ""
+    variates: univariate
+    aggregate:
+      op: count
+      bin: P7D
+  novelty_notes: "OSV.dev POST /v1/query returns the full vulnerability record set for a package; binning published timestamps into weekly counts yields a disclosure-rate series."
+  notes: "endpoint.method POST (JSON body); schema.aggregate count over P7D bins."
+- id: gdelt_news_volume_timeline
+  name: GDELT 2.0 Global News Coverage Volume Timeline
+  domain: web_cloudops
+  dgp_class: exogenous-event-intensity
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: "https://api.gdeltproject.org/api/v2/doc/doc?query=climate&mode=timelinevol&format=json&timespan=7d"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "timeline[].data[].date"
+    value_field: "timeline[].data[].value"
+    variates: univariate
+  novelty_notes: "GDELT DOC 2.0 timelinevol mode returns a 15-minute normalized coverage-intensity series over the trailing week for a news query; a single call yields ~150+ distinct timestamps."
+  notes: "positional [] iteration over timeline[].data[]; compact YYYYMMDDThhmmssZ timestamps."

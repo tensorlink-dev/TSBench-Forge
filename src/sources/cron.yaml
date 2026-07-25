@@ -23,6 +23,7 @@ schedules:
   - intermagnet_esk_geomag_minute
   - crossref_doi_registration_events
   - mastodon_public_timeline_events
+  - datacite_doi_registration_rate
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -301,6 +302,7 @@ schedules:
 - every: PT15M
   sources:
   - eirgrid_system_demand
+  - gdelt_news_volume_timeline
 - every: P1D
   sources:
   - rggi_co2_auction_results
@@ -314,3 +316,5 @@ schedules:
   - fdroid_app_update_events
   - fra_rail_equipment_accidents
   - faa_service_difficulty_reports
+  - ransomware_live_victim_rate
+  - osv_vuln_disclosure_rate
