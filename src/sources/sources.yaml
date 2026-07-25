@@ -8382,3 +8382,58 @@
   license: TfL Open Data — keyless (500 req/min anonymous)
   notes: 'Feature: {NAPTAN} URL-token panel -> top-level panel: list; single-value snapshot API so timestamp_field:''''
     (now() stamped per poll). Paneled snapshot: 24 numeric entities verified against real scraper.'
+
+# -- proposal-grind r2w8 (2026-07-25) --
+- id: github_actions_workflow_runs_k8s
+  name: GitHub Actions workflow-run events (kubernetes/kubernetes)
+  domain: web_cloudops
+  dgp_class: event_stream
+  frequency: half-hour
+  endpoint:
+    type: rest_json
+    url: https://api.github.com/repos/kubernetes/kubernetes/actions/runs?per_page=100
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: workflow_runs[].created_at
+    value_field: workflow_runs[].run_number
+    variates: 1
+  novelty_notes: CI/CD operational tempo — per-run creation events with run numbers for a very high-throughput
+    monorepo; heavy-tailed inter-arrival.
+  notes: Positional JSON path workflow_runs[].* ; keyless GitHub REST (60 req/hr unauth, one call/poll).
+- id: rubygems_recent_gem_releases
+  name: RubyGems recently-released gems (downloads per release)
+  domain: web_cloudops
+  dgp_class: snapshot_panel
+  frequency: irregular
+  endpoint:
+    type: rest_json
+    url: https://rubygems.org/api/v1/activity/just_updated.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].version_created_at'
+    value_field: '[].downloads'
+    variates: 1
+  novelty_notes: Package-ecosystem release stream — each newly-published gem version timestamped with its
+    total download count; bursty release cadence.
+  notes: Positional JSON path [].* ; keyless RubyGems.org API. Distinct from rubygems_rails_version_downloads
+    (single-gem history).
+- id: shodan_cvedb_cve_disclosures
+  name: Shodan CVEDB CVE disclosures (CVSS)
+  domain: web_cloudops
+  dgp_class: event_stream
+  frequency: irregular
+  endpoint:
+    type: rest_json
+    url: https://cvedb.shodan.io/cves?limit=1000
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: cves[].published_time
+    value_field: cves[].cvss
+    variates: 1
+  novelty_notes: Newly-disclosed CVEs timestamped with CVSS severity; irregular bursty disclosure drops,
+    heavy-tailed severity.
+  notes: Positional JSON path cves[].* ; keyless Shodan CVEDB (cvedb.shodan.io, no API key). Distinct host
+    from nvd_cve_disclosures.
