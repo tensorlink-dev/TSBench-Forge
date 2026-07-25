@@ -20,6 +20,7 @@ schedules:
   - manifold_markets_snapshot
   - coinbase_spot_1m
   - opensky_states_local
+  - intermagnet_esk_geomag_minute
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -275,6 +276,7 @@ schedules:
 - every: PT5M
   sources:
   - osm_changeset_stream
+  - datalakes_lexplore_skin_temp
 - every: P1D
   sources:
   - who_disease_outbreak_news
@@ -301,3 +303,4 @@ schedules:
   - defra_aurn_marylebone_road_hourly
   - fda_drug_recalls_daily_count
   - cosmos_uk_soil_moisture
+  - phenocam_harvard_gcc_3day

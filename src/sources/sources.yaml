@@ -7605,3 +7605,71 @@
   notes: >
     GeoJSON FeatureCollection parsed via iterating paths
     features[].properties.time (origin time) and features[].properties.mag.
+
+# ── proposal-grind wave 8 (2026-07-25) ──
+- id: phenocam_harvard_gcc_3day
+  name: PhenoCam Network — Harvard Forest vegetation phenology (GCC 3-day summary)
+  domain: nature
+  dgp_class: vegetation_phenology
+  archetypes: [seasonal, non_stationary_regime]
+  frequency: P3D
+  endpoint:
+    type: rest_csv
+    url: https://phenocam.nau.edu/data/archive/harvard/ROI/harvard_DB_1000_3day.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: date
+    value_field: [gcc_mean, gcc_90, rcc_mean]
+    variates: 3
+  novelty_notes: "Per-camera green/red chromatic-coordinate phenology from the Harvard Forest deciduous-broadleaf ROI; PhenoCam GCC series not in LOTSA/Monash/Chronos/TimesFM/Moirai mixes."
+  notes: |
+    rest_csv over a '#'-prefixed multi-line preamble — the scraper's CSV header
+    auto-detection finds the comma header row (date,year,doy,...). Multi-column
+    value_field emits gcc_mean/gcc_90/rcc_mean. Verified 2233 rows, 2233 distinct
+    dates (2008-04 → 2026-07), numeric.
+- id: datalakes_lexplore_skin_temp
+  name: LéXPLORE (Lake Geneva) skin & sky temperature — Datalakes/Eawag
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes: [seasonal, diurnal]
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.datalakes-eawag.ch/download/2804576
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: x
+    value_field: [y, y1]
+    variates: 2
+  novelty_notes: "In-situ radiometric skin temperature of Lake Geneva from the LéXPLORE platform; Swiss-lake Datalakes series not present in standard TS pretraining corpora."
+  notes: |
+    rest_json; timestamp array `x` is epoch-seconds (scraper _epoch_to_iso), value
+    arrays y=skintemp °C, y1=skytemp °C. Verified 1560 rows, 1560 distinct 5-min
+    timestamps, numeric. CAVEAT: /download/{fileid} — id 2804576 is the current
+    ~weekly rolling file (updates in near real time); it rotates ~weekly, so the
+    fileid must be refreshed per week for continued live capture.
+- id: intermagnet_esk_geomag_minute
+  name: INTERMAGNET — Eskdalemuir (ESK) geomagnetic field, 1-minute
+  domain: nature
+  dgp_class: space_weather
+  archetypes: [non_stationary_regime]
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://imag-data.bgs.ac.uk/GIN_V1/hapi/data?id=esk/best-avail/PT1M/xyzf&time.min={YYYY-MM-DD-14d}T00:00:00Z&time.max={YYYY-MM-DD-13d}T00:00:00Z&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][2]
+    variates: 1
+  novelty_notes: "Total-field magnitude (nT) from the Eskdalemuir INTERMAGNET observatory via the BGS HAPI service; observatory minute geomagnetics not in mainstream TS pretraining mixes."
+  notes: |
+    rest_json against the INTERMAGNET/BGS HAPI 3.1 service (format=json). HAPI
+    JSON `data` is an array of [time, [x,y,z], magnitude] records: data[][0] is the
+    ISO time, data[][2] the scalar total-field magnitude (data[][1] is a nested
+    vector that the parser's one-level flatten misaligns, so magnitude is used).
+    best-avail lags ~10d, so relative date tokens {YYYY-MM-DD-14d}/{YYYY-MM-DD-13d}
+    pull a settled 24h window. Verified 1440 rows, 1440 distinct minutes, numeric.
