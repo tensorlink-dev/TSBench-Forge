@@ -7125,3 +7125,153 @@
   license: SSB open data (NLOD/CC-BY)
   notes: First source on the JSON-stat 2.0 parser + POST feature. SSB PxApi POST returns json-stat2; time
     labels normalised (1979M01 -> 1979-01).
+
+# ── proposal-grind wave (2026-07-25) ──
+- id: who_disease_outbreak_news
+  name: WHO Disease Outbreak News (DON) — daily outbreak-report count
+  domain: healthcare
+  dgp_class: alert_stream
+  archetypes: [count_discrete, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: "https://www.who.int/api/news/diseaseoutbreaknews?$orderby=PublicationDateAndTime desc&$top=100&$select=PublicationDateAndTime,Title"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: value[].PublicationDateAndTime
+    value_field: value[].Title
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  novelty_notes: WHO OData feed of official disease-outbreak reports; irregular event-arrival stream binned to daily report counts. Not in standard TS pretraining mixes.
+  notes: uses schema.aggregate (count / P1D) over an event-arrival stream ($top capped at 100)
+- id: gbif_occurrence_by_year
+  name: GBIF global species-occurrence records per year
+  domain: nature
+  dgp_class: count_process
+  archetypes: [count_discrete, trend]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: "https://api.gbif.org/v1/occurrence/search?limit=0&facet=year&facetLimit=300&year=1900,2026"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: facets[].counts[].name
+    value_field: facets[].counts[].count
+    variates: 1
+  novelty_notes: GBIF facet aggregation of ~4B biodiversity occurrence records by observation year; counts grow as data is ingested. Distinctive biodiversity series.
+  notes: nested facet paths (facets[].counts[].name / .count); yearly buckets
+- id: ntsb_aviation_accidents
+  name: NTSB aviation accident events — daily count
+  domain: transport
+  dgp_class: alert_stream
+  archetypes: [count_discrete, seasonal_yearly]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    method: POST
+    url: https://data.ntsb.gov/carol-main-public/api/Query/Main
+    auth: none
+    rate_limit: null
+    body:
+      ResultSetSize: 500
+      ResultSetOffset: 0
+      QueryGroups:
+        - QueryRules:
+            - RuleType: Simple
+              Values: [Aviation]
+              Columns: [Event.Mode]
+              Operator: is
+              selectedOption: {FieldName: Mode}
+          AndOr: and
+          inLastSearch: false
+          editedSinceLastSearch: false
+      AndOr: or
+      SortColumn: null
+      SortDescending: true
+      TargetCollection: cases
+      SessionId: 100000
+  schema:
+    timestamp_field: Results[].Fields[5].Values[0]
+    value_field: Results[].Fields[0].Values[0]
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  novelty_notes: NTSB CAROL public query API (POST). Fields[5]=EventDate is index-stable across results; recent aviation accidents binned to daily counts.
+  notes: uses endpoint.method POST + body, and schema.aggregate (count / P1D)
+- id: clinicaltrials_new_registrations
+  name: ClinicalTrials.gov study registrations — daily count
+  domain: healthcare
+  dgp_class: count_process
+  archetypes: [count_discrete, trend]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: "https://clinicaltrials.gov/api/v2/studies?pageSize=1000&fields=NCTId,StudyFirstPostDate"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: studies[].protocolSection.statusModule.studyFirstPostDateStruct.date
+    value_field: studies[].protocolSection.identificationModule.nctId
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  novelty_notes: ClinicalTrials.gov API v2 study registrations; first-post dates span registry history, binned to per-day registration counts.
+  notes: deep-nested JSON paths + schema.aggregate (count / P1D)
+- id: ncei_storm_events
+  name: NOAA NCEI Storm Events (current year) — daily event count
+  domain: nature
+  dgp_class: alert_stream
+  archetypes: [count_discrete, seasonal_yearly]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles/StormEvents_details-ftp_v1.0_d2026_c20260625.csv.gz
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: BEGIN_DATE_TIME
+    value_field: EVENT_ID
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  novelty_notes: NOAA NCEI Storm Events current-year gzip CSV (~70k events); binned to daily severe-weather event counts. Filename c-date suffix updates ~monthly and must be refreshed.
+  notes: gzip auto-decompress + schema.aggregate (count / P1D)
+- id: neso_gb_system_frequency
+  name: NESO (National Grid ESO) GB system frequency — 1-second historic
+  domain: energy
+  dgp_class: grid_frequency
+  archetypes: [mean_reverting, high_frequency, bounded]
+  frequency: PT1S
+  endpoint: {type: rest_json, url: "https://api.neso.energy/api/3/action/datastore_search?resource_id=dc7c5468-08a1-4586-bcdd-77ced39a5067&limit=500&sort=_id%20desc", auth: none, rate_limit: null}
+  schema: {timestamp_field: "result.records[].dtm", value_field: "result.records[].f", variates: 1}
+  history_available: P12Y
+  update_cadence_observed: "monthly: each calendar month published as a new 1-second-resolution resource ~1-2 weeks after month end (June 2026 resource published 2026-07-13)"
+  pretraining_novelty: clean
+  novelty_notes: "GB grid frequency at 1-second resolution from NESO open data — distinct provider/dataset from the live Elexon frequency feed (elexon_gb_system_frequency). sort=_id desc returns the latest published seconds."
+  license: "NESO Open Data Licence"
+  sample_path: samples/neso_gb_system_frequency.json
+  verification: {last_verified: 2026-07-25T00:00:00Z, sample_rows: 500, sample_freshness_hours: 600}
+  notes: "CKAN datastore_search over the NESO open-data portal (host migrated from data.nationalgrideso.com -> api.neso.energy). resource_id is pinned to the June 2026 monthly file and MUST be bumped monthly (GET action/package_show?id=system-frequency-data to find the newest resource id), same version-pinned pattern as the ONS CPIH source. Raise limit for more rows (dtm is ISO, f is Hz)."
+- id: osm_changeset_stream
+  name: OpenStreetMap changeset event stream (edit magnitude)
+  domain: web_cloudops
+  dgp_class: activity_stream
+  archetypes: [count_discrete, non_stationary_regime, bursty]
+  frequency: PT5M
+  endpoint: {type: rest_json, url: "https://api.openstreetmap.org/api/0.6/changesets.json", auth: none, rate_limit: null}
+  schema: {timestamp_field: "changesets[].created_at", value_field: "changesets[].changes_count", variates: 1}
+  history_available: PT10M
+  update_cadence_observed: "continuous firehose; 100 most-recent changesets span roughly the last few minutes"
+  pretraining_novelty: clean
+  novelty_notes: "Live global OSM edit firehose; per-changeset edit magnitude (changes_count) as an irregular event-magnitude series. Post-cutoff timestamps."
+  license: "ODbL 1.0 (OpenStreetMap contributors)"
+  sample_path: samples/osm_changeset_stream.json
+  verification: {last_verified: 2026-07-25T00:00:00Z, sample_rows: 100, sample_freshness_hours: 0.02}
+  notes: "Plain rest_json. Returns the 100 most-recent changesets (created_at + changes_count). Poll >=PT5M to minimise gaps (100-row cap covers only ~minutes). For a pure edit-rate series add schema.aggregate {op: count, bin: PT1M}; for total edits per bin use {op: sum, bin: PT1M} over changes_count."
