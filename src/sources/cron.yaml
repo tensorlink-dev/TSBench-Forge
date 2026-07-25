@@ -72,6 +72,7 @@ schedules:
       - lobsters_hottest              # 2026-07-10 batch
       - datalakes_eawag_lake_obs      # 2026-07-10 batch; stations update 10-60 min
       - coinbase_spot_15m             # 2026-07-12; replaces binance_btcusdt_15m (US-accessible)
+      - elexon_gb_system_frequency     # 2026-07-25 autosearch batch-1 wire (GB grid frequency)
     cron: "*/15 * * * *"
 
   - every: PT30M

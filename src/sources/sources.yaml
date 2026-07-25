@@ -5545,3 +5545,28 @@
     sample_rows: 8969
     sample_freshness_hours: 1.0
   notes: "relativeFundingRate is the per-period rate (the funding signal); fundingRate is the absolute USD figure. Full year in one response — no paging needed, admission-eligible from the first scrape. Other perps: PF_ETHUSD etc."
+
+# ── autosearch batch-1 integrations (endpoint-verified 2026-07-25) ──────────
+- id: elexon_gb_system_frequency
+  name: Elexon BMRS GB electricity system frequency
+  domain: energy
+  dgp_class: grid_demand
+  archetypes: [smooth_periodic, bounded, non_stationary_regime]
+  frequency: PT15S
+  endpoint:
+    type: rest_json
+    url: https://data.elexon.co.uk/bmrs/api/v1/system/frequency?from={YYYY-MM-DD}T00:00Z&to={YYYY-MM-DD}T23:59Z
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "data[].measurementTime"
+    value_field: "data[].frequency"
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: ~15 seconds; rolling current-day window (dedupe backfills)
+  pretraining_novelty: clean
+  novelty_notes: GB grid frequency at 15s; not in Monash/LOTSA.
+  license: Elexon BMRS open data — no key
+  sample_path: samples/elexon_gb_system_frequency.json
+  verification: {last_verified: 2026-07-25T00:00:00Z, sample_rows: 172, sample_freshness_hours: 0.1}
+  notes: Wired from autosearch backlog; real host data.elexon.co.uk (hint api.bmrs.com stale).
