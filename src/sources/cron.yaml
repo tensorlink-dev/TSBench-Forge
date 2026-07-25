@@ -28,6 +28,7 @@ schedules:
 - every: PT2M30S
   sources:
   - sensor_community_pm25
+  - sensor_community_pm25_global_panel
   cron: '*/3 * * * *'
 - every: PT5M
   sources:
@@ -319,3 +320,4 @@ schedules:
   - ransomware_live_victim_rate
   - osv_vuln_disclosure_rate
   - exploitdb_publication_stream
+  - eurostat_energy_electricity_monthly

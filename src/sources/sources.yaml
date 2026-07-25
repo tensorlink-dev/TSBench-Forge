@@ -8018,3 +8018,52 @@
     aggregate: {op: count, bin: P1D}
   novelty_notes: "Daily count of public exploits published to Exploit-DB (Offensive Security), 1988-present — a security-disclosure event-rate series novel to TSFM corpora."
   notes: "Keyless CSV mirror of the official Exploit-DB git repo (~10MB, HTTP 200). schema.aggregate bins date_published into a daily publication-count series (7272 bins, fresh to within days). date_added is an alternative timestamp. feature: rest_csv + schema.aggregate count."
+
+# ── proposal-grind round2 wave 1 (2026-07-25) ──
+- id: eurostat_energy_electricity_monthly
+  name: Eurostat monthly electricity supply (EU27, GWH)
+  domain: energy
+  dgp_class: energy_supply
+  archetypes: [smooth_periodic, non_stationary_regime, seasonal]
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nrg_cb_em/M.AIM.E7000.GWH.EU27_2020?format=SDMX-CSV&startPeriod=2010-01
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: "monthly release; full back-series each call (dedupe backfills)"
+  pretraining_novelty: clean
+  novelty_notes: "Eurostat nrg_cb_em monthly electricity balance (nrg_bal=AIM, siec=E7000/electricity, GWH, EU27_2020). Strong annual seasonality plus the 2021-2023 energy-crisis regime shift; monthly national-accounts energy series rarely packaged in TSFM corpora."
+  license: "Eurostat open data (CC-BY 4.0)"
+  notes: "Plain rest_csv GET against the SDMX 2.1 REST endpoint with a fully-specified series key and format=SDMX-CSV (comma CSV: TIME_PERIOD, OBS_VALUE) — the scraper only decodes SDMX-JSON (dataSets+structure), not Eurostat's JSON-stat value{} map, so SDMX-CSV is used. Verified: 184 monthly rows, 184 distinct timestamps, numeric. Swap nrg_bal / siec / geo dims for other energy indicators."
+- id: sensor_community_pm25_global_panel
+  name: sensor.community global PM2.5 dust-sensor snapshot panel (~9.7k sensors)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes: [hierarchical, noisy_clean_pair, non_stationary_regime, bounded]
+  frequency: PT2M30S
+  endpoint:
+    type: rest_json
+    url: https://data.sensor.community/static/v2/data.dust.min.json
+    auth: none
+    rate_limit: null
+  schema:
+    # Each poll is a global snapshot: one latest reading per active dust sensor.
+    # sensordatavalues is [P1(PM10), P2(PM2.5)] for the dominant SDS011 fleet;
+    # index [1] targets P2 (PM2.5). panel_field splits into one series per sensor id.
+    timestamp_field: "[].timestamp"
+    value_field: "[].sensordatavalues[1].value"
+    panel_field: "[].sensor.id"
+    variates: 1
+  panel: null
+  history_available: P0D
+  update_cadence_observed: "rolling ~2.5-min snapshot of the last-5-min readings from every active sensor"
+  pretraining_novelty: clean
+  novelty_notes: "Citizen-science SDS011 particulate network; the global live snapshot as a wide multi-sensor PM2.5 panel is not a packaged TSFM benchmark."
+  license: "sensor.community — data under DbCL 1.0 (open)"
+  notes: "Paneled snapshot: schema.panel_field splits the single global payload into per-sensor series (_panel_id). Verified: 9760 rows / distinct sensors, 9693 numeric PM2.5 values (>=20 numeric entities). value is positional-index sensordatavalues[1].value (P2/PM2.5 for the SDS011 majority; a handful of single-value sensor models yield null there)."
