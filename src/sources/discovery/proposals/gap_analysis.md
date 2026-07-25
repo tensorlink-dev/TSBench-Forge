@@ -1,17 +1,22 @@
 ## Block 1 — Gap Analysis
 
-**What the current pool over-covers:** The benchmark is heavily weighted toward daily cadence (56 sources) and sub-hourly real-time feeds (67 sources across sub-min, few-min, half-hour). Nature (45) and econ_fin (31) dominate the domain mix. Within nature, earthquake/volcano/seismic monitoring is saturated across six independent feeds (USGS, INGV, EMSC, GeoNet, BGS, Geoscience Australia), and weather is well-covered by Open-Meteo's multiple endpoints plus SMHI, JMA, and NDBC. Within econ_fin, crypto market data alone accounts for ~15 sources. The pool is strong on live/streaming feeds (22) and open APIs (147), which is excellent for contamination resistance.
+The current pool of 176 sources is strong on daily and sub-hourly cadences but has critical holes in **irregular/event-driven** cells across nearly every domain, and in **healthcare sub-hourly** cells specifically. The pool is also heavily concentrated in nature (45) and econ_fin (31), while energy (17) and healthcare (19) are thinner.
 
-**What is thin or absent:** The most critical gaps are the **irregular/event-driven** cells across nearly every domain — 9 of 10 domain×irregular cells have zero sources. Healthcare is the most severely under-served domain for high-frequency data: sub-min, few-min, half-hour, and irregular are all empty (deficit 3 each). This matters because healthcare event streams (outbreaks, adverse events, emergency dispatch) are among the hardest forecasting problems and are essentially absent from standard TSFM pretraining corpora. The web_cloudops/half-hour cell is also empty (deficit 3), and energy/irregular is missing entirely (deficit 3). Transport/irregular and sales/irregular are similarly empty.
+**Over-represented:** Daily cadence (56 sources) and nature domain (45 sources). Many nature sources are seismic/meteorological feeds that, while live, may overlap in signal structure (event-driven geophysical processes). The econ_fin bucket is crypto-heavy (Binance, Coinbase, Kraken, Gemini, Bitfinex, Polymarket) — a monoculture within the domain.
 
-**Ranked gaps targeted:**
+**Under-represented (ranked by impact):**
 
-1. **Irregular/event-driven cells across all domains** (deficit 3 each) — highest priority because they are both scarce and contamination-resistant by construction (future events cannot have been pretrained on).
-2. **Healthcare high-frequency cells** (sub-min, few-min, half-hour — all deficit 3) — hardest to fill with public data, but highest discriminative value.
-3. **web_cloudops/half-hour** (deficit 3) — no sources at all; internet traffic exchange data could fill this.
-4. **transport/half-hour** (deficit 2) and **energy/irregular** (deficit 3) — moderate priority, fillable with government/infrastructure feeds.
+1. **Irregular/event-driven cells (deficit 3 each in 7 domains):** This is the single largest gap. Only 1 irregular source exists (ripe_atlas). Irregular data is the gold standard for contamination resistance (future events can't be pretrained on) and for discriminating models (bursty, non-periodic, regime-switching patterns defeat seasonal-naive baselines).
 
-Contamination concentration is well-managed (116 low, 54 medium, 6 high), so the primary concern is diversity and gap-filling rather than decontamination.
+2. **Healthcare sub-hourly (sub-min, few-min, half-hour — deficit 3 each):** Healthcare is the hardest domain to find real-time public data for. Most health surveillance is daily or weekly. The few sub-hourly sources (NYC 311, OpenAQ, NWS heat advisories) are already wired or rejected. This gap hurts because health signals have complex non-stationary dynamics (outbreak waves, policy interventions, seasonal surges).
+
+3. **web_cloudops/half-hour (deficit 3):** Only status-page incident feeds exist at hourly; no half-hourly cybersecurity or infrastructure telemetry source is in rotation.
+
+4. **energy/irregular (deficit 3):** Grid disturbance events, outage events, and emergency actions are absent. Most TSOs are either key-gated (ENTSO-E, PJM) or already proposed/rejected.
+
+5. **Lower-priority gaps:** Monthly/quarterly/yearly cells across all domains have deficits, but these are less valuable because they're easier to find (national statistics offices) and less contamination-resistant (historical data is more likely in pretraining corpora).
+
+**Contamination posture:** Good overall — 116 of 176 sources are low-risk. The main risk is that many "live" feeds (USGS, NWS, Open-Meteo) are well-known public APIs that could plausibly be in future TSFM training corpora. The irregular/event-driven gap is the most contamination-resistant cell to fill.
 
 ---
 
