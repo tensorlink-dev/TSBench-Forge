@@ -7785,3 +7785,71 @@
   notes: Uses schema.panel_field to split the snapshot into per-port_number series. Snapshot
     feed - each poll is one timestamp across 84 ports (42 with numeric passenger delay);
     half-hourly polling builds the per-port time series.
+
+# ── proposal-grind wave 11 (2026-07-25) ──
+- id: fdroid_app_update_events
+  name: F-Droid — app update/release events (daily update count)
+  domain: sales
+  dgp_class: count_process
+  archetypes:
+  - count_discrete
+  - event_stream
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://f-droid.org/repo/index-v1.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: apps[].lastUpdated
+    value_field: apps[].lastUpdated
+    aggregate:
+      op: count
+      bin: P1D
+    variates: 1
+  novelty_notes: 'F-Droid FOSS repository app-update firehose: each app''s most-recent release timestamp binned to daily update counts. An app-store release count-process, novel vs typical pretrains.'
+  notes: schema.aggregate count (bin P1D) over apps[].lastUpdated (epoch-ms, auto-converted). ~4085 apps -> ~860 distinct update days. index-v1.json is large (~54MB); poll daily. Dedup folds unchanged rows.
+- id: mastodon_public_timeline_events
+  name: Mastodon — federated public timeline post stream (mstdn.social)
+  domain: sales
+  dgp_class: event_stream
+  archetypes:
+  - event_stream
+  - count_discrete
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://mstdn.social/api/v1/timelines/public?limit=40
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].created_at'
+    value_field:
+    - '[].favourites_count'
+    - '[].reblogs_count'
+    - '[].replies_count'
+    variates: 3
+  novelty_notes: 'Live Mastodon public-timeline post stream: per-post created_at with engagement counts (favourites/reblogs/replies). Social-post event stream, novel vs typical TSFM pretrains.'
+  notes: Plain rest_json over a top-level array; positional [] iteration; value_field is a LIST (multivariate engagement counts). ~40 posts/poll, ~30 distinct per-second timestamps. mastodon.social now requires auth for the public timeline; mstdn.social serves it keyless. Poll every minute for overlapping windows.
+- id: openfoodfacts_product_additions
+  name: Open Food Facts — new product additions (per-minute rate)
+  domain: sales
+  dgp_class: count_process
+  archetypes:
+  - count_discrete
+  - event_stream
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://world.openfoodfacts.org/api/v2/search?fields=code,created_t&sort_by=created_t&page_size=100
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: products[].created_t
+    value_field: products[].created_t
+    aggregate:
+      op: count
+      bin: PT1M
+    variates: 1
+  novelty_notes: Crowd-sourced Open Food Facts product-creation firehose binned to a per-minute addition rate; a retail/catalog count-process DGP absent from typical TSFM pretrains.
+  notes: schema.aggregate count over an event stream (created_t epoch-seconds, auto-converted). Newest-first 100 products span ~45-50 min -> ~45 per-minute bins. Poll every few minutes for overlapping windows; dedup folds repeats.

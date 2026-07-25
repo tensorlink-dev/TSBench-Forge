@@ -22,6 +22,7 @@ schedules:
   - opensky_states_local
   - intermagnet_esk_geomag_minute
   - crossref_doi_registration_events
+  - mastodon_public_timeline_events
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -281,6 +282,7 @@ schedules:
   sources:
   - osm_changeset_stream
   - datalakes_lexplore_skin_temp
+  - openfoodfacts_product_additions
 - every: P1D
   sources:
   - who_disease_outbreak_news
@@ -309,3 +311,4 @@ schedules:
   - cosmos_uk_soil_moisture
   - phenocam_harvard_gcc_3day
   - fmcsa_motor_carrier_crashes
+  - fdroid_app_update_events
