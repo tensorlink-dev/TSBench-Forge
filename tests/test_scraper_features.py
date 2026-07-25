@@ -91,3 +91,50 @@ def test_aggregate_count_preserves_panel():
     out = scraper._aggregate_records(recs, {"op": "count", "bin": "PT1H"})
     by = {(r["_panel_region"]): r["value"] for r in out}
     assert by == {"A": 2, "B": 1}
+
+
+def test_jsonstat2_single_series():
+    # JSON-stat 2.0: one time dim, one size-1 metric -> flat value[] maps to time
+    data = {
+        "class": "dataset", "version": "2.0",
+        "id": ["ContentsCode", "Tid"], "size": [1, 3],
+        "role": {"time": ["Tid"], "metric": ["ContentsCode"]},
+        "dimension": {
+            "ContentsCode": {"category": {"index": {"CPI": 0}}},
+            "Tid": {"category": {"index": {"1980M01": 0, "1980M02": 1, "1980M03": 2}}},
+        },
+        "value": [95.3, 96.8, 97.2],
+    }
+    recs = scraper._records_from_jsonstat2(data, {})
+    assert [r["timestamp"] for r in recs] == ["1980-01", "1980-02", "1980-03"]  # normalised
+    assert [r["value"] for r in recs] == [95.3, 96.8, 97.2]
+
+
+def test_jsonstat2_panels_nontime_dims():
+    # two regions x two months -> 4 flat values, split into _panel_Region
+    data = {
+        "class": "dataset",
+        "id": ["Region", "Tid"], "size": [2, 2],
+        "role": {"time": ["Tid"]},
+        "dimension": {
+            "Region": {"category": {"index": {"SE": 0, "NO": 1}}},
+            "Tid": {"category": {"index": {"2020M01": 0, "2020M02": 1}}},
+        },
+        "value": [10, 11, 20, 21],  # SE:[10,11], NO:[20,21]  (C-order)
+    }
+    recs = scraper._records_from_jsonstat2(data, {})
+    se = {r["timestamp"]: r["value"] for r in recs if r["_panel_Region"] == "SE"}
+    no = {r["timestamp"]: r["value"] for r in recs if r["_panel_Region"] == "NO"}
+    assert se == {"2020-01": 10, "2020-02": 11}
+    assert no == {"2020-01": 20, "2020-02": 21}
+
+
+def test_jsonstat2_skips_null_and_normalises_quarter():
+    data = {
+        "class": "dataset", "id": ["Tid"], "size": [3],
+        "role": {"time": ["Tid"]},
+        "dimension": {"Tid": {"category": {"index": {"2020K1": 0, "2020K2": 1, "2020K3": 2}}}},
+        "value": [1.0, None, 3.0],  # middle obs missing
+    }
+    recs = scraper._records_from_jsonstat2(data, {})
+    assert [(r["timestamp"], r["value"]) for r in recs] == [("2020-Q1", 1.0), ("2020-Q3", 3.0)]

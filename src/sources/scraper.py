@@ -807,6 +807,11 @@ def _dispatch_parse(src: dict, blob: bytes, content_type: str) -> list[dict]:
             data = inner
         if isinstance(data, dict) and "dataSets" in data and "structure" in data:
             return _records_from_sdmx_json(data, schema)
+        # JSON-stat 2.0 (national stats offices: SCB, SSB, Statbank, StatFin,
+        # Eurostat ?format=JSON): a flat `value` array over `dimension`s.
+        if isinstance(data, dict) and data.get("class") == "dataset" \
+                and "value" in data and "dimension" in data:
+            return _records_from_jsonstat2(data, schema)
         return _records_from_json(data, schema)
     if ep_type == "rest_csv":
         text = blob.decode("utf-8", errors="replace")
@@ -1009,6 +1014,100 @@ def _records_from_sdmx_json(data: dict, schema: dict) -> list[dict]:
             v = val[0] if isinstance(val, list) and val else val
             records.append({"timestamp": t, "value": v})
     return records
+
+
+def _records_from_jsonstat2(data: dict, schema: dict) -> list[dict]:
+    """Decode JSON-stat 2.0 (`class: dataset`) → flat rows.
+
+    Used by national statistics offices (SCB Sweden, SSB Norway, Statbank
+    Denmark, StatFin, Eurostat ?format=JSON). Layout: a flat `value` array in
+    C-order over the dimensions listed in `id`, with per-dimension category
+    index maps under `dimension.<id>.category.index`. The time dimension is
+    named in `role.time` (falls back to a Tid/TIME/time-ish id). Non-time
+    dimensions with size > 1 become `_panel_<dimid>` columns.
+    """
+    dims = data.get("id") or list((data.get("dimension") or {}).keys())
+    sizes = data.get("size") or []
+    values = data.get("value")
+    dimension = data.get("dimension") or {}
+    if not dims or not sizes or values is None or len(dims) != len(sizes):
+        return []
+    # json-stat allows value as a dict {flat_index: v} for sparse data
+    if isinstance(values, dict):
+        flat = [None] * (1 if not sizes else _prod(sizes))
+        for k, v in values.items():
+            try:
+                flat[int(k)] = v
+            except (ValueError, IndexError):
+                pass
+        values = flat
+
+    role = data.get("role") or {}
+    time_dim = (role.get("time") or [None])[0]
+    if time_dim not in dims:
+        time_dim = next((d for d in dims if str(d).lower() in
+                         ("tid", "time", "time_period", "date", "period")), None)
+    if time_dim is None:
+        return []
+    time_pos = dims.index(time_dim)
+
+    def _idx_to_label(dim_id: str) -> list[str]:
+        idx = ((dimension.get(dim_id) or {}).get("category") or {}).get("index") or {}
+        if isinstance(idx, dict):
+            return [k for k, _ in sorted(idx.items(), key=lambda kv: kv[1])]
+        return list(idx)  # already an ordered list
+
+    time_labels = _idx_to_label(time_dim)
+    # panel = non-time dims with size > 1
+    panel_dims = [d for i, d in enumerate(dims) if i != time_pos and sizes[i] > 1]
+    panel_labels = {d: _idx_to_label(d) for d in panel_dims}
+
+    # C-order strides
+    strides = [1] * len(sizes)
+    for k in range(len(sizes) - 2, -1, -1):
+        strides[k] = strides[k + 1] * sizes[k + 1]
+
+    records: list[dict] = []
+    for f in range(len(values)):
+        v = values[f]
+        if v is None:
+            continue
+        ti = (f // strides[time_pos]) % sizes[time_pos]
+        t = time_labels[ti] if 0 <= ti < len(time_labels) else str(ti)
+        row = {"timestamp": _norm_pxweb_time(t), "value": v}
+        for d in panel_dims:
+            di = dims.index(d)
+            ci = (f // strides[di]) % sizes[di]
+            labs = panel_labels[d]
+            row[f"_panel_{d}"] = labs[ci] if 0 <= ci < len(labs) else str(ci)
+        records.append(row)
+    return records
+
+
+def _norm_pxweb_time(t: str) -> str:
+    """Normalise PxWeb/JSON-stat time labels to ISO-ish so downstream can parse.
+
+    1980M01 -> 1980-01 ; 2020K2 -> 2020-Q2 ; 2020Q2 -> 2020-Q2 ;
+    2020W03 -> 2020-W03 ; plain YYYY / YYYY-MM(-DD) pass through unchanged.
+    """
+    s = str(t)
+    m = re.match(r"^(\d{4})M(\d{1,2})$", s)
+    if m:
+        return f"{m.group(1)}-{int(m.group(2)):02d}"
+    m = re.match(r"^(\d{4})[KQ]([1-4])$", s)
+    if m:
+        return f"{m.group(1)}-Q{m.group(2)}"
+    m = re.match(r"^(\d{4})W(\d{1,2})$", s)
+    if m:
+        return f"{m.group(1)}-W{int(m.group(2)):02d}"
+    return s
+
+
+def _prod(xs: list[int]) -> int:
+    p = 1
+    for x in xs:
+        p *= int(x)
+    return p
 
 
 def run_one(sid: str, dry_run: bool = False) -> int:

@@ -7081,3 +7081,47 @@
     data.updates[].timestamp is aggregated into hourly event counts. Verified with real scraper: 48 rows,
     48 distinct timestamps, values numeric (int counts), HTTP 200, no key. Poll hourly to accumulate the
     ongoing routing-churn rate.'
+
+# ============================================================================
+# autosearch json-stat2 wave (2026-07-25) — national statistics offices (POST + JSON-stat 2.0)
+# ============================================================================
+- id: ssb_norway_cpi_monthly
+  name: SSB Norway — Consumer Price Index (total, monthly)
+  domain: econ_fin
+  dgp_class: macro_economic_indicator
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    method: POST
+    url: https://data.ssb.no/api/v0/en/table/03013
+    auth: none
+    rate_limit: polite
+    body:
+      query:
+      - code: Konsumgrp
+        selection:
+          filter: item
+          values:
+          - TOTAL
+      - code: ContentsCode
+        selection:
+          filter: item
+          values:
+          - KpiIndMnd
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P47Y
+  update_cadence_observed: monthly (~10th of month)
+  pretraining_novelty: clean
+  novelty_notes: Norwegian CPI total index, 1979M01-present. Monthly macro; catalog-only (below the daily-or-faster
+    pool bar).
+  license: SSB open data (NLOD/CC-BY)
+  notes: First source on the JSON-stat 2.0 parser + POST feature. SSB PxApi POST returns json-stat2; time
+    labels normalised (1979M01 -> 1979-01).

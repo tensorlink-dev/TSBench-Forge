@@ -325,3 +325,9 @@ schedules:
       - openfda_food_adverse_events_daily
       - usgs_earthquakes_fdsn_m4_30d
     cron: "45 3 * * *"
+
+  # ──────── json-stat2 national-stats (2026-07-25); monthly data, daily poll ────────
+  - every: P1D
+    sources:
+      - ssb_norway_cpi_monthly
+    cron: "50 3 * * *"
