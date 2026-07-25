@@ -7727,3 +7727,61 @@
     variates: 1
   novelty_notes: "Open Collective platform-wide transaction firehose (credits/debits across all collectives); each row is a transaction timestamp and signed amount. ~1000 transactions span ~20h. A fintech transaction-stream DGP novel vs typical TSFM pretrains."
   notes: "Uses endpoint.type graphql (keyless public API). timestamp_field/value_field walk the nested GraphQL response (data.transactions.nodes[].amount.value). 1000 rows, 998 distinct createdAt over ~20h; poll hourly for overlapping windows. Amounts are mixed-currency signed values."
+
+# ── proposal-grind wave 10 (2026-07-25) ──
+- id: fmcsa_motor_carrier_crashes
+  name: FMCSA motor-carrier crash reports (daily crash volume)
+  domain: transport
+  dgp_class: count_process
+  archetypes:
+  - count_discrete
+  - event_stream
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.transportation.gov/resource/aayw-vxb3.json?$order=report_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].report_date'
+    value_field: value
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: rolling
+  update_cadence_observed: continuous reporting; latest ~5000 reports span ~1 month
+  pretraining_novelty: clean
+  novelty_notes: FMCSA national Crash File (Socrata aayw-vxb3) binned to daily motor-carrier
+    crash counts - a federal truck/bus safety event stream not present in known TSFM corpora.
+  license: Public domain (US DOT open data)
+  notes: Uses schema.aggregate {op:count, bin:P1D} to turn the per-crash event stream into
+    daily crash volume. report_date (YYYYMMDD) ordered DESC; 32 distinct daily bins at verification.
+- id: cbp_border_wait_times
+  name: CBP border crossing passenger-lane wait times (per port, half-hourly)
+  domain: transport
+  dgp_class: sensor
+  archetypes:
+  - panel
+  - queue
+  - seasonal_daily
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://bwt.cbp.gov/api/waittimes
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].passenger_vehicle_lanes.standard_lanes.delay_minutes'
+    panel_field: '[].port_number'
+    variates: 1
+  history_available: snapshot (accumulates via polling)
+  update_cadence_observed: snapshot refreshed continuously; poll every 30 min
+  pretraining_novelty: clean
+  novelty_notes: US CBP live border-crossing passenger standard-lane delay (minutes) for ~84
+    land ports - a real-time queue/wait-time panel rarely in TSFM pretrains.
+  license: Public domain (US CBP open data)
+  notes: Uses schema.panel_field to split the snapshot into per-port_number series. Snapshot
+    feed - each poll is one timestamp across 84 ports (42 with numeric passenger delay);
+    half-hourly polling builds the per-port time series.

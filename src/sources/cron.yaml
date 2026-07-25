@@ -72,6 +72,7 @@ schedules:
   - inaturalist_observations
   - gemini_btcusd_trades
   - newcastle_urban_observatory_temp
+  - cbp_border_wait_times
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -307,3 +308,4 @@ schedules:
   - fda_drug_recalls_daily_count
   - cosmos_uk_soil_moisture
   - phenocam_harvard_gcc_3day
+  - fmcsa_motor_carrier_crashes
