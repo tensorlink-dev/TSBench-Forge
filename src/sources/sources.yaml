@@ -8166,3 +8166,69 @@
     Socrata keyless JSON; positional [] iteration on date/percent_visits. Paneled
     over four pathogens via {PATHOGEN} URL token. 4179 rows / 1393 distinct dates,
     all numeric at verification.
+
+# -- proposal-grind r2w3 (2026-07-25) --
+- id: oklahoma_mesonet_mdf_snapshot
+  name: Oklahoma Mesonet - statewide 120-station surface observation snapshot
+  domain: nature
+  dgp_class: weather_field
+  archetypes:
+  - hierarchical
+  - chaotic_nonlinear
+  frequency: PT1H
+  endpoint:
+    type: rest_csv
+    url: https://www.mesonet.org/data/public/mesonet/mdf/{YYYY}/{MM}/{DD}/{YYYYMMDD}{HH}00.mdf
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME
+    value_field:
+    - TAIR
+    - RELH
+    - WSPD
+    - PRES
+    - SRAD
+    panel_field: STID
+    variates: 5
+  pretraining_novelty: clean
+  novelty_notes: 'Oklahoma Mesonet MDF: 5-min statewide snapshot of ~120 stations (one per county). Wide
+    whitespace-delimited text with a 2-line preamble; -995/-996 sentinel = missing. Distinct dense in-state
+    mesoscale surface network.'
+  license: Public (Oklahoma Climatological Survey / OU-OSU); keyless MDF archive.
+  notes: 'Feature: paneled snapshot (schema.panel_field: STID) + URL date/hour tokens ({YYYY}/{MM}/{DD}/{YYYYMMDD}{HH}00.mdf)
+    over a wide whitespace-delimited text feed. Verified via scraper._records_from_csv on a top-of-hour
+    MDF: 120 rows = 120 distinct STID entities, TAIR/PRES/RELH numeric for all 120 (>=20 numeric entities).
+    Top-of-hour file lags a few minutes, so run cron mid-hour (e.g. minute 20); intra-hour 5-min files exist
+    but the minute is not templatable with supported tokens.'
+- id: ndbc_latest_obs_all_stations
+  name: NDBC latest observations - all-station meteorological snapshot panel
+  domain: nature
+  dgp_class: weather_field
+  archetypes:
+  - hierarchical
+  - chaotic_nonlinear
+  frequency: PT30M
+  endpoint:
+    type: rest_csv
+    url: https://www.ndbc.noaa.gov/data/latest_obs/latest_obs.txt
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: YYYY MM DD hh mm
+    value_field:
+    - PRES
+    - ATMP
+    - WTMP
+    - WSPD
+    panel_field: STN
+    variates: 4
+  pretraining_novelty: partial
+  novelty_notes: 'All-station latest-obs snapshot (~900 stations/poll), distinct from the per-buoy realtime2
+    feed (ndbc_buoy_realtime): a wide station panel of current sea-level pressure, air/water temp and wind.
+    ''MM'' = missing.'
+  license: Public domain (NOAA)
+  notes: 'Feature: paneled snapshot (schema.panel_field: STN) + composite whitespace-delimited timestamp
+    (YYYY MM DD hh mm) over a wide fixed-width text feed. Verified via scraper._records_from_csv: 898 rows,
+    898 distinct STN entities, PRES numeric for 636 stations / ATMP 622 (>=20 numeric entities). Snapshot:
+    one obs per station per poll.'
