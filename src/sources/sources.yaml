@@ -8328,3 +8328,57 @@
     play with epoch listened_at and track duration_ms — an irregular content-consumption event stream, keyless.
   notes: Keyless ListenBrainz listens API. Positional epoch-seconds timestamp (listened_at) auto-converted;
     value_field is a nested JSON path to duration_ms. 100 listens -> 100 distinct timestamps, numeric.
+
+# -- proposal-grind r2w6 (2026-07-25) --
+- id: tfl_crowding_live
+  name: TfL station live crowding — 24-station Tube panel (% of baseline)
+  domain: transport
+  dgp_class: crowding_snapshot
+  archetypes:
+  - bounded_ratio
+  - diurnal_seasonal
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api.tfl.gov.uk/crowding/{NAPTAN}/Live
+    auth: none
+    rate_limit: 500 req/min anonymous
+  schema:
+    timestamp_field: ''
+    value_field: percentageOfBaseline
+    variates: 1
+  panel:
+  - NAPTAN: 940GZZLUACT
+  - NAPTAN: 940GZZLUACY
+  - NAPTAN: 940GZZLUAGL
+  - NAPTAN: 940GZZLUALP
+  - NAPTAN: 940GZZLUASG
+  - NAPTAN: 940GZZLUASL
+  - NAPTAN: 940GZZLUBDS
+  - NAPTAN: 940GZZLUBKE
+  - NAPTAN: 940GZZLUBKH
+  - NAPTAN: 940GZZLUBLG
+  - NAPTAN: 940GZZLUBLM
+  - NAPTAN: 940GZZLUBLR
+  - NAPTAN: 940GZZLUBMY
+  - NAPTAN: 940GZZLUBND
+  - NAPTAN: 940GZZLUBNK
+  - NAPTAN: 940GZZLUBOR
+  - NAPTAN: 940GZZLUBOS
+  - NAPTAN: 940GZZLUBSC
+  - NAPTAN: 940GZZLUBST
+  - NAPTAN: 940GZZLUBTK
+  - NAPTAN: 940GZZLUBTX
+  - NAPTAN: 940GZZLUBXN
+  - NAPTAN: 940GZZLUBZP
+  - NAPTAN: 940GZZLUCAR
+  history_available: P0D
+  update_cadence_observed: live percentage-of-baseline snapshot, refreshed ~every few minutes
+  pretraining_novelty: full
+  novelty_notes: TfL Unified API live crowding (percentageOfBaseline vs typical); real-time occupancy signal
+    not present in TSFM corpora. Per-station URL-token panel over 24 Tube stations forms a >=20 numeric-entity
+    snapshot panel; persistence built up by cron polling.
+  license: TfL Open Data — keyless (500 req/min anonymous)
+  notes: 'Feature: {NAPTAN} URL-token panel -> top-level panel: list; single-value snapshot API so timestamp_field:''''
+    (now() stamped per poll). Paneled snapshot: 24 numeric entities verified against real scraper.'
