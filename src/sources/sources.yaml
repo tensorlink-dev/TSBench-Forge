@@ -7510,3 +7510,31 @@
     variates: 1
   novelty_notes: "Imperial College ERG LAQN keyless API; hourly NO2 at Marylebone Road — recent hourly slice novel to pretraining."
   notes: "plain rest_json; uses relative URL date tokens {YYYY-MM-DD-7d}/{YYYY-MM-DD} for a rolling 7-day hourly window."
+
+# ── proposal-grind wave 6 (2026-07-25) ──
+- id: newcastle_urban_observatory_temp
+  name: Newcastle Urban Observatory — city temperature sensors (panel)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - multivariate_panel
+  - seasonal
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://api.v2.urbanobservatory.ac.uk/sensors/data/json?last_n_days=2&variables=Temperature&bbox_p1_x=-1.65&bbox_p1_y=54.95&bbox_p2_x=-1.55&bbox_p2_y=55.02
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Readings[].Timestamp
+    value_field: Readings[].Value
+    panel_field: Readings[].Sensor_Name
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: sub-minute to minutes per sensor; rolling 2-day window
+  pretraining_novelty: clean
+  novelty_notes: Newcastle-upon-Tyne live IoT temperature sensors; open UO v2 API, not in LOTSA/Monash/Chronos/TimesFM/Moirai
+    mixes.
+  license: CC BY 4.0 (Urban Observatory open data)
+  notes: Uses schema.panel_field to split one payload into per-sensor _panel_ series; last_n_days rolling
+    window keeps the fetch fresh.
