@@ -7853,3 +7853,69 @@
     variates: 1
   novelty_notes: Crowd-sourced Open Food Facts product-creation firehose binned to a per-minute addition rate; a retail/catalog count-process DGP absent from typical TSFM pretrains.
   notes: schema.aggregate count over an event stream (created_t epoch-seconds, auto-converted). Newest-first 100 products span ~45-50 min -> ~45 per-minute bins. Poll every few minutes for overlapping windows; dedup folds repeats.
+
+# ── proposal-grind wave 12 (2026-07-25) ──
+- id: fra_rail_equipment_accidents
+  name: FRA Railroad Safety - rail equipment accident/incident daily event counts (US)
+  domain: transport
+  dgp_class: rail_safety_events
+  archetypes: [count_discrete, non_stationary_regime, intermittent]
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: "https://data.transportation.gov/resource/85tf-25kj.json?$where=date IS NOT NULL&$order=date DESC&$limit=50000"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: "[].date"
+    value_field: "[].totaldamagecost"
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: P40Y
+  update_cadence_observed: "monthly publication; daily-binned event dates back decades"
+  pretraining_novelty: clean
+  novelty_notes: "FRA Form 6180.54 rail-equipment accident event stream binned to daily counts - a discrete count-process safety series absent from TSFM pretraining mixes."
+  license: "Public domain (US DOT / FRA Office of Safety Analysis)"
+  notes: |
+    feature: schema.aggregate {op:count, bin:P1D} over a KEYLESS Socrata event
+    stream (data.transportation.gov /resource/85tf-25kj.json, Form 54 source
+    table). CRITICAL: the `$where=date IS NOT NULL` filter is required - a few
+    records have a null accident date, which the parser fills with now()
+    (tz-aware); that single tz-aware row makes pandas coerce every tz-naive date
+    to NaT during aggregation (collapses to 1 row). With the filter: 6901
+    distinct daily bins, numeric counts. value_field=totaldamagecost only keeps
+    raw rows well-formed; op:count ignores it.
+- id: faa_service_difficulty_reports
+  name: FAA Service Difficulty Reports (SDR) - daily aircraft mechanical difficulty event counts
+  domain: transport
+  dgp_class: aviation_maintenance_events
+  archetypes: [count_discrete, smooth_periodic, non_stationary_regime]
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: "https://external.apic4e.faa.gov/sdrs/retrieve/SDR-{YYYY}.csv"
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: DifficultyDate
+    value_field: JASCCode
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: P1Y
+  update_cadence_observed: "current-year CSV refreshed continuously; ~30k reports/yr"
+  pretraining_novelty: clean
+  novelty_notes: "FAA SDRS malfunction/failure/defect reports binned to daily counts - an aviation-maintenance count process not present in TSFM base mixes."
+  license: "Public domain (US DOT / FAA Aviation Safety AVInfo)"
+  notes: |
+    feature: schema.aggregate {op:count, bin:P1D} over a plain comma CSV, plus
+    the {YYYY} URL date token so the cron always pulls the current-year file
+    (SDR-2026.csv). Discovered the real direct-CSV endpoint on
+    external.apic4e.faa.gov (linked from faa.gov/av-info/download_SDR); the
+    faa.gov query UI has no API. DifficultyDate is MM/DD/YYYY, parses cleanly.
+    2026 YTD: 205 distinct daily bins, numeric counts. value_field JASCCode only
+    keeps raw rows well-formed; op:count ignores it. For history the operator can
+    union SDR-2007.csv .. SDR-{YYYY}.csv (same schema).
