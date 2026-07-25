@@ -8388,7 +8388,7 @@
   name: GitHub Actions workflow-run events (kubernetes/kubernetes)
   domain: web_cloudops
   dgp_class: event_stream
-  frequency: half-hour
+  frequency: PT30M
   endpoint:
     type: rest_json
     url: https://api.github.com/repos/kubernetes/kubernetes/actions/runs?per_page=100
