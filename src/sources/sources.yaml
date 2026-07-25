@@ -7538,3 +7538,70 @@
   license: CC BY 4.0 (Urban Observatory open data)
   notes: Uses schema.panel_field to split one payload into per-sensor _panel_ series; last_n_days rolling
     window keeps the fetch fresh.
+
+# ── proposal-grind wave 7 (2026-07-25) ──
+- id: cosmos_uk_soil_moisture
+  name: COSMOS-UK cosmic-ray soil moisture (Alice Holt daily VWC)
+  domain: nature
+  dgp_class: environmental_sensor
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://cosmos-api.ceh.ac.uk/collections/1D/locations/ALIC1?parameter-name=cosmos_vwc&datetime={YYYY-MM-DD-365d}T00:00:00Z/{YYYY-MM-DD}T00:00:00Z&f=CoverageJSON
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: coverages[0].domain.axes.t.values[]
+    value_field: coverages[0].ranges.cosmos_vwc.values[]
+    variates: 1
+  novelty_notes: >
+    UK Centre for Ecology & Hydrology cosmic-ray neutron soil-moisture network,
+    daily volumetric water content (cosmos_vwc) for the Alice Holt site. Open
+    Government Licence, keyless OGC EDR API returning CoverageJSON.
+  notes: >
+    OGC EDR CoverageCollection parsed via CoverageJSON paths
+    coverages[0].domain.axes.t.values[] and coverages[0].ranges.cosmos_vwc.values[];
+    rolling 365-day window via {YYYY-MM-DD-365d} / {YYYY-MM-DD} URL date tokens.
+- id: geosphere_at_weather_hourly
+  name: GeoSphere Austria hourly station weather (Wien Hohe Warte air temperature)
+  domain: nature
+  dgp_class: environmental_sensor
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://dataset.api.hub.geosphere.at/v1/station/historical/klima-v2-1h?parameters=tl&start={YYYY-MM-DD-14d}T00:00&end={YYYY-MM-DD}T00:00&station_ids=5925&output_format=geojson
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: timestamps[]
+    value_field: features[0].properties.parameters.tl.data[]
+    variates: 1
+  novelty_notes: >
+    GeoSphere Austria (formerly ZAMG) open station data hub - hourly air
+    temperature (tl) for Wien Hohe Warte (station 5925). Keyless open-data API
+    returning a GeoJSON feature with a top-level shared timestamps axis.
+  notes: >
+    GeoJSON with a top-level timestamps[] array aligned index-wise with
+    features[0].properties.parameters.tl.data[]; rolling 14-day window via
+    {YYYY-MM-DD-14d} / {YYYY-MM-DD} URL date tokens.
+- id: geofon_seismic_events
+  name: GEOFON global earthquake event stream (GFZ Potsdam)
+  domain: nature
+  dgp_class: event_stream
+  frequency: irregular
+  endpoint:
+    type: rest_json
+    url: https://geofon.gfz.de/eqinfo/list.php?fmt=geojson&nmax=1000
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: features[].properties.time
+    value_field: features[].properties.mag
+    variates: 1
+  novelty_notes: >
+    GEOFON (GFZ Helmholtz Potsdam) global earthquake information service - the
+    most recent ~1000 located events with origin time and magnitude. Keyless
+    GeoJSON feed (fdsnws 'text' output is pipe-delimited and not used).
+  notes: >
+    GeoJSON FeatureCollection parsed via iterating paths
+    features[].properties.time (origin time) and features[].properties.mag.
