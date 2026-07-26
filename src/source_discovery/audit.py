@@ -84,16 +84,20 @@ def parse_ts(raw: object) -> Optional[dt.datetime]:
     if m:
         a, b, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
         # DD/MM vs MM/DD is ambiguous; a component >12 settles it. When both
-        # are <=12 prefer month-first, falling back if that lands in the
-        # future (audit only needs age to within a month either way).
-        month, day = (b, a) if a > 12 else (a, b)
-        try:
-            got = dt.datetime(y, month, day, tzinfo=UTC)
-        except ValueError:
-            return None
-        if got > dt.datetime.now(UTC) + dt.timedelta(days=31) and a <= 12 < b:
-            got = dt.datetime(y, a, b, tzinfo=UTC)
-        return got
+        # readings are valid, take the LATER one that isn't in the future —
+        # for staleness detection a false "fresh" (bounded by the day/month
+        # swap) beats a false alarm (bcb's 01/06/2026 read month-first looked
+        # 6 months stale).
+        horizon = dt.datetime.now(UTC) + dt.timedelta(days=31)
+        cands = []
+        for month, day in {(a, b), (b, a)}:
+            try:
+                got = dt.datetime(y, month, day, tzinfo=UTC)
+            except ValueError:
+                continue
+            cands.append(got)
+        past = [c for c in cands if c <= horizon]
+        return max(past) if past else (min(cands) if cands else None)
     zless = s[:-1] if s.endswith("Z") else s
     for fmt in _FORMATS:
         try:
