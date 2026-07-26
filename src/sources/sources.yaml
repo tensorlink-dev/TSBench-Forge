@@ -16828,3 +16828,248 @@
   schema:
     timestamp_field: TIME_PERIOD
     value_field: OBS_VALUE
+
+# -- wired batch: wave6-midband --
+- id: eurostat_gas_inland_consumption_monthly
+  audit_slack_days: 120
+  name: Eurostat — monthly inland natural gas consumption (nrg_cb_gasm, DE/FR/IT/ES/NL)
+  domain: energy
+  frequency: P1M
+  license: Eurostat open data (CC-BY-4.0 equivalent re-use policy)
+  notes: Observed inland gas consumption in million m3, indicator IC_OBS, natural gas G3000. Distinct dataflow
+    from the wired nrg_cb_em electricity series. Panel over five largest EU gas markets.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nrg_cb_gasm/M.IC_OBS.G3000.MIO_M3.{GEO}?format=SDMX-CSV&startPeriod=2010-01
+    type: rest_csv
+  panel:
+  - GEO: DE
+  - GEO: FR
+  - GEO: IT
+  - GEO: ES
+  - GEO: NL
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+- id: odre_france_ccgt_gas_consumption_daily
+  name: ODRE France — daily gas consumption of combined-cycle gas power plants (GRTgaz/NaTran)
+  domain: energy
+  frequency: P1D
+  license: Licence Ouverte / Open Licence v2.0 (ODRE / RTE-GRTgaz)
+  notes: Daily gas burn (MWh PCS 0degC) of French CCGT power stations, provisional next-day then revised
+    definitive. Strongly weather- and spark-spread-driven; near-zero days in low-demand periods.
+  endpoint:
+    url: https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/conso-horaire-cccg-nat/records?limit=100&order_by=date%20desc&select=date,conso_journaliere_mwh_pcs_0degc,operateur
+    type: rest_json
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].conso_journaliere_mwh_pcs_0degc
+    panel_field: results[].operateur
+- id: eurostat_oil_gross_inland_deliveries_monthly
+  audit_slack_days: 150
+  name: Eurostat — monthly gross inland deliveries of motor gasoline/diesel (nrg_cb_oilm)
+  domain: energy
+  frequency: P1M
+  license: Eurostat open data (free re-use policy)
+  notes: Gross inland deliveries observed (GID_OBS) of oil product O4671 (gas oil/diesel) in thousand tonnes,
+    panelled over DE/FR/IT/ES/PL. Distinct dataflow from the wired electricity/gas balances.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nrg_cb_oilm/M.GID_OBS.O4671.THS_T.{GEO}?format=SDMX-CSV&startPeriod=2010-01
+    type: rest_csv
+  panel:
+  - GEO: DE
+  - GEO: FR
+  - GEO: IT
+  - GEO: ES
+  - GEO: PL
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+- id: discord_status_api_response_time_30m
+  name: Discord status page — API response time, 30-minute buckets
+  domain: web_cloudops
+  frequency: PT30M
+  license: Statuspage public metrics (Discord status page, public JSON)
+  notes: Atlassian Statuspage metrics-display feed for Discord's API latency (ms), week view = 336 half-hour
+    buckets rolling. Sub-hourly refresh; the same display id also serves day.json at 5-minute resolution.
+    Latency spikes coincide with published incidents.
+  endpoint:
+    url: https://discordstatus.com/metrics-display/5k2rt9f7pmny/week.json
+    type: rest_json
+  schema:
+    timestamp_field: metrics[0].data[].timestamp
+    value_field:
+    - metrics[0].data[].value
+- id: twilio_status_api_response_time_30m
+  name: Twilio status page — Europe API response time, 30-minute buckets
+  domain: web_cloudops
+  frequency: PT30M
+  license: Statuspage public metrics (Twilio status page, public JSON)
+  notes: Statuspage metrics-display feed for Twilio's European API latency (ms) in half-hour buckets, rolling
+    7-day window. Second display id ws42h84wbpmt on the same page carries the US region.
+  endpoint:
+    url: https://status.twilio.com/metrics-display/h9dscy1rnf7g/week.json
+    type: rest_json
+  schema:
+    timestamp_field: metrics[0].data[].timestamp
+    value_field:
+    - metrics[0].data[].value
+- id: mta_bridges_tunnels_hourly_crossings
+  audit_slack_days: 30
+  name: MTA Bridges & Tunnels — hourly vehicle crossings by facility (New York)
+  domain: transport
+  frequency: PT1H
+  license: Public domain (NY State open data / MTA)
+  notes: Hourly toll-facility crossing counts summed over payment method, direction and vehicle class, panelled
+    by facility (9 bridges/tunnels). Distinct dataset (ebfx-2m7v) from the wired MTA subway hourly ridership
+    series; published in weekly batches so the newest hour trails ~2-3 weeks.
+  endpoint:
+    url: https://data.ny.gov/resource/ebfx-2m7v.json?$select=transit_timestamp,facility,sum(traffic_count)&$group=transit_timestamp,facility&$order=transit_timestamp%20DESC&$limit=5000
+    type: rest_json
+  schema:
+    timestamp_field: transit_timestamp
+    value_field:
+    - sum_traffic_count
+    panel_field: facility
+- id: paris_multimodal_bike_counts_hourly
+  audit_slack_days: 4
+  name: Paris multimodal counters — hourly city-wide bicycle passages
+  domain: transport
+  frequency: PT1H
+  license: ODbL (Ville de Paris open data)
+  notes: Hourly sum of cyclists across all Paris multimodal counting sites (mode=Velos), from the city's
+    permanent video/radar counters. Rolling 100 newest hours per fetch; strong commute double-peak plus
+    weather sensitivity. Same dataset also carries scooters, motorcycles, cars, trucks and buses via the
+    mode filter.
+  endpoint:
+    url: https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/comptage-multimodal-comptages/records?limit=100&order_by=t%20desc&select=t,sum(nb_usagers)%20as%20usagers&group_by=t&where=mode%3D%22V%C3%A9los%22
+    type: rest_json
+  schema:
+    timestamp_field: results[].t
+    value_field:
+    - results[].usagers
+- id: paris_road_sensor_flow_hourly
+  audit_slack_days: 4
+  name: Paris permanent road sensors — hourly city-wide traffic flow and occupancy
+  domain: transport
+  frequency: PT1H
+  license: ODbL (Ville de Paris open data)
+  notes: 'Hourly aggregate of ~3000 permanent loop sensors: q = summed vehicle flow (veh/h across all sensors),
+    k = mean occupancy rate (%). Distinct metric from the multimodal bicycle counters on the same portal.
+    Rolling 100 newest hours; the underlying dataset holds 28M sensor-hours.'
+  endpoint:
+    url: https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/comptages-routiers-permanents/records?limit=100&order_by=t_1h%20desc&select=t_1h,sum(q)%20as%20debit,avg(k)%20as%20occup&group_by=t_1h
+    type: rest_json
+  schema:
+    timestamp_field: results[].t_1h
+    value_field:
+    - results[].debit
+    - results[].occup
+- id: eurostat_air_passengers_annual
+  audit_slack_days: 730
+  name: Eurostat — annual air passengers carried, total traffic (avia_paoc)
+  domain: transport
+  frequency: P1Y
+  license: Eurostat open data (free re-use policy)
+  notes: Passengers carried (PAS_CRD, all schedules TOT, all coverage TOTAL) per reporting country, annual
+    since 1993 — captures the 2020 COVID collapse and recovery. Panel over DE/FR/ES/IT/NL.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/avia_paoc/A.PAS.PAS_CRD.TOTAL.TOT.{GEO}?format=SDMX-CSV
+    type: rest_csv
+  panel:
+  - GEO: DE
+  - GEO: FR
+  - GEO: ES
+  - GEO: IT
+  - GEO: NL
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+- id: noaa_gml_sf6_annual_global
+  audit_slack_days: 700
+  name: NOAA GML — global annual mean SF6 (sulfur hexafluoride) mole fraction
+  domain: nature
+  frequency: P1Y
+  license: Public domain (NOAA GML halocarbons network)
+  notes: 'Globally averaged annual mean SF6 in ppt with uncertainty, 1997-present. Distinct trace gas (and
+    distinct annual cadence) from the wired CO2 daily-trend and CH4 monthly series on the same host. Whitespace-delimited
+    text behind a #-comment header ("year mean unc"); a near-linear, monotonically rising series driven
+    by electrical-equipment emissions.'
+  endpoint:
+    url: https://gml.noaa.gov/webdata/ccgg/trends/sf6/sf6_annmean_gl.txt
+    type: rest_csv
+  schema:
+    timestamp_field: year
+    value_field:
+    - mean
+    - unc
+- id: noaa_gml_n2o_annual_global
+  audit_slack_days: 700
+  name: NOAA GML — global annual mean N2O (nitrous oxide) mole fraction
+  domain: nature
+  frequency: P1Y
+  license: Public domain (NOAA GML halocarbons network)
+  notes: 'Globally averaged annual mean N2O in ppb with uncertainty, 2001-present. Distinct trace gas (and
+    distinct annual cadence) from the wired CO2 daily-trend and CH4 monthly series on the same host. Whitespace-delimited
+    text behind a #-comment header ("year mean unc"); a near-linear, monotonically rising series driven
+    by agricultural and industrial emissions.'
+  endpoint:
+    url: https://gml.noaa.gov/webdata/ccgg/trends/n2o/n2o_annmean_gl.txt
+    type: rest_csv
+  schema:
+    timestamp_field: year
+    value_field:
+    - mean
+    - unc
+- id: entsog_mallnow_daily_gas_flow
+  name: ENTSOG transparency — daily physical gas flow at Mallnow (PL/DE interconnection)
+  domain: energy
+  frequency: P1D
+  license: ENTSOG transparency platform (public re-use)
+  notes: 'Daily physical gas flow (kWh/d) at the Mallnow interconnection point (ITP-00096, entry direction),
+    reported by both adjacent TSOs so each day carries two rows. Rolling 90-day window via {YYYY-MM-DD-90d}/{YYYY-MM-DD}
+    tokens. Caveat: the JSON root key is spelled `operationaldata` on filtered queries but `operationalData`
+    on unfiltered ones — keep the filters. Zero values are real (flow reverses direction).'
+  endpoint:
+    url: https://transparency.entsog.eu/api/v1/operationaldata.json?limit=400&indicator=Physical%20Flow&periodType=day&from={YYYY-MM-DD-90d}&to={YYYY-MM-DD}&pointKey=ITP-00096&directionKey=entry
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: operationaldata[].periodFrom
+    value_field:
+    - operationaldata[].value
+    panel_field: operationaldata[].operatorLabel
+
+# -- wired batch: wave6-retry --
+- id: cdc_vsrr_quarterly_mortality_rates
+  audit_slack_days: 500
+  name: CDC NCHS VSRR — quarterly provisional age-adjusted death rates by cause (US)
+  domain: healthcare
+  frequency: P1Q
+  license: Public domain (US CDC/NCHS)
+  notes: Quarterly provisional age-adjusted death rates per 100,000 for 3-month periods, panelled over 21
+    causes of death (all causes, cancer, heart disease, COVID-19, suicide, drug overdose, ...). The raw
+    column reads "2025 Q3" which the audit cannot parse, so the SoQL $query rewrites it to "2025-Q3" via
+    replace(). Rates are revised as death certificates complete.
+  endpoint:
+    url: https://data.cdc.gov/resource/489q-934x.json?$query=SELECT%20replace(year_and_quarter,'%20','-')%20AS%20ts,cause_of_death,rate_overall%20WHERE%20time_period%3D'3-month%20period'%20AND%20rate_type%3D'Age-adjusted'%20ORDER%20BY%20ts%20DESC%20LIMIT%205000
+    type: rest_json
+  schema:
+    timestamp_field: ts
+    value_field:
+    - rate_overall
+    panel_field: cause_of_death
+- id: cdc_vsrr_county_overdose_deaths_ca
+  name: CDC VSRR — provisional 12-month-ending drug overdose deaths, California counties
+  domain: healthcare
+  frequency: P1M
+  audit_slack_days: 300
+  license: Public domain (US CDC/NCHS)
+  endpoint:
+    url: https://data.cdc.gov/resource/gb4e-yj24.json?st_abbrev=CA&$where=provisional_drug_overdose%20IS%20NOT%20NULL&$select=monthendingdate,countyname,provisional_drug_overdose&$order=monthendingdate%20DESC&$limit=10000
+    type: rest_json
+  schema:
+    timestamp_field: monthendingdate
+    value_field:
+    - provisional_drug_overdose
+    panel_field: countyname
