@@ -3239,6 +3239,7 @@
     url: https://ghoapi.azureedge.net/api/WHOSIS_000001
     auth: none
     rate_limit: none documented
+    timeout: 90
   schema:
     timestamp_field: value[].TimeDim
     value_field: value[].NumericValue
@@ -12301,6 +12302,7 @@
     url: https://ghoapi.azureedge.net/api/WHS4_100
     auth: none
     rate_limit: null
+    timeout: 90
   schema:
     timestamp_field: value[].TimeDim
     value_field: value[].NumericValue
@@ -12327,6 +12329,7 @@
     url: https://ghoapi.azureedge.net/api/MDG_0000000020
     auth: none
     rate_limit: null
+    timeout: 90
   schema:
     timestamp_field: value[].TimeDim
     value_field: value[].NumericValue
@@ -12353,6 +12356,7 @@
     url: https://ghoapi.azureedge.net/api/NCDMORT3070
     auth: none
     rate_limit: null
+    timeout: 90
   schema:
     timestamp_field: value[].TimeDim
     value_field: value[].NumericValue
@@ -13556,6 +13560,10 @@
   license: Statistics Norway open data (CC BY 4.0)
   notes: Registered (administrative) unemployment rather than survey-based — a different measurement process
     with no sampling error but definitional step changes.
+  disabled: true
+  disabled_reason: '2026-07-26: SSB table 08931 ends 2020M12 — the table was discontinued. Re-enable against
+    a current SSB unemployment table id; the other three SSB tables wired here (CPI, house prices, household
+    electricity price) are live.'
 - id: ssb_norway_electricity_price_for_households
   name: Statistics Norway — electricity price for households (table 09387, JSON-stat)
   domain: energy
@@ -14672,8 +14680,6 @@
   license: Zillow research data — free for non-commercial use with attribution
   notes: Luxury housing tracks equity markets and moves on a different cycle to the mass market — with
     the bottom tier it brackets the middle-tier series already in the catalog.
-
-# -- balance-to-500 wave12 replacements (2026-07-26) --
 - id: energy_charts_fr_co2_intensity
   name: energy-charts — French grid CO2 equivalent intensity (15-min)
   domain: energy
@@ -14696,9 +14702,9 @@
   update_cadence_observed: every 15 minutes
   pretraining_novelty: clean
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
-  notes: Nuclear-dominated, so intensity sits near a low floor and barely moves — the low-variance end of
-    the carbon-intensity range. One physical quantity measured identically across 15 grids — the set isolates
-    generation-mix effects from measurement differences.
+  notes: Nuclear-dominated, so intensity sits near a low floor and barely moves — the low-variance end
+    of the carbon-intensity range. One physical quantity measured identically across 15 grids — the set
+    isolates generation-mix effects from measurement differences.
 - id: energy_charts_pl_co2_intensity
   name: energy-charts — Polish grid CO2 equivalent intensity (15-min)
   domain: energy
@@ -14721,9 +14727,9 @@
   update_cadence_observed: every 15 minutes
   pretraining_novelty: clean
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
-  notes: Coal-dominated, so intensity sits near a high ceiling — the opposite extreme to France on an identical
-    measurement method. One physical quantity measured identically across 15 grids — the set isolates generation-mix
-    effects from measurement differences.
+  notes: Coal-dominated, so intensity sits near a high ceiling — the opposite extreme to France on an
+    identical measurement method. One physical quantity measured identically across 15 grids — the set
+    isolates generation-mix effects from measurement differences.
 - id: energy_charts_es_co2_intensity
   name: energy-charts — Spanish grid CO2 equivalent intensity (15-min)
   domain: energy
@@ -14771,9 +14777,9 @@
   update_cadence_observed: every 15 minutes
   pretraining_novelty: clean
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
-  notes: Gas-set with heavy imports; intensity partly reflects neighbours' mixes rather than domestic generation.
-    One physical quantity measured identically across 15 grids — the set isolates generation-mix effects
-    from measurement differences.
+  notes: Gas-set with heavy imports; intensity partly reflects neighbours' mixes rather than domestic
+    generation. One physical quantity measured identically across 15 grids — the set isolates generation-mix
+    effects from measurement differences.
 - id: energy_charts_nl_co2_intensity
   name: energy-charts — Dutch grid CO2 equivalent intensity (15-min)
   domain: energy
@@ -14847,8 +14853,8 @@
   pretraining_novelty: clean
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
   notes: Hydro-dominated with seasonal inflow — intensity is lowest in the spring melt, an annual cycle
-    driven by water rather than sun. One physical quantity measured identically across 15 grids — the set
-    isolates generation-mix effects from measurement differences.
+    driven by water rather than sun. One physical quantity measured identically across 15 grids — the
+    set isolates generation-mix effects from measurement differences.
 - id: energy_charts_dk_co2_intensity
   name: energy-charts — Danish grid CO2 equivalent intensity (15-min)
   domain: energy
@@ -14896,9 +14902,9 @@
   update_cadence_observed: every 15 minutes
   pretraining_novelty: clean
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
-  notes: Hydro plus nuclear keeps intensity extremely low and flat — a near-constant series, useful as a
-    degenerate-variance test case. One physical quantity measured identically across 15 grids — the set
-    isolates generation-mix effects from measurement differences.
+  notes: Hydro plus nuclear keeps intensity extremely low and flat — a near-constant series, useful as
+    a degenerate-variance test case. One physical quantity measured identically across 15 grids — the
+    set isolates generation-mix effects from measurement differences.
 - id: energy_charts_fi_co2_intensity
   name: energy-charts — Finnish grid CO2 equivalent intensity (15-min)
   domain: energy
@@ -14921,8 +14927,8 @@
   update_cadence_observed: every 15 minutes
   pretraining_novelty: clean
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
-  notes: Nuclear, hydro and biomass mix with winter CHP — intensity rises in the cold season, opposite to
-    the solar-driven grids. One physical quantity measured identically across 15 grids — the set isolates
+  notes: Nuclear, hydro and biomass mix with winter CHP — intensity rises in the cold season, opposite
+    to the solar-driven grids. One physical quantity measured identically across 15 grids — the set isolates
     generation-mix effects from measurement differences.
 - id: energy_charts_gr_co2_intensity
   name: energy-charts — Greek grid CO2 equivalent intensity (15-min)
@@ -14971,9 +14977,9 @@
   update_cadence_observed: every 15 minutes
   pretraining_novelty: clean
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
-  notes: Hydro and wind dominant with occasional fully-renewable days where intensity approaches zero —
-    a hard floor effect. One physical quantity measured identically across 15 grids — the set isolates generation-mix
-    effects from measurement differences.
+  notes: Hydro and wind dominant with occasional fully-renewable days where intensity approaches zero
+    — a hard floor effect. One physical quantity measured identically across 15 grids — the set isolates
+    generation-mix effects from measurement differences.
 - id: energy_charts_cz_co2_intensity
   name: energy-charts — Czech grid CO2 equivalent intensity (15-min)
   domain: energy
@@ -15070,8 +15076,8 @@
   update_cadence_observed: daily
   pretraining_novelty: clean
   license: Blockchain.com charts API
-  notes: A user-activity proxy that decoupled from transaction count once batching became common — the divergence
-    between the two is itself the interesting signal.
+  notes: A user-activity proxy that decoupled from transaction count once batching became common — the
+    divergence between the two is itself the interesting signal.
 - id: blockchain_btc_avg_block_size
   name: Blockchain.com — Bitcoin average block size
   domain: web_cloudops
@@ -15141,8 +15147,8 @@
   update_cadence_observed: daily
   pretraining_novelty: clean
   license: Blockchain.com charts API
-  notes: Steps down by half at each halving — a scheduled, known-in-advance structural break, which is rare
-    and valuable for testing whether models can use exogenous calendar knowledge.
+  notes: Steps down by half at each halving — a scheduled, known-in-advance structural break, which is
+    rare and valuable for testing whether models can use exogenous calendar knowledge.
 - id: blockchain_btc_trade_volume
   name: Blockchain.com — Bitcoin exchange trade volume (USD)
   domain: econ_fin
@@ -15188,8 +15194,8 @@
   update_cadence_observed: daily
   pretraining_novelty: clean
   license: CC0 (Wikimedia Analytics)
-  notes: A small, highly-online population — low absolute volume with an unusually clean weekly signal and
-    little bot contamination.
+  notes: A small, highly-online population — low absolute volume with an unusually clean weekly signal
+    and little bot contamination.
 - id: wikimedia_pageviews_pl_daily
   name: Wikimedia — Polish Wikipedia pageviews (daily)
   domain: web_cloudops
@@ -15212,8 +15218,8 @@
   update_cadence_observed: daily
   pretraining_novelty: clean
   license: CC0 (Wikimedia Analytics)
-  notes: Strong school-term dependence; the summer holiday trough is deeper and starts earlier than in western
-    Europe.
+  notes: Strong school-term dependence; the summer holiday trough is deeper and starts earlier than in
+    western Europe.
 - id: wikimedia_pageviews_sv_daily
   name: Wikimedia — Swedish Wikipedia pageviews (daily)
   domain: web_cloudops
@@ -15284,8 +15290,8 @@
   update_cadence_observed: daily
   pretraining_novelty: clean
   license: CC0 (Wikimedia Analytics)
-  notes: A mobile-first, equatorial audience — almost no daylight seasonality, which removes a driver every
-    temperate wiki has.
+  notes: A mobile-first, equatorial audience — almost no daylight seasonality, which removes a driver
+    every temperate wiki has.
 - id: wikimedia_pageviews_ko_daily
   name: Wikimedia — Korean Wikipedia pageviews (daily)
   domain: web_cloudops
@@ -15332,8 +15338,8 @@
   update_cadence_observed: daily
   pretraining_novelty: clean
   license: CC0 (Wikimedia Analytics)
-  notes: Bot-heavy article base plus a fast-growing readership — a rising trend where most large wikis are
-    flat or declining.
+  notes: Bot-heavy article base plus a fast-growing readership — a rising trend where most large wikis
+    are flat or declining.
 - id: wikimedia_pageviews_fa_daily
   name: Wikimedia — Persian Wikipedia pageviews (daily)
   domain: web_cloudops
@@ -15372,6 +15378,7 @@
     auth: none
     rate_limit: polite
     url: https://ghoapi.azureedge.net/api/MDG_0000000007
+    timeout: 90
   schema:
     timestamp_field: value[].TimeDim
     value_field: value[].NumericValue
@@ -15382,8 +15389,8 @@
   update_cadence_observed: annual
   pretraining_novelty: clean
   license: WHO GHO OData — open
-  notes: A long near-monotone global decline with country-level reversals during conflict. Adds to the yearly
-    band, the thinnest granularity in the catalog.
+  notes: A long near-monotone global decline with country-level reversals during conflict. Adds to the
+    yearly band, the thinnest granularity in the catalog.
 - id: who_gho_adult_obesity_prevalence
   name: WHO GHO — adult obesity prevalence (country panel, annual)
   domain: healthcare
@@ -15398,6 +15405,7 @@
     auth: none
     rate_limit: polite
     url: https://ghoapi.azureedge.net/api/NCD_BMI_30C
+    timeout: 90
   schema:
     timestamp_field: value[].TimeDim
     value_field: value[].NumericValue
@@ -15424,6 +15432,7 @@
     auth: none
     rate_limit: polite
     url: https://ghoapi.azureedge.net/api/MALARIA_EST_INCIDENCE
+    timeout: 90
   schema:
     timestamp_field: value[].TimeDim
     value_field: value[].NumericValue
@@ -15434,6 +15443,6 @@
   update_cadence_observed: annual
   pretraining_novelty: clean
   license: WHO GHO OData — open
-  notes: Concentrated in a subset of countries with intervention-driven step changes from bed-net and treatment
-    campaigns — policy shocks rather than natural dynamics. Adds to the yearly band, the thinnest granularity
-    in the catalog.
+  notes: Concentrated in a subset of countries with intervention-driven step changes from bed-net and
+    treatment campaigns — policy shocks rather than natural dynamics. Adds to the yearly band, the thinnest
+    granularity in the catalog.

@@ -268,21 +268,23 @@ def _capped_response(resp: httpx.Response, url: str,
 
 
 def _http_get(url: str, headers: dict[str, str],
-              max_bytes: Optional[int] = None) -> httpx.Response:
+              max_bytes: Optional[int] = None,
+              read_timeout: Optional[float] = None) -> httpx.Response:
     # Default UA acceptable for most APIs; crates.io/Reddit need a contact.
     headers = {"User-Agent": "timeframe-scraper/0.1 (+https://github.com/timeframe-bench)", **headers}
-    timeout = httpx.Timeout(30.0, connect=10.0)
+    timeout = httpx.Timeout(read_timeout or 30.0, connect=10.0)
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
         with client.stream("GET", url, headers=headers) as resp:
             return _capped_response(resp, url, max_bytes)
 
 
 def _http_post(url: str, headers: dict[str, str], body: Any,
-               max_bytes: Optional[int] = None) -> httpx.Response:
+               max_bytes: Optional[int] = None,
+               read_timeout: Optional[float] = None) -> httpx.Response:
     """POST a JSON body — used by GraphQL and POST-only JSON APIs. `body` is the
     request payload (e.g. {"query": "...", "variables": {...}} for GraphQL)."""
     headers = {"User-Agent": "timeframe-scraper/0.1 (+https://github.com/timeframe-bench)", **headers}
-    timeout = httpx.Timeout(30.0, connect=10.0)
+    timeout = httpx.Timeout(read_timeout or 30.0, connect=10.0)
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
         with client.stream("POST", url, headers=headers, json=body) as resp:
             return _capped_response(resp, url, max_bytes)
@@ -345,6 +347,9 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
         )
     headers = _resolve_auth(ep.get("auth"))
     cap = ep.get("max_bytes")
+    # Some hosts are simply slow (WHO GHO serves multi-MB indicator
+    # payloads from a cold cache); let a source raise its own ceiling.
+    rto = ep.get("timeout")
     # POST/GraphQL: type: graphql (body defaults to {"query": ...}) or an explicit
     # method: POST with a `body` JSON payload. Everything else is a GET.
     is_post = (ep.get("method", "").upper() == "POST") or ep.get("type") == "graphql"
@@ -357,8 +362,8 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
     # pypistats in particular 429s bursts of panel rows.
     for attempt in range(3):
         try:
-            resp = (_http_post(url, headers, body, cap) if is_post
-                    else _http_get(url, headers, cap))
+            resp = (_http_post(url, headers, body, cap, rto) if is_post
+                    else _http_get(url, headers, cap, rto))
         except httpx.TransportError as e:
             if attempt == 2:
                 raise
