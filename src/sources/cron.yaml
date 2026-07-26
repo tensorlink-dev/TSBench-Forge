@@ -147,6 +147,9 @@ schedules:
   - nyiso_zonal_load_forecast
   - energy_charts_ch_public_power
   - seattle_fremont_bridge_bike_counts
+  - nvd_cve_publication_rate
+  - huggingface_dataset_creation_rate
+  - blockchain_btc_mempool_size
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -186,6 +189,26 @@ schedules:
   - statcan_retail_trade_monthly
   - nrc_reactor_power_status_daily
   - energy_charts_de_installed_power_monthly
+  - zillow_zhvi_metro_monthly
+  - zillow_zori_rent_index_monthly
+  - zillow_median_sale_price_weekly
+  - ssb_norway_retail_index_monthly
+  - abs_retail_trade_monthly
+  - worldbank_household_consumption_growth
+  - cdc_wastewater_sarscov2_panel
+  - cdc_covid_hospital_admissions_daily
+  - healthdata_hospital_staffing_state_daily
+  - ukhsa_covid_admissions_daily
+  - ukhsa_influenza_admission_rate_weekly
+  - openfda_food_enforcement_daily
+  - wikimedia_mediarequests_daily
+  - wikimedia_editors_en_daily
+  - wikimedia_pageviews_de_daily
+  - tor_bridge_users_daily
+  - tor_network_bandwidth_daily
+  - npm_downloads_vue_daily
+  - pypistats_numpy_daily
+  - blockchain_btc_hashrate_daily
   cron: 10 1 * * *
 - every: P1D
   sources:

@@ -10030,3 +10030,582 @@
   pretraining_novelty: clean
   license: Trondheim Bysykkel open GBFS (NLOD)
   notes: Sub-arctic system with a hard winter shutdown — the most extreme seasonal gap in the GBFS set.
+
+# -- balance-to-500 wave5 sales+healthcare (2026-07-26) --
+- id: zillow_zhvi_metro_monthly
+  name: Zillow ZHVI — typical home value by US metro (monthly, ~900-metro panel)
+  domain: sales
+  dgp_class: housing_price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P26Y
+  update_cadence_observed: monthly, mid-month release
+  pretraining_novelty: contaminated
+  novelty_notes: Zillow ZHVI is widely redistributed; national aggregates likely in pretrain corpora, though
+    the full metro panel is less commonly ingested.
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Wide/pivot CSV melted by the `wide` schema option. 2000-present monthly, covering the 2008 crash
+    and the 2021 surge — two large regime breaks in one panel.
+- id: zillow_zori_rent_index_monthly
+  name: Zillow ZORI — observed rent index by US metro (monthly panel)
+  domain: sales
+  dgp_class: housing_price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_uc_sfrcondomfr_sm_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P11Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Rents lag and behave differently to sale prices — a useful contrast series to ZHVI.
+- id: zillow_median_sale_price_weekly
+  name: Zillow — median sale price by US metro (weekly panel)
+  domain: sales
+  dgp_class: housing_transaction_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  - heavy_tailed
+  frequency: P1W
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/median_sale_price/Metro_median_sale_price_uc_sfrcondo_week.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P18Y
+  update_cadence_observed: weekly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Weekly transaction prices — noisier and more seasonal than the smoothed ZHVI index.
+- id: ssb_norway_retail_index_monthly
+  name: Statistics Norway — wholesale and retail trade index (monthly, JSON-stat)
+  domain: sales
+  dgp_class: retail_sales
+  archetypes:
+  - smooth_periodic
+  - smooth_trend
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://data.ssb.no/api/v0/en/table/07129
+    auth: none
+    rate_limit: null
+    method: POST
+    body:
+      query: []
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Statistics Norway open data (CC BY 4.0)
+  notes: POST + JSON-stat 2.0. Industry-split retail volume index.
+- id: abs_retail_trade_monthly
+  name: ABS — Australian retail trade turnover (monthly, SDMX)
+  domain: sales
+  dgp_class: retail_sales
+  archetypes:
+  - smooth_periodic
+  - smooth_trend
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://data.api.abs.gov.au/rest/data/ABS,RT,1.0.0/all?startPeriod=2018&format=jsondata
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: ABS — CC BY 4.0
+  notes: SDMX-JSON, auto-detected. Southern-hemisphere retail seasonality (December peak, but inverted weather
+    seasons versus the northern panel).
+- id: worldbank_household_consumption_growth
+  name: World Bank — household final consumption expenditure growth (country panel, annual)
+  domain: sales
+  dgp_class: macro_consumption
+  archetypes:
+  - non_stationary_regime
+  - hierarchical
+  - heavy_tailed
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://api.worldbank.org/v2/country/all/indicator/NE.CON.PRVT.KD.ZG?format=json&per_page=500&date=2000:2024
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[1][].date'
+    value_field: '[1][].value'
+    panel_field: '[1][].countryiso3code'
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: annual
+  pretraining_novelty: contaminated
+  novelty_notes: World Bank WDI indicators are heavily republished.
+  license: World Bank Open Data (CC BY 4.0)
+  notes: Annual granularity across ~200 countries — fills the sparsest band. Positional [1] index skips
+    the pagination-metadata element the API returns first.
+- id: cdc_wastewater_sarscov2_panel
+  name: CDC — SARS-CoV-2 wastewater concentration by treatment plant (panel)
+  domain: healthcare
+  dgp_class: wastewater_surveillance
+  archetypes:
+  - non_stationary_regime
+  - hierarchical
+  - heavy_tailed
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/2ew6-ywp6.json?$limit=5000&$order=date_end%20DESC
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].date_end'
+    value_field:
+    - '[].percentile'
+    - '[].ptc_15d'
+    panel_field: '[].key_plot_id'
+    variates: 2
+  history_available: P4Y
+  update_cadence_observed: weekly
+  pretraining_novelty: clean
+  license: Public domain (US CDC)
+  notes: Leading indicator for case counts — noisy, plant-level, with heavy right tails.
+- id: cdc_covid_hospital_admissions_daily
+  name: CDC — new COVID-19 hospital admissions by jurisdiction (daily panel)
+  domain: healthcare
+  dgp_class: hospital_capacity
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/39z2-9zu6.json?$limit=5000&$order=collection_date%20DESC
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].collection_date'
+    value_field: '[].new_covid_19_hospital'
+    panel_field: '[].jurisdiction'
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: daily/weekly depending on reporting era
+  pretraining_novelty: contaminated
+  novelty_notes: COVID hospitalisation series are extremely widely republished.
+  license: Public domain (US CDC)
+  notes: Includes the reporting-mandate change of 2024 — an abrupt regime shift.
+- id: healthdata_hospital_staffing_state_daily
+  name: HealthData.gov — hospital staffing shortage and capacity by state (daily panel)
+  domain: healthcare
+  dgp_class: hospital_capacity
+  archetypes:
+  - count_discrete
+  - hierarchical
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://healthdata.gov/resource/g62h-syeh.json?$limit=5000&$order=date%20DESC
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].date'
+    value_field:
+    - '[].inpatient_beds_used'
+    - '[].staffed_icu_adult_patients_confirmed_covid'
+    panel_field: '[].state'
+    variates: 2
+  history_available: P5Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Public domain (US HHS)
+  notes: State-level daily capacity with a hard reporting cutover — tests robustness to truncation.
+- id: ukhsa_covid_admissions_daily
+  name: UKHSA — COVID-19 healthcare admissions, England (daily)
+  domain: healthcare
+  dgp_class: hospital_capacity
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/COVID-19/geography_types/Nation/geographies/England/metrics/COVID-19_healthcare_admissionByDay
+    auth: none
+    rate_limit: null
+    paginate:
+      items: results
+      next: next
+      max_pages: 8
+  schema:
+    timestamp_field: results[].date
+    value_field: results[].metric_value
+    variates: 1
+  history_available: P6Y
+  update_cadence_observed: daily
+  pretraining_novelty: contaminated
+  novelty_notes: UK COVID admissions are widely republished.
+  license: UKHSA Open Government Licence v3.0
+  notes: Cursor-paginated API; 8 pages give ~2 years of daily history.
+- id: ukhsa_influenza_admission_rate_weekly
+  name: UKHSA — influenza hospital admission rate, England (weekly)
+  domain: healthcare
+  dgp_class: epidemic_surveillance
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - zero_inflated_sparse
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/Influenza/geography_types/Nation/geographies/England/metrics/influenza_healthcare_hospitalAdmissionRateByWeek
+    auth: none
+    rate_limit: null
+    paginate:
+      items: results
+      next: next
+      max_pages: 8
+  schema:
+    timestamp_field: results[].date
+    value_field: results[].metric_value
+    variates: 1
+  history_available: P6Y
+  update_cadence_observed: weekly
+  pretraining_novelty: clean
+  license: UKHSA Open Government Licence v3.0
+  notes: Sharp winter epidemics separated by near-zero summers — a hard sparse-seasonal target.
+- id: openfda_food_enforcement_daily
+  name: openFDA — food recall enforcement reports per day
+  domain: healthcare
+  dgp_class: recall_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - heavy_tailed
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/food/enforcement.json?count=report_date
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: weekly enforcement batches
+  pretraining_novelty: clean
+  license: Public domain (US FDA openFDA)
+  notes: Sparse with rare multi-hundred-lot outbreak spikes.
+
+# -- balance-to-500 wave6 cloudops (2026-07-26) --
+- id: nvd_cve_publication_rate
+  name: NVD — CVE publication rate (hourly bins)
+  domain: web_cloudops
+  dgp_class: vulnerability_disclosure
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate={YYYY-MM-DD-20d}T00:00:00.000&pubEndDate={YYYY-MM-DD}T00:00:00.000&resultsPerPage=1000
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: vulnerabilities[].cve.published
+    value_field: vulnerabilities[].cve.id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: continuous, batched by CNA submission
+  pretraining_novelty: clean
+  license: Public domain (NIST NVD)
+  notes: Bursty — a single CNA can publish hundreds of CVEs in one hour.
+- id: huggingface_dataset_creation_rate
+  name: Hugging Face — new dataset repo creation rate (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://huggingface.co/api/datasets?sort=createdAt&direction=-1&limit=1000
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].id'
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Hugging Face public API
+  notes: Burstier than model creation — automated pipelines upload datasets in batches.
+- id: wikimedia_mediarequests_daily
+  name: Wikimedia — media file request volume (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://wikimedia.org/api/rest_v1/metrics/mediarequests/aggregate/all-referers/all-media-types/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].requests
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: CDN-scale request counts — billions/day, distinct dynamics from pageviews.
+- id: wikimedia_editors_en_daily
+  name: Wikimedia — active English Wikipedia editors (daily)
+  domain: web_cloudops
+  dgp_class: contributor_activity
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://wikimedia.org/api/rest_v1/metrics/editors/aggregate/en.wikipedia/all-editor-types/all-page-types/all-activity-levels/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: items[].results[].timestamp
+    value_field: items[].results[].editors
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Human contributor counts — slower-moving than traffic, with a long structural decline.
+- id: wikimedia_pageviews_de_daily
+  name: Wikimedia — German Wikipedia pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/de.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: A single-timezone-dominated audience — much sharper weekly seasonality than en.wikipedia.
+- id: tor_bridge_users_daily
+  name: Tor — daily users connecting via bridges
+  domain: web_cloudops
+  dgp_class: network_measurement
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://metrics.torproject.org/userstats-bridge-country.csv?start={YYYY-MM-DD-180d}&end={YYYY-MM-DD-2d}&country=all
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: users
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily, ~2 day lag
+  pretraining_novelty: clean
+  license: Tor Project — CC0
+  notes: Bridge usage spikes during national censorship events — event-driven step changes.
+- id: tor_network_bandwidth_daily
+  name: Tor — advertised vs consumed network bandwidth (daily)
+  domain: web_cloudops
+  dgp_class: network_capacity
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://metrics.torproject.org/bandwidth.csv?start={YYYY-MM-DD-365d}&end={YYYY-MM-DD-2d}
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field:
+    - advbw
+    - bwhist
+    variates: 2
+  history_available: P12Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Tor Project — CC0
+  notes: Paired capacity/utilisation series — the ratio is a natural derived target.
+- id: npm_downloads_vue_daily
+  name: npm registry — daily package download counts (vue)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-120d}:{YYYY-MM-DD-1d}/vue
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: downloads[].day
+    value_field: downloads[].downloads
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: npm public registry API
+  notes: A framework in slow decline — contrasts with react's flat-to-growing curve.
+- id: pypistats_numpy_daily
+  name: PyPI — daily download counts with/without mirrors (numpy)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://pypistats.org/api/packages/numpy/overall
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].downloads
+    panel_field: data[].category
+    variates: 1
+  history_available: P180D
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: pypistats public API
+  notes: CI-driven traffic — much larger weekday/weekend ratio than application packages.
+- id: blockchain_btc_mempool_size
+  name: Blockchain.com — Bitcoin mempool size in bytes
+  domain: web_cloudops
+  dgp_class: queue_backlog
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - volatility_clustering
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.blockchain.info/charts/mempool-size?timespan=30days&format=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: values[].x
+    value_field: values[].y
+    variates: 1
+  history_available: P5Y
+  update_cadence_observed: every ~5 minutes
+  pretraining_novelty: clean
+  license: Blockchain.com charts API
+  notes: A genuine queueing process — backlog builds and drains with block arrivals.
+- id: blockchain_btc_hashrate_daily
+  name: Blockchain.com — Bitcoin network hash rate (daily)
+  domain: web_cloudops
+  dgp_class: network_capacity
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.blockchain.info/charts/hash-rate?timespan=2years&format=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: values[].x
+    value_field: values[].y
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Blockchain.com charts API
+  notes: Long exponential trend with sharp drops on mining bans and difficulty shocks.
