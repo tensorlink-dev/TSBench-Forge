@@ -1,4 +1,5 @@
 """Unit tests for the scraper's composite-timestamp and field-paneling features."""
+import datetime as dt
 import pathlib
 import sys
 
@@ -138,3 +139,114 @@ def test_jsonstat2_skips_null_and_normalises_quarter():
     }
     recs = scraper._records_from_jsonstat2(data, {})
     assert [(r["timestamp"], r["value"]) for r in recs] == [("2020-Q1", 1.0), ("2020-Q3", 3.0)]
+
+
+def test_compact_date_offset_token():
+    """`{YYYYMMDD-Nd}` — for hosts whose daily file name lags UTC (NYISO et al)."""
+    now = dt.datetime(2026, 7, 26, 1, 12, tzinfo=dt.UTC)
+    assert scraper.expand_url("p/{YYYYMMDD-1d}pal.csv", now) == "p/20260725pal.csv"
+    assert scraper.expand_url("p/{YYYYMMDD}pal.csv", now) == "p/20260726pal.csv"
+    # crossing a month boundary
+    assert scraper.expand_url("{YYYYMMDD-26d}", dt.datetime(2026, 7, 26, tzinfo=dt.UTC)) == "20260630"
+
+
+def test_month_offset_token():
+    """`{YYYYMM-Nm}` — calendar-month arithmetic, incl. year wrap."""
+    now = dt.datetime(2026, 7, 26, tzinfo=dt.UTC)
+    assert scraper.expand_url("{YYYYMM-0m}", now) == "202607"
+    assert scraper.expand_url("{YYYYMM-1m}", now) == "202606"
+    assert scraper.expand_url("{YYYYMM-7m}", now) == "202512"
+    assert scraper.expand_url("{YYYYMM-19m}", now) == "202412"
+
+
+def test_offset_tokens_do_not_shadow_literal_tokens():
+    """The literal {YYYYMMDD}/{YYYYMM} subs must not partially consume offset tokens."""
+    now = dt.datetime(2026, 7, 26, 1, 0, tzinfo=dt.UTC)
+    assert scraper.expand_url("{YYYY-MM-DD-1d}|{YYYYMMDD-2d}|{YYYYMM-1m}", now) == \
+        "2026-07-25|20260724|202606"
+
+
+def test_csv_column_name_containing_slash():
+    """Literal column names with '/' (NYISO "LBMP ($/MWHr)") must not be
+    truncated by the '/'-path-shortening convention."""
+    csv_text = (
+        '"Time Stamp","Name","LBMP ($/MWHr)"\n'
+        '"07/25/2026 00:05:00","CAPITL",43.64\n'
+        '"07/25/2026 00:10:00","CAPITL",41.02\n'
+    )
+    schema = {"timestamp_field": "Time Stamp", "value_field": "LBMP ($/MWHr)",
+              "panel_field": "Name"}
+    rows = scraper._records_from_csv(csv_text, schema)
+    assert len(rows) == 2
+    assert rows[0]["LBMP ($/MWHr)"] == "43.64"
+    assert rows[0]["_panel_Name"] == "CAPITL"
+
+
+def test_csv_slash_path_shortening_still_works():
+    """Backwards-compat: a genuine '/'-path still resolves to its last segment."""
+    csv_text = "date,value\n2026-01-01,5\n2026-01-02,6\n"
+    rows = scraper._records_from_csv(csv_text, {"timestamp_field": "date",
+                                                "value_field": "some/path/value"})
+    assert [r["value"] for r in rows] == ["5", "6"]
+
+
+def test_sniff_delim_prefers_semicolon_when_dominant():
+    """European CSV: ';' separates, ',' is the decimal mark."""
+    assert scraper._sniff_delim('"Date";"D0";"Value"') == ";"
+    assert scraper._sniff_delim("1988-01;1J;2,887") == ";"
+    # a normal comma CSV is unaffected
+    assert scraper._sniff_delim("date,station,value") == ","
+    assert scraper._sniff_delim("a\tb\tc") == "\t"
+
+
+def test_semicolon_csv_with_quoted_fields():
+    csv_text = (
+        '"CubeId";"rendoblim"\n'
+        '"Date";"D0";"Value"\n'
+        '"1988-01";"1J";"2.887"\n'
+        '"1988-02";"1J";"3.218"\n'
+    )
+    rows = scraper._records_from_csv(csv_text, {"timestamp_field": "Date",
+                                                "value_field": "Value",
+                                                "panel_field": "D0"})
+    assert [r["timestamp"] for r in rows] == ["1988-01", "1988-02"]
+    assert [r["Value"] for r in rows] == ["2.887", "3.218"]
+    assert rows[0]["_panel_D0"] == "1J"
+
+
+def test_pipe_delimited_csv():
+    """NRC reactor status and several gov feeds are '|'-delimited."""
+    assert scraper._sniff_delim("ReportDt|Unit|Power") == "|"
+    txt = ("ReportDt|Unit|Power\n"
+           "7/24/2026 12:00:00 AM|Arkansas Nuclear 1|100\n"
+           "7/24/2026 12:00:00 AM|Beaver Valley 1|97\n")
+    rows = scraper._records_from_csv(txt, {"timestamp_field": "ReportDt",
+                                           "value_field": "Power",
+                                           "panel_field": "Unit"})
+    assert [r["Power"] for r in rows] == ["100", "97"]
+    assert {r["_panel_Unit"] for r in rows} == {"Arkansas Nuclear 1", "Beaver Valley 1"}
+
+
+def test_wide_csv_melt():
+    """Zillow-style pivot CSV: one row per region, one column per date."""
+    csv_text = (
+        "RegionID,SizeRank,RegionName,2000-01-31,2000-02-29,2000-03-31\n"
+        "394913,0,New York NY,220000,221500,\n"
+        "753899,1,Los Angeles CA,190000,,192000\n"
+    )
+    schema = {"wide": {"id_fields": ["RegionName"]}}
+    rows = scraper._records_from_csv(csv_text, schema)
+    # blanks are dropped, not emitted as empty observations
+    assert len(rows) == 4
+    ny = {r["timestamp"]: r["value"] for r in rows if r["_panel_RegionName"] == "New York NY"}
+    assert ny == {"2000-01-31": "220000", "2000-02-29": "221500"}
+    la = {r["timestamp"]: r["value"] for r in rows if r["_panel_RegionName"] == "Los Angeles CA"}
+    assert la == {"2000-01-31": "190000", "2000-03-31": "192000"}
+
+
+def test_wide_csv_ignores_non_date_columns():
+    """Non-date id/metadata columns must never become timestamps."""
+    csv_text = "RegionName,StateName,SizeRank,2024-01-31\nAustin TX,TX,25,500000\n"
+    rows = scraper._records_from_csv(csv_text, {"wide": {"id_fields": ["RegionName"]}})
+    assert [r["timestamp"] for r in rows] == ["2024-01-31"]
+    assert rows[0]["value"] == "500000"

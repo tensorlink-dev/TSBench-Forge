@@ -107,7 +107,15 @@ _TODAY_PATTERNS = [
 ]
 
 _OFFSET_DATE_RE = re.compile(r"\{YYYY-MM-DD-(\d+)d\}")
+_OFFSET_COMPACT_RE = re.compile(r"\{YYYYMMDD-(\d+)d\}")
+_OFFSET_MONTH_RE = re.compile(r"\{YYYYMM-(\d+)m\}")
 _OFFSET_HOUR_RE = re.compile(r"\{H-(\d+)\}")
+
+
+def _month_offset(now: dt.datetime, n: int) -> str:
+    """`now` minus n calendar months, formatted YYYYMM."""
+    total = now.year * 12 + (now.month - 1) - n
+    return f"{total // 12:04d}{total % 12 + 1:02d}"
 
 
 def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
@@ -121,6 +129,10 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
     Relative-offset tokens (regex):
       {YYYY-MM-DD-Nd}   today minus N days, formatted YYYY-MM-DD
                         (e.g. {YYYY-MM-DD-30d} = 30 days ago).
+      {YYYYMMDD-Nd}     same, compact — for hosts whose daily files are named
+                        YYYYMMDD and whose local trading date lags UTC
+                        (e.g. NYISO at 01:00 UTC is still on yesterday's file).
+      {YYYYMM-Nm}       current month minus N calendar months, formatted YYYYMM.
       {H-N}             current UTC hour minus N (wraps at midnight UTC)
                         (e.g. {H-1} = previous hour).
 
@@ -134,6 +146,11 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
         lambda m: (now - dt.timedelta(days=int(m.group(1)))).strftime("%Y-%m-%d"),
         url,
     )
+    url = _OFFSET_COMPACT_RE.sub(
+        lambda m: (now - dt.timedelta(days=int(m.group(1)))).strftime("%Y%m%d"),
+        url,
+    )
+    url = _OFFSET_MONTH_RE.sub(lambda m: _month_offset(now, int(m.group(1))), url)
     url = _OFFSET_HOUR_RE.sub(
         lambda m: str((now - dt.timedelta(hours=int(m.group(1)))).hour),
         url,
@@ -508,9 +525,19 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
 
 
 def _sniff_delim(line: str) -> str | None:
-    """Best-effort delimiter for one line: tab, comma, or None (= whitespace)."""
+    """Best-effort delimiter for one line: tab, semicolon, comma, or None
+    (= whitespace).
+
+    Semicolon beats comma when it is the more frequent separator — European
+    stats offices (SNB, Destatis, Eurostat bulk) ship ';'-delimited CSV in
+    which ',' is the *decimal* mark, so comma-splitting would shred the rows.
+    """
     if "\t" in line:
         return "\t"
+    if line.count("|") > line.count(","):
+        return "|"
+    if line.count(";") > line.count(","):
+        return ";"
     if "," in line:
         return ","
     return None
@@ -520,7 +547,8 @@ def _split_cols(line: str, delim: str | None) -> list[str]:
     line = line.lstrip("#").strip()
     if delim is None:
         return line.split()
-    return [t.strip() for t in line.split(delim)]
+    # Strip the surrounding quotes these exporters wrap every field in.
+    return [t.strip().strip('"') for t in line.split(delim)]
 
 
 def _compose_ts(parts: list[str]) -> str:
@@ -547,7 +575,42 @@ def _compose_ts(parts: list[str]) -> str:
     return " ".join(parts)
 
 
+_WIDE_DATE_RE = re.compile(r"^\d{4}(-\d{2}(-\d{2})?)?$")
+
+
+def _records_from_wide_csv(text: str, schema: dict) -> list[dict]:
+    """Melt a wide/pivot CSV — one row per entity, one *column per date* — into
+    long (timestamp, value, _panel_*) records.
+
+    Zillow's research CSVs, and many economic/real-estate exports, ship this
+    shape: `RegionID,SizeRank,RegionName,...,2000-01-31,2000-02-29,...`.
+
+    Config:
+      schema.wide.id_fields: columns identifying the entity (become _panel_*).
+    Every remaining column whose name looks like a date (YYYY, YYYY-MM or
+    YYYY-MM-DD) is treated as a timestamp. Blank cells are skipped.
+    """
+    wide = schema.get("wide") or {}
+    id_fields = wide.get("id_fields") or []
+    if isinstance(id_fields, str):
+        id_fields = [id_fields]
+
+    reader = csv.DictReader(io.StringIO(text))
+    rows: list[dict] = []
+    for rec in reader:
+        panel = {"_panel_" + f: str(rec.get(f, "")) for f in id_fields}
+        for col, val in rec.items():
+            if col is None or col in id_fields or not _WIDE_DATE_RE.match(col.strip()):
+                continue
+            if val is None or val == "":
+                continue
+            rows.append({"timestamp": col.strip(), "value": val, **panel})
+    return rows
+
+
 def _records_from_csv(text: str, schema: dict) -> list[dict]:
+    if schema.get("wide"):
+        return _records_from_wide_csv(text, schema)
     ts_field = schema.get("timestamp_field", "").split("/")[-1]
     val_fields = schema.get("value_field")
     if isinstance(val_fields, str):
@@ -562,13 +625,17 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
     lines = [l for l in text.splitlines() if l.strip()]
     if not lines:
         return []
-    want = set(ts_cols) | {vf.split("/")[-1] for vf in (val_fields or [])}
+    # A declared field may be a '/'-separated path (shortened to its last
+    # segment) OR a literal column name that itself contains '/' — e.g. NYISO's
+    # "LBMP ($/MWHr)". Accept a header matching either reading.
+    want_short = set(ts_cols) | {vf.split("/")[-1] for vf in (val_fields or [])}
+    want_full = set(ts_cols) | set(val_fields or [])
     header_idx, delim, header = None, None, None
-    if want:
+    if want_short:
         for i, l in enumerate(lines[:200]):
             d = _sniff_delim(l)
             toks = _split_cols(l, d)
-            if want <= set(toks):
+            if want_short <= set(toks) or want_full <= set(toks):
                 header_idx, delim, header = i, d, toks
                 break
 
@@ -599,8 +666,9 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
             ts_raw = r.get(ts_field) or next(iter(r.values()), None)
         row = {"timestamp": _epoch_to_iso(ts_raw) or ts_raw}
         for vf in (val_fields or []):
-            short = vf.split("/")[-1]
-            row[short] = r.get(short)
+            # Exact column name wins; fall back to the last path segment.
+            key = vf if vf in r else vf.split("/")[-1]
+            row[key] = r.get(key)
         if not val_fields:
             row.update({k: v for k, v in r.items() if k != ts_field and k not in ts_cols})
         for pc in panel_cols:

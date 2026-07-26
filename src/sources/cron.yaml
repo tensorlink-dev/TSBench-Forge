@@ -24,6 +24,26 @@ schedules:
   - crossref_doi_registration_events
   - mastodon_public_timeline_events
   - datacite_doi_registration_rate
+  - gbfs_velib_paris_station_status
+  - gbfs_bixi_montreal_station_status
+  - gbfs_bicing_barcelona_station_status
+  - gbfs_toronto_station_status
+  - gbfs_oslo_bysykkel_station_status
+  - gbfs_ecobici_cdmx_station_status
+  - gbfs_divvy_chicago_station_status
+  - youbike_taipei_station_status
+  - coinbase_eth_usd_1m
+  - kraken_btc_usd_1m
+  - bitstamp_xrp_usd_1m
+  - okx_sol_usdt_1m
+  - kucoin_doge_usdt_1m
+  - bitfinex_eth_usd_1m
+  - upbit_krw_btc_1m
+  - tfl_victoria_line_arrival_predictions
+  - gbfs_bikemi_milan_station_status
+  - gbfs_buenos_aires_station_status
+  - gbfs_indego_philadelphia_station_status
+  - gbfs_trondheim_station_status
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -44,6 +64,11 @@ schedules:
   - lichess_realtime_api
   - ercot_supply_demand
   - steam_concurrent_players
+  - nyiso_realtime_zonal_load
+  - nyiso_realtime_lbmp_zonal
+  - nyiso_fuel_mix_5min
+  - nyiso_interface_flows
+  - nyc_traffic_link_speeds
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -62,6 +87,13 @@ schedules:
   - datalakes_eawag_lake_obs
   - coinbase_spot_15m
   - elexon_gb_system_frequency
+  - energy_charts_de_day_ahead_price
+  - energy_charts_fr_public_power
+  - elering_estonia_system_balance
+  - pse_poland_system_demand
+  - hydro_quebec_demand
+  - energy_charts_de_cross_border_flows
+  - elering_nordpool_estonia_price
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -79,6 +111,11 @@ schedules:
   - ndbc_latest_obs_all_stations
   - tfl_crowding_live
   - github_actions_workflow_runs_k8s
+  - aemo_nem_price_demand_nsw
+  - aemo_nem_price_demand_sa
+  - uk_carbon_intensity_national
+  - aemo_nem_price_demand_qld
+  - aemo_nem_price_demand_tas
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -105,6 +142,11 @@ schedules:
   - digitalocean_status_incidents
   - atlassian_status_incidents
   - urlscan_public_scans
+  - wikimedia_pageviews_en_hourly
+  - stackoverflow_question_arrival_hourly
+  - nyiso_zonal_load_forecast
+  - energy_charts_ch_public_power
+  - seattle_fremont_bridge_bike_counts
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -123,6 +165,27 @@ schedules:
   - nasa_eonet_events [defillama_chain_tvl_daily]
   - cdc_nssp_ed_respiratory_daily
   - peeringdb_network_registrations
+  - cdc_provisional_mortality_weekly
+  - cdc_vsrr_drug_overdose_monthly
+  - openfda_drug_adverse_events_daily
+  - openfda_animal_vet_events_daily
+  - openfda_tobacco_problem_reports_daily
+  - phac_canada_respiratory_detections
+  - healthdata_hospital_capacity_weekly
+  - npm_downloads_react_daily
+  - pypistats_requests_daily
+  - crates_io_serde_version_downloads
+  - wikimedia_unique_devices_en_daily
+  - ooni_measurement_volume_daily
+  - ecb_eur_usd_reference_rate
+  - treasury_operating_cash_balance_daily
+  - treasury_avg_interest_rates_monthly
+  - riksbank_policy_rate_daily
+  - norges_bank_usd_nok_daily
+  - blockchain_btc_transactions_daily
+  - statcan_retail_trade_monthly
+  - nrc_reactor_power_status_daily
+  - energy_charts_de_installed_power_monthly
   cron: 10 1 * * *
 - every: P1D
   sources:
