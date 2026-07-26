@@ -471,17 +471,46 @@ def _walk(obj: Any, path: str) -> Any:
     return _apply(obj, _tokenize(path))
 
 
+# A number is only treated as an epoch inside these ranges. This keeps *date
+# labels* — a bare year (2003), YYYYMM (202606), YYYYMMDD (20260501) or
+# YYYYMMDDHH (2026050100 ≈ 2.03e9) — from being silently converted into
+# 1970-era timestamps, which is what used to happen to WHO GHO year values.
+_EPOCH_S_RANGE = (10**8, 2 * 10**9)          # 1973-2033 in seconds
+_EPOCH_MS_RANGE = (10**12, 2 * 10**12)       # 2001-2033 in milliseconds
+
+
+def _looks_like_epoch(n: float) -> bool:
+    return (_EPOCH_S_RANGE[0] <= n < _EPOCH_S_RANGE[1]
+            or _EPOCH_MS_RANGE[0] <= n < _EPOCH_MS_RANGE[1])
+
+
 def _epoch_to_iso(v: Any) -> Optional[str]:
-    """Heuristically convert a number-or-string ts into an ISO UTC string."""
+    """Convert a number-or-string timestamp into an ISO UTC string.
+
+    Numeric-looking values are only reinterpreted as epochs when they fall in a
+    plausible epoch range (see _looks_like_epoch); otherwise they are date
+    labels and pass through untouched. Without that guard, quoted epochs from
+    OKX/KuCoin/Bitstamp/CityBikes stayed raw in the same column as ISO stamps
+    (unparseable downstream), while integer years from WHO GHO were converted
+    into 1970 timestamps.
+    """
     if v is None:
         return None
     if isinstance(v, str):
-        # Already a parseable string — best-effort, return as-is
-        return v
+        s = v.strip()
+        if s.isdigit():
+            n = int(s)
+            return _epoch_to_iso(n) if _looks_like_epoch(n) else s
+        # Some feeds emit a trailing 'Z' *and* an explicit offset ("...+00:00Z").
+        if s.endswith("Z") and ("+" in s[10:] or "-" in s[10:]):
+            return s[:-1]
+        return s
     if isinstance(v, (int, float)):
         n = float(v)
-        # epoch ms vs s: anything > 1e12 is ms
-        if n > 1e12:
+        if not _looks_like_epoch(n):
+            # A date label that arrived as a number — keep it verbatim.
+            return str(int(n)) if float(n).is_integer() else str(n)
+        if n >= _EPOCH_MS_RANGE[0]:
             n /= 1000.0
         try:
             return dt.datetime.fromtimestamp(n, UTC).isoformat()
@@ -803,8 +832,20 @@ def write_records(sid: str, records: list[dict], dry_run: bool = False) -> int:
         return t.cast(pa.schema([(f.name, pa.string()) for f in t.schema]))
 
     new_table = _all_string(new_table)
+    existing = None
     if out_path.exists():
-        existing = _all_string(pq.read_table(out_path))
+        try:
+            existing = _all_string(pq.read_table(out_path))
+        except Exception as e:                              # noqa: BLE001
+            # A truncated parquet (process killed mid-write before the atomic
+            # write below existed) would otherwise wedge this source forever,
+            # since every run re-reads today's file. Quarantine and start clean
+            # rather than lose all subsequent observations too.
+            corrupt = out_path.with_suffix(".parquet.corrupt")
+            log.error("%s: unreadable parquet %s (%s) — quarantining to %s",
+                      sid, out_path.name, e, corrupt.name)
+            os.replace(out_path, corrupt)
+    if existing is not None:
         try:
             combined = pa.concat_tables(
                 [existing, new_table], promote_options="default"
@@ -823,7 +864,17 @@ def write_records(sid: str, records: list[dict], dry_run: bool = False) -> int:
     if dry_run:
         log.info("[dry-run] %s: would write %d unique rows to %s", sid, n_written, out_path)
         return n_written
-    pq.write_table(pa.Table.from_pandas(df, preserve_index=False), out_path)
+    # Write to a sibling temp file then rename. os.replace is atomic within a
+    # filesystem, so a kill mid-write (OOM, cron timeout) leaves the previous
+    # good file intact instead of a truncated one. 14 day-files were lost this
+    # way before this was added.
+    tmp = out_path.with_suffix(f".parquet.tmp{os.getpid()}")
+    try:
+        pq.write_table(pa.Table.from_pandas(df, preserve_index=False), tmp)
+        os.replace(tmp, out_path)
+    finally:
+        if tmp.exists():
+            tmp.unlink(missing_ok=True)
     return n_written
 
 

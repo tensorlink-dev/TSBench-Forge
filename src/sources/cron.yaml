@@ -144,6 +144,20 @@ schedules:
   - energy_charts_fi_day_ahead_price
   - energy_charts_no2_day_ahead_price
   - energy_charts_hu_day_ahead_price
+  - energy_charts_fr_co2_intensity
+  - energy_charts_pl_co2_intensity
+  - energy_charts_es_co2_intensity
+  - energy_charts_it_co2_intensity
+  - energy_charts_nl_co2_intensity
+  - energy_charts_be_co2_intensity
+  - energy_charts_at_co2_intensity
+  - energy_charts_dk_co2_intensity
+  - energy_charts_se_co2_intensity
+  - energy_charts_fi_co2_intensity
+  - energy_charts_gr_co2_intensity
+  - energy_charts_pt_co2_intensity
+  - energy_charts_cz_co2_intensity
+  - energy_charts_hu_co2_intensity
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -338,6 +352,23 @@ schedules:
   - pypistats_transformers_daily
   - zillow_zhvi_bottom_tier_monthly
   - zillow_zhvi_top_tier_monthly
+  - blockchain_btc_market_price
+  - blockchain_btc_n_unique_addresses
+  - blockchain_btc_avg_block_size
+  - blockchain_btc_cost_per_transaction
+  - blockchain_btc_miners_revenue
+  - blockchain_btc_trade_volume
+  - wikimedia_pageviews_nl_daily
+  - wikimedia_pageviews_pl_daily
+  - wikimedia_pageviews_sv_daily
+  - wikimedia_pageviews_tr_daily
+  - wikimedia_pageviews_id_daily
+  - wikimedia_pageviews_ko_daily
+  - wikimedia_pageviews_vi_daily
+  - wikimedia_pageviews_fa_daily
+  - who_gho_under_five_mortality_rate
+  - who_gho_adult_obesity_prevalence
+  - who_gho_estimated_malaria_incidence
   cron: 10 1 * * *
 - every: P1D
   sources:

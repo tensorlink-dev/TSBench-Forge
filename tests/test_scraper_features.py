@@ -326,3 +326,73 @@ def test_is_due_never_scraped_source_runs(monkeypatch):
 def test_is_due_unparseable_frequency_runs(monkeypatch):
     monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 60.0)
     assert scraper.is_due({"id": "x", "frequency": "irregular"}) is True
+
+
+def test_write_records_is_atomic(tmp_path, monkeypatch):
+    """A killed write must not leave a truncated parquet behind."""
+    monkeypatch.setattr(scraper, "DATA_DIR", tmp_path)
+    scraper.write_records("atomic_src", [{"timestamp": "2026-01-01", "value": "1"}])
+    out = tmp_path / "atomic_src"
+    files = list(out.glob("*.parquet"))
+    assert len(files) == 1
+    # no temp files left over
+    assert not list(out.glob("*.tmp*"))
+    import pyarrow.parquet as pq
+    assert pq.read_table(files[0]).num_rows == 1
+
+
+def test_write_records_recovers_from_corrupt_existing_file(tmp_path, monkeypatch):
+    """A truncated day-file is quarantined, not fatal — otherwise the source is
+    wedged forever, because every run re-reads today's file."""
+    monkeypatch.setattr(scraper, "DATA_DIR", tmp_path)
+    scraper.write_records("corrupt_src", [{"timestamp": "2026-01-01", "value": "1"}])
+    out = tmp_path / "corrupt_src"
+    day_file = next(out.glob("*.parquet"))
+    day_file.write_bytes(b"PAR1garbage-not-a-real-footer")   # simulate a killed write
+
+    n = scraper.write_records("corrupt_src", [{"timestamp": "2026-01-02", "value": "2"}])
+
+    assert n == 1                                    # wrote the new observation
+    assert list(out.glob("*.parquet.corrupt"))       # bad file preserved for inspection
+    import pyarrow.parquet as pq
+    assert pq.read_table(day_file).num_rows == 1     # and the live file is readable again
+
+
+def test_epoch_string_timestamps_normalised():
+    """APIs that quote their epochs (OKX, KuCoin, Bitstamp) must not leave raw
+    numeric strings in the same column as ISO stamps."""
+    assert scraper._epoch_to_iso("1784998860").startswith("2026-")      # seconds
+    assert scraper._epoch_to_iso("1785028800000").startswith("2026-")   # millis
+    assert scraper._epoch_to_iso(1784998860).startswith("2026-")        # int form
+
+
+def test_date_labels_not_mistaken_for_epochs():
+    """Guard the range: these are date *labels*, not epochs."""
+    assert scraper._epoch_to_iso("20260501") == "20260501"        # YYYYMMDD (2.0e7)
+    assert scraper._epoch_to_iso("2026050100") == "2026050100"    # YYYYMMDDHH (2.03e9)
+    assert scraper._epoch_to_iso("2003") == "2003"                # a year
+    assert scraper._epoch_to_iso("202606") == "202606"            # YYYYMM
+
+
+def test_double_suffixed_timezone_cleaned():
+    """CityBikes emits '...+00:00Z' — both an offset and a Z."""
+    assert scraper._epoch_to_iso("2026-07-26T04:21:36.968136+00:00Z") == \
+        "2026-07-26T04:21:36.968136+00:00"
+    # a plain Z stamp is left alone
+    assert scraper._epoch_to_iso("2026-07-26T04:21:36Z") == "2026-07-26T04:21:36Z"
+
+
+def test_integer_year_not_converted_to_1970():
+    """WHO GHO ships TimeDim as an integer year — it must stay a year label,
+    not become a 1970 epoch timestamp."""
+    assert scraper._epoch_to_iso(2003) == "2003"
+    assert scraper._epoch_to_iso(2026) == "2026"
+    assert scraper._epoch_to_iso(202606) == "202606"      # YYYYMM as int
+    assert scraper._epoch_to_iso(20260501) == "20260501"  # YYYYMMDD as int
+
+
+def test_real_epochs_still_converted_both_types():
+    for v in (1784998860, "1784998860", 1784998860.0):
+        assert scraper._epoch_to_iso(v).startswith("2026-")
+    for v in (1785028800000, "1785028800000"):
+        assert scraper._epoch_to_iso(v).startswith("2026-")
