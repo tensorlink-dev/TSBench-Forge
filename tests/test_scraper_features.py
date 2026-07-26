@@ -477,3 +477,21 @@ def test_xml_record_path_child_and_panel():
                                             "panel_field": "st/@id"})
     assert recs[0]["timestamp"] == "2026-07-26T00:00:00"
     assert recs[0]["v"] == "5" and recs[0]["_panel_id"] == "a1"
+
+
+def test_compose_ts_year_month_pair():
+    # DWD regional averages: 'Jahr','Monat' columns
+    assert scraper._compose_ts(["2026", "3"]) == "2026-03"
+    assert scraper._compose_ts(["2026", "12"]) == "2026-12"
+    # not a month -> untouched join
+    assert scraper._compose_ts(["2026", "13"]) == "2026 13"
+
+
+def test_decimal_year_to_iso_month():
+    # NOAA GML trends files use (month-0.5)/12 decimal years
+    assert scraper._epoch_to_iso("2026.042") == "2026-01-01"
+    assert scraper._epoch_to_iso("2026.125") == "2026-02-01"
+    assert scraper._epoch_to_iso("2025.958") == "2025-12-01"
+    # epochs with fractions are NOT decimal years (10 digits before the dot);
+    # they pass through unchanged, as before
+    assert scraper._epoch_to_iso("1784998860.5") == "1784998860.5"

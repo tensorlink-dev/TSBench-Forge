@@ -96,6 +96,19 @@ def _scraper():
     return scraper
 
 
+def _url_key(entry: dict) -> str:
+    """Duplicate-detection key for an endpoint. POST APIs (GraphQL, StatCan
+    WDS, PxWeb) multiplex many series over ONE url — the body is part of the
+    identity, else the second source on a host's POST endpoint is falsely
+    deduped."""
+    ep = entry.get("endpoint") or {}
+    url = ep.get("url", "")
+    body = ep.get("body") or ep.get("body_form") or ep.get("query")
+    if body is not None:
+        url += "#" + json.dumps(body, sort_keys=True, default=str)
+    return url
+
+
 def _is_num(v: Any) -> bool:
     try:
         float(v)
@@ -164,7 +177,9 @@ def verify_entry(entry: dict, scraper_mod=None) -> VerifyResult:
         else:
             import datetime as dt  # noqa: PLC0415
             age = dt.datetime.now(dt.timezone.utc) - newest
-            limit = audit.staleness_threshold(entry.get("frequency", ""))
+            slack = entry.get("audit_slack_days")  # declared publication lag
+            limit = (dt.timedelta(days=float(slack)) if slack
+                     else audit.staleness_threshold(entry.get("frequency", "")))
             if age > limit:
                 ok = False
                 err = (f"stale at wire time: newest observation {newest.isoformat()} "
@@ -251,7 +266,7 @@ def wire_batch(candidates_file: str | Path, catalog_path: str | Path,
 
     sources = yaml.safe_load(catalog_path.read_text())
     existing_ids = {s["id"] for s in sources}
-    existing_urls = {(s.get("endpoint") or {}).get("url", "") for s in sources}
+    existing_urls = {_url_key(s) for s in sources}
 
     items = json.loads(Path(candidates_file).read_text())
     to_wire: list[tuple[str, dict, Optional[str]]] = []
@@ -277,7 +292,7 @@ def wire_batch(candidates_file: str | Path, catalog_path: str | Path,
                            "reason": reason[:160]})
             continue
         sid = entry.get("id")
-        url = (entry.get("endpoint") or {}).get("url", "")
+        url = _url_key(entry)
         if sid in existing_ids or (url and url in existing_urls):
             wired_names.add(name)
             detail.append({"name": name, "id": sid, "verdict": "duplicate"})

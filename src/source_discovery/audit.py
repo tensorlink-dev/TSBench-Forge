@@ -116,9 +116,12 @@ def _period_seconds(freq: str) -> Optional[int]:
     return scraper._period_seconds(freq)
 
 
+_FREQ_ALIASES = {"P1Q": "P3M"}  # ISO-ish quarter shorthand the scraper can't parse
+
+
 def staleness_threshold(freq: str) -> dt.timedelta:
     """How old the newest observation may be before the source counts stale."""
-    period = _period_seconds(freq or "")
+    period = _period_seconds(_FREQ_ALIASES.get(freq, freq or ""))
     if period is None:                      # irregular / unparsable cadence
         return dt.timedelta(days=45)
     if period >= 7_000_000:                 # quarterly / yearly

@@ -2232,6 +2232,8 @@
     sample_freshness_hours: 4.5
   notes: Tab-separated, ~14 header lines before data. Latest line = most recent 5-min interval.
 - id: neso_stor_notifications
+  disabled: true
+  disabled_reason: '2026-07-26: freshness audit — STOR notification CSV frozen since 2025-10 (service superseded in the reserve-market reform); resource also 403s HEAD. Re-enable against a successor dataset if one appears.'
   name: UK NESO STOR (Short-Term Operating Reserve) notification log
   domain: energy
   dgp_class: grid_demand
@@ -3144,6 +3146,8 @@
   notes: Free token from banxico.org.mx/SieAPIRest/. Date format DD/MM/YYYY in 'fecha' — parser must handle.
     Series catalog at the Banxico SIE web UI.
 - id: cdc_nwss_wastewater
+  disabled: true
+  disabled_reason: '2026-07-26: freshness audit — same dead NWSS dataset 2ew6-ywp6 as cdc_wastewater_sarscov2_panel — stopped updating 2025-09.'
   name: CDC NWSS — public SARS-CoV-2 wastewater surveillance (US, wwtp × jurisdiction panel)
   domain: healthcare
   dgp_class: environmental_biosurveillance
@@ -7094,6 +7098,7 @@
     hourly polling with row-dedup captures the full series. The unscoped all-stations query returns only
     the single latest timestamp across stations — must scope by code_entite + grandeur_hydro.
 - id: rubygems_rails_version_downloads
+  audit_slack_days: 200  # Rails releases are sporadic (event series)
   name: RubyGems rails — per-version download counts
   domain: sales
   dgp_class: release_downloads
@@ -7201,6 +7206,7 @@
     comma CSV (TIME_PERIOD, OBS_VALUE). Verified: 348 monthly rows, 348 distinct timestamps, numeric.
     Swap dataset code / series key for other indicators.'
 - id: wqp_delaware_water_temperature
+  audit_slack_days: 400  # WQX state submissions lag months
   name: Water Quality Portal — Delaware water temperature measurements
   domain: nature
   dgp_class: environmental_measurement
@@ -7522,6 +7528,8 @@
     sample_rows: null
     sample_freshness_hours: null
 - id: cdc_nssp_ed_visits_state_regions
+  disabled: true
+  disabled_reason: '2026-07-26: freshness audit — dataset 7mra-9cq9 stopped at week ending 2024-10-12 (verified with $order DESC); NSSP moved to successor datasets. cdc_nssp_ed_respiratory_daily covers the niche.'
   name: CDC NSSP — ED visit % by state & HHS sub-state region (pathogen panel)
   domain: healthcare
   dgp_class: syndromic_surveillance
@@ -7532,7 +7540,7 @@
   frequency: P1W
   endpoint:
     type: rest_json
-    url: https://data.cdc.gov/resource/7mra-9cq9.json?$order=week_end&$limit=50000
+    url: https://data.cdc.gov/resource/7mra-9cq9.json?$order=week_end%20DESC&$limit=50000
     auth: none
     rate_limit: 1000 req/h anonymous; higher with app token
   schema:
@@ -8157,7 +8165,7 @@
   frequency: P1M
   endpoint:
     type: rest_json
-    url: https://data.api.abs.gov.au/rest/data/CPI_M/1.20004.10.50.M?startPeriod=2018&format=jsondata
+    url: https://data.api.abs.gov.au/rest/data/CPI/1.20004.10.50.M?startPeriod=2018&format=jsondata
     auth: none
     rate_limit: null
   schema:
@@ -8596,6 +8604,8 @@
     poll is one timestamp across 84 ports (42 with numeric passenger delay); half-hourly polling builds
     the per-port time series.
 - id: fdroid_app_update_events
+  disabled: true
+  disabled_reason: '2026-07-26: freshness audit — index-v1.json regenerates but its apps[].lastUpdated content froze 2026-03 (F-Droid moved to index-v2, which exceeds the 48MB cap). No small keyless update feed found.'
   name: F-Droid — app update/release events (daily update count)
   domain: sales
   dgp_class: count_process
@@ -15562,3 +15572,398 @@
   schema:
     timestamp_field: payload.listening_activity[].from_ts
     value_field: payload.listening_activity[].listen_count
+
+# -- wired batch: nature-slow-w1 --
+- id: swpc_solar_cycle_sunspot_monthly
+  name: NOAA SWPC observed monthly sunspot number (solar cycle indices)
+  domain: nature
+  frequency: P1M
+  license: US Government public domain (NOAA SWPC)
+  notes: Monthly mean international sunspot number (SILSO-derived) plus SWPC observed SSN, 1749-present;
+    -1.0 is a missing-value sentinel in smoothed/early fields. Clearly distinct from wired SWPC series (planetary
+    K, solar wind, X-ray flux, flare events).
+  endpoint:
+    url: https://services.swpc.noaa.gov/json/solar-cycle/observed-solar-cycle-indices.json
+    type: rest_json
+  schema:
+    timestamp_field: '[].time-tag'
+    value_field:
+    - '[].ssn'
+    - '[].observed_swpc_ssn'
+- id: noaa_gml_co2_weekly_mauna_loa
+  name: NOAA GML Mauna Loa weekly mean CO2 (Keeling curve)
+  domain: nature
+  frequency: P1W
+  license: US Government public domain (NOAA GML, citation requested)
+  notes: In-situ weekly mean CO2 mole fraction (ppm) at Mauna Loa Observatory since May 1974, plus increase
+    since 1800. Station-level measured series, distinct from wired co2_trend_gl (modeled daily GLOBAL trend)
+    - different site and measurement. -999.99 sentinel marks gap weeks (e.g. 2022-2023 eruption outage;
+    Dec 2022-Jul 2023 measured from Maunakea). Timestamp composed from year/month/day columns to YYYY-MM-DD.
+  endpoint:
+    url: https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_weekly_mlo.csv
+    type: rest_csv
+  schema:
+    timestamp_field: year month day
+    value_field:
+    - average
+    - increase since 1800
+- id: ncei_global_temp_anomaly_monthly
+  name: NOAA NCEI global land+ocean monthly temperature anomaly (Climate at a Glance)
+  domain: nature
+  frequency: P1M
+  license: US Government public domain (NOAA NCEI)
+  notes: NOAAGlobalTemp monthly global land+ocean surface temperature departure from the 1901-2000 mean
+    (deg C), 1850-present. Timestamp is a YYYYMM label (kept as label, not epoch). End-year in URL auto-advances
+    via {YYYY} token. Distinct from wired ncei_storm_events.
+  endpoint:
+    url: https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/globe/land_ocean/1/0/1850-{YYYY}/data.csv
+    type: rest_csv
+  schema:
+    timestamp_field: Date
+    value_field:
+    - Departure from Average
+- id: hadcrut5_global_temp_anomaly_monthly
+  name: Met Office HadCRUT5 global monthly temperature anomaly
+  domain: nature
+  frequency: P1M
+  license: Open Government Licence v3 / CC-BY 4.0 (Met Office Hadley Centre)
+  notes: 'HadCRUT 5.1.0.0 analysis global mean monthly near-surface temperature anomaly vs 1961-1990 (deg
+    C) with 2.5%/97.5% confidence limits, 1850-present, ISO YYYY-MM timestamps. GOTCHA: URL pins dataset
+    version 5.1.0.0; on a version bump (roughly annual) the path must be updated. Independent dataset from
+    NOAAGlobalTemp/GISTEMP.'
+  endpoint:
+    url: https://www.metoffice.gov.uk/hadobs/hadcrut5/data/HadCRUT.5.1.0.0/analysis/diagnostics/HadCRUT.5.1.0.0.analysis.summary_series.global.monthly.csv
+    type: rest_csv
+  schema:
+    timestamp_field: Time
+    value_field:
+    - Anomaly (deg C)
+    - Lower confidence limit (2.5%)
+    - Upper confidence limit (97.5%)
+- id: nasa_gistemp_global_annual_anomaly
+  name: NASA GISS GISTEMP v4 global annual temperature anomaly
+  domain: nature
+  frequency: P1Y
+  license: US Government public domain (NASA GISS)
+  notes: Global land-ocean annual mean (J-D column) temperature anomaly vs 1951-1980 (deg C), 1880-present;
+    updated monthly around mid-month. Current-year row carries "***" until the year completes (non-numeric,
+    dropped downstream). Timestamp is the bare year label.
+  endpoint:
+    url: https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv
+    type: rest_csv
+  schema:
+    timestamp_field: Year
+    value_field:
+    - J-D
+- id: usdm_conus_drought_severity_weekly
+  name: US Drought Monitor weekly CONUS drought severity area percentages
+  domain: nature
+  frequency: P1W
+  license: Public (NDMC/USDA/NOAA, citation requested)
+  notes: Weekly percent of CONUS area in drought categories D0-D4 (cumulative percentiles) from the US Drought
+    Monitor data services API, released every Thursday for the Tuesday map date. Rolling 2-year window via
+    {YYYY-MM-DD-730d} start token. aoi=us returns TWO entities per week (CONUS and Total incl AK/HI/PR)
+    - split via panel_field AreaOfInterest. Column "None" (area not in drought) exists but is not pulled
+    to avoid YAML None pitfalls.
+  endpoint:
+    url: https://usdmdataservices.unl.edu/api/USStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=us&startdate={YYYY-MM-DD-730d}&enddate={YYYY-MM-DD}&statisticsType=1
+    type: rest_csv
+  schema:
+    timestamp_field: ValidStart
+    value_field:
+    - D0
+    - D1
+    - D2
+    - D3
+    - D4
+    panel_field: AreaOfInterest
+
+# -- wired batch: nature-slow-w1b --
+- id: dwd_germany_monthly_mean_temperature
+  name: DWD Germany monthly area-mean air temperature (regional averages)
+  domain: nature
+  frequency: P1M
+  license: GeoNutzV / DL-DE-BY-2.0 (DWD open data, attribution)
+  notes: Monthly Germany-wide area-mean 2m air temperature (deg C) 1881-present from DWD CDC regional averages.
+    One file per calendar month, iterated via 12-row panel {MON}=01..12; each fetch returns the full year-history
+    for that month. Timestamp is composed "YYYY MM" (month zero-padded, lexically sortable). Semicolon-delimited
+    with one preamble line.
+  endpoint:
+    url: https://opendata.dwd.de/climate_environment/CDC/regional_averages_DE/monthly/air_temperature_mean/regional_averages_tm_{MON}.txt
+    type: rest_csv
+  panel:
+  - MON: '01'
+  - MON: '02'
+  - MON: '03'
+  - MON: '04'
+  - MON: '05'
+  - MON: '06'
+  - MON: '07'
+  - MON: 08
+  - MON: 09
+  - MON: '10'
+  - MON: '11'
+  - MON: '12'
+  schema:
+    timestamp_field: Jahr Monat
+    value_field:
+    - Deutschland
+    csv_delimiter: ;
+- id: dwd_germany_monthly_precipitation
+  name: DWD Germany monthly area-mean precipitation (regional averages)
+  domain: nature
+  frequency: P1M
+  license: GeoNutzV / DL-DE-BY-2.0 (DWD open data, attribution)
+  notes: Monthly Germany-wide area-mean precipitation total (mm) 1881-present from DWD CDC regional averages.
+    Different physical quantity than the temperature series on this host. One file per calendar month via
+    12-row panel {MON}; timestamp composed "YYYY MM" (zero-padded). Semicolon-delimited with one preamble
+    line.
+  endpoint:
+    url: https://opendata.dwd.de/climate_environment/CDC/regional_averages_DE/monthly/precipitation/regional_averages_rr_{MON}.txt
+    type: rest_csv
+  panel:
+  - MON: '01'
+  - MON: '02'
+  - MON: '03'
+  - MON: '04'
+  - MON: '05'
+  - MON: '06'
+  - MON: '07'
+  - MON: 08
+  - MON: 09
+  - MON: '10'
+  - MON: '11'
+  - MON: '12'
+  schema:
+    timestamp_field: Jahr Monat
+    value_field:
+    - Deutschland
+    csv_delimiter: ;
+
+# -- wired batch: nature-slow-w1c --
+- id: noaa_gml_ch4_monthly_global
+  name: NOAA GML global monthly mean atmospheric methane (CH4)
+  domain: nature
+  frequency: P1M
+  license: US Government public domain (NOAA GML, citation requested)
+  notes: Globally averaged marine surface monthly mean CH4 (ppb) from the GML flask network, 1983-present,
+    plus long-term trend value. Different gas from the wired CO2 series on this host. Timestamp is decimal-year
+    column. Publication lag is ~3-4 months (global means need worldwide flask processing); series is live.
+    -9.99 sentinel in uncertainty columns. GML global means consolidate with ~4-month lag (audit_slack_days
+    200).
+  endpoint:
+    url: https://gml.noaa.gov/webdata/ccgg/trends/ch4/ch4_mm_gl.csv
+    type: rest_csv
+  schema:
+    timestamp_field: decimal
+    value_field:
+    - average
+    - trend
+  audit_slack_days: 200
+
+# -- wired batch: transport-slow-w1 --
+- id: eurostat_air_passengers_monthly
+  name: Eurostat — air passengers carried, monthly by country (avia_paoc)
+  domain: transport
+  frequency: P1M
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: Monthly air passengers carried (departures+arrivals, scheduled traffic), 10-country EU panel from
+    avia_paoc. ~1-2 month publication lag; some countries lag more (parser drops nulls).
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/avia_paoc?format=JSON&freq=M&unit=PAS&tra_meas=PAS_CRD&tra_cov=TOTAL&schedule=SCHED&sinceTimePeriod=2015&geo=DE&geo=FR&geo=ES&geo=IT&geo=NL&geo=PL&geo=SE&geo=AT&geo=BE&geo=DK
+    type: rest_json
+  schema:
+    timestamp_field: ''
+    value_field: ''
+- id: eurostat_air_freight_monthly
+  name: Eurostat — air freight and mail loaded/unloaded, monthly by country (avia_gooc)
+  domain: transport
+  frequency: P1M
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: Monthly tonnes of air freight+mail loaded and unloaded (scheduled traffic), 10-country EU panel
+    from avia_gooc. Distinct metric (cargo tonnes) vs avia_paoc passengers. ~1-2 month lag.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/avia_gooc?format=JSON&freq=M&unit=T&tra_meas=FRM_LD_NLD&tra_cov=TOTAL&schedule=SCHED&sinceTimePeriod=2015&geo=DE&geo=FR&geo=NL&geo=BE&geo=LU&geo=ES&geo=IT&geo=AT&geo=PL&geo=DK
+    type: rest_json
+  schema:
+    timestamp_field: ''
+    value_field: ''
+- id: bts_border_crossings_monthly
+  name: US BTS — border crossing entries by measure, monthly (US-Canada + US-Mexico)
+  domain: transport
+  frequency: P1M
+  license: Public domain (US DOT open data)
+  notes: Monthly inbound border-crossing counts aggregated nationally per measure (trucks, personal vehicles,
+    pedestrians, buses, containers...) via SoQL group-by on Socrata keg4-3bc2. ~1 month lag.
+  endpoint:
+    url: https://data.bts.gov/resource/keg4-3bc2.json?$select=date,measure,sum(value)&$group=date,measure&$order=date%20DESC&$limit=5000
+    type: rest_json
+  schema:
+    timestamp_field: '[].date'
+    value_field:
+    - '[].sum_value'
+    panel_field: '[].measure'
+- id: bts_monthly_transportation_statistics
+  name: US BTS — Monthly Transportation Statistics (TSI, airline traffic, transit, transborder freight)
+  domain: transport
+  frequency: P1M
+  license: Public domain (US DOT open data)
+  notes: BTS Monthly Transportation Statistics (Socrata crem-w557), multivariate US transport indicators
+    - freight/passenger Transportation Services Index, total airline passengers, transit ridership, North
+    American transborder freight value. Fields have differing lags; parser drops nulls.
+  endpoint:
+    url: https://data.bts.gov/resource/crem-w557.json?$select=date,transportation_services_index_freight,transportation_services_index_passenger,u_s_airline_traffic_total_non_seasonally_adjusted,system_use_transit_ridership,transborder_total_north_american_freight&$where=date>='2000-01-01T00:00:00.000'&$order=date%20DESC&$limit=400
+    type: rest_json
+  schema:
+    timestamp_field: '[].date'
+    value_field:
+    - '[].transportation_services_index_freight'
+    - '[].transportation_services_index_passenger'
+    - '[].u_s_airline_traffic_total_non_seasonally_adjusted'
+    - '[].system_use_transit_ridership'
+    - '[].transborder_total_north_american_freight'
+- id: mta_monthly_ridership_by_agency
+  name: NY MTA — monthly ridership / traffic by agency (subway, bus, LIRR, MNR, B&T)
+  domain: transport
+  frequency: P1M
+  license: NY Open Data (public)
+  notes: MTA monthly ridership/traffic since 2008 by agency (data.ny.gov xfre-bxip). Distinct series from
+    the hourly subway turnstile feed (5wq4-mkjj) already in catalog - different granularity, agencies incl.
+    LIRR/Metro-North/Bridges&Tunnels. ~1-2 month lag.
+  endpoint:
+    url: https://data.ny.gov/resource/xfre-bxip.json?$order=month%20DESC&$limit=5000
+    type: rest_json
+  schema:
+    timestamp_field: '[].month'
+    value_field:
+    - '[].ridership'
+    panel_field: '[].agency'
+- id: ssb_norway_airport_passengers_monthly
+  name: SSB Norway — air passengers by airport, monthly (table 08507)
+  domain: transport
+  frequency: P1M
+  license: NLOD / CC-BY 4.0 (SSB open data)
+  notes: Monthly passengers at 6 largest Norwegian airports (Oslo ENGM, Stavanger ENZV, Bergen ENBR, Trondheim
+    ENVA, Bodo ENBO, Tromso ENTC), all traffic types, domestic+international, json-stat2 POST. Distinct
+    metric vs existing SSB CPI entry. ~2 month lag.
+  endpoint:
+    url: https://data.ssb.no/api/v0/en/table/08507
+    type: rest_json
+    method: POST
+    body:
+      query:
+      - code: Lufthavn
+        selection:
+          filter: item
+          values:
+          - ENGM
+          - ENZV
+          - ENBR
+          - ENVA
+          - ENBO
+          - ENTC
+      - code: TrafikkType
+        selection:
+          filter: item
+          values:
+          - '000'
+      - code: TrafikkFly
+        selection:
+          filter: item
+          values:
+          - IU
+      - code: PassasjerType
+        selection:
+          filter: item
+          values:
+          - AAT
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: ''
+    value_field: ''
+
+# -- wired batch: transport-slow-w1b --
+- id: eurostat_rail_passengers_quarterly
+  name: Eurostat — rail passengers transported, quarterly by country (rail_pa_quartal)
+  domain: transport
+  frequency: P1Q
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: Quarterly rail passengers (thousands), EU country panel from rail_pa_quartal (detailed-reporting
+    countries). ~1 quarter lag.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/rail_pa_quartal?format=JSON&freq=Q&unit=THS_PAS&sinceTimePeriod=2010&geo=DE&geo=FR&geo=ES&geo=IT&geo=PL&geo=NL&geo=AT&geo=SE&geo=DK&geo=PT
+    type: rest_json
+  schema:
+    timestamp_field: ''
+    value_field: ''
+- id: eurostat_port_goods_quarterly
+  name: Eurostat — gross weight of goods handled in main ports, quarterly (mar_go_qm)
+  domain: transport
+  frequency: P1Q
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: Quarterly seaborne goods handled in main ports (thousand tonnes, all directions), maritime-country
+    panel from mar_go_qm. ~1-2 quarter lag.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/mar_go_qm?format=JSON&freq=Q&direct=TOTAL&tra_cov=TOTAL&unit=THS_T&sinceTimePeriod=2010&rep_mar=DE&rep_mar=NL&rep_mar=ES&rep_mar=IT&rep_mar=FR&rep_mar=BE&rep_mar=PL&rep_mar=SE&rep_mar=EL&rep_mar=PT
+    type: rest_json
+  schema:
+    timestamp_field: ''
+    value_field: ''
+- id: statcan_rail_carloadings_monthly
+  name: StatCan — railway carloadings, total tonnes transported, Canada monthly
+  domain: transport
+  frequency: P1M
+  license: Statistics Canada Open Licence
+  notes: Monthly total railway freight tonnage carried in Canada (table 23-10-0216, coordinate Canada/total
+    traffic/tonnes) via keyless WDS REST POST. ~2-3 month lag.
+  endpoint:
+    url: https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods
+    type: rest_json
+    method: POST
+    body:
+    - productId: 23100216
+      coordinate: 1.1.2.0.0.0.0.0.0.0
+      latestN: 120
+  schema:
+    timestamp_field: '[].object.vectorDataPoint[].refPer'
+    value_field:
+    - '[].object.vectorDataPoint[].value'
+  audit_slack_days: 160
+- id: eurostat_road_traffic_vkm_annual
+  name: Eurostat — road motor vehicle traffic performance (million vehicle-km), annual by country
+  domain: transport
+  frequency: P1Y
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: Annual road traffic performance (million vehicle-km, by vehicle type, traffic on national territory)
+    country x vehicle-type panel from road_tf_vehmov. Published with ~1-2 year lag typical of annual road
+    stats.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/road_tf_vehmov?format=JSON&freq=A&regisveh=TERNAT_REG&unit=MIO_VKM&sinceTimePeriod=1995&geo=DE&geo=FR&geo=ES&geo=IT&geo=PL&geo=NL&geo=AT&geo=SE&geo=DK&geo=FI&geo=BE&geo=CZ&geo=PT&geo=EL&geo=HU&geo=RO&geo=IE&geo=SK&geo=SI&geo=HR&geo=LT&geo=LV&geo=EE&geo=BG&geo=LU&geo=NO&geo=CH
+    type: rest_json
+  schema:
+    timestamp_field: ''
+    value_field: ''
+  audit_slack_days: 1100
+
+# -- wired batch: transport-slow-w1c --
+- id: statcan_airline_passengers_monthly
+  name: StatCan — major Canadian airlines, passengers carried monthly
+  domain: transport
+  frequency: P1M
+  license: Statistics Canada Open Licence
+  notes: Monthly passengers carried by major Canadian airlines (table 23-10-0079, coordinate Canada/Passengers)
+    via keyless WDS REST POST. Distinct metric/mode from rail carloadings cube. ~2-3 month lag.
+  endpoint:
+    url: https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods
+    type: rest_json
+    method: POST
+    body:
+    - productId: 23100079
+      coordinate: 1.1.0.0.0.0.0.0.0.0
+      latestN: 120
+  schema:
+    timestamp_field: '[].object.vectorDataPoint[].refPer'
+    value_field:
+    - '[].object.vectorDataPoint[].value'
+  audit_slack_days: 160

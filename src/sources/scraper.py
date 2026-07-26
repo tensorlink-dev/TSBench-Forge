@@ -504,6 +504,7 @@ def _walk(obj: Any, path: str) -> Any:
 # 1970-era timestamps, which is what used to happen to WHO GHO year values.
 _EPOCH_S_RANGE = (10**8, 2 * 10**9)          # 1973-2033 in seconds
 _EPOCH_MS_RANGE = (10**12, 2 * 10**12)       # 2001-2033 in milliseconds
+_DECIMAL_YEAR_RE = re.compile(r"^(\d{4})\.(\d{1,6})$")
 
 
 def _looks_like_epoch(n: float) -> bool:
@@ -528,6 +529,11 @@ def _epoch_to_iso(v: Any) -> Optional[str]:
         if s.isdigit():
             n = int(s)
             return _epoch_to_iso(n) if _looks_like_epoch(n) else s
+        # Decimal years ("2026.042" — NOAA GML trends files) → ISO month start.
+        m = _DECIMAL_YEAR_RE.match(s)
+        if m and 1900 <= int(m.group(1)) < 2100:
+            year, frac = int(m.group(1)), float("0." + m.group(2))
+            return f"{year}-{min(int(frac * 12) + 1, 12):02d}-01"
         # Some feeds emit a trailing 'Z' *and* an explicit offset ("...+00:00Z").
         if s.endswith("Z") and ("+" in s[10:] or "-" in s[10:]):
             return s[:-1]
@@ -669,6 +675,10 @@ def _compose_ts(parts: list[str]) -> str:
         if len(parts) >= 5 and parts[3].isdigit() and parts[4].isdigit():
             ts += f"T{parts[3]:0>2}:{parts[4]:0>2}:00"
         return ts
+    # year + month ('Jahr','Monat' in DWD regional averages): '2026' + '3'
+    if (len(parts) == 2 and parts[0].isdigit() and len(parts[0]) == 4
+            and parts[1].isdigit() and 1 <= int(parts[1]) <= 12):
+        return f"{parts[0]}-{int(parts[1]):02d}"
     return " ".join(parts)
 
 
