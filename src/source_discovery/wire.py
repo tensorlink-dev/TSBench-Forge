@@ -111,6 +111,7 @@ class VerifyResult:
     distinct_ts: int = 0
     numeric_rows: int = 0
     panel_entities: int = 0
+    newest: Optional[str] = None
     error: Optional[str] = None
 
     def as_dict(self) -> dict:
@@ -118,7 +119,13 @@ class VerifyResult:
 
 
 def verify_entry(entry: dict, scraper_mod=None) -> VerifyResult:
-    """Replay one catalog entry through the real scraper and apply the gate."""
+    """Replay one catalog entry through the real scraper and apply the gate.
+
+    The gate checks volume (rows / distinct timestamps / numeric) AND
+    freshness: the newest parsed observation must be inside the audit's
+    cadence-scaled staleness limit. Without the freshness leg, sources that
+    page oldest-first pass verification while fetching a frozen historical
+    window — six such landed in the catalog before this check existed."""
     sc = scraper_mod or _scraper()
     try:
         panel = entry.get("panel")
@@ -143,8 +150,33 @@ def verify_entry(entry: dict, scraper_mod=None) -> VerifyResult:
     nn = sum(1 for r in recs if _row_numeric(r))
     ok = ((len(recs) >= 20 and len(ts) >= 20 and nn >= 0.5 * len(recs))
           or (len(ents) >= 20 and nn >= 20))
+
+    from . import audit  # noqa: PLC0415 — avoid import cycle at module load
+    newest = None
+    for t in ts:
+        got = audit.parse_ts(t)
+        if got and (newest is None or got > newest):
+            newest = got
+    if ok:
+        if newest is None:
+            ok = False
+            err = "no parsable timestamps — cannot confirm freshness"
+        else:
+            import datetime as dt  # noqa: PLC0415
+            age = dt.datetime.now(dt.timezone.utc) - newest
+            limit = audit.staleness_threshold(entry.get("frequency", ""))
+            if age > limit:
+                ok = False
+                err = (f"stale at wire time: newest observation {newest.isoformat()} "
+                       f"is {age.days}d old vs {limit.days}d limit — likely an "
+                       f"oldest-first page or a fixed historical window")
+            else:
+                err = None
+    else:
+        err = None
     return VerifyResult(ok=ok, rows=len(recs), distinct_ts=len(ts),
-                        numeric_rows=nn, panel_entities=len(ents))
+                        numeric_rows=nn, panel_entities=len(ents),
+                        newest=newest.isoformat() if newest else None, error=err)
 
 
 def _parse_candidate(item: dict) -> tuple[str, Optional[dict], str, Optional[str]]:

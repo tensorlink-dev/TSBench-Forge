@@ -158,6 +158,7 @@ schedules:
   - energy_charts_pt_co2_intensity
   - energy_charts_cz_co2_intensity
   - energy_charts_hu_co2_intensity
+  - energinet_dk_elspot_hourly
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -205,7 +206,6 @@ schedules:
   - speedrun_com_run_submissions
   - dc_311_service_requests
   - digitalocean_status_incidents
-  - atlassian_status_incidents
   - urlscan_public_scans
   - wikimedia_pageviews_en_hourly
   - stackoverflow_question_arrival_hourly
@@ -369,6 +369,7 @@ schedules:
   - who_gho_under_five_mortality_rate
   - who_gho_adult_obesity_prevalence
   - who_gho_estimated_malaria_incidence
+  - listenbrainz_sitewide_daily_listens
   cron: 10 1 * * *
 - every: P1D
   sources:
@@ -485,7 +486,6 @@ schedules:
   - hubeau_hydrometry_river_stage
   - malwarebazaar_sample_submissions
   - sffd_dispatch_call_volume
-  - safecast_radiation_measurements
   - arxiv_cslg_submission_rate
   cron: 9 * * * *
 - every: P1D
@@ -506,7 +506,6 @@ schedules:
   cron: '*/15 * * * *'
 - every: PT1H
   sources:
-  - energinet_dk_elspot_hourly
   - londonair_kc1_hourly_pollution
   - swpc_solar_flare_events
   - aviationweather_pirep_flightlevel
@@ -539,7 +538,6 @@ schedules:
   - osm_changeset_stream
   - datalakes_lexplore_skin_temp
   - openfoodfacts_product_additions
-  - listenbrainz_user_listens
 - every: P1D
   sources:
   - who_disease_outbreak_news
@@ -573,7 +571,6 @@ schedules:
   - fra_rail_equipment_accidents
   - faa_service_difficulty_reports
   - ransomware_live_victim_rate
-  - osv_vuln_disclosure_rate
   - exploitdb_publication_stream
   - eurostat_energy_electricity_monthly
   - bis_eer_nominal_broad_panel

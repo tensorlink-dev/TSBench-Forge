@@ -2987,6 +2987,7 @@
 
     '
 - id: bcb_focus_market_expectations
+  audit_slack_days: 20  # business-day publication
   name: Banco Central do Brasil — Focus market expectations survey (daily, multi-indicator)
   domain: econ_fin
   dgp_class: macro_leading_indicator
@@ -3185,6 +3186,7 @@
 
     '
 - id: cdc_nndss_notifiable_weekly
+  audit_slack_days: 300  # NNDSS reporting lag
   name: CDC NNDSS — weekly notifiable diseases by state (US panel)
   domain: healthcare
   dgp_class: disease_case_count
@@ -3226,6 +3228,7 @@
 
     '
 - id: who_gho_life_expectancy_by_country
+  audit_slack_days: 2200  # WHO GHO estimates revise on multi-year cycles
   name: WHO Global Health Observatory — life expectancy at birth by country (annual)
   domain: healthcare
   dgp_class: vital_statistics
@@ -3461,6 +3464,7 @@
     sample_rows: null
     sample_freshness_hours: null
 - id: openfda_food_recalls
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — food recall enforcement reports
   domain: healthcare
   dgp_class: alert_stream
@@ -3847,6 +3851,7 @@
     sample_rows: null
     sample_freshness_hours: null
 - id: fdic_bank_failures
+  audit_slack_days: 400  # event-driven; months without failures are normal
   name: FDIC — US bank failures (deposits at failure)
   domain: econ_fin
   dgp_class: alert_stream
@@ -3990,6 +3995,7 @@
     sample_rows: null
     sample_freshness_hours: null
 - id: worldbank_wdi_annual
+  audit_slack_days: 1200  # World Bank annual indicators lag 1-2 years
   name: World Bank WDI — annual development indicators (US/China panel)
   domain: econ_fin
   dgp_class: macro_economic_indicator
@@ -4343,6 +4349,7 @@
     YYYYMMDD from filename for the timestamp, aggregate to per-hour/day notice counts. No keyless JSON
     market-notice report exists on visualisations.aemo.com.au (only price/summary reports).'
 - id: vaers_vaccine_adverse_events
+  audit_slack_days: 200  # VAERS batch publication lag
   name: openFDA FAERS drug adverse-event reports — daily report counts (VAERS-style surveillance proxy)
   domain: healthcare
   dgp_class: adverse_event_reports
@@ -5507,6 +5514,11 @@
   notes: 'Standard Atlassian Statuspage v2 API. Rank-encode impact (none=0..critical=3) or aggregate incident
     counts per window. Component snapshot alt: /api/v2/components.json; unresolved: /api/v2/incidents/unresolved.json.'
 - id: atlassian_status_incidents
+  disabled: true
+  disabled_reason: '2026-07-26: freshness audit — newest incident on the Statuspage feed is
+    2025-03-04 (509d old); Atlassian has published no incidents there since. Statuspage
+    incident streams are too sparse for a PT1H series. Re-enable only against a provably
+    active incident feed.'
   name: Atlassian Status — incident stream (Statuspage)
   domain: web_cloudops
   dgp_class: service_health
@@ -6580,6 +6592,7 @@
     2131 distinct weekly report dates, c3 (initial claims) numeric with variance, max rptdate 2026-06-27
     (fr'
 - id: fdic_bank_failures_deposits
+  audit_slack_days: 400  # event-driven; months without failures are normal
   name: FDIC Bank Failures
   domain: econ_fin
   dgp_class: bank_failure_event
@@ -6643,6 +6656,7 @@
     all-null (dead sensor); switched to active sensor 400 (Olawa PM10, ug/m3). Scraper extracted 20 distinct
     hourly '
 - id: gvp_holocene_eruptions
+  audit_slack_days: 300  # eruption confirmations lag
   name: Smithsonian Global Volcanism Program — volcanic eruption events
   domain: nature
   dgp_class: event_magnitude
@@ -7263,6 +7277,11 @@
     sample_rows: null
     sample_freshness_hours: null
 - id: safecast_radiation_measurements
+  disabled: true
+  disabled_reason: '2026-07-26: freshness audit — newest measurement by captured_at is
+    2026-02-28 even with order=captured_at desc (probed live); the global ingest pipeline
+    has stalled ~5 months. Default page order also serves old data. Re-enable if ingest
+    resumes.'
   name: Safecast citizen radiation monitoring network - latest measurements
   domain: healthcare
   dgp_class: sensor
@@ -7398,34 +7417,38 @@
     &start=/&end= for history.
   sample_path: samples/energinet_dk_co2_intensity_5min.json
 - id: energinet_dk_elspot_hourly
-  name: Energinet — Nordpool day-ahead spot price EUR (hourly, per price area)
+  name: Energinet — Nordpool day-ahead price EUR (15-min MTU, per price area)
   domain: energy
   dgp_class: market_price
   archetypes:
   - smooth_periodic
   - panel
   - spiky
-  frequency: PT1H
+  frequency: PT15M
   endpoint:
     type: rest_json
-    url: https://api.energidataservice.dk/dataset/Elspotprices?limit=1000&sort=HourUTC%20DESC
+    url: https://api.energidataservice.dk/dataset/DayAheadPrices?limit=2000&sort=TimeUTC%20DESC
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: records[].HourUTC
-    value_field: records[].SpotPriceEUR
+    timestamp_field: records[].TimeUTC
+    value_field: records[].DayAheadPriceEUR
     panel_field: records[].PriceArea
     variates: 1
   history_available: P5Y
-  update_cadence_observed: hourly (day-ahead, published once daily)
+  update_cadence_observed: 15-min MTU (day-ahead, published once daily)
   pretraining_novelty: clean
-  novelty_notes: Hourly day-ahead electricity spot price (EUR/MWh) per Nordpool/Danish price area — strong
+  novelty_notes: Day-ahead electricity price (EUR/MWh) per Nordpool/Danish price area — strong
     diurnal + weekly seasonality with negative-price spikes.
   license: CC-BY-4.0 (Energinet / Energi Data Service)
-  notes: Uses schema.panel_field to split into per-PriceArea _panel_ series (DK1/DK2/DE/NO2/SE3/SE4...).
-    Add &start=/&end= tokens for longer history.
+  notes: '2026-07-26: repointed from dataset Elspotprices (hourly), which STOPPED at 2025-09-30
+    when the EU day-ahead market moved to 15-minute MTU — audit caught it 299d stale. Successor
+    dataset DayAheadPrices (TimeUTC/DayAheadPriceEUR). schema.panel_field splits per-PriceArea
+    _panel_ series (DK1/DK2/DE/NO2/SE3/SE4...). Stored rows before 2025-10 are the old hourly
+    Elspotprices series.'
   sample_path: samples/energinet_dk_elspot_hourly.json
 - id: openfda_maude_device_events_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA MAUDE — medical device adverse-event reports per day
   domain: healthcare
   dgp_class: event_count
@@ -7455,6 +7478,7 @@
     source is the FAERS drug/event count series.
   sample_path: samples/openfda_maude_device_events_daily.json
 - id: openfda_device_recalls
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — device recall counts by event_date_initiated
   domain: healthcare
   dgp_class: recall_event_counts
@@ -7573,6 +7597,7 @@
   notes: aggregate op:count bin:PT1H turns the irregular edited_events stream into an hourly event-count
     series.
 - id: openfda_food_adverse_events_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA CFSAN food adverse events — reports per onset date
   domain: healthcare
   dgp_class: adverse_event_counts
@@ -7789,6 +7814,7 @@
   notes: First source on the JSON-stat 2.0 parser + POST feature. SSB PxApi POST returns json-stat2; time
     labels normalised (1979M01 -> 1979-01).
 - id: who_disease_outbreak_news
+  audit_slack_days: 60  # event-driven outbreak news
   name: WHO Disease Outbreak News (DON) — daily outbreak-report count
   domain: healthcare
   dgp_class: alert_stream
@@ -7900,6 +7926,7 @@
     binned to per-day registration counts.
   notes: deep-nested JSON paths + schema.aggregate (count / P1D)
 - id: ncei_storm_events
+  audit_slack_days: 250  # NCEI publication lag ~3-4 months
   name: NOAA NCEI Storm Events (current year) — daily event count
   domain: nature
   dgp_class: alert_stream
@@ -7925,6 +7952,7 @@
 - id: neso_gb_system_frequency
   name: NESO (National Grid ESO) GB system frequency — 1-second historic
   domain: energy
+  audit_slack_days: 75
   dgp_class: grid_frequency
   archetypes:
   - mean_reverting
@@ -8130,6 +8158,7 @@
     format=jsondata -> SDMX-JSON, auto-detected by scraper. Distinct from existing abs_australia_cpi (quarterly
     CPI). Verified with real scraper: 93 rows, 93 distinct months, numeric.'
 - id: rggi_co2_auction_results
+  audit_slack_days: 200  # quarterly auctions
   name: RGGI CO2 allowance auction results — quantity sold per auction
   domain: econ_fin
   dgp_class: auction_clearing
@@ -8204,6 +8233,7 @@
     the multi-line-preamble header is located and csv.DictReader emits every pollutant as its own numeric
     column (wide multivariate). 4900+ distinct hourly timestamps year-to-date.'
 - id: fda_drug_recalls_daily_count
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: FDA drug recalls & safety alerts — daily count
   domain: healthcare
   dgp_class: alert_stream
@@ -8623,6 +8653,7 @@
     100 products span ~45-50 min -> ~45 per-minute bins. Poll every few minutes for overlapping windows;
     dedup folds repeats.
 - id: fra_rail_equipment_accidents
+  audit_slack_days: 250  # FRA publication lag ~3 months
   name: FRA Railroad Safety - rail equipment accident/incident daily event counts (US)
   domain: transport
   dgp_class: rail_safety_events
@@ -8752,6 +8783,12 @@
     creation timestamps per minute yields a live DOI registration-rate series.
   notes: schema.aggregate count over PT1M bins; URL-encoded page[size] query param.
 - id: osv_vuln_disclosure_rate
+  disabled: true
+  disabled_reason: '2026-07-26: freshness audit — tensorflow/PyPI has had no OSV disclosures
+    since 2024-07 (frozen upstream), and the OSV query API pages oldest-first via POST page
+    tokens our paginator cannot follow, so busier packages (Linux Kernel: 12MB first page,
+    newest data on later pages) are not reachable keylessly either. The weekly vuln-rate
+    niche is already covered by cisa_kev_catalog and shodan_cvedb_cve_disclosures.'
   name: OSV Open Source Vulnerability Disclosure Rate (tensorflow/PyPI)
   domain: web_cloudops
   dgp_class: irregular-event-count
@@ -9109,6 +9146,10 @@
   notes: Keyless Lemmy API v3. Nested JSON paths (posts[].post.published, posts[].counts.score); 50 posts
     -> 50 distinct timestamps, numeric.
 - id: listenbrainz_user_listens
+  disabled: true
+  disabled_reason: '2026-07-26: freshness audit — user "rob" stopped scrobbling 2026-02-18
+    (158d stale); any single-user listen stream dies with its user. Replaced by
+    listenbrainz_sitewide_daily_listens (aggregate stats endpoint).'
   name: ListenBrainz user listens stream
   domain: sales
   dgp_class: content_engagement
@@ -9751,6 +9792,7 @@
     weekly file. Historical rows remain valid; it yields no new observations, so it cannot serve a live-data
     benchmark. Re-enable only if NCHS resumes.'
 - id: cdc_vsrr_drug_overdose_monthly
+  audit_slack_days: 300  # VSRR provisional counts lag ~6 months
   name: CDC VSRR — provisional drug overdose death counts (state panel, monthly)
   domain: healthcare
   dgp_class: mortality_surveillance
@@ -9777,6 +9819,7 @@
   license: Public domain (US CDC / NCHS)
   notes: 12-month-ending rolling overdose death counts per state.
 - id: openfda_drug_adverse_events_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — drug adverse event reports received per day
   domain: healthcare
   dgp_class: adverse_event_stream
@@ -9800,6 +9843,7 @@
   license: Public domain (US FDA openFDA)
   notes: Server-side daily count aggregation. Strong weekday seasonality plus reporting-batch spikes.
 - id: openfda_animal_vet_events_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — animal and veterinary adverse events per day
   domain: healthcare
   dgp_class: adverse_event_stream
@@ -9822,6 +9866,7 @@
   license: Public domain (US FDA openFDA)
   notes: Veterinary pharmacovigilance — a distinct reporting population from human drug events.
 - id: openfda_tobacco_problem_reports_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — tobacco product problem reports per day
   domain: healthcare
   dgp_class: adverse_event_stream
@@ -9844,6 +9889,7 @@
   license: Public domain (US FDA openFDA)
   notes: Low-count sparse series — a genuinely hard zero-inflated forecasting target.
 - id: phac_canada_respiratory_detections
+  audit_slack_days: 90  # seasonal surveillance
   name: PHAC Canada — weekly respiratory virus detections (virus x province panel)
   domain: healthcare
   dgp_class: epidemic_surveillance
@@ -10893,6 +10939,7 @@
   license: Zillow research data — free for non-commercial use with attribution
   notes: Rents lag and behave differently to sale prices — a useful contrast series to ZHVI.
 - id: zillow_median_sale_price_weekly
+  audit_slack_days: 60  # Zillow weekly research files lag
   name: Zillow — median sale price by US metro (weekly panel)
   domain: sales
   dgp_class: housing_transaction_price
@@ -10975,6 +11022,7 @@
   disabled_reason: '2026-07-26: the ABS,RT dataflow returns quarterly data ending 2025-Q2, not the current
     monthly retail series. Re-enable against the correct current ABS dataflow id.'
 - id: worldbank_household_consumption_growth
+  audit_slack_days: 1200  # World Bank annual indicators lag 1-2 years
   name: World Bank — household final consumption expenditure growth (country panel, annual)
   domain: sales
   dgp_class: macro_consumption
@@ -11116,6 +11164,7 @@
     pages of 5 by default, so it needs page_size=365 and enough pages to walk to the present — otherwise
     it silently serves only 2020 data.
 - id: ukhsa_influenza_admission_rate_weekly
+  audit_slack_days: 400  # seasonal surveillance; off-season gap
   name: UKHSA — influenza hospital admission rate, England (weekly)
   domain: healthcare
   dgp_class: epidemic_surveillance
@@ -11145,6 +11194,7 @@
     returns oldest-first in pages of 5 by default, so it needs page_size=365 and enough pages to walk
     to the present — otherwise it silently serves only 2020 data.
 - id: openfda_food_enforcement_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — food recall enforcement reports per day
   domain: healthcare
   dgp_class: recall_stream
@@ -11831,6 +11881,7 @@
   license: ECB Data Portal — free reuse with attribution
   notes: Long-rate counterpart to the short policy rates — the two together define curve slope.
 - id: worldbank_inflation_country_panel
+  audit_slack_days: 1200  # World Bank annual indicators lag 1-2 years
   name: World Bank — consumer price inflation (country panel, annual)
   domain: econ_fin
   dgp_class: price_index
@@ -12300,6 +12351,7 @@
   disabled_reason: '2026-07-26: ends 2024-01-12 — ONS discontinued daily COVID death registrations. The
     UKHSA cases/admissions/influenza metrics are live and stay enabled.'
 - id: who_gho_dtp3_immunization_coverage
+  audit_slack_days: 2200  # WHO GHO estimates revise on multi-year cycles
   name: WHO GHO — DTP3 immunisation coverage (country panel, annual)
   domain: healthcare
   dgp_class: intervention_uptake
@@ -12327,6 +12379,7 @@
   notes: Percentage bounded at 100 with many countries saturated at the ceiling, plus visible COVID-era
     backsliding. Adds to the yearly band, the thinnest in the catalog.
 - id: who_gho_tuberculosis_incidence
+  audit_slack_days: 2200  # WHO GHO estimates revise on multi-year cycles
   name: WHO GHO — tuberculosis incidence per 100k (country panel, annual)
   domain: healthcare
   dgp_class: epidemic_surveillance
@@ -12354,6 +12407,7 @@
   notes: Orders-of-magnitude spread across countries — a hierarchical panel where per-series scale normalisation
     matters far more than for the OECD-style indicators.
 - id: who_gho_ncd_premature_mortality
+  audit_slack_days: 2200  # WHO GHO estimates revise on multi-year cycles
   name: WHO GHO — probability of premature NCD death (country panel, annual)
   domain: healthcare
   dgp_class: population_health_indicator
@@ -12382,6 +12436,7 @@
   notes: Sex-disaggregated (Dim1) chronic-disease mortality — slow smooth trends, the opposite regime
     to the epidemic feeds, so it broadens what "healthcare" means in the benchmark.
 - id: openfda_device_510k_clearances
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — 510(k) device clearance decisions per day
   domain: healthcare
   dgp_class: regulatory_throughput
@@ -12406,6 +12461,7 @@
   notes: Regulator *throughput* rather than harm events — a bureaucratic queue with month-end and fiscal-year-end
     spikes, a very different generating process to the adverse-event feeds.
 - id: openfda_nsde_marketing_starts
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA NSDE — drug product marketing start dates per day
   domain: healthcare
   dgp_class: regulatory_throughput
@@ -13514,6 +13570,7 @@
   notes: nextbike operator stack (distinct from Lyft/PBSC/Urban Sharing already wired), and the first
     Balkan system in the catalog.
 - id: ssb_norway_house_price_index
+  audit_slack_days: 160  # quarterly stats publication lag
   name: Statistics Norway — house price index (table 07221, JSON-stat)
   domain: sales
   dgp_class: housing_price_index
@@ -13576,6 +13633,7 @@
     a current SSB unemployment table id; the other three SSB tables wired here (CPI, house prices, household
     electricity price) are live.'
 - id: ssb_norway_electricity_price_for_households
+  audit_slack_days: 160  # quarterly stats publication lag
   name: Statistics Norway — electricity price for households (table 09387, JSON-stat)
   domain: energy
   dgp_class: electricity_price
@@ -13779,6 +13837,7 @@
   notes: Hourly bars on an asset also sampled at 1-minute elsewhere — crypto is otherwise concentrated
     in the sub-minute band, so this broadens its granularity coverage.
 - id: openfda_food_events_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — food adverse events reported per day
   domain: healthcare
   dgp_class: adverse_event_stream
@@ -13827,6 +13886,7 @@
   notes: Label revisions are a document-workflow series with heavy month-end batching — an administrative
     process, not a physical or behavioural one.
 - id: openfda_device_udi_publications_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — device UDI record publications per day
   domain: healthcare
   dgp_class: regulatory_throughput
@@ -13851,6 +13911,7 @@
   notes: 'Bulk registry publication: enormous one-day spikes when a manufacturer loads a catalogue, against
     a near-zero baseline.'
 - id: openfda_device_pma_decisions_daily
+  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
   name: openFDA — premarket approval decisions per day
   domain: healthcare
   dgp_class: regulatory_throughput
@@ -15376,6 +15437,7 @@
   notes: Accessed largely through circumvention tooling, so traffic responds to filtering policy rather
     than reader interest alone.
 - id: who_gho_under_five_mortality_rate
+  audit_slack_days: 2200  # WHO GHO estimates revise on multi-year cycles
   name: WHO GHO — under-five mortality rate (country panel, annual)
   domain: healthcare
   dgp_class: population_health_indicator
@@ -15403,6 +15465,7 @@
   notes: A long near-monotone global decline with country-level reversals during conflict. Adds to the
     yearly band, the thinnest granularity in the catalog.
 - id: who_gho_adult_obesity_prevalence
+  audit_slack_days: 2200  # WHO GHO estimates revise on multi-year cycles
   name: WHO GHO — adult obesity prevalence (country panel, annual)
   domain: healthcare
   dgp_class: population_health_indicator
@@ -15430,6 +15493,7 @@
   notes: A slow monotone rise almost everywhere — deliberately the easiest panel in the catalog, useful
     as a difficulty floor. Adds to the yearly band, the thinnest granularity in the catalog.
 - id: who_gho_estimated_malaria_incidence
+  audit_slack_days: 2200  # WHO GHO estimates revise on multi-year cycles
   name: WHO GHO — estimated malaria incidence (country panel, annual)
   domain: healthcare
   dgp_class: population_health_indicator
@@ -15457,3 +15521,21 @@
   notes: Concentrated in a subset of countries with intervention-driven step changes from bed-net and
     treatment campaigns — policy shocks rather than natural dynamics. Adds to the yearly band, the thinnest
     granularity in the catalog.
+
+# -- wired batch: audit-fixes-2026-07-26 --
+- id: listenbrainz_sitewide_daily_listens
+  name: ListenBrainz sitewide listening activity - listens per day
+  domain: sales
+  dgp_class: content_engagement
+  frequency: P1D
+  license: public (ListenBrainz stats API)
+  notes: Replaces listenbrainz_user_listens (single-user stream died with its user). Sitewide daily listen
+    counts; range=this_month refreshes through yesterday. Early-month fetches return <20 rows (fine post-wire;
+    history accumulates on disk).
+  endpoint:
+    type: rest_json
+    url: https://api.listenbrainz.org/1/stats/sitewide/listening-activity?range=this_month
+    auth: none
+  schema:
+    timestamp_field: payload.listening_activity[].from_ts
+    value_field: payload.listening_activity[].listen_count

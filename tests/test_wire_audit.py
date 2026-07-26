@@ -50,8 +50,10 @@ class _StubScraper:
         return list(self._records)
 
 
-def _series(n: int, numeric: bool = True):
-    return [{"timestamp": f"2026-07-{i % 28 + 1:02d}T{i % 24:02d}:00:00",
+def _series(n: int, numeric: bool = True, end: dt.datetime | None = None):
+    """n hourly records ending at `end` (default: now) — fresh by construction."""
+    end = end or dt.datetime.now(UTC)
+    return [{"timestamp": (end - dt.timedelta(hours=i)).strftime("%Y-%m-%dT%H:%M:%S"),
              "value": str(i) if numeric else "n/a"} for i in range(n)]
 
 
@@ -90,6 +92,14 @@ def test_verify_fetch_error_is_verdict_not_crash() -> None:
     res = wire.verify_entry({"endpoint": {"url": "u"}},
                             _StubScraper([], fail=RuntimeError("HTTP 403: nope")))
     assert not res.ok and "HTTP 403" in res.error
+
+
+def test_verify_rejects_stale_window_even_with_volume() -> None:
+    # The oldest-first-pagination failure class: plenty of rows, all historical.
+    old = _series(30, end=dt.datetime.now(UTC) - dt.timedelta(days=400))
+    res = wire.verify_entry({"frequency": "PT1H", "endpoint": {"url": "u"}},
+                            _StubScraper(old))
+    assert not res.ok and "stale at wire time" in res.error
 
 
 # --------------------------------------------------------------------------- #
