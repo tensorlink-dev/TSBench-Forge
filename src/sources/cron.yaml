@@ -47,6 +47,7 @@ schedules:
   - gbfs_rio_de_janeiro_station_status
   - gbfs_santiago_station_status
   - gbfs_bergen_station_status
+  - nextbike_zagreb_station_status
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -75,6 +76,12 @@ schedules:
   - coinbase_sol_usd_5m
   - kraken_eth_eur_5m
   - bitstamp_btc_eur_5m
+  - citybikes_docomo_cycle_tokyo_station_status
+  - citybikes_seoul_bike_station_status
+  - citybikes_youbike_taipei_station_status
+  - citybikes_bicing_station_status
+  - citybikes_bikemi_station_status
+  - citybikes_velo_antwerpen_station_status
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -109,6 +116,34 @@ schedules:
   - energy_charts_nl_day_ahead_price
   - energy_charts_se4_day_ahead_price
   - energy_charts_de_co2_intensity
+  - energy_charts_fi_public_power
+  - energy_charts_no_public_power
+  - energy_charts_se_public_power
+  - energy_charts_cz_public_power
+  - energy_charts_ie_public_power
+  - energy_charts_gr_public_power
+  - energy_charts_pt_public_power
+  - energy_charts_fr_day_ahead_price
+  - energy_charts_at_day_ahead_price
+  - energy_charts_pl_day_ahead_price
+  - energy_charts_dk1_day_ahead_price
+  - energy_charts_ch_day_ahead_price
+  - coinbase_ltc_usd_15m
+  - coinbase_ada_usd_15m
+  - kraken_xrp_usd_15m
+  - energy_charts_hu_public_power
+  - energy_charts_sk_public_power
+  - energy_charts_ro_public_power
+  - energy_charts_bg_public_power
+  - energy_charts_hr_public_power
+  - energy_charts_si_public_power
+  - energy_charts_ee_public_power
+  - energy_charts_lt_public_power
+  - energy_charts_es_day_ahead_price
+  - energy_charts_it_north_day_ahead_price
+  - energy_charts_fi_day_ahead_price
+  - energy_charts_no2_day_ahead_price
+  - energy_charts_hu_day_ahead_price
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -173,6 +208,15 @@ schedules:
   - stackexchange_superuser_question_rate
   - urlhaus_malicious_url_submissions
   - ripestat_routing_history_google
+  - stackexchange_askubuntu_question_rate
+  - stackexchange_dba_question_rate
+  - stackexchange_security_question_rate
+  - ripestat_routing_history_as3356
+  - ripestat_routing_history_as13335
+  - bitstamp_eth_usd_hourly
+  - stackexchange_unix_question_rate
+  - stackexchange_apple_question_rate
+  - stackexchange_stats_question_rate
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -256,6 +300,44 @@ schedules:
   - blockchain_btc_transaction_fees_daily
   - blockchain_btc_difficulty
   - arch_package_popularity
+  - wikimedia_pageviews_fr_daily
+  - wikimedia_pageviews_ja_daily
+  - wikimedia_pageviews_es_daily
+  - wikimedia_pageviews_ru_daily
+  - wikimedia_pageviews_commons_daily
+  - wikimedia_pageviews_en_mobile_daily
+  - npm_downloads_typescript_daily
+  - npm_downloads_express_daily
+  - npm_downloads_webpack_daily
+  - pypistats_pandas_daily
+  - pypistats_boto3_daily
+  - pypistats_torch_daily
+  - crates_io_tokio_version_downloads
+  - crates_io_clap_version_downloads
+  - ssb_norway_house_price_index
+  - ssb_norway_registered_unemployment
+  - ssb_norway_electricity_price_for_households
+  - eurostat_unemployment_de_monthly
+  - ecb_euro_area_m3_money_supply
+  - ecb_euro_area_unemployment_rate
+  - openfda_food_events_daily
+  - openfda_drug_label_updates_daily
+  - openfda_device_udi_publications_daily
+  - openfda_device_pma_decisions_daily
+  - zillow_zhvi_county_monthly
+  - zillow_zori_sfr_rent_monthly
+  - treasury_interest_expense_monthly
+  - treasury_gift_contributions_monthly
+  - wikimedia_pageviews_it_daily
+  - wikimedia_pageviews_pt_daily
+  - wikimedia_pageviews_zh_daily
+  - wikimedia_pageviews_ar_daily
+  - npm_downloads_next_daily
+  - npm_downloads_eslint_daily
+  - pypistats_requests_oauthlib_daily
+  - pypistats_transformers_daily
+  - zillow_zhvi_bottom_tier_monthly
+  - zillow_zhvi_top_tier_monthly
   cron: 10 1 * * *
 - every: P1D
   sources:

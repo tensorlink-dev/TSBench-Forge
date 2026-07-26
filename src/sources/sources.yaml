@@ -11812,3 +11812,2048 @@
   notes: Voluntary telemetry from a rolling-release distro — adoption curves for hundreds of packages, with
     popularity bounded at 100%. A different adoption process to registry download counts, which measure
     CI traffic more than installed base.
+
+# -- balance-to-500 wave10 final (2026-07-26) --
+- id: energy_charts_fi_public_power
+  name: energy-charts — Finnish public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Nuclear + CHP baseload at high latitude; district-heating coupling makes winter load respond to
+    temperature far more steeply than southern grids.
+- id: energy_charts_no_public_power
+  name: energy-charts — Norwegian public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Near-100% hydro with reservoir storage — generation follows price signals rather than weather,
+    inverting the usual renewable causality.
+- id: energy_charts_se_public_power
+  name: energy-charts — Swedish public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=se&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Hydro + nuclear split across four bidding zones; the north-south transfer constraint makes national
+    totals hide internal congestion.
+- id: energy_charts_cz_public_power
+  name: energy-charts — Czech public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Lignite and nuclear baseload with low renewable share — a near-constant stack that makes any deviation
+    informative.
+- id: energy_charts_ie_public_power
+  name: energy-charts — Irish public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Small synchronously-isolated island grid with very high wind penetration and no large interconnector
+    buffer — the most volatile system in the set.
+- id: energy_charts_gr_public_power
+  name: energy-charts — Greek public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=gr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Rapid solar buildout on an island-heavy grid; midday duck curve is among the deepest in Europe.
+- id: energy_charts_pt_public_power
+  name: energy-charts — Portuguese public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=pt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Hydro + wind dominant on the Iberian peninsula, frequently decoupled from the rest of Europe by
+    the French interconnector bottleneck.
+- id: energy_charts_fr_day_ahead_price
+  name: energy-charts — French day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=FR&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Nuclear-set marginal price — long flat stretches punctuated by scarcity spikes when reactor availability
+    drops.
+- id: energy_charts_at_day_ahead_price
+  name: energy-charts — Austrian day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=AT&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Hydro-buffered zone coupled to Germany; the AT-DE spread since the 2018 bidding-zone split is a
+    structural break inside the series.
+- id: energy_charts_pl_day_ahead_price
+  name: energy-charts — Polish day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=PL&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Coal-set price with a capacity market — a higher floor and different spike mechanics to the renewable-heavy
+    zones.
+- id: energy_charts_dk1_day_ahead_price
+  name: energy-charts — Danish DK1 day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=DK1&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Wind-set price that goes negative more often than almost any zone — a sign-changing target that
+    breaks log-transform pipelines.
+- id: energy_charts_ch_day_ahead_price
+  name: energy-charts — Swiss day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=CH&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Pumped-storage arbitrage zone — price is shaped by cross-border optimisation rather than domestic
+    demand.
+- id: wikimedia_pageviews_fr_daily
+  name: Wikimedia — French pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/fr.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: A single dominant timezone with a pronounced August holiday trough — an annual dip the English
+    project does not show.
+- id: wikimedia_pageviews_ja_daily
+  name: Wikimedia — Japanese pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/ja.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Almost entirely one timezone, and Golden Week / Obon produce calendar effects no Western holiday
+    calendar predicts.
+- id: wikimedia_pageviews_es_daily
+  name: Wikimedia — Spanish pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/es.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Split across Europe and Latin America — a bimodal daily profile from two peak populations on different
+    clocks.
+- id: wikimedia_pageviews_ru_daily
+  name: Wikimedia — Russian pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/ru.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Spans eleven timezones and has visible censorship/blocking events — exogenous step changes in traffic.
+- id: wikimedia_pageviews_commons_daily
+  name: Wikimedia — Wikimedia Commons pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/commons.wikimedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Media repository rather than an article wiki — traffic is dominated by hotlinking and bots, not
+    readers.
+- id: wikimedia_pageviews_en_mobile_daily
+  name: Wikimedia — English Wikipedia mobile-web human pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia/mobile-web/user/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Mobile + human-filtered, versus the all-access all-agents series already wired. Bot traffic and
+    desktop weekday bias are stripped out, so the weekly shape is markedly different for the same underlying
+    audience.
+- id: stackexchange_askubuntu_question_rate
+  name: Ask Ubuntu — new question arrivals (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.stackexchange.com/2.3/questions?site=askubuntu&pagesize=100&order=desc&sort=creation
+  schema:
+    timestamp_field: items[].creation_date
+    value_field: items[].question_id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Stack Exchange API (CC BY-SA)
+  notes: Tracks Ubuntu release cadence — question volume spikes on the six-monthly release dates, an exogenous
+    scheduled driver.
+- id: stackexchange_dba_question_rate
+  name: Database Administrators — new question arrivals (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.stackexchange.com/2.3/questions?site=dba&pagesize=100&order=desc&sort=creation
+  schema:
+    timestamp_field: items[].creation_date
+    value_field: items[].question_id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Stack Exchange API (CC BY-SA)
+  notes: Very low volume — many hours have zero arrivals, making it a genuinely sparse count series rather
+    than a smooth rate.
+- id: stackexchange_security_question_rate
+  name: Information Security — new question arrivals (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.stackexchange.com/2.3/questions?site=security&pagesize=100&order=desc&sort=creation
+  schema:
+    timestamp_field: items[].creation_date
+    value_field: items[].question_id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Stack Exchange API (CC BY-SA)
+  notes: Volume responds to disclosed vulnerabilities, so it couples to the CVE feeds elsewhere in this
+    domain.
+- id: npm_downloads_typescript_daily
+  name: npm registry — daily download counts (typescript)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-120d}:{YYYY-MM-DD-1d}/typescript
+  schema:
+    timestamp_field: downloads[].day
+    value_field: downloads[].downloads
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: npm public registry API
+  notes: Compiler tooling — pulled by CI on nearly every build, so the weekday/weekend ratio is extreme
+    and holidays are clearly visible.
+- id: npm_downloads_express_daily
+  name: npm registry — daily download counts (express)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-120d}:{YYYY-MM-DD-1d}/express
+  schema:
+    timestamp_field: downloads[].day
+    value_field: downloads[].downloads
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: npm public registry API
+  notes: A mature, flat-trend server library — the stationary counterexample to the growing and declining
+    package series already wired.
+- id: npm_downloads_webpack_daily
+  name: npm registry — daily download counts (webpack)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-120d}:{YYYY-MM-DD-1d}/webpack
+  schema:
+    timestamp_field: downloads[].day
+    value_field: downloads[].downloads
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: npm public registry API
+  notes: In structural decline as bundlers migrate to Vite/esbuild — a slow negative trend with substitution
+    dynamics.
+- id: pypistats_pandas_daily
+  name: PyPI — daily download counts (pandas)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://pypistats.org/api/packages/pandas/overall
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].downloads
+    panel_field: data[].category
+    variates: 1
+  history_available: P180D
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: pypistats public API
+  notes: Data-science baseline load — steadier than CI-driven packages and less spiky.
+- id: pypistats_boto3_daily
+  name: PyPI — daily download counts (boto3)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://pypistats.org/api/packages/boto3/overall
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].downloads
+    panel_field: data[].category
+    variates: 1
+  history_available: P180D
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: pypistats public API
+  notes: AWS SDK, overwhelmingly machine-pulled inside cloud CI — near-pure weekday signal with the sharpest
+    weekend collapse of any package tracked.
+- id: pypistats_torch_daily
+  name: PyPI — daily download counts (torch)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://pypistats.org/api/packages/torch/overall
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].downloads
+    panel_field: data[].category
+    variates: 1
+  history_available: P180D
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: pypistats public API
+  notes: Large binary wheels tied to release and GPU-driver cycles — download spikes cluster around version
+    releases rather than the weekly cycle.
+- id: crates_io_tokio_version_downloads
+  name: crates.io — per-version daily downloads (tokio)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://crates.io/api/v1/crates/tokio/downloads
+  schema:
+    timestamp_field: version_downloads[].date
+    value_field: version_downloads[].downloads
+    panel_field: version_downloads[].version
+    variates: 1
+  history_available: P90D
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: crates.io public API
+  notes: Async runtime pulled transitively by most of the Rust server ecosystem — adoption is dominated
+    by a few large dependents rather than direct users.
+- id: crates_io_clap_version_downloads
+  name: crates.io — per-version daily downloads (clap)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://crates.io/api/v1/crates/clap/downloads
+  schema:
+    timestamp_field: version_downloads[].date
+    value_field: version_downloads[].downloads
+    panel_field: version_downloads[].version
+    variates: 1
+  history_available: P90D
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: crates.io public API
+  notes: CLI argument parser with frequent major versions — the per-version panel shows clean migration
+    S-curves as the ecosystem moves between majors.
+- id: ripestat_routing_history_as3356
+  name: RIPEstat — BGP routing history for AS3356 (Lumen/Level3)
+  domain: web_cloudops
+  dgp_class: bgp_routing
+  archetypes:
+  - count_discrete
+  - step_function
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://stat.ripe.net/data/routing-history/data.json?resource=AS3356&starttime={YYYY-MM-DD-180d}
+  schema:
+    timestamp_field: data.by_origin[].prefixes[].timelines[].starttime
+    value_field: data.by_origin[].prefixes[].prefix
+    aggregate:
+      op: count
+      bin: P1D
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every ~8 hours
+  pretraining_novelty: clean
+  license: RIPE NCC — open
+  notes: A tier-1 transit backbone — its prefix churn reflects global transit reconfiguration rather than
+    one company's own network.
+- id: ripestat_routing_history_as13335
+  name: RIPEstat — BGP routing history for AS13335 (Cloudflare)
+  domain: web_cloudops
+  dgp_class: bgp_routing
+  archetypes:
+  - count_discrete
+  - step_function
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://stat.ripe.net/data/routing-history/data.json?resource=AS13335&starttime={YYYY-MM-DD-180d}
+  schema:
+    timestamp_field: data.by_origin[].prefixes[].timelines[].starttime
+    value_field: data.by_origin[].prefixes[].prefix
+    aggregate:
+      op: count
+      bin: P1D
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every ~8 hours
+  pretraining_novelty: clean
+  license: RIPE NCC — open
+  notes: Anycast CDN that announces the same prefixes worldwide — a very different announcement pattern
+    to a conventional network.
+- id: citybikes_docomo_cycle_tokyo_station_status
+  name: CityBikes — Tokyo Docomo per-station availability (panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: http://api.citybik.es/v2/networks/docomo-cycle-tokyo
+  schema:
+    timestamp_field: network.stations[].timestamp
+    value_field:
+    - network.stations[].free_bikes
+    - network.stations[].empty_slots
+    panel_field: network.stations[].id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~5 minutes
+  pretraining_novelty: clean
+  license: CityBikes — CC BY
+  notes: Tokyo — an extremely dense system in a transit-saturated city, where bikeshare is last-mile rather
+    than primary. Asian bikeshare is absent from the GBFS feeds already wired.
+- id: citybikes_seoul_bike_station_status
+  name: CityBikes — Seoul Ttareungi per-station availability (panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: http://api.citybik.es/v2/networks/seoul-bike
+  schema:
+    timestamp_field: network.stations[].timestamp
+    value_field:
+    - network.stations[].free_bikes
+    - network.stations[].empty_slots
+    panel_field: network.stations[].id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~5 minutes
+  pretraining_novelty: clean
+  license: CityBikes — CC BY
+  notes: Seoul — a monsoon climate produces an abrupt summer usage collapse unlike any temperate system
+    in the set. Asian bikeshare is absent from the GBFS feeds already wired.
+- id: citybikes_youbike_taipei_station_status
+  name: CityBikes — Taipei YouBike (CityBikes view) per-station availability (panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: http://api.citybik.es/v2/networks/youbike-taipei
+  schema:
+    timestamp_field: network.stations[].timestamp
+    value_field:
+    - network.stations[].free_bikes
+    - network.stations[].empty_slots
+    panel_field: network.stations[].id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~5 minutes
+  pretraining_novelty: clean
+  license: CityBikes — CC BY
+  notes: Taipei via the CityBikes aggregator — a second, independently-normalised view of a system also
+    polled natively, which makes aggregator-induced distortion measurable. Asian bikeshare is absent from
+    the GBFS feeds already wired.
+- id: nextbike_zagreb_station_status
+  name: nextbike Zagreb — per-station bike availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_zg/en/station_status.json
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~60 seconds
+  pretraining_novelty: clean
+  license: nextbike open GBFS
+  notes: nextbike operator stack (distinct from Lyft/PBSC/Urban Sharing already wired), and the first Balkan
+    system in the catalog.
+- id: ssb_norway_house_price_index
+  name: Statistics Norway — house price index (table 07221, JSON-stat)
+  domain: sales
+  dgp_class: housing_price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1Q
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    method: POST
+    url: https://data.ssb.no/api/v0/en/table/07221
+    body:
+      query: []
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: per release calendar
+  pretraining_novelty: clean
+  license: Statistics Norway open data (CC BY 4.0)
+  notes: Norwegian house prices — a quarterly series, which is the emptiest band in the catalog, and an
+    economy where housing is the dominant household balance-sheet item.
+- id: ssb_norway_registered_unemployment
+  name: Statistics Norway — registered unemployment (table 08931, JSON-stat)
+  domain: econ_fin
+  dgp_class: labour_market
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    method: POST
+    url: https://data.ssb.no/api/v0/en/table/08931
+    body:
+      query: []
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: per release calendar
+  pretraining_novelty: clean
+  license: Statistics Norway open data (CC BY 4.0)
+  notes: Registered (administrative) unemployment rather than survey-based — a different measurement process
+    with no sampling error but definitional step changes.
+- id: ssb_norway_electricity_price_for_households
+  name: Statistics Norway — electricity price for households (table 09387, JSON-stat)
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1Q
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    method: POST
+    url: https://data.ssb.no/api/v0/en/table/09387
+    body:
+      query: []
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: per release calendar
+  pretraining_novelty: clean
+  license: Statistics Norway open data (CC BY 4.0)
+  notes: Retail (household) electricity price, quarterly — the regulated downstream end of the wholesale
+    spot markets this catalog samples at 15-minute resolution.
+- id: eurostat_unemployment_de_monthly
+  name: Eurostat — German unemployment rate (monthly, JSON-stat)
+  domain: econ_fin
+  dgp_class: labour_market
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.DE?format=JSON&lastTimePeriod=240
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: monthly
+  pretraining_novelty: contaminated
+  novelty_notes: Headline euro-area labour statistic.
+  license: Eurostat — free reuse with attribution
+  notes: Highly persistent and slow-moving — near-unit-root behaviour that exposes models defaulting to
+    mean reversion.
+- id: ecb_euro_area_m3_money_supply
+  name: ECB — euro area M3 money supply (monthly)
+  domain: econ_fin
+  dgp_class: monetary_aggregate
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://data-api.ecb.europa.eu/service/data/BSI/M.U2.Y.V.M30.X.I.U2.2300.Z01.A?format=csvdata&lastNObservations=300
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: ECB Data Portal — free reuse with attribution
+  notes: A monetary *stock* rather than a rate or price — smooth, strongly trending, and the only series
+    of its kind in the catalog.
+- id: ecb_euro_area_unemployment_rate
+  name: ECB — euro area unemployment rate (monthly)
+  domain: econ_fin
+  dgp_class: labour_market
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://data-api.ecb.europa.eu/service/data/LFSI/M.I9.S.UNEHRT.TOTAL0.15_74.T?format=csvdata&lastNObservations=300
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: ECB Data Portal — free reuse with attribution
+  notes: Euro-area aggregate against the German national rate — the pair exposes composition effects between
+    a bloc and its largest member.
+- id: coinbase_ltc_usd_15m
+  name: Coinbase Exchange — LTC-USD 15-minute OHLCV
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.exchange.coinbase.com/products/LTC-USD/candles?granularity=900
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][4]'
+    - '[][5]'
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: Public exchange market-data API
+  notes: An older, low-attention asset — long quiet stretches punctuated by halving-cycle activity, unlike
+    the continuously-traded majors.
+- id: coinbase_ada_usd_15m
+  name: Coinbase Exchange — ADA-USD 15-minute OHLCV
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.exchange.coinbase.com/products/ADA-USD/candles?granularity=900
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][4]'
+    - '[][5]'
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: Public exchange market-data API
+  notes: Sub-dollar price with coarse tick granularity — discreteness effects that dollar-priced assets
+    never show.
+- id: kraken_xrp_usd_15m
+  name: Kraken — XRP/USD 15-minute OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XRPUSD&interval=15
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XXRPZUSD[][0]
+    value_field:
+    - result.XXRPZUSD[][4]
+    - result.XXRPZUSD[][6]
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: Public exchange market-data API
+  notes: A 15-minute view of the same asset sampled at 1 minute on Bitstamp — the pair supports temporal-aggregation
+    studies on one underlying process.
+- id: bitstamp_eth_usd_hourly
+  name: Bitstamp — ETH/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=3600&limit=500
+  schema:
+    timestamp_field: data.ohlc[].timestamp
+    value_field:
+    - data.ohlc[].close
+    - data.ohlc[].volume
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Bitstamp public API
+  notes: Hourly bars on an asset also sampled at 1-minute elsewhere — crypto is otherwise concentrated in
+    the sub-minute band, so this broadens its granularity coverage.
+- id: openfda_food_events_daily
+  name: openFDA — food adverse events reported per day
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/food/event.json?count=date_created
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Public domain (US FDA openFDA)
+  notes: Consumer-reported rather than clinician-reported — reporting is driven by media coverage of outbreaks,
+    so it responds to news rather than to incidence alone.
+- id: openfda_drug_label_updates_daily
+  name: openFDA — drug label revisions per day
+  domain: healthcare
+  dgp_class: regulatory_throughput
+  archetypes:
+  - count_discrete
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/drug/label.json?count=effective_time
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Public domain (US FDA openFDA)
+  notes: Label revisions are a document-workflow series with heavy month-end batching — an administrative
+    process, not a physical or behavioural one.
+- id: openfda_device_udi_publications_daily
+  name: openFDA — device UDI record publications per day
+  domain: healthcare
+  dgp_class: regulatory_throughput
+  archetypes:
+  - count_discrete
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/device/udi.json?count=publish_date
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Public domain (US FDA openFDA)
+  notes: 'Bulk registry publication: enormous one-day spikes when a manufacturer loads a catalogue, against
+    a near-zero baseline.'
+- id: openfda_device_pma_decisions_daily
+  name: openFDA — premarket approval decisions per day
+  domain: healthcare
+  dgp_class: regulatory_throughput
+  archetypes:
+  - count_discrete
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/device/pma.json?count=decision_date
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Public domain (US FDA openFDA)
+  notes: The high-scrutiny approval pathway — far lower volume than 510(k) clearances, so the pair contrasts
+    two regulatory queues of very different intensity.
+- id: zillow_zhvi_county_monthly
+  name: Zillow ZHVI — typical home value by US county (monthly panel)
+  domain: sales
+  dgp_class: housing_price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/zhvi/County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P26Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: County rather than metro geography — ~3000 series including thin rural markets whose noise characteristics
+    are completely different from the large metros, and a natural hierarchy (counties nest inside metros)
+    for coherent-forecasting tests.
+- id: zillow_zori_sfr_rent_monthly
+  name: Zillow ZORI — single-family rent index by US metro (monthly panel)
+  domain: sales
+  dgp_class: housing_price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_uc_sfr_sm_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P26Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Single-family rents specifically, versus the all-types ZORI already wired — the two diverged sharply
+    post-2021 as detached-home demand decoupled from apartments.
+
+# -- balance-to-500 wave11 final (2026-07-26) --
+- id: treasury_interest_expense_monthly
+  name: US Treasury — monthly interest expense on the public debt
+  domain: econ_fin
+  dgp_class: fiscal_flow
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/interest_expense?page[size]=1000&sort=-record_date
+  schema:
+    timestamp_field: data[].record_date
+    value_field: data[].month_expense_amt
+    panel_field: data[].expense_type_desc
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Public domain (US Treasury Fiscal Data)
+  notes: The cost side of the debt stock already wired — it lags both debt level and policy rates through
+    a long, mechanical refinancing pass-through, which makes it a well-posed multivariate target rather
+    than another univariate macro line.
+- id: treasury_gift_contributions_monthly
+  name: US Treasury — gift contributions to reduce the public debt
+  domain: econ_fin
+  dgp_class: fiscal_flow
+  archetypes:
+  - heavy_tailed
+  - zero_inflated_sparse
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/gift_contributions?page[size]=500&sort=-record_date
+  schema:
+    timestamp_field: data[].record_date
+    value_field: data[].contribution_amt
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Public domain (US Treasury Fiscal Data)
+  notes: 'Voluntary donations to pay down federal debt: tiny, erratic, and occasionally a single multi-million-dollar
+    bequest. One of the most pathological heavy-tailed low-count series available anywhere in public data.'
+- id: energy_charts_hu_public_power
+  name: energy-charts — Hungarian public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Import-dependent with a single large nuclear plant — a step change in the stack whenever a unit
+    trips, on a small enough system to dominate it.
+- id: energy_charts_sk_public_power
+  name: energy-charts — Slovak public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=sk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Nuclear-heavy and tightly coupled to Czech and Hungarian markets — near-flat domestic generation
+    with flow-driven variation.
+- id: energy_charts_ro_public_power
+  name: energy-charts — Romanian public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=ro&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Unusually balanced hydro/nuclear/coal/wind mix — no single technology sets the shape, unlike most
+    national grids in the set.
+- id: energy_charts_bg_public_power
+  name: energy-charts — Bulgarian public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=bg&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Lignite and nuclear baseload with a large export role in south-east Europe.
+- id: energy_charts_hr_public_power
+  name: energy-charts — Croatian public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Small hydro-heavy system with strong seasonal inflow dependence and heavy summer tourist load —
+    two seasonal drivers in opposite directions.
+- id: energy_charts_si_public_power
+  name: energy-charts — Slovenian public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=si&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: One of the smallest metered grids in Europe — low absolute magnitudes make relative noise much
+    larger than in the big systems.
+- id: energy_charts_ee_public_power
+  name: energy-charts — Estonian public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Oil-shale generation, unique in Europe, now being displaced — a technology transition visible inside
+    the series.
+- id: energy_charts_lt_public_power
+  name: energy-charts — Lithuanian public net electricity generation
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Post-nuclear-closure import-dependent grid — domestic generation is a small residual, so it behaves
+    quite unlike self-sufficient systems.
+- id: energy_charts_es_day_ahead_price
+  name: energy-charts — Spanish day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=ES&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Iberian market operated separately from central Europe, with a period of regulated gas-price capping
+    that shows as an explicit policy regime.
+- id: energy_charts_it_north_day_ahead_price
+  name: energy-charts — Italian northern zone day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=IT-North&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Zonal Italian pricing — the northern zone imports heavily and clears differently from the peninsular
+    zones.
+- id: energy_charts_fi_day_ahead_price
+  name: energy-charts — Finnish day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=FI&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Nordic zone whose price collapsed after new nuclear capacity came online — a large, dateable structural
+    break.
+- id: energy_charts_no2_day_ahead_price
+  name: energy-charts — Norwegian NO2 day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=NO2&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: The zone with the interconnectors to Germany and the UK — it imports continental price volatility
+    into an otherwise hydro-stable system.
+- id: energy_charts_hu_day_ahead_price
+  name: energy-charts — Hungarian day-ahead power price
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.energy-charts.info/price?bzn=HU&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: A south-east European price that decouples from the German benchmark during regional scarcity,
+    giving frequent large spreads.
+- id: wikimedia_pageviews_it_daily
+  name: Wikimedia — Italian Wikipedia pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/it.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: A August-shutdown culture produces the deepest single-month trough of any large Wikipedia — an
+    extreme annual calendar effect.
+- id: wikimedia_pageviews_pt_daily
+  name: Wikimedia — Portuguese Wikipedia pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/pt.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Split between Brazil and Portugal across five timezone-hours, with southern-hemisphere school terms
+    dominating volume.
+- id: wikimedia_pageviews_zh_daily
+  name: Wikimedia — Chinese Wikipedia pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/zh.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Blocked in mainland China, so traffic comes from Taiwan, Hong Kong and the diaspora — a censorship-shaped
+    audience, not a language one.
+- id: wikimedia_pageviews_ar_daily
+  name: Wikimedia — Arabic Wikipedia pageviews (daily)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/ar.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
+  schema:
+    timestamp_field: items[].timestamp
+    value_field: items[].views
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: CC0 (Wikimedia Analytics)
+  notes: Ramadan shifts the entire diurnal profile by hours for one lunar month a year — a moving-holiday
+    effect fixed calendars cannot encode.
+- id: stackexchange_unix_question_rate
+  name: Unix & Linux — new question arrivals (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.stackexchange.com/2.3/questions?site=unix&pagesize=100&order=desc&sort=creation
+  schema:
+    timestamp_field: items[].creation_date
+    value_field: items[].question_id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Stack Exchange API (CC BY-SA)
+  notes: Professional sysadmin traffic with a hard weekday shape — the mirror image of the consumer sites
+    already wired.
+- id: stackexchange_apple_question_rate
+  name: Ask Different — new question arrivals (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.stackexchange.com/2.3/questions?site=apple&pagesize=100&order=desc&sort=creation
+  schema:
+    timestamp_field: items[].creation_date
+    value_field: items[].question_id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Stack Exchange API (CC BY-SA)
+  notes: Consumer Apple support — volume spikes hard on OS release days, an exogenous, pre-announced shock
+    schedule.
+- id: stackexchange_stats_question_rate
+  name: Cross Validated — new question arrivals (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.stackexchange.com/2.3/questions?site=stats&pagesize=100&order=desc&sort=creation
+  schema:
+    timestamp_field: items[].creation_date
+    value_field: items[].question_id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Stack Exchange API (CC BY-SA)
+  notes: Academic statistics Q&A that follows the university term calendar rather than the working week.
+- id: citybikes_bicing_station_status
+  name: CityBikes — Bicing Barcelona (CityBikes view) per-station availability (panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: http://api.citybik.es/v2/networks/bicing
+  schema:
+    timestamp_field: network.stations[].timestamp
+    value_field:
+    - network.stations[].free_bikes
+    - network.stations[].empty_slots
+    panel_field: network.stations[].id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~5 minutes
+  pretraining_novelty: clean
+  license: CityBikes — CC BY
+  notes: A second independently-normalised view of a system also polled natively — divergence between the
+    two measures aggregator lag directly.
+- id: citybikes_bikemi_station_status
+  name: CityBikes — BikeMi Milan (CityBikes view) per-station availability (panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: http://api.citybik.es/v2/networks/bikemi
+  schema:
+    timestamp_field: network.stations[].timestamp
+    value_field:
+    - network.stations[].free_bikes
+    - network.stations[].empty_slots
+    panel_field: network.stations[].id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~5 minutes
+  pretraining_novelty: clean
+  license: CityBikes — CC BY
+  notes: Same dual-source logic as Bicing, on a different operator stack.
+- id: citybikes_velo_antwerpen_station_status
+  name: CityBikes — Velo Antwerpen per-station availability (panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: http://api.citybik.es/v2/networks/velo-antwerpen
+  schema:
+    timestamp_field: network.stations[].timestamp
+    value_field:
+    - network.stations[].free_bikes
+    - network.stations[].empty_slots
+    panel_field: network.stations[].id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~5 minutes
+  pretraining_novelty: clean
+  license: CityBikes — CC BY
+  notes: A dense compact Flemish network — high station turnover in a small geographic area.
+- id: npm_downloads_next_daily
+  name: npm registry — daily download counts (next)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-120d}:{YYYY-MM-DD-1d}/next
+  schema:
+    timestamp_field: downloads[].day
+    value_field: downloads[].downloads
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: npm public registry API
+  notes: A framework in rapid growth — the positive-trend counterpart to webpack’s decline, on the same
+    registry and extraction path.
+- id: npm_downloads_eslint_daily
+  name: npm registry — daily download counts (eslint)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-120d}:{YYYY-MM-DD-1d}/eslint
+  schema:
+    timestamp_field: downloads[].day
+    value_field: downloads[].downloads
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: npm public registry API
+  notes: Linting runs on every commit, so this tracks aggregate developer commit volume more closely than
+    it tracks the tool’s own adoption.
+- id: pypistats_requests_oauthlib_daily
+  name: PyPI — daily download counts (requests-oauthlib)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://pypistats.org/api/packages/requests-oauthlib/overall
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].downloads
+    panel_field: data[].category
+    variates: 1
+  history_available: P180D
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: pypistats public API
+  notes: A small transitive dependency — low counts where Poisson noise is visible, unlike the smooth million-download
+    headline packages.
+- id: pypistats_transformers_daily
+  name: PyPI — daily download counts (transformers)
+  domain: web_cloudops
+  dgp_class: package_downloads
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://pypistats.org/api/packages/transformers/overall
+  schema:
+    timestamp_field: data[].date
+    value_field: data[].downloads
+    panel_field: data[].category
+    variates: 1
+  history_available: P180D
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: pypistats public API
+  notes: Tracks ML practitioner activity and spikes on major model releases — an event-driven download process.
+- id: zillow_zhvi_bottom_tier_monthly
+  name: Zillow ZHVI — bottom-tier (5th-35th percentile) home value by metro
+  domain: sales
+  dgp_class: housing_price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.0_0.33_sm_sa_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P26Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Entry-level housing, which is far more rate-sensitive than the middle tier already wired — the
+    tier spread is itself an affordability signal with its own dynamics.
+- id: zillow_zhvi_top_tier_monthly
+  name: Zillow ZHVI — top-tier (65th-95th percentile) home value by metro
+  domain: sales
+  dgp_class: housing_price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.67_1.0_sm_sa_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P26Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Luxury housing tracks equity markets and moves on a different cycle to the mass market — with the
+    bottom tier it brackets the middle-tier series already in the catalog.
