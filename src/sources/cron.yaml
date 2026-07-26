@@ -82,6 +82,7 @@ schedules:
   - citybikes_bicing_station_status
   - citybikes_bikemi_station_status
   - citybikes_velo_antwerpen_station_status
+  - bandcamp_sales_feed
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -159,6 +160,10 @@ schedules:
   - energy_charts_cz_co2_intensity
   - energy_charts_hu_co2_intensity
   - energinet_dk_elspot_hourly
+  - seattle_fire911_call_volume
+  - austin_fire_realtime_incidents
+  - ercot_physical_responsive_capability
+  - sec_edgar_8k_filings
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -182,6 +187,9 @@ schedules:
   - aemo_nem_price_demand_qld
   - aemo_nem_price_demand_tas
   - aemo_nem_price_demand_vic
+  - winnipeg_wfps_call_volume
+  - spp_area_control_error
+  - cboe_vix_intraday
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -231,6 +239,8 @@ schedules:
   - stackexchange_unix_question_rate
   - stackexchange_apple_question_rate
   - stackexchange_stats_question_rate
+  - irceline_brussels_pm25_hourly
+  - wise_usd_eur_hourly
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -390,6 +400,9 @@ schedules:
   - statcan_rail_carloadings_monthly
   - eurostat_road_traffic_vkm_annual
   - statcan_airline_passengers_monthly
+  - cincinnati_fire_ems_cad_volume
+  - edmonton_fire_rescue_dispatch_volume
+  - federal_register_daily_documents
   cron: 10 1 * * *
 - every: P1D
   sources:

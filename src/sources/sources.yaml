@@ -15967,3 +15967,213 @@
     value_field:
     - '[].object.vectorDataPoint[].value'
   audit_slack_days: 160
+
+# -- wired batch: healthcare-fast-w2 --
+- id: seattle_fire911_call_volume
+  name: Seattle Fire Real-Time 911 dispatch calls (hourly call volume)
+  domain: healthcare
+  frequency: PT1H
+  license: Public domain (City of Seattle open data)
+  notes: Seattle Fire Dept real-time 911 CAD feed (kzjm-xkqj); mostly Aid/Medic responses. Aggregated to
+    hourly call counts. Feed updates every ~5 min.
+  endpoint:
+    type: rest_json
+    url: https://data.seattle.gov/resource/kzjm-xkqj.json?$order=datetime%20DESC&$limit=1000
+  schema:
+    timestamp_field: '[].datetime'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1H
+- id: cincinnati_fire_ems_cad_volume
+  name: Cincinnati Fire/EMS CAD incidents (hourly dispatch volume)
+  domain: healthcare
+  frequency: PT1H
+  license: Public domain (CincyInsights / PDI open data)
+  notes: Cincinnati Fire Dept CAD incidents incl EMS ALS/BLS (vnsz-a3wp), aggregated to hourly counts. Dataset
+    refreshes in daily batches (~24-36h lag); poll daily.
+  endpoint:
+    type: rest_json
+    url: https://data.cincinnati-oh.gov/resource/vnsz-a3wp.json?$where=create_time_incident%20IS%20NOT%20NULL&$order=create_time_incident%20DESC&$limit=2000
+  schema:
+    timestamp_field: '[].create_time_incident'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1H
+- id: austin_fire_realtime_incidents
+  name: Austin Fire real-time incidents (hourly incident volume)
+  domain: healthcare
+  frequency: PT1H
+  license: Public domain (City of Austin open data)
+  notes: Austin Fire Dept real-time incident feed (wpu4-x69d), fire-agency emergency responses; aggregated
+    to hourly counts. Updates every ~5 min.
+  endpoint:
+    type: rest_json
+    url: https://datahub.austintexas.gov/resource/wpu4-x69d.json?$order=published_date%20DESC&$limit=1000
+  schema:
+    timestamp_field: '[].published_date'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1H
+- id: winnipeg_wfps_call_volume
+  name: Winnipeg Fire Paramedic Service call logs (hourly call volume)
+  domain: healthcare
+  frequency: PT1H
+  license: OGL Winnipeg (Open Government Licence)
+  notes: Winnipeg Fire Paramedic Service CAD call log (yg42-q284), majority Medical Response; aggregated
+    to hourly counts. Near-real-time updates.
+  endpoint:
+    type: rest_json
+    url: https://data.winnipeg.ca/resource/yg42-q284.json?$where=call_time%20IS%20NOT%20NULL&$order=call_time%20DESC&$limit=1000
+  schema:
+    timestamp_field: '[].call_time'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1H
+- id: edmonton_fire_rescue_dispatch_volume
+  name: Edmonton Fire Rescue dispatched events (hourly dispatch volume)
+  domain: healthcare
+  frequency: PT1H
+  license: City of Edmonton Open Data Licence
+  notes: Edmonton Fire Rescue Services dispatched events (7hsn-idqi) incl MEDICAL group; aggregated to hourly
+    counts. Refreshes in daily batches; poll daily.
+  endpoint:
+    type: rest_json
+    url: https://data.edmonton.ca/resource/7hsn-idqi.json?$where=dispatch_datetime%20IS%20NOT%20NULL&$order=dispatch_datetime%20DESC&$limit=2000
+  schema:
+    timestamp_field: '[].dispatch_datetime'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1H
+- id: irceline_brussels_pm25_hourly
+  name: IRCEL-CELINE Belgium PM2.5 hourly (Roeselare station)
+  domain: healthcare
+  frequency: PT1H
+  license: IRCEL-CELINE open data (free reuse with attribution)
+  notes: Belgian Interregional Environment Agency SOS API; hourly PM2.5 ug/m3 at station 44RL01 Roeselare
+    (timeseries 100005). Last bin may be null (in-progress hour).
+  endpoint:
+    type: rest_json
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100005/getData?timespan=PT72H/{ISO_DATETIME}Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field:
+    - values[].value
+
+# -- wired batch: econ-energy-w2 --
+- id: ercot_physical_responsive_capability
+  name: ERCOT Physical Responsive Capability (PRC, ~10-second)
+  domain: energy
+  frequency: PT10S
+  license: ERCOT public dashboard data — research use ok
+  notes: Physical Responsive Capability (MW) of the Texas grid at ~8-12 second resolution; distinct metric
+    from the wired ercot_supply_demand (5-min demand/capacity). Full-day array per fetch.
+  endpoint:
+    url: https://www.ercot.com/api/1/services/read/dashboards/daily-prc.json
+    type: rest_json
+  schema:
+    timestamp_field: data[].epoch
+    value_field:
+    - data[].prc
+- id: spp_area_control_error
+  name: SPP Area Control Error (1-minute)
+  domain: energy
+  frequency: PT1M
+  license: SPP public operations portal data
+  notes: Southwest Power Pool Area Control Error (MW), 1-minute samples, rolling ~2-hour window per fetch.
+  endpoint:
+    url: https://portal.spp.org/chart-api/ace/asChart
+    type: rest_json
+  schema:
+    timestamp_field: response.labels
+    value_field:
+    - response.datasets[0].data
+- id: bandcamp_sales_feed
+  name: Bandcamp live music sales feed
+  domain: sales
+  frequency: irregular
+  license: Bandcamp public salesfeed API (powers bandcamp.com/live ticker)
+  notes: Individual music purchases (USD amount per item) from the public Bandcamp sales ticker. API serves
+    a 10-min window starting at start_date; {EPOCH-1h} keeps a constant ~1h lag. Aggregate to per-minute
+    revenue downstream if needed.
+  endpoint:
+    url: https://bandcamp.com/api/salesfeed/1/get?start_date={EPOCH-1h}
+    type: rest_json
+  schema:
+    timestamp_field: events[].items[].utc_date
+    value_field:
+    - events[].items[].amount_paid_usd
+- id: wise_usd_eur_hourly
+  name: Wise USD/EUR mid-market rate (hourly)
+  domain: econ_fin
+  frequency: PT1H
+  license: Wise public rates API (unauthenticated, powers wise.com currency pages)
+  notes: Hourly USD->EUR mid-market exchange rate, rolling 7-day window. Rate updates pause over FX weekend
+    close.
+  endpoint:
+    url: https://wise.com/rates/history+live?source=USD&target=EUR&length=7&resolution=hourly&unit=day
+    type: rest_json
+  schema:
+    timestamp_field: '[].time'
+    value_field:
+    - '[].value'
+- id: cboe_vix_intraday
+  name: Cboe VIX index intraday (1-min bars, delayed)
+  domain: econ_fin
+  frequency: PT1M
+  license: Cboe delayed market data (public website feed); check redistribution terms
+  notes: Delayed intraday VIX 1-minute bars (close + options volume) for the current/last trading day. Stale
+    over weekends/market close; first bars of day can be 0.0.
+  endpoint:
+    url: https://cdn.cboe.com/api/global/delayed_quotes/charts/intraday/_VIX.json
+    type: rest_json
+  schema:
+    timestamp_field: data[].datetime
+    value_field:
+    - data[].price.close
+    - data[].volume.total_options_volume
+- id: sec_edgar_8k_filings
+  name: SEC EDGAR current 8-K filings (event stream, hourly counts)
+  domain: econ_fin
+  frequency: irregular
+  license: Public domain (US SEC EDGAR)
+  notes: Count of 8-K material-event filings hitting EDGAR, binned to 30-min. Quiet on weekends/nights.
+    Requires a descriptive User-Agent header.
+  endpoint:
+    url: https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=8-K&company=&dateb=&owner=include&count=100&output=atom
+    type: rss
+    headers:
+      User-Agent: TSBench-Forge research chris@tensor-link.com
+  schema:
+    timestamp_field: updated
+    value_field:
+    - title
+    aggregate:
+      op: count
+      bin: PT1M
+- id: federal_register_daily_documents
+  name: Federal Register — all documents published per day
+  domain: econ_fin
+  frequency: P1D
+  license: Public domain (US GPO / Federal Register)
+  notes: Daily count of all US Federal Register documents (rules, proposed rules, notices, presidential
+    docs). Zero on weekends/holidays. Paginated to cover ~6 weeks per fetch. Distinct from wired OFAC-filtered
+    series.
+  endpoint:
+    url: https://www.federalregister.gov/api/v1/documents.json?order=newest&per_page=1000&fields%5B%5D=publication_date&fields%5B%5D=type
+    type: rest_json
+    paginate:
+      items: results
+      next: next_page_url
+      max_pages: 3
+  schema:
+    timestamp_field: results[].publication_date
+    value_field:
+    - results[].type
+    aggregate:
+      op: count
+      bin: P1D
