@@ -44,6 +44,9 @@ schedules:
   - gbfs_buenos_aires_station_status
   - gbfs_indego_philadelphia_station_status
   - gbfs_trondheim_station_status
+  - gbfs_rio_de_janeiro_station_status
+  - gbfs_santiago_station_status
+  - gbfs_bergen_station_status
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -69,6 +72,9 @@ schedules:
   - nyiso_fuel_mix_5min
   - nyiso_interface_flows
   - nyc_traffic_link_speeds
+  - coinbase_sol_usd_5m
+  - kraken_eth_eur_5m
+  - bitstamp_btc_eur_5m
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -94,6 +100,15 @@ schedules:
   - hydro_quebec_demand
   - energy_charts_de_cross_border_flows
   - elering_nordpool_estonia_price
+  - energy_charts_at_public_power
+  - energy_charts_nl_public_power
+  - energy_charts_dk_public_power
+  - energy_charts_es_public_power
+  - energy_charts_pl_public_power
+  - energy_charts_be_day_ahead_price
+  - energy_charts_nl_day_ahead_price
+  - energy_charts_se4_day_ahead_price
+  - energy_charts_de_co2_intensity
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -116,6 +131,7 @@ schedules:
   - uk_carbon_intensity_national
   - aemo_nem_price_demand_qld
   - aemo_nem_price_demand_tas
+  - aemo_nem_price_demand_vic
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -150,6 +166,13 @@ schedules:
   - nvd_cve_publication_rate
   - huggingface_dataset_creation_rate
   - blockchain_btc_mempool_size
+  - nyiso_transmission_outages
+  - rennes_bike_counters_hourly
+  - hn_story_submission_rate
+  - stackexchange_serverfault_question_rate
+  - stackexchange_superuser_question_rate
+  - urlhaus_malicious_url_submissions
+  - ripestat_routing_history_google
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -209,6 +232,30 @@ schedules:
   - npm_downloads_vue_daily
   - pypistats_numpy_daily
   - blockchain_btc_hashrate_daily
+  - bank_of_canada_usd_cad_daily
+  - bank_of_canada_policy_rate
+  - bcb_brazil_ipca_monthly
+  - treasury_debt_to_penny_daily
+  - treasury_rates_of_exchange_quarterly
+  - ecb_euro_area_10y_yield
+  - worldbank_inflation_country_panel
+  - zillow_new_listings_monthly
+  - zillow_days_to_pending_monthly
+  - zillow_sale_to_list_ratio_monthly
+  - zillow_pct_listings_price_cut_monthly
+  - zillow_for_sale_inventory_monthly
+  - zillow_zhvi_condo_monthly
+  - eurostat_hicp_germany_monthly
+  - ukhsa_covid_cases_daily
+  - ukhsa_covid_deaths_daily
+  - who_gho_dtp3_immunization_coverage
+  - who_gho_tuberculosis_incidence
+  - who_gho_ncd_premature_mortality
+  - openfda_device_510k_clearances
+  - openfda_nsde_marketing_starts
+  - blockchain_btc_transaction_fees_daily
+  - blockchain_btc_difficulty
+  - arch_package_popularity
   cron: 10 1 * * *
 - every: P1D
   sources:

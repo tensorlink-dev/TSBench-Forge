@@ -10609,3 +10609,1206 @@
   pretraining_novelty: clean
   license: Blockchain.com charts API
   notes: Long exponential trend with sharp drops on mining bans and difficulty shocks.
+
+# -- balance-to-500 wave7 energy+econfin+transport (2026-07-26) --
+- id: energy_charts_at_public_power
+  name: energy-charts — Austrian public net electricity generation (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Run-of-river hydro dominant — a distinct generation profile from the thermal grids.
+- id: energy_charts_nl_public_power
+  name: energy-charts — Dutch public net electricity generation (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Gas-heavy system with the fastest solar buildout in Europe — strong regime drift.
+- id: energy_charts_dk_public_power
+  name: energy-charts — Danish public net electricity generation (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Highest wind share of any national grid — generation is near-pure weather noise.
+- id: energy_charts_es_public_power
+  name: energy-charts — Spanish public net electricity generation (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Iberian solar peak is sharper and later than northern Europe — tests fixed seasonal priors.
+- id: energy_charts_pl_public_power
+  name: energy-charts — Polish public net electricity generation (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Coal baseload with minimal flexibility — a near-flat generation stack, unlike its neighbours.
+- id: energy_charts_be_day_ahead_price
+  name: energy-charts — Belgian day-ahead power price (15-min)
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=BE&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Small tightly-coupled zone — price is largely imported from neighbours via interconnectors.
+- id: energy_charts_nl_day_ahead_price
+  name: energy-charts — Dutch day-ahead power price (15-min)
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=NL&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Gas-set marginal price — tracks TTF rather than the renewable stack.
+- id: energy_charts_se4_day_ahead_price
+  name: energy-charts — Swedish SE4 bidding-zone day-ahead price (15-min)
+  domain: energy
+  dgp_class: electricity_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=SE4&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: price
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15-min settlement periods
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Import-constrained southern Sweden — decouples violently from SE1-SE3 when the cut binds.
+- id: energy_charts_de_co2_intensity
+  name: energy-charts — German grid CO2 equivalent intensity (15-min)
+  domain: energy
+  dgp_class: emissions_intensity
+  archetypes:
+  - smooth_periodic
+  - bounded
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/co2eq?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: unix_seconds
+    value_field: co2eq
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: A second, independent carbon-intensity series to pair against the UK one — different grid, different
+    method, same physical quantity.
+- id: aemo_nem_price_demand_vic
+  name: AEMO NEM — Victoria demand and spot price (30-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_csv
+    url: https://aemo.com.au/aemo/data/nem/priceanddemand/PRICE_AND_DEMAND_{YYYYMM}_VIC1.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: SETTLEMENTDATE
+    value_field:
+    - TOTALDEMAND
+    - RRP
+    variates: 2
+  history_available: P20Y
+  update_cadence_observed: 30-min trading intervals
+  pretraining_novelty: clean
+  license: AEMO public data (CC BY 4.0)
+  notes: Completes the five-region NEM panel — the regions are interconnected, so the set supports cross-region
+    spillover and coherency tests no single region gives.
+- id: nyiso_transmission_outages
+  name: NYISO — scheduled transmission equipment outages (panel)
+  domain: energy
+  dgp_class: generation_availability
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - hierarchical
+  frequency: PT1H
+  endpoint:
+    type: rest_csv
+    url: http://mis.nyiso.com/public/csv/outSched/{YYYYMMDD-1d}outSched.csv
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: Timestamp
+    value_field: PTID
+    panel_field: Equipment Name
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: NYISO public market data
+  notes: Planned-outage counts drive the interface limits in nyiso_interface_flows — a causal upstream series
+    for another catalog entry.
+- id: bank_of_canada_usd_cad_daily
+  name: Bank of Canada — USD/CAD daily average exchange rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - random_walk
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json?start_date=2015-01-01
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXUSDCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days, ~16:30 ET
+  pretraining_novelty: contaminated
+  novelty_notes: Major FX pair; widely republished.
+  license: Bank of Canada Valet API — open
+  notes: Commodity currency with a distinct oil-price beta to the NOK pair already wired.
+- id: bank_of_canada_policy_rate
+  name: Bank of Canada — overnight policy rate (daily)
+  domain: econ_fin
+  dgp_class: monetary_policy_rate
+  archetypes:
+  - step_function
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/V39079/json?start_date=2010-01-01
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].V39079.v
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: daily; changes only on scheduled decision dates
+  pretraining_novelty: clean
+  license: Bank of Canada Valet API — open
+  notes: A second piecewise-constant policy path alongside the Riksbank one — different hiking cycle timing,
+    so they are not redundant.
+- id: bcb_brazil_ipca_monthly
+  name: Banco Central do Brasil — IPCA monthly inflation
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - non_stationary_regime
+  - heavy_tailed
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?formato=json&dataInicial=01/01/2005
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[].data'
+    value_field: '[].valor'
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Banco Central do Brasil open data
+  notes: An emerging-market inflation process — far higher variance and fatter tails than the OECD CPI series
+    already in the catalog.
+- id: treasury_debt_to_penny_daily
+  name: US Treasury — total public debt outstanding (daily)
+  domain: econ_fin
+  dgp_class: fiscal_stock
+  archetypes:
+  - smooth_trend
+  - step_function
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny?page[size]=2000&sort=-record_date
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].record_date
+    value_field: data[].tot_pub_debt_out_amt
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: every federal business day
+  pretraining_novelty: clean
+  license: Public domain (US Treasury Fiscal Data)
+  notes: Near-monotone with debt-ceiling plateaus — long flat runs then step jumps, a shape almost nothing
+    else in the catalog has.
+- id: treasury_rates_of_exchange_quarterly
+  name: US Treasury — official rates of exchange (currency panel)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  - hierarchical
+  - step_function
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange?page[size]=2000&sort=-record_date
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data[].record_date
+    value_field: data[].exchange_rate
+    panel_field: data[].country_currency_desc
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: quarterly, with amendments
+  pretraining_novelty: clean
+  license: Public domain (US Treasury Fiscal Data)
+  notes: ~170 currencies including illiquid and pegged ones — pegs are exactly-constant runs, which break
+    forecasters that assume nonzero variance.
+- id: ecb_euro_area_10y_yield
+  name: ECB — euro area 10-year government benchmark yield (daily)
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - random_walk
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_csv
+    url: https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y?format=csvdata&lastNObservations=500
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: every TARGET business day
+  pretraining_novelty: contaminated
+  novelty_notes: Benchmark yield curve point; widely republished.
+  license: ECB Data Portal — free reuse with attribution
+  notes: Long-rate counterpart to the short policy rates — the two together define curve slope.
+- id: worldbank_inflation_country_panel
+  name: World Bank — consumer price inflation (country panel, annual)
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://api.worldbank.org/v2/country/all/indicator/FP.CPI.TOTL.ZG?format=json&per_page=500&date=2000:2024
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[1][].date'
+    value_field: '[1][].value'
+    panel_field: '[1][].countryiso3code'
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: annual
+  pretraining_novelty: contaminated
+  novelty_notes: WDI indicators are heavily republished.
+  license: World Bank Open Data (CC BY 4.0)
+  notes: Contains genuine hyperinflation episodes (four-digit percentages) — an extreme-outlier stress case,
+    and more yearly-band coverage where the catalog is thinnest.
+- id: coinbase_sol_usd_5m
+  name: Coinbase Exchange — SOL-USD 5-minute OHLCV
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=300
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][4]'
+    - '[][5]'
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every 5 minutes
+  pretraining_novelty: clean
+  license: Coinbase public market data API
+  notes: Same asset as the OKX 1-minute entry but a regulated USD venue at 5-minute bars — the pair supports
+    cross-venue basis and sampling-frequency studies.
+- id: kraken_eth_eur_5m
+  name: Kraken — ETH/EUR 5-minute OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ETHEUR&interval=5
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XETHZEUR[][0]
+    value_field:
+    - result.XETHZEUR[][4]
+    - result.XETHZEUR[][6]
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every 5 minutes
+  pretraining_novelty: clean
+  license: Kraken public API
+  notes: EUR-quoted crypto — carries the EUR/USD leg, so it is not a duplicate of the USD books.
+- id: bitstamp_btc_eur_5m
+  name: Bitstamp — BTC/EUR 5-minute OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.bitstamp.net/api/v2/ohlc/btceur/?step=300&limit=500
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data.ohlc[].timestamp
+    value_field:
+    - data.ohlc[].close
+    - data.ohlc[].volume
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every 5 minutes
+  pretraining_novelty: clean
+  license: Bitstamp public API
+  notes: Thinner EUR book — wider spreads and more microstructure noise than the USD venues.
+- id: rennes_bike_counters_hourly
+  name: Rennes Métropole — hourly cycle counter volumes (counter panel)
+  domain: transport
+  dgp_class: active_travel_counts
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.rennesmetropole.fr/api/explore/v2.1/catalog/datasets/eco-counter-data/records?limit=100&order_by=date%20desc
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].date
+    value_field: results[].counts
+    panel_field: results[].name
+    variates: 1
+  history_available: P6Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Rennes Métropole open data (ODbL)
+  notes: European counterpart to the Seattle bridge counter — same physical quantity, different climate
+    and commute culture, so the pair isolates weather versus behaviour effects.
+- id: gbfs_rio_de_janeiro_station_status
+  name: Bike Rio — per-station bike availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://riodejaneiro.publicbikesystem.net/ube/gbfs/v1/en/station_status
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~10 seconds
+  pretraining_novelty: clean
+  license: Bike Rio / PBSC open GBFS
+  notes: Tropical southern-hemisphere system — no winter trough at all, unlike every northern feed.
+- id: gbfs_santiago_station_status
+  name: Bike Santiago — per-station bike availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://santiago.publicbikesystem.net/ube/gbfs/v1/en/station_status
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~10 seconds
+  pretraining_novelty: clean
+  license: Bike Santiago / PBSC open GBFS
+  notes: Andean valley city with severe winter air-quality episodes that suppress cycling — an exogenous-shock
+    channel absent from the other bikeshare feeds.
+- id: gbfs_bergen_station_status
+  name: Bergen Bysykkel — per-station bike availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.urbansharing.com/bergenbysykkel.no/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D
+  update_cadence_observed: every ~15 seconds
+  pretraining_novelty: clean
+  license: Bergen Bysykkel open GBFS (NLOD)
+  notes: Europe's rainiest major city — the strongest precipitation-response signal in the set.
+
+# -- balance-to-500 wave8 sales+healthcare (2026-07-26) --
+- id: zillow_new_listings_monthly
+  name: Zillow — new for-sale listings by US metro (monthly panel)
+  domain: sales
+  dgp_class: housing_supply_flow
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/new_listings/Metro_new_listings_uc_sfrcondo_sm_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Listing *flow*, not price level — leads price by months, so it pairs with ZHVI as a genuine leading/lagging
+    indicator pair rather than a second copy of the same signal.
+- id: zillow_days_to_pending_monthly
+  name: Zillow — median days to pending sale by US metro (monthly panel)
+  domain: sales
+  dgp_class: housing_market_liquidity
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - hierarchical
+  - bounded
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/med_doz_pending/Metro_med_doz_pending_uc_sfrcondo_sm_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: A duration/liquidity measure bounded below by zero with strong seasonality — the 2021 collapse
+    to single digits is one of the sharpest regime breaks in the catalog.
+- id: zillow_sale_to_list_ratio_monthly
+  name: Zillow — mean sale-to-list price ratio by US metro (monthly panel)
+  domain: sales
+  dgp_class: housing_market_pressure
+  archetypes:
+  - bounded
+  - non_stationary_regime
+  - hierarchical
+  - smooth_periodic
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/mean_sale_to_list/Metro_mean_sale_to_list_uc_sfrcondo_sm_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Tightly bounded around 1.0 — a low-variance ratio series that punishes models which over-widen
+    prediction intervals.
+- id: zillow_pct_listings_price_cut_monthly
+  name: Zillow — share of listings with a price cut by US metro (monthly panel)
+  domain: sales
+  dgp_class: housing_market_pressure
+  archetypes:
+  - bounded
+  - smooth_periodic
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/perc_listings_price_cut/Metro_perc_listings_price_cut_uc_sfrcondo_sm_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: A proportion in [0,1] with a hard annual sawtooth — seller capitulation, the cleanest bounded-seasonal
+    target in the sales domain.
+- id: zillow_for_sale_inventory_monthly
+  name: Zillow — for-sale inventory by US metro (monthly panel)
+  domain: sales
+  dgp_class: housing_supply_stock
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/invt_fs/Metro_invt_fs_uc_sfrcondo_sm_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P8Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: The stock that new_listings flows into and sales drain from — the three together form a genuine
+    accounting identity, usable for coherency-constrained forecasting.
+- id: zillow_zhvi_condo_monthly
+  name: Zillow ZHVI — condo/co-op typical value by US metro (monthly panel)
+  domain: sales
+  dgp_class: housing_price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  - hierarchical
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_condo_tier_0.33_0.67_sm_sa_month.csv
+    auth: none
+    rate_limit: null
+  schema:
+    wide:
+      id_fields:
+      - RegionName
+    timestamp_field: ''
+    value_field: value
+    variates: 1
+  history_available: P26Y
+  update_cadence_observed: monthly
+  pretraining_novelty: clean
+  license: Zillow research data — free for non-commercial use with attribution
+  notes: Condos diverged sharply from single-family after 2022 (HOA and insurance costs) — the spread against
+    the all-homes ZHVI is a real structural break, not a duplicate series.
+- id: eurostat_hicp_germany_monthly
+  name: Eurostat — German HICP all-items index (monthly, JSON-stat)
+  domain: sales
+  dgp_class: price_index
+  archetypes:
+  - smooth_trend
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_midx/M.I15.CP00.DE?format=JSON&lastTimePeriod=240
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: ''
+    value_field: ''
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: monthly, ~2 weeks after reference month
+  pretraining_novelty: contaminated
+  novelty_notes: Euro-area HICP is a headline macro series.
+  license: Eurostat — free reuse with attribution
+  notes: JSON-stat 2.0 auto-detected. Path-filtered (M.I15.CP00.DE) rather than query-filtered — the query
+    form returns the whole 86 MB dataflow and trips the response cap.
+- id: ukhsa_covid_cases_daily
+  name: UKHSA — COVID-19 cases by specimen day, England
+  domain: healthcare
+  dgp_class: epidemic_surveillance
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/COVID-19/geography_types/Nation/geographies/England/metrics/COVID-19_cases_casesByDay
+    auth: none
+    rate_limit: null
+    paginate:
+      items: results
+      next: next
+      max_pages: 8
+  schema:
+    timestamp_field: results[].date
+    value_field: results[].metric_value
+    variates: 1
+  history_available: P6Y
+  update_cadence_observed: daily
+  pretraining_novelty: contaminated
+  novelty_notes: UK COVID case counts are among the most republished series in existence.
+  license: UKHSA Open Government Licence v3.0
+  notes: Pairs with the admissions series already wired — cases lead admissions by ~1-2 weeks, giving a
+    lead-lag pair from one authority on one population.
+- id: ukhsa_covid_deaths_daily
+  name: UKHSA — COVID-19 deaths (ONS registration), England
+  domain: healthcare
+  dgp_class: mortality_surveillance
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/COVID-19/geography_types/Nation/geographies/England/metrics/COVID-19_deaths_ONSByDay
+    auth: none
+    rate_limit: null
+    paginate:
+      items: results
+      next: next
+      max_pages: 8
+  schema:
+    timestamp_field: results[].date
+    value_field: results[].metric_value
+    variates: 1
+  history_available: P6Y
+  update_cadence_observed: daily, with registration lag
+  pretraining_novelty: contaminated
+  novelty_notes: Widely republished.
+  license: UKHSA Open Government Licence v3.0
+  notes: The final link in the cases -> admissions -> deaths chain; strong weekday registration artefacts
+    make it a good test of calendar-effect handling.
+- id: who_gho_dtp3_immunization_coverage
+  name: WHO GHO — DTP3 immunisation coverage (country panel, annual)
+  domain: healthcare
+  dgp_class: intervention_uptake
+  archetypes:
+  - bounded
+  - smooth_trend
+  - hierarchical
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://ghoapi.azureedge.net/api/WHS4_100
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: value[].TimeDim
+    value_field: value[].NumericValue
+    panel_field:
+    - value[].SpatialDim
+    variates: 1
+  history_available: P40Y
+  update_cadence_observed: annual
+  pretraining_novelty: clean
+  license: WHO GHO OData — open
+  notes: Percentage bounded at 100 with many countries saturated at the ceiling, plus visible COVID-era
+    backsliding. Adds to the yearly band, the thinnest in the catalog.
+- id: who_gho_tuberculosis_incidence
+  name: WHO GHO — tuberculosis incidence per 100k (country panel, annual)
+  domain: healthcare
+  dgp_class: epidemic_surveillance
+  archetypes:
+  - smooth_trend
+  - hierarchical
+  - heavy_tailed
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://ghoapi.azureedge.net/api/MDG_0000000020
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: value[].TimeDim
+    value_field: value[].NumericValue
+    panel_field:
+    - value[].SpatialDim
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: annual
+  pretraining_novelty: clean
+  license: WHO GHO OData — open
+  notes: Orders-of-magnitude spread across countries — a hierarchical panel where per-series scale normalisation
+    matters far more than for the OECD-style indicators.
+- id: who_gho_ncd_premature_mortality
+  name: WHO GHO — probability of premature NCD death (country panel, annual)
+  domain: healthcare
+  dgp_class: population_health_indicator
+  archetypes:
+  - bounded
+  - smooth_trend
+  - hierarchical
+  frequency: P1Y
+  endpoint:
+    type: rest_json
+    url: https://ghoapi.azureedge.net/api/NCDMORT3070
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: value[].TimeDim
+    value_field: value[].NumericValue
+    panel_field:
+    - value[].SpatialDim
+    - value[].Dim1
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: annual
+  pretraining_novelty: clean
+  license: WHO GHO OData — open
+  notes: Sex-disaggregated (Dim1) chronic-disease mortality — slow smooth trends, the opposite regime to
+    the epidemic feeds, so it broadens what "healthcare" means in the benchmark.
+- id: openfda_device_510k_clearances
+  name: openFDA — 510(k) device clearance decisions per day
+  domain: healthcare
+  dgp_class: regulatory_throughput
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/device/510k.json?count=decision_date
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Public domain (US FDA openFDA)
+  notes: Regulator *throughput* rather than harm events — a bureaucratic queue with month-end and fiscal-year-end
+    spikes, a very different generating process to the adverse-event feeds.
+- id: openfda_nsde_marketing_starts
+  name: openFDA NSDE — drug product marketing start dates per day
+  domain: healthcare
+  dgp_class: regulatory_throughput
+  archetypes:
+  - count_discrete
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.fda.gov/other/nsde.json?count=marketing_start_date
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P25Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Public domain (US FDA openFDA)
+  notes: Product launches cluster hard on the 1st of the month — an extreme day-of-month effect that most
+    seasonal models handle badly.
+
+# -- balance-to-500 wave9 cloudops (2026-07-26) --
+- id: hn_story_submission_rate
+  name: Hacker News — story submission rate (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: http://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=1000
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: hits[].created_at
+    value_field: hits[].objectID
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Algolia HN Search API — public
+  notes: A tech-community activity clock with a pronounced US-workday shape — distinct from the globally-flat
+    machine-driven feeds elsewhere in this domain.
+- id: blockchain_btc_transaction_fees_daily
+  name: Blockchain.com — total Bitcoin transaction fees per day
+  domain: web_cloudops
+  dgp_class: fee_market
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.blockchain.info/charts/transaction-fees?timespan=1year&format=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: values[].x
+    value_field: values[].y
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: daily
+  pretraining_novelty: clean
+  license: Blockchain.com charts API
+  notes: A congestion-priced auction — fees spike orders of magnitude during mempool backlogs, so it is
+    the price counterpart to the mempool-size queue series already wired.
+- id: blockchain_btc_difficulty
+  name: Blockchain.com — Bitcoin mining difficulty
+  domain: web_cloudops
+  dgp_class: network_capacity
+  archetypes:
+  - step_function
+  - smooth_trend
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.blockchain.info/charts/difficulty?timespan=2years&format=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: values[].x
+    value_field: values[].y
+    variates: 1
+  history_available: P15Y
+  update_cadence_observed: retargets every 2016 blocks (~2 weeks)
+  pretraining_novelty: clean
+  license: Blockchain.com charts API
+  notes: Piecewise-constant by protocol design — changes only every ~2 weeks. A deterministic step schedule
+    with stochastic step sizes, an unusual and well-posed target.
+- id: stackexchange_serverfault_question_rate
+  name: Server Fault — new question arrivals (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.stackexchange.com/2.3/questions?site=serverfault&pagesize=100&order=desc&sort=creation
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: items[].creation_date
+    value_field: items[].question_id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Stack Exchange API (CC BY-SA)
+  notes: A low-volume sibling of the Stack Overflow feed — same platform and extraction, ~50x lower counts,
+    so the pair isolates count magnitude from platform effects.
+- id: stackexchange_superuser_question_rate
+  name: Super User — new question arrivals (hourly bins)
+  domain: web_cloudops
+  dgp_class: submission_stream
+  archetypes:
+  - count_discrete
+  - zero_inflated_sparse
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.stackexchange.com/2.3/questions?site=superuser&pagesize=100&order=desc&sort=creation
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: items[].creation_date
+    value_field: items[].question_id
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Stack Exchange API (CC BY-SA)
+  notes: Consumer-facing rather than professional — weekend behaviour is the inverse of Server Fault, which
+    makes the two a clean contrast on the same measurement pipeline.
+- id: urlhaus_malicious_url_submissions
+  name: abuse.ch URLhaus — malicious URL submissions (hourly bins)
+  domain: web_cloudops
+  dgp_class: threat_intel_stream
+  archetypes:
+  - count_discrete
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_csv
+    url: https://urlhaus.abuse.ch/downloads/csv_recent/
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: dateadded
+    value_field: url
+    aggregate:
+      op: count
+      bin: PT1H
+    variates: 1
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: abuse.ch — CC0
+  notes: Malware-distribution URLs. Campaign-driven — one botnet operator can add thousands in an hour,
+    producing extreme bursts against a low baseline.
+- id: ripestat_routing_history_google
+  name: RIPEstat — BGP routing history for AS15169 (Google)
+  domain: web_cloudops
+  dgp_class: bgp_routing
+  archetypes:
+  - count_discrete
+  - step_function
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://stat.ripe.net/data/routing-history/data.json?resource=AS15169&starttime={YYYY-MM-DD-180d}
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data.by_origin[].prefixes[].timelines[].starttime
+    value_field: data.by_origin[].prefixes[].prefix
+    aggregate:
+      op: count
+      bin: P1D
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: every ~8 hours
+  pretraining_novelty: clean
+  license: RIPE NCC — open
+  notes: Prefix announcement churn for one of the largest networks on the internet — outages and re-homing
+    events appear as discrete jumps.
+- id: arch_package_popularity
+  name: Arch Linux — package installation popularity (package panel)
+  domain: web_cloudops
+  dgp_class: package_adoption
+  archetypes:
+  - count_discrete
+  - bounded
+  - hierarchical
+  - smooth_trend
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://pkgstats.archlinux.de/api/packages?limit=500
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: packagePopularities[].startMonth
+    value_field:
+    - packagePopularities[].samples
+    - packagePopularities[].popularity
+    panel_field: packagePopularities[].name
+    variates: 2
+  history_available: P8Y
+  update_cadence_observed: monthly aggregation window
+  pretraining_novelty: clean
+  license: Arch Linux pkgstats — open
+  notes: Voluntary telemetry from a rolling-release distro — adoption curves for hundreds of packages, with
+    popularity bounded at 100%. A different adoption process to registry download counts, which measure
+    CI traffic more than installed base.
