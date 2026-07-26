@@ -16304,3 +16304,172 @@
     timestamp_field: '{*}time'
     value_field:
     - '{*}value'
+
+# -- wired batch: wave3b-slow-cells --
+- id: ecb_ea_gdp_volume_quarterly
+  name: ECB — euro area GDP at market prices, chain linked volume, quarterly (MNA)
+  domain: econ_fin
+  frequency: P1Q
+  license: ECB free re-use (attribution)
+  notes: Quarterly euro area (EA20 fixed composition) GDP at market prices, chain linked volume, calendar
+    and seasonally adjusted (MNA dataflow, key Q.Y.I9.W2.S1.S1.B.B1GQ._Z._Z._Z.EUR.LR.N). Distinct dataflow
+    from wired ECB EXR/YC series. ~2 month publication lag.
+  endpoint:
+    url: https://data-api.ecb.europa.eu/service/data/MNA/Q.Y.I9.W2.S1.S1.B.B1GQ._Z._Z._Z.EUR.LR.N?format=csvdata&lastNObservations=80
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+- id: bis_credit_to_private_nonfin_quarterly
+  name: BIS — total credit to private non-financial sector (% of GDP), quarterly country panel
+  domain: econ_fin
+  frequency: P1Q
+  license: BIS terms (free use with attribution)
+  notes: Quarterly credit to the private non-financial sector from all lenders, market value, % of GDP,
+    break-adjusted (WS_TC 2.0). Country panel US/GB/DE/FR/JP/CN/IT/CA/AU/KR. Distinct dataflow from wired
+    BIS policy-rate (WS_CBPOL) and EER series. Published with ~1-2 quarter lag.
+  audit_slack_days: 300
+  endpoint:
+    url: https://stats.bis.org/api/v2/data/dataflow/BIS/WS_TC/2.0/Q.US+GB+DE+FR+JP+CN+IT+CA+AU+KR.P.A.M.770.A?format=csv&startPeriod=2000-01-01
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+    panel_field: BORROWERS_CTY
+- id: imf_usa_gdp_quarterly
+  name: IMF — USA quarterly national accounts, real GDP (QNEA, SDMX 2.1)
+  domain: econ_fin
+  frequency: P1Q
+  license: IMF data terms (free re-use)
+  notes: USA quarterly GDP (B1GQ), seasonally adjusted, chained volume in domestic currency, from the IMF
+    QNEA dataflow on the new keyless api.imf.org SDMX 2.1 endpoint (old dataservices.imf.org is decommissioned).
+    ~1 quarter lag.
+  endpoint:
+    url: https://api.imf.org/external/sdmx/2.1/data/IMF.STA,QNEA/USA.B1GQ.Q.SA.XDC.Q?startPeriod=2010
+    type: rest_csv
+    headers:
+      Accept: application/vnd.sdmx.data+csv;version=1.0.0
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+- id: statfin_trade_turnover_monthly
+  name: Statistics Finland — turnover of trade index, monthly (retail/wholesale/motor)
+  domain: sales
+  frequency: P1M
+  license: CC BY 4.0 (Statistics Finland)
+  notes: Monthly turnover index of Finnish trade (2021=100), original series, industry panel G45 motor /
+    G46 wholesale / G47 retail, StatFin table 14kr via keyless PxWeb json-stat2 POST. ~1.5-2 month lag.
+  endpoint:
+    url: https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/klv/14kr.px
+    type: rest_json
+    method: POST
+    body:
+      query:
+      - code: nace_8_20180101
+        selection:
+          filter: item
+          values:
+          - G45
+          - G46
+          - G47
+      - code: luokkaryhma_2_20180301
+        selection:
+          filter: item
+          values:
+          - lv
+      - code: contentscode
+        selection:
+          filter: item
+          values:
+          - klv-alkuperainen
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: ''
+    value_field: ''
+- id: eurostat_retail_turnover_quarterly
+  name: Eurostat — net turnover index in retail trade (G47), quarterly, country panel
+  domain: sales
+  frequency: P1Q
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: Quarterly net turnover index (2021=100, calendar adjusted) for retail trade ex motor vehicles (NACE
+    G47) from sts_trtu_q; EU27 + DE/FR/ES/IT/NL/PL panel. Distinct dataflow from wired Eurostat HICP/energy/unemployment
+    series. ~1 quarter lag.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/sts_trtu_q/Q.NETTUR.G47.CA.I21.EU27_2020+DE+FR+ES+IT+NL+PL?format=SDMX-CSV&startPeriod=2010-Q1
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+    panel_field: geo
+- id: usda_mpr_boxed_beef_cutout_weekly
+  name: USDA AMS — national weekly boxed beef cutout values (LM_XB459)
+  domain: sales
+  frequency: P1W
+  license: Public domain (USDA)
+  notes: Weekly average boxed beef cutout values (USD/cwt, Choice and Select 600-900 lb) from USDA Livestock
+    Mandatory Reporting via the keyless MPR Datamart JSON API (slug 2461, section Weekly Average Cutout
+    Values). Published Fridays.
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2461/Weekly%20Average%20Cutout%20Values?q=report_date=01/01/2025:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].choice_600_900_simple_avg
+    - results[].select_600_900_simple_avg
+- id: statcounter_browser_share_monthly
+  name: StatCounter GlobalStats — desktop browser market share worldwide, monthly
+  domain: web_cloudops
+  frequency: P1M
+  license: CC BY-SA 3.0 (StatCounter GlobalStats)
+  notes: Monthly worldwide desktop browser market share (%) from StatCounter GlobalStats CSV export; columns
+    per browser (Chrome, Edge, Safari, Firefox, Opera, ...). Rolling 30-month window. Current month row
+    is partial until month end.
+  endpoint:
+    url: https://gs.statcounter.com/chart.php?device_hidden=desktop&statType_hidden=browser&region_hidden=ww&granularity=monthly&statType=Browser&region=Worldwide&fromInt={YYYYMM-30m}&toInt={YYYYMM}&csv=1
+    type: rest_csv
+  schema:
+    timestamp_field: Date
+    value_field:
+    - Chrome
+    - Edge
+    - Safari
+    - Firefox
+    - Opera
+- id: chrome_stable_rollout_fractions
+  name: Chrome VersionHistory — Windows stable channel release rollout fractions
+  domain: web_cloudops
+  frequency: P1W
+  license: Google APIs public data (versionhistory.googleapis.com, keyless)
+  notes: Rollout fraction per Chrome version release on the Windows stable channel from the keyless VersionHistory
+    API; new releases land roughly weekly, several versions share a serving start time. value=fraction of
+    users served.
+  endpoint:
+    url: https://versionhistory.googleapis.com/v1/chrome/platforms/win/channels/stable/versions/all/releases?pageSize=200
+    type: rest_json
+  schema:
+    timestamp_field: releases[].serving.startTime
+    value_field:
+    - releases[].fraction
+    panel_field: releases[].version
+- id: wikimedia_edits_en_monthly
+  name: Wikimedia — English Wikipedia total edits per month
+  domain: web_cloudops
+  frequency: P1M
+  license: CC0 (Wikimedia Analytics)
+  notes: Monthly count of edits on en.wikipedia (all editor types, all page types) from the Wikimedia REST
+    metrics/edits endpoint. Distinct metric from wired daily pageviews / editors / unique-devices series.
+    Current month is partial; last full month final ~2 days after month end.
+  endpoint:
+    url: https://wikimedia.org/api/rest_v1/metrics/edits/aggregate/en.wikipedia/all-editor-types/all-page-types/monthly/20180101/{YYYYMMDD-2d}
+    type: rest_json
+  schema:
+    timestamp_field: items[].results[].timestamp
+    value_field:
+    - items[].results[].edits
