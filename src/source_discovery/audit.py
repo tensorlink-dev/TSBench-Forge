@@ -43,6 +43,7 @@ _FORMATS = (
     "%Y/%m/%d %H:%M:%S", "%Y/%m/%d",
     "%m/%d/%Y %H:%M:%S", "%m/%d/%Y %H:%M",
     "%m.%Y", "%d.%m.%Y",
+    "%d%b%Y",  # CPC ENSO weekly: "15JUL2026" (strptime %b is case-insensitive)
 )
 
 # Digit-only strings are ambiguous under greedy strptime ("20260726" parses as

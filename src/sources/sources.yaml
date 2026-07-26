@@ -16473,3 +16473,169 @@
     timestamp_field: items[].results[].timestamp
     value_field:
     - items[].results[].edits
+
+# -- wired batch: wave4-weekly-hc --
+- id: imf_portwatch_chokepoint_transits_daily
+  name: IMF PortWatch — daily chokepoint transit calls (Suez, Panama, Bosporus, ...)
+  domain: transport
+  frequency: P1D
+  audit_slack_days: 21  # AIS-derived, weekly batch refresh with ~5-10d processing lag
+  license: IMF PortWatch open data (free reuse with attribution)
+  notes: Daily number of ship transits (n_total, plus capacity proxy) through ~25 maritime chokepoints from
+    AIS via IMF/Oxford PortWatch ArcGIS feature service. Refreshed in weekly batches with ~5-10 day AIS
+    processing lag; rolling 45-day window query.
+  endpoint:
+    url: https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Chokepoints_Data/FeatureServer/0/query?where=date%3E%3DDATE%20%27{YYYY-MM-DD-45d}%27&outFields=date,portname,n_total,n_cargo,n_tanker&resultRecordCount=2000&f=json
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: features[].attributes.date
+    value_field:
+    - features[].attributes.n_total
+    - features[].attributes.n_cargo
+    - features[].attributes.n_tanker
+    panel_field: features[].attributes.portname
+- id: nola_911_calls_for_service_volume
+  name: New Orleans 911 calls for service (hourly call volume)
+  domain: healthcare
+  frequency: PT1H
+  license: Public domain (City of New Orleans open data)
+  notes: 'NOPD/OPCD 911 calls-for-service CAD feed (Calls for Service 2026, es9j-6y5d), incl. medical and
+    other emergency dispatches; aggregated to hourly call counts. Daily batch refresh (~1 day lag). GOTCHA:
+    dataset id rolls over each calendar year.'
+  endpoint:
+    type: rest_json
+    url: https://data.nola.gov/resource/es9j-6y5d.json?$order=timecreate%20DESC&$limit=3000
+  schema:
+    timestamp_field: '[].timecreate'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1H
+- id: norfolk_911_daily_call_volume
+  name: Norfolk VA Emergency Communications — daily 911 call volume and answer metrics
+  domain: healthcare
+  frequency: P1D
+  license: Public domain (City of Norfolk open data)
+  notes: 'Norfolk ECC 24-hour 911 call volume: total calls and texts, calls answered/abandoned, average
+    seconds to answer. Daily rows, refreshed daily with ~2-4 day lag.'
+  endpoint:
+    type: rest_json
+    url: https://data.norfolk.gov/resource/nj5u-a2dj.json?$order=date%20DESC&$limit=400
+  schema:
+    timestamp_field: '[].date'
+    value_field:
+    - '[].total_calls_and_texts'
+    - '[]._911_calls_answered'
+    - '[]._911_calls_abandoned'
+    - '[].average_seconds_to_answer'
+  audit_slack_days: 6
+- id: usda_mpr_pork_cutout_weekly
+  name: USDA AMS — national weekly pork FOB plant cutout and primal values (LM_PK610)
+  domain: sales
+  frequency: P1W
+  license: Public domain (USDA)
+  notes: Weekly average pork carcass cutout and primal values (USD/cwt, carcass/loin/butt/picnic/rib/ham/belly)
+    from USDA Livestock Mandatory Reporting via keyless MPR Datamart JSON API (slug 2500, section Weekly
+    Average Cutout and Primal Values). Published Fridays.
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2500/Weekly%20Average%20Cutout%20and%20Primal%20Values?q=report_date=01/01/2025:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].avg_cutout_carcass
+    - results[].avg_cutout_loin
+    - results[].avg_cutout_ham
+    - results[].avg_cutout_belly
+- id: usda_dairy_butter_price_weekly
+  name: USDA AMS — national dairy products sales report, weekly butter price and sales
+  domain: sales
+  frequency: P1W
+  license: Public domain (USDA)
+  notes: Weekly US average butter price (USD/lb) and sales volume (lb) from the USDA National Dairy Products
+    Sales Report via keyless MPR Datamart API (slug 2993, section Butter Prices and Sales). Query by published_date
+    (report_date is invalid for DY_WK100); sales volumes contain comma thousands separators; rows include
+    revisions of prior weeks.
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2993/Butter%20Prices%20and%20Sales?q=published_date=01/01/2025:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].Week Ending Date
+    value_field:
+    - results[].Butter_Price
+    - results[].Butter_Sales
+- id: bloomington_fire_response_volume
+  name: Bloomington IN Fire Department incident responses (daily unit-response volume)
+  domain: healthcare
+  frequency: P1D
+  license: Public domain (City of Bloomington open data)
+  notes: Bloomington Fire Dept unit responses (incl. EMS runs) from Socrata feed jr6a-uyr5, aggregated to
+    daily response counts. Near-real-time refresh (rows within minutes of dispatch); small city, ~20-40
+    unit rows/day.
+  endpoint:
+    type: rest_json
+    url: https://data.bloomington.in.gov/resource/jr6a-uyr5.json?$order=alm_datetime%20DESC&$limit=3000
+  schema:
+    timestamp_field: '[].alm_datetime'
+    value_field: value
+    aggregate:
+      op: count
+      bin: P1D
+
+# -- wired batch: wave4-retry --
+- id: imf_portwatch_port_calls_daily
+  name: IMF PortWatch — daily port calls and trade volume estimates, major ports
+  domain: transport
+  frequency: P1D
+  audit_slack_days: 21
+  license: IMF PortWatch open data (free reuse with attribution)
+  notes: Daily vessel port calls (total + container) and import/export volume estimates (metric tons) for
+    10 major world ports from IMF/Oxford PortWatch AIS-derived ArcGIS service. Weekly batch refresh, ~5-10
+    day lag; rolling 45-day window.
+  endpoint:
+    url: https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query?where=date%3E%3DDATE%20%27{YYYY-MM-DD-45d}%27%20AND%20portname%20IN%20(%27Shanghai%27,%27Singapore%27,%27Rotterdam%27,%27Busan%27,%27Los%20Angeles%27,%27Antwerp%27,%27Hamburg%27,%27Ningbo%27,%27Long%20Beach%27,%27Port%20Klang%27)&outFields=date,portname,portcalls,portcalls_container,import,export&resultRecordCount=2000&f=json
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: features[].attributes.date
+    value_field:
+    - features[].attributes.portcalls
+    - features[].attributes.portcalls_container
+    - features[].attributes.import
+    - features[].attributes.export
+    panel_field: features[].attributes.portname
+- id: owid_electricity_generation_yearly
+  name: OWID/Ember — total electricity generation by country, yearly (TWh)
+  domain: energy
+  frequency: P1Y
+  audit_slack_days: 700
+  license: CC BY 4.0 (Our World in Data / Ember Yearly Electricity Data)
+  notes: Annual total electricity generation (TWh) per country from Ember via the Our World in Data grapher
+    CSV API. Updated by OWID pipelines as Ember releases; latest full year typically N-1.
+  endpoint:
+    url: https://ourworldindata.org/grapher/electricity-generation.csv?csvType=full&useColumnShortNames=true
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: year
+    value_field:
+    - total_generation__twh
+    panel_field: entity
+- id: cpc_weekly_nino4_relative_ssta
+  name: NOAA CPC — weekly Nino-4 relative SST anomaly (ENSO index)
+  domain: nature
+  frequency: P1W
+  license: Public domain (NOAA CPC)
+  notes: 'Weekly relative SST anomaly for the Nino-4 region from NOAA CPC rel_wksst9120.txt (1991-2020 base),
+    back to 1981, updated weekly (Mondays). GOTCHA: file header repeats column name SSTA for the 4 Nino
+    regions; the generic CSV parser keeps the LAST duplicate column, i.e. Nino-4.'
+  endpoint:
+    url: https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt
+    type: rest_csv
+  schema:
+    timestamp_field: Week
+    value_field:
+    - SSTA
