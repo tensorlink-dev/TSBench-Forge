@@ -233,24 +233,63 @@ def _expand_env(url: str) -> str:
 _ENV_PLACEHOLDER_RE = re.compile(r"\{([A-Z][A-Z0-9_]+)\}")
 
 
-def _http_get(url: str, headers: dict[str, str]) -> httpx.Response:
+# The scrape host has 4 GB of RAM and runs every source in one process, so a
+# single unbounded response can OOM the box (and has). Stream every body and
+# refuse anything past the cap rather than materialising it.
+MAX_RESPONSE_BYTES = 48 * 1024 * 1024
+
+# Headers describing the *encoded* transfer must not be carried onto the
+# reconstructed response — the body we attach is already decoded.
+_TRANSFER_HEADERS = {"content-encoding", "content-length", "transfer-encoding"}
+
+
+def _capped_response(resp: httpx.Response, url: str,
+                     max_bytes: Optional[int] = None) -> httpx.Response:
+    """Read a streaming response into memory, refusing oversized bodies.
+
+    Raises RuntimeError past the cap instead of truncating: a half-read JSON or
+    CSV payload would parse into silently wrong records, which is worse than a
+    logged failure. Raise the ceiling per source with `endpoint.max_bytes`.
+    """
+    cap = max_bytes or MAX_RESPONSE_BYTES
+    chunks, total = [], 0
+    for chunk in resp.iter_bytes():
+        total += len(chunk)
+        if total > cap:
+            raise RuntimeError(
+                f"response exceeded {cap} byte cap (still streaming at {total}): {url} "
+                f"— narrow the query, or set endpoint.max_bytes if this size is expected"
+            )
+        chunks.append(chunk)
+    hdrs = [(k, v) for k, v in resp.headers.multi_items()
+            if k.lower() not in _TRANSFER_HEADERS]
+    return httpx.Response(resp.status_code, headers=hdrs,
+                          content=b"".join(chunks), request=resp.request)
+
+
+def _http_get(url: str, headers: dict[str, str],
+              max_bytes: Optional[int] = None) -> httpx.Response:
     # Default UA acceptable for most APIs; crates.io/Reddit need a contact.
     headers = {"User-Agent": "timeframe-scraper/0.1 (+https://github.com/timeframe-bench)", **headers}
     timeout = httpx.Timeout(30.0, connect=10.0)
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        return client.get(url, headers=headers)
+        with client.stream("GET", url, headers=headers) as resp:
+            return _capped_response(resp, url, max_bytes)
 
 
-def _http_post(url: str, headers: dict[str, str], body: Any) -> httpx.Response:
+def _http_post(url: str, headers: dict[str, str], body: Any,
+               max_bytes: Optional[int] = None) -> httpx.Response:
     """POST a JSON body — used by GraphQL and POST-only JSON APIs. `body` is the
     request payload (e.g. {"query": "...", "variables": {...}} for GraphQL)."""
     headers = {"User-Agent": "timeframe-scraper/0.1 (+https://github.com/timeframe-bench)", **headers}
     timeout = httpx.Timeout(30.0, connect=10.0)
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        return client.post(url, headers=headers, json=body)
+        with client.stream("POST", url, headers=headers, json=body) as resp:
+            return _capped_response(resp, url, max_bytes)
 
 
-def _paginate_json(first: bytes, url: str, headers: dict[str, str], pg: dict) -> bytes:
+def _paginate_json(first: bytes, url: str, headers: dict[str, str], pg: dict,
+                   max_bytes: Optional[int] = None) -> bytes:
     """Follow cursor/next-link pagination for a JSON API and merge item arrays.
 
     `pg` config: {items: <top-level array key>, next: <top-level next-URL key>,
@@ -270,7 +309,7 @@ def _paginate_json(first: bytes, url: str, headers: dict[str, str], pg: dict) ->
     pages = 1
     while nxt and isinstance(nxt, str) and nxt.startswith("http") and pages < max_pages:
         try:
-            r = _http_get(nxt, headers)
+            r = _http_get(nxt, headers, max_bytes)
             if r.status_code not in (200, 206):
                 break
             d = json.loads(r.content)
@@ -305,6 +344,7 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
             f"unresolved placeholders {leftover} in URL — define `panel` in sources.yaml or pass --panel"
         )
     headers = _resolve_auth(ep.get("auth"))
+    cap = ep.get("max_bytes")
     # POST/GraphQL: type: graphql (body defaults to {"query": ...}) or an explicit
     # method: POST with a `body` JSON payload. Everything else is a GET.
     is_post = (ep.get("method", "").upper() == "POST") or ep.get("type") == "graphql"
@@ -317,7 +357,8 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
     # pypistats in particular 429s bursts of panel rows.
     for attempt in range(3):
         try:
-            resp = _http_post(url, headers, body) if is_post else _http_get(url, headers)
+            resp = (_http_post(url, headers, body, cap) if is_post
+                    else _http_get(url, headers, cap))
         except httpx.TransportError as e:
             if attempt == 2:
                 raise
@@ -339,7 +380,7 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
         raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
     content = resp.content
     if ep.get("paginate"):
-        content = _paginate_json(content, url, headers, ep["paginate"])
+        content = _paginate_json(content, url, headers, ep["paginate"], cap)
     return content, resp.headers.get("content-type", "")
 
 

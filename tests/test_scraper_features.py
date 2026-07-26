@@ -250,3 +250,40 @@ def test_wide_csv_ignores_non_date_columns():
     rows = scraper._records_from_csv(csv_text, {"wide": {"id_fields": ["RegionName"]}})
     assert [r["timestamp"] for r in rows] == ["2024-01-31"]
     assert rows[0]["value"] == "500000"
+
+
+def test_capped_response_rejects_oversized_body():
+    """A body past the cap must raise, not truncate — a half-read JSON/CSV
+    payload would parse into silently wrong records."""
+    import httpx
+
+    def handler(request):
+        return httpx.Response(200, content=b"x" * 5000)
+
+    transport = httpx.MockTransport(handler)
+    with httpx.Client(transport=transport) as client:
+        with client.stream("GET", "http://x/big") as resp:
+            try:
+                scraper._capped_response(resp, "http://x/big", max_bytes=1000)
+            except RuntimeError as e:
+                assert "exceeded" in str(e)
+            else:
+                raise AssertionError("expected RuntimeError for oversized body")
+
+
+def test_capped_response_passes_normal_body_and_keeps_content_type():
+    import httpx
+
+    def handler(request):
+        return httpx.Response(200, content=b'{"ok":1}',
+                              headers={"content-type": "application/json"})
+
+    transport = httpx.MockTransport(handler)
+    with httpx.Client(transport=transport) as client:
+        with client.stream("GET", "http://x/small") as resp:
+            out = scraper._capped_response(resp, "http://x/small", max_bytes=1000)
+    assert out.status_code == 200
+    assert out.content == b'{"ok":1}'
+    assert "json" in out.headers.get("content-type", "")
+    # transfer-encoding headers must not survive onto the decoded body
+    assert "content-encoding" not in out.headers
