@@ -16639,3 +16639,192 @@
     timestamp_field: Week
     value_field:
     - SSTA
+
+# -- wired batch: wave5-halfhour --
+- id: elexon_gb_demand_outturn_30min
+  name: Elexon BMRS GB initial demand outturn (30-min settlement periods)
+  domain: energy
+  frequency: PT30M
+  license: Elexon BSC open data (free re-use)
+  notes: GB national initial demand outturn (INDO) and transmission system demand (ITSDO) per 30-min settlement
+    period; distinct series from wired elexon_gb_system_frequency.
+  endpoint:
+    url: https://data.elexon.co.uk/bmrs/api/v1/demand/outturn?settlementDateFrom={YYYY-MM-DD-1d}&settlementDateTo={YYYY-MM-DD}&format=json
+    type: rest_json
+  schema:
+    timestamp_field: data[].startTime
+    value_field:
+    - data[].initialDemandOutturn
+    - data[].initialTransmissionSystemDemandOutturn
+- id: elexon_gb_generation_by_fuel_30min
+  name: Elexon BMRS GB generation by fuel type (half-hourly FUELHH)
+  domain: energy
+  frequency: PT30M
+  license: Elexon BSC open data (free re-use)
+  notes: GB generation MW per fuel type (BIOMASS, CCGT, WIND, NUCLEAR, interconnectors...) per 30-min settlement
+    period; panel by fuelType. Distinct metric from wired frequency and demand-outturn series.
+  endpoint:
+    url: https://data.elexon.co.uk/bmrs/api/v1/datasets/FUELHH?settlementDateFrom={YYYY-MM-DD-1d}&settlementDateTo={YYYY-MM-DD}&format=json
+    type: rest_json
+  schema:
+    timestamp_field: data[].startTime
+    value_field:
+    - data[].generation
+    panel_field: data[].fuelType
+- id: elexon_gb_market_index_price_30min
+  name: Elexon BMRS GB wholesale market index price and volume (half-hourly MID)
+  domain: econ_fin
+  frequency: PT30M
+  license: Elexon BSC open data (free re-use)
+  notes: GB balancing-market Market Index Data (MID); GBP/MWh price and traded volume per 30-min settlement
+    period, panel by data provider (APXMIDP/N2EXMIDP). Wholesale power price = econ_fin half-hour cell;
+    distinct metric from other wired Elexon series.
+  endpoint:
+    url: https://data.elexon.co.uk/bmrs/api/v1/datasets/MID?from={YYYY-MM-DD-1d}T00:00Z&to={YYYY-MM-DD}T23:59Z&format=json
+    type: rest_json
+  schema:
+    timestamp_field: data[].startTime
+    value_field:
+    - data[].price
+    - data[].volume
+    panel_field: data[].dataProvider
+- id: nz_emi_dispatch_energy_prices
+  audit_slack_days: 3
+  name: NZ EMI wholesale dispatch energy prices (half-hourly, node panel)
+  domain: energy
+  frequency: PT30M
+  license: NZ Electricity Authority open data (CC-BY 4.0)
+  notes: 'NZD/MWh dispatch energy price per point of connection for all 48 half-hour trading periods of
+    the completed NZ trading day; ~250 node panel. Timestamp uses PublishDateTime (per-period dispatch publish
+    time) because TradingPeriod runs 1-48 and cannot compose into an hour-of-day. Redirects to emidatasets.blob.core.windows.net
+    (~4.4MB/day). GOTCHA: /2026/ year folder is hardcoded (no {YYYY} token) — needs annual bump.'
+  endpoint:
+    url: https://www.emi.ea.govt.nz/Wholesale/Datasets/DispatchAndPricing/DispatchEnergyPrices/2026/{YYYYMMDD-1d}_DispatchEnergyPrices.csv
+    type: rest_csv
+  schema:
+    timestamp_field: PublishDateTime
+    value_field:
+    - DollarsPerMegawattHour
+    panel_field: PointOfConnection
+- id: rockford_911_dispatch_halfhour
+  name: Rockford IL 72-hour police/fire 911 dispatch log (30-min call counts)
+  domain: healthcare
+  frequency: PT30M
+  license: Illinois open data (public domain)
+  notes: Rolling 72-hour CAD dispatch log for Rockford IL (police + fire/EMS incl. medical calls), refreshed
+    every few minutes; aggregated to 30-min dispatch counts. Socrata on Illinois state platform.
+  endpoint:
+    url: https://illinois-edp.data.socrata.com/resource/7b7d-v8d9.json?$where=dispatch_date_time%20IS%20NOT%20NULL&$order=dispatch_date_time%20DESC&$limit=5000
+    type: rest_json
+  schema:
+    timestamp_field: '[].dispatch_date_time'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT30M
+- id: winnebago_911_dispatch_halfhour
+  name: Winnebago County IL 72-hour sheriff-area 911 dispatch log (30-min call counts)
+  domain: healthcare
+  frequency: PT30M
+  license: Illinois open data (public domain)
+  notes: Rolling 72-hour CAD dispatch log for Winnebago County IL agencies outside Rockford (sheriff, municipal
+    PDs, fire districts), refreshed every few minutes; aggregated to 30-min dispatch counts. Socrata on
+    Illinois state platform.
+  endpoint:
+    url: https://illinois-edp.data.socrata.com/resource/i96m-iu3n.json?$where=dispatch_date_time%20IS%20NOT%20NULL&$order=dispatch_date_time%20DESC&$limit=5000
+    type: rest_json
+  schema:
+    timestamp_field: '[].dispatch_date_time'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT30M
+- id: cpc_daily_ao_index
+  audit_slack_days: 4
+  name: NOAA CPC daily Arctic Oscillation (AO) index
+  domain: nature
+  frequency: P1D
+  license: NOAA public domain
+  notes: Daily AO teleconnection index (CDAS z1000, 1950-present, updated daily with ~2-day lag). Distinct
+    file/series from wired weekly regional SST on www.cpc.ncep.noaa.gov.
+  endpoint:
+    url: https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.ao.cdas.z1000.19500101_current.csv
+    type: rest_csv
+  schema:
+    timestamp_field: year month day
+    value_field:
+    - ao_index_cdas
+- id: cpc_daily_nao_index
+  audit_slack_days: 4
+  name: NOAA CPC daily North Atlantic Oscillation (NAO) index
+  domain: nature
+  frequency: P1D
+  license: NOAA public domain
+  notes: Daily NAO teleconnection index (CDAS z500, 1950-present, updated daily with ~2-day lag). Distinct
+    file/series from wired weekly regional SST on www.cpc.ncep.noaa.gov.
+  endpoint:
+    url: https://ftp.cpc.ncep.noaa.gov/cwlinks/norm.daily.nao.cdas.z500.19500101_current.csv
+    type: rest_csv
+  schema:
+    timestamp_field: year month day
+    value_field:
+    - nao_index_cdas
+- id: worldbank_internet_users_panel
+  audit_slack_days: 1200
+  name: World Bank — individuals using the Internet, % of population (country panel, annual)
+  domain: web_cloudops
+  frequency: P1Y
+  license: World Bank Open Data (CC BY 4.0)
+  notes: ITU-sourced internet adoption share (IT.NET.USER.ZS) per country, annual; fills the web_cloudops
+    yearly cell. Distinct indicator from wired WDI entries on api.worldbank.org.
+  endpoint:
+    url: https://api.worldbank.org/v2/country/all/indicator/IT.NET.USER.ZS?format=json&per_page=500&date=2000:2024
+    type: rest_json
+  schema:
+    timestamp_field: '[1][].date'
+    value_field: '[1][].value'
+    panel_field: '[1][].countryiso3code'
+- id: worldbank_fixed_broadband_panel
+  audit_slack_days: 1200
+  name: World Bank — fixed broadband subscriptions per 100 people (country panel, annual)
+  domain: web_cloudops
+  frequency: P1Y
+  license: World Bank Open Data (CC BY 4.0)
+  notes: ITU-sourced fixed-broadband penetration (IT.NET.BBND.P2) per country, annual; fills the web_cloudops
+    yearly cell. Distinct indicator from wired WDI entries on api.worldbank.org.
+  endpoint:
+    url: https://api.worldbank.org/v2/country/all/indicator/IT.NET.BBND.P2?format=json&per_page=500&date=2000:2024
+    type: rest_json
+  schema:
+    timestamp_field: '[1][].date'
+    value_field: '[1][].value'
+    panel_field: '[1][].countryiso3code'
+
+# -- wired batch: wave5-retry --
+- id: eirgrid_wind_generation
+  name: EirGrid Smart Grid Dashboard — all-island wind generation (15-min)
+  domain: energy
+  frequency: PT15M
+  license: EirGrid open dashboard data
+  notes: All-island (ROI+NI) actual wind generation MW at 15-min resolution; area=windactual, distinct metric
+    from wired eirgrid_system_demand (demandactual). Trailing future slots null until measured.
+  endpoint:
+    url: https://www.smartgriddashboard.com/DashboardService.svc/data?area=windactual&region=ALL&datefrom={YYYY-MM-DD-1d}+00%3A00&dateto={YYYY-MM-DD}+23%3A59
+    type: rest_json
+  schema:
+    timestamp_field: Rows[].EffectiveTime
+    value_field: Rows[].Value
+- id: eurostat_ghg_emissions_quarterly
+  audit_slack_days: 420
+  name: Eurostat quarterly greenhouse gas emissions (EU27, total economy + households)
+  domain: nature
+  frequency: P1Q
+  license: Eurostat open data (CC-BY 4.0)
+  notes: Quarterly GHG emissions (thousand tonnes CO2e), EU27 total economy plus households, env_ac_aigg_q
+    dataflow; NSA. Dim order freq.s_adj.nace_r2.airpol.unit.geo.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/env_ac_aigg_q/Q.NSA.TOTAL_HH.GHG.THS_T.EU27_2020?format=SDMX-CSV&startPeriod=2010-Q1
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE

@@ -44,6 +44,7 @@ _FORMATS = (
     "%m/%d/%Y %H:%M:%S", "%m/%d/%Y %H:%M",
     "%m.%Y", "%d.%m.%Y",
     "%d%b%Y",  # CPC ENSO weekly: "15JUL2026" (strptime %b is case-insensitive)
+    "%d-%b-%Y %H:%M:%S",  # EirGrid dashboard: "25-Jul-2026 00:15:00"
 )
 
 # Digit-only strings are ambiguous under greedy strptime ("20260726" parses as

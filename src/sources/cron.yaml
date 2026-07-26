@@ -169,6 +169,9 @@ schedules:
   - eccc_hydrometric_bow_river_banff
   - transnetbw_load_curve_15min
   - fmi_helsinki_temperature_10min
+  - rockford_911_dispatch_halfhour
+  - winnebago_911_dispatch_halfhour
+  - eirgrid_wind_generation
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -196,6 +199,9 @@ schedules:
   - spp_area_control_error
   - cboe_vix_intraday
   - ioda_global_outage_alerts
+  - elexon_gb_demand_outturn_30min
+  - elexon_gb_generation_by_fuel_30min
+  - elexon_gb_market_index_price_30min
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -429,6 +435,12 @@ schedules:
   - imf_portwatch_port_calls_daily
   - owid_electricity_generation_yearly
   - cpc_weekly_nino4_relative_ssta
+  - nz_emi_dispatch_energy_prices
+  - cpc_daily_ao_index
+  - cpc_daily_nao_index
+  - worldbank_internet_users_panel
+  - worldbank_fixed_broadband_panel
+  - eurostat_ghg_emissions_quarterly
   cron: 10 1 * * *
 - every: P1D
   sources:
