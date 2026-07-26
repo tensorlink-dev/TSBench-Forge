@@ -16177,3 +16177,130 @@
     aggregate:
       op: count
       bin: P1D
+
+# -- wired batch: rescreen-w3 --
+- id: swissgrid_grid_frequency
+  name: Swissgrid Swiss grid frequency (10-second)
+  domain: energy
+  frequency: PT10S
+  license: Swissgrid open grid data (free reuse with attribution)
+  notes: 'Swiss transmission grid frequency in Hz, ~10-second resolution, last ~10 minutes per fetch; Highcharts
+    feed behind the current-data page, needs Referer header. GOTCHA: epoch-ms timestamps encode Europe/Zurich
+    local time (appear ~2h ahead of UTC in summer).'
+  endpoint:
+    url: https://data.swissgrid.ch/charts/frequency/?lang=en
+    type: rest_json
+    headers:
+      Referer: https://www.swissgrid.ch/
+  schema:
+    timestamp_field: data.series[0].data[][0]
+    value_field:
+    - data.series[0].data[][1]
+- id: ioda_global_outage_alerts
+  name: IODA global internet outage alerts (15-min count)
+  domain: web_cloudops
+  frequency: PT15M
+  license: CC BY 4.0 (IODA, Georgia Tech Internet Intelligence Lab)
+  notes: Count of internet-outage alerts fired by IODA detectors (BGP, ping-slash24, darknet, gtr) across
+    all countries/regions/ASNs, binned per 15 min from a rolling 8h window; API caps at 500 alerts per response
+    so keep the window short.
+  endpoint:
+    url: https://api.ioda.inetintel.cc.gatech.edu/v2/outages/alerts?from={EPOCH-8h}&until={EPOCH}
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: data[].time
+    value_field:
+    - data[].value
+    aggregate:
+      op: count
+      bin: PT15M
+- id: kartverket_stavanger_water_level
+  name: Kartverket Norway tide gauge water level (Stavanger, 10-min)
+  domain: nature
+  frequency: PT10M
+  license: NLOD 2.0 (Norwegian Licence for Open Government Data)
+  notes: Observed water level in cm above chart datum at Stavanger tide gauge (SVG), 10-minute cadence from
+    the Norwegian Mapping Authority sehavniva/vannstand tide API; XML with values in attributes.
+  endpoint:
+    url: https://vannstand.kartverket.no/tideapi.php?lat=58.974339&lon=5.730121&fromtime={YYYY-MM-DD-1d}T00%3A00&totime={YYYY-MM-DD}T23%3A59&datatype=obs&refcode=cd&place=&file=&lang=en&interval=10&dst=0&tzone=0&tide_request=locationdata
+    type: rest_xml
+  schema:
+    record_path: waterlevel
+    timestamp_field: '@time'
+    value_field:
+    - '@value'
+- id: aurorawatch_uk_geomagnetic_activity
+  name: AuroraWatch UK hourly geomagnetic activity index
+  domain: nature
+  frequency: PT1H
+  license: AuroraWatch UK API, free non-commercial use with attribution (Lancaster University)
+  notes: Hourly geomagnetic disturbance value (nT) from the AuroraWatch UK network (Lancaster University),
+    last 24 hours per fetch; drives the green/yellow/amber/red aurora alert levels.
+  endpoint:
+    url: https://aurorawatch-api.lancs.ac.uk/0.2/status/project/awn/sum-activity.xml
+    type: rest_xml
+  schema:
+    record_path: activity
+    timestamp_field: datetime
+    value_field:
+    - value
+- id: ioc_sea_level_cuxhaven
+  name: IOC Sea Level Monitoring — Cuxhaven tide gauge (1-min)
+  domain: nature
+  frequency: PT1M
+  license: IOC/UNESCO sealevelmonitoring.org, free use for research/operational purposes
+  notes: Relative sea level (m) from the IOC-VLIZ Sea Level Station Monitoring Facility, station cuxh (Cuxhaven,
+    DE), float sensor, last 12h per fetch; panel by sensor kept single via code+sensor filter in URL.
+  endpoint:
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=cuxh&format=json&period=0.5
+    type: rest_json
+  schema:
+    timestamp_field: '[].stime'
+    value_field:
+    - '[].slevel'
+- id: eccc_hydrometric_bow_river_banff
+  name: ECCC real-time hydrometric — Bow River at Banff (5-min)
+  domain: nature
+  frequency: PT5M
+  license: Open Government Licence - Canada
+  notes: Water level (m) and discharge (m3/s) for station 05BB001 (Bow River at Banff, AB) from the MSC
+    GeoMet OGC-API hydrometric-realtime collection; newest 100 obs per fetch, sorted desc.
+  endpoint:
+    url: https://api.weather.gc.ca/collections/hydrometric-realtime/items?STATION_NUMBER=05BB001&limit=100&sortby=-DATETIME&f=json
+    type: rest_json
+  schema:
+    timestamp_field: features[].properties.DATETIME
+    value_field:
+    - features[].properties.LEVEL
+    - features[].properties.DISCHARGE
+- id: transnetbw_load_curve_15min
+  name: TransnetBW control-area load curve (15-min)
+  domain: energy
+  frequency: PT15M
+  license: TransnetBW transparency data, free reuse with attribution (EnWG/SysStabV publication duty)
+  notes: Vertical grid load (MW) of the TransnetBW control area at 15-min resolution, month-to-date per
+    fetch, ~30 min publication lag; semicolon CSV.
+  endpoint:
+    url: https://api.transnetbw.de/loadCurve/csv?language=en
+    type: rest_csv
+  schema:
+    timestamp_field: Date from
+    value_field:
+    - Load (MW)
+    csv_delimiter: ;
+- id: fmi_helsinki_temperature_10min
+  name: FMI Helsinki 10-min air temperature (WFS)
+  domain: nature
+  frequency: PT10M
+  license: CC BY 4.0 (FMI open data)
+  notes: Air temperature (t2m, degC) at Helsinki Kaisaniemi from FMI open-data WFS timevaluepair stored
+    query, last 12h per fetch; keyless.
+  endpoint:
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::timevaluepair&place=Helsinki&parameters=t2m
+    type: rest_xml
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'

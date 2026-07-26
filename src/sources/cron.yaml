@@ -83,6 +83,7 @@ schedules:
   - citybikes_bikemi_station_status
   - citybikes_velo_antwerpen_station_status
   - bandcamp_sales_feed
+  - swissgrid_grid_frequency
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -164,6 +165,10 @@ schedules:
   - austin_fire_realtime_incidents
   - ercot_physical_responsive_capability
   - sec_edgar_8k_filings
+  - ioc_sea_level_cuxhaven
+  - eccc_hydrometric_bow_river_banff
+  - transnetbw_load_curve_15min
+  - fmi_helsinki_temperature_10min
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -190,6 +195,7 @@ schedules:
   - winnipeg_wfps_call_volume
   - spp_area_control_error
   - cboe_vix_intraday
+  - ioda_global_outage_alerts
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -241,6 +247,8 @@ schedules:
   - stackexchange_stats_question_rate
   - irceline_brussels_pm25_hourly
   - wise_usd_eur_hourly
+  - kartverket_stavanger_water_level
+  - aurorawatch_uk_geomagnetic_activity
   cron: 5 * * * *
 - every: P1D
   sources:
