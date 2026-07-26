@@ -3360,7 +3360,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate={YYYY-MM-DD-30d}T00:00:00.000&pubEndDate={YYYY-MM-DD}T23:59:59.999&resultsPerPage=2000
+    url: https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate={YYYY-MM-DD-2d}T00:00:00.000&pubEndDate={YYYY-MM-DD}T23:59:59.999&resultsPerPage=2000
     auth: none
     rate_limit: 5 req/30s keyless; 50 with NVD_API_KEY
   schema:
@@ -3377,7 +3377,12 @@
     last_verified: 2026-07-04 00:00:00+00:00
     sample_rows: null
     sample_freshness_hours: null
-  notes: Severity is sparse on very fresh CVEs (metrics lag); loader tolerates NaN.
+  notes: 'Severity is sparse on very fresh CVEs (metrics lag); loader tolerates NaN.
+    2026-07-26: window narrowed 30d -> 2d. NVD is offset-paginated with NO next-link
+    (our paginator only follows next-URL fields) and returns oldest-first within the
+    window, so a 30d window x 2000 cap silently dropped the newest ~3 weeks (audit
+    caught a 23d lag) — same bug as nvd_cve_publication_rate. Revisit if >2000 CVEs
+    land in 2 days.'
 - id: emsc_seismic_events
   name: EMSC Seismic Portal — European-Mediterranean earthquake events
   domain: nature
