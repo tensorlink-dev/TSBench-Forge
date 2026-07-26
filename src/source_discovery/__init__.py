@@ -18,6 +18,6 @@ a score, so a non-deterministic model is exactly the right tool for the
 open-ended discovery job and its output is safe to vet automatically.
 """
 
-from . import config, coverage, llm, quality, runner, vet
+from . import audit, config, coverage, llm, quality, runner, vet, wire
 
-__all__ = ["config", "coverage", "llm", "quality", "runner", "vet"]
+__all__ = ["audit", "config", "coverage", "llm", "quality", "runner", "vet", "wire"]

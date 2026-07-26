@@ -110,6 +110,7 @@ _OFFSET_DATE_RE = re.compile(r"\{YYYY-MM-DD-(\d+)d\}")
 _OFFSET_COMPACT_RE = re.compile(r"\{YYYYMMDD-(\d+)d\}")
 _OFFSET_MONTH_RE = re.compile(r"\{YYYYMM-(\d+)m\}")
 _OFFSET_HOUR_RE = re.compile(r"\{H-(\d+)\}")
+_OFFSET_EPOCH_RE = re.compile(r"\{EPOCH-(\d+)h\}")
 
 
 def _month_offset(now: dt.datetime, n: int) -> str:
@@ -135,6 +136,8 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
       {YYYYMM-Nm}       current month minus N calendar months, formatted YYYYMM.
       {H-N}             current UTC hour minus N (wraps at midnight UTC)
                         (e.g. {H-1} = previous hour).
+      {EPOCH} / {EPOCH-Nh}  current unix seconds / N hours ago — for APIs whose
+                        windows are epoch query params (OpenSky ?begin=&end=).
 
     Tokens like {ARTICLE} or {PACKAGE} or {CRATE} are *not* expanded — these
     are panel-iteration placeholders; the caller should pre-expand them.
@@ -155,6 +158,12 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
         lambda m: str((now - dt.timedelta(hours=int(m.group(1)))).hour),
         url,
     )
+    url = _OFFSET_EPOCH_RE.sub(
+        lambda m: str(int(now.timestamp()) - 3600 * int(m.group(1))),
+        url,
+    )
+    if "{EPOCH}" in url:
+        url = url.replace("{EPOCH}", str(int(now.timestamp())))
     if "{HH}" in url:
         url = url.replace("{HH}", f"{now.hour:02d}")
     if "{H}" in url:
@@ -280,13 +289,17 @@ def _http_get(url: str, headers: dict[str, str],
 
 def _http_post(url: str, headers: dict[str, str], body: Any,
                max_bytes: Optional[int] = None,
-               read_timeout: Optional[float] = None) -> httpx.Response:
+               read_timeout: Optional[float] = None,
+               form: bool = False) -> httpx.Response:
     """POST a JSON body — used by GraphQL and POST-only JSON APIs. `body` is the
-    request payload (e.g. {"query": "...", "variables": {...}} for GraphQL)."""
+    request payload (e.g. {"query": "...", "variables": {...}} for GraphQL).
+    With `form=True` the body is sent application/x-www-form-urlencoded instead
+    (legacy gov/utility endpoints that reject JSON payloads)."""
     headers = {"User-Agent": "timeframe-scraper/0.1 (+https://github.com/timeframe-bench)", **headers}
     timeout = httpx.Timeout(read_timeout or 30.0, connect=10.0)
+    kwargs: dict[str, Any] = {"data": body} if form else {"json": body}
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        with client.stream("POST", url, headers=headers, json=body) as resp:
+        with client.stream("POST", url, headers=headers, **kwargs) as resp:
             return _capped_response(resp, url, max_bytes)
 
 
@@ -346,14 +359,22 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
             f"unresolved placeholders {leftover} in URL — define `panel` in sources.yaml or pass --panel"
         )
     headers = _resolve_auth(ep.get("auth"))
+    # Static per-source headers (Origin/Referer/contact User-Agent — several
+    # public APIs 403 without them). {ENVVAR} in values resolves from the
+    # environment so contact addresses / keys stay out of the committed catalog.
+    for name, val in (ep.get("headers") or {}).items():
+        headers[name] = _expand_env(str(val))
     cap = ep.get("max_bytes")
     # Some hosts are simply slow (WHO GHO serves multi-MB indicator
     # payloads from a cold cache); let a source raise its own ceiling.
     rto = ep.get("timeout")
     # POST/GraphQL: type: graphql (body defaults to {"query": ...}) or an explicit
-    # method: POST with a `body` JSON payload. Everything else is a GET.
-    is_post = (ep.get("method", "").upper() == "POST") or ep.get("type") == "graphql"
-    body = ep.get("body")
+    # method: POST with a `body` JSON payload; `body_form` sends it urlencoded
+    # instead. Everything else is a GET.
+    form_body = ep.get("body_form")
+    is_post = (ep.get("method", "").upper() == "POST") or ep.get("type") == "graphql" \
+        or form_body is not None
+    body = form_body if form_body is not None else ep.get("body")
     if body is None and ep.get("query"):
         body = {"query": ep["query"], "variables": ep.get("variables", {})}
     # Up to 3 attempts. Two failure modes are retried: transient transport
@@ -362,7 +383,8 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
     # pypistats in particular 429s bursts of panel rows.
     for attempt in range(3):
         try:
-            resp = (_http_post(url, headers, body, cap, rto) if is_post
+            resp = (_http_post(url, headers, body, cap, rto,
+                               form=form_body is not None) if is_post
                     else _http_get(url, headers, cap, rto))
         except httpx.TransportError as e:
             if attempt == 2:
@@ -705,18 +727,22 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
     # "LBMP ($/MWHr)". Accept a header matching either reading.
     want_short = set(ts_cols) | {vf.split("/")[-1] for vf in (val_fields or [])}
     want_full = set(ts_cols) | set(val_fields or [])
+    # An explicit schema.csv_delimiter overrides sniffing — for files where the
+    # heuristic misfires (e.g. ';'-delimited rows whose cells contain commas).
+    forced = schema.get("csv_delimiter")
     header_idx, delim, header = None, None, None
     if want_short:
         for i, l in enumerate(lines[:200]):
-            d = _sniff_delim(l)
+            d = forced or _sniff_delim(l)
             toks = _split_cols(l, d)
             if want_short <= set(toks) or want_full <= set(toks):
                 header_idx, delim, header = i, d, toks
                 break
 
-    if header_idx is None or delim == ",":
+    if header_idx is None or delim == "," or (forced and header_idx == 0):
         start = 0 if header_idx is None else header_idx
-        reader = csv.DictReader(io.StringIO("\n".join(lines[start:])))
+        reader = csv.DictReader(io.StringIO("\n".join(lines[start:])),
+                                delimiter=forced or ",")
         recs = list(reader)
     else:
         recs = []
@@ -1027,6 +1053,12 @@ def _records_from_xml(blob: bytes, schema: dict) -> list[dict]:
     Example schema for FAA NASSTATUS (returns <AIRPORT_STATUS_INFORMATION>...):
         timestamp_field: AIRPORT_STATUS_INFORMATION/Update_Time
         value_field: AIRPORT_STATUS_INFORMATION/Delay_type/ARPT/Delay/Min
+
+    Attribute-style XML (values in attributes, one element per observation —
+    SDMX-ML generic, many gov feeds) uses schema.record_path + '@attr' fields:
+        record_path: obs            # iterate every <obs .../> element
+        timestamp_field: '@date'    # attribute of the record element
+        value_field: ['@value']     # or 'child/@attr', or a child element path
     """
     import xml.etree.ElementTree as ET
     root = ET.fromstring(blob)
@@ -1034,6 +1066,37 @@ def _records_from_xml(blob: bytes, schema: dict) -> list[dict]:
     val_paths = schema.get("value_field", [])
     if isinstance(val_paths, str):
         val_paths = [val_paths]
+
+    record_path = schema.get("record_path")
+    if record_path:
+        def _field(elt, path: str) -> Optional[str]:
+            if path.startswith("@"):
+                return elt.get(path[1:])
+            if "/@" in path:
+                child_path, attr = path.rsplit("/@", 1)
+                child = elt.find(child_path)
+                return child.get(attr) if child is not None else None
+            child = elt.find(path)
+            return child.text if child is not None else None
+
+        # Strip namespaces from tag matching: iterate by local name.
+        local = record_path.split("/")[-1]
+        out: list[dict] = []
+        for elt in root.iter():
+            if elt.tag.split("}")[-1] != local:
+                continue
+            rec: dict = {"timestamp": _epoch_to_iso(_field(elt, ts_path))
+                         or _field(elt, ts_path)}
+            for vp in val_paths:
+                key = vp.lstrip("@").split("/")[-1].lstrip("@") or "value"
+                rec[key] = _field(elt, vp)
+            pf = schema.get("panel_field")
+            for p in ([pf] if isinstance(pf, str) else (pf or [])):
+                got = _field(elt, p)
+                if got is not None:
+                    rec["_panel_" + p.lstrip("@").split("/")[-1].lstrip("@")] = str(got)
+            out.append(rec)
+        return out
 
     def _find_all(node, path: str) -> list:
         # xpath-lite: consume the root name if it matches, then use the tail as a

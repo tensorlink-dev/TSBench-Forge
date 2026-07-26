@@ -396,3 +396,84 @@ def test_real_epochs_still_converted_both_types():
         assert scraper._epoch_to_iso(v).startswith("2026-")
     for v in (1785028800000, "1785028800000"):
         assert scraper._epoch_to_iso(v).startswith("2026-")
+
+
+# ── 2026-07-26 feature batch: headers / form-POST / csv_delimiter / XML-attrs /
+#    epoch URL tokens ──────────────────────────────────────────────────────────
+
+def test_expand_url_epoch_tokens():
+    now = dt.datetime(2026, 7, 26, 12, 0, 0, tzinfo=dt.timezone.utc)
+    epoch = int(now.timestamp())
+    got = scraper.expand_url("https://x/api?begin={EPOCH-2h}&end={EPOCH}", now=now)
+    assert got == f"https://x/api?begin={epoch - 7200}&end={epoch}"
+
+
+def test_custom_headers_merged_and_env_expanded(monkeypatch):
+    seen = {}
+
+    def fake_get(url, headers, cap=None, rto=None):
+        seen.update(headers)
+        class R:
+            status_code = 200
+            content = b"{}"
+            headers = {"content-type": "application/json"}
+        return R()
+
+    monkeypatch.setenv("TEST_CONTACT", "ops@example.com")
+    monkeypatch.setattr(scraper, "_http_get", fake_get)
+    src = {"endpoint": {"url": "https://x/api", "type": "rest_json",
+                        "headers": {"Origin": "https://x",
+                                    "User-Agent": "bench/1 ({TEST_CONTACT})"}}}
+    scraper.fetch_payload(src)
+    assert seen["Origin"] == "https://x"
+    assert seen["User-Agent"] == "bench/1 (ops@example.com)"
+
+
+def test_body_form_posts_urlencoded(monkeypatch):
+    calls = {}
+
+    def fake_post(url, headers, body, cap=None, rto=None, form=False):
+        calls["body"], calls["form"] = body, form
+        class R:
+            status_code = 200
+            content = b"{}"
+            headers = {"content-type": "application/json"}
+        return R()
+
+    monkeypatch.setattr(scraper, "_http_post", fake_post)
+    src = {"endpoint": {"url": "https://x/api", "type": "rest_json",
+                        "body_form": {"table": "kpi", "fmt": "json"}}}
+    scraper.fetch_payload(src)
+    assert calls["form"] is True and calls["body"] == {"table": "kpi", "fmt": "json"}
+
+
+def test_csv_forced_delimiter_with_quoted_commas():
+    text = 'ts;val\n"2026-07-26";"1,5"\n"2026-07-25";"2,5"\n'
+    recs = scraper._records_from_csv(text, {"timestamp_field": "ts",
+                                            "value_field": "val",
+                                            "csv_delimiter": ";"})
+    assert recs[0]["timestamp"] == "2026-07-26"
+    assert recs[0]["val"] == "1,5"      # cell comma survives (decimal mark)
+
+
+def test_xml_record_path_attributes():
+    blob = (b'<root xmlns="urn:x"><series k="DE">'
+            b'<obs date="2026-07-25" value="1.1"/>'
+            b'<obs date="2026-07-26" value="2.2"/>'
+            b'</series></root>')
+    recs = scraper._records_from_xml(blob, {"record_path": "obs",
+                                            "timestamp_field": "@date",
+                                            "value_field": ["@value"]})
+    assert len(recs) == 2
+    assert recs[1] == {"timestamp": "2026-07-26", "value": "2.2"}
+
+
+def test_xml_record_path_child_and_panel():
+    blob = (b'<r><row><t>2026-07-26T00:00:00</t><v>5</v><st id="a1"/></row>'
+            b'<row><t>2026-07-26T01:00:00</t><v>6</v><st id="a2"/></row></r>')
+    recs = scraper._records_from_xml(blob, {"record_path": "row",
+                                            "timestamp_field": "t",
+                                            "value_field": ["v"],
+                                            "panel_field": "st/@id"})
+    assert recs[0]["timestamp"] == "2026-07-26T00:00:00"
+    assert recs[0]["v"] == "5" and recs[0]["_panel_id"] == "a1"
