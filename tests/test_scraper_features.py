@@ -287,3 +287,42 @@ def test_capped_response_passes_normal_body_and_keeps_content_type():
     assert "json" in out.headers.get("content-type", "")
     # transfer-encoding headers must not survive onto the decoded body
     assert "content-encoding" not in out.headers
+
+
+def test_period_seconds_parses_iso_durations():
+    assert scraper._period_seconds("PT1M") == 60
+    assert scraper._period_seconds("PT2M30S") == 150
+    assert scraper._period_seconds("PT30M") == 1800
+    assert scraper._period_seconds("PT1H") == 3600
+    assert scraper._period_seconds("P1D") == 86400
+    assert scraper._period_seconds("P1W") == 604800
+    assert scraper._period_seconds("irregular") is None
+    assert scraper._period_seconds("") is None
+
+
+def test_is_due_fast_sources_always_run(monkeypatch):
+    """Hourly-or-faster feeds are never cadence-skipped."""
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 1.0)
+    for freq in ("PT1M", "PT5M", "PT30M", "PT1H"):
+        assert scraper.is_due({"id": "x", "frequency": freq}) is True
+
+
+def test_is_due_slow_sources_skipped_until_stale(monkeypatch):
+    """A daily feed scraped 10 min ago is not due; one from 7 h ago is."""
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 600.0)
+    assert scraper.is_due({"id": "x", "frequency": "P1D"}) is False
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 7 * 3600.0)
+    assert scraper.is_due({"id": "x", "frequency": "P1D"}) is True
+    # monthly is capped at the same 6 h refresh, not 30 days
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 7 * 3600.0)
+    assert scraper.is_due({"id": "x", "frequency": "P1M"}) is True
+
+
+def test_is_due_never_scraped_source_runs(monkeypatch):
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: None)
+    assert scraper.is_due({"id": "brand-new", "frequency": "P1M"}) is True
+
+
+def test_is_due_unparseable_frequency_runs(monkeypatch):
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 60.0)
+    assert scraper.is_due({"id": "x", "frequency": "irregular"}) is True

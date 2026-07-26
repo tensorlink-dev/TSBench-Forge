@@ -1193,6 +1193,57 @@ def _records_from_jsonstat2(data: dict, schema: dict) -> list[dict]:
     return records
 
 
+_DUR_RE = re.compile(
+    r"^P(?:(?P<y>\d+)Y)?(?:(?P<mo>\d+)M)?(?:(?P<w>\d+)W)?(?:(?P<d>\d+)D)?"
+    r"(?:T(?:(?P<h>\d+)H)?(?:(?P<mi>\d+)M)?(?:(?P<s>\d+)S)?)?$"
+)
+_DUR_UNITS = {"y": 31_536_000, "mo": 2_592_000, "w": 604_800, "d": 86_400,
+              "h": 3600, "mi": 60, "s": 1}
+
+# Sources at or below this period are refetched on every sweep; slower ones are
+# refreshed at most this often.
+_MIN_REFRESH_SECONDS = 3600
+_MAX_REFRESH_SECONDS = 6 * 3600
+
+
+def _period_seconds(freq: str) -> Optional[int]:
+    """ISO-8601 duration -> seconds. None if unparseable (e.g. 'irregular')."""
+    m = _DUR_RE.match(str(freq or "").strip())
+    if not m or not any(m.groupdict().values()):
+        return None
+    return sum(int(v) * _DUR_UNITS[k] for k, v in m.groupdict().items() if v)
+
+
+def _last_scraped_age(sid: str) -> Optional[float]:
+    """Seconds since this source last wrote a parquet file; None if never."""
+    d = DATA_DIR / sid
+    if not d.is_dir():
+        return None
+    mtimes = [p.stat().st_mtime for p in d.glob("*.parquet")]
+    if not mtimes:
+        return None
+    return time.time() - max(mtimes)
+
+
+def is_due(src: dict) -> bool:
+    """Should this source be fetched on the current sweep?
+
+    The full sweep runs every 15 minutes, so anything hourly-or-faster is
+    always due. Slower feeds (daily/weekly/monthly) do not gain anything from
+    96 fetches a day — and each write re-reads and dedupes the whole day-file,
+    so refetching a large monthly panel that often is the dominant cost of a
+    sweep. Those are refreshed at most every 6 hours, which still gives several
+    chances a day to pick up revisions.
+    """
+    period = _period_seconds(src.get("frequency"))
+    if period is None or period <= _MIN_REFRESH_SECONDS:
+        return True
+    age = _last_scraped_age(src["id"])
+    if age is None:
+        return True                       # never scraped — always fetch
+    return age >= min(period, _MAX_REFRESH_SECONDS)
+
+
 def _norm_pxweb_time(t: str) -> str:
     """Normalise PxWeb/JSON-stat time labels to ISO-ish so downstream can parse.
 
@@ -1261,6 +1312,8 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true",
                     help="fetch + parse but do not write parquet")
     ap.add_argument("--list", action="store_true", help="print all source ids and exit")
+    ap.add_argument("--force", action="store_true",
+                    help="with --all, ignore cadence and refetch every source")
     args = ap.parse_args()
 
     sources = load_sources()
@@ -1274,7 +1327,13 @@ def main() -> int:
     if args.id:
         targets = [args.id]
     elif args.all:
-        targets = [s["id"] for s in sources]
+        # Skip slow feeds already refreshed recently — see is_due().
+        due = sources if args.force else [s for s in sources if is_due(s)]
+        skipped = len(sources) - len(due)
+        if skipped:
+            log.info("cadence: %d/%d sources due this sweep (%d not yet stale)",
+                     len(due), len(sources), skipped)
+        targets = [s["id"] for s in due]
     elif args.domain:
         targets = [s["id"] for s in sources if s["domain"] == args.domain]
     else:
