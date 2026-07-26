@@ -11026,6 +11026,10 @@
   pretraining_novelty: clean
   license: Public domain (US CDC)
   notes: Leading indicator for case counts — noisy, plant-level, with heavy right tails.
+  disabled: true
+  disabled_reason: '2026-07-26: newest date_end is 2025-09-07 even with $order=date_end DESC —
+    the NWSS dataset stopped updating ~10 months ago. Re-enable against whatever dataset
+    replaces 2ew6-ywp6 if NWSS reporting resumes.'
 - id: cdc_covid_hospital_admissions_daily
   name: CDC — new COVID-19 hospital admissions by jurisdiction (daily panel)
   domain: healthcare
@@ -11174,7 +11178,7 @@
   frequency: PT1H
   endpoint:
     type: rest_json
-    url: https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate={YYYY-MM-DD-20d}T00:00:00.000&pubEndDate={YYYY-MM-DD}T00:00:00.000&resultsPerPage=1000
+    url: https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate={YYYY-MM-DD-2d}T00:00:00.000&pubEndDate={YYYY-MM-DD}T00:00:00.000&resultsPerPage=2000
     auth: none
     rate_limit: polite
   schema:
@@ -11188,7 +11192,11 @@
   update_cadence_observed: continuous, batched by CNA submission
   pretraining_novelty: clean
   license: Public domain (NIST NVD)
-  notes: Bursty — a single CNA can publish hundreds of CVEs in one hour.
+  notes: 'Bursty — a single CNA can publish hundreds of CVEs in one hour. Window is 2 days ×
+    resultsPerPage=2000 (the NVD max) because the API is offset-paginated with no next-link,
+    which our paginator cannot follow: a wider window silently truncates the NEWEST days
+    (found 2026-07-26 as a 16-day freshness lag). ~500/day lately; >2000 in 2 days would
+    truncate again — revisit if that happens.'
 - id: huggingface_dataset_creation_rate
   name: Hugging Face — new dataset repo creation rate (hourly bins)
   domain: web_cloudops
@@ -12221,8 +12229,11 @@
   pretraining_novelty: contaminated
   novelty_notes: Euro-area HICP is a headline macro series.
   license: Eurostat — free reuse with attribution
-  notes: JSON-stat 2.0 auto-detected. Path-filtered (M.I15.CP00.DE) rather than query-filtered — the query
-    form returns the whole 86 MB dataflow and trips the response cap.
+  notes: 'JSON-stat 2.0 auto-detected. Path-filtered (M.I15.CP00.DE) rather than query-filtered
+    — the query form returns the whole 86 MB dataflow and trips the response cap. UPSTREAM
+    STALL (checked 2026-07-26): all prc_hicp_* flows AND the ECB mirror end at 2025-12 — the
+    2026 ECOICOP-2/rebase migration has paused index publication. Not a config bug; expected
+    to resume. If a successor dataflow appears (no PRC_HICP_MIDX2 exists yet), repoint here.'
 - id: ukhsa_covid_cases_daily
   name: UKHSA — COVID-19 cases by specimen day, England
   domain: healthcare
