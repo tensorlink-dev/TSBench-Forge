@@ -18999,3 +18999,68 @@
     timestamp_field: TIME_PERIOD
     value_field:
     - OBS_VALUE
+
+# -- wired batch: wave13d-eurodeaths --
+- id: eurostat_weekly_deaths_panel
+  name: Eurostat weekly deaths, total, by country
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 60
+  license: Eurostat open data - free reuse with attribution
+  notes: Weekly all-cause deaths (both sexes, count) for 39 reporting countries from the demo_r_mwk_ts dataflow
+    - the excess-mortality workhorse series. Panel by geo; TIME_PERIOD is an ISO week label (2026-W28).
+    Query is filtered to sex=T/unit=NR and the last 60 weeks to keep the payload ~40KB.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_r_mwk_ts?format=JSON&lastTimePeriod=60&sex=T&unit=NR
+    type: rest_json
+    timeout: 120
+  schema:
+    timestamp_field: time
+    value_field:
+    - value
+    panel_field: geo
+
+# -- wired batch: wave13e-drought --
+- id: usdm_conus_area_by_severity_weekly
+  name: US Drought Monitor - percent of CONUS area by drought severity (weekly)
+  domain: nature
+  frequency: P1W
+  audit_slack_days: 45
+  license: US Drought Monitor (NDMC/USDA/NOAA) - public domain with attribution
+  notes: Weekly percent of contiguous-US land area in each drought severity class (none, D0 abnormally dry
+    through D4 exceptional). The authoritative US drought series, published every Thursday. Window is a
+    rolling start date; mapDate is the Tuesday the map represents.
+  endpoint:
+    url: https://usdmdataservices.unl.edu/api/USStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=us&startdate=1/1/2025&enddate={YYYY-MM-DD}&statisticsType=1
+    type: rest_json
+    headers:
+      Accept: application/json
+    timeout: 90
+  schema:
+    timestamp_field: mapDate
+    value_field:
+    - none
+    - d0
+    - d1
+    - d2
+    - d3
+    - d4
+- id: usdm_conus_dsci_weekly
+  name: US Drought Monitor Drought Severity and Coverage Index, CONUS (weekly)
+  domain: nature
+  frequency: P1W
+  audit_slack_days: 45
+  license: US Drought Monitor (NDMC/USDA/NOAA) - public domain with attribution
+  notes: 'Weekly DSCI for the contiguous US - a single 0-500 index summarising both how much area is in
+    drought and how severe it is. Distinct series from the per-severity area percentages: one scalar per
+    week rather than six shares.'
+  endpoint:
+    url: https://usdmdataservices.unl.edu/api/USStatistics/GetDSCI?aoi=us&startdate=1/1/2024&enddate={YYYY-MM-DD}&statisticsType=1
+    type: rest_json
+    headers:
+      Accept: application/json
+    timeout: 90
+  schema:
+    timestamp_field: mapDate
+    value_field:
+    - dsci
