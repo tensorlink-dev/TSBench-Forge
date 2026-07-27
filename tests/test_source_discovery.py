@@ -11,12 +11,14 @@ from __future__ import annotations
 import io
 import json
 import os
+import sys
 import urllib.error
 
 import pytest
 import yaml
 
-from source_discovery import config, coverage, llm, runner, vet
+from source_discovery import config, coverage, duration, llm, runner, vet
+from source_discovery.__main__ import main
 
 CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "src", "sources", "sources.yaml")
 
@@ -429,3 +431,55 @@ def test_diversity_discounts_single_host_domains() -> None:
     assert div["nature"]["effective"] == 10
     assert div["energy"]["top_host_share"] == 1.0
     assert div["nature"]["hosts"] == 10
+
+
+# --------------------------------------------------------------------------- #
+# CLI contract: stdout is JSON, and the deterministic path needs no scraper deps
+# --------------------------------------------------------------------------- #
+
+
+def test_coverage_cli_stdout_is_parseable_json(capsys) -> None:
+    """The Auto-search workflow pipes this stdout straight into json.load.
+
+    Two regressions used to break that pipe, both surfacing as the same
+    unhelpful "Expecting value: line 1 column 1 (char 0)": the human-readable
+    matrix printed ahead of the JSON, and the whole command dying on scraper.py's
+    httpx import in a runner that installs only pyyaml + numpy.
+    """
+    assert main(["--coverage", "--catalog", CATALOG]) == 0
+    cap = capsys.readouterr()
+    summary = json.loads(cap.out)                    # no prose on stdout
+    assert summary["n_sources"] >= 80
+    assert isinstance(summary["gap_cells"], list)
+    assert "domain" in cap.err                       # matrix went to stderr
+
+
+def test_coverage_does_not_import_the_scraper(monkeypatch) -> None:
+    """scraper.py requires httpx + pyarrow at module scope; --coverage must not.
+
+    Simulating the absence of those two would only re-test importlib, so this
+    asserts the property that matters directly: the deterministic path never
+    reaches for the scraper module at all.
+    """
+    monkeypatch.delitem(sys.modules, "scraper", raising=False)
+    coverage.summarize(coverage.load_registry(CATALOG))
+    assert "scraper" not in sys.modules
+
+
+@pytest.mark.parametrize("freq,seconds", [
+    ("PT30S", 30), ("PT15M", 900), ("PT1H", 3600), ("P1D", 86_400),
+    ("P1W", 604_800), ("P1M", 2_592_000), ("P1Y", 31_536_000),
+    ("P1DT12H", 129_600), ("irregular", None), ("", None), ("P", None),
+    ("PT15", None), ("15M", None),
+])
+def test_period_seconds(freq, seconds) -> None:
+    assert duration.period_seconds(freq) == seconds
+
+
+def test_period_seconds_matches_scraper() -> None:
+    """The scraper keeps its own copy so it runs standalone; pin them together."""
+    sys.path.insert(0, os.path.join(os.path.dirname(CATALOG)))
+    scraper = pytest.importorskip("scraper", reason="needs httpx + pyarrow")
+    for freq in ("PT10S", "PT15M", "PT1H", "P1D", "P1W", "P1M", "P3M", "P1Y",
+                 "P1DT12H", "irregular", "", "P"):
+        assert duration.period_seconds(freq) == scraper._period_seconds(freq)

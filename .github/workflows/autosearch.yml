@@ -79,11 +79,16 @@ jobs:
       - name: Install deps
         run: pip install pyyaml numpy
 
+      # `--coverage` puts the summary JSON on stdout and the human-readable
+      # matrix + gap list on stderr. Redirect stdout to a file rather than
+      # piping: a pipeline's exit status is the *last* command's, so a crashed
+      # sweep used to surface only as "JSONDecodeError: line 1 column 1" from
+      # the reader with the real traceback thrown away by `2>/dev/null`.
       - name: Coverage gaps (free, deterministic — no model call)
         id: gaps
         run: |
-          n=$(python -m source_discovery --coverage 2>/dev/null \
-              | python -c "import sys,json;print(len(json.load(sys.stdin).get('gap_cells',[])))")
+          python -m source_discovery --coverage > "$RUNNER_TEMP/coverage.json"
+          n=$(python -c "import json,os;print(len(json.load(open(os.environ['RUNNER_TEMP']+'/coverage.json')).get('gap_cells',[])))")
           echo "count=$n" >> "$GITHUB_OUTPUT"
           echo "under-target cells: $n"
 

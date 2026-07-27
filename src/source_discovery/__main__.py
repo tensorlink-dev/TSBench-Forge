@@ -1,6 +1,7 @@
 """CLI for the source-discovery agent.
 
-    # Show current coverage + the biggest gaps (deterministic, no model):
+    # Show current coverage + the biggest gaps (deterministic, no model).
+    # The summary JSON goes to stdout; the matrix + gap list to stderr:
     python -m source_discovery --coverage
 
     # Emit the exact prompt the agent would receive, without calling a model:
@@ -196,7 +197,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.coverage:
         reg = coverage.load_registry(args.catalog)
         summary = coverage.summarize(reg)
-        print(coverage.render_matrix(reg))
+        # stdout is the machine channel for every branch of this CLI: JSON and
+        # nothing else, so `--coverage | python -c "json.load(sys.stdin)"`
+        # works. The matrix and the gap list are for a reader, and go to
+        # stderr alongside each other.
+        print(coverage.render_matrix(reg), file=sys.stderr)
         print(json.dumps(summary, indent=2, default=str))
         gaps = summary["gap_cells"]
         print(f"\n{len(gaps)} under-target cells; top 10 gaps:", file=sys.stderr)

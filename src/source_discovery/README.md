@@ -71,7 +71,9 @@ as "a useful challenge".
 ## Usage
 
 ```bash
-# Coverage + the biggest gaps (deterministic, no model, no key):
+# Coverage + the biggest gaps (deterministic, no model, no key).
+# Summary JSON on stdout, matrix + gap list on stderr — so this is safe:
+#   python -m source_discovery --coverage | jq '.gap_cells | length'
 python -m source_discovery --coverage
 
 # See the exact prompt the agent would receive (no model call):
