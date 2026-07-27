@@ -4,6 +4,8 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "src" / "sources"))
+import pytest  # noqa: E402
+
 import scraper  # noqa: E402
 
 
@@ -792,3 +794,51 @@ def test_xlsx_sheet_selector_picks_named_tab():
     recs = scraper.parse_payload(src, buf.getvalue(), "application/vnd.ms-excel")
     assert recs == [{"timestamp": "2026-07-01", "value": 5.0},
                     {"timestamp": "2026-07-02", "value": 6.0}]
+
+
+def test_resolve_follows_metadata_to_hashed_url(monkeypatch):
+    """GOV.UK mints a new random URL per release; resolve reads the stable API."""
+    calls = []
+
+    class _Resp:
+        def __init__(self, payload, text=""):
+            self.status_code = 200
+            self._payload = payload
+            self.text = text
+            self.content = b"t,v\n2026-07-01,1\n"
+            self.headers = {"content-type": "text/csv"}
+
+        def json(self):
+            return self._payload
+
+    def fake_get(url, headers, cap, rto=None):
+        calls.append(url)
+        if "api/content" in url:
+            return _Resp({"details": {"attachments": [
+                {"url": "https://assets.example/media/aaa/prices_010126.xlsx"},
+                {"url": "https://assets.example/media/bbb/prices_010126.csv"},
+            ]}})
+        return _Resp(None)
+
+    monkeypatch.setattr(scraper, "_http_get", fake_get)
+    src = {"endpoint": {"url": "unused", "type": "rest_csv",
+                        "resolve": {"url": "https://www.gov.uk/api/content/x",
+                                    "select": "details.attachments[].url",
+                                    "match": r"prices_\d+\.csv$"}}}
+    scraper.fetch_payload(src)
+    assert calls[1] == "https://assets.example/media/bbb/prices_010126.csv"
+
+
+def test_resolve_raises_when_nothing_matches(monkeypatch):
+    class _Resp:
+        status_code = 200
+        text = ""
+
+        def json(self):
+            return {"details": {"attachments": []}}
+
+    monkeypatch.setattr(scraper, "_http_get", lambda *a, **k: _Resp())
+    src = {"endpoint": {"url": "u", "type": "rest_csv",
+                        "resolve": {"url": "https://meta", "select": "details.attachments[].url"}}}
+    with pytest.raises(RuntimeError, match="matched no URL"):
+        scraper.fetch_payload(src)

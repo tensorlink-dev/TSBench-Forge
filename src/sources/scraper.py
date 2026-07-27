@@ -361,8 +361,53 @@ def _expand_body(obj: Any, panel_row: Optional[dict[str, str]] = None) -> Any:
     return obj
 
 
+def _resolve_url(ep: dict, headers: dict) -> str:
+    """Look up the real file URL from a metadata endpoint.
+
+    Publishers that mint a fresh random URL for every release — GOV.UK
+    (assets.publishing.service.gov.uk/media/<hash>/…), CKAN portals
+    (…/resource/<uuid>/download) — can't be wired to a fixed URL: it 404s on the
+    next publication. `endpoint.resolve` fetches a stable metadata document
+    first and pulls the current URL out of it:
+
+        resolve:
+          url: https://www.gov.uk/api/content/government/statistics/<slug>
+          select: details.attachments[].url   # JSON path to candidate URLs
+          match: 'weekly_road_fuel_prices_\\d+\\.csv$'   # optional filter
+          pick: first | last                  # default: last (newest release)
+
+    Without `select`, `match` is applied to the raw response text instead, so an
+    HTML landing page works the same way.
+    """
+    meta_url = expand_url(ep["resolve"]["url"])
+    resp = _http_get(meta_url, headers, None, ep.get("timeout"))
+    if resp.status_code != 200:
+        raise RuntimeError(f"resolve HTTP {resp.status_code}: {meta_url[:120]}")
+    spec = ep["resolve"]
+    select, match = spec.get("select"), spec.get("match")
+    candidates: list[str] = []
+    if select:
+        got = _walk(resp.json(), select)
+        for item in (got if isinstance(got, list) else [got]):
+            if isinstance(item, list):
+                candidates.extend(str(x) for x in item if x)
+            elif item:
+                candidates.append(str(item))
+    else:
+        candidates = re.findall(r'https?://[^\s"\'<>]+', resp.text)
+    if match:
+        pat = re.compile(match)
+        candidates = [c for c in candidates if pat.search(c)]
+    if not candidates:
+        raise RuntimeError(f"resolve matched no URL at {meta_url[:120]}")
+    return candidates[0] if spec.get("pick") == "first" else candidates[-1]
+
+
 def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tuple[bytes, str]:
     ep = src["endpoint"]
+    if ep.get("resolve"):
+        url = _resolve_url(ep, _resolve_auth(ep.get("auth")))
+        ep = {**ep, "url": url}
     url = expand_url(ep["url"])
     if panel_row:
         url = _expand_panel(url, panel_row)

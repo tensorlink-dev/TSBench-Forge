@@ -19726,3 +19726,29 @@
     wide:
       id_fields:
       - Region
+
+# -- wired batch: wave15c-resolve --
+- id: uk_weekly_road_fuel_prices
+  name: UK weekly road fuel pump prices, petrol and diesel (DESNZ)
+  domain: energy
+  frequency: P1W
+  audit_slack_days: 45
+  license: Open Government Licence v3.0 (DESNZ)
+  notes: 'Weekly UK average pump prices in pence per litre for ultra-low-sulphur petrol and diesel, published
+    by DESNZ every Tuesday with history back to 2018. The CSV lives at assets.publishing.service.gov.uk
+    under a per-release random hash, so a fixed URL would 404 at the next publication: endpoint.resolve
+    reads the stable GOV.UK content API and picks the current CSV attachment. Dates are DD/MM/YYYY week-commencing
+    Mondays.'
+  endpoint:
+    url: resolved-at-fetch-time
+    type: rest_csv
+    timeout: 90
+    resolve:
+      url: https://www.gov.uk/api/content/government/statistics/weekly-road-fuel-prices
+      select: details.attachments[].url
+      match: weekly_road_fuel_prices_\d+\.csv$
+  schema:
+    timestamp_field: Date
+    value_field:
+    - ULSP (Ultra low sulphur unleaded petrol) Pump price in pence/litre
+    - ULSD (Ultra low sulphur diesel) Pump price in pence/litre
