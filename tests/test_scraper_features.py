@@ -495,3 +495,100 @@ def test_decimal_year_to_iso_month():
     # epochs with fractions are NOT decimal years (10 digits before the dot);
     # they pass through unchanged, as before
     assert scraper._epoch_to_iso("1784998860.5") == "1784998860.5"
+
+
+def test_compose_ts_hour_of_day_convention():
+    # default: hour-ENDING 1..24 (IESO) — hour '1' means 00:00-01:00
+    assert scraper._compose_ts(["2026-07-26", "1"]) == "2026-07-26T00:00:00"
+    # Melbourne pedestrian counts: hour is already hour-of-day 0..23
+    assert scraper._compose_ts(["2026-07-26", "0"], hour_of_day=True) == "2026-07-26T00:00:00"
+    assert scraper._compose_ts(["2026-07-26", "1"], hour_of_day=True) == "2026-07-26T01:00:00"
+    assert scraper._compose_ts(["2026-07-26", "23"], hour_of_day=True) == "2026-07-26T23:00:00"
+
+
+def test_compose_ts_year_month_name():
+    # CMS Medicare enrollment: YEAR + English month name columns
+    assert scraper._compose_ts(["2026", "January"]) == "2026-01"
+    assert scraper._compose_ts(["2026", "SEPTEMBER"]) == "2026-09"
+    assert scraper._compose_ts(["2026", "Dec"]) == "2026-12"
+    assert scraper._compose_ts(["2026", "Notamonth"]) == "2026 Notamonth"
+
+
+def test_body_token_expansion():
+    now = scraper.dt.datetime.now(scraper.UTC)
+    body = {"query": "traffic(from: \"{YYYY-MM-DD-1d}\", to: \"{YYYY-MM-DD}\")",
+            "n": 5, "nested": [{"begin": "{EPOCH-2h}"}]}
+    out = scraper._expand_body(body)
+    assert body["query"].count("{") == 2          # original untouched
+    assert "{YYYY" not in out["query"]
+    assert now.strftime("%Y-%m-%d") in out["query"]
+    assert out["n"] == 5
+    begin = int(out["nested"][0]["begin"])
+    assert abs(begin - (int(now.timestamp()) - 7200)) < 60
+
+
+def test_body_panel_expansion():
+    out = scraper._expand_body({"variables": {"id": "{STATION}"}},
+                               panel_row={"STATION": "ABC123"})
+    assert out["variables"]["id"] == "ABC123"
+
+
+def test_drop_null_values():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "t", "value_field": "v",
+                      "drop_null_values": True}}
+    text = "t,v\n2026-07-20,100\n2026-07-27,\n2026-08-03,\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert [r["timestamp"] for r in recs] == ["2026-07-20"]
+
+
+def test_drop_null_values_keeps_panel_only_null():
+    # panel columns don't count as values
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "t", "value_field": "v",
+                      "panel_field": "z", "drop_null_values": True}}
+    text = "t,v,z\n2026-07-20,1,DE\n2026-07-27,,DE\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert len(recs) == 1 and recs[0]["_panel_z"] == "DE"
+
+
+def test_compose_hour_of_day_via_schema():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "Date Hour", "value_field": "Count",
+                      "compose_hour_of_day": True}}
+    text = "Date,Hour,Count\n2026-07-26,0,11\n2026-07-26,1,22\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert recs[0]["timestamp"] == "2026-07-26T00:00:00"
+    assert recs[1]["timestamp"] == "2026-07-26T01:00:00"
+
+
+def test_csv_columns_mixed_delimiter_header():
+    # NMDB NEST: whitespace-delimited header line over ';'-delimited data rows
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "start_date_time", "value_field": "RCORR_E",
+                      "csv_delimiter": ";", "csv_columns": ["start_date_time", "RCORR_E"]}}
+    text = ("start_date_time   RCORR_E\n"
+            "2026-07-26 00:00:00;105.3\n"
+            "2026-07-26 00:01:00;105.1\n")
+    recs = scraper.parse_payload(src, text.encode(), "text/plain")
+    assert len(recs) == 2
+    assert recs[0]["timestamp"] == "2026-07-26 00:00:00"
+    assert recs[0]["RCORR_E"] == "105.3"
+
+
+def test_csv_columns_headerless():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "Year Week", "value_field": "Extent",
+                      "csv_columns": ["Year", "Week", "Extent"]}}
+    text = "2026 28 431.2\n2026 29 405.7\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/plain")
+    assert len(recs) == 2
+    assert recs[0]["Extent"] == "431.2"
+
+
+def test_endpoint_encoding_shift_jis():
+    src = {"endpoint": {"type": "rest_csv", "encoding": "shift_jis"},
+           "schema": {"timestamp_field": "t", "value_field": "v"}}
+    text = "t,v\n2026-07-26,100\n"
+    recs = scraper.parse_payload(src, text.encode("shift_jis"), "text/csv")
+    assert recs[0]["v"] == "100"

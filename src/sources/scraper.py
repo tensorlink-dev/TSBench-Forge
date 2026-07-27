@@ -347,6 +347,20 @@ def _expand_panel(url: str, panel_row: dict[str, str]) -> str:
 _PLACEHOLDER_RE = re.compile(r"\{([A-Z_]+)\}")
 
 
+def _expand_body(obj: Any, panel_row: Optional[dict[str, str]] = None) -> Any:
+    """Recursively expand date/epoch/panel/env tokens in POST-body strings."""
+    if isinstance(obj, str):
+        out = expand_url(obj)
+        if panel_row:
+            out = _expand_panel(out, panel_row)
+        return _expand_env(out)
+    if isinstance(obj, dict):
+        return {k: _expand_body(v, panel_row) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_expand_body(v, panel_row) for v in obj]
+    return obj
+
+
 def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tuple[bytes, str]:
     ep = src["endpoint"]
     url = expand_url(ep["url"])
@@ -377,6 +391,11 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
     body = form_body if form_body is not None else ep.get("body")
     if body is None and ep.get("query"):
         body = {"query": ep["query"], "variables": ep.get("variables", {})}
+    # Date/epoch tokens and panel placeholders resolve inside POST bodies too —
+    # GraphQL APIs (Norway trafikkdata) take their time window in the body, not
+    # the URL, and a fixed window would freeze the source on historical data.
+    if body is not None:
+        body = _expand_body(body, panel_row)
     # Up to 3 attempts. Two failure modes are retried: transient transport
     # faults (DNS blips, SSL handshake stalls — observed on WSL2 / long-haul
     # routes), and 429/503 throttling with Retry-After honoured (capped) —
@@ -654,21 +673,34 @@ def _split_cols(line: str, delim: str | None) -> list[str]:
     return [t.strip().strip('"') for t in line.split(delim)]
 
 
-def _compose_ts(parts: list[str]) -> str:
+_MONTH_NAMES = {name.lower(): i for i, name in enumerate(
+    ("January February March April May June July August September October "
+     "November December").split(), start=1)}
+_MONTH_NAMES.update({k[:3]: v for k, v in list(_MONTH_NAMES.items())})
+
+
+def _compose_ts(parts: list[str], hour_of_day: bool = False) -> str:
     """Assemble a timestamp split across columns into ISO-ish form.
 
-    Handles three shapes, else joins verbatim:
+    Handles these shapes, else joins verbatim:
       * a date string + an integer hour ('2026-01-01' + '1'): common in grid /
         gov hourly CSVs (IESO 'Date','Hour'). Hour is treated as hour-ENDING
-        1..24 (the usual grid convention) -> hour-of-day 0..23.
+        1..24 (the usual grid convention) -> hour-of-day 0..23, unless
+        `hour_of_day` (schema.compose_hour_of_day) marks it as already 0..23
+        (Melbourne pedestrian counts — hour-ending would collapse 0 and 1).
       * NDBC 'YY MM DD hh mm' / CRW 'YYYY MM DD': all-numeric parts.
+      * year + month number ('2026' + '3') or English month name
+        ('2026' + 'January'/'Jan', CMS enrollment) -> 'YYYY-MM'.
     """
     parts = [p.strip() for p in parts]
     # date-string + integer hour (e.g. IESO 'Date'='2026-01-01', 'Hour'='1'..'24')
     if len(parts) == 2 and re.match(r"^\d{4}[-/]\d{1,2}[-/]\d{1,2}$", parts[0]) and parts[1].isdigit():
         d = parts[0].replace("/", "-")
         h = int(parts[1])
-        hod = (h - 1) % 24 if 1 <= h <= 24 else h % 24   # hour-ending 1..24 -> 0..23
+        if hour_of_day:
+            hod = h % 24
+        else:
+            hod = (h - 1) % 24 if 1 <= h <= 24 else h % 24   # hour-ending 1..24 -> 0..23
         return f"{d}T{hod:02d}:00:00"
     if len(parts) >= 3 and all(p.isdigit() for p in parts[:3]):
         ts = f"{parts[0]:0>4}-{parts[1]:0>2}-{parts[2]:0>2}"
@@ -679,6 +711,11 @@ def _compose_ts(parts: list[str]) -> str:
     if (len(parts) == 2 and parts[0].isdigit() and len(parts[0]) == 4
             and parts[1].isdigit() and 1 <= int(parts[1]) <= 12):
         return f"{parts[0]}-{int(parts[1]):02d}"
+    # year + English month name ('2026' + 'January' / 'Jan'): CMS enrollment
+    if len(parts) == 2 and parts[0].isdigit() and len(parts[0]) == 4:
+        mon = _MONTH_NAMES.get(parts[1].lower()) or _MONTH_NAMES.get(parts[1].lower()[:3])
+        if mon:
+            return f"{parts[0]}-{mon:02d}"
     return " ".join(parts)
 
 
@@ -740,6 +777,23 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
     # An explicit schema.csv_delimiter overrides sniffing — for files where the
     # heuristic misfires (e.g. ';'-delimited rows whose cells contain commas).
     forced = schema.get("csv_delimiter")
+    # schema.csv_columns names the columns explicitly for files with no usable
+    # header — headerless data (Rutgers snow: bare 'year week value' rows) or a
+    # header whose delimiter differs from the data rows' (NMDB NEST: whitespace
+    # header over ';' rows). Lines that don't split into exactly these columns
+    # (including any stray header) are skipped.
+    explicit_cols = schema.get("csv_columns")
+    if explicit_cols:
+        recs = []
+        for l in lines:
+            if l.lstrip().startswith("#"):
+                continue
+            toks = _split_cols(l, forced or _sniff_delim(l))
+            if len(toks) != len(explicit_cols) or toks == list(explicit_cols):
+                continue
+            recs.append(dict(zip(explicit_cols, toks)))
+        return _csv_recs_to_rows(recs, schema, ts_field, ts_cols, val_fields)
+
     header_idx, delim, header = None, None, None
     if want_short:
         for i, l in enumerate(lines[:200]):
@@ -764,6 +818,11 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
                 continue
             recs.append(dict(zip(header, toks)))
 
+    return _csv_recs_to_rows(recs, schema, ts_field, ts_cols, val_fields)
+
+
+def _csv_recs_to_rows(recs: list[dict], schema: dict, ts_field: str,
+                      ts_cols: list[str], val_fields: Optional[list[str]]) -> list[dict]:
     panel_cols = schema.get("panel_field")
     if isinstance(panel_cols, str):
         panel_cols = [panel_cols]
@@ -772,7 +831,8 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
     rows = []
     for r in recs:
         if len(ts_cols) > 1 and all(c in r for c in ts_cols):
-            ts_raw = _compose_ts([r[c] for c in ts_cols])
+            ts_raw = _compose_ts([r[c] for c in ts_cols],
+                                 hour_of_day=bool(schema.get("compose_hour_of_day")))
         else:
             ts_raw = r.get(ts_field) or next(iter(r.values()), None)
         row = {"timestamp": _epoch_to_iso(ts_raw) or ts_raw}
@@ -937,9 +997,20 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
 
     `schema.aggregate: {op: count|sum, bin: PT1H}` turns an irregular event
     stream (per-event rows) into a regular per-bin series — count of events (or
-    sum of the value) in each time bin, preserving `_panel_*` grouping."""
+    sum of the value) in each time bin, preserving `_panel_*` grouping.
+
+    `schema.drop_null_values: true` drops records whose every value field is
+    null/empty — for feeds that null-pad future periods to the end of the
+    current year/day (SMARD weekly files): kept, those pad rows make the max
+    written timestamp always sit in the future, blinding the freshness audit."""
     recs = _dispatch_parse(src, blob, content_type)
-    agg = src.get("schema", {}).get("aggregate")
+    schema = src.get("schema", {})
+    if schema.get("drop_null_values"):
+        recs = [r for r in recs
+                if any(v not in (None, "")
+                       for k, v in r.items()
+                       if k != "timestamp" and not k.startswith("_panel_"))]
+    agg = schema.get("aggregate")
     return _aggregate_records(recs, agg) if agg else recs
 
 
@@ -1015,7 +1086,9 @@ def _dispatch_parse(src: dict, blob: bytes, content_type: str) -> list[dict]:
             return _records_from_jsonstat2(data, schema)
         return _records_from_json(data, schema)
     if ep_type == "rest_csv":
-        text = blob.decode("utf-8", errors="replace")
+        # endpoint.encoding for non-UTF-8 hosts (TEPCO ships Shift_JIS).
+        enc = src["endpoint"].get("encoding", "utf-8")
+        text = blob.decode(enc, errors="replace")
         # Some "csv" sources actually return zipped XML (CAISO).
         if blob[:2] == b"PK":
             return _records_from_zip_xml(blob, schema)
