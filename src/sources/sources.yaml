@@ -3841,6 +3841,8 @@
     sample_rows: null
     sample_freshness_hours: null
 - id: fema_disaster_declarations
+  disabled: true
+  disabled_reason: '2026-07-27: the OpenFEMA API at www.fema.gov returns HTTP 403 Access Denied to this host, with or without a browser User-Agent - the CDN blocks the datacenter IP range, not the request shape. Never produced a data file. Re-enable if fetched from a different network.'
   name: FEMA — disaster declaration summaries (US)
   domain: nature
   dgp_class: alert_stream
@@ -4270,6 +4272,8 @@
     Use fileType ''zip'' for multi-year. Scraper must parse German decimal comma and synthesise the quarter-hour
     timestamp from the URL date range.'
 - id: caiso_grid_conditions
+  disabled: true
+  disabled_reason: '2026-07-27: www.caiso.com returns HTTP 403 to this host with or without a browser User-Agent (CDN bot management blocks the IP range). Never produced a data file; the wired CAISO OASIS LMP feed is unaffected. Re-enable if fetched from a different network.'
   name: CAISO Today's Outlook — current demand and net demand
   domain: energy
   dgp_class: grid_demand
@@ -4968,6 +4972,8 @@
   notes: Confirmed portal/key-gated. For keyless space weather use NOAA SWPC (services.swpc.noaa.gov)
     instead.
 - id: inciweb_wildfire_incidents
+  disabled: true
+  disabled_reason: '2026-07-27: inciweb.wildfire.gov returns HTTP 403 to this host with or without a browser User-Agent. Never produced a data file. Re-enable if fetched from a different network.'
   name: InciWeb — active US wildfire incidents (RSS)
   domain: nature
   dgp_class: alert_stream
