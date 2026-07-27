@@ -107,6 +107,9 @@ schedules:
   - eccc_hydrometric_realtime_water_level
   - taipower_generation_by_unit_10min
   - steam_top_games_concurrent_players
+  - cammesa_ar_demand_5min
+  - chuden_jp_demand_5min
+  - kyuden_jp_demand_5min
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -243,6 +246,7 @@ schedules:
   - mesa_az_police_dispatch_halfhour
   - montgomery_md_police_dispatch_halfhour
   - montgomery_md_fire_rescue_dispatch_halfhour
+  - coes_pe_demand_30min
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -311,6 +315,7 @@ schedules:
   - openbeautyfacts_product_additions
   - montgomery_md_traffic_crashes_hourly
   - aeso_alberta_pool_price_ail_hourly
+  - nuget_catalog_publish_rate
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -615,6 +620,13 @@ schedules:
   - ripestat_country_resource_stats_weekly
   - who_fluid_ili_weekly
   - gistemp_global_monthly_anomaly
+  - rivm_nl_wastewater_rna_national
+  - infodengue_br_weekly_cases
+  - sns_pt_emergency_episodes_daily
+  - singstat_retail_sales_index_monthly
+  - statee_retail_turnover_monthly
+  - hexpm_package_downloads
+  - statice_is_quarterly_gdp
   cron: 10 1 * * *
 - every: P1D
   sources:

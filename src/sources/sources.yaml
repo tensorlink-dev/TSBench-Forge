@@ -20204,3 +20204,266 @@
     value_field:
     - Actual Posted Pool Price
     - Forecast Pool Price
+
+# -- wired batch: wave17 --
+- id: rivm_nl_wastewater_rna_national
+  name: RIVM Netherlands national SARS-CoV-2 wastewater RNA load
+  domain: healthcare
+  frequency: P1D
+  audit_slack_days: 60
+  license: RIVM open data (CC0)
+  notes: National average SARS-CoV-2 RNA flow per 100k inhabitants from Dutch sewage surveillance; daily
+    measurement dates, refreshed weekly.
+  endpoint:
+    url: https://data.rivm.nl/data/covid-19/COVID-19_rioolwaterdata_landelijk.json
+    type: rest_json
+  schema:
+    timestamp_field: '[].Date_measurement'
+    value_field:
+    - '[].RNA_flow_per_100000'
+- id: infodengue_br_weekly_cases
+  name: InfoDengue Brazil weekly dengue cases (major cities)
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 70
+  license: InfoDengue open API (Fiocruz/FGV, CC-BY)
+  notes: Weekly notified dengue cases and nowcast estimates per municipality (epidemiological week); panel
+    over Rio de Janeiro, Sao Paulo, Belo Horizonte, Salvador, Fortaleza, Curitiba, Recife, Manaus.
+  endpoint:
+    url: https://info.dengue.mat.br/api/alertcity?geocode={GEOCODE}&disease=dengue&format=json&ew_start=1&ew_end=53&ey_start=2025&ey_end=2026
+    type: rest_json
+  schema:
+    timestamp_field: '[].data_iniSE'
+    value_field:
+    - '[].casos'
+    - '[].casos_est'
+    - '[].p_inc100k'
+    panel_field: '[].municipio_nome'
+  panel:
+  - GEOCODE: '3304557'
+  - GEOCODE: '3550308'
+  - GEOCODE: '3106200'
+  - GEOCODE: '2927408'
+  - GEOCODE: '2304400'
+  - GEOCODE: '4106902'
+  - GEOCODE: '2611606'
+  - GEOCODE: '1302603'
+- id: sns_pt_emergency_episodes_daily
+  name: Portugal SNS daily hospital emergency episodes
+  domain: healthcare
+  frequency: P1D
+  audit_slack_days: 55
+  license: Portal da Transparência SNS open data (CC-BY)
+  notes: Estimated daily emergency-department episodes for mainland Portugal from the SNS influenza-like-illness
+    hospital monitoring dataset (OpenDataSoft Explore v2 API, newest 100 days).
+  endpoint:
+    url: https://transparencia.sns.gov.pt/api/explore/v2.1/catalog/datasets/atividade-sindrome-gripal-csh/records?limit=100&order_by=periodo%20desc&where=ars%3D%22Portugal%20Continental%22%20AND%20indicador%3D%22N%C3%BAmero%20estimado%20de%20epis%C3%B3dios%20de%20urg%C3%AAncia%22
+    type: rest_json
+  schema:
+    timestamp_field: results[].periodo
+    value_field:
+    - results[].valor
+- id: singstat_retail_sales_index_monthly
+  name: Singapore retail sales index (monthly, by industry)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: Singapore Open Data Licence (SingStat Table Builder API)
+  notes: Retail Sales Index (2025=100) at current prices, monthly, panel over retail industries.
+  endpoint:
+    url: https://tablebuilder.singstat.gov.sg/api/table/tabledata/M602121?seriesNoORrowNo=1
+    type: rest_json
+  schema:
+    timestamp_field: Data.row[].columns[].key
+    value_field:
+    - Data.row[].columns[].value
+    panel_field: Data.row[].rowText
+- id: statee_retail_turnover_monthly
+  name: Statistics Estonia monthly retail trade turnover and volume index
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: Statistics Estonia open data (PxWeb API, CC-BY)
+  notes: Estonian retail trade turnover (million EUR) and deflated volume index (2021=100), monthly, panel
+    over retail economic activities.
+  endpoint:
+    url: https://andmed.stat.ee/api/v1/en/stat/majandus/sisekaubandus/jaemuugi-mahuindeksid/KM020.PX
+    type: rest_json
+    method: POST
+    body:
+      query:
+      - code: Näitaja
+        selection:
+          filter: item
+          values:
+          - TOVT
+          - TOVV
+      - code: Tegevusala
+        selection:
+          filter: item
+          values:
+          - G47
+          - G47_FOOD
+          - G45
+      - code: Vaatlusperiood
+        selection:
+          filter: all
+          values:
+          - '*'
+      response:
+        format: json-stat2
+- id: cammesa_ar_demand_5min
+  name: CAMMESA Argentina 5-minute electricity demand by region
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 45
+  license: CAMMESA public web service
+  notes: Real-time Argentine grid demand (MW) in 5-minute steps for the current day, panel over CAMMESA
+    regions; drop_null_values removes the not-yet-observed slots that carry only yesterday/last-week comparison
+    series.
+  endpoint:
+    url: https://api.cammesa.com/demanda-svc/demanda/ObtieneDemandaYTemperaturaRegion?id_region={REGION}
+    type: rest_json
+  schema:
+    timestamp_field: '[].fecha'
+    value_field:
+    - '[].demHoy'
+    drop_null_values: true
+  panel:
+  - REGION: '1002'
+  - REGION: '425'
+  - REGION: '426'
+- id: coes_pe_demand_30min
+  name: COES Peru half-hourly system demand
+  domain: energy
+  frequency: PT30M
+  audit_slack_days: 45
+  license: COES SINAC public portal (Peru system operator)
+  notes: 'Peruvian SEIN demand in 30-minute steps: executed (Ejecutado) plus daily and weekly scheduled
+    programmes, executed series only (Series[0]). Window runs from the 1st of the current month to today;
+    the portal only accepts DD/MM/YYYY dates.'
+  endpoint:
+    url: https://www.coes.org.pe/Portal/portalinformacion/demanda
+    type: rest_json
+    method: POST
+    body_form:
+      fechaInicial: 01/{MM}/{YYYY}
+      fechaFinal: '{DD}/{MM}/{YYYY}'
+  schema:
+    timestamp_field: Chart.Series[0].Data[].Nombre
+    value_field:
+    - Chart.Series[0].Data[].Valor
+- id: chuden_jp_demand_5min
+  name: Chubu Electric Power Grid 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 45
+  license: Chubu Electric Power Grid public denki-yoho CSV
+  notes: Central Japan (Chubu) grid demand and solar output in 5-minute steps for the current JST day; Shift_JIS
+    CSV with several stacked blocks, the 5-minute block is selected by its unique column names. Timestamps
+    are JST without an offset. drop_null_values removes the blank not-yet-observed slots.
+  endpoint:
+    url: https://powergrid.chuden.co.jp/denki_yoho_content_data/juyo_cepco003.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績(５分間隔値)(万kW)
+    - 太陽光発電実績(５分間隔値)(万kW)
+    drop_null_values: true
+- id: kyuden_jp_demand_5min
+  name: Kyushu Electric Power Transmission 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 45
+  license: Kyushu Electric Power Transmission and Distribution public denki-yoho CSV
+  notes: Kyushu (southern Japan) grid demand in 5-minute steps for the current JST day; Shift_JIS CSV of
+    stacked blocks, the 5-minute block is picked by its unique column name. Timestamps are JST without an
+    offset; drop_null_values removes the blank not-yet-observed slots.
+  endpoint:
+    url: https://www.kyuden.co.jp/td_power_usages/csv/juyo-j.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績(５分間隔値）(万kW)
+    drop_null_values: true
+- id: hexpm_package_downloads
+  name: Hex.pm (Elixir/Erlang) package download counts
+  domain: web_cloudops
+  frequency: P1D
+  audit_slack_days: 45
+  license: hex.pm public API
+  notes: Daily/weekly/all-time download counts for the 100 most-downloaded Hex packages; timestamp-less
+    snapshot stamped at fetch time.
+  endpoint:
+    url: https://hex.pm/api/packages?sort=recent_downloads
+    type: rest_json
+  schema:
+    value_field:
+    - '[].downloads.day'
+    - '[].downloads.week'
+    - '[].downloads.recent'
+    panel_field: '[].name'
+    snapshot_now: true
+- id: nuget_catalog_publish_rate
+  name: NuGet package publish events per minute
+  domain: web_cloudops
+  frequency: PT1M
+  audit_slack_days: 45
+  license: NuGet public catalog API (Microsoft, open)
+  notes: Per-minute count of NuGet catalog commit events (package publishes/updates); endpoint.resolve follows
+    the catalog index to the newest catalog page, which accumulates ~2700 events over ~8 hours before rolling
+    over.
+  endpoint:
+    url: https://api.nuget.org/v3/catalog0/index.json
+    type: rest_json
+    max_bytes: 60000000
+    resolve:
+      url: https://api.nuget.org/v3/catalog0/index.json
+      select: items[].@id
+      pick: last
+  schema:
+    timestamp_field: items[].commitTimeStamp
+    value_field:
+    - items[].nuget:id
+    aggregate:
+      op: count
+      bin: PT1M
+- id: statice_is_quarterly_gdp
+  name: Statistics Iceland quarterly GDP by expenditure component
+  domain: econ_fin
+  frequency: P1Q
+  audit_slack_days: 500
+  license: Statistics Iceland (Hagstofa) open data, PxWeb API
+  notes: Icelandic quarterly national accounts, chain-volume measures, panel over expenditure components
+    (private/government consumption, capital formation, exports, imports, GDP).
+  endpoint:
+    url: https://px.hagstofa.is/pxen/api/v1/en/Efnahagur/thjodhagsreikningar/landsframl/2_landsframleidsla_arsfj/THJ01601.px
+    type: rest_json
+    method: POST
+    body:
+      query:
+      - code: Mælikvarði
+        selection:
+          filter: item
+          values:
+          - '1'
+      - code: Skipting
+        selection:
+          filter: item
+          values:
+          - '0'
+          - '1'
+          - '2'
+          - '9'
+          - '10'
+      - code: Ársfjórðungur
+        selection:
+          filter: all
+          values:
+          - '*'
+      response:
+        format: json-stat2
