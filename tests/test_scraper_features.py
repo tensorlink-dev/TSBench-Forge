@@ -611,3 +611,15 @@ def test_compose_year_week_via_schema():
     text = "2026 29 405.7\n2026 30 398.2\n"
     recs = scraper.parse_payload(src, text.encode(), "text/plain")
     assert recs[0]["timestamp"] == "2026-07-13"
+
+
+def test_decimal_comma():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "t", "value_field": "v",
+                      "csv_delimiter": ";", "decimal_comma": True}}
+    text = "t;v\n2026-07-26;1.234,56\n2026-07-27;0,899\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert recs[0]["v"] == "1234.56"
+    assert recs[1]["v"] == "0.899"
+    # timestamps and plain values untouched
+    assert recs[0]["timestamp"] == "2026-07-26"

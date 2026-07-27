@@ -1004,6 +1004,9 @@ def log_error(sid: str, msg: str) -> None:
 # ──────────────────────────────────────────────────────────────────────────
 
 
+_DECIMAL_COMMA_RE = re.compile(r"^-?\d{1,3}(\.\d{3})*,\d+$")
+
+
 def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     """Parse a payload into records, then apply optional aggregation.
 
@@ -1017,6 +1020,15 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     written timestamp always sit in the future, blinding the freshness audit."""
     recs = _dispatch_parse(src, blob, content_type)
     schema = src.get("schema", {})
+    if schema.get("decimal_comma"):
+        # European decimal commas ("1.234,56" / "1,395") -> dot decimals, so
+        # the numeric gate and downstream casts see real numbers (Spanish
+        # MITECO / Portuguese DGEG fuel prices).
+        for r in recs:
+            for k, v in r.items():
+                if (k != "timestamp" and not k.startswith("_panel_")
+                        and isinstance(v, str) and _DECIMAL_COMMA_RE.match(v)):
+                    r[k] = v.replace(".", "").replace(",", ".")
     if schema.get("drop_null_values"):
         recs = [r for r in recs
                 if any(v not in (None, "")
