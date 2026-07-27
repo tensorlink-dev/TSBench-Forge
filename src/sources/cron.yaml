@@ -111,6 +111,7 @@ schedules:
   - chuden_jp_demand_5min
   - kyuden_jp_demand_5min
   - johnscreekga_incidentcad
+  - longbeach_go_long_beach_service_requests
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -204,6 +205,8 @@ schedules:
   - elia_offshore_wind_15min
   - usgs_florida_dissolved_oxygen_15min
   - waterlevel_ie_opw_hydrometric_15min
+  - opendatasoft_fire_incidents_queensland
+  - maryland_power_outages_by_county
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -328,6 +331,10 @@ schedules:
   - sonomacounty_sonoma_county_sheriff_s_office_incident
   - transparentrichmond_richmond_police_department_cad_events
   - sonomacounty_sonoma_county_sheriff_s_office_event_dat
+  - au_nsw_traffic_incidents
+  - hydroquebec_sources_of_electricity_generated_in_qu_b
+  - ideam_co_air_temperature_stations
+  - act_air_quality_hourly
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -693,6 +700,24 @@ schedules:
   - piercecountywa_ppw_development_center_customer_service
   - socrata_snb_teleservices_wait_times_temps_d_atte
   - novascotia_operations_contact_centre_call_summary
+  - townofcary_police_incidents
+  - townofcary_wake_county_restaurants
+  - townofcary_solar_permit_applications
+  - townofcary_developments
+  - au_planning_permit_application_register
+  - vancouver_issued_building_permits
+  - bcra_ar_reserves_daily
+  - bcra_ar_wholesale_fx_daily
+  - bcra_ar_badlar_rate_daily
+  - latvia_csb_retail_turnover_monthly
+  - ideam_co_pm10_pm25_daily
+  - pa_wastewater_viral_activity_weekly
+  - pa_wastewater_variant_abundance_weekly
+  - texas_local_sales_tax_allocation_monthly
+  - michigan_payroll_jobs_monthly
+  - cenace_mx_zonal_price_dayahead_monterrey
+  - colorado_earnings_hours_monthly
+  - colorado_gasoline_prices_weekly
   cron: 10 1 * * *
 - every: P1D
   sources:

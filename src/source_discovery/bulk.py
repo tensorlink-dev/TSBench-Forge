@@ -46,6 +46,7 @@ import json
 import re
 import statistics
 import time
+import unicodedata
 from typing import Any, Iterable, Optional
 from urllib.parse import quote, urlparse
 
@@ -416,9 +417,18 @@ EXTRA_CLASSES: tuple[tuple[str, str, str], ...] = (
 )
 
 
+def fold(s: str) -> str:
+    """Lowercase and strip diacritics. Without this, splitting on ``[^a-z0-9]``
+    shreds every accented word — "fréquentation" becomes ``fr`` + ``quentation``
+    — and topic matching silently fails across most of the ODS catalog, which is
+    predominantly French."""
+    decomposed = unicodedata.normalize("NFKD", str(s).lower())
+    return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+
+
 def _topic_tokens(text: str) -> list[str]:
     return [
-        t for t in re.split(r"[^a-z0-9]+", text.lower())
+        t for t in re.split(r"[^a-z0-9]+", fold(text))
         if t and t not in _STOPWORDS and len(t) > 2
     ]
 
@@ -441,7 +451,8 @@ def resolve_class(
     if not hay:
         return None
     best, best_score = None, 0
-    for klass in (query_class,) + tuple(KEYWORD_CLASSES) + EXTRA_CLASSES:
+    for klass in ((query_class,) + tuple(KEYWORD_CLASSES)
+                  + tuple(ODS_KEYWORD_CLASSES) + EXTRA_CLASSES):
         toks = _topic_tokens(klass[0])
         score = sum(1 for t in toks if t in hay or t.rstrip("s") in hay)
         if score > best_score:                       # first-wins keeps the query
@@ -458,18 +469,15 @@ def is_relevant(keyword: str, *texts: str) -> bool:
     whatever domain the *keyword* mapped to, and a mislabelled domain is worse
     than a missing source — the domain x cadence balance is the thing steering
     the entire build, so poisoning it misdirects every later decision."""
-    hay = " ".join(t.lower() for t in texts if t)
-    toks = [
-        t for t in re.split(r"[^a-z0-9]+", keyword.lower())
-        if t and t not in _STOPWORDS and len(t) > 2
-    ]
+    hay = fold(" ".join(t for t in texts if t))
+    toks = _topic_tokens(keyword)
     if not toks:
         return True
     return any(t in hay or t.rstrip("s") in hay for t in toks)
 
 
 def _slug(s: str, maxlen: int = 44) -> str:
-    s = re.sub(r"[^a-z0-9]+", "_", str(s).lower()).strip("_")
+    s = re.sub(r"[^a-z0-9]+", "_", fold(s)).strip("_")
     return re.sub(r"_+", "_", s)[:maxlen].strip("_")
 
 
@@ -738,6 +746,63 @@ ODS_CATALOG = "https://data.opendatasoft.com/api/explore/v2.1/catalog/datasets"
 ODS_PAGE = 100                       # /catalog/datasets caps a response at 100
 ODS_EXPORT_ROWS = 2000               # /exports/json honours order_by + limit
 
+# Searching an ODS portal in English is the mistake that makes it look
+# unproductive: most of the ~100k datasets are published in French, with Spanish,
+# Dutch and German behind it, so English queries only ever reach the
+# international-facing minority. These are the same topic classes as
+# KEYWORD_CLASSES, asked in the languages the data is catalogued in.
+ODS_KEYWORD_CLASSES: tuple[tuple[str, str, str], ...] = (
+    # French — transport
+    ("fréquentation transport", "transport", "ridership"),
+    ("comptage vélo", "transport", "vehicle_counts"),
+    ("comptage routier", "transport", "vehicle_counts"),
+    ("stationnement disponibilité", "transport", "parking_occupancy"),
+    ("trafic voyageurs gare", "transport", "ridership"),
+    ("vélos libre service disponibilité", "transport", "micromobility"),
+    # French — energy
+    ("consommation électrique", "energy", "grid_demand"),
+    ("production énergie renouvelable", "energy", "generation"),
+    ("consommation gaz", "energy", "gas_demand"),
+    ("bornes recharge électrique", "energy", "ev_charging"),
+    # French — nature
+    ("qualité de l'air mesures", "nature", "air_quality"),
+    ("qualité des eaux", "nature", "water_quality"),
+    ("pluviométrie relevés", "nature", "hydrology"),
+    ("déchets collecte tonnage", "nature", "waste_stream"),
+    ("niveau des nappes", "nature", "hydrology"),
+    ("pollens allergie", "nature", "air_quality"),
+    # French — healthcare / sales / econ / web
+    ("urgences hospitalières passages", "healthcare", "health_utilisation"),
+    ("épidémiologie surveillance", "healthcare", "disease_surveillance"),
+    ("interventions pompiers", "healthcare", "emergency_dispatch"),
+    ("permis de construire", "sales", "permit_stream"),
+    ("créations entreprises", "sales", "registration_stream"),
+    ("marchés publics attribués", "sales", "procurement"),
+    ("fréquentation équipements", "sales", "attendance"),
+    ("prix carburants", "econ_fin", "price_series"),
+    ("emploi demandeurs", "econ_fin", "labour_market"),
+    ("logements transactions", "econ_fin", "housing_market"),
+    ("fréquentation site web", "web_cloudops", "web_traffic"),
+    ("demandes signalements", "web_cloudops", "ticket_stream"),
+    # Spanish
+    ("consumo energía", "energy", "grid_demand"),
+    ("calidad del aire", "nature", "air_quality"),
+    ("aforo tráfico", "transport", "vehicle_counts"),
+    ("residuos recogida", "nature", "waste_stream"),
+    ("licencias actividad", "sales", "registration_stream"),
+    ("urgencias atenciones", "healthcare", "health_utilisation"),
+    # Dutch
+    ("verkeer metingen", "transport", "vehicle_counts"),
+    ("luchtkwaliteit metingen", "nature", "air_quality"),
+    ("energieverbruik", "energy", "grid_demand"),
+    ("afval inzameling", "nature", "waste_stream"),
+    # German
+    ("Verkehrszählung", "transport", "vehicle_counts"),
+    ("Luftqualität Messwerte", "nature", "air_quality"),
+    ("Stromverbrauch", "energy", "grid_demand"),
+    ("Niederschlag Messwerte", "nature", "hydrology"),
+)
+
 ODS_TS_TYPES = frozenset({"date", "datetime"})
 ODS_NUM_TYPES = frozenset({"int", "double", "decimal", "float", "long"})
 
@@ -959,7 +1024,7 @@ def wired_ods_datasets(catalog_path: str) -> set[str]:
 
 def ods_sweep(
     catalog_path: str,
-    classes: Iterable[tuple[str, str, str]] = KEYWORD_CLASSES,
+    classes: Optional[Iterable[tuple[str, str, str]]] = None,
     per_keyword: int = 100,
     host_cap: int = DEFAULT_HOST_CAP,
     max_age_days: float = 21.0,
@@ -968,6 +1033,8 @@ def ods_sweep(
     sleep_s: float = 0.35,
     log=print,
 ) -> tuple[list[dict], list[dict]]:
+    if classes is None:
+        classes = ODS_KEYWORD_CLASSES + KEYWORD_CLASSES
     seen_hosts: dict[str, int] = {}
     known_hosts = wired_hosts(catalog_path)
     known_ds = wired_ods_datasets(catalog_path)
@@ -1055,6 +1122,337 @@ def ods_sweep(
                 log(f"target {target} reached")
                 return cands, skipped
     return cands, skipped
+
+
+# --------------------------------------------------------------------------- #
+# CKAN
+# --------------------------------------------------------------------------- #
+# CKAN has no federated search — each portal is its own island — so the host
+# list IS the input. That is also the point: this list is chosen for geography,
+# because the catalog's thinnest axis is not topic but country. A portal only
+# helps if its resources are in the DataStore; a CSV sitting in file storage has
+# no queryable API and cannot be ordered newest-first.
+CKAN_PORTALS: tuple[tuple[str, str], ...] = (
+    ("data.gov.ie", "Ireland"),
+    ("data.gov.sk", "Slovakia"),
+    ("data.gov.lv", "Latvia"),
+    ("data.gov.ro", "Romania"),
+    ("data.gov.gr", "Greece"),
+    ("data.gov.cy", "Cyprus"),
+    ("data.gov.mt", "Malta"),
+    ("dados.gov.br", "Brazil"),
+    ("datos.gob.cl", "Chile"),
+    ("datos.gob.mx", "Mexico"),
+    ("datosabiertos.gob.pe", "Peru"),
+    ("data.gov.sg", "Singapore"),
+    ("data.gov.my", "Malaysia"),
+    ("data.gov.ph", "Philippines"),
+    ("data.gov.in", "India"),
+    ("data.gov.lk", "Sri Lanka"),
+    ("catalog.data.gov.bd", "Bangladesh"),
+    ("africaopendata.org", "Africa (regional)"),
+    ("data.gov.ng", "Nigeria"),
+    ("open.africa", "Africa (regional)"),
+    ("data.govt.nz", "New Zealand"),
+    ("data.gov.au", "Australia"),
+    ("open.canada.ca", "Canada"),
+    ("data.overheid.nl", "Netherlands"),
+    ("opendata.swiss", "Switzerland"),
+    ("data.gv.at", "Austria"),
+    ("govdata.de", "Germany"),
+    ("data.norge.no", "Norway"),
+    ("opendata.dk", "Denmark"),
+    ("avoindata.fi", "Finland"),
+    ("dados.gov.pt", "Portugal"),
+    ("datos.gob.es", "Spain"),
+    ("dati.gov.it", "Italy"),
+    ("data.gov.ua", "Ukraine"),
+    ("data.gov.il", "Israel"),
+    ("data.gov.jo", "Jordan"),
+    ("data.humdata.org", "Humanitarian (global)"),
+)
+
+# CKAN DataStore column types.
+CKAN_TS_TYPES = frozenset({"timestamp", "timestamptz", "date", "time"})
+CKAN_NUM_TYPES = frozenset({"numeric", "int4", "int8", "int2", "float4",
+                            "float8", "double precision", "integer", "bigint",
+                            "real", "money"})
+
+
+def ckan_search(host: str, keyword: str, rows: int = 50,
+                timeout: int = 45) -> list[dict]:
+    url = f"https://{host}/api/3/action/package_search"
+    r = requests.get(url, params={"q": keyword, "rows": rows},
+                     headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        return []
+    body = r.json()
+    if not body.get("success"):
+        return []
+    return (body.get("result") or {}).get("results", [])
+
+
+def ckan_datastore_fields(host: str, rid: str,
+                          timeout: int = 30) -> list[tuple[str, str, str]]:
+    """(id, id, type) triples for a DataStore resource, shaped like ``_cols``."""
+    url = f"https://{host}/api/3/action/datastore_search"
+    try:
+        r = requests.get(url, params={"resource_id": rid, "limit": 0},
+                         headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return []
+        fields = ((r.json().get("result") or {}).get("fields") or [])
+    except Exception:                                         # noqa: BLE001
+        return []
+    out = []
+    for f in fields:
+        fid, typ = f.get("id"), str(f.get("type", "")).strip().lower()
+        if fid and fid != "_id":
+            out.append((fid, fid, typ))
+    return out
+
+
+def ckan_pick_timestamp(fields: Iterable[tuple[str, str, str]]) -> Optional[str]:
+    cands = []
+    for _lab, name, typ in fields:
+        if typ not in CKAN_TS_TYPES:
+            continue
+        f = name.lower()
+        score = sum(2 for tok in _ODS_TS_PROMOTE if tok in f)
+        score -= sum(3 for tok in _TS_DEMOTE if tok in f)
+        cands.append((name, score))
+    return max(cands, key=lambda p: p[1])[0] if cands else None
+
+
+def ckan_pick_values(fields: Iterable[tuple[str, str, str]], ts: str,
+                     limit: int = 3) -> list[str]:
+    out = []
+    for _lab, name, typ in fields:
+        if name == ts or typ not in CKAN_NUM_TYPES:
+            continue
+        if set(re.split(r"[^a-z0-9]+", name.lower())) & set(_ODS_VAL_REJECT):
+            continue
+        out.append(name)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def ckan_data_url(host: str, rid: str, ts: str, vals: list[str],
+                  rows: int = 2000) -> str:
+    fields = ",".join([ts] + vals)
+    return (
+        f"https://{host}/api/3/action/datastore_search?resource_id={rid}"
+        f"&limit={rows}&sort={quote(ts)}%20desc&fields={quote(fields, safe=',')}"
+    )
+
+
+def ckan_probe(host: str, rid: str, ts: str, timeout: int = 30) -> dict:
+    url = (f"https://{host}/api/3/action/datastore_search?resource_id={rid}"
+           f"&limit=100&sort={quote(ts)}%20desc&fields={quote(ts)}")
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}"}
+        recs = ((r.json().get("result") or {}).get("records") or [])
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:140]}
+    if not recs:
+        return {"error": "no records"}
+    all_stamps = sorted({
+        d for d in (_parse_iso(rec.get(ts)) for rec in recs if isinstance(rec, dict))
+        if d is not None
+    }, reverse=True)
+    now = dt.datetime.now(dt.timezone.utc)
+    stamps = [d for d in all_stamps if d <= now + dt.timedelta(days=1)]
+    n_future = len(all_stamps) - len(stamps)
+    if len(stamps) < 2:
+        return {"error": f"only {len(stamps)} usable timestamp(s)"}
+    if n_future > max(1, 0.02 * len(all_stamps)):
+        return {"error": f"{n_future}/{len(all_stamps)} timestamps future-dated"}
+    gaps = [g for g in ((stamps[i] - stamps[i + 1]).total_seconds()
+                        for i in range(len(stamps) - 1)) if g > 0]
+    return {
+        "rows": len(recs), "distinct": len(stamps), "future": n_future,
+        "newest": stamps[0].isoformat(),
+        "age_days": (now - stamps[0]).total_seconds() / 86400.0,
+        "median_gap_s": statistics.median(gaps) if gaps else 0.0,
+    }
+
+
+def ckan_synthesize(host: str, country: str, pkg: dict, res: dict,
+                    klass: tuple[str, str, str], fields: list[tuple[str, str, str]],
+                    probe: dict, taken: Optional[set[str]] = None) -> Optional[dict]:
+    kw, dom, dgp = klass
+    rid = res.get("id") or ""
+    title = (res.get("name") or pkg.get("title") or "").strip()
+    if not rid or not title:
+        return None
+    ts = ckan_pick_timestamp(fields)
+    if not ts:
+        return None
+    vals = ckan_pick_values(fields, ts)
+    freq = freq_from_delta(probe["median_gap_s"])
+    slack = max(45, int(probe["age_days"]) + 45)
+
+    sid = entry_id(host, title)
+    if taken and sid in taken:
+        sid = f"{sid[:52]}_{rid.replace('-', '')[:8]}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title} — {country} ({host})",
+        "domain": dom,
+        "dgp_class": dgp,
+        "archetypes": ["count_discrete"] if not vals else ["non_stationary_regime"],
+        "frequency": freq,
+        "endpoint": {
+            "type": "rest_json",
+            "url": ckan_data_url(host, rid, ts, vals),
+            "auth": "none",
+            "rate_limit": "CKAN anonymous (per-portal)",
+        },
+        "schema": {
+            # CKAN wraps records one level down. A slash-separated path here
+            # would silently parse as a single empty row.
+            "timestamp_field": f"result.records[].{ts}",
+            "variates": max(1, len(vals)),
+        },
+        "history_available": "unknown",
+        "update_cadence_observed": (
+            f"median gap {probe['median_gap_s'] / 60:.1f} min over the newest "
+            f"{probe['distinct']} timestamps; newest {probe['newest']}"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": f"National open-data portal series ({country}); novel.",
+        "license": pkg.get("license_title") or "open data (see portal terms)",
+        "audit_slack_days": slack,
+        "notes": (
+            f"Bulk-generated from the {host} CKAN DataStore (query '{kw}'). "
+            f"Package: {pkg.get('name', '?')}."
+        ),
+    }
+    if vals:
+        entry["schema"]["value_field"] = [f"result.records[].{v}" for v in vals]
+    else:
+        entry["schema"]["value_field"] = f"result.records[].{ts}"
+        bin_ = "P1D" if freq in ("P1D", "P1W", "P1M", "P1Q", "P1Y") else "PT1H"
+        entry["schema"]["aggregate"] = {"op": "count", "bin": bin_}
+        if bin_ == "PT1H":
+            entry["frequency"] = freq = "PT1H"
+
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "cron_cadence": cron_cadence_for(freq, probe["age_days"]),
+        "reason": (
+            f"CKAN bulk ({country}): {probe['distinct']} distinct ts, newest "
+            f"{probe['newest']} ({probe['age_days']:.1f}d old), median gap "
+            f"{probe['median_gap_s']:.0f}s, values={vals or 'binned count'}"
+        ),
+    }
+
+
+def ckan_sweep(
+    catalog_path: str,
+    portals: Iterable[tuple[str, str]] = CKAN_PORTALS,
+    classes: Iterable[tuple[str, str, str]] = KEYWORD_CLASSES,
+    per_portal: int = 3,
+    rows: int = 40,
+    keywords_per_portal: int = 8,
+    max_age_days: float = 21.0,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    """One portal at a time, a handful of keywords each. ``per_portal`` is
+    deliberately small: the point of this sweep is breadth of *provider*, and a
+    9th dataset from one national portal is worth far less than a 1st from the
+    next country."""
+    classes = list(classes)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    known_res = wired_ckan_resources(catalog_path)
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for host, country in portals:
+        got = 0
+        for klass in classes[:keywords_per_portal] if keywords_per_portal else classes:
+            if got >= per_portal:
+                break
+            kw = klass[0]
+            try:
+                pkgs = ckan_search(host, kw, rows=rows)
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": host, "reason": f"search failed: {exc}"[:120]})
+                break
+            for pkg in pkgs:
+                if got >= per_portal:
+                    break
+                for res in pkg.get("resources") or []:
+                    if got >= per_portal:
+                        break
+                    rid = res.get("id") or ""
+                    if not rid or not res.get("datastore_active"):
+                        continue
+                    if rid in known_res:
+                        continue
+                    title = (res.get("name") or pkg.get("title") or "").strip()
+                    tag = f"{host}/{rid}"
+                    use_class = resolve_class(
+                        klass, title, pkg.get("notes") or pkg.get("title") or ""
+                    )
+                    if use_class is None:
+                        continue
+                    fields = ckan_datastore_fields(host, rid)
+                    time.sleep(sleep_s)
+                    if not fields:
+                        skipped.append({"id": tag, "reason": "no DataStore fields"})
+                        continue
+                    ts = ckan_pick_timestamp(fields)
+                    if not ts:
+                        skipped.append({"id": tag, "reason": "no timestamp column"})
+                        continue
+                    probe = ckan_probe(host, rid, ts)
+                    time.sleep(sleep_s)
+                    if "error" in probe:
+                        skipped.append({"id": tag,
+                                        "reason": f"probe failed: {probe['error']}"})
+                        continue
+                    if probe["distinct"] < 20:
+                        skipped.append({"id": tag,
+                                        "reason": f"only {probe['distinct']} distinct ts"})
+                        continue
+                    if probe["age_days"] > max_age_days * 3:
+                        skipped.append({"id": tag,
+                                        "reason": f"newest {probe['age_days']:.0f}d old"})
+                        continue
+                    block = ckan_synthesize(host, country, pkg, res, use_class,
+                                            fields, probe, taken=taken_ids)
+                    if block is None:
+                        skipped.append({"id": tag, "reason": "could not synthesise"})
+                        continue
+                    taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+                    cands.append(block)
+                    got += 1
+                    log(f"  + [{country}] {block['candidate_name'][:70]}")
+                    if target and len(cands) >= target:
+                        log(f"target {target} reached")
+                        return cands, skipped
+        log(f"[{host}] {got} candidate(s)")
+    return cands, skipped
+
+
+def wired_ckan_resources(catalog_path: str) -> set[str]:
+    reg = yaml.safe_load(open(catalog_path)) or []
+    out = set()
+    for src in reg:
+        url = (src.get("endpoint") or {}).get("url", "")
+        m = re.search(r"resource_id=([0-9a-f\-]{8,})", url)
+        if m:
+            out.add(m.group(1))
+    return out
 
 
 def write_batch(candidates: list[dict], out_path: str) -> str:

@@ -22233,3 +22233,546 @@
   audit_slack_days: 71
   notes: Bulk-generated from the Socrata federated catalog (query 'call center wait times'). Columns chosen
     mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+
+# -- wired batch: ods1 --
+- id: townofcary_police_incidents
+  name: Police Incidents (data.townofcary.org)
+  domain: healthcare
+  dgp_class: public_safety_stream
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.townofcary.org/api/explore/v2.1/catalog/datasets/cpd-incidents/exports/json?limit=2000&order_by=date_from%20desc&select=date_from
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_from'
+    variates: 1
+    value_field: '[].date_from'
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 26278 records
+  update_cadence_observed: median gap 99.7 min over the newest 76 timestamps; newest 2026-05-26T16:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC0 1.0 Universal
+  audit_slack_days: 106
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'crime offense arrests police incidents
+    stops'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own
+    host, not the aggregator.
+- id: opendatasoft_fire_incidents_queensland
+  name: Fire Incidents Queensland (queensland.opendatasoft.com)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://queensland.opendatasoft.com/api/explore/v2.1/catalog/datasets/fire-incidents-queensland/exports/json?limit=2000&order_by=fmetimestamp%20desc&select=fmetimestamp,vehiclesassigned,vehiclesonroute,vehiclesonscene
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].fmetimestamp'
+    variates: 3
+    value_field:
+    - '[].vehiclesassigned'
+    - '[].vehiclesonroute'
+    - '[].vehiclesonscene'
+  history_available: 42 records
+  update_cadence_observed: median gap 15.0 min over the newest 22 timestamps; newest 2026-07-27T08:59:03+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'fire incidents'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: au_nsw_traffic_incidents
+  name: NSW Traffic Incidents (data.peclet.com.au)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.peclet.com.au/api/explore/v2.1/catalog/datasets/lga-traffic-incidents/exports/json?limit=2000&order_by=created_date%20desc&select=created_date
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].created_date'
+    variates: 1
+    value_field: '[].created_date'
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 919 records
+  update_cadence_observed: median gap 5.3 min over the newest 100 timestamps; newest 2026-07-27T07:19:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'fire incidents'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: townofcary_wake_county_restaurants
+  name: Wake County Restaurants (data.townofcary.org)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.townofcary.org/api/explore/v2.1/catalog/datasets/wake-county-restaurants/exports/json?limit=2000&order_by=restaurantopendate%20desc&select=restaurantopendate
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].restaurantopendate'
+    variates: 1
+    value_field: '[].restaurantopendate'
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 4122 records
+  update_cadence_observed: median gap 1440.0 min over the newest 53 timestamps; newest 2026-07-28T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC0 1.0 Universal
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'restaurant inspections'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: townofcary_solar_permit_applications
+  name: Solar Permit Applications (data.townofcary.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.townofcary.org/api/explore/v2.1/catalog/datasets/solar-permit-applications/exports/json?limit=2000&order_by=issuedate%20desc&select=issuedate,totalsqft,projectcost
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].issuedate'
+    variates: 2
+    value_field:
+    - '[].totalsqft'
+    - '[].projectcost'
+  history_available: 1997 records
+  update_cadence_observed: median gap 4320.0 min over the newest 64 timestamps; newest 2026-07-24T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC0 1.0 Universal
+  audit_slack_days: 48
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'building permits'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: townofcary_developments
+  name: Developments (data.townofcary.org)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.townofcary.org/api/explore/v2.1/catalog/datasets/developments/exports/json?limit=2000&order_by=created_date%20desc&select=created_date,totalunits,totalsqft,totalacreage
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].created_date'
+    variates: 3
+    value_field:
+    - '[].totalunits'
+    - '[].totalsqft'
+    - '[].totalacreage'
+  history_available: 11276 records
+  update_cadence_observed: median gap 1.2 min over the newest 100 timestamps; newest 2026-07-22T00:03:25+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC0 1.0 Universal
+  audit_slack_days: 50
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'website analytics visits'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: au_planning_permit_application_register
+  name: Planning Permit Application Register (data.casey.vic.gov.au)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.casey.vic.gov.au/api/explore/v2.1/catalog/datasets/planning-permit-applications-register-only/exports/json?limit=2000&order_by=lodged_date%20desc&select=lodged_date
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].lodged_date'
+    variates: 1
+    value_field: '[].lodged_date'
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 23563 records
+  update_cadence_observed: median gap 1440.0 min over the newest 22 timestamps; newest 2026-07-23T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 3
+  audit_slack_days: 49
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'code enforcement cases'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: vancouver_issued_building_permits
+  name: Issued building permits (opendata.vancouver.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/issued-building-permits/exports/json?limit=2000&order_by=permitnumbercreateddate%20desc&select=permitnumbercreateddate,permitelapseddays,projectvalue
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].permitnumbercreateddate'
+    variates: 2
+    value_field:
+    - '[].permitelapseddays'
+    - '[].projectvalue'
+  history_available: 51483 records
+  update_cadence_observed: median gap 1440.0 min over the newest 23 timestamps; newest 2026-07-17T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open Government Licence - Vancouver
+  audit_slack_days: 55
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'permits issued construction residential
+    commercial'). Fields chosen from the portal's declared types; the endpoint points at the publisher's
+    own host, not the aggregator.
+- id: longbeach_go_long_beach_service_requests
+  name: Go Long Beach Service Requests (data.longbeach.gov)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://data.longbeach.gov/api/explore/v2.1/catalog/datasets/service-requests/exports/json?limit=2000&order_by=createddate%20desc&select=createddate,days_to_close,age_open
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].createddate'
+    variates: 2
+    value_field:
+    - '[].days_to_close'
+    - '[].age_open'
+  history_available: 339435 records
+  update_cadence_observed: median gap 2.6 min over the newest 100 timestamps; newest 2026-07-27T05:50:42+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query '311 service requests'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: hydroquebec_sources_of_electricity_generated_in_qu_b
+  name: Sources of electricity generated in Québec (donnees.hydroquebec.com)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://donnees.hydroquebec.com/api/explore/v2.1/catalog/datasets/production-electricite-quebec/exports/json?limit=2000&order_by=date%20desc&select=date,valeurs_total,valeurs_hydraulique,valeurs_eolien
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].valeurs_total'
+    - '[].valeurs_hydraulique'
+    - '[].valeurs_eolien'
+  history_available: 48 records
+  update_cadence_observed: median gap 60.0 min over the newest 48 timestamps; newest 2026-07-28T03:30:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-NC 4.0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'air quality monitoring'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+
+# -- wired batch: wave19 --
+- id: bcra_ar_reserves_daily
+  audit_slack_days: 50
+  name: BCRA Argentina international reserves (daily)
+  domain: econ_fin
+  frequency: P1D
+  license: BCRA public API terms
+  endpoint:
+    url: https://api.bcra.gob.ar/estadisticas/v4.0/monetarias/1?desde={YYYY-MM-DD-400d}&hasta={YYYY-MM-DD}&limit=1000
+    type: rest_json
+  schema:
+    timestamp_field: results[].detalle[].fecha
+    value_field:
+    - results[].detalle[].valor
+- id: bcra_ar_wholesale_fx_daily
+  audit_slack_days: 50
+  name: BCRA Argentina wholesale reference exchange rate (daily)
+  domain: econ_fin
+  frequency: P1D
+  license: BCRA public API terms
+  notes: Wholesale reference ARS/USD exchange rate published daily by the Banco Central de la Republica
+    Argentina (monetary variable 5). Business days only.
+  endpoint:
+    url: https://api.bcra.gob.ar/estadisticas/v4.0/monetarias/5?desde={YYYY-MM-DD-400d}&hasta={YYYY-MM-DD}&limit=1000
+    type: rest_json
+  schema:
+    timestamp_field: results[].detalle[].fecha
+    value_field:
+    - results[].detalle[].valor
+- id: bcra_ar_badlar_rate_daily
+  audit_slack_days: 50
+  name: BCRA Argentina BADLAR private-bank deposit rate (daily)
+  domain: econ_fin
+  frequency: P1D
+  license: BCRA public API terms
+  notes: BADLAR interest rate for private banks (monetary variable 7), percent per annum, business days.
+  endpoint:
+    url: https://api.bcra.gob.ar/estadisticas/v4.0/monetarias/7?desde={YYYY-MM-DD-400d}&hasta={YYYY-MM-DD}&limit=1000
+    type: rest_json
+  schema:
+    timestamp_field: results[].detalle[].fecha
+    value_field:
+    - results[].detalle[].valor
+- id: latvia_csb_retail_turnover_monthly
+  audit_slack_days: 150
+  name: Latvia CSB retail trade turnover index (monthly)
+  domain: sales
+  frequency: P1M
+  license: Latvia CSB open data (CC-BY)
+  notes: Total turnover indices of retail trade enterprises at constant prices; three indicator variants
+    (2021=100 SA, % of previous period, % of same period previous year). PxWeb json-stat2 POST.
+  endpoint:
+    url: https://data.stat.gov.lv/api/v1/en/OSP_PUB/TIR/TI/TIT/TIT010m
+    type: rest_json
+    method: POST
+    body:
+      query:
+      - code: ContentsCode
+        selection:
+          filter: item
+          values:
+          - TIT010m1
+          - TIT010m2
+          - TIT010m
+      response:
+        format: json-stat2
+  schema: {}
+- id: ideam_co_air_temperature_stations
+  audit_slack_days: 60
+  name: IDEAM Colombia air temperature (automatic stations)
+  domain: nature
+  frequency: PT1H
+  license: datos.gov.co open data (Colombia Ley 1712)
+  notes: Air temperature at 2 m from IDEAM automatic weather stations across Colombia; panel by station.
+    Publication lags ~2-4 days. Socrata $order mandatory with $limit.
+  endpoint:
+    url: https://www.datos.gov.co/resource/sbwg-7ju4.json?$order=fechaobservacion%20DESC&$limit=5000
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: fechaobservacion
+    value_field:
+    - valorobservado
+    panel_field: nombreestacion
+- id: ideam_co_pm10_pm25_daily
+  audit_slack_days: 75
+  name: IDEAM Colombia air quality PM10 / PM2.5 (daily)
+  domain: nature
+  frequency: P1D
+  license: datos.gov.co open data (Colombia Ley 1712)
+  notes: Daily PM10 and PM2.5 concentrations from IDEAM air-quality stations; panel by station.
+  endpoint:
+    url: https://www.datos.gov.co/resource/yspz-pxxn.json?$order=fecha_lectura%20DESC&$limit=5000
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: fecha_lectura
+    value_field:
+    - pm10
+    - pm25
+    panel_field: estacion
+- id: pa_wastewater_viral_activity_weekly
+  audit_slack_days: 60
+  name: Pennsylvania wastewater viral activity levels (weekly, by site)
+  domain: healthcare
+  frequency: P1W
+  license: PA Open Data (public domain)
+  notes: Weekly wastewater viral activity level (WVAL) for SARS-CoV-2, influenza A and RSV at PA sewersheds;
+    panel by municipality. Socrata $order mandatory with $limit.
+  endpoint:
+    url: https://data.pa.gov/resource/3c5w-gmss.json?$order=week_ending_on%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: week_ending_on
+    value_field:
+    - wval_number
+    panel_field: municipality
+- id: pa_wastewater_variant_abundance_weekly
+  audit_slack_days: 100
+  name: Pennsylvania wastewater SARS-CoV-2 variant abundance (weekly)
+  domain: healthcare
+  frequency: P1W
+  license: PA Open Data (public domain)
+  notes: Weekly statewide proportion of each SARS-CoV-2 lineage detected in Pennsylvania wastewater; panel
+    by variant. Socrata $order mandatory with $limit.
+  endpoint:
+    url: https://data.pa.gov/resource/45zd-8jdc.json?$order=week_ending_on%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: week_ending_on
+    value_field:
+    - percent
+    panel_field: variant
+- id: texas_local_sales_tax_allocation_monthly
+  audit_slack_days: 90
+  name: Texas local sales tax allocation payments (monthly, 20 largest cities)
+  domain: sales
+  frequency: P1M
+  license: Texas Open Data (public domain)
+  notes: Monthly local sales-and-use tax collections allocated by the Texas Comptroller; restricted with
+    $where to the 20 largest city taxing authorities so one fetch spans ~55 months instead of 3. Socrata
+    $order mandatory with $limit.
+  endpoint:
+    url: https://data.texas.gov/resource/3p4v-vsr3.json?$where=authority_name%20in%28%27HOUSTON%27%2C%27DALLAS%27%2C%27SAN%20ANTONIO%27%2C%27AUSTIN%27%2C%27FORT%20WORTH%27%2C%27EL%20PASO%27%2C%27ARLINGTON%27%2C%27CORPUS%20CHRISTI%27%2C%27PLANO%27%2C%27LAREDO%27%2C%27LUBBOCK%27%2C%27GARLAND%27%2C%27IRVING%27%2C%27AMARILLO%27%2C%27GRAND%20PRAIRIE%27%2C%27BROWNSVILLE%27%2C%27MCKINNEY%27%2C%27FRISCO%27%2C%27PASADENA%27%2C%27KILLEEN%27%29&$order=allocation_month%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: allocation_month
+    value_field:
+    - total_coll
+    - net_payment
+    panel_field: authority_name
+- id: maryland_power_outages_by_county
+  audit_slack_days: 7
+  name: Maryland power outages by county (15-minute snapshots)
+  domain: energy
+  frequency: PT15M
+  license: Maryland Open Data (public domain)
+  notes: Customers out of power and percent-out per Maryland county, refreshed every ~15 minutes from utility
+    feeds; panel by county. Socrata $order mandatory with $limit.
+  endpoint:
+    url: https://opendata.maryland.gov/resource/uxq4-6wxf.json?$order=dt_stamp%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: dt_stamp
+    value_field:
+    - outages
+    - percent_out
+    - customers
+    panel_field: area
+- id: michigan_payroll_jobs_monthly
+  audit_slack_days: 110
+  name: Michigan payroll jobs vs US (monthly)
+  domain: econ_fin
+  frequency: P1M
+  license: Michigan Open Data (public domain)
+  notes: Total nonfarm payroll jobs, Michigan and United States, monthly since 1990.
+  endpoint:
+    url: https://data.michigan.gov/resource/vyr4-4e6w.json?$order=calendar_date%20DESC&$limit=5000
+    type: rest_json
+  schema:
+    timestamp_field: calendar_date
+    value_field:
+    - payroll_jobs_mi
+    - payroll_jobs_us
+- id: cenace_mx_zonal_price_dayahead_monterrey
+  audit_slack_days: 10
+  name: CENACE Mexico day-ahead zonal energy price (Monterrey)
+  domain: energy
+  frequency: PT1H
+  license: CENACE public web service (open information)
+  notes: Hourly day-ahead (MDA) zonal marginal price and its energy / loss / congestion components for the
+    MONTERREY load zone of the Sistema Interconectado Nacional. The service rejects spans longer than 7
+    days, so the URL asks for the current operating day only (24 hourly rows per fetch). The trailing /JSON
+    switches the reply from XML to JSON.
+  endpoint:
+    url: https://ws01.cenace.gob.mx:8082/SWPEND/SIM/SIN/MDA/MONTERREY/{YYYY/MM/DD}/{YYYY/MM/DD}/JSON
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: Resultados[].Valores[].fecha Resultados[].Valores[].hora
+    value_field:
+    - Resultados[].Valores[].pz
+    - Resultados[].Valores[].pz_ene
+    - Resultados[].Valores[].pz_per
+    - Resultados[].Valores[].pz_cng
+- id: act_air_quality_hourly
+  audit_slack_days: 7
+  name: ACT (Canberra) air quality monitoring (hourly)
+  domain: nature
+  frequency: PT1H
+  license: ACT Government open data (CC-BY 4.0)
+  notes: Hourly pollutant concentrations and AQI sub-indices from ACT air-quality monitoring stations (Florey,
+    Monash, Civic); panel by station. Socrata $order mandatory with $limit.
+  endpoint:
+    url: https://www.data.act.gov.au/resource/94a5-zqnn.json?$order=datetime%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: datetime
+    value_field:
+    - no2
+    - o3_1hr
+    - co
+    - pm10
+    - pm2_5
+    - aqi_site
+    panel_field: name
+- id: colorado_earnings_hours_monthly
+  audit_slack_days: 180
+  name: Colorado average weekly hours and earnings by industry (monthly)
+  domain: econ_fin
+  frequency: P1M
+  license: Colorado Information Marketplace (public domain)
+  notes: CES-based average weekly hours, hourly earnings and weekly earnings for Colorado metro areas and
+    supersectors; timestamp composes the year and month columns. Socrata $order mandatory with $limit.
+  endpoint:
+    url: https://data.colorado.gov/resource/pbjn-ur9h.json?$order=year%20DESC,month%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: year month
+    value_field:
+    - wklyhrsall
+    - hrlyearningsall
+    - wklyearningsall
+    panel_field:
+    - area
+    - supersector
+- id: colorado_gasoline_prices_weekly
+  audit_slack_days: 60
+  name: Colorado retail gasoline prices by grade (weekly)
+  domain: energy
+  frequency: P1W
+  license: Colorado Information Marketplace (public domain)
+  notes: Weekly Colorado retail gasoline prices for all grades, regular, midgrade and premium (EIA-sourced).
+    Socrata $order mandatory with $limit.
+  endpoint:
+    url: https://data.colorado.gov/resource/8pk9-mh2i.json?$order=date%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: date
+    value_field:
+    - allgradesgasprice
+    - regulargasprice
+    - midgradegasprice
+    - premiumgasprice

@@ -76,6 +76,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-ods", metavar="OUT_FILE",
                     help="same, over the Opendatasoft federated catalog "
                          "(~100k datasets, Europe-heavy)")
+    ap.add_argument("--bulk-ckan", metavar="OUT_FILE",
+                    help="same, over a curated list of national CKAN portals "
+                         "(chosen for geographic spread, not volume)")
     ap.add_argument("--bulk-per-keyword", type=int, default=None,
                     help="catalog results to page through per keyword "
                          "(default 200 Socrata / 100 ODS)")
@@ -95,6 +98,23 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --bulk-socrata: sweep only these keywords "
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
+
+    if args.bulk_ckan:
+        cands, skipped = bulk.ckan_sweep(
+            args.catalog, max_age_days=args.bulk_max_age_days,
+            target=args.bulk_target, log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_ckan)
+        reasons: dict[str, int] = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_ckan,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:12]),
+        }, indent=2))
+        return 0 if cands else 1
 
     if args.bulk_socrata or args.bulk_ods:
         classes = bulk.KEYWORD_CLASSES
