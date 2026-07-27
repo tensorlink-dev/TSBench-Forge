@@ -128,6 +128,11 @@ def main(argv: list[str] | None = None) -> int:
                 return 2
         sweep_fn = bulk.ods_sweep if args.bulk_ods else bulk.sweep
         out_path = args.bulk_ods or args.bulk_socrata
+        # ODS defaults to its own multilingual class list; passing the English
+        # one explicitly would silently override that and re-run an
+        # English-only sweep over a mostly-French catalog.
+        if args.bulk_ods and not args.bulk_keywords:
+            classes = None
         kwargs = dict(
             classes=classes, host_cap=args.bulk_host_cap,
             max_age_days=args.bulk_max_age_days,

@@ -693,6 +693,98 @@ def _compose_json_ts(data: Any, ts_path: str, schema: dict) -> Any:
             for i in range(min(len(s) for s in seqs))]
 
 
+def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
+    """Expand a start-plus-step series into timestamped rows.
+
+    Some feeds send the time axis as metadata rather than data: one start
+    timestamp, a fixed step, and a bare array of values (Statnett's grid
+    frequency does this at 1-second resolution; Czech OTE sends period indices).
+    Declared as::
+
+        schema:
+          series_start: data.startPointUTC   # epoch ms/s or ISO, or a literal
+          series_step: PT1S                  # ISO duration, or a path to ms
+          value_field: [data.Frequency]
+
+    Without this the value array has no timestamps to align to and the whole
+    payload lands in one snapshot row.
+    """
+    val_path = schema.get("value_field", "")
+    paths = val_path if isinstance(val_path, list) else [val_path]
+    try:
+        seqs = {_leaf_name(p): _walk(data, p) for p in paths if p}
+    except Exception as exc:                                  # noqa: BLE001
+        log.debug("stepped series: value walk failed (%s)", exc)
+        return []
+    seqs = {k: v for k, v in seqs.items() if isinstance(v, list) and v}
+    if not seqs:
+        return []
+    n = min(len(v) for v in seqs.values())
+
+    start_spec = schema.get("series_start", "")
+    start_raw = start_spec
+    if isinstance(start_spec, str) and not _EPOCHISH_RE.match(start_spec.strip()):
+        try:
+            start_raw = _walk(data, start_spec)
+        except Exception:                                     # noqa: BLE001
+            return []
+    start = _parse_epoch_or_iso(start_raw)
+    if start is None:
+        return []
+
+    step_spec = schema.get("series_step")
+    step_s = _period_seconds(str(step_spec)) if step_spec else None
+    if step_s is None:                        # not a duration: treat as a path
+        try:
+            step_s = _parse_step_seconds(_walk(data, str(step_spec)))
+        except Exception:                                     # noqa: BLE001
+            step_s = None
+    if not step_s:
+        return []
+
+    records = []
+    for i in range(n):
+        ts = start + dt.timedelta(seconds=step_s * i)
+        row: dict[str, Any] = {"timestamp": ts.isoformat()}
+        if len(seqs) == 1:
+            row["value"] = next(iter(seqs.values()))[i]
+        else:
+            for name, seq in seqs.items():
+                row[name] = seq[i]
+        records.append(row)
+    return records
+
+
+_EPOCHISH_RE = re.compile(r"^\d{4}-\d{2}-\d{2}|^\d{9,}$")
+
+
+def _parse_epoch_or_iso(raw: Any) -> Optional[dt.datetime]:
+    if isinstance(raw, (int, float)):
+        # Millisecond epochs are the norm in these feeds; seconds would place
+        # the series in 1970.
+        secs = float(raw) / 1000.0 if float(raw) > 1e11 else float(raw)
+        return dt.datetime.fromtimestamp(secs, UTC)
+    s = str(raw or "").strip()
+    if not s:
+        return None
+    if s.isdigit():
+        return _parse_epoch_or_iso(int(s))
+    try:
+        got = dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return got if got.tzinfo else got.replace(tzinfo=UTC)
+
+
+def _parse_step_seconds(raw: Any) -> Optional[float]:
+    """A numeric step from the payload, in milliseconds (as these feeds send it)."""
+    try:
+        v = float(raw)
+    except (TypeError, ValueError):
+        return None
+    return v / 1000.0 if v >= 1000 else v
+
+
 def _records_from_json(data: Any, schema: dict) -> list[dict]:
     """Build a list of {timestamp, value} records from a JSON payload.
 
@@ -707,6 +799,9 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
 
     if schema.get("date_keyed_map"):
         return _records_from_date_map(data, schema)
+
+    if schema.get("series_step"):
+        return _records_from_stepped_series(data, schema)
 
     # Special: timestamp_field == 'now()' -> snapshot semantics
     if ts_path == "now()":
@@ -1682,6 +1777,19 @@ def _records_from_jsonstat2(data: dict, schema: dict) -> list[dict]:
         values = flat
 
     role = data.get("role") or {}
+    # `schema.timestamp_dims: [Година, Месец]` names the time dimension(s)
+    # explicitly, composing them in order. Needed wherever `role.time` is absent
+    # and the id is not a recognisable English word: several national offices
+    # label the dimension in their own script (North Macedonia's `Месец`) or
+    # split the period across separate year and month dimensions, neither of
+    # which any amount of guessing here would find.
+    declared = schema.get("timestamp_dims")
+    if declared:
+        want = [d for d in ([declared] if isinstance(declared, str) else declared)
+                if d in dims]
+        if want:
+            return _jsonstat_rows(data, dims, sizes, values, dimension, want)
+
     time_dim = (role.get("time") or [None])[0]
     if time_dim not in dims:
         time_dim = next((d for d in dims if str(d).lower() in
@@ -1721,6 +1829,71 @@ def _records_from_jsonstat2(data: dict, schema: dict) -> list[dict]:
             row[f"_panel_{d}"] = labs[ci] if 0 <= ci < len(labs) else str(ci)
         records.append(row)
     return records
+
+
+def _jsonstat_rows(data: dict, dims: list, sizes: list, values: list,
+                   dimension: dict, time_dims: list) -> list[dict]:
+    """JSON-stat decode with the time axis given explicitly, possibly spread over
+    several dimensions (year x month). Everything else with size > 1 is panel."""
+    def _labels(dim_id) -> list[str]:
+        idx = ((dimension.get(dim_id) or {}).get("category") or {}).get("index") or {}
+        if isinstance(idx, dict):
+            return [k for k, _ in sorted(idx.items(), key=lambda kv: kv[1])]
+        return list(idx)
+
+    positions = [dims.index(d) for d in time_dims]
+    labels = {d: _labels(d) for d in time_dims}
+    panel_dims = [d for i, d in enumerate(dims)
+                  if i not in positions and sizes[i] > 1]
+    panel_labels = {d: _labels(d) for d in panel_dims}
+
+    strides = [1] * len(sizes)
+    for k in range(len(sizes) - 2, -1, -1):
+        strides[k] = strides[k + 1] * sizes[k + 1]
+
+    records: list[dict] = []
+    for f in range(len(values)):
+        v = values[f]
+        if v is None:
+            continue
+        parts = []
+        for d, pos in zip(time_dims, positions):
+            ci = (f // strides[pos]) % sizes[pos]
+            labs = labels[d]
+            parts.append(labs[ci] if 0 <= ci < len(labs) else str(ci))
+        row = {"timestamp": _compose_pxweb_parts(parts), "value": v}
+        for d in panel_dims:
+            di = dims.index(d)
+            ci = (f // strides[di]) % sizes[di]
+            labs = panel_labels[d]
+            row[f"_panel_{d}"] = labs[ci] if 0 <= ci < len(labs) else str(ci)
+        records.append(row)
+    return records
+
+
+def _compose_pxweb_parts(parts: list[str]) -> str:
+    """Join a split period into one label: ``['2026', '1.']`` -> ``2026-01``.
+
+    Month labels in these feeds carry ordinal punctuation (`1.`) or a range
+    (`1. - 12.`, meaning the annual total). Digits are taken from each part, and
+    a part that yields none — or a range, which is an aggregate rather than a
+    period — leaves the label as just the parts that parsed.
+    """
+    if len(parts) == 1:
+        return _norm_pxweb_time(parts[0])
+    out: list[str] = []
+    for i, p in enumerate(parts):
+        s = str(p).strip()
+        if i == 0:
+            out.append(_norm_pxweb_time(s))
+            continue
+        if re.search(r"\d\s*\.?\s*[-–]\s*\d", s):  # '1. - 12.' == annual aggregate
+            break
+        digits = re.sub(r"\D", "", s)
+        if not digits:
+            break
+        out.append(f"{int(digits):02d}")
+    return "-".join(out)
 
 
 _DUR_RE = re.compile(

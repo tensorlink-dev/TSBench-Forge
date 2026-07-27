@@ -906,3 +906,120 @@ def test_where_matches_plain_columns_too():
     text = "t,v,kind\n2026-07-01,1,actual\n2026-07-01,9,forecast\n"
     recs = scraper.parse_payload(src, text.encode(), "text/csv")
     assert [r["v"] for r in recs] == ["1"]
+
+
+# --------------------------------------------------------------------------- #
+# schema.timestamp_dims — json-stat time axis named explicitly
+# --------------------------------------------------------------------------- #
+def test_jsonstat_timestamp_dims_non_latin_dimension():
+    """North Macedonia labels its time dimension `Месец`, so neither role.time
+    nor the English-word fallback finds it and the whole dataset is lost."""
+    data = {
+        "class": "dataset",
+        "id": ["Показател", "Месец"],
+        "size": [1, 3],
+        "dimension": {
+            "Показател": {"category": {"index": {"Индекс": 0}}},
+            "Месец": {"category": {"index": {"2026-01": 0, "2026-02": 1, "2026-03": 2}}},
+        },
+        "value": [101.0, 102.5, 103.1],
+    }
+    rows = scraper._records_from_jsonstat2(data, {"timestamp_dims": ["Месец"]})
+    assert [r["timestamp"] for r in rows] == ["2026-01", "2026-02", "2026-03"]
+    assert [r["value"] for r in rows] == [101.0, 102.5, 103.1]
+
+
+def test_jsonstat_timestamp_dims_composes_split_year_and_month():
+    """Several offices split the period into separate year and month dimensions,
+    with month labels carrying ordinal punctuation ('1.')."""
+    data = {
+        "class": "dataset",
+        "id": ["Godina", "Mesec"],
+        "size": [2, 2],
+        "dimension": {
+            "Godina": {"category": {"index": {"2025": 0, "2026": 1}}},
+            "Mesec": {"category": {"index": {"1.": 0, "2.": 1}}},
+        },
+        "value": [1, 2, 3, 4],
+    }
+    rows = scraper._records_from_jsonstat2(
+        data, {"timestamp_dims": ["Godina", "Mesec"]}
+    )
+    assert [r["timestamp"] for r in rows] == [
+        "2025-01", "2025-02", "2026-01", "2026-02"
+    ]
+
+
+def test_compose_pxweb_parts_drops_annual_aggregate_range():
+    """'1. - 12.' is the annual total, not a month — composing it as a period
+    would invent a 12th-of-January observation that duplicates the year."""
+    assert scraper._compose_pxweb_parts(["2026", "1. - 12."]) == "2026"
+    assert scraper._compose_pxweb_parts(["2026", "3."]) == "2026-03"
+
+
+def test_jsonstat_timestamp_dims_ignored_when_dimension_absent():
+    """A stale override must not silently produce zero rows — fall through to
+    the normal role.time detection instead."""
+    data = {
+        "class": "dataset",
+        "id": ["Tid"],
+        "size": [2],
+        "dimension": {"Tid": {"category": {"index": {"2026M01": 0, "2026M02": 1}}}},
+        "value": [5, 6],
+    }
+    rows = scraper._records_from_jsonstat2(data, {"timestamp_dims": ["NotThere"]})
+    assert [r["timestamp"] for r in rows] == ["2026-01", "2026-02"]
+
+
+# --------------------------------------------------------------------------- #
+# schema.series_start / series_step — time axis as metadata
+# --------------------------------------------------------------------------- #
+def test_stepped_series_expands_start_plus_step():
+    """Statnett sends one start instant, a step, and a bare value array; without
+    expansion the array has nothing to align to and becomes one snapshot row."""
+    data = {"data": {"startPointUTC": 1769500800000, "Frequency": [50.01, 49.98, 50.02]}}
+    rows = scraper._records_from_json(data, {
+        "series_start": "data.startPointUTC",
+        "series_step": "PT1S",
+        "value_field": ["data.Frequency"],
+    })
+    assert len(rows) == 3
+    assert [r["value"] for r in rows] == [50.01, 49.98, 50.02]
+    stamps = [dt.datetime.fromisoformat(r["timestamp"]) for r in rows]
+    assert (stamps[1] - stamps[0]).total_seconds() == 1.0
+
+
+def test_stepped_series_accepts_iso_start_and_step_from_payload():
+    data = {"start": "2026-07-27T00:00:00Z", "stepMs": 900000,
+            "vals": [1.0, 2.0, 3.0, 4.0]}
+    rows = scraper._records_from_json(data, {
+        "series_start": "start", "series_step": "stepMs", "value_field": ["vals"],
+    })
+    assert len(rows) == 4
+    stamps = [dt.datetime.fromisoformat(r["timestamp"]) for r in rows]
+    assert (stamps[1] - stamps[0]).total_seconds() == 900.0
+    assert stamps[0].isoformat().startswith("2026-07-27T00:00:00")
+
+
+def test_stepped_series_multiple_value_paths_named():
+    data = {"t0": 1769500800000, "a": [1, 2], "b": [3, 4]}
+    rows = scraper._records_from_json(data, {
+        "series_start": "t0", "series_step": "PT1M", "value_field": ["a", "b"],
+    })
+    assert rows[0]["a"] == 1 and rows[0]["b"] == 3
+    assert "value" not in rows[0]
+
+
+def test_stepped_series_without_resolvable_start_yields_nothing():
+    """Better to yield no rows than to date real observations from 1970."""
+    rows = scraper._records_from_json(
+        {"vals": [1, 2, 3]},
+        {"series_start": "missing.path", "series_step": "PT1S", "value_field": ["vals"]},
+    )
+    assert rows == []
+
+
+def test_parse_epoch_or_iso_distinguishes_ms_from_seconds():
+    ms = scraper._parse_epoch_or_iso(1769500800000)
+    s = scraper._parse_epoch_or_iso(1769500800)
+    assert ms.year == 2026 and s.year == 2026
