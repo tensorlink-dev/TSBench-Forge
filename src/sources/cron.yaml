@@ -316,6 +316,9 @@ schedules:
   - montgomery_md_traffic_crashes_hourly
   - aeso_alberta_pool_price_ail_hourly
   - nuget_catalog_publish_rate
+  - everettwa_police_incidents
+  - marincounty_building_permit_inspection
+  - au_air_quality_monitoring_data
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -627,6 +630,32 @@ schedules:
   - statee_retail_turnover_monthly
   - hexpm_package_downloads
   - statice_is_quarterly_gdp
+  - kcmo_911_calls_for_service
+  - richmondgov_inbound_911_calls_2021_and_forward
+  - everettwa_fire_911_unit_dispatches
+  - cambridgema_computer_aided_dispatch_entries
+  - ramseycountymn_emergency_communications_center_incident
+  - cityofgainesville_crime_responses
+  - marincounty_food_facility_inspections
+  - cambridgema_sheet_metal_permits
+  - cambridgema_mobile_food_truck_permits
+  - colorado_city_of_denver_short_term_rental_license
+  - marincounty_building_permit
+  - cambridgema_building_permits_new_construction
+  - au_on_time_running_by_week_first_stop_only
+  - au_on_time_running_by_week_first_stop_only_diwxp2be
+  - mesaaz_falcon_field_airport_operations
+  - energystar_energy_star_certified_commercial_ovens
+  - energystar_energy_star_certified_residential_clothe
+  - energystar_energy_star_certified_residential_dishwa
+  - energystar_energy_star_certified_residential_clothe_t9u74d2j
+  - mo_missouri_monthly_unemployment_claims_by
+  - mo_missouri_monthly_unemployment_claims_by_xm426a8n
+  - ct_unemployment_claims_by_type
+  - mo_missouri_monthly_unemployment_claims_by_cq577qrb
+  - ct_energy_storage_solutions_ess_enrollment
+  - ct_public_assets_on_data_ct_gov
+  - mesaaz_business_services_support_issues_resolve
   cron: 10 1 * * *
 - every: P1D
   sources:

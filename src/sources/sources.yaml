@@ -20467,3 +20467,779 @@
           - '*'
       response:
         format: json-stat2
+
+# -- wired batch: bulk1-socrata --
+- id: kcmo_911_calls_for_service
+  name: 911 Calls For Service (data.kcmo.org)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://data.kcmo.org/resource/4cef-rqti.json?$select=incident_date,priority&$order=incident_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].incident_date'
+    variates: 1
+    value_field:
+    - '[].priority'
+  history_available: unknown
+  update_cadence_observed: median gap 2.1 min over the newest 60 timestamps; newest 2026-07-05T04:22:17+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 67
+  notes: Bulk-generated from the Socrata federated catalog (query '911 calls'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: richmondgov_inbound_911_calls_2021_and_forward
+  name: Inbound 911 Calls (2021 and forward) (data.richmondgov.com)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.richmondgov.com/resource/8pbz-78id.json?$select=seizure_date_time,ring_secs,release_secs,queue_secs&$order=seizure_date_time%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].seizure_date_time'
+    variates: 3
+    value_field:
+    - '[].ring_secs'
+    - '[].release_secs'
+    - '[].queue_secs'
+  history_available: unknown
+  update_cadence_observed: median gap 0.3 min over the newest 55 timestamps; newest 2026-06-30T23:58:31+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 71
+  notes: Bulk-generated from the Socrata federated catalog (query '911 calls'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: everettwa_fire_911_unit_dispatches
+  name: Fire 911 Unit Dispatches (data.everettwa.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://data.everettwa.gov/resource/w35j-83t3.json?$select=startdatetime,arrivalorder,startdatehour,%3A%40computed_region_psyp_nrnc&$order=startdatetime%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].startdatetime'
+    variates: 3
+    value_field:
+    - '[].arrivalorder'
+    - '[].startdatehour'
+    - '[].:@computed_region_psyp_nrnc'
+  history_available: unknown
+  update_cadence_observed: median gap 7.4 min over the newest 36 timestamps; newest 2026-06-30T23:58:21+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 71
+  notes: Bulk-generated from the Socrata federated catalog (query '911 calls'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: everettwa_police_incidents
+  name: Police Incidents (data.everettwa.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://data.everettwa.gov/resource/f6vp-3svh.json?$select=datetimereceived,%3A%40computed_region_psyp_nrnc,%3A%40computed_region_cx6t_gkq3&$order=datetimereceived%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].datetimereceived'
+    variates: 2
+    value_field:
+    - '[].:@computed_region_psyp_nrnc'
+    - '[].:@computed_region_cx6t_gkq3'
+  history_available: unknown
+  update_cadence_observed: median gap 3.5 min over the newest 58 timestamps; newest 2026-07-25T23:48:37+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from the Socrata federated catalog (query '911 calls'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: cambridgema_computer_aided_dispatch_entries
+  name: Computer Aided Dispatch Entries (data.cambridgema.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://data.cambridgema.gov/resource/ppai-cur6.json?$select=datetimereceived,ladderdistrict,policesector,enginedistrict&$order=datetimereceived%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].datetimereceived'
+    variates: 3
+    value_field:
+    - '[].ladderdistrict'
+    - '[].policesector'
+    - '[].enginedistrict'
+  history_available: unknown
+  update_cadence_observed: median gap 29.4 min over the newest 60 timestamps; newest 2026-06-30T23:26:02+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 71
+  notes: Bulk-generated from the Socrata federated catalog (query '911 calls'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: ramseycountymn_emergency_communications_center_incident
+  name: Emergency Communications Center Incident Data (data.ramseycountymn.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.ramseycountymn.gov/resource/khr9-xwfu.json?$select=response_date,%3A%40computed_region_2qyn_f4mq,%3A%40computed_region_868s_8qnk,%3A%40computed_region_vhbq_5rjh&$order=response_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].response_date'
+    variates: 3
+    value_field:
+    - '[].:@computed_region_2qyn_f4mq'
+    - '[].:@computed_region_868s_8qnk'
+    - '[].:@computed_region_vhbq_5rjh'
+  history_available: unknown
+  update_cadence_observed: median gap 0.7 min over the newest 59 timestamps; newest 2026-07-08T15:53:52+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 63
+  notes: Bulk-generated from the Socrata federated catalog (query 'emergency medical service responses').
+    Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint
+    by the wire gate.
+- id: cityofgainesville_crime_responses
+  name: Crime Responses (data.cityofgainesville.org)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://data.cityofgainesville.org/resource/gvua-xt9q.json?$select=report_date,%3A%40computed_region_ecgy_hwrz,%3A%40computed_region_e6r8_dw75,%3A%40computed_region_ndi2_bfht&$order=report_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].report_date'
+    variates: 3
+    value_field:
+    - '[].:@computed_region_ecgy_hwrz'
+    - '[].:@computed_region_e6r8_dw75'
+    - '[].:@computed_region_ndi2_bfht'
+  history_available: unknown
+  update_cadence_observed: median gap 32.5 min over the newest 60 timestamps; newest 2026-07-21T01:33:54+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 51
+  notes: Bulk-generated from the Socrata federated catalog (query 'fire incidents'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: marincounty_food_facility_inspections
+  name: Food Facility Inspections (data.marincounty.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.marincounty.gov/resource/73zb-z5me.json?$select=inspection_date,%3A%40computed_region_6s5y_serh&$order=inspection_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].inspection_date'
+    variates: 1
+    value_field:
+    - '[].:@computed_region_6s5y_serh'
+  history_available: unknown
+  update_cadence_observed: median gap 62.5 min over the newest 27 timestamps; newest 2026-07-24T12:30:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from the Socrata federated catalog (query 'restaurant inspections'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: cambridgema_sheet_metal_permits
+  name: Sheet Metal Permits (data.cambridgema.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.cambridgema.gov/resource/cmy2-saf4.json?$select=issue_date,estimated_job_cost,sheet_metal&$order=issue_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].issue_date'
+    variates: 2
+    value_field:
+    - '[].estimated_job_cost'
+    - '[].sheet_metal'
+  history_available: unknown
+  update_cadence_observed: median gap 1440.0 min over the newest 32 timestamps; newest 2026-07-23T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 49
+  notes: Bulk-generated from the Socrata federated catalog (query 'restaurant inspections'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: cambridgema_mobile_food_truck_permits
+  name: Mobile Food Truck Permits (data.cambridgema.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.cambridgema.gov/resource/qweb-m8r8.json?$select=issue_date,food_handler_count&$order=issue_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].issue_date'
+    variates: 1
+    value_field:
+    - '[].food_handler_count'
+  history_available: unknown
+  update_cadence_observed: median gap 3600.0 min over the newest 33 timestamps; newest 2026-06-23T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 79
+  notes: Bulk-generated from the Socrata federated catalog (query 'restaurant inspections'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: colorado_city_of_denver_short_term_rental_license
+  name: City of Denver Short Term Rental Licenses (data.colorado.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.colorado.gov/resource/f3vc-vat3.json?$select=renewal_created&$order=renewal_created%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].renewal_created'
+    variates: 1
+    value_field: '[].renewal_created'
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: unknown
+  update_cadence_observed: median gap 1414.0 min over the newest 60 timestamps; newest 2026-07-02T06:29:31+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 70
+  notes: Bulk-generated from the Socrata federated catalog (query 'business licenses issued'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: marincounty_building_permit
+  name: Building Permit (data.marincounty.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://data.marincounty.gov/resource/mkbn-caye.json?$select=most_recent_issued_received_date,construction_value,%3A%40computed_region_6s5y_serh&$order=most_recent_issued_received_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].most_recent_issued_received_date'
+    variates: 2
+    value_field:
+    - '[].construction_value'
+    - '[].:@computed_region_6s5y_serh'
+  history_available: unknown
+  update_cadence_observed: median gap 35.2 min over the newest 42 timestamps; newest 2026-07-24T14:57:32+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: marincounty_building_permit_inspection
+  name: Building Permit Inspection (data.marincounty.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.marincounty.gov/resource/yfwm-p533.json?$select=inspection_date&$order=inspection_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].inspection_date'
+    variates: 1
+    value_field: '[].inspection_date'
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: unknown
+  update_cadence_observed: median gap 30.0 min over the newest 29 timestamps; newest 2026-07-25T23:20:56+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: cambridgema_building_permits_new_construction
+  name: 'Building Permits: New Construction (data.cambridgema.gov)'
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.cambridgema.gov/resource/9qm7-wbdc.json?$select=applicant_submit_date,proposed_count_of_dwelling,gas_cost,electrical_cost&$order=applicant_submit_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].applicant_submit_date'
+    variates: 3
+    value_field:
+    - '[].proposed_count_of_dwelling'
+    - '[].gas_cost'
+    - '[].electrical_cost'
+  history_available: unknown
+  update_cadence_observed: median gap 8640.0 min over the newest 47 timestamps; newest 2026-06-01T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 101
+  notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: au_on_time_running_by_week_first_stop_only
+  name: On Time Running By Week - First Stop Only (www.data.act.gov.au)
+  domain: transport
+  dgp_class: service_reliability
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://www.data.act.gov.au/resource/puga-cv5f.json?$select=fiscal_week,total_late,total_early,total_on_time&$order=fiscal_week%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].fiscal_week'
+    variates: 3
+    value_field:
+    - '[].total_late'
+    - '[].total_early'
+    - '[].total_on_time'
+  history_available: unknown
+  update_cadence_observed: median gap 10080.0 min over the newest 60 timestamps; newest 2026-06-29T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 73
+  notes: Bulk-generated from the Socrata federated catalog (query 'bus on time performance'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: au_on_time_running_by_week_first_stop_only_diwxp2be
+  name: On Time Running By Week - First Stop Only (www.data.act.gov.au)
+  domain: transport
+  dgp_class: service_reliability
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://www.data.act.gov.au/resource/diwx-p2be.json?$select=fiscal_week,total_late,total_on_time,total_early&$order=fiscal_week%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].fiscal_week'
+    variates: 3
+    value_field:
+    - '[].total_late'
+    - '[].total_on_time'
+    - '[].total_early'
+  history_available: unknown
+  update_cadence_observed: median gap 10080.0 min over the newest 60 timestamps; newest 2026-06-29T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 73
+  notes: Bulk-generated from the Socrata federated catalog (query 'bus on time performance'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: mesaaz_falcon_field_airport_operations
+  name: Falcon Field Airport Operations (citydata.mesaaz.gov)
+  domain: transport
+  dgp_class: throughput
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://citydata.mesaaz.gov/resource/ddkr-5u2f.json?$select=date,civil_local,total_operations,military_local&$order=date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].civil_local'
+    - '[].total_operations'
+    - '[].military_local'
+  history_available: unknown
+  update_cadence_observed: median gap 1440.0 min over the newest 60 timestamps; newest 2026-06-30T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 72
+  notes: Bulk-generated from the Socrata federated catalog (query 'airport passengers'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: au_air_quality_monitoring_data
+  name: Air Quality Monitoring Data (www.data.act.gov.au)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://www.data.act.gov.au/resource/94a5-zqnn.json?$select=datetime,aqi_co,co,aqi_site&$order=datetime%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].datetime'
+    variates: 3
+    value_field:
+    - '[].aqi_co'
+    - '[].co'
+    - '[].aqi_site'
+  history_available: unknown
+  update_cadence_observed: median gap 60.0 min over the newest 20 timestamps; newest 2026-07-27T17:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Socrata federated catalog (query 'air quality monitoring'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: energystar_energy_star_certified_commercial_ovens
+  name: ENERGY STAR Certified Commercial Ovens (data.energystar.gov)
+  domain: nature
+  dgp_class: water_demand
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.energystar.gov/resource/c8av-ccf7.json?$select=date_certified,full_size_sheet_pan_capacity,convection_mode_pre_heat_time_min,steam_mode_pre_heat_time_min&$order=date_certified%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date_certified'
+    variates: 3
+    value_field:
+    - '[].full_size_sheet_pan_capacity'
+    - '[].convection_mode_pre_heat_time_min'
+    - '[].steam_mode_pre_heat_time_min'
+  history_available: unknown
+  update_cadence_observed: median gap 14400.0 min over the newest 26 timestamps; newest 2026-07-16T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 56
+  notes: Bulk-generated from the Socrata federated catalog (query 'water consumption'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: energystar_energy_star_certified_residential_clothe
+  name: ENERGY STAR Certified Residential Clothes Washers (data.energystar.gov)
+  domain: nature
+  dgp_class: water_demand
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.energystar.gov/resource/bghd-e2wd.json?$select=date_available_on_market,us_federal_standard_imef,volume_cubic_feet,integrated_water_factor_iwf&$order=date_available_on_market%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date_available_on_market'
+    variates: 3
+    value_field:
+    - '[].us_federal_standard_imef'
+    - '[].volume_cubic_feet'
+    - '[].integrated_water_factor_iwf'
+  history_available: unknown
+  update_cadence_observed: median gap 11520.0 min over the newest 26 timestamps; newest 2026-07-01T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 71
+  notes: Bulk-generated from the Socrata federated catalog (query 'water consumption'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: energystar_energy_star_certified_residential_dishwa
+  name: ENERGY STAR Certified Residential Dishwashers (data.energystar.gov)
+  domain: nature
+  dgp_class: water_demand
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.energystar.gov/resource/q8py-6w3f.json?$select=date_certified,width_inches,depth_inches,water_use_gallons_cycle&$order=date_certified%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date_certified'
+    variates: 3
+    value_field:
+    - '[].width_inches'
+    - '[].depth_inches'
+    - '[].water_use_gallons_cycle'
+  history_available: unknown
+  update_cadence_observed: median gap 10080.0 min over the newest 20 timestamps; newest 2026-07-23T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 49
+  notes: Bulk-generated from the Socrata federated catalog (query 'water consumption'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: energystar_energy_star_certified_residential_clothe_t9u74d2j
+  name: ENERGY STAR Certified Residential Clothes Dryers (data.energystar.gov)
+  domain: energy
+  dgp_class: building_load
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.energystar.gov/resource/t9u7-4d2j.json?$select=date_qualified,depth_inches,width_inches,drum_capacity_cu_ft&$order=date_qualified%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date_qualified'
+    variates: 3
+    value_field:
+    - '[].depth_inches'
+    - '[].width_inches'
+    - '[].drum_capacity_cu_ft'
+  history_available: unknown
+  update_cadence_observed: median gap 14400.0 min over the newest 22 timestamps; newest 2026-06-29T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 73
+  notes: Bulk-generated from the Socrata federated catalog (query 'energy consumption building'). Columns
+    chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the
+    wire gate.
+- id: mo_missouri_monthly_unemployment_claims_by
+  name: Missouri Monthly Unemployment Claims By Industry (data.mo.gov)
+  domain: econ_fin
+  dgp_class: labour_market
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://data.mo.gov/resource/cj66-t7xq.json?$select=date,transportation_warehouse,retail_trade,mining&$order=date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].transportation_warehouse'
+    - '[].retail_trade'
+    - '[].mining'
+  history_available: unknown
+  update_cadence_observed: median gap 44640.0 min over the newest 60 timestamps; newest 2026-06-01T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 101
+  notes: Bulk-generated from the Socrata federated catalog (query 'unemployment claims'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: mo_missouri_monthly_unemployment_claims_by_xm426a8n
+  name: Missouri Monthly Unemployment Claims By Ethnicity (data.mo.gov)
+  domain: econ_fin
+  dgp_class: labour_market
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://data.mo.gov/resource/xm42-6a8n.json?$select=date,ina,hispanic_or_latino,not_hispanic_or_latino&$order=date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].ina'
+    - '[].hispanic_or_latino'
+    - '[].not_hispanic_or_latino'
+  history_available: unknown
+  update_cadence_observed: median gap 44640.0 min over the newest 60 timestamps; newest 2026-06-01T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 101
+  notes: Bulk-generated from the Socrata federated catalog (query 'unemployment claims'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: ct_unemployment_claims_by_type
+  name: Unemployment Claims by Type (data.ct.gov)
+  domain: econ_fin
+  dgp_class: labour_market
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.ct.gov/resource/i3d2-i4bi.json?$select=date,initclaims_count_combined,statefips,initclaims_rate_regular&$order=date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].initclaims_count_combined'
+    - '[].statefips'
+    - '[].initclaims_rate_regular'
+  history_available: unknown
+  update_cadence_observed: median gap 10080.0 min over the newest 60 timestamps; newest 2026-06-20T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 82
+  notes: Bulk-generated from the Socrata federated catalog (query 'unemployment claims'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: mo_missouri_monthly_unemployment_claims_by_cq577qrb
+  name: Missouri Monthly Unemployment Claims By Race (data.mo.gov)
+  domain: econ_fin
+  dgp_class: labour_market
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://data.mo.gov/resource/cq57-7qrb.json?$select=date,ina,white,asian&$order=date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].ina'
+    - '[].white'
+    - '[].asian'
+  history_available: unknown
+  update_cadence_observed: median gap 44640.0 min over the newest 60 timestamps; newest 2026-06-01T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 101
+  notes: Bulk-generated from the Socrata federated catalog (query 'unemployment claims'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: ct_energy_storage_solutions_ess_enrollment
+  name: Energy Storage Solutions (ESS) Enrollment (data.ct.gov)
+  domain: econ_fin
+  dgp_class: housing_market
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.ct.gov/resource/uy2c-bbdw.json?$select=created_date,up_front_incentive,total_battery_cost,total_solar_pv_cost&$order=created_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].created_date'
+    variates: 3
+    value_field:
+    - '[].up_front_incentive'
+    - '[].total_battery_cost'
+    - '[].total_solar_pv_cost'
+  history_available: unknown
+  update_cadence_observed: median gap 1056.2 min over the newest 56 timestamps; newest 2026-07-07T14:34:15+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 64
+  notes: Bulk-generated from the Socrata federated catalog (query 'median home price'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: ct_public_assets_on_data_ct_gov
+  name: Public assets on data.ct.gov (data.ct.gov)
+  domain: web_cloudops
+  dgp_class: web_traffic
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.ct.gov/resource/3pxu-4d3n.json?$select=creation_date,visits,days_since_last_data_update,downloads&$order=creation_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].creation_date'
+    variates: 3
+    value_field:
+    - '[].visits'
+    - '[].days_since_last_data_update'
+    - '[].downloads'
+  history_available: unknown
+  update_cadence_observed: median gap 10080.0 min over the newest 29 timestamps; newest 2026-07-15T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 57
+  notes: Bulk-generated from the Socrata federated catalog (query 'website analytics visits'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+- id: mesaaz_business_services_support_issues_resolve
+  name: Business Services – Support Issues Resolved (citydata.mesaaz.gov)
+  domain: web_cloudops
+  dgp_class: ticket_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://citydata.mesaaz.gov/resource/afq5-ipkr.json?$select=month_date,tickets_received&$order=month_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].month_date'
+    variates: 1
+    value_field:
+    - '[].tickets_received'
+  history_available: unknown
+  update_cadence_observed: median gap 44640.0 min over the newest 60 timestamps; newest 2026-06-01T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 101
+  notes: Bulk-generated from the Socrata federated catalog (query 'service desk tickets'). Columns chosen
+    mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.

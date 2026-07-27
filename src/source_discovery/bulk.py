@@ -108,6 +108,51 @@ KEYWORD_CLASSES: tuple[tuple[str, str, str], ...] = (
     ("municipal revenue", "econ_fin", "public_finance"),
     ("website analytics visits", "web_cloudops", "web_traffic"),
     ("service desk tickets", "web_cloudops", "ticket_stream"),
+    # --- second tier: narrower topics, but the datasets sit on smaller portals
+    # that the headline keywords never surface. Yield per keyword is lower and
+    # host novelty is much higher, which is the axis that actually needs feeding.
+    ("ambulance response times", "healthcare", "emergency_dispatch"),
+    ("syndromic surveillance", "healthcare", "disease_surveillance"),
+    ("immunization doses administered", "healthcare", "immunisation"),
+    ("behavioral health crisis calls", "healthcare", "crisis_services"),
+    ("food safety violations", "healthcare", "inspection_stream"),
+    ("animal intakes shelter", "healthcare", "intake_stream"),
+    ("births and deaths registered", "healthcare", "vital_statistics"),
+    ("code enforcement cases", "sales", "enforcement_stream"),
+    ("short term rental registrations", "sales", "registration_stream"),
+    ("liquor license applications", "sales", "registration_stream"),
+    ("farmers market sales", "sales", "retail_activity"),
+    ("procurement contracts awarded", "sales", "procurement"),
+    ("library circulation", "sales", "circulation"),
+    ("recreation program registrations", "sales", "registration_stream"),
+    ("towed vehicles", "transport", "citation_stream"),
+    ("street sweeping", "transport", "service_operations"),
+    ("scooter trips", "transport", "micromobility"),
+    ("ferry passengers", "transport", "ridership"),
+    ("paratransit trips", "transport", "ridership"),
+    ("road closures", "transport", "disruption_stream"),
+    ("speed camera violations", "transport", "citation_stream"),
+    ("stormwater flow", "nature", "hydrology"),
+    ("groundwater levels", "nature", "hydrology"),
+    ("tree canopy plantings", "nature", "greening"),
+    ("waste tonnage collected", "nature", "waste_stream"),
+    ("recycling diversion", "nature", "waste_stream"),
+    ("noise complaints", "nature", "environmental_complaints"),
+    ("wildlife observations", "nature", "biodiversity"),
+    ("streetlight outages", "energy", "asset_faults"),
+    ("municipal fleet fuel", "energy", "fleet_consumption"),
+    ("electric vehicle charging sessions", "energy", "ev_charging"),
+    ("building energy benchmarking", "energy", "building_load"),
+    ("payroll expenditures", "econ_fin", "public_finance"),
+    ("parking meter revenue", "econ_fin", "public_finance"),
+    ("hotel occupancy tax", "econ_fin", "tax_receipts"),
+    ("job postings openings", "econ_fin", "labour_market"),
+    ("eviction filings", "econ_fin", "housing_market"),
+    ("foreclosure filings", "econ_fin", "housing_market"),
+    ("open data portal usage", "web_cloudops", "web_traffic"),
+    ("public wifi sessions", "web_cloudops", "session_stream"),
+    ("call center wait times", "web_cloudops", "service_latency"),
+    ("api requests", "web_cloudops", "api_traffic"),
 )
 
 
@@ -259,6 +304,30 @@ def search_catalog(
     )
     r.raise_for_status()
     return r.json().get("results", [])
+
+
+# The catalog API caps a single response at 100; a popular keyword matches many
+# hundreds of datasets, and since the best candidates are on small portals they
+# sit deep in the relevance ranking. Paging is where the volume actually is.
+CATALOG_PAGE = 100
+
+
+def search_catalog_paged(
+    keyword: str, want: int, timeout: int = 45, sleep_s: float = 0.2
+) -> list[dict]:
+    out: list[dict] = []
+    while len(out) < want:
+        page = search_catalog(
+            keyword, limit=min(CATALOG_PAGE, want - len(out)),
+            offset=len(out), timeout=timeout,
+        )
+        if not page:
+            break
+        out.extend(page)
+        if len(page) < CATALOG_PAGE:
+            break
+        time.sleep(sleep_s)
+    return out
 
 
 def probe_series(
@@ -490,7 +559,7 @@ def sweep(
     for klass in classes:
         kw = klass[0]
         try:
-            results = search_catalog(kw, limit=per_keyword)
+            results = search_catalog_paged(kw, per_keyword)
         except Exception as exc:                              # noqa: BLE001
             skipped.append({"keyword": kw, "reason": f"catalog search failed: {exc}"})
             continue
