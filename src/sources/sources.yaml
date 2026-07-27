@@ -18118,3 +18118,266 @@
     aggregate:
       op: sum
       bin: P1D
+
+# -- wired batch: wave11-breadth --
+- id: elia_system_imbalance_1min
+  name: Elia Belgium current system imbalance (1-min, near real-time)
+  domain: energy
+  frequency: PT1M
+  license: Elia Open Data (CC BY 4.0)
+  notes: Belgian TSO 1-minute system imbalance, ACE and activated aFRR/IGCC balancing volumes (MW), near
+    real-time non-validated feed; rolling ~2h window per fetch
+  endpoint:
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods169/records?limit=100&order_by=datetime%20desc
+    type: rest_json
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].systemimbalance
+    - results[].ace
+    - results[].igccvolumeup
+    - results[].igccvolumedown
+    - results[].afrrvolumeup
+    - results[].afrrvolumedown
+- id: pse_rce_price_15min
+  audit_slack_days: 3
+  name: PSE Poland RCE market energy price (15-min)
+  domain: energy
+  frequency: PT15M
+  license: PSE open data (raporty API, free reuse)
+  notes: Polish TSO settlement market energy price (RCE, PLN/MWh) per 15-min period; full day published
+    day-ahead ~14:00 CET, so fetch previous business date; 96 periods/day
+  endpoint:
+    url: https://api.raporty.pse.pl/api/rce-pln?$filter=business_date%20eq%20%27{YYYY-MM-DD-1d}%27
+    type: rest_json
+  schema:
+    timestamp_field: value[].dtime_utc
+    value_field:
+    - value[].rce_pln
+- id: ree_spain_pvpc_price_hourly
+  name: REE Spain PVPC retail electricity price (hourly)
+  domain: energy
+  frequency: PT1H
+  license: REE apidatos - public
+  notes: Spanish regulated retail electricity price PVPC (EUR/MWh) per hour, published day-ahead; distinct
+    market-price series vs wired demand feed on same host
+  endpoint:
+    url: https://apidatos.ree.es/en/datos/mercados/precios-mercados-tiempo-real?start_date={YYYY-MM-DD-1d}T00:00&end_date={YYYY-MM-DD}T23:59&time_trunc=hour
+    type: rest_json
+  schema:
+    timestamp_field: included[0].attributes.values[].datetime
+    value_field:
+    - included[0].attributes.values[].value
+- id: autobahn_de_a1_roadworks_daily
+  audit_slack_days: 60
+  name: Autobahn GmbH Germany A1 roadworks starts (daily count)
+  domain: transport
+  frequency: P1D
+  license: German federal open data (Autobahn API, dl-de/by-2-0)
+  notes: Count of roadworks on motorway A1 binned by start date from the keyless verkehr.autobahn.de API;
+    snapshot of currently listed works so history mutates as works finish
+  endpoint:
+    url: https://verkehr.autobahn.de/o/autobahn/A1/services/roadworks
+    type: rest_json
+  schema:
+    timestamp_field: roadworks[].startTimestamp
+    value_field: []
+    aggregate:
+      op: count
+      bin: P1D
+- id: rata_digitraffic_train_speeds
+  name: Fintraffic rata.digitraffic.fi live train GPS speeds (panel)
+  domain: transport
+  frequency: PT1M
+  license: CC BY 4.0 (Fintraffic / Digitraffic)
+  notes: Live GPS speed (km/h) of every active train on the Finnish rail network; panel per train number;
+    entity count varies ~20-400 by hour; per-record GPS timestamps
+  endpoint:
+    url: https://rata.digitraffic.fi/api/v1/train-locations/latest
+    type: rest_json
+    headers:
+      Digitraffic-User: TSBench-Forge/1.0
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field:
+    - '[].speed'
+    panel_field: '[].trainNumber'
+- id: spf_odisse_bronchitis_ed_weekly
+  audit_slack_days: 60
+  name: Sante publique France bronchitis ED visits and SOS Medecins rates (weekly, national)
+  domain: healthcare
+  frequency: P1W
+  license: Licence Ouverte / Open Licence (Etalab)
+  notes: Weekly rates per 100k of bronchitis ED visits, hospitalisations after ED, and SOS Medecins consultations,
+    France national, all-ages filter; OSCOUR/SOS Medecins syndromic surveillance via Odisse ODS API
+  endpoint:
+    url: https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/bronchite-passages-aux-urgences-et-actes-sos-medecins-france/records?where=sursaud_cl_age_gene%3D%27Tous%20%C3%A2ges%27&order_by=date_complet%20desc&limit=100
+    type: rest_json
+  schema:
+    timestamp_field: results[].date_complet
+    value_field:
+    - results[].taux_passages_bronchite_sau
+    - results[].taux_hospit_bronchite_sau
+    - results[].taux_actes_bronchite_sos
+- id: rki_amelag_wastewater_viral_load_weekly
+  audit_slack_days: 60
+  name: RKI AMELAG wastewater viral load Germany (weekly, panel by pathogen)
+  domain: healthcare
+  frequency: P1W
+  license: CC BY 4.0 (Robert Koch-Institut)
+  notes: Germany-wide aggregated wastewater viral load (gene copies/L, raw and flow-normalised) plus smoothed
+    trend, weekly, panel per pathogen (SARS-CoV-2, Influenza A/B, RSV); RKI publishes Wednesdays with ~10
+    day lag
+  endpoint:
+    url: https://raw.githubusercontent.com/robert-koch-institut/Abwassersurveillance_AMELAG/main/amelag_aggregierte_kurve.tsv
+    type: rest_csv
+  schema:
+    timestamp_field: datum
+    value_field:
+    - viruslast
+    - viruslast_normalisiert
+    - vorhersage
+    - n
+    panel_field: typ
+- id: cbs_nl_construction_turnover_monthly
+  audit_slack_days: 135
+  name: CBS Netherlands construction sector turnover index (monthly)
+  domain: sales
+  frequency: P1M
+  license: CBS open data (CC BY 4.0)
+  notes: Dutch construction industry monthly turnover index (2021=100) and year-on-year change, total construction
+    SBI 41-43, all firm sizes; OData v4 Observations sorted newest-first; distinct table from wired internet-retail
+    83867NED
+  endpoint:
+    url: https://datasets.cbs.nl/odata/v1/CBS/85809NED/Observations?$filter=Measure%20eq%20%27M002987%27%20and%20BedrijfstakkenBranchesSBI2008%20eq%20%27350000%27%20and%20contains(Perioden,%27MM%27)&$orderby=Id%20desc&$top=200
+    type: rest_json
+  schema:
+    timestamp_field: value[].Perioden
+    value_field:
+    - value[].Value
+- id: ecb_ciss_systemic_stress_daily
+  audit_slack_days: 50
+  name: ECB Composite Indicator of Systemic Stress (CISS, euro area, daily)
+  domain: econ_fin
+  frequency: P1D
+  license: ECB Data Portal - free reuse with attribution
+  notes: Daily euro-area composite indicator of systemic financial stress (index 0-1) from the ECB CISS
+    dataflow; business-day series, published with a few days lag; distinct dataflow from wired EXR/YC/BSI
+    series
+  endpoint:
+    url: https://data-api.ecb.europa.eu/service/data/CISS/D.U2.Z0Z.4F.EC.SS_CIN.IDX?format=csvdata&lastNObservations=400
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+- id: bundesbank_bund_10y_yield_daily
+  audit_slack_days: 50
+  name: Bundesbank German 10-year government bond yield (daily)
+  domain: econ_fin
+  frequency: P1D
+  license: Bundesbank statistics - free reuse with attribution
+  notes: Daily yield of German federal securities with 10-year residual maturity (BBSIS term structure,
+    % p.a.), keyless SDMX-JSON REST; business days only, published with 1-2 day lag
+  endpoint:
+    url: https://api.statistiken.bundesbank.de/rest/data/BBSIS/D.I.ZST.ZI.EUR.S1311.B.A604.R10XX.R.A.A._Z._Z.A?lastNObservations=400
+    type: rest_json
+    headers:
+      Accept: application/vnd.sdmx.data+json;version=1.0.0
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+    drop_null_values: true
+- id: riksbank_sek_usd_eur_crossrate_daily
+  audit_slack_days: 50
+  name: Riksbank SEK/USD-EUR cross rate (daily)
+  domain: econ_fin
+  frequency: P1D
+  license: Riksbank open API - free reuse
+  notes: Daily USD/EUR cross rate derived from Riksbank SEK fixing series (SEKUSDPMI over SEKEURPMI); keyless
+    SWEA API; business days only; distinct series from wired policy-rate SECBREPOEFF on same host
+  endpoint:
+    url: https://api.riksbank.se/swea/v1/CrossRates/SEKUSDPMI/SEKEURPMI/{YYYY-MM-DD-365d}
+    type: rest_json
+  schema:
+    timestamp_field: '[].date'
+    value_field:
+    - '[].value'
+- id: usgs_nwis_gage_height_panel_15min
+  name: USGS NWIS instantaneous gage height (6-gauge US panel)
+  domain: nature
+  frequency: PT15M
+  license: USGS public domain
+  notes: Instantaneous river stage (gage height, ft) at six large-river gauges; distinct parameter (00065)
+    from the wired discharge (00060) and daily temperature (00010) series; 24h rolling window per fetch,
+    one request per site
+  endpoint:
+    url: https://waterservices.usgs.gov/nwis/iv/?format=json&sites={SITE}&parameterCd=00065&period=PT24H
+    type: rest_json
+    timeout: 90
+  panel:
+  - SITE: '01646500'
+  - SITE: '07374000'
+  - SITE: '11447650'
+  - SITE: 05389000
+  - SITE: '03335500'
+  - SITE: '02035000'
+  schema:
+    timestamp_field: value.timeSeries[0].values[0].value[].dateTime
+    value_field: value.timeSeries[0].values[0].value[].value
+- id: cdc_covid_variant_proportions_biweekly
+  audit_slack_days: 100
+  name: CDC Nowcast SARS-CoV-2 variant proportions, USA (biweekly panel)
+  domain: healthcare
+  frequency: P2W
+  license: US public domain (CDC open data)
+  notes: Share of sequenced SARS-CoV-2 specimens by lineage for the USA (empiric 4-week model), panel per
+    variant with 95% CI bounds; CDC updates every two weeks with ~4 week lag
+  endpoint:
+    url: https://data.cdc.gov/resource/jr58-6ysp.json?usa_or_hhsregion=USA&modeltype=empiric&time_interval=4_week&$order=week_ending%20DESC&$limit=2000
+    type: rest_json
+  schema:
+    timestamp_field: '[].week_ending'
+    value_field:
+    - '[].share'
+    - '[].share_hi'
+    - '[].share_lo'
+    panel_field: '[].variant'
+- id: dst_denmark_retail_trade_index_monthly
+  audit_slack_days: 165
+  name: Statistics Denmark retail trade index (monthly, industry panel)
+  domain: sales
+  frequency: P1M
+  license: Statistics Denmark - free reuse with attribution
+  notes: Danish retail trade volume index (2021=100) by DB25 industry group, monthly, full history from
+    2015; keyless StatBank CSV API; ~2 month publication lag
+  endpoint:
+    url: https://api.statbank.dk/v1/data/DETA211A/CSV?lang=en&BRANCHEDB25UDVALG=G47,471110,471120,471130,473000,474000,477300,477500&Tid=*&delimiter=Semicolon
+    type: rest_csv
+  schema:
+    timestamp_field: TID
+    value_field:
+    - INDHOLD
+    panel_field: BRANCHEDB25UDVALG
+    csv_delimiter: ;
+- id: elia_total_load_15min
+  audit_slack_days: 5
+  name: Elia Belgium measured total grid load (15-min)
+  domain: energy
+  frequency: PT15M
+  license: Elia Open Data (CC BY 4.0)
+  notes: Belgian total grid load measured per quarter-hour plus most-recent and day-ahead forecasts (MW),
+    dataset ods001; future quarters are null-padded so the where-clause keeps only measured rows; distinct
+    metric from wired PV production ods032 and imbalance ods169
+  endpoint:
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods001/records?limit=100&order_by=datetime%20desc&where=totalload%20IS%20NOT%20NULL
+    type: rest_json
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].totalload
+    - results[].mostrecentforecast
+    - results[].dayaheadforecast
+    drop_null_values: true

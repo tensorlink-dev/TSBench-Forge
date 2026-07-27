@@ -48,6 +48,8 @@ schedules:
   - gbfs_santiago_station_status
   - gbfs_bergen_station_status
   - nextbike_zagreb_station_status
+  - elia_system_imbalance_1min
+  - rata_digitraffic_train_speeds
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -181,6 +183,7 @@ schedules:
   - rockford_911_dispatch_halfhour
   - winnebago_911_dispatch_halfhour
   - eirgrid_wind_generation
+  - usgs_nwis_gage_height_panel_15min
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -276,6 +279,9 @@ schedules:
   - paris_road_sensor_flow_hourly
   - norway_trafikkdata_hourly
   - melbourne_pedestrian_hourly
+  - pse_rce_price_15min
+  - ree_spain_pvpc_price_hourly
+  - elia_total_load_15min
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -510,6 +516,15 @@ schedules:
   - cftc_cot_disaggregated_gold_weekly
   - cftc_tff_emini_sp500_weekly
   - treasury_dts_deposits_withdrawals_daily
+  - autobahn_de_a1_roadworks_daily
+  - spf_odisse_bronchitis_ed_weekly
+  - rki_amelag_wastewater_viral_load_weekly
+  - cbs_nl_construction_turnover_monthly
+  - ecb_ciss_systemic_stress_daily
+  - bundesbank_bund_10y_yield_daily
+  - riksbank_sek_usd_eur_crossrate_daily
+  - cdc_covid_variant_proportions_biweekly
+  - dst_denmark_retail_trade_index_monthly
   cron: 10 1 * * *
 - every: P1D
   sources:
