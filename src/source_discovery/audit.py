@@ -45,6 +45,8 @@ _FORMATS = (
     "%m.%Y", "%d.%m.%Y",
     "%d%b%Y",  # CPC ENSO weekly: "15JUL2026" (strptime %b is case-insensitive)
     "%d-%b-%Y %H:%M:%S",  # EirGrid dashboard: "25-Jul-2026 00:15:00"
+    "%b-%y",  # ONS beta API month labels: "Mar-26" (%y: 00-68 -> 2000s)
+    "%Y %b",  # ONS generator CSV month labels: "2026 JUN"
 )
 
 # Digit-only strings are ambiguous under greedy strptime ("20260726" parses as
@@ -53,7 +55,7 @@ _FORMATS = (
 _DIGIT_FMT_BY_LEN = {14: "%Y%m%d%H%M%S", 10: "%Y%m%d%H", 8: "%Y%m%d",
                      6: "%Y%m", 4: "%Y"}
 
-_QUARTER_RE = re.compile(r"^(\d{4})-?[QK](\d)$")
+_QUARTER_RE = re.compile(r"^(\d{4})[- ]?[QK](\d)$")   # 2026Q2 / 2026-Q2 / "2026 Q2"
 # Statbank month labels: DST "2026M05", CBS OData "2026MM05"
 _YM_LABEL_RE = re.compile(r"^(\d{4})M{1,2}(\d{1,2})$")
 # ISO week labels: ECB SDMX "2026-W22", some statbanks "2026W22"

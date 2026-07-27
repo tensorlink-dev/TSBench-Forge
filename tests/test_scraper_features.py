@@ -699,3 +699,22 @@ def test_json_single_path_timestamp_still_walks_verbatim():
     blob = _json.dumps({"obs": [{"t": "2026-07-01T00:00:00", "v": 1}]}).encode()
     recs = scraper.parse_payload(src, blob, "application/json")
     assert recs[0]["timestamp"] == "2026-07-01T00:00:00"
+
+
+def test_timestamp_pattern_filters_mixed_cadence_rows():
+    """ONS generator CSVs stack annual, quarterly and monthly rows in one column."""
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"csv_columns": ["period", "value"],
+                      "timestamp_field": "period", "value_field": ["value"],
+                      "timestamp_pattern": r"^\d{4} [A-Z]{3}$"}}
+    text = '"2026","3.1"\n"2026 Q1","3.2"\n"2026 JAN","3.3"\n"2026 FEB","3.4"\n'
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert [r["timestamp"] for r in recs] == ["2026 JAN", "2026 FEB"]
+
+
+def test_timestamp_pattern_absent_keeps_every_row():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"csv_columns": ["period", "value"],
+                      "timestamp_field": "period", "value_field": ["value"]}}
+    text = '"2026","3.1"\n"2026 JAN","3.3"\n'
+    assert len(scraper.parse_payload(src, text.encode(), "text/csv")) == 2

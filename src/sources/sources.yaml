@@ -4195,13 +4195,16 @@
   - smooth_periodic
   frequency: P1M
   endpoint:
-    type: rest_json
-    url: https://api.beta.ons.gov.uk/v1/datasets/cpih01/editions/time-series/versions/67/observations?time=*&geography=K02000001&aggregate=CP00
+    type: rest_csv
+    url: https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/l522/mm23
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: observations[].dimensions.Time.id
-    value_field: observations[].observation
+    csv_columns: [period, value]
+    timestamp_field: period
+    value_field:
+    - value
+    timestamp_pattern: '^\d{4} [A-Z]{3}$'
     variates: 1
   history_available: P36Y
   update_cadence_observed: monthly; series Oct-1988 .. Jul-2024 (457 obs) at v67; new CPIH releases publish
@@ -4215,11 +4218,11 @@
     last_verified: 2026-07-08
     sample_rows: 457
     sample_freshness_hours: null
-  notes: 'Classic api.ons.gov.uk/timeseries was decommissioned 2024-11-25 (404); use api.beta.ons.gov.uk.
-    Series pinned to version 67 — bump the version segment to get later data (GET /datasets/cpih01/editions/time-series
-    to find latest_version). Dimensions fixed: geography=K02000001 (UK), aggregate=CP00 (Overall Index);
-    vary aggregate for sub-indices (hierarchical). Observations are newest-first; Time.id is a month label
-    not ISO — parse MMM-YY. value is a JSON string.'
+  notes: 'CPIH overall index (CDID L522, dataset MM23). Repointed 2026-07-27 from the beta ONS API,
+    which has stopped advancing — cpih01 latest_version is still 67 and its data ends 2026-01 — to the
+    classic ONS series generator CSV, which is current. That CSV stacks annual, quarterly and monthly
+    rows in one column, so timestamp_pattern keeps only the monthly ones; unfiltered, the annual rows
+    collide with January on the same timestamp. Swap the uri= path for any other ONS CDID/dataset pair.'
 - id: amprion_pv_infeed
   name: Amprion control-area photovoltaic infeed (online extrapolation)
   disabled: true
@@ -19337,3 +19340,136 @@
     timestamp_field: Results.series[].data[].year Results.series[].data[].periodName
     value_field:
     - Results.series[].data[].value
+
+# -- wired batch: wave14c-ons --
+- id: ons_cpi_annual_rate_monthly
+  name: UK ONS Consumer Prices Index annual rate, all items (monthly)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 130
+  license: Open Government Licence v3.0 (ONS)
+  notes: Headline UK CPI 12-month inflation rate (percent), CDID D7G7 of dataset MM23. Distinct series from
+    the wired CPIH index level. ONS series generator CSV (classic endpoint, still current while the beta
+    API has stalled). The CSV stacks annual, quarterly and monthly rows in one column; timestamp_pattern
+    keeps the monthly ones so the annual rows do not collide with January.
+  endpoint:
+    url: https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7g7/mm23
+    type: rest_csv
+    timeout: 90
+  schema:
+    csv_columns:
+    - period
+    - value
+    timestamp_field: period
+    value_field:
+    - value
+    timestamp_pattern: ^\d{4} [A-Z]{3}$
+- id: ons_rpi_annual_rate_monthly
+  name: UK ONS Retail Prices Index annual rate (monthly)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 130
+  license: Open Government Licence v3.0 (ONS)
+  notes: RPI 12-month percentage change (CDID CZBH, dataset MM23) - the legacy UK inflation measure still
+    used in index-linked contracts, with history back to 1948. ONS series generator CSV (classic endpoint,
+    still current while the beta API has stalled). The CSV stacks annual, quarterly and monthly rows in
+    one column; timestamp_pattern keeps the monthly ones so the annual rows do not collide with January.
+  endpoint:
+    url: https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/czbh/mm23
+    type: rest_csv
+    timeout: 90
+  schema:
+    csv_columns:
+    - period
+    - value
+    timestamp_field: period
+    value_field:
+    - value
+    timestamp_pattern: ^\d{4} [A-Z]{3}$
+- id: ons_retail_sales_volume_monthly
+  name: UK ONS Retail Sales Index, volume, all retailers incl. fuel (monthly)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: Open Government Licence v3.0 (ONS)
+  notes: Seasonally adjusted retail sales volume index for all UK retailers including automotive fuel (CDID
+    J5EK, dataset DRSI) - the headline UK retail activity series. ONS series generator CSV (classic endpoint,
+    still current while the beta API has stalled). The CSV stacks annual, quarterly and monthly rows in
+    one column; timestamp_pattern keeps the monthly ones so the annual rows do not collide with January.
+  endpoint:
+    url: https://www.ons.gov.uk/generator?format=csv&uri=/businessindustryandtrade/retailindustry/timeseries/j5ek/drsi
+    type: rest_csv
+    timeout: 90
+  schema:
+    csv_columns:
+    - period
+    - value
+    timestamp_field: period
+    value_field:
+    - value
+    timestamp_pattern: ^\d{4} [A-Z]{3}$
+- id: ons_unemployment_rate_monthly
+  name: UK ONS unemployment rate, aged 16+, seasonally adjusted (monthly)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 160
+  license: Open Government Licence v3.0 (ONS)
+  notes: UK unemployment rate (percent, SA), CDID MGSX of the labour market dataset LMS; rolling three-month
+    estimates published monthly with a ~2 month lag. ONS series generator CSV (classic endpoint, still current
+    while the beta API has stalled). The CSV stacks annual, quarterly and monthly rows in one column; timestamp_pattern
+    keeps the monthly ones so the annual rows do not collide with January.
+  endpoint:
+    url: https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms
+    type: rest_csv
+    timeout: 90
+  schema:
+    csv_columns:
+    - period
+    - value
+    timestamp_field: period
+    value_field:
+    - value
+    timestamp_pattern: ^\d{4} [A-Z]{3}$
+- id: ons_average_weekly_earnings_monthly
+  name: UK ONS average weekly earnings, total pay, whole economy (monthly)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 160
+  license: Open Government Licence v3.0 (ONS)
+  notes: Average weekly total pay in pounds, whole economy, seasonally adjusted (CDID KAB9, dataset LMS).
+    Distinct from the unemployment-rate series on the same dataset. ONS series generator CSV (classic endpoint,
+    still current while the beta API has stalled). The CSV stacks annual, quarterly and monthly rows in
+    one column; timestamp_pattern keeps the monthly ones so the annual rows do not collide with January.
+  endpoint:
+    url: https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kab9/lms
+    type: rest_csv
+    timeout: 90
+  schema:
+    csv_columns:
+    - period
+    - value
+    timestamp_field: period
+    value_field:
+    - value
+    timestamp_pattern: ^\d{4} [A-Z]{3}$
+- id: ons_gdp_quarterly_growth
+  name: UK ONS GDP quarter-on-quarter growth, chained volume measure (quarterly)
+  domain: econ_fin
+  frequency: P1Q
+  audit_slack_days: 500
+  license: Open Government Licence v3.0 (ONS)
+  notes: UK real GDP quarter-on-quarter percentage growth (CDID IHYQ, dataset QNA). Quarterly labels are
+    the quarter START, hence the generous slack. ONS series generator CSV (classic endpoint). timestamp_pattern
+    keeps the quarterly rows, discarding the annual rows stacked in the same column.
+  endpoint:
+    url: https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihyq/qna
+    type: rest_csv
+    timeout: 90
+  schema:
+    csv_columns:
+    - period
+    - value
+    timestamp_field: period
+    value_field:
+    - value
+    timestamp_pattern: ^\d{4} Q\d$

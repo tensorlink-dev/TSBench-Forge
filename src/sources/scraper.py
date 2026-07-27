@@ -1155,6 +1155,16 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
                 if any(v not in (None, "")
                        for k, v in r.items()
                        if k != "timestamp" and not k.startswith("_panel_"))]
+    pattern = schema.get("timestamp_pattern")
+    if pattern:
+        # Keep only rows whose timestamp matches. Some publishers stack several
+        # cadences of the SAME series in one column — an ONS generator CSV runs
+        # annual ("2026"), then quarterly ("2026 Q1"), then monthly
+        # ("2026 JUN") rows. Mixed, the annual and January rows collide on one
+        # timestamp with different values; filtered, each cadence is its own
+        # clean series.
+        keep = re.compile(pattern)
+        recs = [r for r in recs if keep.match(str(r.get("timestamp", "")))]
     agg = schema.get("aggregate")
     return _aggregate_records(recs, agg) if agg else recs
 
