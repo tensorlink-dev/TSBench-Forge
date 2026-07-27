@@ -592,3 +592,22 @@ def test_endpoint_encoding_shift_jis():
     text = "t,v\n2026-07-26,100\n"
     recs = scraper.parse_payload(src, text.encode("shift_jis"), "text/csv")
     assert recs[0]["v"] == "100"
+
+
+def test_compose_year_week():
+    # Rutgers snow lab: 'Year Week' rows; flag required since weeks 1..12
+    # would otherwise read as months
+    assert scraper._compose_ts(["2026", "3"], year_week=True) == "2026-01-12"
+    assert scraper._compose_ts(["2026", "30"], year_week=True) == "2026-07-20"
+    assert scraper._compose_ts(["2026", "3"]) == "2026-03"          # default unchanged
+    assert scraper._compose_ts(["2026", "60"], year_week=True) == "2026 60"  # invalid week
+
+
+def test_compose_year_week_via_schema():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "Year Week", "value_field": "Extent",
+                      "csv_columns": ["Year", "Week", "Extent"],
+                      "compose_year_week": True}}
+    text = "2026 29 405.7\n2026 30 398.2\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/plain")
+    assert recs[0]["timestamp"] == "2026-07-13"

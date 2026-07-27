@@ -679,7 +679,8 @@ _MONTH_NAMES = {name.lower(): i for i, name in enumerate(
 _MONTH_NAMES.update({k[:3]: v for k, v in list(_MONTH_NAMES.items())})
 
 
-def _compose_ts(parts: list[str], hour_of_day: bool = False) -> str:
+def _compose_ts(parts: list[str], hour_of_day: bool = False,
+                year_week: bool = False) -> str:
     """Assemble a timestamp split across columns into ISO-ish form.
 
     Handles these shapes, else joins verbatim:
@@ -693,6 +694,16 @@ def _compose_ts(parts: list[str], hour_of_day: bool = False) -> str:
         ('2026' + 'January'/'Jan', CMS enrollment) -> 'YYYY-MM'.
     """
     parts = [p.strip() for p in parts]
+    # year + ISO week (schema.compose_year_week — Rutgers snow lab 'Year Week'
+    # rows). Needs the explicit flag: weeks 1..12 are indistinguishable from
+    # months. Resolves to the ISO week's Monday.
+    if (year_week and len(parts) == 2 and parts[0].isdigit()
+            and len(parts[0]) == 4 and parts[1].isdigit()):
+        try:
+            return dt.date.fromisocalendar(
+                int(parts[0]), int(parts[1]), 1).isoformat()
+        except ValueError:
+            return " ".join(parts)
     # date-string + integer hour (e.g. IESO 'Date'='2026-01-01', 'Hour'='1'..'24')
     if len(parts) == 2 and re.match(r"^\d{4}[-/]\d{1,2}[-/]\d{1,2}$", parts[0]) and parts[1].isdigit():
         d = parts[0].replace("/", "-")
@@ -832,7 +843,8 @@ def _csv_recs_to_rows(recs: list[dict], schema: dict, ts_field: str,
     for r in recs:
         if len(ts_cols) > 1 and all(c in r for c in ts_cols):
             ts_raw = _compose_ts([r[c] for c in ts_cols],
-                                 hour_of_day=bool(schema.get("compose_hour_of_day")))
+                                 hour_of_day=bool(schema.get("compose_hour_of_day")),
+                                 year_week=bool(schema.get("compose_year_week")))
         else:
             ts_raw = r.get(ts_field) or next(iter(r.values()), None)
         row = {"timestamp": _epoch_to_iso(ts_raw) or ts_raw}
