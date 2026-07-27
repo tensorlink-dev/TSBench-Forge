@@ -19236,3 +19236,104 @@
     - results[].pull_count
     - results[].star_count
     panel_field: results[].name
+
+# -- wired batch: wave14b-features --
+- id: jsdelivr_npm_package_cdn_hits_daily
+  name: jsDelivr CDN daily hits and bandwidth per npm package
+  domain: web_cloudops
+  frequency: P1D
+  audit_slack_days: 45
+  license: jsDelivr public stats API - free use
+  notes: Daily CDN request counts and bytes served for popular npm packages from jsDelivr's public stats
+    API. Rolling 30-day window per fetch; a real CDN demand series with strong weekday seasonality. Payload
+    keys the series by date rather than listing timestamps, hence schema.date_keyed_map.
+  endpoint:
+    url: https://data.jsdelivr.com/v1/stats/packages/npm/{PACKAGE}?period=month
+    type: rest_json
+    timeout: 60
+  panel:
+  - PACKAGE: jquery
+  - PACKAGE: react
+  - PACKAGE: vue
+  - PACKAGE: lodash
+  - PACKAGE: bootstrap
+  - PACKAGE: axios
+  - PACKAGE: moment
+  - PACKAGE: chart.js
+  - PACKAGE: three
+  - PACKAGE: d3
+  - PACKAGE: core-js
+  - PACKAGE: swiper
+  schema:
+    date_keyed_map: true
+    value_field:
+    - hits.dates
+    - bandwidth.dates
+- id: bls_cpi_u_all_items_monthly
+  name: BLS Consumer Price Index for All Urban Consumers, all items (monthly)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 130
+  license: US Bureau of Labor Statistics - public domain
+  notes: Headline US CPI-U index level (1982-84=100), series CUUR0000SA0, via the BLS public API v2 unregistered
+    tier (25 queries/day/IP - we poll once). Observations arrive split across year and periodName fields,
+    composed by the space-separated timestamp_field.
+  endpoint:
+    url: https://api.bls.gov/publicAPI/v2/timeseries/data/
+    type: rest_json
+    method: POST
+    body:
+      seriesid:
+      - CUUR0000SA0
+      startyear: '2023'
+      endyear: '2026'
+    timeout: 90
+  schema:
+    timestamp_field: Results.series[].data[].year Results.series[].data[].periodName
+    value_field:
+    - Results.series[].data[].value
+- id: bls_unemployment_rate_monthly
+  name: BLS US civilian unemployment rate, seasonally adjusted (monthly)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 130
+  license: US Bureau of Labor Statistics - public domain
+  notes: Headline US unemployment rate (percent, seasonally adjusted), series LNS14000000, from the monthly
+    Employment Situation. BLS public API v2 unregistered tier; distinct series from the wired CPI entry.
+  endpoint:
+    url: https://api.bls.gov/publicAPI/v2/timeseries/data/
+    type: rest_json
+    method: POST
+    body:
+      seriesid:
+      - LNS14000000
+      startyear: '2023'
+      endyear: '2026'
+    timeout: 90
+  schema:
+    timestamp_field: Results.series[].data[].year Results.series[].data[].periodName
+    value_field:
+    - Results.series[].data[].value
+- id: bls_total_nonfarm_employment_monthly
+  name: BLS US total nonfarm payroll employment, seasonally adjusted (monthly)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 130
+  license: US Bureau of Labor Statistics - public domain
+  notes: Total nonfarm payroll employment in thousands (CES0000000001), the level behind the monthly payrolls
+    headline. BLS public API v2 unregistered tier; distinct series from the wired CPI and unemployment-rate
+    entries.
+  endpoint:
+    url: https://api.bls.gov/publicAPI/v2/timeseries/data/
+    type: rest_json
+    method: POST
+    body:
+      seriesid:
+      - CES0000000001
+      startyear: '2023'
+      endyear: '2026'
+    timeout: 90
+  schema:
+    timestamp_field: Results.series[].data[].year Results.series[].data[].periodName
+    value_field:
+    - Results.series[].data[].value

@@ -571,6 +571,70 @@ def _epoch_to_iso(v: Any) -> Optional[str]:
     return str(v)
 
 
+def _value_names(paths: list[str]) -> list[str]:
+    """Column name per value path: the leaf segment, disambiguated by its parent
+    when leaves collide (jsDelivr's `hits.dates` and `bandwidth.dates` would
+    otherwise both be called `dates` and overwrite each other)."""
+    leaves = [p.split(".")[-1].strip("[]") for p in paths]
+    names = []
+    for path, leaf in zip(paths, leaves):
+        if leaves.count(leaf) > 1:
+            segs = [s.strip("[]") for s in path.split(".") if s.strip("[]")]
+            leaf = "_".join(segs[-2:]) if len(segs) >= 2 else leaf
+        names.append(leaf)
+    return names
+
+
+def _records_from_date_map(data: Any, schema: dict) -> list[dict]:
+    """Rows from ``{date: number}`` maps (schema.date_keyed_map).
+
+    CDN and package-registry stats APIs (jsDelivr `hits.dates`) key the series
+    by date instead of listing timestamps, so there is no timestamp path to
+    walk — the *keys* are the timestamps. Every ``value_field`` path must
+    resolve to such a map; the maps are unioned on their keys so several metrics
+    (hits and bandwidth) share one row per date.
+    """
+    val_paths = schema.get("value_field") or []
+    if isinstance(val_paths, str):
+        val_paths = [val_paths]
+    names = _value_names(val_paths)
+    maps: dict[str, dict] = {}
+    for name, path in zip(names, val_paths):
+        try:
+            got = _walk(data, path)
+        except Exception:                                   # noqa: BLE001
+            continue
+        if isinstance(got, dict):
+            maps[name] = got
+    if not maps:
+        return []
+    keys = sorted({k for m in maps.values() for k in m})
+    return [{"timestamp": str(k), **{n: m.get(k) for n, m in maps.items()}}
+            for k in keys]
+
+
+def _compose_json_ts(data: Any, ts_path: str, schema: dict) -> Any:
+    """Walk ``timestamp_field``, composing when it names several paths.
+
+    Whitespace in a JSON path is not legal, so a space-separated
+    ``timestamp_field`` means the timestamp is split across fields the way the
+    CSV parser already handles ('Date Hour'). BLS ships every observation as
+    year + periodName ('2026' + 'June'); composing them yields '2026-06'.
+    """
+    paths = ts_path.split()
+    if len(paths) < 2:
+        return _walk(data, ts_path)
+    seqs = [_walk(data, p) for p in paths]
+    if not all(isinstance(s, list) for s in seqs):
+        return _compose_ts([str(s) for s in seqs],
+                           hour_of_day=bool(schema.get("compose_hour_of_day")),
+                           year_week=bool(schema.get("compose_year_week")))
+    return [_compose_ts([str(s[i]) for s in seqs],
+                        hour_of_day=bool(schema.get("compose_hour_of_day")),
+                        year_week=bool(schema.get("compose_year_week")))
+            for i in range(min(len(s) for s in seqs))]
+
+
 def _records_from_json(data: Any, schema: dict) -> list[dict]:
     """Build a list of {timestamp, value} records from a JSON payload.
 
@@ -583,13 +647,16 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
     val_path = schema.get("value_field", "")
     now_iso = dt.datetime.now(UTC).isoformat()
 
+    if schema.get("date_keyed_map"):
+        return _records_from_date_map(data, schema)
+
     # Special: timestamp_field == 'now()' -> snapshot semantics
     if ts_path == "now()":
         return [{"timestamp": now_iso, "value": json.dumps(data)[:200000]}]
 
     # Try to walk
     try:
-        ts_seq = _walk(data, ts_path) if ts_path else None
+        ts_seq = _compose_json_ts(data, ts_path, schema) if ts_path else None
     except Exception as e:                                  # noqa: BLE001
         log.debug("ts walk failed (%s); fallback snapshot row", e)
         return [{"timestamp": now_iso, "value": json.dumps(data)[:200000]}]

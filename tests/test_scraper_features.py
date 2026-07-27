@@ -652,3 +652,50 @@ def test_snapshot_now_panel_explode():
     assert recs[0]["_panel_trainno"] == "501" and recs[0]["late"] == 3
     assert recs[1]["_panel_trainno"] == "502"
     assert recs[0]["timestamp"] == recs[1]["timestamp"]
+
+
+def test_date_keyed_map_unions_metrics_on_date_keys():
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"date_keyed_map": True,
+                      "value_field": ["hits.dates", "bandwidth.dates"]}}
+    import json as _json
+    blob = _json.dumps({"hits": {"total": 9, "dates": {"2026-07-02": 5, "2026-07-01": 4}},
+                        "bandwidth": {"dates": {"2026-07-01": 40, "2026-07-02": 50}}}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert [r["timestamp"] for r in recs] == ["2026-07-01", "2026-07-02"]
+    # colliding leaf names ("dates") are disambiguated by their parent
+    assert recs[0]["hits_dates"] == 4 and recs[0]["bandwidth_dates"] == 40
+
+
+def test_date_keyed_map_missing_date_in_one_metric_is_none():
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"date_keyed_map": True, "value_field": ["a.dates", "b.dates"]}}
+    import json as _json
+    blob = _json.dumps({"a": {"dates": {"2026-07-01": 1, "2026-07-02": 2}},
+                        "b": {"dates": {"2026-07-01": 9}}}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert len(recs) == 2
+    assert recs[1]["b_dates"] is None
+
+
+def test_json_timestamp_composed_from_two_paths():
+    """BLS splits every observation into year + periodName ('2026' + 'June')."""
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "series[].data[].year series[].data[].periodName",
+                      "value_field": ["series[].data[].value"]}}
+    import json as _json
+    blob = _json.dumps({"series": [{"data": [
+        {"year": "2026", "periodName": "June", "value": "333.9"},
+        {"year": "2026", "periodName": "May", "value": "335.1"}]}]}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert [r["timestamp"] for r in recs] == ["2026-06", "2026-05"]
+    assert recs[0]["value"] == "333.9"
+
+
+def test_json_single_path_timestamp_still_walks_verbatim():
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "obs[].t", "value_field": ["obs[].v"]}}
+    import json as _json
+    blob = _json.dumps({"obs": [{"t": "2026-07-01T00:00:00", "v": 1}]}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert recs[0]["timestamp"] == "2026-07-01T00:00:00"
