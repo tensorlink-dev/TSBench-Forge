@@ -18381,3 +18381,177 @@
     - results[].mostrecentforecast
     - results[].dayaheadforecast
     drop_null_values: true
+
+# -- wired batch: wave12-snapshot --
+- id: ttc_vehicle_speeds_snapshot
+  name: Toronto TTC — live vehicle speeds (UmoIQ/NextBus public feed)
+  domain: transport
+  frequency: PT1M
+  license: TTC open data via UmoIQ public XML/JSON feed (data copyright Toronto Transit Commission)
+  notes: Speed (km/h) per active TTC surface vehicle, panel by vehicle id; snapshot_now stamps fetch time.
+    Hundreds of vehicles daytime, fewer overnight (Blue Night network still runs 24h).
+  endpoint:
+    url: https://retro.umoiq.com/service/publicJSONFeed?command=vehicleLocations&a=ttc&t=0
+    type: rest_json
+  schema:
+    value_field:
+    - vehicle[].speedKmHr
+    - vehicle[].secsSinceReport
+    panel_field: vehicle[].id
+    snapshot_now: true
+- id: bvg_alexanderplatz_departure_delays
+  name: Berlin BVG — live departure delays at Alexanderplatz (transport.rest)
+  domain: transport
+  frequency: PT1M
+  license: Keyless community REST API (v6.bvg.transport.rest) over VBB open data (CC-BY)
+  notes: Realtime delay (seconds) per upcoming departure at S+U Alexanderplatz, panel by tripId; snapshot_now
+    stamps fetch time. drop_null_values removes schedule-only departures without a realtime prognosis.
+  endpoint:
+    url: https://v6.bvg.transport.rest/stops/900100003/departures?results=100&duration=120
+    type: rest_json
+  schema:
+    value_field:
+    - departures[].delay
+    panel_field: departures[].tripId
+    snapshot_now: true
+    drop_null_values: true
+- id: ea_england_rainfall_15min
+  name: Environment Agency England — 15-min rainfall gauge readings (national panel)
+  domain: nature
+  frequency: PT15M
+  license: Open Government Licence v3
+  notes: Latest 15-min tipping-bucket rainfall (mm) per EA gauge across England, panel by measure URI; distinct
+    metric (rainfall) from the already-wired river-level station readings on this host. Mostly zeros (zero-inflated);
+    telemetry lags up to ~1h.
+  endpoint:
+    url: https://environment.data.gov.uk/flood-monitoring/data/readings?parameter=rainfall&_sorted&_limit=500
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: items[].dateTime
+    value_field:
+    - items[].value
+    panel_field: items[].measure
+- id: usda_mpr_prior_day_hogs_daily
+  audit_slack_days: 7
+  name: USDA AMS MPR — Daily Direct Prior Day Hog Report, barrows & gilts base price
+  domain: sales
+  frequency: P1D
+  license: Public domain (US Government)
+  notes: Daily prior-day hog base price (USD/cwt carcass) by purchase type (negotiated, formula, market-formula...),
+    panel by purchase_type; new slug 3458 on already-wired mpr.datamart host (distinct commodity/report
+    from wired beef-cutout and butter slugs). head_count field has thousands commas, so only base_price
+    is taken.
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/3458/Barrows%20&%20Gilts%20(carcass%20basis)?q=report_date=01/01/2026:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].base_price
+    panel_field: results[].purchase_type
+- id: cdc_nchs_percent_deaths_resp_weekly
+  audit_slack_days: 30
+  name: CDC NCHS — provisional percent of deaths for COVID-19/Influenza/RSV (weekly, national)
+  domain: healthcare
+  frequency: P1W
+  license: Public domain (US Government, data.cdc.gov)
+  notes: Weekly percent of all US deaths attributed to COVID-19, influenza and RSV (NCHS provisional mortality
+    surveillance), panel by pathogen. New dataset id 4bc2-bbpq on already-wired data.cdc.gov host; distinct
+    metric (share of deaths) from wired death-count dataset r8kw-7aab.
+  endpoint:
+    url: https://data.cdc.gov/resource/4bc2-bbpq.json?$select=week_end,pathogen,percent_deaths&$order=week_end%20DESC&$limit=5000
+    type: rest_json
+  schema:
+    timestamp_field: '[].week_end'
+    value_field:
+    - '[].percent_deaths'
+    panel_field: '[].pathogen'
+- id: ukhsa_covid_occupied_beds_daily
+  audit_slack_days: 60
+  name: UKHSA dashboard — COVID-19 patients in hospital beds, England (daily)
+  domain: healthcare
+  frequency: P1D
+  license: Open Government Licence v3
+  notes: Daily count of COVID-19 patients occupying hospital beds in England. New metric path (COVID-19_healthcare_occupiedBedsByDay)
+    on the already-wired UKHSA host; distinct from wired admissions/cases/deaths metrics. Results are returned
+    oldest-first, so pagination is required to reach the live tail.
+  endpoint:
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/COVID-19/geography_types/Nation/geographies/England/metrics/COVID-19_healthcare_occupiedBedsByDay?page_size=365
+    type: rest_json
+    paginate:
+      items: results
+      next: next
+      max_pages: 8
+    timeout: 90
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].metric_value
+- id: elia_offshore_wind_15min
+  audit_slack_days: 3
+  name: Elia (Belgium) — offshore wind measured power vs forecast (15-min, Federal offshore zone)
+  domain: energy
+  frequency: PT15M
+  license: Open data (Elia Open Data Platform, ODbL-style open licence)
+  notes: Measured offshore wind generation (MW) with most-recent and day-ahead forecasts for the Belgian
+    Federal offshore zone. New dataset id ods031 (wind) on the already-wired opendata.elia.be host; distinct
+    from wired ods032 (solar) and ods001/ods169. Filtered to region=Federal so all 100 returned rows are
+    distinct 15-min timestamps.
+  endpoint:
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods031/records?limit=100&order_by=datetime%20desc&where=region%3D%27Federal%27
+    type: rest_json
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].measured
+    - results[].mostrecentforecast
+    - results[].dayaheadforecast
+    - results[].loadfactor
+- id: usgs_florida_dissolved_oxygen_15min
+  audit_slack_days: 3
+  name: USGS Florida — dissolved oxygen at continuous monitors (15-min, state panel)
+  domain: nature
+  frequency: PT15M
+  license: Public domain (USGS)
+  notes: Dissolved oxygen (mg/L) at all active USGS continuous water-quality monitors in Florida, 12-hour
+    window per fetch. Distinct parameter code 00300 from the wired discharge (00060) and water-temperature
+    (00010) series on waterservices.usgs.gov. Site identity is not carried per observation because the state-wide
+    response nests observations under one array per site; values from ~45 sites are pooled.
+  endpoint:
+    url: https://waterservices.usgs.gov/nwis/iv/?format=json&stateCd=fl&parameterCd=00300&period=PT12H&siteStatus=active
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: value.timeSeries[].values[0].value[].dateTime
+    value_field:
+    - value.timeSeries[].values[0].value[].value
+- id: cita_lu_motorway_traffic_speed
+  audit_slack_days: 1
+  name: Luxembourg CITA — motorway loop-detector traffic speeds (DATEX II, A1/A3/A4/A6/A7/A13/B40)
+  domain: transport
+  frequency: PT1M
+  license: Open data (data.public.lu, Ponts & Chaussees / CITA)
+  notes: Average vehicle speed (km/h) at each magnetometer measurement site on the Luxembourg motorway network,
+    panel by measurement-site id, one fetch per road. DATEX II MeasuredDataPublication refreshed ~every
+    minute; measurementTimeDefault carries the per-site observation time. XML uses a DATEX default namespace,
+    so element paths need the {*} wildcard.
+  endpoint:
+    url: https://www.cita.lu/info_trafic/datex/trafficstatus_{ROAD}
+    type: rest_xml
+    timeout: 60
+  panel:
+  - ROAD: a1
+  - ROAD: a3
+  - ROAD: a4
+  - ROAD: a6
+  - ROAD: a7
+  - ROAD: a13
+  - ROAD: b40
+  schema:
+    record_path: siteMeasurements
+    timestamp_field: '{*}measurementTimeDefault'
+    value_field:
+    - '{*}measuredValue/{*}measuredValue/{*}basicData/{*}averageVehicleSpeed/{*}speed'
+    panel_field: '{*}measurementSiteReference/@id'

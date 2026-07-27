@@ -50,6 +50,7 @@ schedules:
   - nextbike_zagreb_station_status
   - elia_system_imbalance_1min
   - rata_digitraffic_train_speeds
+  - cita_lu_motorway_traffic_speed
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -58,6 +59,7 @@ schedules:
   - nashville_fire_active_incidents
   - dallas_police_active_calls_volume
   - portland_911_dispatch_volume
+  - ttc_vehicle_speeds_snapshot
   cron: '*/3 * * * *'
 - every: PT5M
   sources:
@@ -95,6 +97,7 @@ schedules:
   - gbfs_bluebikes_boston_station_status
   - digitraffic_finland_tms_traffic_5min
   - digitraffic_finland_ais_vessel_speeds
+  - bvg_alexanderplatz_departure_delays
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -184,6 +187,9 @@ schedules:
   - winnebago_911_dispatch_halfhour
   - eirgrid_wind_generation
   - usgs_nwis_gage_height_panel_15min
+  - ea_england_rainfall_15min
+  - elia_offshore_wind_15min
+  - usgs_florida_dissolved_oxygen_15min
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -297,7 +303,8 @@ schedules:
   - sec_filer_submissions
   - usgs_elevated_volcanoes
   - crw_virtual_station_sst
-  - nasa_eonet_events [defillama_chain_tvl_daily]
+  - nasa_eonet_events
+  - defillama_chain_tvl_daily
   - cdc_nssp_ed_respiratory_daily
   - peeringdb_network_registrations
   - cdc_provisional_mortality_weekly
@@ -525,6 +532,9 @@ schedules:
   - riksbank_sek_usd_eur_crossrate_daily
   - cdc_covid_variant_proportions_biweekly
   - dst_denmark_retail_trade_index_monthly
+  - usda_mpr_prior_day_hogs_daily
+  - cdc_nchs_percent_deaths_resp_weekly
+  - ukhsa_covid_occupied_beds_daily
   cron: 10 1 * * *
 - every: P1D
   sources:
