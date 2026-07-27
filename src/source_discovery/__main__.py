@@ -73,6 +73,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-socrata", metavar="OUT_FILE",
                     help="sweep the Socrata federated catalog and write a "
                          "--wire-format candidate batch to OUT_FILE (no model)")
+    ap.add_argument("--bulk-ods", metavar="OUT_FILE",
+                    help="same, over the Opendatasoft federated catalog "
+                         "(~100k datasets, Europe-heavy)")
+    ap.add_argument("--bulk-per-keyword", type=int, default=None,
+                    help="catalog results to page through per keyword "
+                         "(default 200 Socrata / 100 ODS)")
     ap.add_argument("--bulk-target", type=int, default=None,
                     help="with --bulk-socrata: stop once N candidates are found")
     ap.add_argument("--bulk-host-cap", type=int, default=bulk.DEFAULT_HOST_CAP,
@@ -90,7 +96,7 @@ def main(argv: list[str] | None = None) -> int:
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
 
-    if args.bulk_socrata:
+    if args.bulk_socrata or args.bulk_ods:
         classes = bulk.KEYWORD_CLASSES
         if args.bulk_keywords:
             want = {k.lower() for k in args.bulk_keywords}
@@ -100,20 +106,27 @@ def main(argv: list[str] | None = None) -> int:
                       + ", ".join(sorted(c[0] for c in bulk.KEYWORD_CLASSES)),
                       file=sys.stderr)
                 return 2
-        cands, skipped = bulk.sweep(
-            args.catalog, classes=classes, host_cap=args.bulk_host_cap,
+        sweep_fn = bulk.ods_sweep if args.bulk_ods else bulk.sweep
+        out_path = args.bulk_ods or args.bulk_socrata
+        kwargs = dict(
+            classes=classes, host_cap=args.bulk_host_cap,
             max_age_days=args.bulk_max_age_days,
             new_hosts_only=not args.bulk_any_host, target=args.bulk_target,
             log=lambda m: print(m, file=sys.stderr),
         )
-        bulk.write_batch(cands, args.bulk_socrata)
+        if args.bulk_per_keyword:
+            kwargs["per_keyword"] = args.bulk_per_keyword
+        elif not args.bulk_ods:
+            kwargs["per_keyword"] = 200
+        cands, skipped = sweep_fn(args.catalog, **kwargs)
+        bulk.write_batch(cands, out_path)
         reasons: dict[str, int] = {}
         for s in skipped:
             key = re.sub(r"\d+", "N", s.get("reason", "?"))
             reasons[key] = reasons.get(key, 0) + 1
         print(json.dumps({
             "candidates": len(cands),
-            "out": args.bulk_socrata,
+            "out": out_path,
             "hosts": len({c["candidate_name"].rsplit("(", 1)[-1] for c in cands}),
             "skipped": len(skipped),
             "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])),

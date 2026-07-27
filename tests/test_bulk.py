@@ -299,3 +299,146 @@ def test_parse_iso(s, expected):
 @pytest.mark.parametrize("s", ["", None, "not a date", "27/07/2026"])
 def test_parse_iso_rejects_junk(s):
     assert bulk._parse_iso(s) is None
+
+
+# --------------------------------------------------------------------------- #
+# relevance / classification
+# --------------------------------------------------------------------------- #
+def test_off_topic_result_is_reclassified_not_inherited():
+    """Full-text relevance decays past the first page: a 'short term rental'
+    query returns campaign-finance filings. Inheriting the query's domain would
+    poison the domain x cadence matrix that steers the entire build."""
+    query = ("short term rental registrations", "sales", "registration_stream")
+    got = bulk.resolve_class(query, "Campaign Contributions Received By Candidates")
+    assert got is not None and got[1] == "econ_fin"
+
+
+def test_on_topic_result_keeps_the_query_class():
+    query = ("911 calls", "healthcare", "emergency_dispatch")
+    assert bulk.resolve_class(query, "911 Calls For Service 2024") == query
+
+
+def test_police_data_is_classified_not_discarded():
+    """Crime/CAD feeds arrive under all sorts of queries and are good series —
+    they just need the right domain rather than the bin."""
+    query = ("call center wait times", "web_cloudops", "service_latency")
+    got = bulk.resolve_class(query, "Richmond Police Department - CAD Events")
+    assert got is not None and got[1] == "healthcare"
+
+
+def test_unclassifiable_result_returns_none():
+    query = ("api requests", "web_cloudops", "api_traffic")
+    assert bulk.resolve_class(query, "Zzzz Qqqq") is None
+
+
+def test_resolve_class_only_returns_known_domains():
+    allowed = {"energy", "econ_fin", "web_cloudops", "healthcare", "nature",
+               "transport", "sales"}
+    for kw, dom, dgp in bulk.EXTRA_CLASSES:
+        assert dom in allowed, f"{kw} -> {dom}"
+        assert kw and dgp
+
+
+def test_is_relevant_ignores_stopwords():
+    """Matching on 'data' or 'city' would let anything through."""
+    assert not bulk.is_relevant("transit ridership data", "City Data Portal")
+    assert bulk.is_relevant("transit ridership data", "Daily Ridership Totals")
+
+
+# --------------------------------------------------------------------------- #
+# Opendatasoft
+# --------------------------------------------------------------------------- #
+def _ods_rec(fields, host="opendata.tpg.ch", dsid="freq-par-tranche",
+             title="Ridership per day", records=64191,
+             processed="2026-07-26T00:02:30.510000+00:00"):
+    return {
+        "dataset_id": f"{dsid}@tpg",
+        "has_records": True,
+        "fields": [{"name": n, "type": t, "label": lab} for lab, n, t in fields],
+        "metas": {"default": {
+            "title": title,
+            "source_domain_address": host,
+            "source_dataset": dsid,
+            "records_count": records,
+            "data_processed": processed,
+        }},
+    }
+
+
+_ODS_PROBE = {"rows": 100, "distinct": 100, "future": 0,
+              "newest": "2026-07-26T00:00:00+00:00", "age_days": 0.5,
+              "median_gap_s": 86400.0}
+_ODS_KLASS = ("transit ridership", "transport", "ridership")
+
+
+def test_ods_picks_date_field_and_numeric_values():
+    rec = _ods_rec([("Date", "date", "date"),
+                    ("Day Week", "jour_semaine", "text"),
+                    ("Boardings", "nb_de_montees", "double")])
+    fields = bulk._ods_fields(rec)
+    assert bulk.ods_pick_timestamp(fields) == "date"
+    assert bulk.ods_pick_values(fields, "date") == ["nb_de_montees"]
+
+
+def test_ods_rejects_french_identifier_columns():
+    """`code_insee` and `numero_commune` are numbers, not measurements."""
+    rec = _ods_rec([("D", "date", "date"),
+                    ("INSEE", "code_insee", "int"),
+                    ("Num", "numero_ligne", "int")])
+    assert bulk.ods_pick_values(bulk._ods_fields(rec), "date") == []
+
+
+def test_ods_timestamp_picker_understands_non_english_names():
+    rec = _ods_rec([("Maj", "derniere_modification", "datetime"),
+                    ("Horodate", "horodate", "datetime")])
+    assert bulk.ods_pick_timestamp(bulk._ods_fields(rec)) == "horodate"
+
+
+def test_ods_entry_points_at_the_publishers_own_host():
+    """All ODS datasets are reachable through data.opendatasoft.com, but wiring
+    them there would collapse every European publisher into one host — and the
+    coverage metric credits at most a handful of sources per host."""
+    rec = _ods_rec([("Date", "date", "date"), ("N", "nb_de_montees", "double")])
+    block = bulk.ods_synthesize(rec, _ODS_KLASS, _ODS_PROBE)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert "opendata.tpg.ch" in entry["endpoint"]["url"]
+    assert "data.opendatasoft.com" not in entry["endpoint"]["url"]
+
+
+def test_ods_export_url_is_newest_first_and_bounded():
+    url = bulk.ods_export_url("opendata.tpg.ch", "ds", "date", ["v"])
+    assert "order_by=date%20desc" in url
+    assert f"limit={bulk.ODS_EXPORT_ROWS}" in url
+    assert "/exports/json?" in url
+    assert "select=date,v" in url
+
+
+def test_ods_synthesize_emits_a_valid_wire_block():
+    rec = _ods_rec([("Date", "date", "date"), ("N", "nb_de_montees", "double")])
+    block = bulk.ods_synthesize(rec, _ODS_KLASS, _ODS_PROBE)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["domain"] == "transport"
+    assert entry["frequency"] == "P1D"
+    assert entry["schema"]["timestamp_field"] == "[].date"
+    assert entry["schema"]["value_field"] == ["[].nb_de_montees"]
+    assert entry["audit_slack_days"] >= 45
+
+
+def test_ods_synthesize_bins_count_without_numeric_fields():
+    rec = _ods_rec([("Date", "date", "date"), ("Type", "type", "text")])
+    entry = yaml.safe_load(
+        bulk.ods_synthesize(rec, _ODS_KLASS, _ODS_PROBE)["yaml_block"]
+    )[0]
+    assert entry["schema"]["aggregate"]["op"] == "count"
+
+
+def test_ods_synthesize_needs_a_publisher_host():
+    rec = _ods_rec([("Date", "date", "date")], host="")
+    assert bulk.ods_synthesize(rec, _ODS_KLASS, _ODS_PROBE) is None
+
+
+def test_wired_ods_datasets_dedupe(tmp_path):
+    cat = tmp_path / "sources.yaml"
+    cat.write_text(yaml.dump([{"id": "a", "endpoint": {"url":
+        "https://opendata.tpg.ch/api/explore/v2.1/catalog/datasets/freq-x/exports/json?limit=10"}}]))
+    assert bulk.wired_ods_datasets(str(cat)) == {"freq-x"}

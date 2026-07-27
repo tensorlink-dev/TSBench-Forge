@@ -110,6 +110,7 @@ schedules:
   - cammesa_ar_demand_5min
   - chuden_jp_demand_5min
   - kyuden_jp_demand_5min
+  - johnscreekga_incidentcad
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -319,6 +320,14 @@ schedules:
   - everettwa_police_incidents
   - marincounty_building_permit_inspection
   - au_air_quality_monitoring_data
+  - seattle_terry_stops
+  - seattle_spd_crime_data_2008_present
+  - oaklandca_service_requests_received_by_the_oakland
+  - seattle_crisis_data
+  - seattle_spd_arrest_data
+  - sonomacounty_sonoma_county_sheriff_s_office_incident
+  - transparentrichmond_richmond_police_department_cad_events
+  - sonomacounty_sonoma_county_sheriff_s_office_event_dat
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -656,6 +665,34 @@ schedules:
   - ct_energy_storage_solutions_ess_enrollment
   - ct_public_assets_on_data_ct_gov
   - mesaaz_business_services_support_issues_resolve
+  - cookcountyil_medical_examiner_unidentified_persons
+  - cityoforlando_short_term_rental_licenses
+  - lacity_building_and_safety_building_permits_sub
+  - lacity_building_and_safety_mechanical_permits_i
+  - piercecountywa_number_of_new_housing_starts
+  - encinitasca_enterprise_service_requests
+  - piercecountywa_hs_dataset_adrc_calls
+  - princegeorgescountym_residential_and_commercial_permits_july
+  - fcc_pirate_radio_broadcasting_database
+  - piercecountywa_nuisance_violations
+  - hawaii_campaign_contributions_received_by_hawai
+  - hawaii_expenditures_made_by_hawaii_state_and_co
+  - hawaii_campaign_contributions_made_to_candidate
+  - cookcountyil_procurement_intent_to_execute
+  - novascotia_awarded_public_tenders
+  - roseville_library_materials_loaned
+  - wa_wdfw_creel_summary_counts
+  - wa_electric_vehicle_population_size_history
+  - lacity_building_and_safety_mechanical_permits_i_5m3txjex
+  - fultoncountyga_monthly_eviction_filings
+  - fultoncountyga_monthly_eviction_final_status_statistics
+  - oregon_2026_foreclosure_avoidance_program_benef
+  - maryland_dataset_freshness
+  - delaware_delaware_open_data_portal_published_asse
+  - providenceri_providence_police_case_log_past_180_days
+  - piercecountywa_ppw_development_center_customer_service
+  - socrata_snb_teleservices_wait_times_temps_d_atte
+  - novascotia_operations_contact_centre_call_summary
   cron: 10 1 * * *
 - every: P1D
   sources:
