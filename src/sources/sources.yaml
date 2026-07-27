@@ -18948,3 +18948,54 @@
     value_field:
     - value[].NumericValue
     panel_field: value[].SpatialDim
+
+# -- wired batch: wave13c-isoweek --
+- id: ecb_ilm_deposit_facility_weekly
+  name: ECB Eurosystem deposit facility outstanding (weekly)
+  domain: econ_fin
+  frequency: P1W
+  audit_slack_days: 45
+  license: ECB Data Portal - free reuse with attribution
+  notes: Weekly Eurosystem balance-sheet liability - amount parked in the deposit facility overnight (EUR
+    millions), from the ILM dataflow's weekly financial statement; distinct dataflow from the wired EXR/YC/BSI/CISS
+    series. TIME_PERIOD is an ISO week label (2026-W29).
+  endpoint:
+    url: https://data-api.ecb.europa.eu/service/data/ILM/W.U2.C.L020200.U2.EUR?format=csvdata&lastNObservations=300
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+- id: ecb_ilm_main_refinancing_weekly
+  name: ECB Eurosystem main refinancing operations outstanding (weekly)
+  domain: econ_fin
+  frequency: P1W
+  audit_slack_days: 45
+  license: ECB Data Portal - free reuse with attribution
+  notes: Weekly Eurosystem balance-sheet asset - outstanding lending to euro-area banks via main refinancing
+    operations (EUR millions), ILM dataflow weekly financial statement. TIME_PERIOD is an ISO week label.
+  endpoint:
+    url: https://data-api.ecb.europa.eu/service/data/ILM/W.U2.C.A050100.U2.EUR?format=csvdata&lastNObservations=300
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+- id: ecb_ilm_banknotes_circulation_weekly
+  name: ECB Eurosystem banknotes in circulation (weekly)
+  domain: econ_fin
+  frequency: P1W
+  audit_slack_days: 45
+  license: ECB Data Portal - free reuse with attribution
+  notes: Weekly Eurosystem balance-sheet liability - euro banknotes in circulation (EUR millions), ILM dataflow
+    weekly financial statement; a seasonal cash-demand series. TIME_PERIOD is an ISO week label.
+  endpoint:
+    url: https://data-api.ecb.europa.eu/service/data/ILM/W.U2.C.L010000.Z5.EUR?format=csvdata&lastNObservations=300
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE

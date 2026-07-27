@@ -208,6 +208,10 @@ def test_wire_batch_bad_domain_rejected(catalog, tmp_path, monkeypatch) -> None:
     ("20260726", dt.datetime(2026, 7, 26, tzinfo=UTC)),
     ("1784998860", dt.datetime.fromtimestamp(1784998860, UTC)),
     ("1784998860000", dt.datetime.fromtimestamp(1784998860, UTC)),
+    ("2026M05", dt.datetime(2026, 5, 1, tzinfo=UTC)),                      # DST
+    ("2026MM05", dt.datetime(2026, 5, 1, tzinfo=UTC)),                     # CBS
+    ("2026-W22", dt.datetime(2026, 5, 25, tzinfo=UTC)),                    # ECB ILM
+    ("2026W01", dt.datetime(2025, 12, 29, tzinfo=UTC)),                    # W1 backs into Dec
 ])
 def test_parse_ts_formats(raw, expect) -> None:
     assert audit.parse_ts(raw) == expect
@@ -217,6 +221,7 @@ def test_parse_ts_garbage_is_none() -> None:
     assert audit.parse_ts("not a date") is None
     assert audit.parse_ts("") is None
     assert audit.parse_ts(None) is None
+    assert audit.parse_ts("2025-W53") is None      # 2025 has only 52 ISO weeks
 
 
 # --------------------------------------------------------------------------- #

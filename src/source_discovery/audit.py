@@ -56,6 +56,8 @@ _DIGIT_FMT_BY_LEN = {14: "%Y%m%d%H%M%S", 10: "%Y%m%d%H", 8: "%Y%m%d",
 _QUARTER_RE = re.compile(r"^(\d{4})-?[QK](\d)$")
 # Statbank month labels: DST "2026M05", CBS OData "2026MM05"
 _YM_LABEL_RE = re.compile(r"^(\d{4})M{1,2}(\d{1,2})$")
+# ISO week labels: ECB SDMX "2026-W22", some statbanks "2026W22"
+_ISOWEEK_RE = re.compile(r"^(\d{4})-?W(\d{1,2})$")
 _SLASH_DMY_RE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")
 
 
@@ -87,6 +89,15 @@ def parse_ts(raw: object) -> Optional[dt.datetime]:
     m = _YM_LABEL_RE.match(s)
     if m and 1 <= int(m.group(2)) <= 12:
         return dt.datetime(int(m.group(1)), int(m.group(2)), 1, tzinfo=UTC)
+    # Checked before _YM_LABEL_RE's sibling formats can't reach it: the "W" is
+    # unambiguous, unlike a bare "2026M05"/"202605" pair.
+    m = _ISOWEEK_RE.match(s)
+    if m:
+        try:
+            day = dt.date.fromisocalendar(int(m.group(1)), int(m.group(2)), 1)
+        except ValueError:      # week 53 in a 52-week year
+            return None
+        return dt.datetime(day.year, day.month, day.day, tzinfo=UTC)
     m = _SLASH_DMY_RE.match(s)
     if m:
         a, b, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
