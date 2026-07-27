@@ -222,6 +222,44 @@ def newest_observation(data_dir: str | Path, sid: str) -> tuple[Optional[dt.date
     return newest, nrows
 
 
+def numeric_fraction(data_dir: str | Path, sid: str, sample: int = 400) -> Optional[float]:
+    """Share of stored values that are actually numbers, or None if unreadable.
+
+    Freshness alone cannot tell that a source is broken: when a declared path
+    misses, the JSON parser falls back to a snapshot row whose ``value`` is the
+    whole payload as text, and the scrape keeps "succeeding" forever. Several
+    sources ran for months that way — storing `{"response": {"player_count":
+    625705}}` as a string instead of 625705. A source whose values are ~never
+    numeric is either that failure or an unaggregated event stream; both mean it
+    contributes no series.
+    """
+    import pyarrow.parquet as pq   # noqa: PLC0415
+
+    files = sorted(Path(data_dir, sid).glob("*.parquet"))
+    if not files:
+        return None
+    try:
+        table = pq.read_table(files[-1])
+    except Exception:              # noqa: BLE001
+        return None
+    cols = [c for c in table.column_names
+            if c != "timestamp" and not c.startswith("_panel_")]
+    if not cols:
+        return 0.0
+    numeric = total = 0
+    for col in cols:
+        for val in table.column(col).to_pylist()[:sample]:
+            total += 1
+            if val is None or val == "":
+                continue
+            try:
+                float(str(val).replace(",", ""))
+            except ValueError:
+                continue
+            numeric += 1
+    return numeric / total if total else 0.0
+
+
 def audit_catalog(catalog_path: str | Path, data_dir: str | Path,
                   now: Optional[dt.datetime] = None) -> list[dict]:
     """Audit every non-disabled source; returns one finding dict per source."""
@@ -248,13 +286,22 @@ def audit_catalog(catalog_path: str | Path, data_dir: str | Path,
         slack = src.get("audit_slack_days")
         limit = (dt.timedelta(days=float(slack)) if slack
                  else staleness_threshold(freq))
-        findings.append({
+        finding = {
             "id": sid, "frequency": freq,
             "status": "stale" if age > limit else "ok",
             "newest": newest.isoformat(),
             "age_days": round(age.total_seconds() / 86400, 1),
             "limit_days": round(limit.total_seconds() / 86400, 1),
-        })
+        }
+        # Value health is orthogonal to freshness — a source can be perfectly
+        # fresh and still be storing raw JSON text. Reported alongside rather
+        # than folded into `status`, which stays about staleness.
+        frac = numeric_fraction(data_dir, sid)
+        if frac is not None:
+            finding["numeric_frac"] = round(frac, 3)
+            if frac < 0.05 and not src.get("schema", {}).get("aggregate"):
+                finding["values"] = "nonnumeric"
+        findings.append(finding)
     return findings
 
 
@@ -267,6 +314,7 @@ def summarize(findings: list[dict]) -> dict:
         "stale": [f for f in findings if f["status"] == "stale"],
         "nodata": [f["id"] for f in findings if f["status"] == "nodata"],
         "unparsed": [f["id"] for f in findings if f["status"] == "unparsed"],
+        "nonnumeric": [f["id"] for f in findings if f.get("values") == "nonnumeric"],
     }
 
 

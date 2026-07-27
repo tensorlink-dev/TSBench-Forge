@@ -616,11 +616,24 @@ def _epoch_to_iso(v: Any) -> Optional[str]:
     return str(v)
 
 
+def _leaf_name(path: str) -> str:
+    """Column name for a value path: its last segment, brackets flattened.
+
+    'data.stations[].num_bikes' -> 'num_bikes'; 'states[][6]' -> 'states_6'
+    (without flattening that leaf reads 'states[][6', which is a poor parquet
+    column name).
+    """
+    name = path.split(".")[-1].strip("[]")
+    if "[" in name or "]" in name:
+        name = re.sub(r"[^0-9A-Za-z]+", "_", name).strip("_")
+    return name
+
+
 def _value_names(paths: list[str]) -> list[str]:
     """Column name per value path: the leaf segment, disambiguated by its parent
     when leaves collide (jsDelivr's `hits.dates` and `bandwidth.dates` would
     otherwise both be called `dates` and overwrite each other)."""
-    leaves = [p.split(".")[-1].strip("[]") for p in paths]
+    leaves = [_leaf_name(p) for p in paths]
     names = []
     for path, leaf in zip(paths, leaves):
         if leaves.count(leaf) > 1:
@@ -708,7 +721,7 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
 
     if isinstance(val_path, list):
         try:
-            val_seqs = {p.split(".")[-1].strip("[]"): _walk(data, p) for p in val_path}
+            val_seqs = {_leaf_name(p): _walk(data, p) for p in val_path}
         except Exception:
             return [{"timestamp": now_iso, "value": json.dumps(data)[:200000]}]
     else:
@@ -782,6 +795,34 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
         for name, seq in val_seqs.items():
             row[name] = seq
         return [row]
+
+    list_vals = {n: s for n, s in val_seqs.items() if isinstance(s, list)}
+    if ts_seq is not None and list_vals:
+        # One timestamp for many entities — the GBFS shape: a top-level
+        # `last_updated` epoch beside `data.stations[]`. Broadcast the scalar
+        # across the rows instead of falling through to the raw-JSON dump
+        # below, which is what citibike_station_status did for months.
+        panel_paths = schema.get("panel_field")
+        if isinstance(panel_paths, str):
+            panel_paths = [panel_paths]
+        panel_seqs = []
+        for pp in (panel_paths or []):
+            try:
+                panel_seqs.append(("_panel_" + pp.split(".")[-1].strip("[]"),
+                                   _walk(data, pp)))
+            except Exception:  # noqa: BLE001
+                pass
+        stamp = _epoch_to_iso(ts_seq) or now_iso
+        rows = []
+        for i in range(max(len(s) for s in list_vals.values())):
+            row = {"timestamp": stamp}
+            for name, seq in val_seqs.items():
+                row[name] = (seq[i] if i < len(seq) else None) if isinstance(seq, list) else seq
+            for pname, pseq in panel_seqs:
+                if isinstance(pseq, list) and i < len(pseq):
+                    row[pname] = str(pseq[i])
+            rows.append(row)
+        return rows
 
     # last resort
     return [{"timestamp": _epoch_to_iso(ts_seq) or now_iso,
@@ -920,7 +961,8 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
     if schema.get("wide"):
         return _records_from_wide_csv(text, schema)
     text = _skip_rows(text, schema)
-    ts_field = schema.get("timestamp_field", "").split("/")[-1]
+    raw_ts_field = schema.get("timestamp_field", "")
+    ts_field = raw_ts_field.split("/")[-1]
     val_fields = schema.get("value_field")
     if isinstance(val_fields, str):
         val_fields = [val_fields]
@@ -938,7 +980,10 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
     # segment) OR a literal column name that itself contains '/' — e.g. NYISO's
     # "LBMP ($/MWHr)". Accept a header matching either reading.
     want_short = set(ts_cols) | {vf.split("/")[-1] for vf in (val_fields or [])}
-    want_full = set(ts_cols) | set(val_fields or [])
+    # The full reading keeps the RAW timestamp name: BPA's column is literally
+    # "Date/Time", which the '/'-leaf shortening turns into "Time" and never
+    # matches, leaving the header undetected and every line in one field.
+    want_full = set(raw_ts_field.split()) | set(val_fields or [])
     # An explicit schema.csv_delimiter overrides sniffing — for files where the
     # heuristic misfires (e.g. ';'-delimited rows whose cells contain commas).
     forced = schema.get("csv_delimiter")
@@ -957,7 +1002,8 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
             if len(toks) != len(explicit_cols) or toks == list(explicit_cols):
                 continue
             recs.append(dict(zip(explicit_cols, toks)))
-        return _csv_recs_to_rows(recs, schema, ts_field, ts_cols, val_fields)
+        return _csv_recs_to_rows(recs, schema, ts_field, ts_cols, val_fields,
+                                 raw_ts_field)
 
     header_idx, delim, header = None, None, None
     if want_short:
@@ -983,11 +1029,13 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
                 continue
             recs.append(dict(zip(header, toks)))
 
-    return _csv_recs_to_rows(recs, schema, ts_field, ts_cols, val_fields)
+    return _csv_recs_to_rows(recs, schema, ts_field, ts_cols, val_fields,
+                             raw_ts_field)
 
 
 def _csv_recs_to_rows(recs: list[dict], schema: dict, ts_field: str,
-                      ts_cols: list[str], val_fields: Optional[list[str]]) -> list[dict]:
+                      ts_cols: list[str], val_fields: Optional[list[str]],
+                      raw_ts_field: str = "") -> list[dict]:
     panel_cols = schema.get("panel_field")
     if isinstance(panel_cols, str):
         panel_cols = [panel_cols]
@@ -1000,7 +1048,9 @@ def _csv_recs_to_rows(recs: list[dict], schema: dict, ts_field: str,
                                  hour_of_day=bool(schema.get("compose_hour_of_day")),
                                  year_week=bool(schema.get("compose_year_week")))
         else:
-            ts_raw = r.get(ts_field) or next(iter(r.values()), None)
+            # Exact column name wins over the path-leaf, as for value fields.
+            ts_raw = (r.get(raw_ts_field) if raw_ts_field in r
+                      else r.get(ts_field)) or next(iter(r.values()), None)
         row = {"timestamp": _epoch_to_iso(ts_raw) or ts_raw}
         for vf in (val_fields or []):
             # Exact column name wins; fall back to the last path segment.

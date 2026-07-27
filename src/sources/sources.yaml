@@ -1486,7 +1486,10 @@
     rate_limit: 10 req/min anonymous, 100 req/min auth
   schema:
     timestamp_field: time
-    value_field: states[][6, 7, 9]
+    value_field:
+    - states[][6]
+    - states[][7]
+    - states[][9]
     variates: 3
   history_available: P3Y
   update_cadence_observed: 1 minute
@@ -1516,6 +1519,7 @@
   schema:
     timestamp_field: last_updated
     value_field: data.stations[].num_bikes_available
+    panel_field: data.stations[].station_id
     variates: 1
   history_available: P12Y
   update_cadence_observed: 1 minute
@@ -2214,6 +2218,7 @@
     rate_limit: null
   schema:
     timestamp_field: Date/Time
+    drop_null_values: true
     value_field:
     - Load
     - VER
@@ -6342,7 +6347,7 @@
   - APPID: '359550'
   - APPID: '230410'
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: response.player_count
     variates: 1
   history_available: P0D

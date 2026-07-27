@@ -842,3 +842,43 @@ def test_resolve_raises_when_nothing_matches(monkeypatch):
                         "resolve": {"url": "https://meta", "select": "details.attachments[].url"}}}
     with pytest.raises(RuntimeError, match="matched no URL"):
         scraper.fetch_payload(src)
+
+
+def test_scalar_timestamp_broadcasts_over_list_values():
+    """GBFS shape: one top-level `last_updated` beside a list of stations."""
+    import json as _json
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "last_updated",
+                      "value_field": "data.stations[].num_bikes_available",
+                      "panel_field": "data.stations[].station_id"}}
+    blob = _json.dumps({"last_updated": 1784000000, "data": {"stations": [
+        {"station_id": "a", "num_bikes_available": 3},
+        {"station_id": "b", "num_bikes_available": 0}]}}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert len(recs) == 2
+    assert recs[0]["value"] == 3 and recs[0]["_panel_station_id"] == "a"
+    assert recs[0]["timestamp"] == recs[1]["timestamp"] != "null"
+    # never the raw-payload dump that this used to fall through to
+    assert all("stations" not in str(r.get("value")) for r in recs)
+
+
+def test_csv_timestamp_column_containing_slash():
+    """BPA's column is literally "Date/Time"; the path-leaf reading is "Time"."""
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "Date/Time",
+                      "value_field": ["Load", "Fossil/Biomass"]}}
+    text = "Date/Time\tLoad\tFossil/Biomass\n07/20/2026 00:00\t6476\t1126\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert recs == [{"timestamp": "07/20/2026 00:00", "Load": "6476",
+                     "Fossil/Biomass": "1126"}]
+
+
+def test_indexed_value_paths_get_clean_column_names():
+    import json as _json
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "time",
+                      "value_field": ["states[][6]", "states[][9]"]}}
+    blob = _json.dumps({"time": 1784000000,
+                        "states": [["a", "b", 0, 0, 0, 0, 40.6, 0, 0, 4.6]]}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert recs[0]["states_6"] == 40.6 and recs[0]["states_9"] == 4.6
