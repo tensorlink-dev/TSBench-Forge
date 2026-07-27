@@ -17073,3 +17073,215 @@
     value_field:
     - provisional_drug_overdose
     panel_field: countyname
+
+# -- wired batch: wave7-unlocks --
+- id: norway_trafikkdata_hourly
+  name: Norway road traffic hourly volumes (Statens vegvesen, E6 Karihaugen)
+  domain: transport
+  frequency: PT1H
+  license: NLOD 2.0 (Statens vegvesen open data)
+  audit_slack_days: 1
+  notes: Hourly vehicle volume at continuous registration point 79854V625215 (E6 v/Karihaugen, Oslo). Date
+    tokens expand inside the GraphQL body; rolling 3-day window. Point chosen operational as of 2026-07;
+    if it goes dark pick another id from trafficRegistrationPoints(searchQuery:{isOperational:true}).
+  endpoint:
+    type: graphql
+    url: https://trafikkdata-api.atlas.vegvesen.no/
+    query: '{ trafficData(trafficRegistrationPointId: "79854V625215") { volume { byHour(from: "{YYYY-MM-DD-2d}T00:00:00+02:00",
+      to: "{YYYY-MM-DD}T23:59:00+02:00") { edges { node { from total { volumeNumbers { volume } } } } }
+      } } }'
+  schema:
+    timestamp_field: data.trafficData.volume.byHour.edges[].node.from
+    value_field: data.trafficData.volume.byHour.edges[].node.total.volumeNumbers.volume
+- id: smard_de_weekly_grid_load
+  name: SMARD Germany weekly total grid load (filter 410)
+  domain: energy
+  frequency: P1W
+  license: CC BY 4.0 (Bundesnetzagentur SMARD)
+  audit_slack_days: 10
+  notes: 'Weekly total electricity consumption (grid load, MWh) for DE. URL is YEAR-KEYED: 1766962800000
+    = epoch-ms of ISO-2026 week 1 start; there IS an index endpoint (https://www.smard.de/app/chart_data/410/DE/index_week.json,
+    last element of timestamps[] is the current file key) but the scraper cannot chain fetches, so the key
+    must be bumped manually each January. Also note the current-year file holds <20 weeks until ~May, so
+    volume-gate re-checks early in the year will undercount. drop_null_values REQUIRED - file is null-padded
+    to year end. Distinct series from wired energy-charts DE sources (no DE load wired there).'
+  endpoint:
+    type: rest_json
+    url: https://www.smard.de/app/chart_data/410/DE/410_DE_week_1766962800000.json
+  schema:
+    timestamp_field: series[][0]
+    value_field: series[][1]
+    drop_null_values: true
+- id: melbourne_pedestrian_hourly
+  name: Melbourne pedestrian counting system hourly counts (per sensor)
+  domain: transport
+  frequency: PT1H
+  license: CC BY 4.0 (City of Melbourne)
+  audit_slack_days: 3
+  notes: 'Hourly pedestrian counts, ~96 active sensors, rolling 3-day window via ODS CSV export. hourday
+    is hour-OF-day 0..23 -> compose_hour_of_day required. encoding utf-8-sig REQUIRED: ODS export ships
+    a BOM that otherwise corrupts the first header column and silently breaks the Date+Hour compose. Timestamps
+    are local Melbourne time.'
+  endpoint:
+    type: rest_csv
+    encoding: utf-8-sig
+    url: https://data.melbourne.vic.gov.au/api/explore/v2.1/catalog/datasets/pedestrian-counting-system-monthly-counts-per-hour/exports/csv?where=sensing_date%3E%3Ddate'{YYYY-MM-DD-2d}'&select=sensing_date,hourday,sensor_name,pedestriancount
+  schema:
+    timestamp_field: sensing_date hourday
+    value_field:
+    - pedestriancount
+    panel_field: sensor_name
+    csv_delimiter: ;
+    compose_hour_of_day: true
+- id: cms_medicare_monthly_enrollment
+  name: CMS Medicare Monthly Enrollment (national totals)
+  domain: healthcare
+  frequency: P1M
+  license: Public domain (US CMS open data)
+  audit_slack_days: 150
+  notes: 'National Medicare enrollment: total, Original Medicare, MA & other. YEAR + English MONTH name
+    compose to YYYY-MM via the data.csv output (compose is CSV-only). The <> filter excludes the MONTH=Year
+    annual-total rows which would otherwise pollute timestamps.'
+  endpoint:
+    type: rest_csv
+    url: https://data.cms.gov/data-api/v1/dataset/d7fabe1e-d19b-4333-9eff-e80e0643f2fd/data.csv?size=500&filter%5BBENE_GEO_LVL%5D=National&filter%5Bnoyr%5D%5Bpath%5D=MONTH&filter%5Bnoyr%5D%5Boperator%5D=%3C%3E&filter%5Bnoyr%5D%5Bvalue%5D=Year
+  schema:
+    timestamp_field: YEAR MONTH
+    value_field:
+    - TOT_BENES
+    - ORGNL_MDCR_BENES
+    - MA_AND_OTH_BENES
+- id: nmdb_oulu_neutron_1min
+  name: NMDB Oulu neutron monitor corrected count rate (1-min)
+  domain: nature
+  frequency: PT1M
+  license: 'NMDB terms: free for non-commercial use with acknowledgement - REVIEW before commercial benchmark
+    use'
+  notes: 'Cosmic-ray neutron count rate (efficiency-corrected, RCORR_E) at Oulu, 1-min resolution. date_choice=last&last_days=1
+    gives a rolling 24h window (no date tokens needed). Whitespace header over ;-delimited rows handled
+    by csv_columns + csv_delimiter; # preamble lines skipped.'
+  endpoint:
+    type: rest_csv
+    url: https://www.nmdb.eu/nest/draw_graph.php?wget=1&stations%5B%5D=OULU&tabchoice=revori&dtype=corr_for_efficiency&tresolution=0&yunits=0&date_choice=last&last_days=1&last_label=days_label
+  schema:
+    timestamp_field: start_date_time
+    value_field:
+    - RCORR_E
+    csv_delimiter: ;
+    csv_columns:
+    - start_date_time
+    - RCORR_E
+- id: france_fuel_prices_instant
+  name: France retail diesel prices - most recently updated stations (instantaneous flux)
+  domain: sales
+  frequency: PT30M
+  license: Licence Ouverte v2.0 (Etalab)
+  notes: 'Retail Gazole (diesel) EUR/L from the government instantaneous flux (~9800 stations, stations
+    push price changes continuously). Each fetch returns the 100 most-recently-updated stations -> per-station
+    price series accrete over time (panel gate: 100 entities/fetch). QUIRK: gazole_maj is French local time
+    mislabeled +00:00, so timestamps sit a constant ~2h in the future of UTC - harmless for freshness, do
+    not "fix" by shifting.'
+  endpoint:
+    type: rest_json
+    url: https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?select=id,gazole_maj,gazole_prix&where=gazole_prix%20is%20not%20null&order_by=gazole_maj%20DESC&limit=100
+  schema:
+    timestamp_field: results[].gazole_maj
+    value_field: results[].gazole_prix
+    panel_field: results[].id
+- id: elexon_gb_system_prices_30min
+  name: GB imbalance settlement system price and net imbalance volume (30-min)
+  domain: econ_fin
+  frequency: PT30M
+  license: Elexon BMRS open data (free reuse with attribution)
+  audit_slack_days: 2
+  notes: Settlement system price (GBP/MWh) and NIV (MWh) per 30-min settlement period. NEW dataset path
+    on wired host data.elexon.co.uk - distinct series from wired frequency/demand-outturn/FUELHH sources.
+    Previous-day URL guarantees the full 48 periods (same-day file is partial and <20 rows just after midnight).
+  endpoint:
+    type: rest_json
+    url: https://data.elexon.co.uk/bmrs/api/v1/balancing/settlement/system-prices/{YYYY-MM-DD-1d}?format=json
+  schema:
+    timestamp_field: data[].startTime
+    value_field:
+    - data[].systemSellPrice
+    - data[].netImbalanceVolume
+- id: elexon_gb_market_index_30min
+  name: GB market index price and volume (APX MID, 30-min)
+  domain: econ_fin
+  frequency: PT30M
+  license: Elexon BMRS open data (free reuse with attribution)
+  notes: 'Market index data used for imbalance pricing: 30-min traded price (GBP/MWh) and volume from APX.
+    dataProviders=APXMIDP filter REQUIRED - without it N2EXMIDP zero rows duplicate every period. NEW dataset
+    path on wired host data.elexon.co.uk, distinct series.'
+  endpoint:
+    type: rest_json
+    url: https://data.elexon.co.uk/bmrs/api/v1/balancing/pricing/market-index?from={YYYY-MM-DD-1d}T00:00Z&to={YYYY-MM-DD}T23:59Z&dataProviders=APXMIDP&format=json
+  schema:
+    timestamp_field: data[].startTime
+    value_field:
+    - data[].price
+    - data[].volume
+- id: calgary_traffic_incidents_30min
+  name: Calgary traffic incidents (30-min event counts)
+  domain: transport
+  frequency: PT30M
+  license: Open Government Licence - City of Calgary
+  audit_slack_days: 1
+  notes: Socrata 35ra-9556 (full incident log, feed refreshes ~10 min; companion 4jah-h97u is actives-only).
+    Binned to 30-min counts via aggregate. start_dt is local Calgary time (naive -> read as UTC, constant
+    skew). New host - data.calgary.ca not previously wired.
+  endpoint:
+    type: rest_json
+    url: https://data.calgary.ca/resource/35ra-9556.json?$order=start_dt%20DESC&$limit=3000
+  schema:
+    timestamp_field: '[].start_dt'
+    value_field: '[].id'
+    aggregate:
+      op: count
+      bin: PT30M
+- id: austin_traffic_incidents_30min
+  name: Austin real-time traffic incident reports (30-min event counts)
+  domain: transport
+  frequency: PT30M
+  license: Public domain (City of Austin open data)
+  audit_slack_days: 1
+  notes: Active + recent police-reported traffic incidents (crashes, hazards, stalls), refreshed every ~5
+    min; binned to 30-min counts. Host datahub.austintexas.gov already carries wired fire dataset wpu4-x69d
+    - this is dataset dx9v-zd7x, a clearly different series (traffic, not fire/EMS).
+  endpoint:
+    type: rest_json
+    url: https://datahub.austintexas.gov/resource/dx9v-zd7x.json?$order=published_date%20DESC&$limit=3000
+  schema:
+    timestamp_field: '[].published_date'
+    value_field: '[].traffic_report_id'
+    aggregate:
+      op: count
+      bin: PT30M
+
+# -- wired batch: wave7-retry --
+- id: tepco_demand_5min
+  name: TEPCO area electricity demand and solar (5-min actuals)
+  domain: energy
+  frequency: PT5M
+  license: TEPCO denki yoho public CSV (attribution requested)
+  notes: 'Shift_JIS multi-section file (old /forecast/html/images/juyo-j.csv is 404; juyo-d1-j.csv is the
+    live one). csv_columns pins the 5-column 5-min section header names; all other sections (hourly 6-col,
+    peak 4/6-col, banner line) are skipped by column-count mismatch - verified only 5-min rows survive.
+    Future rows are empty-padded -> drop_null_values. Timestamps are naive JST YYYY/M/D H:MM. CAVEAT: file
+    resets at JST midnight, so fetches between ~00:00-01:40 JST return <20 rows.'
+  endpoint:
+    type: rest_csv
+    url: https://www.tepco.co.jp/forecast/html/images/juyo-d1-j.csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績（５分間隔値）(万kW)
+    - 太陽光発電実績（５分間隔値）(万kW)
+    csv_columns:
+    - DATE
+    - TIME
+    - 当日実績（５分間隔値）(万kW)
+    - 太陽光発電実績（５分間隔値）(万kW)
+    - 太陽光発電量（電力使用量に対する割合）(%)
+    drop_null_values: true

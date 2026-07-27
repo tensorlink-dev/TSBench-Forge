@@ -84,6 +84,8 @@ schedules:
   - citybikes_velo_antwerpen_station_status
   - bandcamp_sales_feed
   - swissgrid_grid_frequency
+  - nmdb_oulu_neutron_1min
+  - tepco_demand_5min
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -204,6 +206,11 @@ schedules:
   - elexon_gb_market_index_price_30min
   - discord_status_api_response_time_30m
   - twilio_status_api_response_time_30m
+  - france_fuel_prices_instant
+  - elexon_gb_system_prices_30min
+  - elexon_gb_market_index_30min
+  - calgary_traffic_incidents_30min
+  - austin_traffic_incidents_30min
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -259,6 +266,8 @@ schedules:
   - aurorawatch_uk_geomagnetic_activity
   - paris_multimodal_bike_counts_hourly
   - paris_road_sensor_flow_hourly
+  - norway_trafikkdata_hourly
+  - melbourne_pedestrian_hourly
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -455,6 +464,8 @@ schedules:
   - entsog_mallnow_daily_gas_flow
   - cdc_vsrr_quarterly_mortality_rates
   - cdc_vsrr_county_overdose_deaths_ca
+  - smard_de_weekly_grid_load
+  - cms_medicare_monthly_enrollment
   cron: 10 1 * * *
 - every: P1D
   sources:
