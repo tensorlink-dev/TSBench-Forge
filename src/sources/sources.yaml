@@ -8446,6 +8446,8 @@
 
     '
 - id: datalakes_lexplore_skin_temp
+  disabled: true
+  disabled_reason: '2026-07-27: the URL pins download id 2804576, which now 404s (File does not exist) on every run - Eawag mints a new id per file version. Re-enable with an endpoint.resolve step against the datalakes API listing rather than a pinned id.'
   name: LéXPLORE (Lake Geneva) skin & sky temperature — Datalakes/Eawag
   domain: nature
   dgp_class: environmental_sensor
@@ -8716,7 +8718,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://data.transportation.gov/resource/85tf-25kj.json?$where=date IS NOT NULL&$order=date DESC&$limit=50000
+    url: https://data.transportation.gov/resource/85tf-25kj.json?$select=date,totaldamagecost&$where=date IS NOT NULL&$order=date DESC&$limit=20000
     auth: none
     rate_limit: null
   schema:
@@ -9171,7 +9173,6 @@
     value_field: data[].score
     panel_field: data[].mal_id
     variates: 1
-  panel: mal_id
   pretraining_novelty: clean
   license: public (autosearch-wired)
   novelty_notes: Jikan (unofficial MyAnimeList API) top-anime leaderboard; per-title community score (0-10)

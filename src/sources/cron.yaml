@@ -19,7 +19,6 @@ schedules:
   - kalshi_markets_snapshot
   - manifold_markets_snapshot
   - coinbase_spot_1m
-  - opensky_states_local
   - intermagnet_esk_geomag_minute
   - crossref_doi_registration_events
   - mastodon_public_timeline_events
@@ -63,6 +62,7 @@ schedules:
   cron: '*/3 * * * *'
 - every: PT5M
   sources:
+  - opensky_states_local
   - wsdot_ferry_locations
   - aemo_nem_5min
   - caiso_oasis_lmp_5min
