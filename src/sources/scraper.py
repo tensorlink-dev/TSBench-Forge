@@ -635,7 +635,37 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
         return rows
 
     if ts_seq is None and val_seqs:
-        # snapshot with one current value
+        # Snapshot payloads (no timestamp path). If value paths resolved to
+        # parallel LISTS (schema.snapshot_now feeds: SEPTA TrainView — many
+        # entities, no per-record ts), explode into per-entity rows with
+        # panel tags; parse_payload stamps fetch time on them. Otherwise a
+        # single current-value row.
+        list_vals = {n: s for n, s in val_seqs.items() if isinstance(s, list)}
+        if list_vals:
+            panel_paths = schema.get("panel_field")
+            if isinstance(panel_paths, str):
+                panel_paths = [panel_paths]
+            panel_seqs = []
+            for pp in (panel_paths or []):
+                try:
+                    panel_seqs.append(("_panel_" + pp.split(".")[-1].strip("[]"),
+                                       _walk(data, pp)))
+                except Exception:  # noqa: BLE001
+                    pass
+            n = max(len(s) for s in list_vals.values())
+            rows = []
+            for i in range(n):
+                row = {"timestamp": now_iso}
+                for name, seq in val_seqs.items():
+                    if isinstance(seq, list):
+                        row[name] = seq[i] if i < len(seq) else None
+                    else:
+                        row[name] = seq
+                for pname, pseq in panel_seqs:
+                    if isinstance(pseq, list) and i < len(pseq):
+                        row[pname] = str(pseq[i])
+                rows.append(row)
+            return rows
         row = {"timestamp": now_iso}
         for name, seq in val_seqs.items():
             row[name] = seq
@@ -1020,6 +1050,30 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     written timestamp always sit in the future, blinding the freshness audit."""
     recs = _dispatch_parse(src, blob, content_type)
     schema = src.get("schema", {})
+    if schema.get("snapshot_now"):
+        # Live-snapshot APIs with no per-record timestamp (SEPTA TrainView,
+        # TTC vehicle positions): stamp fetch time. Without a timestamp list
+        # to zip against, the JSON parser collapses `a[].b` paths into ONE
+        # row of parallel lists — explode those back into per-entity rows.
+        # Only meaningful with a panel_field (many entities per poll) or
+        # aggregate — a lone row per poll can never pass the volume gate.
+        now_iso = dt.datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S")
+        exploded: list[dict] = []
+        for r in recs:
+            list_keys = [k for k, v in r.items()
+                         if k != "timestamp" and isinstance(v, list)]
+            if list_keys:
+                n = max(len(r[k]) for k in list_keys)
+                for i in range(n):
+                    row = {k: (r[k][i] if k in list_keys and i < len(r[k])
+                               else r[k])
+                           for k in r if k != "timestamp"}
+                    row["timestamp"] = now_iso
+                    exploded.append(row)
+            else:
+                r["timestamp"] = now_iso
+                exploded.append(r)
+        recs = exploded
     if schema.get("decimal_comma"):
         # European decimal commas ("1.234,56" / "1,395") -> dot decimals, so
         # the numeric gate and downstream casts see real numbers (Spanish

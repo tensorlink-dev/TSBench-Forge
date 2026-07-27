@@ -623,3 +623,32 @@ def test_decimal_comma():
     assert recs[1]["v"] == "0.899"
     # timestamps and plain values untouched
     assert recs[0]["timestamp"] == "2026-07-26"
+
+
+def test_snapshot_now():
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"record_path_unused": None, "timestamp_field": "none",
+                      "value_field": ["trains[].late"], "snapshot_now": True}}
+    import json as _json
+    blob = _json.dumps({"trains": [{"late": 3}, {"late": 0}]}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert len(recs) == 2
+    now = scraper.dt.datetime.now(scraper.UTC)
+    for r in recs:
+        got = scraper.dt.datetime.fromisoformat(r["timestamp"]).replace(tzinfo=scraper.UTC)
+        assert abs((now - got).total_seconds()) < 60
+
+
+def test_snapshot_now_panel_explode():
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"value_field": ["trains[].late"],
+                      "panel_field": "trains[].trainno",
+                      "snapshot_now": True}}
+    import json as _json
+    blob = _json.dumps({"trains": [{"late": 3, "trainno": "501"},
+                                   {"late": 0, "trainno": "502"}]}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert len(recs) == 2
+    assert recs[0]["_panel_trainno"] == "501" and recs[0]["late"] == 3
+    assert recs[1]["_panel_trainno"] == "502"
+    assert recs[0]["timestamp"] == recs[1]["timestamp"]
