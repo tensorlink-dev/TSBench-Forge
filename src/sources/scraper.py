@@ -1296,6 +1296,22 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
                         m = val_c.search(v)
                         if m:
                             r[k] = m.group(1)
+    where = schema.get("where")
+    if where:
+        # Keep only rows matching every {field: value} pair. Feeds often
+        # interleave several series in one response — Malaysia's fuel prices
+        # return `level` and `change_weekly` rows on the SAME dates, which
+        # collide into one timestamp with two meanings. The discriminator is a
+        # field rather than the timestamp, so timestamp_pattern cannot express
+        # it; name the field in panel_field to carry it into the row, and match
+        # here on either the bare or the _panel_-prefixed name.
+        def _keeps(row: dict) -> bool:
+            for field, want in where.items():
+                got = row.get(field, row.get("_panel_" + field))
+                if str(got) != str(want):
+                    return False
+            return True
+        recs = [r for r in recs if _keeps(r)]
     pattern = schema.get("timestamp_pattern")
     if pattern:
         # Keep only rows whose timestamp matches. Some publishers stack several

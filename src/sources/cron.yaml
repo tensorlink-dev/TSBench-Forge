@@ -104,6 +104,7 @@ schedules:
   - gbfs_madison_bcycle_station_status
   - irishrail_current_train_positions
   - eccc_hydrometric_realtime_water_level
+  - taipower_generation_by_unit_10min
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -297,6 +298,7 @@ schedules:
   - elia_total_load_15min
   - digitraffic_finland_port_calls_hourly
   - npra_norway_traffic_volume_hourly
+  - colombia_xm_hourly_spot_price
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -593,6 +595,9 @@ schedules:
   - cpc_population_weighted_hdd_daily
   - cpc_population_weighted_cdd_daily
   - uk_weekly_road_fuel_prices
+  - malaysia_retail_fuel_prices_weekly
+  - tor_relay_users_daily
+  - cran_package_downloads_daily
   cron: 10 1 * * *
 - every: P1D
   sources:

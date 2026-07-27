@@ -19764,3 +19764,110 @@
     value_field:
     - ULSP (Ultra low sulphur unleaded petrol) Pump price in pence/litre
     - ULSD (Ultra low sulphur diesel) Pump price in pence/litre
+
+# -- wired batch: wave16b-newproviders --
+- id: malaysia_retail_fuel_prices_weekly
+  name: Malaysia weekly retail fuel prices, RON95/RON97/diesel
+  domain: energy
+  frequency: P1W
+  audit_slack_days: 45
+  license: Open Data Malaysia (data.gov.my) - CC-BY 4.0
+  notes: Weekly Malaysian pump-price ceilings in MYR per litre for RON95, RON97 and diesel, set by the government
+    each week since 2017. The feed interleaves level and change_weekly rows on the SAME dates, so schema.where
+    keeps the levels; without it every date carries two different meanings. First Malaysian source in the
+    catalog.
+  endpoint:
+    url: https://api.data.gov.my/data-catalogue/?id=fuelprice
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field:
+    - '[].ron95'
+    - '[].ron97'
+    - '[].diesel'
+    panel_field: '[].series_type'
+    where:
+      series_type: level
+- id: colombia_xm_hourly_spot_price
+  name: Colombia XM hourly electricity spot (bolsa) price
+  domain: energy
+  frequency: PT1H
+  audit_slack_days: 10
+  license: XM / SIMEM Colombia open data
+  notes: Hourly Colombian wholesale electricity price in COP/kWh from the SIMEM public dataset EC6945, panelled
+    by price variable (national bolsa, TIE, and the reconciliation series). Rolling 7-day window via date
+    tokens. First Colombian source in the catalog.
+  endpoint:
+    url: https://www.simem.co/backend-files/api/PublicData?startDate={YYYY-MM-DD-7d}&endDate={YYYY-MM-DD}&datasetId=EC6945
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].FechaHora
+    value_field:
+    - result.records[].Valor
+    panel_field: result.records[].CodigoVariable
+- id: taipower_generation_by_unit_10min
+  name: Taiwan TaiPower real-time generation by generating unit
+  domain: energy
+  frequency: PT10M
+  audit_slack_days: 3
+  license: Taipower open data (Taiwan government open data licence)
+  notes: Live output in MW for every Taipower generating unit - roughly 195 units across gas, coal, nuclear,
+    hydro, wind, solar and battery - refreshed every 10 minutes. Field names are Chinese; the panel key
+    is the unit name and the value is net generation. A snapshot payload with one top-level DateTime beside
+    the unit array. First Taiwanese source in the catalog.
+  endpoint:
+    url: https://service.taipower.com.tw/data/opendata/apply/file/d006001/001.json
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: DateTime
+    value_field:
+    - aaData[].淨發電量(MW)
+    panel_field: aaData[].機組名稱
+- id: tor_relay_users_daily
+  name: Tor Project estimated daily users connecting via relays
+  domain: web_cloudops
+  frequency: P1D
+  audit_slack_days: 14
+  license: Tor Project metrics - CC0
+  notes: Estimated number of daily Tor users worldwide, derived by the Tor Project from directory-request
+    counts. A rolling one-year window via date tokens. A genuine internet-measurement series from a provider
+    not otherwise in the catalog; responds visibly to censorship events.
+  endpoint:
+    url: https://metrics.torproject.org/userstats-relay-country.csv?start={YYYY-MM-DD-365d}&end={YYYY-MM-DD}&country=all&events=off
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: date
+    value_field:
+    - users
+- id: cran_package_downloads_daily
+  name: CRAN daily package downloads (R ecosystem)
+  domain: web_cloudops
+  frequency: P1D
+  audit_slack_days: 10
+  license: cranlogs.r-pkg.org public API (RStudio CRAN mirror logs)
+  notes: Daily download counts from the RStudio CRAN mirror for widely-used R packages, panelled by package.
+    Distinct ecosystem from the wired npm/PyPI/crates.io/RubyGems feeds - R usage is academic and weekday-seasonal
+    in a different way. Rolling 180-day window.
+  endpoint:
+    url: https://cranlogs.r-pkg.org/downloads/daily/{YYYY-MM-DD-180d}:{YYYY-MM-DD}/{PACKAGE}
+    type: rest_json
+    timeout: 90
+  panel:
+  - PACKAGE: ggplot2
+  - PACKAGE: dplyr
+  - PACKAGE: data.table
+  - PACKAGE: shiny
+  - PACKAGE: tidyr
+  - PACKAGE: stringr
+  - PACKAGE: lubridate
+  - PACKAGE: caret
+  - PACKAGE: rmarkdown
+  - PACKAGE: knitr
+  schema:
+    timestamp_field: '[].downloads[].day'
+    value_field:
+    - '[].downloads[].downloads'

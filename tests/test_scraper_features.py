@@ -882,3 +882,27 @@ def test_indexed_value_paths_get_clean_column_names():
                         "states": [["a", "b", 0, 0, 0, 0, 40.6, 0, 0, 4.6]]}).encode()
     recs = scraper.parse_payload(src, blob, "application/json")
     assert recs[0]["states_6"] == 40.6 and recs[0]["states_9"] == 4.6
+
+
+def test_where_keeps_only_matching_rows():
+    """Malaysia's fuel feed returns level and change_weekly rows on one date."""
+    import json as _json
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "[].date", "value_field": ["[].ron95"],
+                      "panel_field": "[].series_type",
+                      "where": {"series_type": "level"}}}
+    blob = _json.dumps([
+        {"date": "2026-07-23", "ron95": 3.62, "series_type": "level"},
+        {"date": "2026-07-23", "ron95": 0.20, "series_type": "change_weekly"},
+    ]).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert len(recs) == 1 and recs[0]["ron95"] == 3.62
+
+
+def test_where_matches_plain_columns_too():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "t", "value_field": ["v", "kind"],
+                      "where": {"kind": "actual"}}}
+    text = "t,v,kind\n2026-07-01,1,actual\n2026-07-01,9,forecast\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert [r["v"] for r in recs] == ["1"]
