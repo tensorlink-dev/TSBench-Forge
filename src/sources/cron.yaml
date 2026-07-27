@@ -218,6 +218,7 @@ schedules:
   - elexon_gb_market_index_30min
   - calgary_traffic_incidents_30min
   - austin_traffic_incidents_30min
+  - miteco_fuel_prices_madrid
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -496,6 +497,19 @@ schedules:
   - scb_sweden_retail_sales_index_monthly
   - dst_denmark_retail_index_monthly
   - cbs_netherlands_internet_retail_turnover_monthly
+  - dgeg_fuel_price_daily_avg_pt
+  - worldbank_pink_sheet_crude_monthly
+  - usda_dairy_nonfat_dry_milk_weekly
+  - cso_ireland_online_retail_turnover_monthly
+  - insee_france_industrial_production_monthly
+  - cdc_respnet_hospitalization_rates_weekly
+  - cdc_nchs_pic_deaths_weekly
+  - cpc_daily_pna_index
+  - cpc_daily_aao_index
+  - usgs_mississippi_water_temperature_daily
+  - cftc_cot_disaggregated_gold_weekly
+  - cftc_tff_emini_sp500_weekly
+  - treasury_dts_deposits_withdrawals_daily
   cron: 10 1 * * *
 - every: P1D
   sources:
