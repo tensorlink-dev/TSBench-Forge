@@ -19871,3 +19871,336 @@
     timestamp_field: '[].downloads[].day'
     value_field:
     - '[].downloads[].downloads'
+
+# -- wired batch: wave16 --
+- id: destatis_truck_toll_mileage_index_daily
+  name: Destatis daily truck-toll mileage index (Lkw-Maut-Fahrleistungsindex)
+  domain: transport
+  frequency: P1D
+  audit_slack_days: 55
+  license: Destatis Data licence Germany - attribution - version 2.0 (dl-de/by-2-0)
+  notes: Germany-wide daily heavy-goods-vehicle mileage index (2021=100) derived from toll gantry data;
+    sheet 42191-b01 is the wide table, 3 preamble rows above the header. Value column is the unadjusted
+    (unbereinigt) index; workbook also carries KSB-adjusted and 7-day-average columns.
+  endpoint:
+    url: https://www.destatis.de/DE/Themen/Branchen-Unternehmen/Industrie-Verarbeitendes-Gewerbe/Publikationen/Downloads-Konjunktur/statistischer-bericht-lkw-maut-fahrleistungsindex-5421901.xlsx?__blob=publicationFile
+    type: rest_xlsx
+    timeout: 90
+  schema:
+    sheet: 42191-b01
+    skip_rows: 3
+    timestamp_pattern: ^\d{4}-\d{2}-\d{2}
+    timestamp_field: Datum
+    value_field:
+    - unbereinigt
+- id: mesa_az_fire_medical_dispatch_halfhour
+  name: Mesa AZ fire & medical dispatch events (half-hourly call count)
+  domain: healthcare
+  frequency: PT30M
+  audit_slack_days: 46
+  license: City of Mesa Open Data (public domain / open use)
+  notes: Mesa Fire and Medical Department CAD incidents; per-event rows aggregated into half-hourly emergency-call
+    counts on call_received_datetime. Socrata SoQL, no key required for modest volumes.
+  endpoint:
+    url: https://data.mesaaz.gov/resource/3wic-ufd2.json?$select=call_received_datetime&$order=call_received_datetime%20DESC&$limit=3000
+    type: rest_json
+  schema:
+    timestamp_field: call_received_datetime
+    aggregate:
+      op: count
+      bin: PT30M
+- id: mesa_az_police_dispatch_halfhour
+  name: Mesa AZ police dispatch events (half-hourly call count)
+  domain: healthcare
+  frequency: PT30M
+  audit_slack_days: 47
+  license: City of Mesa Open Data (public domain / open use)
+  notes: Mesa Police Department CAD events 2021-present; per-event rows aggregated into half-hourly dispatch
+    counts on received_date_time. Distinct series from the Mesa fire/medical CAD feed (different department,
+    different dataset id). Rows with a null received time are filtered out, otherwise Socrata sorts them
+    first.
+  endpoint:
+    url: https://data.mesaaz.gov/resource/izhu-764k.json?$select=received_date_time&$where=received_date_time%20IS%20NOT%20NULL&$order=received_date_time%20DESC&$limit=3000
+    type: rest_json
+  schema:
+    timestamp_field: received_date_time
+    aggregate:
+      op: count
+      bin: PT30M
+- id: montgomery_md_police_dispatch_halfhour
+  name: Montgomery County MD police dispatched incidents (half-hourly call count)
+  domain: healthcare
+  frequency: PT30M
+  audit_slack_days: 46
+  license: Public domain (Montgomery County MD open data)
+  notes: Montgomery County (MD) Police CAD dispatched incidents (98cc-bc7d, refreshed multiple times daily);
+    per-incident rows aggregated into half-hourly dispatch counts on start_time. Timestamps are local Eastern
+    time.
+  endpoint:
+    url: https://data.montgomerycountymd.gov/resource/98cc-bc7d.json?$select=start_time&$order=start_time%20DESC&$limit=3000
+    type: rest_json
+  schema:
+    timestamp_field: start_time
+    aggregate:
+      op: count
+      bin: PT30M
+- id: montgomery_md_fire_rescue_dispatch_halfhour
+  name: Montgomery County MD fire & rescue incidents (half-hourly incident count)
+  domain: healthcare
+  frequency: PT30M
+  audit_slack_days: 47
+  license: Public domain (Montgomery County MD open data)
+  notes: MCFRS fire/rescue/EMS incidents by station (v68m-9rt9); the dataset splits the stamp across a date
+    and a time column, so SoQL concatenates them into ts before half-hourly counting. Distinct series from
+    the county police CAD dataset (different department and dataset id). Timestamps local Eastern.
+  endpoint:
+    url: https://data.montgomerycountymd.gov/resource/v68m-9rt9.json?$select=substring(date::text,1,10)
+      || 'T' || time AS ts&$order=ts DESC&$limit=3000
+    type: rest_json
+  schema:
+    timestamp_field: '[].ts'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT30M
+- id: baton_rouge_fire_incidents_hourly
+  name: Baton Rouge Fire Department incidents (hourly incident count)
+  domain: healthcare
+  frequency: PT1H
+  audit_slack_days: 50
+  license: Public domain (City of Baton Rouge / Parish of East Baton Rouge open data)
+  notes: BRFD dispatched fire/rescue incidents (dakq-4sda); dispatch date and time live in separate columns
+    so SoQL concatenates them into ts before hourly counting. Timestamps local Central.
+  endpoint:
+    url: https://data.brla.gov/resource/dakq-4sda.json?$select=substring(disp_date::text,1,10) || 'T' ||
+      disp_time AS ts&$order=ts DESC&$limit=3000
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: '[].ts'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1H
+- id: waterlevel_ie_opw_hydrometric_15min
+  name: Ireland OPW hydrometric network — river water level (15-min, 6 gauges)
+  domain: nature
+  frequency: PT15M
+  audit_slack_days: 45
+  license: Creative Commons Attribution 4.0 (OPW / EPA hydrometric open data, waterlevel.ie)
+  notes: Office of Public Works river gauges; each per-station CSV holds ~30 days of 15-minute stage readings
+    in metres. Station files are named <5-digit station>_0001.csv (sensor 0001 = water level). A live station
+    index with the current reading for ~2000 sensors is at https://waterlevel.ie/geojson/latest/.
+  endpoint:
+    url: https://waterlevel.ie/data/month/{STATION}_0001.csv
+    type: rest_csv
+    timeout: 60
+  panel:
+  - STATION: '01041'
+  - STATION: '03055'
+  - STATION: '06011'
+  - STATION: '06021'
+  - STATION: '06060'
+  - STATION: '01043'
+  schema:
+    timestamp_field: datetime
+    value_field:
+    - value
+- id: simem_colombia_spot_price_hourly
+  name: XM/SIMEM Colombia — hourly electricity spot (bolsa) price
+  domain: energy
+  frequency: PT1H
+  audit_slack_days: 49
+  license: XM S.A. E.S.P. SIMEM open data (public, free reuse with attribution)
+  notes: Colombian wholesale market hourly spot price (Precio de bolsa, COP/kWh), dataset EC6945 on SIMEM.
+    CodigoVariable splits national (PB_Nal), international (PB_Int) and TIE (PB_Tie) price variants into
+    a panel. Publication lags settlement by ~3-4 days, so the URL requests a 25-day trailing window.
+  endpoint:
+    url: https://www.simem.co/backend-files/api/PublicData?startDate={YYYY-MM-DD-25d}&endDate={YYYY-MM-DD}&datasetId=EC6945
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].FechaHora
+    value_field:
+    - result.records[].Valor
+    panel_field: result.records[].CodigoVariable
+- id: statcan_aircraft_movements_weekly
+  name: StatCan — itinerant aircraft movements, all NAV CANADA airports, weekly
+  domain: transport
+  frequency: P1W
+  audit_slack_days: 200
+  license: Statistics Canada Open Licence
+  notes: 'Weekly domestic + international itinerant aircraft movements across all airports with NAV CANADA
+    services (table 23-10-0287). Weekly cube (frequencyCode 2), distinct from the wired monthly cube 23-10-0302
+    and the wired rail/airline-passenger cubes on the same WDS host. GOTCHA: StatCan releases this weekly
+    cube in slow batches - at probe the newest reference week was 2026-03-07 (last release 2026-03-25),
+    a 143-day lag, hence the wide audit slack. Coordinate 1.1.0.0.0.0.0.0.0.0 = Canada, domestic movements.'
+  endpoint:
+    url: https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods
+    type: rest_json
+    method: POST
+    body:
+    - productId: 23100287
+      coordinate: 1.1.0.0.0.0.0.0.0.0
+      latestN: 200
+  schema:
+    timestamp_field: '[].object.vectorDataPoint[].refPer'
+    value_field:
+    - '[].object.vectorDataPoint[].value'
+- id: packagist_php_release_rate
+  name: Packagist (PHP Composer) new package releases — per-minute publish rate
+  domain: web_cloudops
+  frequency: PT1M
+  audit_slack_days: 45
+  license: Packagist public RSS feed (packagist.org, open data)
+  notes: 'PHP package-release firehose: the New Releases RSS carries the ~40 most recent Composer package
+    releases (about one hour of activity), binned into per-minute release counts. Poll at least hourly or
+    the window slides past unseen releases.'
+  endpoint:
+    url: https://packagist.org/feeds/releases.rss
+    type: rss
+  schema:
+    timestamp_field: pubDate
+    aggregate:
+      op: count
+      bin: PT1M
+- id: openbeautyfacts_product_additions
+  name: Open Beauty Facts — new cosmetic product additions (hourly rate)
+  domain: sales
+  frequency: PT1H
+  audit_slack_days: 47
+  license: Open Database License (ODbL) — Open Beauty Facts
+  notes: Community cosmetics database; the search API returns the 100 most recently created products with
+    a unix created_t, binned to hourly addition counts. Sibling project of the wired Open Food Facts source
+    but a separate host, database and product universe.
+  endpoint:
+    url: https://world.openbeautyfacts.org/api/v2/search?fields=code,created_t&sort_by=created_t&page_size=100
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: products[].created_t
+    aggregate:
+      op: count
+      bin: PT1H
+- id: ripestat_country_resource_stats_weekly
+  name: RIPEstat — announced IPv4/IPv6 prefixes and ASNs per country (weekly)
+  domain: web_cloudops
+  frequency: P1W
+  audit_slack_days: 52
+  license: RIPE NCC open data (RIPEstat Data API terms, free reuse)
+  notes: Weekly count of routed IPv4/IPv6 prefixes and ASNs registered/announced for a country (resource=NL).
+    Distinct RIPEstat data call from the wired announced-prefixes, bgp-updates and routing-history sources
+    (country aggregates, not per-AS). Fields with -1 mean "not measured" and should be dropped.
+  endpoint:
+    url: https://stat.ripe.net/data/country-resource-stats/data.json?resource=NL&resolution=1w&starttime={YYYY-MM-DD-720d}
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: data.stats[].stats_date
+    value_field:
+    - data.stats[].v4_prefixes_ris
+    - data.stats[].v6_prefixes_ris
+    - data.stats[].asns_ris
+- id: who_fluid_ili_weekly
+  name: WHO FluID — weekly influenza-like-illness cases and outpatient consultations by country
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 52
+  license: WHO open data (FluNet/FluID, free reuse with attribution)
+  notes: 'WHO FluID syndromic surveillance: weekly ILI case counts and outpatient denominators per reporting
+    country, all age groups. Distinct xMart table from the wired VIW_FNT virological (FluNet) source — clinical
+    syndromic counts rather than specimens tested. Countries report irregularly, so null values occur and
+    should be dropped.'
+  endpoint:
+    url: https://xmart-api-public.who.int/FLUMART/VIW_FID_EPI?$filter=ISO_YEAR%20ge%202026%20and%20AGEGROUP_CODE%20eq%20'All'&$orderby=ISO_WEEKSTARTDATE%20desc&$top=6000&$select=COUNTRY_CODE,ISO_WEEKSTARTDATE,ILI_CASE,ILI_OUTPATIENTS&$format=json
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: value[].ISO_WEEKSTARTDATE
+    value_field:
+    - value[].ILI_CASE
+    - value[].ILI_OUTPATIENTS
+    panel_field: value[].COUNTRY_CODE
+    drop_null_values: true
+- id: gistemp_global_monthly_anomaly
+  name: NASA GISTEMP v4 — global monthly mean surface temperature anomaly
+  domain: nature
+  frequency: P1M
+  audit_slack_days: 130
+  license: Public domain (NASA GISS, GISTEMP v4)
+  notes: Global monthly land+ocean, land-only, open-ocean and station-only temperature anomalies vs the
+    1951-1980 base, from the GISTEMP v4 graph data CSV. One title line sits above the header. Timestamps
+    arrive as decimal years (2026.46 = 2026-06); the scraper converts them to ISO month starts for years
+    >= 1900, so the 1880-1899 head rows stay as raw decimals.
+  endpoint:
+    url: https://data.giss.nasa.gov/gistemp/graphs_v4/graph_data/Monthly_Mean_Global_Surface_Temperature/graph.csv
+    type: rest_csv
+    timeout: 60
+  schema:
+    skip_rows: 1
+    timestamp_field: Year+Month
+    value_field:
+    - Land+Ocean
+    - Land_Only
+    - Open_Ocean
+- id: steam_top_games_concurrent_players
+  name: Steam — live concurrent players across the top-100 most-played games
+  domain: sales
+  frequency: PT5M
+  audit_slack_days: 45
+  license: Steam Web API terms (keyless public endpoint)
+  notes: 'ISteamChartsService/GetGamesByConcurrentPlayers returns the current live leaderboard: rank, appid,
+    concurrent_in_game and 24h peak for the top ~100 titles, with one last_update epoch per fetch broadcast
+    across the panel. Distinct endpoint from the wired GetNumberOfCurrentPlayers source, which polls a single
+    hard-coded appid; this one is a 100-entity panel snapshot, so poll fast to build history.'
+  endpoint:
+    url: https://api.steampowered.com/ISteamChartsService/GetGamesByConcurrentPlayers/v1/
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: response.last_update
+    value_field:
+    - response.ranks[].concurrent_in_game
+    - response.ranks[].peak_in_game
+    panel_field: response.ranks[].appid
+- id: montgomery_md_traffic_crashes_hourly
+  name: Montgomery County MD police-reported traffic crashes (hourly crash count)
+  domain: transport
+  frequency: PT1H
+  audit_slack_days: 50
+  license: Public domain (Montgomery County MD open data)
+  notes: 'ACRS police crash reports for Montgomery County and municipal agencies (bhju-22kf), binned to
+    hourly crash counts on crash_date_time. Distinct dataset from the county police CAD and fire/rescue
+    CAD feeds on the same portal: these are filed crash reports, not dispatch events. Timestamps local Eastern.'
+  endpoint:
+    url: https://data.montgomerycountymd.gov/resource/bhju-22kf.json?$select=crash_date_time&$order=crash_date_time%20DESC&$limit=3000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: crash_date_time
+    aggregate:
+      op: count
+      bin: PT1H
+
+# -- wired batch: wave16-aeso --
+- id: aeso_alberta_pool_price_ail_hourly
+  name: AESO Alberta — hourly pool price and internal load (actual vs forecast)
+  domain: energy
+  frequency: PT1H
+  audit_slack_days: 46
+  license: AESO public market reports (ETS), free use with attribution
+  notes: 'Alberta Electric System Operator Actual/Forecast report: hourly pool price (CAD/MWh) and Alberta
+    Internal Load (MW), actual and forecast. CSV has 4 preamble lines above the header. Date column is MM/DD/YYYY
+    plus hour-ENDING 01-24; the report caps at 31 days so the URL windows from the 1st of the current month
+    to today (MM/DD/YYYY built from {MM}{DD}{YYYY}). The AIL (load) columns carry thousands separators so
+    only the two price columns are taken as values.'
+  endpoint:
+    url: http://ets.aeso.ca/ets_web/ip/Market/Reports/ActualForecastWMRQHReportServlet?contentType=csv&beginDate={MM}01{YYYY}&endDate={MM}{DD}{YYYY}
+    type: rest_csv
+    timeout: 90
+  schema:
+    skip_rows: 4
+    timestamp_field: Date
+    value_field:
+    - Actual Posted Pool Price
+    - Forecast Pool Price

@@ -63,7 +63,8 @@ _QUARTER_RE = re.compile(r"^(\d{4})[- ]?[QK](\d)$")   # 2026Q2 / 2026-Q2 / "2026
 _YM_LABEL_RE = re.compile(r"^(\d{4})M{1,2}(\d{1,2})$")
 # ISO week labels: ECB SDMX "2026-W22", some statbanks "2026W22"
 _ISOWEEK_RE = re.compile(r"^(\d{4})-?W(\d{1,2})$")
-_SLASH_DMY_RE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")
+# Optional trailing hour is hour-ENDING 1..24 (AESO ETS: "07/26/2026 24")
+_SLASH_DMY_RE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})(?:[ T](\d{1,2}))?$")
 # NGA NAVAREA broadcast warnings, military date-time group: "010012Z APR 2023"
 _DTG_RE = re.compile(r"^(\d{2})(\d{2})(\d{2})Z ([A-Za-z]{3}) (\d{4})$")
 # DEFRA AURN hourly: "31-05-2026 24:00" — hour-ending 24 means midnight next day
@@ -118,13 +119,15 @@ def parse_ts(raw: object) -> Optional[dt.datetime]:
         # swap) beats a false alarm (bcb's 01/06/2026 read month-first looked
         # 6 months stale).
         horizon = dt.datetime.now(UTC) + dt.timedelta(days=31)
+        hour = int(m.group(4)) if m.group(4) else 0
         cands = []
         for month, day in {(a, b), (b, a)}:
             try:
                 got = dt.datetime(y, month, day, tzinfo=UTC)
             except ValueError:
                 continue
-            cands.append(got)
+            # hour-ending 1..24 -> the hour that just closed; 24 rolls over
+            cands.append(got + dt.timedelta(hours=max(hour - 1, 0)))
         past = [c for c in cands if c <= horizon]
         return max(past) if past else (min(cands) if cands else None)
     m = _DTG_RE.match(s)

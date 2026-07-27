@@ -325,3 +325,14 @@ def test_parse_ts_dateless_strings_stay_none() -> None:
     # Time-of-day only (BART) and month-day only (GLERL) cannot yield a date.
     assert audit.parse_ts("05:02:47 PM PDT") is None
     assert audit.parse_ts("01-01") is None
+
+
+def test_parse_ts_slash_date_with_hour_ending() -> None:
+    """AESO's ETS reports put date and hour-ending 1..24 in one column."""
+    assert audit.parse_ts("07/26/2026 24") == dt.datetime(2026, 7, 26, 23, tzinfo=UTC)
+    assert audit.parse_ts("07/26/2026 01") == dt.datetime(2026, 7, 26, 0, tzinfo=UTC)
+    # the bare form is unchanged, and a real clock time still takes the
+    # strptime path rather than being read as an hour-ending
+    assert audit.parse_ts("07/26/2026") == dt.datetime(2026, 7, 26, tzinfo=UTC)
+    assert audit.parse_ts("07/26/2026 14:05:00") == \
+        dt.datetime(2026, 7, 26, 14, 5, tzinfo=UTC)
