@@ -2780,6 +2780,7 @@
 
     '
 - id: nyc_mta_subway_hourly
+  audit_slack_days: 21  # MTA posts hourly ridership in weekly batches
   name: NYC MTA subway — hourly ridership (station × hour panel, 2025+)
   domain: transport
   dgp_class: urban_transit_ridership
@@ -6939,6 +6940,7 @@
     measurement_count values (59 distinct, strong variance), max ts 2026-07-24 (1 day old). Tokenized
     since/u
 - id: open_meteo_berlin_direct_radiation
+  audit_slack_days: 12  # ERA5 archive publishes with a ~5d lag and the window ends at -5d
   name: Open-Meteo Archive API — ERA5 hourly direct solar radiation (5-location pan
   domain: energy
   dgp_class: weather
@@ -7125,6 +7127,8 @@
   notes: 'Autosearch grind wire. Plain rest_json GET; array of 516 versions each with distinct created_at
     (480 distinct) + numeric downloads_count. Verified with real scraper: 516 rows, numeric.'
 - id: ons_retail_sales_index
+  disabled: true
+  disabled_reason: '2026-07-27: dead upstream — static.ons.gov.uk stopped publishing this file at v45 (v46-v50 all 404) and its newest observation is 2026-01, 207 days old for a monthly series. ONS moved to per-series delivery; the headline volume index is now wired as ons_retail_sales_volume_monthly off the series generator CSV. Re-enable only if a versioned panel CSV reappears.'
   name: UK ONS Monthly Retail Sales Index (all series)
   domain: sales
   dgp_class: retail_index
@@ -7181,7 +7185,7 @@
     series is used instead). value_field is msgNumber (per-year message sequence). 386 rows / 385 distinct
     at verification.
 - id: eurostat_hicp_ea_annual_rate
-  audit_slack_days: 300  # 2026 ECOICOP-2/rebase migration stalled all prc_hicp_* at 2025-12; see eurostat_hicp_germany_monthly
+  audit_slack_days: 130  # HICP for month M prints mid-M+1 (flash) / M+1 (final)
   name: eurostat_hicp_euro_area_annual_rate
   domain: econ_fin
   dgp_class: price_index
@@ -7190,7 +7194,7 @@
   frequency: P1M
   endpoint:
     type: rest_csv
-    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_manr/M.RCH_A.CP00.EA?format=SDMX-CSV
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_minr/M.RCH_A.TOTAL.EA?format=SDMX-CSV
     auth: none
     rate_limit: null
   schema:
@@ -8778,7 +8782,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://api.ransomware.live/v2/victims/2025
+    url: https://api.ransomware.live/v2/victims/{YYYY}
     auth: none
     rate_limit: null
   schema:
@@ -8945,6 +8949,7 @@
     value is positional-index sensordatavalues[1].value (P2/PM2.5 for the SDS011 majority; a handful of
     single-value sensor models yield null there).'
 - id: open_meteo_era5_soil_moisture
+  audit_slack_days: 12  # ERA5 archive publishes with a ~5d lag and the window ends at -5d
   name: Open-Meteo Archive API — ERA5 hourly soil moisture (3 depth layers, Berlin)
   domain: nature
   dgp_class: weather
@@ -9007,6 +9012,7 @@
     all numeric at verification. NOTE: BIS v2 needs ?format=csv (JSON needs an Accept header the scraper
     can''t send; XML default returns 406/uses Accept negotiation).'
 - id: cdc_nssp_ed_respiratory_daily
+  audit_slack_days: 21  # NSSP daily counts are released in a weekly refresh
   name: CDC NSSP Emergency Department Respiratory Daily (US national, by pathogen)
   domain: healthcare
   dgp_class: syndromic_surveillance
@@ -9257,6 +9263,7 @@
   notes: 'Feature: {NAPTAN} URL-token panel -> top-level panel: list; single-value snapshot API so timestamp_field:''''
     (now() stamped per poll). Paneled snapshot: 24 numeric entities verified against real scraper.'
 - id: github_actions_workflow_runs_k8s
+  audit_slack_days: 10  # repo can go quiet over a holiday week
   name: GitHub Actions workflow-run events (kubernetes/kubernetes)
   domain: web_cloudops
   dgp_class: event_stream
@@ -9898,7 +9905,7 @@
   license: Public domain (US FDA openFDA)
   notes: Veterinary pharmacovigilance — a distinct reporting population from human drug events.
 - id: openfda_tobacco_problem_reports_daily
-  audit_slack_days: 200  # openFDA/FDA data files refresh quarterly + reporting lag
+  audit_slack_days: 300  # openFDA tobacco reports refresh quarterly, not daily
   name: openFDA — tobacco product problem reports per day
   domain: healthcare
   dgp_class: adverse_event_stream
@@ -12304,7 +12311,7 @@
   frequency: P1M
   endpoint:
     type: rest_json
-    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_midx/M.I15.CP00.DE?format=JSON&lastTimePeriod=240
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?format=JSON&lastTimePeriod=120&geo=DE&unit=I25&coicop18=TOTAL
     auth: none
     rate_limit: null
   schema:
@@ -12316,11 +12323,11 @@
   pretraining_novelty: contaminated
   novelty_notes: Euro-area HICP is a headline macro series.
   license: Eurostat — free reuse with attribution
-  notes: 'JSON-stat 2.0 auto-detected. Path-filtered (M.I15.CP00.DE) rather than query-filtered
-    — the query form returns the whole 86 MB dataflow and trips the response cap. UPSTREAM
-    STALL (checked 2026-07-26): all prc_hicp_* flows AND the ECB mirror end at 2025-12 — the
-    2026 ECOICOP-2/rebase migration has paused index publication. Not a config bug; expected
-    to resume. If a successor dataflow appears (no PRC_HICP_MIDX2 exists yet), repoint here.'
+  notes: 'JSON-stat 2.0 auto-detected. Repointed 2026-07-27 after the stall noted below resolved: the
+    old prc_hicp_midx flow (and the ECB ICP mirror) stop at 2025-12 for good — HICP migrated to ECOICOP
+    ver.2 and rebased to 2025=100. The successor flow is prc_hicp_minr, where the classification
+    dimension is coicop18 (TOTAL, not CP00) and the index unit is I25. Query-filtered on
+    geo+unit+coicop18, which keeps the response ~10KB; unfiltered the flow is 22MB.'
 - id: ukhsa_covid_cases_daily
   name: UKHSA — COVID-19 cases by specimen day, England
   domain: healthcare
@@ -13669,7 +13676,7 @@
     a current SSB unemployment table id; the other three SSB tables wired here (CPI, house prices, household
     electricity price) are live.'
 - id: ssb_norway_electricity_price_for_households
-  audit_slack_days: 160  # quarterly stats publication lag
+  audit_slack_days: 260  # quarterly label is the quarter START and SSB posts ~2 months after quarter end
   name: Statistics Norway — electricity price for households (table 09387, JSON-stat)
   domain: energy
   dgp_class: electricity_price
