@@ -290,6 +290,58 @@ def test_apply_disables_only_hard_stale_and_validates(tmp_path) -> None:
     assert "disabled" not in entries["soft_stale"]
 
 
+def test_future_dated_row_cannot_hide_a_dead_source(tmp_path) -> None:
+    """The failure this guards against is silent and permanent: one row with a
+    typo'd year pins the maximum timestamp ahead of now, so `now - newest` is
+    negative and the source reads as fresh forever, however long it has actually
+    been dead. Freshness must come from the newest REAL observation."""
+    now = dt.datetime(2026, 7, 26, tzinfo=UTC)
+    data = tmp_path / "data"
+    _write_parquet(data, "typo_src", ["2026-01-01T00:00:00", "2036-12-20T10:16:00"])
+    cat = _catalog_file(tmp_path, [{"id": "typo_src", "frequency": "P1D"}])
+    by_id = {f["id"]: f for f in audit.audit_catalog(cat, data, now=now)}
+    assert by_id["typo_src"]["status"] == "stale"
+    assert by_id["typo_src"]["newest"].startswith("2026-01-01")
+
+
+def test_forecast_horizon_keeps_day_ahead_feeds_fresh(tmp_path) -> None:
+    """Day-ahead prices and scheduled generation legitimately publish ahead of
+    now, so future stamps cannot simply be dropped — only ones past the horizon."""
+    now = dt.datetime(2026, 7, 26, tzinfo=UTC)
+    data = tmp_path / "data"
+    _write_parquet(data, "day_ahead", ["2026-07-25T00:00:00", "2026-07-27T23:00:00"])
+    cat = _catalog_file(tmp_path, [{"id": "day_ahead", "frequency": "PT1H"}])
+    by_id = {f["id"]: f for f in audit.audit_catalog(cat, data, now=now)}
+    assert by_id["day_ahead"]["status"] == "ok"
+    assert by_id["day_ahead"]["newest"].startswith("2026-07-27")
+
+
+def test_all_future_rows_reported_as_future_not_unparsed(tmp_path) -> None:
+    """A source publishing nothing but planned dates is broken in a specific
+    way worth naming — 'unparsed' would send the next reader hunting for a
+    timestamp-format bug that isn't there."""
+    now = dt.datetime(2026, 7, 26, tzinfo=UTC)
+    data = tmp_path / "data"
+    _write_parquet(data, "planner", ["2027-01-01T00:00:00", "2027-02-01T00:00:00"])
+    cat = _catalog_file(tmp_path, [{"id": "planner", "frequency": "P1D"}])
+    findings = audit.audit_catalog(cat, data, now=now)
+    by_id = {f["id"]: f for f in findings}
+    assert by_id["planner"]["status"] == "future"
+    assert by_id["planner"]["newest"].startswith("2027-02-01")
+    assert audit.summarize(findings)["future"][0]["id"] == "planner"
+
+
+def test_forecast_horizon_days_override(tmp_path) -> None:
+    now = dt.datetime(2026, 7, 26, tzinfo=UTC)
+    data = tmp_path / "data"
+    _write_parquet(data, "long_range", ["2026-08-20T00:00:00"])   # 25d ahead
+    cat = _catalog_file(tmp_path, [
+        {"id": "long_range", "frequency": "P1D", "forecast_horizon_days": 40},
+    ])
+    by_id = {f["id"]: f for f in audit.audit_catalog(cat, data, now=now)}
+    assert by_id["long_range"]["status"] == "ok"
+
+
 def test_audit_slack_days_override_silences_known_lag(tmp_path) -> None:
     now = dt.datetime(2026, 7, 26, tzinfo=UTC)
     data = tmp_path / "data"

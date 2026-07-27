@@ -35,6 +35,14 @@ import yaml
 
 UTC = dt.timezone.utc
 
+# How far ahead of `now` a timestamp may sit and still count as an observation.
+# Wide enough for the genuine forecast feeds in the catalog (day-ahead prices,
+# scheduled generation, tide predictions run days to a couple of weeks out);
+# narrow enough that a typo'd year or a published planned schedule is caught
+# instead of silently blinding the freshness check. Override per source with
+# `forecast_horizon_days` on the catalog entry.
+DEFAULT_FORECAST_HORIZON_DAYS = 14.0
+
 # Explicit strptime formats tried in order (naive results are assumed UTC).
 _FORMATS = (
     "%Y-%m-%dT%H:%M:%S.%f%z", "%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M%z",
@@ -194,8 +202,16 @@ def staleness_threshold(freq: str) -> dt.timedelta:
     return max(dt.timedelta(seconds=period * 8), dt.timedelta(hours=72))
 
 
-def newest_observation(data_dir: str | Path, sid: str) -> tuple[Optional[dt.datetime], int]:
+def newest_observation(
+    data_dir: str | Path, sid: str, before: Optional[dt.datetime] = None
+) -> tuple[Optional[dt.datetime], int]:
     """(max parsed timestamp in the newest parquet, rows scanned).
+
+    With ``before``, only timestamps at or before that instant are considered.
+    That is how the freshness check defends itself against future-dated rows:
+    one typo'd year, or a feed that publishes a planned schedule, otherwise sets
+    the maximum permanently ahead of ``now`` and the source reads as fresh
+    forever no matter how long it has actually been dead.
 
     Minute-cadence day-files run to 10^5+ rows; per-value strptime over those
     made a full-catalog audit take ~20 min. Fast path: vectorised ISO8601 parse
@@ -217,10 +233,14 @@ def newest_observation(data_dir: str | Path, sid: str) -> tuple[Optional[dt.date
     parsed = pd.to_datetime(uniq, format="ISO8601", utc=True, errors="coerce")
     newest = None
     if parsed.notna().any():
-        newest = parsed.max().to_pydatetime()
+        ok = parsed.dropna()
+        if before is not None:
+            ok = ok[ok <= pd.Timestamp(before)]
+        if len(ok):
+            newest = ok.max().to_pydatetime()
     for v in uniq[parsed.isna()]:
         got = parse_ts(v)
-        if got and (newest is None or got > newest):
+        if got and (before is None or got <= before) and (newest is None or got > newest):
             newest = got
     return newest, nrows
 
@@ -274,13 +294,29 @@ def audit_catalog(catalog_path: str | Path, data_dir: str | Path,
         if src.get("disabled"):
             findings.append({"id": sid, "frequency": freq, "status": "disabled"})
             continue
-        newest, nrows = newest_observation(data_dir, sid)
+        # Forecast feeds (day-ahead prices, scheduled generation) legitimately
+        # carry timestamps ahead of now, so future stamps cannot simply be
+        # dropped. Anything past the horizon is treated as bad data instead:
+        # without this, one typo'd year pins the maximum permanently ahead of
+        # now and the source reads as fresh however long it has been dead.
+        horizon = float(src.get("forecast_horizon_days", DEFAULT_FORECAST_HORIZON_DAYS))
+        newest, nrows = newest_observation(
+            data_dir, sid, before=now + dt.timedelta(days=horizon)
+        )
         if nrows == 0:
             findings.append({"id": sid, "frequency": freq, "status": "nodata"})
             continue
         if newest is None:
-            findings.append({"id": sid, "frequency": freq, "status": "unparsed",
-                             "rows_scanned": nrows})
+            # Distinguish "nothing parseable" from "everything is beyond the
+            # horizon" — the latter is a live source publishing garbage dates.
+            raw, _ = newest_observation(data_dir, sid)
+            status = "future" if raw is not None else "unparsed"
+            f = {"id": sid, "frequency": freq, "status": status,
+                 "rows_scanned": nrows}
+            if raw is not None:
+                f["newest"] = raw.isoformat()
+                f["horizon_days"] = horizon
+            findings.append(f)
             continue
         age = now - newest
         # Per-source override for known publication lags (openFDA's quarterly
@@ -317,6 +353,7 @@ def summarize(findings: list[dict]) -> dict:
         "stale": [f for f in findings if f["status"] == "stale"],
         "nodata": [f["id"] for f in findings if f["status"] == "nodata"],
         "unparsed": [f["id"] for f in findings if f["status"] == "unparsed"],
+        "future": [f for f in findings if f["status"] == "future"],
         "nonnumeric": [f["id"] for f in findings if f.get("values") == "nonnumeric"],
     }
 
