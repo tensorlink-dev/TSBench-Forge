@@ -89,6 +89,10 @@ schedules:
   - swissgrid_grid_frequency
   - nmdb_oulu_neutron_1min
   - tepco_demand_5min
+  - gbfs_baywheels_sf_station_status
+  - gbfs_bluebikes_boston_station_status
+  - digitraffic_finland_tms_traffic_5min
+  - digitraffic_finland_ais_vessel_speeds
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -476,6 +480,22 @@ schedules:
   - ibge_pmc_retail_volume_brazil
   - statcan_aircraft_movements_monthly
   - wikimedia_edits_enwiki_monthly
+  - fao_fpma_maize_upriver_weekly
+  - usda_mpr_boxed_beef_cutout_daily
+  - cdc_nhsn_hospital_respiratory_occupancy_weekly
+  - cdc_nrevss_pathogen_positivity_weekly
+  - who_flunet_weekly_influenza_by_country
+  - nyc_ems_incident_dispatch_daily
+  - nys_covid_testing_county_daily
+  - ukhsa_ari_ed_attendances_daily
+  - cta_chicago_daily_boardings
+  - cta_chicago_rail_station_entries_daily
+  - dst_denmark_retail_trade_confidence_monthly
+  - ine_spain_retail_turnover_index_monthly
+  - istat_italy_retail_volume_index_monthly
+  - scb_sweden_retail_sales_index_monthly
+  - dst_denmark_retail_index_monthly
+  - cbs_netherlands_internet_retail_turnover_monthly
   cron: 10 1 * * *
 - every: P1D
   sources:

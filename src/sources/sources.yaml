@@ -17458,3 +17458,416 @@
     timestamp_field: items[].results[].timestamp
     value_field:
     - items[].results[].edits
+
+# -- wired batch: wave9-light-domains --
+- id: fao_fpma_maize_upriver_weekly
+  name: FAO FPMA — maize (Up River, Argentina f.o.b.) weekly export price
+  domain: sales
+  frequency: P1W
+  audit_slack_days: 45
+  license: FAO GIEWS FPMA open data (free reuse with attribution)
+  notes: Weekly f.o.b. export price (USD/tonne) of Argentine Up River maize from the FAO GIEWS Food Price
+    Monitoring and Analysis price module (keyless). The payload mixes weekly datapoints with FAO-calculated
+    monthly averages in the same array, so records carry both cadences; note the host 307-redirects /giews/v4/price_module/...
+    to /giews/v4/global/price_module/... (use the global path).
+  endpoint:
+    url: https://fpma.fao.org/giews/v4/global/price_module/api/v1/FpmaSeriePrice/3fefffb8-a60a-43f6-9f70-b71479f44a04/
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: datapoints[].date
+    value_field:
+    - datapoints[].price_value_dollar
+- id: usda_mpr_boxed_beef_cutout_daily
+  name: USDA AMS — national daily boxed beef cutout values, PM report (LM_XB403)
+  domain: sales
+  frequency: P1D
+  audit_slack_days: 6
+  license: Public domain (USDA)
+  notes: Daily Choice and Select 600-900 lb boxed beef cutout values (USD/cwt) from USDA Livestock Mandatory
+    Reporting via the keyless MPR Datamart JSON API (slug 2453, section Current Cutout Values). Business
+    days only. Distinct from the wired weekly-average slug 2461.
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Current%20Cutout%20Values?q=report_date=01/01/2026:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].choice_600_900_current
+    - results[].select_600_900_current
+- id: cdc_nhsn_hospital_respiratory_occupancy_weekly
+  name: CDC NHSN — weekly hospital COVID/flu/RSV inpatient occupancy by jurisdiction
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 14
+  license: Public domain (US CDC / NHSN)
+  notes: Weekly counts of confirmed COVID-19, influenza and RSV inpatients plus total occupied inpatient
+    beds, per US state/territory, from CDC NHSN hospital respiratory data on data.cdc.gov (Socrata, keyless).
+    Panel by jurisdiction; new dataset id on the already-wired data.cdc.gov host. The $select projection
+    is required because this table has ~100 columns and an unprojected $limit=5000 fetch blows past the
+    48MB stream cap.
+  endpoint:
+    url: https://data.cdc.gov/resource/ua7e-t2fy.json?$select=weekendingdate,jurisdiction,totalconfc19hosppats,totalconffluhosppats,totalconfrsvhosppats,numinptbedsocc&$order=weekendingdate%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: weekendingdate
+    value_field:
+    - totalconfc19hosppats
+    - totalconffluhosppats
+    - totalconfrsvhosppats
+    - numinptbedsocc
+    panel_field: jurisdiction
+- id: cdc_nrevss_pathogen_positivity_weekly
+  name: CDC NREVSS — national weekly percent positivity by respiratory pathogen
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 14
+  license: Public domain (US CDC / NREVSS)
+  notes: 'Weekly national NAAT test volume, detections and percent positivity for adenovirus, human coronaviruses,
+    hMPV, parainfluenza, RV/EV and other pathogens (NREVSS clinical laboratory reporting). Panel by pathogen,
+    Combined Type subtype only. Gotcha: rows use ''.'' for missing values and there are header rows with
+    a null mmwrweek_end, filtered out in the query.'
+  endpoint:
+    url: https://data.cdc.gov/resource/rgnm-fkqb.json?$where=level=%27National%27%20AND%20mmwrweek_end%20IS%20NOT%20NULL%20AND%20subtype=%27Combined%20Type%27&$order=mmwrweek_end%20DESC&$limit=5000&$select=mmwrweek_end,pathogen,tests,detections,percent_pos
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: mmwrweek_end
+    value_field:
+    - percent_pos
+    - tests
+    - detections
+    panel_field: pathogen
+- id: who_flunet_weekly_influenza_by_country
+  name: WHO FluNet — weekly influenza A/B detections and specimens processed by country
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 21
+  license: WHO open data (free reuse with attribution)
+  notes: Weekly virological influenza surveillance (specimens processed, influenza A and B detections) per
+    reporting country from the keyless WHO xmart4 public OData endpoint (FLUMART/VIW_FNT). Panel by ISO3
+    country code; query restricted to the current year to keep the payload small. Some countries report
+    several sentinel streams for the same week, and INF_A/INF_B are null when not reported.
+  endpoint:
+    url: https://xmart-api-public.who.int/FLUMART/VIW_FNT?$filter=ISO_YEAR%20ge%202026&$orderby=ISO_WEEKSTARTDATE%20desc&$top=8000&$select=COUNTRY_CODE,ISO_WEEKSTARTDATE,SPEC_PROCESSED_NB,INF_A,INF_B&$format=json
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: value[].ISO_WEEKSTARTDATE
+    value_field:
+    - value[].INF_A
+    - value[].INF_B
+    - value[].SPEC_PROCESSED_NB
+    panel_field: value[].COUNTRY_CODE
+- id: nyc_ems_incident_dispatch_daily
+  name: NYC FDNY EMS — daily incident dispatch count and mean response time
+  domain: healthcare
+  frequency: P1D
+  audit_slack_days: 60
+  license: NYC Open Data (public domain)
+  notes: Daily count of FDNY EMS incident dispatches in New York City plus the mean incident response time
+    (seconds), computed server-side with Socrata SoQL date_trunc_ymd + count/avg so the raw ~25M-row incident
+    table is never downloaded. Batch-loaded monthly, so expect a multi-week publication lag.
+  endpoint:
+    url: https://data.cityofnewyork.us/resource/76xm-jjuj.json?$select=date_trunc_ymd(incident_datetime)%20as%20d,count(1)%20as%20n,avg(incident_response_seconds_qy)%20as%20avg_response_s&$group=d&$order=d%20DESC&$limit=1000
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: d
+    value_field:
+    - n
+    - avg_response_s
+- id: nys_covid_testing_county_daily
+  name: New York State — daily COVID-19 new positives and cases per 100k by county
+  domain: healthcare
+  frequency: P1D
+  audit_slack_days: 10
+  license: New York State open data (public domain)
+  notes: Daily new confirmed COVID-19 positives and cases per 100k population for each of the 62 NY counties
+    from health.data.ny.gov (Socrata, keyless). Panel by county; query restricted to geography_level=COUNTY
+    so statewide/region rollups do not duplicate the series.
+  endpoint:
+    url: https://health.data.ny.gov/resource/jvfi-ffup.json?$where=geography_level=%27COUNTY%27&$order=test_date%20DESC&$limit=20000&$select=test_date,geography_description,total_new_positives,total_cases_per_100k
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: test_date
+    value_field:
+    - total_new_positives
+    - total_cases_per_100k
+    panel_field: geography_description
+- id: ukhsa_ari_ed_attendances_daily
+  name: UKHSA — acute respiratory infection emergency department attendances, England (7-day rolling mean)
+  domain: healthcare
+  frequency: P1D
+  audit_slack_days: 21
+  license: Open Government Licence v3.0 (UKHSA)
+  notes: 'Daily 7-day rolling mean of emergency department attendances for acute respiratory infection in
+    England, UKHSA syndromic surveillance API (keyless). Distinct metric from the wired UKHSA COVID/flu
+    admission and case series. Gotchas: results are ascending and paginated at page_size<=365, so pagination
+    is required to reach the newest date; age=all avoids age-band duplication.'
+  endpoint:
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/acute-respiratory-infection/geography_types/Nation/geographies/England/metrics/acute-respiratory-infection_syndromic_emergencyDepartment_averageRolling7Day?age=all&page_size=365
+    type: rest_json
+    timeout: 60
+    paginate:
+      items: results
+      next: next
+      max_pages: 5
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].metric_value
+- id: gbfs_baywheels_sf_station_status
+  name: Bay Wheels (San Francisco Bay Area) — per-station bike availability (GBFS panel)
+  domain: transport
+  frequency: PT5M
+  license: Bay Wheels / Lyft data licence (research permissive)
+  notes: Per-station bikes and docks available for the San Francisco Bay Area Bay Wheels system, GBFS 2.x
+    station_status feed (keyless). Panel of ~630 stations; each station carries its own last_reported epoch
+    so distinct timestamps come from station reporting jitter.
+  endpoint:
+    url: https://gbfs.baywheels.com/gbfs/en/station_status.json
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+- id: gbfs_bluebikes_boston_station_status
+  name: Bluebikes (Boston metro) — per-station bike availability (GBFS panel)
+  domain: transport
+  frequency: PT5M
+  license: Bluebikes / Lyft data licence (research permissive)
+  notes: Per-station bikes and docks available for the Boston-area Bluebikes system, GBFS 2.x station_status
+    feed (keyless). Panel of ~600 stations. gbfs.lyft.com/gbfs/1.1/bos/... mirrors the same payload; use
+    the gbfs.bluebikes.com host. Two stations report a bogus last_reported of 86400 (1970-01-02) — expect
+    a couple of junk-timestamp series.
+  endpoint:
+    url: https://gbfs.bluebikes.com/gbfs/en/station_status.json
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+- id: digitraffic_finland_tms_traffic_5min
+  name: Fintraffic Digitraffic — TMS road traffic counters, 5-min vehicle counts and mean speeds
+  domain: transport
+  frequency: PT5M
+  license: Fintraffic Digitraffic open data (CC BY 4.0)
+  notes: 'Finnish motorway TMS loop-counter sensor values (5-min and 60-min vehicle counts per direction,
+    mean speeds, free-flow speed ratios) for 12 Helsinki-region stations. Gotchas: the host rejects requests
+    without gzip (the scraper sends Accept-Encoding: gzip, so this works), sensor ids repeat across stations
+    so the panel key must combine stationId + sensor id, and the all-station endpoint /api/tms/v1/stations/data
+    returns ~11.9k rows per poll — the per-station panel keeps volume sane.'
+  endpoint:
+    url: https://tie.digitraffic.fi/api/tms/v1/stations/{STATION}/data
+    type: rest_json
+    timeout: 60
+  panel:
+  - STATION: '20002'
+  - STATION: '20004'
+  - STATION: '20005'
+  - STATION: '20006'
+  - STATION: '20007'
+  - STATION: '20009'
+  - STATION: '20010'
+  - STATION: '20011'
+  - STATION: '20013'
+  - STATION: '20016'
+  - STATION: '20017'
+  - STATION: '20018'
+  schema:
+    timestamp_field: sensorValues[].measuredTime
+    value_field:
+    - sensorValues[].value
+    panel_field:
+    - sensorValues[].stationId
+    - sensorValues[].id
+- id: digitraffic_finland_ais_vessel_speeds
+  name: Fintraffic Digitraffic — AIS vessel speed over ground, Baltic/Finnish waters
+  domain: transport
+  frequency: PT5M
+  license: Fintraffic Digitraffic open data (CC BY 4.0)
+  notes: 'Live AIS positions for ~1000 vessels in Finnish and surrounding Baltic waters: speed over ground
+    (knots) and course over ground per MMSI, from the keyless Digitraffic marine API. Panel by MMSI; timestampExternal
+    is epoch milliseconds. Vessel set churns as ships enter/leave AIS coverage, and stale contacts keep
+    their last report time, so per-series gaps are expected. Requires gzip (the scraper sends Accept-Encoding:
+    gzip).'
+  endpoint:
+    url: https://meri.digitraffic.fi/api/ais/v1/locations
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: features[].properties.timestampExternal
+    value_field:
+    - features[].properties.sog
+    - features[].properties.cog
+    panel_field: features[].mmsi
+- id: cta_chicago_daily_boardings
+  name: CTA Chicago — daily bus and rail boardings, system totals
+  domain: transport
+  frequency: P1D
+  audit_slack_days: 75
+  license: City of Chicago open data (public domain)
+  notes: Daily total bus boardings, rail boardings and combined rides for the Chicago Transit Authority
+    (Socrata, keyless). New dataset id on the already-wired data.cityofchicago.org host (the wired entry
+    there is food inspections). Batch-published monthly, hence the large audit slack.
+  endpoint:
+    url: https://data.cityofchicago.org/resource/6iiy-9s97.json?$order=service_date%20DESC&$limit=2000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: service_date
+    value_field:
+    - bus
+    - rail_boardings
+    - total_rides
+- id: cta_chicago_rail_station_entries_daily
+  name: CTA Chicago — daily rail entries by station (panel)
+  domain: transport
+  frequency: P1D
+  audit_slack_days: 75
+  license: City of Chicago open data (public domain)
+  notes: Daily turnstile entries at each CTA 'L' station (~145 stations), Socrata keyless. Panel by station_id;
+    distinct from the system-total boardings dataset (6iiy-9s97) — this is per-station rail entries only.
+    Batch-published monthly.
+  endpoint:
+    url: https://data.cityofchicago.org/resource/5neh-572f.json?$order=date%20DESC&$limit=20000
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: date
+    value_field:
+    - rides
+    panel_field: station_id
+
+# -- wired batch: wave9-retry --
+- id: dst_denmark_retail_trade_confidence_monthly
+  name: Statistics Denmark — retail trade turnover trend, net balance (KBD01)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 40
+  license: Statistics Denmark open data (free reuse with attribution)
+  notes: 'Net balance (share reporting higher minus lower) of actual turnover development in Danish retail
+    trade G47, monthly business tendency survey. Distinct from the DETA212A quantity index: survey balance,
+    not an index, and published one to two months earlier.'
+  endpoint:
+    url: https://api.statbank.dk/v1/data/KBD01/CSV?lang=en&BRANCHEDB25UDVALG=G47&INDIKATOR=OMS&BED%C3%98MMELSE=NET&FORL%C3%98B=FAK&Tid=*
+    type: rest_csv
+    timeout: 60
+  schema:
+    timestamp_field: TID
+    value_field:
+    - INDHOLD
+    csv_delimiter: ;
+- id: ine_spain_retail_turnover_index_monthly
+  name: INE Spain — retail trade turnover index, national total, calendar adjusted (ICM3526)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: INE open data (free reuse with attribution)
+  notes: Spanish retail trade turnover index at current prices (base 2021=100, calendar-adjusted, retail
+    trade excl. motor vehicles) from the keyless INE Tempus3 API. Fecha timestamps are Madrid local midnight,
+    so a month M value appears as the last day of month M-1 in UTC.
+  endpoint:
+    url: https://servicios.ine.es/wstempus/js/EN/DATOS_SERIE/ICM3526?nult=120
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: Data[].Fecha
+    value_field:
+    - Data[].Valor
+- id: istat_italy_retail_volume_index_monthly
+  name: ISTAT Italy — volume of retail trade sales index, total, seasonally adjusted (base 2021)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: ISTAT open data (CC BY 3.0 IT)
+  notes: 'Italian retail trade sales volume index (base 2021=100, seasonally adjusted, all products, all
+    sales types) from the keyless ISTAT SDMX web service. Gotcha: the format=jsondata variant returns all-null
+    observations for this dataflow — the SDMX-CSV representation (Accept header) carries the values, so
+    keep the Accept header.'
+  endpoint:
+    url: https://esploradati.istat.it/SDMXWS/rest/data/120_337_DF_DCSC_COMMDET_1_15/M.IT.RTD_TURN_VOL_21.Y.99.9.TOTAL/all?startPeriod=2015-01
+    type: rest_csv
+    timeout: 90
+    headers:
+      Accept: application/vnd.sdmx.data+csv;version=1.0.0
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+- id: scb_sweden_retail_sales_index_monthly
+  name: SCB Sweden — retail sale turnover index by industry, total retail G47 (DetOms07N)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: SCB open data (CC0 / free reuse with attribution)
+  notes: Swedish retail sale turnover index (2021=100) for total retail trade NACE 47 from the keyless SCB
+    PxWeb API (POST json-stat2). New table on the already-wired api.scb.se host — the wired SCB entry is
+    the CPI table KPItotM. Default response returns the most recent ~40 months.
+  endpoint:
+    url: https://api.scb.se/OV0104/v1/doris/en/ssd/START/HA/HA0101/HA0101B/DetOms07N
+    type: rest_json
+    method: POST
+    timeout: 60
+    body:
+      query:
+      - code: SNI2007
+        selection:
+          filter: item
+          values:
+          - '47'
+      - code: ContentsCode
+        selection:
+          filter: item
+          values:
+          - 000006VV
+      response:
+        format: json-stat2
+  schema: {}
+
+# -- wired batch: wave9-retry2 --
+- id: dst_denmark_retail_index_monthly
+  name: Statistics Denmark — retail trade index, quantity seasonally adjusted (DETA212A)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: Statistics Denmark open data (free reuse with attribution)
+  notes: Danish retail trade quantity index (2021=100, seasonally adjusted) for total retail trade G47,
+    from the keyless api.statbank.dk CSV endpoint. Semicolon-delimited; TID column is YYYYMmm.
+  endpoint:
+    url: https://api.statbank.dk/v1/data/DETA212A/CSV?lang=en&BRANCHEDB25UDVALG=G47&INDEKSTYPE=SMAENGDE&Tid=*
+    type: rest_csv
+    timeout: 60
+  schema:
+    timestamp_field: TID
+    value_field:
+    - INDHOLD
+    csv_delimiter: ;
+- id: cbs_netherlands_internet_retail_turnover_monthly
+  name: CBS Netherlands — internet retail sales turnover index, monthly (83867NED)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: CBS open data (CC BY 4.0)
+  notes: Dutch e-commerce (internet) retail turnover index 2015=100 for retail trade excl. fuel and pharmacies,
+    from the keyless CBS OData v3 API. Different table and metric from the wired 83133NED total retail turnover
+    series. Filter keeps monthly periods only (Perioden contains MM); note the branch code has trailing
+    spaces.
+  endpoint:
+    url: https://opendata.cbs.nl/ODataApi/odata/83867NED/TypedDataSet?$filter=BedrijfstakkenBranchesSBI2008%20eq%20%27900049%20%27%20and%20substringof(%27MM%27,Perioden)&$orderby=ID%20desc&$top=200
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: value[].Perioden
+    value_field:
+    - value[].IndexcijfersInternetomzet_1

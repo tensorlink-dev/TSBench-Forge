@@ -54,6 +54,8 @@ _DIGIT_FMT_BY_LEN = {14: "%Y%m%d%H%M%S", 10: "%Y%m%d%H", 8: "%Y%m%d",
                      6: "%Y%m", 4: "%Y"}
 
 _QUARTER_RE = re.compile(r"^(\d{4})-?[QK](\d)$")
+# Statbank month labels: DST "2026M05", CBS OData "2026MM05"
+_YM_LABEL_RE = re.compile(r"^(\d{4})M{1,2}(\d{1,2})$")
 _SLASH_DMY_RE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")
 
 
@@ -82,6 +84,9 @@ def parse_ts(raw: object) -> Optional[dt.datetime]:
     m = _QUARTER_RE.match(s)
     if m:
         return dt.datetime(int(m.group(1)), 3 * int(m.group(2)) - 2, 1, tzinfo=UTC)
+    m = _YM_LABEL_RE.match(s)
+    if m and 1 <= int(m.group(2)) <= 12:
+        return dt.datetime(int(m.group(1)), int(m.group(2)), 1, tzinfo=UTC)
     m = _SLASH_DMY_RE.match(s)
     if m:
         a, b, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
