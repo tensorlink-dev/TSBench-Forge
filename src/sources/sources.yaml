@@ -18555,3 +18555,396 @@
     value_field:
     - '{*}measuredValue/{*}measuredValue/{*}basicData/{*}averageVehicleSpeed/{*}speed'
     panel_field: '{*}measurementSiteReference/@id'
+
+# -- wired batch: wave13 --
+- id: usda_mpr_pork_cutout_daily
+  name: USDA AMS — national daily pork cutout and primal values (LM_PK602)
+  domain: sales
+  frequency: P1D
+  audit_slack_days: 50
+  license: Public domain (USDA)
+  notes: Daily negotiated national pork carcass cutout plus loin/butt/belly primal values (USD/cwt) and
+    total loads from USDA Livestock Mandatory Reporting via the keyless MPR Datamart JSON API (slug 2498,
+    section 'Cutout and Primal Values'). Business days only. New report slug on the already-wired mpr.datamart
+    host; distinct commodity from the wired beef (2453/2461), hog (3458) and dairy (2993) slugs.
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Cutout%20and%20Primal%20Values?q=report_date=01/01/2026:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].pork_carcass
+    - results[].pork_loin
+    - results[].pork_butt
+    - results[].pork_belly
+    - results[].total_loads_date_1
+- id: usda_mpr_lamb_carcass_cutout_daily
+  name: USDA AMS — national estimated lamb carcass cutout, gross carcass value (LM_XL502)
+  domain: sales
+  frequency: P1D
+  audit_slack_days: 50
+  license: Public domain (USDA)
+  notes: Daily national estimated lamb carcass cutout — gross carcass value (USD/cwt), day-over-day change
+    and carcass weight — from USDA Livestock Mandatory Reporting via the keyless MPR Datamart JSON API (slug
+    2649, section 'GROSS CARCASS VALUE'). Business days only. New report slug/commodity on the already-wired
+    mpr.datamart host.
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2649/GROSS%20CARCASS%20VALUE?q=report_date=01/01/2026:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].gross_carcass_price
+    - results[].gross_carcass_change
+    - results[].gross_carcass_weight
+- id: usda_mpr_5area_cattle_price_daily
+  name: USDA AMS — 5-Area daily weighted average negotiated slaughter cattle price (LM_CT100)
+  domain: sales
+  frequency: P1D
+  audit_slack_days: 50
+  license: Public domain (USDA)
+  notes: 'Daily 5-Area (TX/OK/NM, KS, NE, CO, IA/MN) weighted average price for negotiated live-basis slaughter
+    cattle, weekly-accumulated period, panel by class (Steer/Heifer). Keyless MPR Datamart JSON API, slug
+    2466 section History. Gotcha: the History section also carries SAME PERIOD LAST WEEK/YEAR rows and a
+    Dressed selling basis, so the q filter pins current_period=WEEKLY ACCUMULATED and selling_basis_desc=Live
+    to keep one row per date per class.'
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2466/History?q=report_date=01/01/2026:12/31/2035;current_period=WEEKLY
+      ACCUMULATED;selling_basis_desc=Live
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].weighted_avg_price
+    panel_field: results[].class_description
+- id: eurostat_retail_turnover_monthly
+  name: Eurostat — monthly retail trade turnover index (G47), EU27 + 6 member states
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: Eurostat open data (CC BY 4.0)
+  notes: Monthly net turnover index (2021=100, calendar-adjusted) for retail trade except motor vehicles
+    (NACE G47) from dataflow sts_trtu_m; EU27 + DE/FR/ES/IT/NL/PL panel. New dataflow on the already-wired
+    Eurostat dissemination host and distinct from the wired quarterly sts_trtu_q series (monthly cadence,
+    monthly revisions). Path-filtered SDMX-CSV — never request the flow unfiltered.
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/sts_trtu_m/M.NETTUR.G47.CA.I21.EU27_2020+DE+FR+ES+IT+NL+PL?format=SDMX-CSV&startPeriod=2015-01
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+    panel_field: geo
+- id: ukhsa_rsv_positivity_weekly
+  name: UKHSA — RSV NAAT test positivity, England (weekly)
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 90
+  license: UKHSA Open Government Licence v3.0
+  notes: 'Weekly percentage of respiratory syncytial virus nucleic-acid tests returning positive in England
+    (all ages). New metric on the already-wired UKHSA dashboard API — distinct from the wired COVID admissions/cases/deaths
+    and influenza admission-rate series. Gotcha: results come oldest-first in pages, so page_size=365 plus
+    the paginate block is required; age=all is required or the API returns every age stratum and duplicates
+    each date.'
+  endpoint:
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/RSV/geography_types/Nation/geographies/England/metrics/RSV_testing_positivityByWeek?age=all&page_size=365
+    type: rest_json
+    paginate:
+      items: results
+      next: next
+      max_pages: 12
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].metric_value
+- id: ukhsa_influenza_positivity_weekly
+  name: UKHSA — influenza NAAT test positivity, England (weekly)
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 90
+  license: UKHSA Open Government Licence v3.0
+  notes: Weekly percentage of influenza nucleic-acid tests returning positive in England (all ages). Distinct
+    metric from the wired influenza hospital admission-rate series — positivity keeps reporting through
+    the summer whereas the admission rate goes near-zero. age=all avoids per-age-stratum duplicate dates;
+    results arrive oldest-first so the paginate block is required.
+  endpoint:
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/Influenza/geography_types/Nation/geographies/England/metrics/influenza_testing_positivityByWeek?age=all&page_size=365
+    type: rest_json
+    paginate:
+      items: results
+      next: next
+      max_pages: 12
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].metric_value
+- id: ukhsa_hmpv_positivity_weekly
+  name: UKHSA — human metapneumovirus NAAT test positivity, England (weekly)
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 90
+  license: UKHSA Open Government Licence v3.0
+  notes: Weekly percentage of human metapneumovirus (hMPV) nucleic-acid tests returning positive in England
+    (all ages) — a distinct pathogen topic on the already-wired UKHSA dashboard API, with a sharper late-winter
+    peak than RSV. age=all avoids per-age-stratum duplicate dates; results arrive oldest-first so the paginate
+    block is required.
+  endpoint:
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/hMPV/geography_types/Nation/geographies/England/metrics/hMPV_testing_positivityByWeek?age=all&page_size=365
+    type: rest_json
+    paginate:
+      items: results
+      next: next
+      max_pages: 12
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].metric_value
+- id: ukhsa_rsv_admission_rate_weekly
+  name: UKHSA — RSV hospital admission rate, England (weekly)
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 400
+  license: UKHSA Open Government Licence v3.0
+  notes: Weekly RSV hospital admission rate per 100,000 in England. Strongly seasonal — the series stops
+    being updated from around April to October each year (latest point at time of wiring was 2026-03-30),
+    hence the large audit slack, mirroring the wired influenza admission-rate entry. age=all is required
+    or every age stratum is returned and dates duplicate; results are oldest-first so the paginate block
+    is required.
+  endpoint:
+    url: https://api.ukhsa-dashboard.data.gov.uk/themes/infectious_disease/sub_themes/respiratory/topics/RSV/geography_types/Nation/geographies/England/metrics/RSV_healthcare_admissionRateByWeek?age=all&page_size=365
+    type: rest_json
+    paginate:
+      items: results
+      next: next
+      max_pages: 12
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].metric_value
+- id: cdc_provisional_percent_deaths_respiratory_weekly
+  name: CDC — provisional percent of US deaths due to COVID-19, influenza and RSV (weekly)
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 75
+  license: Public domain (US CDC / NCHS)
+  notes: Weekly provisional share of all US deaths attributed to COVID-19, influenza or RSV from NCHS death
+    certificate processing (Socrata dataset 4bc2-bbpq). Panel by pathogen. New dataset id on the already-wired
+    data.cdc.gov host; a mortality-share metric distinct from the wired NHSN occupancy, NREVSS positivity
+    and RESP-NET rate series. Recent weeks are revised upward as certificates arrive.
+  endpoint:
+    url: https://data.cdc.gov/resource/4bc2-bbpq.json?$order=week_end%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: week_end
+    value_field:
+    - percent_deaths
+    panel_field: pathogen
+- id: cdc_covid_burden_estimates_weekly
+  name: CDC — preliminary weekly US COVID-19 burden estimates (illnesses, visits, hospitalizations, deaths)
+  domain: healthcare
+  frequency: P1W
+  audit_slack_days: 120
+  license: Public domain (US CDC)
+  notes: 'Preliminary weekly US COVID-19 burden estimates — modelled ranges for illnesses, outpatient visits,
+    hospitalizations and deaths (Socrata dataset ahrf-yqdt). Panel by burden category; each row carries
+    a low and high bound rather than a point estimate. New dataset id on the already-wired data.cdc.gov
+    host. Gotcha: the series is season-scoped (a season field accompanies each date) and estimates for recent
+    weeks are revised.'
+  endpoint:
+    url: https://data.cdc.gov/resource/ahrf-yqdt.json?$order=date%20DESC&$limit=5000
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: date
+    value_field:
+    - low
+    - high
+    panel_field: burden
+- id: gbfs_biketown_portland_station_status
+  name: Biketown Portland — per-station bike availability (GBFS panel)
+  domain: transport
+  frequency: PT1M
+  audit_slack_days: 50
+  license: Biketown / Lyft GBFS public feed
+  notes: 'Per-station bikes and docks available for Portland OR Biketown (GBFS station_status, keyless).
+    New system_id/host (gbfs.biketownpdx.com), distinct from the wired Citi Bike / Capital Bikeshare / Divvy
+    / Bay Wheels / Bluebikes systems. Gotcha: unlike most Lyft feeds this one reports last_reported as the
+    per-station last-change time — many stations carry stale timestamps (some as old as 2023), so timestamps
+    are irregular rather than a single snapshot instant.'
+  endpoint:
+    url: https://gbfs.biketownpdx.com/gbfs/en/station_status.json
+    type: rest_json
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+- id: gbfs_metro_bike_la_station_status
+  name: Metro Bike Share Los Angeles — per-station bike availability (GBFS panel)
+  domain: transport
+  frequency: PT1M
+  audit_slack_days: 45
+  license: LA Metro Bike Share / BCycle GBFS public feed
+  notes: Per-station bikes and docks available for LA Metro Bike Share (BCycle-hosted GBFS station_status,
+    keyless). ~222 stations. New system on the gbfs.bcycle.com host (the wired BCycle entry is Indego Philadelphia,
+    a different system_id/city). All stations share one last_reported instant, so this is a panel snapshot
+    — poll fast.
+  endpoint:
+    url: https://gbfs.bcycle.com/bcycle_lametro/station_status.json
+    type: rest_json
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+- id: gbfs_wienmobil_vienna_station_status
+  name: WienMobil Rad Vienna — per-station bike availability (GBFS panel)
+  domain: transport
+  frequency: PT1M
+  audit_slack_days: 45
+  license: nextbike GBFS public feed
+  notes: Per-station bikes and docks available for WienMobil Rad, Vienna (nextbike system nextbike_wr, GBFS
+    station_status, keyless). ~266 stations. New system_id on the gbfs.nextbike.net host — the wired nextbike
+    entry is Zagreb (nextbike_zg). All stations share one last_reported instant, so this is a panel snapshot.
+  endpoint:
+    url: https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_wr/en/station_status.json
+    type: rest_json
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+- id: gbfs_madison_bcycle_station_status
+  name: Madison BCycle — per-station bike availability (GBFS panel)
+  domain: transport
+  frequency: PT1M
+  audit_slack_days: 45
+  license: Madison BCycle GBFS public feed
+  notes: Per-station bikes and docks available for Madison WI BCycle (GBFS station_status, keyless). ~108
+    stations, a smaller mid-size US system than the wired big-city feeds; distinct system_id on gbfs.bcycle.com
+    (the wired BCycle system there is Indego Philadelphia). All stations share one last_reported instant
+    — panel snapshot.
+  endpoint:
+    url: https://gbfs.bcycle.com/bcycle_madison/station_status.json
+    type: rest_json
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+- id: irishrail_current_train_positions
+  name: Irish Rail — live positions of all running trains (panel snapshot)
+  domain: transport
+  frequency: PT5M
+  audit_slack_days: 45
+  license: Irish Rail (Iarnród Éireann) open realtime API, keyless
+  notes: 'Live latitude/longitude of every Irish Rail train currently running or due to run (getCurrentTrainsXML),
+    panel by TrainCode, keyless XML. New host. Gotchas: the feed carries no usable timestamp (only a date
+    string), so snapshot_now stamps fetch time; the XML uses a default namespace, so value/panel paths must
+    be written with the {http://api.irishrail.ie/realtime/} prefix and the parsed column names come out
+    as ''}TrainLatitude'' etc. Panel size varies 30-90 trains by time of day (~34 at 05:00 local).'
+  endpoint:
+    url: http://api.irishrail.ie/realtime/realtime.asmx/getCurrentTrainsXML
+    type: rest_xml
+    timeout: 60
+  schema:
+    record_path: objTrainPositions
+    snapshot_now: true
+    value_field:
+    - '{http://api.irishrail.ie/realtime/}TrainLatitude'
+    - '{http://api.irishrail.ie/realtime/}TrainLongitude'
+    panel_field: '{http://api.irishrail.ie/realtime/}TrainCode'
+- id: digitraffic_finland_port_calls_hourly
+  name: Fintraffic — Finnish port calls per hour (event counts)
+  domain: transport
+  frequency: PT1H
+  audit_slack_days: 45
+  license: Fintraffic / Digitraffic open data (CC BY 4.0)
+  notes: 'Hourly count of vessel port-call notifications across all Finnish ports, binned from the rolling
+    ~24h port-call event stream (Digitraffic marine API, keyless). New endpoint on the already-wired meri.digitraffic.fi
+    host — the wired entry there is AIS vessel speed/course, this is a port-call event count. Gotcha: the
+    host rejects requests without Accept-Encoding: gzip (HTTP 406), which the scraper sends by default;
+    the window is rolling, so poll hourly to accumulate history.'
+  endpoint:
+    url: https://meri.digitraffic.fi/api/port-call/v1/port-calls
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: portCalls[].portCallTimestamp
+    value_field:
+    - portCalls[].portCallId
+    aggregate:
+      op: count
+      bin: PT1H
+- id: npra_norway_traffic_volume_hourly
+  name: Statens vegvesen — hourly vehicle count, Dronning Eufemias gate Oslo (traffic registration point)
+  domain: transport
+  frequency: PT1H
+  audit_slack_days: 45
+  license: Norwegian Public Roads Administration open data (NLOD)
+  notes: 'Hourly vehicle counts from a Norwegian Public Roads Administration traffic registration point
+    in central Oslo (point 17684V2460285), via the keyless Trafikkdata GraphQL API. New host. Gotcha: the
+    byHour connection pages at 100 edges, so the query window is kept to ~4 days ({YYYY-MM-DD-4d} .. today)
+    — a wider window silently truncates and leaves the newest hours out. Counts lag real time by roughly
+    an hour or two.'
+  endpoint:
+    url: https://trafikkdata-api.atlas.vegvesen.no/
+    type: graphql
+    method: POST
+    body:
+      query: '{trafficData(trafficRegistrationPointId:"17684V2460285"){volume{byHour(from:"{YYYY-MM-DD-4d}T00:00:00+02:00",to:"{YYYY-MM-DD}T23:00:00+02:00"){edges{node{from
+        total{volumeNumbers{volume}}}}}}}}'
+  schema:
+    timestamp_field: data.trafficData.volume.byHour.edges[].node.from
+    value_field:
+    - data.trafficData.volume.byHour.edges[].node.total.volumeNumbers.volume
+- id: statcan_wholesale_trade_sales_monthly
+  name: StatCan — monthly wholesale trade sales, Canada total (table 20-10-0074)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 130
+  license: Statistics Canada Open Licence
+  notes: Monthly wholesale trade sales in dollars, Canada, total all wholesale industries (cube 20100074,
+    coordinate 1.1.1). New cube on the already-wired www150.statcan.gc.ca WDS host; distinct from the wired
+    retail-trade, rail-carloading, airline-passenger and aircraft-movement cubes.
+  endpoint:
+    url: https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods
+    type: rest_json
+    method: POST
+    body:
+    - productId: 20100074
+      coordinate: 1.1.1.0.0.0.0.0.0.0
+      latestN: 120
+  schema:
+    timestamp_field: '[].object.vectorDataPoint[].refPer'
+    value_field:
+    - '[].object.vectorDataPoint[].value'
+
+# -- wired batch: wave13b --
+- id: who_gho_tb_deaths_excl_hiv_annual
+  name: WHO GHO — number of deaths due to tuberculosis excluding HIV, by country (annual)
+  domain: healthcare
+  frequency: P1Y
+  audit_slack_days: 1100
+  license: WHO Global Health Observatory open data
+  notes: Annual WHO estimates of tuberculosis deaths (HIV-negative) per country, indicator TB_e_mort_exc_tbhiv_num,
+    filtered to COUNTRY-level spatial dimension so regional/global aggregates do not duplicate dates. New
+    indicator on the already-wired ghoapi host, distinct from the wired TB incidence (MDG_0000000020), life-expectancy,
+    BMI and malaria indicators. Panel by ISO3 country code.
+  endpoint:
+    url: https://ghoapi.azureedge.net/api/TB_e_mort_exc_tbhiv_num?$filter=SpatialDimType%20eq%20%27COUNTRY%27
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: value[].TimeDim
+    value_field:
+    - value[].NumericValue
+    panel_field: value[].SpatialDim

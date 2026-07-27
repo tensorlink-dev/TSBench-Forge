@@ -98,6 +98,11 @@ schedules:
   - digitraffic_finland_tms_traffic_5min
   - digitraffic_finland_ais_vessel_speeds
   - bvg_alexanderplatz_departure_delays
+  - gbfs_biketown_portland_station_status
+  - gbfs_metro_bike_la_station_status
+  - gbfs_wienmobil_vienna_station_status
+  - gbfs_madison_bcycle_station_status
+  - irishrail_current_train_positions
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -288,6 +293,8 @@ schedules:
   - pse_rce_price_15min
   - ree_spain_pvpc_price_hourly
   - elia_total_load_15min
+  - digitraffic_finland_port_calls_hourly
+  - npra_norway_traffic_volume_hourly
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -535,6 +542,18 @@ schedules:
   - usda_mpr_prior_day_hogs_daily
   - cdc_nchs_percent_deaths_resp_weekly
   - ukhsa_covid_occupied_beds_daily
+  - usda_mpr_pork_cutout_daily
+  - usda_mpr_lamb_carcass_cutout_daily
+  - usda_mpr_5area_cattle_price_daily
+  - eurostat_retail_turnover_monthly
+  - ukhsa_rsv_positivity_weekly
+  - ukhsa_influenza_positivity_weekly
+  - ukhsa_hmpv_positivity_weekly
+  - ukhsa_rsv_admission_rate_weekly
+  - cdc_provisional_percent_deaths_respiratory_weekly
+  - cdc_covid_burden_estimates_weekly
+  - statcan_wholesale_trade_sales_monthly
+  - who_gho_tb_deaths_excl_hiv_annual
   cron: 10 1 * * *
 - every: P1D
   sources:
