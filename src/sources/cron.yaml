@@ -103,6 +103,7 @@ schedules:
   - gbfs_wienmobil_vienna_station_status
   - gbfs_madison_bcycle_station_status
   - irishrail_current_train_positions
+  - eccc_hydrometric_realtime_water_level
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -580,6 +581,17 @@ schedules:
   - ons_unemployment_rate_monthly
   - ons_average_weekly_earnings_monthly
   - ons_gdp_quarterly_growth
+  - eurostat_energy_solid_fuels_monthly
+  - eurostat_excess_mortality_monthly
+  - eurostat_commercial_flights_monthly
+  - cms_hix_effectuated_enrollment_monthly
+  - statcan_electric_power_generation_monthly
+  - ons_brazil_cmo_weekly
+  - ons_brazil_daily_load_by_subsystem
+  - nsidc_arctic_sea_ice_extent_daily
+  - nzta_tms_daily_traffic_counts
+  - cpc_population_weighted_hdd_daily
+  - cpc_population_weighted_cdd_daily
   cron: 10 1 * * *
 - every: P1D
   sources:

@@ -827,7 +827,16 @@ def _compose_ts(parts: list[str], hour_of_day: bool = False,
     return " ".join(parts)
 
 
-_WIDE_DATE_RE = re.compile(r"^\d{4}(-\d{2}(-\d{2})?)?$")
+# Wide-CSV date columns: 2026, 2026-07, 2026-07-01 and the compact forms
+# 202607 / 20260701 (NOAA CPC ships daily degree-days with YYYYMMDD headers).
+_WIDE_DATE_RE = re.compile(r"^\d{4}(-?\d{2}(-?\d{2})?)?$")
+
+
+def _skip_rows(text: str, schema: dict) -> str:
+    """Drop `schema.skip_rows` leading lines — preamble above the real header
+    (NOAA CPC degree-day files open with Product/Regions/Weights lines)."""
+    n = int(schema.get("skip_rows", 0))
+    return "\n".join(text.splitlines()[n:]) if n else text
 
 
 def _records_from_wide_csv(text: str, schema: dict) -> list[dict]:
@@ -847,7 +856,9 @@ def _records_from_wide_csv(text: str, schema: dict) -> list[dict]:
     if isinstance(id_fields, str):
         id_fields = [id_fields]
 
-    reader = csv.DictReader(io.StringIO(text))
+    text = _skip_rows(text, schema)
+    delim = schema.get("csv_delimiter") or _sniff_delim(text.splitlines()[0]) or ","
+    reader = csv.DictReader(io.StringIO(text), delimiter=delim)
     rows: list[dict] = []
     for rec in reader:
         panel = {"_panel_" + f: str(rec.get(f, "")) for f in id_fields}
@@ -863,6 +874,7 @@ def _records_from_wide_csv(text: str, schema: dict) -> list[dict]:
 def _records_from_csv(text: str, schema: dict) -> list[dict]:
     if schema.get("wide"):
         return _records_from_wide_csv(text, schema)
+    text = _skip_rows(text, schema)
     ts_field = schema.get("timestamp_field", "").split("/")[-1]
     val_fields = schema.get("value_field")
     if isinstance(val_fields, str):
@@ -987,7 +999,13 @@ def _records_from_zip_xml(blob: bytes, schema: dict) -> list[dict]:
 
 
 def _records_from_rss(text: str, schema: dict) -> list[dict]:
-    """RSS items -> rows of {timestamp=pubDate, value=title|category}."""
+    """RSS items -> rows of {timestamp=pubDate, value=title|category}.
+
+    `timestamp_field`/`value_field` name a different child element when the feed
+    puts them somewhere else — Geoscience Australia's quake feed has no pubDate
+    and carries the event time in <description>. Unknown names fall back to the
+    defaults, so feeds that declared a field the parser never read keep working.
+    """
     import xml.etree.ElementTree as ET
 
     try:
@@ -995,10 +1013,17 @@ def _records_from_rss(text: str, schema: dict) -> list[dict]:
     except ET.ParseError as e:
         raise RuntimeError(f"RSS parse error: {e}")
 
+    def _leaf(field: object) -> str:
+        if isinstance(field, list):
+            field = field[0] if field else ""
+        return str(field or "").split("/")[-1]
+
+    ts_field, val_field = _leaf(schema.get("timestamp_field")), _leaf(schema.get("value_field"))
     rows = []
     for item in root.iter("item"):
-        ts = item.findtext("pubDate")
-        val = item.findtext("category") or item.findtext("title") or ""
+        ts = (item.findtext(ts_field) if ts_field else None) or item.findtext("pubDate")
+        val = ((item.findtext(val_field) if val_field else None)
+               or item.findtext("category") or item.findtext("title") or "")
         rows.append({"timestamp": _epoch_to_iso(ts) or ts, "value": val})
     if not rows:
         # Atom feeds (tsunami.gov, many gov alert streams): namespaced
@@ -1155,6 +1180,27 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
                 if any(v not in (None, "")
                        for k, v in r.items()
                        if k != "timestamp" and not k.startswith("_panel_"))]
+    ts_re, val_re = schema.get("timestamp_regex"), schema.get("value_regex")
+    if ts_re or val_re:
+        # Feeds that bury the number in prose — an RSS <title> reading
+        # "Magnitude 5.1, Tonga Trench", a <description> of
+        # "2026-07-27T03:36:40Z(UTC)". Each regex replaces the field with its
+        # first capture group; non-matching values are left alone.
+        ts_c = re.compile(ts_re) if ts_re else None
+        val_c = re.compile(val_re) if val_re else None
+        for r in recs:
+            if ts_c and isinstance(r.get("timestamp"), str):
+                m = ts_c.search(r["timestamp"])
+                if m:
+                    r["timestamp"] = m.group(1)
+            if val_c:
+                for k, v in r.items():
+                    if k == "timestamp" or k.startswith("_panel_"):
+                        continue
+                    if isinstance(v, str):
+                        m = val_c.search(v)
+                        if m:
+                            r[k] = m.group(1)
     pattern = schema.get("timestamp_pattern")
     if pattern:
         # Keep only rows whose timestamp matches. Some publishers stack several
@@ -1406,12 +1452,28 @@ def _records_from_html_table(blob: bytes, schema: dict, endpoint: dict) -> list[
 def _records_from_xlsx(blob: bytes, schema: dict) -> list[dict]:
     """Parse .xlsx → rows using openpyxl. Reads the first sheet's first two
     columns as (timestamp, value) unless schema overrides column names.
+
+    `schema.sheet` picks a sheet by name (or 0-based index) — statistical
+    offices ship workbooks whose active sheet is a cover page and whose data
+    sits in a differently-named tab (Destatis' truck-toll index).
+    `schema.skip_rows` drops that many rows before the header, for workbooks
+    with title banners above the table.
     """
     import io
     from openpyxl import load_workbook
     wb = load_workbook(io.BytesIO(blob), read_only=True, data_only=True)
-    ws = wb.active
+    sheet = schema.get("sheet")
+    if sheet is None:
+        ws = wb.active
+    elif isinstance(sheet, int):
+        ws = wb.worksheets[sheet]
+    elif sheet in wb.sheetnames:
+        ws = wb[sheet]
+    else:
+        raise RuntimeError(f"sheet {sheet!r} not in workbook: {wb.sheetnames}")
     rows_iter = ws.iter_rows(values_only=True)
+    for _ in range(int(schema.get("skip_rows", 0))):
+        next(rows_iter, None)
     header = next(rows_iter, None)
     if not header:
         return []

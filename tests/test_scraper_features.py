@@ -718,3 +718,77 @@ def test_timestamp_pattern_absent_keeps_every_row():
                       "timestamp_field": "period", "value_field": ["value"]}}
     text = '"2026","3.1"\n"2026 JAN","3.3"\n'
     assert len(scraper.parse_payload(src, text.encode(), "text/csv")) == 2
+
+
+def test_value_and_timestamp_regex_extract_from_prose():
+    """Geoscience Australia buries the magnitude in the title and the time in
+    the description."""
+    src = {"endpoint": {"type": "rss"},
+           "schema": {"timestamp_field": "description", "value_field": "title",
+                      "timestamp_regex": r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})",
+                      "value_regex": r"Magnitude ([0-9.]+)"}}
+    xml = ("<rss><channel>"
+           "<item><title>Magnitude 5.1, Tonga Trench</title>"
+           "<description>2026-07-27T03:36:40.319Z(UTC)</description></item>"
+           "</channel></rss>")
+    recs = scraper.parse_payload(src, xml.encode(), "application/rss+xml")
+    assert recs == [{"timestamp": "2026-07-27T03:36:40", "value": "5.1"}]
+
+
+def test_rss_falls_back_to_pubdate_when_field_absent():
+    src = {"endpoint": {"type": "rss"},
+           "schema": {"timestamp_field": "nosuchfield", "value_field": "alsomissing"}}
+    xml = ("<rss><channel><item><title>Quake</title>"
+           "<pubDate>Fri, 03 Jul 2026 12:57:24 GMT</pubDate></item></channel></rss>")
+    recs = scraper.parse_payload(src, xml.encode(), "application/rss+xml")
+    assert recs[0]["timestamp"] == "Fri, 03 Jul 2026 12:57:24 GMT"
+    assert recs[0]["value"] == "Quake"
+
+
+def test_value_regex_leaves_non_matching_values_alone():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"timestamp_field": "t", "value_field": ["v"],
+                      "value_regex": r"Magnitude ([0-9.]+)"}}
+    text = "t,v\n2026-07-01,Magnitude 4.2 near X\n2026-07-02,no reading\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert recs[0]["v"] == "4.2" and recs[1]["v"] == "no reading"
+
+
+def test_wide_csv_skips_preamble_and_honours_delimiter():
+    """NOAA CPC degree-day files: 3 preamble lines, pipe-delimited, YYYYMMDD headers."""
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"skip_rows": 3, "csv_delimiter": "|",
+                      "wide": {"id_fields": ["Region"]}}}
+    text = ("Product: Daily Heating Degree Days\nRegions: x\nWeights: Population\n"
+            "Region|20260101|20260102\n1|41|47\nCONUS|29|28\n")
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert len(recs) == 4
+    assert recs[0] == {"timestamp": "20260101", "value": "41", "_panel_Region": "1"}
+    assert {r["_panel_Region"] for r in recs} == {"1", "CONUS"}
+
+
+def test_wide_csv_accepts_compact_date_headers():
+    src = {"endpoint": {"type": "rest_csv"},
+           "schema": {"wide": {"id_fields": ["id"]}}}
+    text = "id,202601,20260201,2026-03,notadate\na,1,2,3,9\n"
+    recs = scraper.parse_payload(src, text.encode(), "text/csv")
+    assert [r["timestamp"] for r in recs] == ["202601", "20260201", "2026-03"]
+
+
+def test_xlsx_sheet_selector_picks_named_tab():
+    import io
+    from openpyxl import Workbook
+    wb = Workbook()
+    wb.active.title = "cover"
+    wb.active["A1"] = "this is a cover page"
+    ws = wb.create_sheet("data-42191")
+    for row in [("when", "howmany"), ("2026-07-01", 5), ("2026-07-02", 6)]:
+        ws.append(row)
+    buf = io.BytesIO()
+    wb.save(buf)
+    src = {"endpoint": {"type": "rest_xlsx"},
+           "schema": {"sheet": "data-42191", "timestamp_field": "when",
+                      "value_field": "howmany"}}
+    recs = scraper.parse_payload(src, buf.getvalue(), "application/vnd.ms-excel")
+    assert recs == [{"timestamp": "2026-07-01", "value": 5.0},
+                    {"timestamp": "2026-07-02", "value": 6.0}]

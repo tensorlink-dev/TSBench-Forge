@@ -2878,8 +2878,8 @@
     auth: none
     rate_limit: polite
   schema:
-    timestamp_field: date
-    value_field: passengers
+    timestamp_field: Date
+    value_field: Numbers
     variates: 1
   history_available: P5Y
   update_cadence_observed: daily, next-day publication
@@ -4714,6 +4714,8 @@
   schema:
     timestamp_field: description
     value_field: title
+    timestamp_regex: '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})'
+    value_regex: 'Magnitude ([0-9.]+)'
     variates: 1
   history_available: P7D
   update_cadence_observed: ttl 5 min; 59 items over last 7 days at probe time
@@ -19485,3 +19487,242 @@
     value_field:
     - value
     timestamp_pattern: ^\d{4} Q\d$
+
+# -- wired batch: wave15 --
+- id: eurostat_energy_solid_fuels_monthly
+  name: Eurostat - EU27 monthly hard coal indigenous production (nrg_cb_sffm)
+  domain: energy
+  frequency: P1M
+  audit_slack_days: 240
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: 'Monthly solid fossil fuel balance for the EU27 aggregate: indigenous production (nrg_bal=IPRD)
+    of hard coal (siec=C0100) in thousand tonnes, from the nrg_cb_sffm flow. PATH-filtered SDMX-JSON (never
+    unfiltered - the whole cube is huge). Distinct flow from the wired nrg_cb_em (electricity), nrg_cb_gasm
+    (gas) and nrg_cb_oilm (oil) entries: solid fuels are a different energy carrier cube. Strong multi-year
+    decline plus winter seasonality; publication lag is ~5 months, so keep the slack wide.'
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nrg_cb_sffm/M.IPRD.C0100.THS_T.EU27_2020?format=JSON&lastTimePeriod=120
+    type: rest_json
+- id: eurostat_excess_mortality_monthly
+  name: Eurostat - EU27 monthly excess mortality rate (demo_mexrt)
+  domain: healthcare
+  frequency: P1M
+  audit_slack_days: 200
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: Monthly excess mortality for the EU27 aggregate, expressed as percent deviation of deaths from
+    the 2016-2019 monthly baseline (unit=PC). PATH-filtered SDMX-JSON. Covers 2020-01 onward, so it carries
+    the COVID waves as large structural spikes followed by a return to near-zero - a genuinely hard regime-change
+    series. Distinct flow from every wired Eurostat entry (prc_hicp_*, une_rt_m, nrg_cb_*, avia_*, rail_*,
+    mar_*).
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/demo_mexrt/M.PC.EU27_2020?format=JSON&lastTimePeriod=80
+    type: rest_json
+- id: eurostat_commercial_flights_monthly
+  name: Eurostat - commercial flights by reporting country, monthly (avia_tf_cm)
+  domain: transport
+  frequency: P1M
+  audit_slack_days: 130
+  license: Eurostat open data (CC-BY 4.0 equivalent)
+  notes: Monthly count of commercial flights (unit=NR, schedule=TOTAL) per reporting country, sourced by
+    Eurostat from Eurocontrol. 10-country panel (DE/FR/ES/IT/NL/PL/SE/AT/BE/DK) via query filters; series
+    starts 2019-01 so the COVID collapse and recovery are in-sample. Distinct flow from the wired avia_paoc
+    (passengers) and avia_gooc (freight) monthly entries - this is movements, not payload, and a different
+    dataset code. Much fresher than the passenger cubes (~1 month lag vs ~3).
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/avia_tf_cm?format=JSON&freq=M&schedule=TOTAL&unit=NR&sinceTimePeriod=2019&geo=DE&geo=FR&geo=ES&geo=IT&geo=NL&geo=PL&geo=SE&geo=AT&geo=BE&geo=DK
+    type: rest_json
+- id: cms_hix_effectuated_enrollment_monthly
+  name: CMS - Health Insurance Exchanges monthly effectuated enrollment (US total)
+  domain: healthcare
+  frequency: P1M
+  audit_slack_days: 220
+  license: US Government open data (CMS data.cms.gov, public domain)
+  notes: Number of consumers with an effectuated (paid-for) Marketplace health plan, US total across all
+    platforms, monthly since 2016-01. Keyless data.cms.gov data-api with filter[State]=Total and filter[Platform]=All;
+    Year + Month(English month name) are composed into YYYY-MM by the scraper. Strong annual sawtooth (open-enrollment
+    peak in January, attrition through the year) plus a large 2021-2025 level shift from enhanced subsidies.
+    Dataset id 1829fdb3-a6f9-4036-856a-3af1f7828c8c is a different dataset from the already-wired Medicare
+    Monthly Enrollment (d7fabe1e-d19b-4333-9eff-e80e0643f2fd).
+  endpoint:
+    url: https://data.cms.gov/data-api/v1/dataset/1829fdb3-a6f9-4036-856a-3af1f7828c8c/data?size=1000&filter%5BState%5D=Total&filter%5BPlatform%5D=All
+    type: rest_json
+  schema:
+    timestamp_field: Year Month
+    value_field:
+    - Effectuated_Enr
+- id: statcan_electric_power_generation_monthly
+  name: StatCan - electric power generation, Canada monthly (MWh)
+  domain: energy
+  frequency: P1M
+  audit_slack_days: 165
+  license: Statistics Canada Open Licence
+  notes: Total monthly electricity generated in Canada (table 25-10-0015, coordinate Canada / all producers
+    / total generation, MWh) via the keyless WDS REST POST endpoint. Very strong winter/summer double seasonality.
+    Different cube id from every wired StatCan entry (23-10-0216 rail carloadings, 23-10-0079 airline passengers,
+    23-10-0253 aircraft movements, retail/wholesale trade cubes) - this is the first energy cube from www150.statcan.gc.ca.
+  endpoint:
+    url: https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods
+    type: rest_json
+    method: POST
+    body:
+    - productId: 25100015
+      coordinate: 1.1.1.0.0.0.0.0.0.0
+      latestN: 150
+  schema:
+    timestamp_field: '[].object.vectorDataPoint[].refPer'
+    value_field:
+    - '[].object.vectorDataPoint[].value'
+- id: ons_brazil_cmo_weekly
+  name: ONS Brazil - weekly marginal operating cost by subsystem (R$/MWh)
+  domain: energy
+  frequency: P1W
+  audit_slack_days: 50
+  license: ONS Brazil open data (dados.ons.org.br, CC-BY)
+  notes: 'Weekly CMO (custo marginal de operacao) published by Brazil''s grid operator ONS for the four
+    subsystems (N/NE/S/SE), with average, light-load, medium-load and heavy-load variants. Semicolon CSV,
+    dot decimals, one file per calendar year addressed via the {YYYY} token. Hydro-driven price series -
+    huge dry-season/wet-season swings and reservoir-scarcity spikes. New host (ons-aws-prod-opendata.s3
+    .amazonaws.com, the S3 bucket behind the dados.ons.org.br CKAN); nothing from ONS Brazil is wired (api.beta.ons.gov.uk
+    in the catalog is the UK statistics office, unrelated). Gotcha: in the first weeks of January the new
+    year file has only a couple of rows.'
+  endpoint:
+    url: https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/cmo_se/CMO_SEMANAL_{YYYY}.csv
+    type: rest_csv
+  schema:
+    timestamp_field: din_instante
+    value_field:
+    - val_cmomediasemanal
+    - val_cmoleve
+    - val_cmomedia
+    - val_cmopesada
+    panel_field: id_subsistema
+    csv_delimiter: ;
+- id: ons_brazil_daily_load_by_subsystem
+  name: ONS Brazil - daily electricity load by subsystem (MWmed)
+  domain: energy
+  frequency: P1D
+  audit_slack_days: 50
+  license: ONS Brazil open data (dados.ons.org.br, CC-BY)
+  notes: 'Daily verified electricity load (carga de energia, MW medio) for the four Brazilian subsystems
+    N/NE/S/SE from the grid operator ONS. Semicolon CSV, dot decimals, one file per calendar year via the
+    {YYYY} token; ~205 days x 4 subsystems so far in 2026. Distinct dataset from ons_brazil_cmo_weekly (price
+    vs demand, different CKAN package carga-energia vs cmo-semanal). Tropical demand seasonality with a
+    strong weekly cycle. Gotcha: early January the new-year file is nearly empty.'
+  endpoint:
+    url: https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/carga_energia_di/CARGA_ENERGIA_{YYYY}.csv
+    type: rest_csv
+  schema:
+    timestamp_field: din_instante
+    value_field:
+    - val_cargaenergiamwmed
+    panel_field: id_subsistema
+    csv_delimiter: ;
+- id: nsidc_arctic_sea_ice_extent_daily
+  name: NSIDC Sea Ice Index - Arctic daily sea ice extent (10^6 km2)
+  domain: nature
+  frequency: P1D
+  audit_slack_days: 50
+  license: NSIDC / NOAA G02135 open data (free reuse with citation)
+  notes: 'Daily Northern-Hemisphere sea ice extent from the NSIDC Sea Ice Index (G02135), 1978-10 to now,
+    15000+ observations. Note the v3.0 file path is dead - the live file is v4.0. Header handling: the file
+    has a units row under the header, so schema.csv_columns names the six real columns (the header line
+    is then skipped and the units row survives as one unparseable timestamp that pandas coerces to NaT -
+    harmless for the freshness audit). Extremely strong annual cycle plus a multi-decade downward trend,
+    and the last few days are near-real-time (NRT) values that get revised. New host.'
+  endpoint:
+    url: https://noaadata.apps.nsidc.org/NOAA/G02135/north/daily/data/N_seaice_extent_daily_v4.0.csv
+    type: rest_csv
+  schema:
+    csv_columns:
+    - Year
+    - Month
+    - Day
+    - Extent
+    - Missing
+    - Source Data
+    timestamp_field: Year Month Day
+    value_field:
+    - Extent
+- id: nzta_tms_daily_traffic_counts
+  name: NZTA - state highway telemetry site daily traffic counts (NZ)
+  domain: transport
+  frequency: P1D
+  audit_slack_days: 50
+  license: CC BY 4.0 (NZ Transport Agency open data)
+  notes: Daily vehicle counts from a New Zealand state-highway telemetry site (SiteRef 01N10999), split
+    by lane, flow direction and light/heavy class - a 6-way panel over the same day index. ArcGIS FeatureServer
+    query, keyless, 2000-record page cap so one fetch covers ~38 recent days. Telemetry sites are refreshed
+    weekly (Wednesdays) with daily granularity, so expect a few days of lag and occasional backfill. Host
+    services.arcgis.com is already used for the Iowa DOT AVL layer, but this is a different ArcGIS org (CXBb7LAjgIIdcsPt)
+    and a different service (TMS_Telemetry_Sites).
+  endpoint:
+    url: https://services.arcgis.com/CXBb7LAjgIIdcsPt/arcgis/rest/services/TMS_Telemetry_Sites/FeatureServer/0/query?where=SiteRef%3D%2701N10999%27&outFields=startDate,SiteRef,laneNumber,flowDirection,classWeight,trafficCount&returnGeometry=false&f=json&resultRecordCount=2000&orderByFields=startDate+DESC
+    type: rest_json
+  schema:
+    timestamp_field: features[].attributes.startDate
+    value_field:
+    - features[].attributes.trafficCount
+    panel_field:
+    - features[].attributes.laneNumber
+    - features[].attributes.flowDirection
+    - features[].attributes.classWeight
+- id: eccc_hydrometric_realtime_water_level
+  name: ECCC Water Office - real-time river water level, 5-station panel (5-min)
+  domain: nature
+  frequency: PT5M
+  audit_slack_days: 7
+  license: Environment and Climate Change Canada open data (Open Government Licence - Canada)
+  notes: 'Real-time (provisional) river water level in metres at five Water Survey of Canada gauges (05BB001
+    Bow at Banff, 02HC003, 08MF005 Fraser at Hope, 02OA016, 05DF001), 5-minute telemetry, served as inline
+    CSV over a rolling date window built from {YYYY-MM-DD-2d} / {YYYY-MM-DD} tokens. Gotcha: the CSV header
+    is BOM-prefixed and the first column is literally " ID" (leading space), so panel_field must be the
+    exact "\uFEFF ID" key - verified working. parameters[]=46 is water level; 47 is discharge. Freshet spikes
+    and ice-affected winter readings make this a genuinely non-stationary hydrology panel. New host.'
+  endpoint:
+    url: https://wateroffice.ec.gc.ca/services/real_time_data/csv/inline?stations%5B%5D=05BB001&stations%5B%5D=02HC003&stations%5B%5D=08MF005&stations%5B%5D=02OA016&stations%5B%5D=05DF001&parameters%5B%5D=46&start_date={YYYY-MM-DD-2d}%2000:00:00&end_date={YYYY-MM-DD}%2023:59:59
+    type: rest_csv
+  schema:
+    timestamp_field: Date
+    value_field:
+    - Value/Valeur
+    panel_field: "\uFEFF ID"
+
+# -- wired batch: wave15b-cpc --
+- id: cpc_population_weighted_hdd_daily
+  name: NOAA CPC population-weighted heating degree days, US census divisions (daily)
+  domain: energy
+  frequency: P1D
+  audit_slack_days: 45
+  license: NOAA Climate Prediction Center - US public domain
+  notes: 'Daily population-weighted heating degree days for the nine US census divisions plus CONUS - the
+    demand driver behind US gas and power load. Wide file: one column per YYYYMMDD, pipe-delimited, three
+    preamble lines above the header. The file covers the current year only, so history restarts each January.'
+  endpoint:
+    url: https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_data/{YYYY}/Population.Heating.txt
+    type: rest_csv
+    timeout: 90
+  schema:
+    skip_rows: 3
+    csv_delimiter: '|'
+    wide:
+      id_fields:
+      - Region
+- id: cpc_population_weighted_cdd_daily
+  name: NOAA CPC population-weighted cooling degree days, US census divisions (daily)
+  domain: energy
+  frequency: P1D
+  audit_slack_days: 45
+  license: NOAA Climate Prediction Center - US public domain
+  notes: 'Daily population-weighted cooling degree days for the nine US census divisions plus CONUS - the
+    demand driver behind US gas and power load. Wide file: one column per YYYYMMDD, pipe-delimited, three
+    preamble lines above the header. The file covers the current year only, so history restarts each January.'
+  endpoint:
+    url: https://ftp.cpc.ncep.noaa.gov/htdocs/degree_days/weighted/daily_data/{YYYY}/Population.Cooling.txt
+    type: rest_csv
+    timeout: 90
+  schema:
+    skip_rows: 3
+    csv_delimiter: '|'
+    wide:
+      id_fields:
+      - Region
