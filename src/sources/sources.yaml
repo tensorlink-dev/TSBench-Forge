@@ -19064,3 +19064,175 @@
     timestamp_field: mapDate
     value_field:
     - dsci
+
+# -- wired batch: wave14 --
+- id: ibge_pimpf_industrial_production_brazil
+  name: IBGE Brazil monthly industrial production index (PIM-PF)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 130
+  license: IBGE public data
+  notes: Industrial production physical volume index (2022=100), Brazil general industry, SIDRA table 8888
+    var 12606, class c544/129314; first JSON row is a header-label record; YYYYMM digit month labels in
+    D3C
+  endpoint:
+    url: https://apisidra.ibge.gov.br/values/t/8888/n1/all/v/12606/p/last%2072/c544/129314?formato=json
+    type: rest_json
+  schema:
+    timestamp_field: '[].D3C'
+    value_field:
+    - '[].V'
+- id: mindicador_cl_uf_daily
+  name: Chile mindicador.cl — Unidad de Fomento (UF) daily value
+  domain: econ_fin
+  frequency: P1D
+  audit_slack_days: 50
+  license: mindicador.cl free public API (Banco Central de Chile data)
+  notes: Daily UF inflation-indexed unit value in Chilean pesos; serie[] is newest-first, current calendar
+    year
+  endpoint:
+    url: https://mindicador.cl/api/uf
+    type: rest_json
+  schema:
+    timestamp_field: serie[].fecha
+    value_field:
+    - serie[].valor
+- id: mindicador_cl_dolar_daily
+  name: Chile mindicador.cl — observed USD/CLP exchange rate daily
+  domain: econ_fin
+  frequency: P1D
+  audit_slack_days: 50
+  license: mindicador.cl free public API (Banco Central de Chile data)
+  notes: Dolar observado (official USD/CLP fix) daily on business days; serie[] newest-first, current calendar
+    year
+  endpoint:
+    url: https://mindicador.cl/api/dolar
+    type: rest_json
+  schema:
+    timestamp_field: serie[].fecha
+    value_field:
+    - serie[].valor
+- id: statcan_retail_sales_mrts_monthly
+  name: StatCan — monthly retail trade sales, Canada, seasonally adjusted (table 20-10-0056)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 160
+  license: Statistics Canada Open Licence
+  notes: Total retail sales, Canada, all retail trade NAICS, seasonally adjusted (cube 20100056 coord 1.1.1.2);
+    current cube replacing the retired 20100008 series behind disabled statcan_retail_trade_monthly
+  endpoint:
+    url: https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods
+    type: rest_json
+    method: POST
+    body:
+    - productId: 20100056
+      coordinate: 1.1.1.2.0.0.0.0.0.0
+      latestN: 120
+  schema:
+    timestamp_field: '[].object.vectorDataPoint[].refPer'
+    value_field:
+    - '[].object.vectorDataPoint[].value'
+- id: usda_mpr_boxed_lamb_cuts_daily
+  name: USDA AMS — national 5-day rolling average boxed lamb cuts (LM_XL500)
+  domain: sales
+  frequency: P1D
+  audit_slack_days: 8
+  license: Public domain (USDA)
+  notes: Daily 5-day rolling average negotiated boxed lamb cut prices (USD/cwt) per item, MPR Datamart slug
+    2648 section Detail; panel by item_desc; null rows padded for items with no trades
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2648/Detail?q=report_date=01/01/2026:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].price_range_avg
+    panel_field: results[].item_desc
+    drop_null_values: true
+- id: usda_mpr_boneless_beef_trimmings_daily
+  name: USDA AMS — national daily boneless processing beef / beef trimmings PM (LM_XB401)
+  domain: sales
+  frequency: P1D
+  audit_slack_days: 8
+  license: Public domain (USDA)
+  notes: Daily national weighted average prices (USD/cwt) for boneless processing beef and beef trimmings
+    by chemical-lean item, MPR Datamart slug 2451 section National; panel by item_desc; distinct commodity
+    cut from wired 2453/2461 boxed-beef cutout slugs
+  endpoint:
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2451/National?q=report_date=01/01/2026:12/31/2035
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].price_range_avg
+    panel_field: results[].item_desc
+    drop_null_values: true
+- id: eurostat_services_production_accomfood_monthly
+  name: Eurostat — monthly services production index, accommodation & food service (sts_sepr_m)
+  domain: sales
+  frequency: P1M
+  audit_slack_days: 160
+  license: Eurostat (CC BY 4.0)
+  notes: Monthly production index in services (2021=100, calendar adjusted) for accommodation and food service
+    activities (NACE I), country panel; dataflow sts_sepr_m not previously wired
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/sts_sepr_m/M.PRD.I.CA.I21.DE+FR+ES+IT+NL+PL?format=SDMX-CSV&startPeriod=2015-01
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+    panel_field: geo
+- id: eurostat_building_permits_sqm_monthly
+  name: Eurostat — monthly building permits, useful floor area of residential buildings (sts_cobp_m)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 180
+  license: Eurostat (CC BY 4.0)
+  notes: Monthly building permits index (square metres of useful floor area, residential buildings CPA_F41001_41002,
+    2021=100, seasonally+calendar adjusted), country panel (IT, PL not in flow); dataflow sts_cobp_m not
+    previously wired
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/sts_cobp_m/M.BPRM_SQM.CPA_F41001_41002.SCA.I21.DE+FR+ES+NL?format=SDMX-CSV&startPeriod=2015-01
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+    panel_field: geo
+- id: eurostat_consumer_confidence_monthly
+  name: Eurostat — monthly consumer confidence indicator (ei_bsco_m)
+  domain: econ_fin
+  frequency: P1M
+  audit_slack_days: 130
+  license: Eurostat (CC BY 4.0)
+  notes: Consumer confidence indicator (balance, seasonally adjusted) from the joint EC consumer survey,
+    EU27 + large member states panel; dataflow ei_bsco_m not previously wired
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/ei_bsco_m/M.BS-CSMCI.SA.BAL.EU27_2020+DE+FR+ES+IT+NL+PL?format=SDMX-CSV&startPeriod=2015-01
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+    panel_field: geo
+- id: dockerhub_library_pull_counts
+  name: Docker Hub — cumulative pull counts of official library images (snapshot panel)
+  domain: web_cloudops
+  frequency: PT30M
+  audit_slack_days: 2
+  license: Docker Hub public API (research use)
+  notes: Cumulative pull_count and star_count per official library image (100-image panel in one request,
+    page 1 of /v2/repositories/library/); snapshot_now stamps fetch time - series emerges from repeated
+    polls of the monotone counters
+  endpoint:
+    url: https://hub.docker.com/v2/repositories/library/?page_size=100
+    type: rest_json
+  schema:
+    snapshot_now: true
+    value_field:
+    - results[].pull_count
+    - results[].star_count
+    panel_field: results[].name
