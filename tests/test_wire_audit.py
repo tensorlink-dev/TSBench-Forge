@@ -300,3 +300,28 @@ def test_audit_slack_days_override_silences_known_lag(tmp_path) -> None:
     by_id = {f["id"]: f for f in audit.audit_catalog(cat, data, now=now)}
     assert by_id["lagged_src"]["status"] == "ok"
     assert by_id["lagged_src"]["limit_days"] == 200.0
+
+
+@pytest.mark.parametrize("raw,expect", [
+    # RFC 2822 / HTTP-date — the RSS lingua franca (GDACS, iTunes, AWS health)
+    ("Fri, 03 Jul 2026 12:57:24 GMT", dt.datetime(2026, 7, 3, 12, 57, 24, tzinfo=UTC)),
+    ("Fri, 03 Jul 2026 14:39:49", dt.datetime(2026, 7, 3, 14, 39, 49, tzinfo=UTC)),
+    ("Mon Jul 27 00:06:02 2026 GMT", dt.datetime(2026, 7, 27, 0, 6, 2, tzinfo=UTC)),  # FAA
+    ("1/1/2026 12:00:00 AM", dt.datetime(2026, 1, 1, tzinfo=UTC)),                    # NRC
+    ("010012Z APR 2023", dt.datetime(2023, 4, 1, 0, 12, tzinfo=UTC)),                 # NGA DTG
+    ("01-01-2026 01:00", dt.datetime(2026, 1, 1, 1, tzinfo=UTC)),                     # DEFRA
+    ("31-05-2026 24:00", dt.datetime(2026, 6, 1, tzinfo=UTC)),      # hour-ending 24
+])
+def test_parse_ts_wire_formats(raw, expect) -> None:
+    assert audit.parse_ts(raw) == expect
+
+
+def test_parse_ts_named_offset_zone_keeps_offset() -> None:
+    got = audit.parse_ts("Mon, 02 Mar 2026 00:52:00 PST")
+    assert got is not None and got.utcoffset() == dt.timedelta(hours=-8)
+
+
+def test_parse_ts_dateless_strings_stay_none() -> None:
+    # Time-of-day only (BART) and month-day only (GLERL) cannot yield a date.
+    assert audit.parse_ts("05:02:47 PM PDT") is None
+    assert audit.parse_ts("01-01") is None

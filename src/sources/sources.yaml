@@ -1721,6 +1721,7 @@
     sample_freshness_hours: 0.05
   notes: Auth via API key raises quota to 10k/day.
 - id: aws_health_rss
+  audit_slack_days: 400  # event stream: AWS posts health events rarely, a quiet quarter is normal - freshness here means the fetch works, not that an event just landed
   name: AWS Service Health Dashboard RSS
   domain: web_cloudops
   dgp_class: service_health
@@ -4088,6 +4089,7 @@
     html_url and document_number. Bulk SDN XML (treasury.gov/ofac/downloads/sdn.xml) exists but is a 28MB
     current-state snapshot, not a dated event list — avoid.
 - id: nasdaq_trader_halts
+  audit_slack_days: 45  # event stream: trading halts are sporadic, quiet weeks are normal
   name: Nasdaq Trader trade halts RSS
   domain: econ_fin
   dgp_class: alert_stream
@@ -4762,6 +4764,7 @@
     and the /pub/flood_observatory/DFODischarge/ directory to build a hierarchical panel. First data row
     (1998-01-01) has a blank value; skip blanks.
 - id: bgs_uk_earthquakes
+  audit_slack_days: 45  # event stream: felt UK earthquakes are sporadic, quiet weeks are normal
   name: British Geological Survey — recent UK earthquakes (RSS)
   domain: nature
   dgp_class: seismic_event
@@ -7159,6 +7162,8 @@
     Uses schema.panel_field to split the flat CSV into per-series panels. WARNING: URL is version-pinned
     (v45) — bump the vNN segment when ONS publishes a new edition (old version may 404).'
 - id: nga_navarea_broadcast_warnings
+  disabled: true
+  disabled_reason: '2026-07-27: dead upstream — msi.nga.mil/api/publications/broadcast-warn returns ZERO messages for msgYear 2025 and 2026, and the status=active set tops out at May 2024, so the API stopped publishing in 2024. (The entry was also weak as a series: its value was msgNumber, a per-year sequence counter.) Re-enable only if the API resumes.'
   name: NGA MSI — active maritime broadcast (NAVAREA) warnings
   domain: transport
   dgp_class: alert_stream

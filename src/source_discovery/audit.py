@@ -25,6 +25,7 @@ validates the catalog reparses with the same entry count afterwards.
 from __future__ import annotations
 
 import datetime as dt
+import email.utils
 import re
 import sys
 from pathlib import Path
@@ -47,6 +48,8 @@ _FORMATS = (
     "%d-%b-%Y %H:%M:%S",  # EirGrid dashboard: "25-Jul-2026 00:15:00"
     "%b-%y",  # ONS beta API month labels: "Mar-26" (%y: 00-68 -> 2000s)
     "%Y %b",  # ONS generator CSV month labels: "2026 JUN"
+    "%a %b %d %H:%M:%S %Y %Z",  # FAA NAS status: "Mon Jul 27 00:06:02 2026 GMT"
+    "%m/%d/%Y %I:%M:%S %p",     # NRC reactor status: "1/1/2026 12:00:00 AM"
 )
 
 # Digit-only strings are ambiguous under greedy strptime ("20260726" parses as
@@ -61,6 +64,12 @@ _YM_LABEL_RE = re.compile(r"^(\d{4})M{1,2}(\d{1,2})$")
 # ISO week labels: ECB SDMX "2026-W22", some statbanks "2026W22"
 _ISOWEEK_RE = re.compile(r"^(\d{4})-?W(\d{1,2})$")
 _SLASH_DMY_RE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{4})$")
+# NGA NAVAREA broadcast warnings, military date-time group: "010012Z APR 2023"
+_DTG_RE = re.compile(r"^(\d{2})(\d{2})(\d{2})Z ([A-Za-z]{3}) (\d{4})$")
+# DEFRA AURN hourly: "31-05-2026 24:00" — hour-ending 24 means midnight next day
+_DMY_HM_RE = re.compile(r"^(\d{2})-(\d{2})-(\d{4}) (\d{1,2}):(\d{2})$")
+_MONTH_ABBR = {m: i for i, m in enumerate(
+    ("jan feb mar apr may jun jul aug sep oct nov dec").split(), start=1)}
 
 
 def parse_ts(raw: object) -> Optional[dt.datetime]:
@@ -118,6 +127,35 @@ def parse_ts(raw: object) -> Optional[dt.datetime]:
             cands.append(got)
         past = [c for c in cands if c <= horizon]
         return max(past) if past else (min(cands) if cands else None)
+    m = _DTG_RE.match(s)
+    if m:
+        day, hour, minute, mon, year = m.groups()
+        month = _MONTH_ABBR.get(mon.lower())
+        if month:
+            try:
+                return dt.datetime(int(year), month, int(day),
+                                   int(hour), int(minute), tzinfo=UTC)
+            except ValueError:
+                return None
+    m = _DMY_HM_RE.match(s)
+    if m:
+        day, month, year, hour, minute = (int(g) for g in m.groups())
+        try:
+            got = dt.datetime(year, month, day, 0, minute, tzinfo=UTC)
+        except ValueError:
+            return None
+        # Hour-ending 24:00 belongs to the following day (DEFRA AURN).
+        return got + dt.timedelta(hours=hour)
+    # RFC 2822 / HTTP-date, the lingua franca of RSS feeds ("Fri, 03 Jul 2026
+    # 12:57:24 GMT"). Obsolete zone names (PST) parse as naive — for staleness,
+    # being a few hours out never matters.
+    if re.match(r"^[A-Za-z]{3}, ", s):
+        try:
+            got = email.utils.parsedate_to_datetime(s)
+        except (TypeError, ValueError):
+            got = None
+        if got:
+            return got if got.tzinfo else got.replace(tzinfo=UTC)
     zless = s[:-1] if s.endswith("Z") else s
     for fmt in _FORMATS:
         try:
