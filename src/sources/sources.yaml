@@ -17285,3 +17285,176 @@
     - 太陽光発電実績（５分間隔値）(万kW)
     - 太陽光発電量（電力使用量に対する割合）(%)
     drop_null_values: true
+
+# -- wired batch: wave8-sweep --
+- id: rutgers_nh_weekly_snow_extent
+  name: Rutgers Global Snow Lab NH weekly snow cover extent
+  domain: nature
+  frequency: P1W
+  license: Rutgers GSL open data (cite lab)
+  notes: Northern Hemisphere land weekly snow cover extent (km^2) from NOAA satellite charts; headerless
+    Year Week Area rows; ~3 week publication lag
+  audit_slack_days: 35
+  endpoint:
+    url: https://climate.rutgers.edu/snowcover/files/wkcov.nhland.txt
+    type: rest_csv
+  schema:
+    csv_columns:
+    - Year
+    - Week
+    - snow_extent_km2
+    timestamp_field: Year Week
+    compose_year_week: true
+    value_field:
+    - snow_extent_km2
+- id: cftc_cot_wti_positions
+  name: CFTC Commitments of Traders WTI crude positions (weekly)
+  domain: econ_fin
+  frequency: P1W
+  license: US Government public data
+  notes: Legacy futures-only COT for NYMEX WTI-PHYSICAL (code 067651); open interest and non-commercial
+    long/short positions; released Fridays for Tuesday data (~3 day lag)
+  audit_slack_days: 12
+  endpoint:
+    url: https://publicreporting.cftc.gov/resource/6dca-aqww.json?$select=report_date_as_yyyy_mm_dd,open_interest_all,noncomm_positions_long_all,noncomm_positions_short_all&$where=cftc_contract_market_code='067651'&$order=report_date_as_yyyy_mm_dd
+      DESC&$limit=400
+    type: rest_json
+  schema:
+    timestamp_field: report_date_as_yyyy_mm_dd
+    value_field:
+    - open_interest_all
+    - noncomm_positions_long_all
+    - noncomm_positions_short_all
+- id: nyfed_soma_holdings_weekly
+  name: NY Fed SOMA portfolio holdings summary (weekly)
+  domain: econ_fin
+  frequency: P1W
+  license: NY Fed public data
+  notes: System Open Market Account holdings by asset class (USD), weekly Wednesday as-of dates since 2003;
+    total, notes/bonds, bills, MBS, TIPS
+  audit_slack_days: 12
+  endpoint:
+    url: https://markets.newyorkfed.org/api/soma/summary.json
+    type: rest_json
+  schema:
+    timestamp_field: soma.summary[].asOfDate
+    value_field:
+    - soma.summary[].total
+    - soma.summary[].notesbonds
+    - soma.summary[].bills
+    - soma.summary[].mbs
+    - soma.summary[].tips
+- id: nashville_fire_active_incidents
+  name: Nashville Fire Department active incidents (per-minute dispatch volume)
+  domain: healthcare
+  frequency: PT1M
+  license: Public domain (Metro Nashville open data)
+  notes: Live NFD CAD active-incident layer (fire+EMS) on ArcGIS; dispatch timestamps binned to per-minute
+    counts; snapshot holds ~1-2h of active calls, refreshed every ~1-2 min
+  endpoint:
+    url: https://services2.arcgis.com/HdTo6HJqh92wn4D8/arcgis/rest/services/Nashville_Fire_Department_Active_Incidents_view/FeatureServer/0/query?where=1%3D1&outFields=event_number,incident_type_id,DispatchDateTime&returnGeometry=false&orderByFields=DispatchDateTime%20DESC&resultRecordCount=500&f=json
+    type: rest_json
+  schema:
+    timestamp_field: features[].attributes.DispatchDateTime
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1M
+- id: dallas_police_active_calls_volume
+  name: Dallas Police active CAD calls (per-minute dispatch volume)
+  domain: healthcare
+  frequency: PT1M
+  license: Public domain (Dallas Open Data)
+  notes: DPD active calls-for-service CAD snapshot (9fxf-t2tr, refreshed ~1-5 min); date+time composed via
+    SoQL concat; rows are unit-level, binned to per-minute call-start counts; timestamps are local Dallas
+    time (CT)
+  endpoint:
+    url: 'https://www.dallasopendata.com/resource/9fxf-t2tr.json?$select=substring(date_trunc_ymd(date)
+      :: text,1,10) || ''T'' || time AS ts,incident_number&$order=ts DESC&$limit=2000'
+    type: rest_json
+  schema:
+    timestamp_field: '[].ts'
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT1M
+- id: portland_911_dispatch_volume
+  name: Portland 911 dispatch incidents (5-min call volume)
+  domain: healthcare
+  frequency: PT5M
+  license: Public domain (City of Portland)
+  notes: Portland OR combined 911 CAD Atom feed (police/fire/medical) from portlandmaps.com; last ~100 incidents
+    with published timestamps (local -07:00), binned to 5-min counts; feed updates every ~1-2 min
+  endpoint:
+    url: https://www.portlandmaps.com/scripts/911incidents.cfm
+    type: rss
+  schema:
+    timestamp_field: published
+    value_field: value
+    aggregate:
+      op: count
+      bin: PT5M
+- id: eurostat_iww_goods_quarterly_de
+  name: Eurostat quarterly inland waterway goods transport (Germany)
+  domain: transport
+  frequency: P1Q
+  license: Eurostat (CC BY 4.0)
+  notes: Quarterly inland waterways freight (million tonne-km, WORLD vessel nationality aggregate, total
+    coverage) for Germany, dataflow iww_go_qnave; publication lags ~2 quarters
+  audit_slack_days: 400
+  endpoint:
+    url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/iww_go_qnave/Q.MIO_TKM.WORLD.TOTAL.DE?format=SDMX-CSV
+    type: rest_csv
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field:
+    - OBS_VALUE
+- id: ibge_pmc_retail_volume_brazil
+  name: IBGE Brazil monthly retail trade volume index (PMC)
+  domain: sales
+  frequency: P1M
+  license: IBGE public data
+  notes: Seasonally adjusted retail sales volume index (2022=100), Brazil national, SIDRA table 8880 var
+    7170; ~2 month publication lag; first JSON row is a header-label record
+  audit_slack_days: 100
+  endpoint:
+    url: https://apisidra.ibge.gov.br/values/t/8880/n1/all/v/7170/p/last%2072/c11046/56734?formato=json
+    type: rest_json
+  schema:
+    timestamp_field: '[].D3C'
+    value_field:
+    - '[].V'
+- id: statcan_aircraft_movements_monthly
+  name: StatCan — itinerant aircraft movements, all Canadian airports, monthly
+  domain: transport
+  frequency: P1M
+  license: Statistics Canada Open Licence
+  notes: Monthly domestic itinerant aircraft movements, total all airports with NAV CANADA services (table
+    23-10-0302); distinct cube from wired airline-passenger and rail cubes; ~3 month lag
+  audit_slack_days: 160
+  endpoint:
+    url: https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods
+    type: rest_json
+    method: POST
+    body:
+    - productId: 23100302
+      coordinate: 1.100001.1.1.0.0.0.0.0.0
+      latestN: 120
+  schema:
+    timestamp_field: '[].object.vectorDataPoint[].refPer'
+    value_field:
+    - '[].object.vectorDataPoint[].value'
+- id: wikimedia_edits_enwiki_monthly
+  name: Wikimedia — English Wikipedia edits per month
+  domain: web_cloudops
+  frequency: P1M
+  license: CC0 (Wikimedia Analytics API)
+  notes: Total edit count per month on en.wikipedia (all editor types, all page types); distinct metric
+    path from wired pageviews/editors/unique-devices sources
+  endpoint:
+    url: https://wikimedia.org/api/rest_v1/metrics/edits/aggregate/en.wikipedia/all-editor-types/all-page-types/monthly/20150101/{YYYYMMDD}
+    type: rest_json
+  schema:
+    timestamp_field: items[].results[].timestamp
+    value_field:
+    - items[].results[].edits

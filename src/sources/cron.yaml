@@ -53,6 +53,9 @@ schedules:
   sources:
   - sensor_community_pm25
   - sensor_community_pm25_global_panel
+  - nashville_fire_active_incidents
+  - dallas_police_active_calls_volume
+  - portland_911_dispatch_volume
   cron: '*/3 * * * *'
 - every: PT5M
   sources:
@@ -466,6 +469,13 @@ schedules:
   - cdc_vsrr_county_overdose_deaths_ca
   - smard_de_weekly_grid_load
   - cms_medicare_monthly_enrollment
+  - rutgers_nh_weekly_snow_extent
+  - cftc_cot_wti_positions
+  - nyfed_soma_holdings_weekly
+  - eurostat_iww_goods_quarterly_de
+  - ibge_pmc_retail_volume_brazil
+  - statcan_aircraft_movements_monthly
+  - wikimedia_edits_enwiki_monthly
   cron: 10 1 * * *
 - every: P1D
   sources:
