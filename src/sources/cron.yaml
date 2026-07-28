@@ -1,333 +1,954 @@
-# Timeframe scraper cron schedule
-#
-# Group sources by poll cadence so each cron entry batches a domain's
-# co-frequency sources. Times are UTC. Anonymous-quota-limited sources are
-# placed in the lowest cadence that still satisfies "≥ once per day, every
-# day".
-#
-# To install on a Linux host:
-#   crontab -e
-#   PYTHONPATH=/root/timeframe
-#   for each entry below, add a line:
-#     <cron> cd /root/timeframe/sources && python scraper.py --id <id> >> data/_cron.log 2>&1
-
 schedules:
-
-  # ──────── 1-minute cadence ────────
-  - every: PT1M
-    sources:
-      - energinet_dk_power_system
-      - geonet_nz_quakes
-      - usgs_earthquakes_realtime
-      - swpc_planetary_k
-      - swpc_solar_wind_plasma
-      - nws_active_alerts
-      - nws_alerts_count
-      - hn_max_item
-      - hn_top_stories
-      - bart_realtime_etd
-      - tfl_arrivals
-      - tfl_bikepoints_status
-      - sg_taxi_availability          # ~30s native; PT1M poll
-      - citibike_station_status
-      - github_events_firehose
-      - kalshi_markets_snapshot
-      - manifold_markets_snapshot
-      - coinbase_spot_1m           # 2026-07-11 swap off Binance
-      - opensky_states_local       # respects 10/min anon limit
-    cron: "* * * * *"
-
-  - every: PT2M30S                  # sensor.community
-    sources:
-      - sensor_community_pm25
-    cron: "*/3 * * * *"
-
-  - every: PT5M
-    sources:
-      - wsdot_ferry_locations
-      - aemo_nem_5min
-      - caiso_oasis_lmp_5min
-      - nyiso_realtime_lmp_zonal
-      - coinbase_btc_5min
-      - aws_health_rss
-      - polymarket_btc_history     # 60-fidelity ticks
-      - nasdaq_trader_halts
-      - caiso_grid_conditions
-      - lichess_realtime_api
-      - ercot_supply_demand            # autosearch wire (TX grid demand)
-      - steam_concurrent_players       # autosearch wire (player counts)
-    cron: "*/5 * * * *"
-
-  - every: PT15M
-    sources:
-      - pegelonline_rhine_gauges
-      - mbta_service_alerts
-      - septa_alerts_snapshot
-      - ea_uk_rainfall_15min
-      - tfl_road_disruptions
-      - tsunami_alert_feed
-      - emsc_seismic_events
-      - usgs_streamflow_iv
-      - elia_solar_15min
-      - gdacs_natural_disasters
-      - geoscience_aus_earthquakes
-      - lobsters_hottest              # 2026-07-10 batch
-      - datalakes_eawag_lake_obs      # 2026-07-10 batch; stations update 10-60 min
-      - coinbase_spot_15m             # 2026-07-12; replaces binance_btcusdt_15m (US-accessible)
-      - elexon_gb_system_frequency     # autosearch batch-1 (GB grid frequency)
-    cron: "*/15 * * * *"
-
-  - every: PT30M
-    sources:
-      - uk_carbon_intensity_actual
-      - uk_carbon_intensity_genmix
-      - uk_neso_carbon_historic_30min
-      - octopus_agile_tariff
-      - bitfinex_btcusd_30m_candles
-      - bgs_uk_earthquakes
-      - openlibrary_recent_changes
-      - inaturalist_observations
-      - gemini_btcusd_trades          # 2026-07-10 batch; 500 trades cover ~73 min
-    cron: "*/30 * * * *"
-
-  - every: PT1H
-    sources:
-      - cloudflare_status_incidents
-      - noaa_tides_coops           # 6-min native; hourly poll captures 10 ticks
-      - ndbc_buoy_realtime
-      - open_meteo_forecast
-      - open_meteo_air_quality
-      - open_meteo_marine
-      - coingecko_btc_hourly
-      - reddit_top_daily
-      - stackoverflow_questions    # respects 300 req/day anon
-      - usace_cwms_timeseries      # 2026-07-10 batch; hourly gauge data
-      - ree_spain_grid_demand      # autosearch re-wire (Spain grid demand)
-      - ieso_ontario_demand        # 2026-07-25 autosearch batch-2 (Ontario hourly demand)
-      - kraken_futures_btc_funding # 2026-07-11; US-accessible funding (Binance swap)
-      - ripe_atlas_rootserver_ping # 2026-07-10 batch; 1-day rolling window
-      - ingv_seismicity
-      - smhi_swedish_weather_observations
-      - nl_luchtmeetnet_air_quality
-      - seeclickfix_citizen_reports
-      - speedrun_com_run_submissions
-      - dc_311_service_requests
-      - digitalocean_status_incidents
-      - atlassian_status_incidents
-      - urlscan_public_scans   # unauth rate-limited: hourly, not its PT5M native
-    cron: "5 * * * *"              # 5 minutes past every hour
-
-  # ──────── daily / once-per-day ────────
-  # Stagger by minute to avoid thundering herd at 00:00 UTC.
-
-  - every: P1D
-    sources:
-      - dshield_daily_summary
-      - fema_disaster_declarations
-      - fdic_bank_failures
-      - launch_library_launches
-      - biorxiv_preprint_stream
-      - worldbank_wdi_annual
-      - nvd_cve_disclosures
-      - cisa_kev_catalog
-      - openfda_food_recalls
-      - sec_filer_submissions
-      - usgs_elevated_volcanoes
-      - crw_virtual_station_sst       # 2026-07-10 batch; daily, ~2-day pub lag
-      - nasa_eonet_events [defillama_chain_tvl_daily]
-    cron: "10 1 * * *"
-
-  - every: P1D
-    sources: [frankfurter_fx_daily]
-    cron: "15 17 * * 1-5"          # ECB publishes ~16:00 CET weekdays
-
-  - every: P1D
-    sources: [treasury_yield_curve_daily]
-    cron: "30 22 * * 1-5"          # US Treasury publishes after market close
-
-  - every: P1D
-    sources:
-      - mauna_loa_co2_daily
-      - usda_snotel_swe
-    cron: "0 12 * * *"
-
-  - every: P1D
-    sources:
-      - wikimedia_top_articles_daily
-      - wikimedia_per_article_pageviews
-      - wikimedia_health_pageviews
-    cron: "0 14 * * *"             # after Wikimedia's daily compute
-
-  - every: P1D
-    sources:
-      - npm_downloads_per_pkg
-      - pypi_downloads_per_pkg
-      - crates_io_downloads
-      - itunes_top_podcasts
-    cron: "30 13 * * *"
-
-  - every: P1D
-    sources:
-      - rki_germany_cases
-      - rki_germany_hospitalizations
-    cron: "0 16 * * *"             # after RKI daily refresh ~14:00 CET
-
-  - every: PT8H
-    sources: [ripestat_announced_prefixes]
-    cron: "0 */8 * * *"
-
-  - every: PT1H
-    sources: [nyc_311_complaints]
-    cron: "20 * * * *"
-
-  # ──────── sweep-2 keyless sources (2026-07-08 wiring) ────────
-  - every: P1D
-    sources:
-      - ofac_sanctions_updates
-      - vaers_vaccine_adverse_events
-      - pubmed_ncbi_publication_counts
-      - govuk_mhra_drug_safety_update
-      - chicago_food_inspections
-      - glerl_great_lakes_levels
-      - dartmouth_flood_observatory
-      - avo_alaska_volcano_alerts
-      - celestrak_satellite_tle
-      - inciweb_wildfire_incidents
-      - discogs_marketplace_sales
-      - tvmaze_show_updates
-      - musicbrainz_edit_activity
-      - deezer_chart_snapshots
-      - ransomware_live_attacks
-      - haveibeenpwned_breaches
-      - apnic_labs_ipv6_adoption
-      - semantic_scholar_publications   # shared unauth pool 429s; 1/day is safe
-      - uk_ons_time_series              # P1M native; daily poll, dedup stable
-      - wastewaterscan_pathogen_data    # P1W native
-      - peeringdb_network_ixp_changes   # P1W native
-      - nve_norway_reservoirs           # 2026-07-25 autosearch batch-2 (weekly reservoir fill)
-    cron: "20 2 * * *"
-
-# ──────── operational notes ────────
-#
-# 1. Per-source rate-limit budgets (req/day) summed under PT1M cron exceed some
-#    free-tier quotas. Specifically:
-#      - opensky_states_local: anonymous limit 10 req/min => safe at PT1M.
-#      - github_events_firehose: 60/h anon => MUST set GITHUB_TOKEN, which
-#        raises to 5000/h.
-#      - stackoverflow_questions: 300/day anon => keep at hourly cadence
-#        (24 polls/day). Set STACKEXCHANGE_KEY to lift to 10k/day.
-#      - reddit_top_daily: rate-limited per UA; set REDDIT_USER_AGENT.
-#
-# 2. Daily sources (`P1D`) are scheduled at offsets specific to the upstream
-#    publication time, derived from each provider's documented cadence:
-#      - ECB FX: ~16:00 CET, only weekdays (cron handles via 1-5 day spec).
-#      - US Treasury yields: posted ~16:00 ET on business days.
-#      - Wikimedia pageviews: roughly 13:00 UTC the next day.
-#      - RKI: dashboards updated 13–14:00 CET.
-#
-# 3. Failures append to data/<id>/_errors.log; an external watchdog (e.g.,
-#    cron MAILTO + a digest script) is recommended for production.
-#
-# 4. URL templates in sources.yaml use {YYYYMMDD}, {YYYYMM}, etc. tokens that
-#    scraper.py expands automatically; nothing extra is needed for daily
-#    file-rolling sources (NYISO, AEMO).
-
-  # ──────── autosearch grind batch (2026-07-25) ────────
-  - every: PT15M
-    sources:
-      - cabi_station_status
-      - devto_articles_react_reactions
-      - iem_sbw_storm_based_warnings
-      - intermagnet_geomag_minute_bou
-      - magiceden_degods_activities
-      - noaa_nwps_river_stageflow
-      - transport_ch_stationboard_bern
-    cron: "*/15 * * * *"
-  - every: PT1H
-    sources:
-      - chesscom_hikaru_game_ratings
-      - cwfis_canadian_wildfire_events
-      - geosphere_austria_weather_observations
-      - gios_poland_air_quality
-      - laqn_hourly_pollutant_concentrations
-      - open_meteo_berlin_direct_radiation
-    cron: "7 * * * *"
-  - every: P1D
-    sources:
-      - abs_australia_cpi
-      - bis_cbpol_us_policy_rate
-      - cbs_netherlands_hicp
-      - cneos_fireball_events
-      - dol_ui_initial_claims_state
-      - fdic_bank_failures_deposits
-      - gvp_holocene_eruptions
-      - modrinth_fabric_api_version_downloads
-      - nifc_wildfire_incidents_current
-      - noaa_crw_sst_daily_point
-      - oecd_mei_composite_leading_indicators
-      - ons_cpi_d7g7_monthly
-      - ooni_censorship_measurements_us
-      - rki_germany_covid_hospitalizations
-      - sepa_scotland_river_levels
-      - treasury_auction_results
-    cron: "25 3 * * *"
-
-  # ──────── autosearch unlock-wave batch (2026-07-25) ────────
-  - every: PT5M
-    sources:
-      - deribit_btc_perp_trades
-    cron: "*/5 * * * *"
-  - every: PT15M
-    sources:
-      - gdelt_news_volume_weather
-    cron: "*/15 * * * *"
-  - every: PT1H
-    sources:
-      - hubeau_hydrometry_river_stage
-      - malwarebazaar_sample_submissions
-      - sffd_dispatch_call_volume
-      - safecast_radiation_measurements
-      - arxiv_cslg_submission_rate
-    cron: "9 * * * *"
-  - every: P1D
-    sources:
-      - rubygems_rails_version_downloads
-      - ons_retail_sales_index
-      - nga_navarea_broadcast_warnings
-      - eurostat_hicp_ea_annual_rate
-      - wqp_delaware_water_temperature
-    cron: "35 3 * * *"
-
-  # ──────── autosearch untried-shortlist wave (2026-07-25) ────────
-  - every: PT5M
-    sources:
-      - energinet_dk_co2_intensity_5min
-    cron: "*/5 * * * *"
-  - every: PT15M
-    sources:
-      - swpc_solar_flare_event_counts
-    cron: "*/15 * * * *"
-  - every: PT1H
-    sources:
-      - energinet_dk_elspot_hourly
-      - londonair_kc1_hourly_pollution
-      - swpc_solar_flare_events
-      - aviationweather_pirep_flightlevel
-      - ripestat_bgp_updates_as3333
-    cron: "11 * * * *"
-  - every: P1D
-    sources:
-      - mempool_btc_hashrate_daily
-      - openfda_maude_device_events_daily
-      - openfda_device_recalls
-      - cdc_nssp_ed_visits_state_regions
-      - ndbc_spectral_wave_density_41013
-      - openfda_food_adverse_events_daily
-      - usgs_earthquakes_fdsn_m4_30d
-    cron: "45 3 * * *"
-
-  # ──────── json-stat2 national-stats (2026-07-25); monthly data, daily poll ────────
-  - every: P1D
-    sources:
-      - ssb_norway_cpi_monthly
-    cron: "50 3 * * *"
+- every: PT1M
+  sources:
+  - energinet_dk_power_system
+  - geonet_nz_quakes
+  - usgs_earthquakes_realtime
+  - swpc_planetary_k
+  - swpc_solar_wind_plasma
+  - nws_active_alerts
+  - nws_alerts_count
+  - hn_max_item
+  - hn_top_stories
+  - bart_realtime_etd
+  - tfl_arrivals
+  - tfl_bikepoints_status
+  - sg_taxi_availability
+  - citibike_station_status
+  - github_events_firehose
+  - kalshi_markets_snapshot
+  - manifold_markets_snapshot
+  - coinbase_spot_1m
+  - intermagnet_esk_geomag_minute
+  - crossref_doi_registration_events
+  - mastodon_public_timeline_events
+  - datacite_doi_registration_rate
+  - gbfs_velib_paris_station_status
+  - gbfs_bixi_montreal_station_status
+  - gbfs_bicing_barcelona_station_status
+  - gbfs_toronto_station_status
+  - gbfs_oslo_bysykkel_station_status
+  - gbfs_ecobici_cdmx_station_status
+  - gbfs_divvy_chicago_station_status
+  - youbike_taipei_station_status
+  - coinbase_eth_usd_1m
+  - kraken_btc_usd_1m
+  - bitstamp_xrp_usd_1m
+  - okx_sol_usdt_1m
+  - kucoin_doge_usdt_1m
+  - bitfinex_eth_usd_1m
+  - upbit_krw_btc_1m
+  - tfl_victoria_line_arrival_predictions
+  - gbfs_bikemi_milan_station_status
+  - gbfs_buenos_aires_station_status
+  - gbfs_indego_philadelphia_station_status
+  - gbfs_trondheim_station_status
+  - gbfs_rio_de_janeiro_station_status
+  - gbfs_santiago_station_status
+  - gbfs_bergen_station_status
+  - nextbike_zagreb_station_status
+  - elia_system_imbalance_1min
+  - rata_digitraffic_train_speeds
+  - cita_lu_motorway_traffic_speed
+  - packagist_php_release_rate
+  - fr_ancien_disponibilite_en_temps_reel_des_p
+  cron: '* * * * *'
+- every: PT2M30S
+  sources:
+  - sensor_community_pm25
+  - sensor_community_pm25_global_panel
+  - nashville_fire_active_incidents
+  - dallas_police_active_calls_volume
+  - portland_911_dispatch_volume
+  - ttc_vehicle_speeds_snapshot
+  cron: '*/3 * * * *'
+- every: PT5M
+  sources:
+  - opensky_states_local
+  - wsdot_ferry_locations
+  - aemo_nem_5min
+  - caiso_oasis_lmp_5min
+  - nyiso_realtime_lmp_zonal
+  - coinbase_btc_5min
+  - aws_health_rss
+  - polymarket_btc_history
+  - nasdaq_trader_halts
+  - caiso_grid_conditions
+  - lichess_realtime_api
+  - ercot_supply_demand
+  - steam_concurrent_players
+  - nyiso_realtime_zonal_load
+  - nyiso_realtime_lbmp_zonal
+  - nyiso_fuel_mix_5min
+  - nyiso_interface_flows
+  - nyc_traffic_link_speeds
+  - coinbase_sol_usd_5m
+  - kraken_eth_eur_5m
+  - bitstamp_btc_eur_5m
+  - citybikes_docomo_cycle_tokyo_station_status
+  - citybikes_seoul_bike_station_status
+  - citybikes_youbike_taipei_station_status
+  - citybikes_bicing_station_status
+  - citybikes_bikemi_station_status
+  - citybikes_velo_antwerpen_station_status
+  - bandcamp_sales_feed
+  - swissgrid_grid_frequency
+  - nmdb_oulu_neutron_1min
+  - tepco_demand_5min
+  - gbfs_baywheels_sf_station_status
+  - gbfs_bluebikes_boston_station_status
+  - digitraffic_finland_tms_traffic_5min
+  - digitraffic_finland_ais_vessel_speeds
+  - bvg_alexanderplatz_departure_delays
+  - gbfs_biketown_portland_station_status
+  - gbfs_metro_bike_la_station_status
+  - gbfs_wienmobil_vienna_station_status
+  - gbfs_madison_bcycle_station_status
+  - irishrail_current_train_positions
+  - eccc_hydrometric_realtime_water_level
+  - taipower_generation_by_unit_10min
+  - steam_top_games_concurrent_players
+  - cammesa_ar_demand_5min
+  - chuden_jp_demand_5min
+  - kyuden_jp_demand_5min
+  - johnscreekga_incidentcad
+  - longbeach_go_long_beach_service_requests
+  cron: '*/5 * * * *'
+- every: PT15M
+  sources:
+  - pegelonline_rhine_gauges
+  - mbta_service_alerts
+  - septa_alerts_snapshot
+  - ea_uk_rainfall_15min
+  - tfl_road_disruptions
+  - tsunami_alert_feed
+  - emsc_seismic_events
+  - usgs_streamflow_iv
+  - elia_solar_15min
+  - gdacs_natural_disasters
+  - geoscience_aus_earthquakes
+  - lobsters_hottest
+  - datalakes_eawag_lake_obs
+  - coinbase_spot_15m
+  - elexon_gb_system_frequency
+  - energy_charts_de_day_ahead_price
+  - energy_charts_fr_public_power
+  - elering_estonia_system_balance
+  - pse_poland_system_demand
+  - hydro_quebec_demand
+  - energy_charts_de_cross_border_flows
+  - elering_nordpool_estonia_price
+  - energy_charts_at_public_power
+  - energy_charts_nl_public_power
+  - energy_charts_dk_public_power
+  - energy_charts_es_public_power
+  - energy_charts_pl_public_power
+  - energy_charts_be_day_ahead_price
+  - energy_charts_nl_day_ahead_price
+  - energy_charts_se4_day_ahead_price
+  - energy_charts_de_co2_intensity
+  - energy_charts_fi_public_power
+  - energy_charts_no_public_power
+  - energy_charts_se_public_power
+  - energy_charts_cz_public_power
+  - energy_charts_ie_public_power
+  - energy_charts_gr_public_power
+  - energy_charts_pt_public_power
+  - energy_charts_fr_day_ahead_price
+  - energy_charts_at_day_ahead_price
+  - energy_charts_pl_day_ahead_price
+  - energy_charts_dk1_day_ahead_price
+  - energy_charts_ch_day_ahead_price
+  - coinbase_ltc_usd_15m
+  - coinbase_ada_usd_15m
+  - kraken_xrp_usd_15m
+  - energy_charts_hu_public_power
+  - energy_charts_sk_public_power
+  - energy_charts_ro_public_power
+  - energy_charts_bg_public_power
+  - energy_charts_hr_public_power
+  - energy_charts_si_public_power
+  - energy_charts_ee_public_power
+  - energy_charts_lt_public_power
+  - energy_charts_es_day_ahead_price
+  - energy_charts_it_north_day_ahead_price
+  - energy_charts_fi_day_ahead_price
+  - energy_charts_no2_day_ahead_price
+  - energy_charts_hu_day_ahead_price
+  - energy_charts_fr_co2_intensity
+  - energy_charts_pl_co2_intensity
+  - energy_charts_es_co2_intensity
+  - energy_charts_it_co2_intensity
+  - energy_charts_nl_co2_intensity
+  - energy_charts_be_co2_intensity
+  - energy_charts_at_co2_intensity
+  - energy_charts_dk_co2_intensity
+  - energy_charts_se_co2_intensity
+  - energy_charts_fi_co2_intensity
+  - energy_charts_gr_co2_intensity
+  - energy_charts_pt_co2_intensity
+  - energy_charts_cz_co2_intensity
+  - energy_charts_hu_co2_intensity
+  - energinet_dk_elspot_hourly
+  - seattle_fire911_call_volume
+  - austin_fire_realtime_incidents
+  - ercot_physical_responsive_capability
+  - sec_edgar_8k_filings
+  - ioc_sea_level_cuxhaven
+  - eccc_hydrometric_bow_river_banff
+  - transnetbw_load_curve_15min
+  - fmi_helsinki_temperature_10min
+  - rockford_911_dispatch_halfhour
+  - winnebago_911_dispatch_halfhour
+  - eirgrid_wind_generation
+  - usgs_nwis_gage_height_panel_15min
+  - ea_england_rainfall_15min
+  - elia_offshore_wind_15min
+  - usgs_florida_dissolved_oxygen_15min
+  - waterlevel_ie_opw_hydrometric_15min
+  - opendatasoft_fire_incidents_queensland
+  - maryland_power_outages_by_county
+  cron: '*/15 * * * *'
+- every: PT30M
+  sources:
+  - uk_carbon_intensity_actual
+  - uk_carbon_intensity_genmix
+  - uk_neso_carbon_historic_30min
+  - octopus_agile_tariff
+  - bitfinex_btcusd_30m_candles
+  - bgs_uk_earthquakes
+  - openlibrary_recent_changes
+  - inaturalist_observations
+  - gemini_btcusd_trades
+  - newcastle_urban_observatory_temp
+  - cbp_border_wait_times
+  - ndbc_latest_obs_all_stations
+  - tfl_crowding_live
+  - github_actions_workflow_runs_k8s
+  - aemo_nem_price_demand_nsw
+  - aemo_nem_price_demand_sa
+  - uk_carbon_intensity_national
+  - aemo_nem_price_demand_qld
+  - aemo_nem_price_demand_tas
+  - aemo_nem_price_demand_vic
+  - winnipeg_wfps_call_volume
+  - spp_area_control_error
+  - cboe_vix_intraday
+  - ioda_global_outage_alerts
+  - elexon_gb_demand_outturn_30min
+  - elexon_gb_generation_by_fuel_30min
+  - elexon_gb_market_index_price_30min
+  - discord_status_api_response_time_30m
+  - twilio_status_api_response_time_30m
+  - france_fuel_prices_instant
+  - elexon_gb_system_prices_30min
+  - elexon_gb_market_index_30min
+  - calgary_traffic_incidents_30min
+  - austin_traffic_incidents_30min
+  - miteco_fuel_prices_madrid
+  - dockerhub_library_pull_counts
+  - mesa_az_fire_medical_dispatch_halfhour
+  - mesa_az_police_dispatch_halfhour
+  - montgomery_md_police_dispatch_halfhour
+  - montgomery_md_fire_rescue_dispatch_halfhour
+  - coes_pe_demand_30min
+  - ch_luftqualitat_station_a2_hard_halbstundli
+  - ch_luftqualitat_station_sissach_butzenen_ha
+  cron: '*/30 * * * *'
+- every: PT1H
+  sources:
+  - cloudflare_status_incidents
+  - noaa_tides_coops
+  - ndbc_buoy_realtime
+  - open_meteo_forecast
+  - open_meteo_air_quality
+  - open_meteo_marine
+  - coingecko_btc_hourly
+  - reddit_top_daily
+  - stackoverflow_questions
+  - usace_cwms_timeseries
+  - ree_spain_grid_demand
+  - ieso_ontario_demand
+  - kraken_futures_btc_funding
+  - ripe_atlas_rootserver_ping
+  - ingv_seismicity
+  - smhi_swedish_weather_observations
+  - nl_luchtmeetnet_air_quality
+  - seeclickfix_citizen_reports
+  - speedrun_com_run_submissions
+  - dc_311_service_requests
+  - digitalocean_status_incidents
+  - urlscan_public_scans
+  - wikimedia_pageviews_en_hourly
+  - stackoverflow_question_arrival_hourly
+  - nyiso_zonal_load_forecast
+  - energy_charts_ch_public_power
+  - seattle_fremont_bridge_bike_counts
+  - nvd_cve_publication_rate
+  - huggingface_dataset_creation_rate
+  - blockchain_btc_mempool_size
+  - nyiso_transmission_outages
+  - rennes_bike_counters_hourly
+  - hn_story_submission_rate
+  - stackexchange_serverfault_question_rate
+  - stackexchange_superuser_question_rate
+  - urlhaus_malicious_url_submissions
+  - ripestat_routing_history_google
+  - stackexchange_askubuntu_question_rate
+  - stackexchange_dba_question_rate
+  - stackexchange_security_question_rate
+  - ripestat_routing_history_as3356
+  - ripestat_routing_history_as13335
+  - bitstamp_eth_usd_hourly
+  - stackexchange_unix_question_rate
+  - stackexchange_apple_question_rate
+  - stackexchange_stats_question_rate
+  - irceline_brussels_pm25_hourly
+  - wise_usd_eur_hourly
+  - kartverket_stavanger_water_level
+  - aurorawatch_uk_geomagnetic_activity
+  - paris_multimodal_bike_counts_hourly
+  - paris_road_sensor_flow_hourly
+  - norway_trafikkdata_hourly
+  - melbourne_pedestrian_hourly
+  - pse_rce_price_15min
+  - ree_spain_pvpc_price_hourly
+  - elia_total_load_15min
+  - digitraffic_finland_port_calls_hourly
+  - npra_norway_traffic_volume_hourly
+  - colombia_xm_hourly_spot_price
+  - baton_rouge_fire_incidents_hourly
+  - simem_colombia_spot_price_hourly
+  - openbeautyfacts_product_additions
+  - montgomery_md_traffic_crashes_hourly
+  - aeso_alberta_pool_price_ail_hourly
+  - nuget_catalog_publish_rate
+  - everettwa_police_incidents
+  - marincounty_building_permit_inspection
+  - au_air_quality_monitoring_data
+  - seattle_terry_stops
+  - seattle_spd_crime_data_2008_present
+  - oaklandca_service_requests_received_by_the_oakland
+  - seattle_crisis_data
+  - seattle_spd_arrest_data
+  - sonomacounty_sonoma_county_sheriff_s_office_incident
+  - transparentrichmond_richmond_police_department_cad_events
+  - sonomacounty_sonoma_county_sheriff_s_office_event_dat
+  - au_nsw_traffic_incidents
+  - hydroquebec_sources_of_electricity_generated_in_qu_b
+  - ideam_co_air_temperature_stations
+  - act_air_quality_hourly
+  - be_bornes_de_comptage_cyclistes_et_pietons
+  - fr_prix_des_carburants_j_7
+  - huwise_prix_des_carburants_j_1_avec_historique
+  - fr_prix_des_carburants_flux_quotidien
+  - huwise_prix_des_carburants_flux_quotidien
+  - opendatasoft_prix_des_carburants_en_france_flux_quoti
+  - ch_luftqualitat_station_basel_binningen
+  - ch_gasverbrauch_im_versorgungsgebiet_der_iw
+  cron: 5 * * * *
+- every: P1D
+  sources:
+  - dshield_daily_summary
+  - fema_disaster_declarations
+  - fdic_bank_failures
+  - launch_library_launches
+  - biorxiv_preprint_stream
+  - worldbank_wdi_annual
+  - nvd_cve_disclosures
+  - cisa_kev_catalog
+  - openfda_food_recalls
+  - sec_filer_submissions
+  - usgs_elevated_volcanoes
+  - crw_virtual_station_sst
+  - nasa_eonet_events
+  - defillama_chain_tvl_daily
+  - cdc_nssp_ed_respiratory_daily
+  - peeringdb_network_registrations
+  - cdc_provisional_mortality_weekly
+  - cdc_vsrr_drug_overdose_monthly
+  - openfda_drug_adverse_events_daily
+  - openfda_animal_vet_events_daily
+  - openfda_tobacco_problem_reports_daily
+  - phac_canada_respiratory_detections
+  - healthdata_hospital_capacity_weekly
+  - npm_downloads_react_daily
+  - pypistats_requests_daily
+  - crates_io_serde_version_downloads
+  - wikimedia_unique_devices_en_daily
+  - ooni_measurement_volume_daily
+  - ecb_eur_usd_reference_rate
+  - treasury_operating_cash_balance_daily
+  - treasury_avg_interest_rates_monthly
+  - riksbank_policy_rate_daily
+  - norges_bank_usd_nok_daily
+  - blockchain_btc_transactions_daily
+  - statcan_retail_trade_monthly
+  - nrc_reactor_power_status_daily
+  - energy_charts_de_installed_power_monthly
+  - zillow_zhvi_metro_monthly
+  - zillow_zori_rent_index_monthly
+  - zillow_median_sale_price_weekly
+  - ssb_norway_retail_index_monthly
+  - abs_retail_trade_monthly
+  - worldbank_household_consumption_growth
+  - cdc_wastewater_sarscov2_panel
+  - cdc_covid_hospital_admissions_daily
+  - healthdata_hospital_staffing_state_daily
+  - ukhsa_covid_admissions_daily
+  - ukhsa_influenza_admission_rate_weekly
+  - openfda_food_enforcement_daily
+  - wikimedia_mediarequests_daily
+  - wikimedia_editors_en_daily
+  - wikimedia_pageviews_de_daily
+  - tor_bridge_users_daily
+  - tor_network_bandwidth_daily
+  - npm_downloads_vue_daily
+  - pypistats_numpy_daily
+  - blockchain_btc_hashrate_daily
+  - bank_of_canada_usd_cad_daily
+  - bank_of_canada_policy_rate
+  - bcb_brazil_ipca_monthly
+  - treasury_debt_to_penny_daily
+  - treasury_rates_of_exchange_quarterly
+  - ecb_euro_area_10y_yield
+  - worldbank_inflation_country_panel
+  - zillow_new_listings_monthly
+  - zillow_days_to_pending_monthly
+  - zillow_sale_to_list_ratio_monthly
+  - zillow_pct_listings_price_cut_monthly
+  - zillow_for_sale_inventory_monthly
+  - zillow_zhvi_condo_monthly
+  - eurostat_hicp_germany_monthly
+  - ukhsa_covid_cases_daily
+  - ukhsa_covid_deaths_daily
+  - who_gho_dtp3_immunization_coverage
+  - who_gho_tuberculosis_incidence
+  - who_gho_ncd_premature_mortality
+  - openfda_device_510k_clearances
+  - openfda_nsde_marketing_starts
+  - blockchain_btc_transaction_fees_daily
+  - blockchain_btc_difficulty
+  - arch_package_popularity
+  - wikimedia_pageviews_fr_daily
+  - wikimedia_pageviews_ja_daily
+  - wikimedia_pageviews_es_daily
+  - wikimedia_pageviews_ru_daily
+  - wikimedia_pageviews_commons_daily
+  - wikimedia_pageviews_en_mobile_daily
+  - npm_downloads_typescript_daily
+  - npm_downloads_express_daily
+  - npm_downloads_webpack_daily
+  - pypistats_pandas_daily
+  - pypistats_boto3_daily
+  - pypistats_torch_daily
+  - crates_io_tokio_version_downloads
+  - crates_io_clap_version_downloads
+  - ssb_norway_house_price_index
+  - ssb_norway_registered_unemployment
+  - ssb_norway_electricity_price_for_households
+  - eurostat_unemployment_de_monthly
+  - ecb_euro_area_m3_money_supply
+  - ecb_euro_area_unemployment_rate
+  - openfda_food_events_daily
+  - openfda_drug_label_updates_daily
+  - openfda_device_udi_publications_daily
+  - openfda_device_pma_decisions_daily
+  - zillow_zhvi_county_monthly
+  - zillow_zori_sfr_rent_monthly
+  - treasury_interest_expense_monthly
+  - treasury_gift_contributions_monthly
+  - wikimedia_pageviews_it_daily
+  - wikimedia_pageviews_pt_daily
+  - wikimedia_pageviews_zh_daily
+  - wikimedia_pageviews_ar_daily
+  - npm_downloads_next_daily
+  - npm_downloads_eslint_daily
+  - pypistats_requests_oauthlib_daily
+  - pypistats_transformers_daily
+  - zillow_zhvi_bottom_tier_monthly
+  - zillow_zhvi_top_tier_monthly
+  - blockchain_btc_market_price
+  - blockchain_btc_n_unique_addresses
+  - blockchain_btc_avg_block_size
+  - blockchain_btc_cost_per_transaction
+  - blockchain_btc_miners_revenue
+  - blockchain_btc_trade_volume
+  - wikimedia_pageviews_nl_daily
+  - wikimedia_pageviews_pl_daily
+  - wikimedia_pageviews_sv_daily
+  - wikimedia_pageviews_tr_daily
+  - wikimedia_pageviews_id_daily
+  - wikimedia_pageviews_ko_daily
+  - wikimedia_pageviews_vi_daily
+  - wikimedia_pageviews_fa_daily
+  - who_gho_under_five_mortality_rate
+  - who_gho_adult_obesity_prevalence
+  - who_gho_estimated_malaria_incidence
+  - listenbrainz_sitewide_daily_listens
+  - swpc_solar_cycle_sunspot_monthly
+  - noaa_gml_co2_weekly_mauna_loa
+  - ncei_global_temp_anomaly_monthly
+  - hadcrut5_global_temp_anomaly_monthly
+  - nasa_gistemp_global_annual_anomaly
+  - usdm_conus_drought_severity_weekly
+  - dwd_germany_monthly_mean_temperature
+  - dwd_germany_monthly_precipitation
+  - noaa_gml_ch4_monthly_global
+  - eurostat_air_passengers_monthly
+  - eurostat_air_freight_monthly
+  - bts_border_crossings_monthly
+  - bts_monthly_transportation_statistics
+  - mta_monthly_ridership_by_agency
+  - ssb_norway_airport_passengers_monthly
+  - eurostat_rail_passengers_quarterly
+  - eurostat_port_goods_quarterly
+  - statcan_rail_carloadings_monthly
+  - eurostat_road_traffic_vkm_annual
+  - statcan_airline_passengers_monthly
+  - cincinnati_fire_ems_cad_volume
+  - edmonton_fire_rescue_dispatch_volume
+  - federal_register_daily_documents
+  - ecb_ea_gdp_volume_quarterly
+  - bis_credit_to_private_nonfin_quarterly
+  - imf_usa_gdp_quarterly
+  - statfin_trade_turnover_monthly
+  - eurostat_retail_turnover_quarterly
+  - usda_mpr_boxed_beef_cutout_weekly
+  - statcounter_browser_share_monthly
+  - chrome_stable_rollout_fractions
+  - wikimedia_edits_en_monthly
+  - imf_portwatch_chokepoint_transits_daily
+  - nola_911_calls_for_service_volume
+  - norfolk_911_daily_call_volume
+  - usda_mpr_pork_cutout_weekly
+  - usda_dairy_butter_price_weekly
+  - bloomington_fire_response_volume
+  - imf_portwatch_port_calls_daily
+  - owid_electricity_generation_yearly
+  - cpc_weekly_nino4_relative_ssta
+  - nz_emi_dispatch_energy_prices
+  - cpc_daily_ao_index
+  - cpc_daily_nao_index
+  - worldbank_internet_users_panel
+  - worldbank_fixed_broadband_panel
+  - eurostat_ghg_emissions_quarterly
+  - eurostat_gas_inland_consumption_monthly
+  - odre_france_ccgt_gas_consumption_daily
+  - eurostat_oil_gross_inland_deliveries_monthly
+  - mta_bridges_tunnels_hourly_crossings
+  - eurostat_air_passengers_annual
+  - noaa_gml_sf6_annual_global
+  - noaa_gml_n2o_annual_global
+  - entsog_mallnow_daily_gas_flow
+  - cdc_vsrr_quarterly_mortality_rates
+  - cdc_vsrr_county_overdose_deaths_ca
+  - smard_de_weekly_grid_load
+  - cms_medicare_monthly_enrollment
+  - rutgers_nh_weekly_snow_extent
+  - cftc_cot_wti_positions
+  - nyfed_soma_holdings_weekly
+  - eurostat_iww_goods_quarterly_de
+  - ibge_pmc_retail_volume_brazil
+  - statcan_aircraft_movements_monthly
+  - wikimedia_edits_enwiki_monthly
+  - fao_fpma_maize_upriver_weekly
+  - usda_mpr_boxed_beef_cutout_daily
+  - cdc_nhsn_hospital_respiratory_occupancy_weekly
+  - cdc_nrevss_pathogen_positivity_weekly
+  - who_flunet_weekly_influenza_by_country
+  - nyc_ems_incident_dispatch_daily
+  - nys_covid_testing_county_daily
+  - ukhsa_ari_ed_attendances_daily
+  - cta_chicago_daily_boardings
+  - cta_chicago_rail_station_entries_daily
+  - dst_denmark_retail_trade_confidence_monthly
+  - ine_spain_retail_turnover_index_monthly
+  - istat_italy_retail_volume_index_monthly
+  - scb_sweden_retail_sales_index_monthly
+  - dst_denmark_retail_index_monthly
+  - cbs_netherlands_internet_retail_turnover_monthly
+  - dgeg_fuel_price_daily_avg_pt
+  - worldbank_pink_sheet_crude_monthly
+  - usda_dairy_nonfat_dry_milk_weekly
+  - cso_ireland_online_retail_turnover_monthly
+  - insee_france_industrial_production_monthly
+  - cdc_respnet_hospitalization_rates_weekly
+  - cdc_nchs_pic_deaths_weekly
+  - cpc_daily_pna_index
+  - cpc_daily_aao_index
+  - usgs_mississippi_water_temperature_daily
+  - cftc_cot_disaggregated_gold_weekly
+  - cftc_tff_emini_sp500_weekly
+  - treasury_dts_deposits_withdrawals_daily
+  - autobahn_de_a1_roadworks_daily
+  - spf_odisse_bronchitis_ed_weekly
+  - rki_amelag_wastewater_viral_load_weekly
+  - cbs_nl_construction_turnover_monthly
+  - ecb_ciss_systemic_stress_daily
+  - bundesbank_bund_10y_yield_daily
+  - riksbank_sek_usd_eur_crossrate_daily
+  - cdc_covid_variant_proportions_biweekly
+  - dst_denmark_retail_trade_index_monthly
+  - usda_mpr_prior_day_hogs_daily
+  - cdc_nchs_percent_deaths_resp_weekly
+  - ukhsa_covid_occupied_beds_daily
+  - usda_mpr_pork_cutout_daily
+  - usda_mpr_lamb_carcass_cutout_daily
+  - usda_mpr_5area_cattle_price_daily
+  - eurostat_retail_turnover_monthly
+  - ukhsa_rsv_positivity_weekly
+  - ukhsa_influenza_positivity_weekly
+  - ukhsa_hmpv_positivity_weekly
+  - ukhsa_rsv_admission_rate_weekly
+  - cdc_provisional_percent_deaths_respiratory_weekly
+  - cdc_covid_burden_estimates_weekly
+  - statcan_wholesale_trade_sales_monthly
+  - who_gho_tb_deaths_excl_hiv_annual
+  - ecb_ilm_deposit_facility_weekly
+  - ecb_ilm_main_refinancing_weekly
+  - ecb_ilm_banknotes_circulation_weekly
+  - eurostat_weekly_deaths_panel
+  - usdm_conus_area_by_severity_weekly
+  - usdm_conus_dsci_weekly
+  - ibge_pimpf_industrial_production_brazil
+  - mindicador_cl_uf_daily
+  - mindicador_cl_dolar_daily
+  - statcan_retail_sales_mrts_monthly
+  - usda_mpr_boxed_lamb_cuts_daily
+  - usda_mpr_boneless_beef_trimmings_daily
+  - eurostat_services_production_accomfood_monthly
+  - eurostat_building_permits_sqm_monthly
+  - eurostat_consumer_confidence_monthly
+  - jsdelivr_npm_package_cdn_hits_daily
+  - bls_cpi_u_all_items_monthly
+  - bls_unemployment_rate_monthly
+  - bls_total_nonfarm_employment_monthly
+  - ons_cpi_annual_rate_monthly
+  - ons_rpi_annual_rate_monthly
+  - ons_retail_sales_volume_monthly
+  - ons_unemployment_rate_monthly
+  - ons_average_weekly_earnings_monthly
+  - ons_gdp_quarterly_growth
+  - eurostat_energy_solid_fuels_monthly
+  - eurostat_excess_mortality_monthly
+  - eurostat_commercial_flights_monthly
+  - cms_hix_effectuated_enrollment_monthly
+  - statcan_electric_power_generation_monthly
+  - ons_brazil_cmo_weekly
+  - ons_brazil_daily_load_by_subsystem
+  - nsidc_arctic_sea_ice_extent_daily
+  - nzta_tms_daily_traffic_counts
+  - cpc_population_weighted_hdd_daily
+  - cpc_population_weighted_cdd_daily
+  - uk_weekly_road_fuel_prices
+  - malaysia_retail_fuel_prices_weekly
+  - tor_relay_users_daily
+  - cran_package_downloads_daily
+  - destatis_truck_toll_mileage_index_daily
+  - statcan_aircraft_movements_weekly
+  - ripestat_country_resource_stats_weekly
+  - who_fluid_ili_weekly
+  - gistemp_global_monthly_anomaly
+  - rivm_nl_wastewater_rna_national
+  - infodengue_br_weekly_cases
+  - sns_pt_emergency_episodes_daily
+  - singstat_retail_sales_index_monthly
+  - statee_retail_turnover_monthly
+  - hexpm_package_downloads
+  - statice_is_quarterly_gdp
+  - kcmo_911_calls_for_service
+  - richmondgov_inbound_911_calls_2021_and_forward
+  - everettwa_fire_911_unit_dispatches
+  - cambridgema_computer_aided_dispatch_entries
+  - ramseycountymn_emergency_communications_center_incident
+  - cityofgainesville_crime_responses
+  - marincounty_food_facility_inspections
+  - cambridgema_sheet_metal_permits
+  - cambridgema_mobile_food_truck_permits
+  - colorado_city_of_denver_short_term_rental_license
+  - marincounty_building_permit
+  - cambridgema_building_permits_new_construction
+  - au_on_time_running_by_week_first_stop_only
+  - au_on_time_running_by_week_first_stop_only_diwxp2be
+  - mesaaz_falcon_field_airport_operations
+  - energystar_energy_star_certified_commercial_ovens
+  - energystar_energy_star_certified_residential_clothe
+  - energystar_energy_star_certified_residential_dishwa
+  - energystar_energy_star_certified_residential_clothe_t9u74d2j
+  - mo_missouri_monthly_unemployment_claims_by
+  - mo_missouri_monthly_unemployment_claims_by_xm426a8n
+  - ct_unemployment_claims_by_type
+  - mo_missouri_monthly_unemployment_claims_by_cq577qrb
+  - ct_energy_storage_solutions_ess_enrollment
+  - ct_public_assets_on_data_ct_gov
+  - mesaaz_business_services_support_issues_resolve
+  - cookcountyil_medical_examiner_unidentified_persons
+  - cityoforlando_short_term_rental_licenses
+  - lacity_building_and_safety_building_permits_sub
+  - lacity_building_and_safety_mechanical_permits_i
+  - piercecountywa_number_of_new_housing_starts
+  - encinitasca_enterprise_service_requests
+  - piercecountywa_hs_dataset_adrc_calls
+  - princegeorgescountym_residential_and_commercial_permits_july
+  - fcc_pirate_radio_broadcasting_database
+  - piercecountywa_nuisance_violations
+  - hawaii_campaign_contributions_received_by_hawai
+  - hawaii_expenditures_made_by_hawaii_state_and_co
+  - hawaii_campaign_contributions_made_to_candidate
+  - cookcountyil_procurement_intent_to_execute
+  - novascotia_awarded_public_tenders
+  - roseville_library_materials_loaned
+  - wa_wdfw_creel_summary_counts
+  - wa_electric_vehicle_population_size_history
+  - lacity_building_and_safety_mechanical_permits_i_5m3txjex
+  - fultoncountyga_monthly_eviction_filings
+  - fultoncountyga_monthly_eviction_final_status_statistics
+  - oregon_2026_foreclosure_avoidance_program_benef
+  - maryland_dataset_freshness
+  - delaware_delaware_open_data_portal_published_asse
+  - providenceri_providence_police_case_log_past_180_days
+  - piercecountywa_ppw_development_center_customer_service
+  - socrata_snb_teleservices_wait_times_temps_d_atte
+  - novascotia_operations_contact_centre_call_summary
+  - townofcary_police_incidents
+  - townofcary_wake_county_restaurants
+  - townofcary_solar_permit_applications
+  - townofcary_developments
+  - au_planning_permit_application_register
+  - vancouver_issued_building_permits
+  - bcra_ar_reserves_daily
+  - bcra_ar_wholesale_fx_daily
+  - bcra_ar_badlar_rate_daily
+  - latvia_csb_retail_turnover_monthly
+  - ideam_co_pm10_pm25_daily
+  - pa_wastewater_viral_activity_weekly
+  - pa_wastewater_variant_abundance_weekly
+  - texas_local_sales_tax_allocation_monthly
+  - michigan_payroll_jobs_monthly
+  - cenace_mx_zonal_price_dayahead_monterrey
+  - colorado_earnings_hours_monthly
+  - colorado_gasoline_prices_weekly
+  - fr_comptage_des_passages_des_velos_rue_etie
+  - fr_comptage_velo_compteurs_syndicat_des_mob
+  - fr_capteur_de_trafic_velo
+  - fr_comptages_routiers_sicoval
+  - fr_compteur_de_trafic
+  - fr_fichier_consolide_des_bornes_de_recharge
+  - fr_fichier_consolide_des_bornes_de_recharge_bornes_irv
+  - be_qualite_de_l_air_en_province_de_namur_ca
+  - fr_liste_des_autorisations_d_urbanisme_crea
+  - fr_pc_dp_logements_sitadel_gps_depuis_2017
+  - fr_prix_des_carburants_sur_le_territoire_de
+  - ch_durchschnittlicher_tagesverkehr_basieren
+  - ch_luftqualitatsmessungen_ostluft_thurgau_t
+  - ch_kantonaler_stromverbrauch
+  - de_klimasensoren_messdaten
+  cron: 10 1 * * *
+- every: P1D
+  sources:
+  - frankfurter_fx_daily
+  cron: 15 17 * * 1-5
+- every: P1D
+  sources:
+  - treasury_yield_curve_daily
+  cron: 30 22 * * 1-5
+- every: P1D
+  sources:
+  - mauna_loa_co2_daily
+  - usda_snotel_swe
+  cron: 0 12 * * *
+- every: P1D
+  sources:
+  - wikimedia_top_articles_daily
+  - wikimedia_per_article_pageviews
+  - wikimedia_health_pageviews
+  cron: 0 14 * * *
+- every: P1D
+  sources:
+  - npm_downloads_per_pkg
+  - pypi_downloads_per_pkg
+  - crates_io_downloads
+  - itunes_top_podcasts
+  cron: 30 13 * * *
+- every: P1D
+  sources:
+  - rki_germany_cases
+  - rki_germany_hospitalizations
+  cron: 0 16 * * *
+- every: PT8H
+  sources:
+  - ripestat_announced_prefixes
+  cron: 0 */8 * * *
+- every: PT1H
+  sources:
+  - nyc_311_complaints
+  cron: 20 * * * *
+- every: P1D
+  sources:
+  - ofac_sanctions_updates
+  - vaers_vaccine_adverse_events
+  - pubmed_ncbi_publication_counts
+  - govuk_mhra_drug_safety_update
+  - chicago_food_inspections
+  - glerl_great_lakes_levels
+  - dartmouth_flood_observatory
+  - avo_alaska_volcano_alerts
+  - celestrak_satellite_tle
+  - inciweb_wildfire_incidents
+  - discogs_marketplace_sales
+  - tvmaze_show_updates
+  - musicbrainz_edit_activity
+  - deezer_chart_snapshots
+  - ransomware_live_attacks
+  - haveibeenpwned_breaches
+  - apnic_labs_ipv6_adoption
+  - semantic_scholar_publications
+  - uk_ons_time_series
+  - wastewaterscan_pathogen_data
+  - peeringdb_network_ixp_changes
+  - nve_norway_reservoirs
+  cron: 20 2 * * *
+- every: PT15M
+  sources:
+  - cabi_station_status
+  - devto_articles_react_reactions
+  - iem_sbw_storm_based_warnings
+  - intermagnet_geomag_minute_bou
+  - magiceden_degods_activities
+  - noaa_nwps_river_stageflow
+  - transport_ch_stationboard_bern
+  cron: '*/15 * * * *'
+- every: PT1H
+  sources:
+  - chesscom_hikaru_game_ratings
+  - cwfis_canadian_wildfire_events
+  - geosphere_austria_weather_observations
+  - gios_poland_air_quality
+  - laqn_hourly_pollutant_concentrations
+  - open_meteo_berlin_direct_radiation
+  cron: 7 * * * *
+- every: P1D
+  sources:
+  - abs_australia_cpi
+  - bis_cbpol_us_policy_rate
+  - cbs_netherlands_hicp
+  - cneos_fireball_events
+  - dol_ui_initial_claims_state
+  - fdic_bank_failures_deposits
+  - gvp_holocene_eruptions
+  - modrinth_fabric_api_version_downloads
+  - nifc_wildfire_incidents_current
+  - noaa_crw_sst_daily_point
+  - oecd_mei_composite_leading_indicators
+  - ons_cpi_d7g7_monthly
+  - ooni_censorship_measurements_us
+  - rki_germany_covid_hospitalizations
+  - sepa_scotland_river_levels
+  - treasury_auction_results
+  cron: 25 3 * * *
+- every: PT5M
+  sources:
+  - deribit_btc_perp_trades
+  cron: '*/5 * * * *'
+- every: PT15M
+  sources:
+  - gdelt_news_volume_weather
+  cron: '*/15 * * * *'
+- every: PT1H
+  sources:
+  - hubeau_hydrometry_river_stage
+  - malwarebazaar_sample_submissions
+  - sffd_dispatch_call_volume
+  - arxiv_cslg_submission_rate
+  cron: 9 * * * *
+- every: P1D
+  sources:
+  - rubygems_rails_version_downloads
+  - ons_retail_sales_index
+  - nga_navarea_broadcast_warnings
+  - eurostat_hicp_ea_annual_rate
+  - wqp_delaware_water_temperature
+  cron: 35 3 * * *
+- every: PT5M
+  sources:
+  - energinet_dk_co2_intensity_5min
+  cron: '*/5 * * * *'
+- every: PT15M
+  sources:
+  - swpc_solar_flare_event_counts
+  cron: '*/15 * * * *'
+- every: PT1H
+  sources:
+  - londonair_kc1_hourly_pollution
+  - swpc_solar_flare_events
+  - aviationweather_pirep_flightlevel
+  - ripestat_bgp_updates_as3333
+  - laqn_london_no2_marylebone
+  - geosphere_at_weather_hourly
+  - geofon_seismic_events
+  - magiceden_nft_trading
+  - opencollective_transaction_events
+  - open_meteo_era5_soil_moisture
+  - oklahoma_mesonet_mdf_snapshot
+  - jikan_top_anime_scores
+  cron: 11 * * * *
+- every: P1D
+  sources:
+  - mempool_btc_hashrate_daily
+  - openfda_maude_device_events_daily
+  - openfda_device_recalls
+  - cdc_nssp_ed_visits_state_regions
+  - ndbc_spectral_wave_density_41013
+  - openfda_food_adverse_events_daily
+  - usgs_earthquakes_fdsn_m4_30d
+  cron: 45 3 * * *
+- every: P1D
+  sources:
+  - ssb_norway_cpi_monthly
+  cron: 50 3 * * *
+- every: PT5M
+  sources:
+  - osm_changeset_stream
+  - datalakes_lexplore_skin_temp
+  - openfoodfacts_product_additions
+- every: P1D
+  sources:
+  - who_disease_outbreak_news
+  - gbif_occurrence_by_year
+  - ntsb_aviation_accidents
+  - clinicaltrials_new_registrations
+  - ncei_storm_events
+  - neso_gb_system_frequency
+- every: P1D
+  sources:
+  - cfpb_consumer_complaints_monthly
+  - cbs_netherlands_hicp_monthly
+  - scb_sweden_cpi_monthly
+  - oecd_cli_usa_monthly
+  - abs_cpi_monthly_indicator
+- every: PT15M
+  sources:
+  - eirgrid_system_demand
+  - gdelt_news_volume_timeline
+- every: P1D
+  sources:
+  - rggi_co2_auction_results
+- every: P1D
+  sources:
+  - defra_aurn_marylebone_road_hourly
+  - fda_drug_recalls_daily_count
+  - cosmos_uk_soil_moisture
+  - phenocam_harvard_gcc_3day
+  - fmcsa_motor_carrier_crashes
+  - fdroid_app_update_events
+  - fra_rail_equipment_accidents
+  - faa_service_difficulty_reports
+  - ransomware_live_victim_rate
+  - exploitdb_publication_stream
+  - eurostat_energy_electricity_monthly
+  - bis_eer_nominal_broad_panel
+  - nyc_restaurant_inspections_daily
+  - lemmy_new_post_stream
+  - rubygems_recent_gem_releases
+  - shodan_cvedb_cve_disclosures

@@ -37,7 +37,8 @@ def _access_method(entry: dict) -> str:
     return "open_api"
 
 
-def load_registry(catalog_path: str | Path) -> list[dict]:
+def load_registry(catalog_path: str | Path,
+                  include_disabled: bool = False) -> list[dict]:
     """Load ``sources.yaml`` and normalise entries to the CURRENT_SOURCES schema.
 
     Each returned dict carries the fields the agent's prompt documents plus the
@@ -52,6 +53,10 @@ def load_registry(catalog_path: str | Path) -> list[dict]:
     for e in raw:
         if not e.get("id"):
             continue
+        # A disabled source contributes no data; counting it as coverage hides
+        # the hole it left behind.
+        if e.get("disabled") and not include_disabled:
+            continue
         freq = e.get("frequency", "")
         novelty = str(e.get("pretraining_novelty") or "unknown").lower()
         ep = e.get("endpoint", {}) or {}
@@ -62,7 +67,7 @@ def load_registry(catalog_path: str | Path) -> list[dict]:
                 "domain": e.get("domain", "?"),
                 "dgp_class": e.get("dgp_class", "?"),
                 "frequency": freq,
-                "cadence": config.FREQ_BAND.get(freq, "irregular"),
+                "cadence": band_for(freq),
                 "access_method": _access_method(e),
                 "url_or_endpoint": ep.get("url", ""),
                 "license": e.get("license", "?"),
@@ -83,6 +88,81 @@ def _first_available(entry: dict) -> str:
     if isinstance(lv, str) and lv[:4].isdigit():
         return lv
     return str(entry.get("history_available") or "unknown")
+
+
+def band_for(freq: str) -> str:
+    """Cadence band for any ISO-8601 frequency, not just the pre-listed ones.
+
+    ``config.FREQ_BAND`` only names the frequencies the catalog happened to use
+    when it was written, so anything newer (PT10S, PT4M, P3D, P30D, P2W, P3M)
+    silently fell into "irregular" and distorted the matrix. Parse the duration
+    and bucket it; the literal string "irregular" stays irregular.
+    """
+    if freq in config.FREQ_BAND:
+        return config.FREQ_BAND[freq]
+    seconds = _period_seconds(freq)
+    if seconds is None:
+        return "irregular"
+    if seconds < 60:
+        return "sub-min"
+    # Boundaries follow config.FREQ_BAND's existing convention, where the
+    # 15-minute grid MTU counts as few-min rather than half-hour; the fallback
+    # must not invent a second, conflicting one.
+    if seconds <= 900:
+        return "few-min"
+    if seconds <= 1800:
+        return "half-hour"
+    if seconds <= 10800:
+        return "hourly"
+    if seconds <= 3 * 86400:
+        return "daily"
+    if seconds <= 14 * 86400:
+        return "weekly"
+    if seconds <= 45 * 86400:
+        return "monthly"
+    if seconds <= 200 * 86400:
+        return "quarterly"
+    return "yearly"
+
+
+def _period_seconds(freq: str) -> int | None:
+    import sys
+    sources_dir = str(Path(__file__).resolve().parent.parent / "sources")
+    if sources_dir not in sys.path:
+        sys.path.insert(0, sources_dir)
+    import scraper  # noqa: PLC0415
+    try:
+        return scraper._period_seconds(freq or "")
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def host_of(entry: dict) -> str:
+    from urllib.parse import urlparse
+    return urlparse(entry.get("url_or_endpoint") or "").netloc
+
+
+def diversity(registry: list[dict], cap: int = 5) -> dict:
+    """Per-domain provider diversity, and a host-capped "effective" count.
+
+    A domain whose sources nearly all come from one API is not as covered as its
+    headline number suggests — 53 of energy's sources are per-country variants
+    of one host. ``effective`` counts at most ``cap`` sources per host, which is
+    the number to steer by when deciding where the next wave should look.
+    """
+    out: dict[str, dict] = {}
+    for domain in sorted({s["domain"] for s in registry}):
+        rows = [s for s in registry if s["domain"] == domain]
+        hosts = Counter(host_of(s) for s in rows)
+        top_host, top_n = hosts.most_common(1)[0] if hosts else ("", 0)
+        out[domain] = {
+            "sources": len(rows),
+            "hosts": len(hosts),
+            "top_host": top_host,
+            "top_host_share": round(top_n / len(rows), 3) if rows else 0.0,
+            "effective": sum(min(n, cap) for n in hosts.values()),
+        }
+    return out
 
 
 def coverage_matrix(registry: list[dict]) -> dict[tuple[str, str], int]:
@@ -140,5 +220,40 @@ def summarize(registry: list[dict]) -> dict:
         "by_cadence": dict(by_cadence.most_common()),
         "by_contamination_risk": dict(by_risk.most_common()),
         "by_access_method": dict(by_access.most_common()),
+        "by_provider_diversity": diversity(registry),
         "gap_cells": gap_cells(registry),
     }
+
+
+def render_matrix(registry: list[dict], cap: int = 5) -> str:
+    """The domain × cadence grid as text, with provider concentration alongside.
+
+    Printed by ``--coverage`` because the balance question is asked far more
+    often than it is scripted, and a JSON blob is the wrong shape for reading a
+    matrix.
+    """
+    m = coverage_matrix(registry)
+    bands = list(config.CADENCE_BANDS)
+    domains = sorted({s["domain"] for s in registry},
+                     key=lambda d: -sum(m.get((d, b), 0) for b in bands))
+    div = diversity(registry, cap=cap)
+    w = 10
+    head = f"{'domain':14s}" + "".join(f"{b:>{w}s}" for b in bands)
+    head += f"{'TOTAL':>8s}{'EFFCTV':>8s}{'HOSTS':>7s}{'TOP HOST':>9s}"
+    lines = [head, "-" * len(head)]
+    for d in domains:
+        row = f"{d:14s}" + "".join(f"{m.get((d, b), 0):>{w}d}" for b in bands)
+        info = div[d]
+        lines.append(row + f"{info['sources']:>8d}{info['effective']:>8d}"
+                           f"{info['hosts']:>7d}{info['top_host_share']:>8.0%} ")
+    lines.append("-" * len(head))
+    totals = f"{'TOTAL':14s}" + "".join(
+        f"{sum(m.get((d, b), 0) for d in domains):>{w}d}" for b in bands)
+    lines.append(totals + f"{len(registry):>8d}"
+                          f"{sum(v['effective'] for v in div.values()):>8d}")
+    empty = [(d, b) for d in domains for b in bands if not m.get((d, b))]
+    if empty:
+        lines.append("empty cells: " + ", ".join(f"{d}/{b}" for d, b in empty))
+    lines.append(f"(EFFCTV counts at most {cap} sources per host — a domain built "
+                 f"on one API is less covered than its total suggests)")
+    return "\n".join(lines)

@@ -18,9 +18,12 @@ contract sources. The agent never scores a model and never touches a forecast.
 ## The loop
 
 ```
-sources.yaml ─► coverage.py ─► llm.py (agent) ─► vet.py ─────► scraper.py ─► quality.py ──► rotation
-              deterministic     proposals       metadata vet   (fetch)      DATA auto-vet
-              (gap matrix)                       (pre-fetch)                 (post-fetch)
+sources.yaml ─► coverage.py ─► llm.py (agent) ─► vet.py ─────► wire.py ────► quality.py ──► rotation
+              deterministic     proposals       metadata vet   verify+wire   DATA auto-vet      │
+              (gap matrix)                       (pre-fetch)   (real fetch)  (post-fetch)       │
+                    ▲                                                                           │
+                    └────────────────────────── audit.py ◄─────────────────────────────────────┘
+                                        freshness watchdog (scheduled)
 ```
 
 1. **`coverage.py`** loads the catalog, normalises each entry to the agent's
@@ -33,6 +36,13 @@ sources.yaml ─► coverage.py ─► llm.py (agent) ─► vet.py ────
 3. **`vet.py`** — *metadata* pre-filters (before fetching): schema, contamination
    **denylist** (catches "ETTh1 under another name"), **duplicate** of an existing
    source (same host + domain), and a contamination-claim sanity check.
+3½. **`wire.py`** — the verify-and-wire step: takes endpoint-complete candidates
+   (grind-agent blocks or plain entries), replays each through the **real**
+   scraper, gates on the catalog admission bar (>=20 rows / >=20 distinct
+   timestamps / numeric, or >=20 panel entities), and with `--apply` appends
+   survivors to `sources.yaml`, registers them in `cron.yaml`, and settles the
+   proposal ledger (`wired` / `key-gated` / `rejected`). Writes are atomic and
+   the catalog is re-validated (entry count + unique ids) after every append.
 4. **`quality.py`** — the *data* admission gate (after the proposal is scraped),
    fully automatic:
    - **intrinsic per-series checks** — non-finite (NaN/inf) fraction, length,
@@ -48,6 +58,15 @@ Both vetting stages run with **no human and no LLM**. `quality.py` is the concre
 form of the system prompt's "discrimination filter + leakage check" for the data
 itself; it reuses the benchmark's own panel, so "admittable" means the same thing
 as "a useful challenge".
+
+5. **`audit.py`** — the freshness watchdog that closes the loop *after* wiring.
+   Upstreams die quietly (expired reporting mandates, stalled statistical
+   migrations) while the scraper keeps "succeeding" on frozen rows. The audit
+   compares each source's newest **observation** timestamp on disk against a
+   cadence-scaled limit (e.g. 8×period for fast feeds, 100 d for monthly, 550 d
+   for yearly) and reports `ok / stale / nodata / unparsed`. It is designed to
+   run on a schedule; `--apply-disables` (opt-in) disables sources stale past
+   3× their limit with an explanatory `disabled_reason`.
 
 ## Usage
 

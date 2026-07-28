@@ -107,7 +107,16 @@ _TODAY_PATTERNS = [
 ]
 
 _OFFSET_DATE_RE = re.compile(r"\{YYYY-MM-DD-(\d+)d\}")
+_OFFSET_COMPACT_RE = re.compile(r"\{YYYYMMDD-(\d+)d\}")
+_OFFSET_MONTH_RE = re.compile(r"\{YYYYMM-(\d+)m\}")
 _OFFSET_HOUR_RE = re.compile(r"\{H-(\d+)\}")
+_OFFSET_EPOCH_RE = re.compile(r"\{EPOCH-(\d+)h\}")
+
+
+def _month_offset(now: dt.datetime, n: int) -> str:
+    """`now` minus n calendar months, formatted YYYYMM."""
+    total = now.year * 12 + (now.month - 1) - n
+    return f"{total // 12:04d}{total % 12 + 1:02d}"
 
 
 def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
@@ -121,8 +130,14 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
     Relative-offset tokens (regex):
       {YYYY-MM-DD-Nd}   today minus N days, formatted YYYY-MM-DD
                         (e.g. {YYYY-MM-DD-30d} = 30 days ago).
+      {YYYYMMDD-Nd}     same, compact — for hosts whose daily files are named
+                        YYYYMMDD and whose local trading date lags UTC
+                        (e.g. NYISO at 01:00 UTC is still on yesterday's file).
+      {YYYYMM-Nm}       current month minus N calendar months, formatted YYYYMM.
       {H-N}             current UTC hour minus N (wraps at midnight UTC)
                         (e.g. {H-1} = previous hour).
+      {EPOCH} / {EPOCH-Nh}  current unix seconds / N hours ago — for APIs whose
+                        windows are epoch query params (OpenSky ?begin=&end=).
 
     Tokens like {ARTICLE} or {PACKAGE} or {CRATE} are *not* expanded — these
     are panel-iteration placeholders; the caller should pre-expand them.
@@ -134,10 +149,21 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
         lambda m: (now - dt.timedelta(days=int(m.group(1)))).strftime("%Y-%m-%d"),
         url,
     )
+    url = _OFFSET_COMPACT_RE.sub(
+        lambda m: (now - dt.timedelta(days=int(m.group(1)))).strftime("%Y%m%d"),
+        url,
+    )
+    url = _OFFSET_MONTH_RE.sub(lambda m: _month_offset(now, int(m.group(1))), url)
     url = _OFFSET_HOUR_RE.sub(
         lambda m: str((now - dt.timedelta(hours=int(m.group(1)))).hour),
         url,
     )
+    url = _OFFSET_EPOCH_RE.sub(
+        lambda m: str(int(now.timestamp()) - 3600 * int(m.group(1))),
+        url,
+    )
+    if "{EPOCH}" in url:
+        url = url.replace("{EPOCH}", str(int(now.timestamp())))
     if "{HH}" in url:
         url = url.replace("{HH}", f"{now.hour:02d}")
     if "{H}" in url:
@@ -216,24 +242,69 @@ def _expand_env(url: str) -> str:
 _ENV_PLACEHOLDER_RE = re.compile(r"\{([A-Z][A-Z0-9_]+)\}")
 
 
-def _http_get(url: str, headers: dict[str, str]) -> httpx.Response:
+# The scrape host has 4 GB of RAM and runs every source in one process, so a
+# single unbounded response can OOM the box (and has). Stream every body and
+# refuse anything past the cap rather than materialising it.
+MAX_RESPONSE_BYTES = 48 * 1024 * 1024
+
+# Headers describing the *encoded* transfer must not be carried onto the
+# reconstructed response — the body we attach is already decoded.
+_TRANSFER_HEADERS = {"content-encoding", "content-length", "transfer-encoding"}
+
+
+def _capped_response(resp: httpx.Response, url: str,
+                     max_bytes: Optional[int] = None) -> httpx.Response:
+    """Read a streaming response into memory, refusing oversized bodies.
+
+    Raises RuntimeError past the cap instead of truncating: a half-read JSON or
+    CSV payload would parse into silently wrong records, which is worse than a
+    logged failure. Raise the ceiling per source with `endpoint.max_bytes`.
+    """
+    cap = max_bytes or MAX_RESPONSE_BYTES
+    chunks, total = [], 0
+    for chunk in resp.iter_bytes():
+        total += len(chunk)
+        if total > cap:
+            raise RuntimeError(
+                f"response exceeded {cap} byte cap (still streaming at {total}): {url} "
+                f"— narrow the query, or set endpoint.max_bytes if this size is expected"
+            )
+        chunks.append(chunk)
+    hdrs = [(k, v) for k, v in resp.headers.multi_items()
+            if k.lower() not in _TRANSFER_HEADERS]
+    return httpx.Response(resp.status_code, headers=hdrs,
+                          content=b"".join(chunks), request=resp.request)
+
+
+def _http_get(url: str, headers: dict[str, str],
+              max_bytes: Optional[int] = None,
+              read_timeout: Optional[float] = None) -> httpx.Response:
     # Default UA acceptable for most APIs; crates.io/Reddit need a contact.
     headers = {"User-Agent": "timeframe-scraper/0.1 (+https://github.com/timeframe-bench)", **headers}
-    timeout = httpx.Timeout(30.0, connect=10.0)
+    timeout = httpx.Timeout(read_timeout or 30.0, connect=10.0)
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        return client.get(url, headers=headers)
+        with client.stream("GET", url, headers=headers) as resp:
+            return _capped_response(resp, url, max_bytes)
 
 
-def _http_post(url: str, headers: dict[str, str], body: Any) -> httpx.Response:
+def _http_post(url: str, headers: dict[str, str], body: Any,
+               max_bytes: Optional[int] = None,
+               read_timeout: Optional[float] = None,
+               form: bool = False) -> httpx.Response:
     """POST a JSON body — used by GraphQL and POST-only JSON APIs. `body` is the
-    request payload (e.g. {"query": "...", "variables": {...}} for GraphQL)."""
+    request payload (e.g. {"query": "...", "variables": {...}} for GraphQL).
+    With `form=True` the body is sent application/x-www-form-urlencoded instead
+    (legacy gov/utility endpoints that reject JSON payloads)."""
     headers = {"User-Agent": "timeframe-scraper/0.1 (+https://github.com/timeframe-bench)", **headers}
-    timeout = httpx.Timeout(30.0, connect=10.0)
+    timeout = httpx.Timeout(read_timeout or 30.0, connect=10.0)
+    kwargs: dict[str, Any] = {"data": body} if form else {"json": body}
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        return client.post(url, headers=headers, json=body)
+        with client.stream("POST", url, headers=headers, **kwargs) as resp:
+            return _capped_response(resp, url, max_bytes)
 
 
-def _paginate_json(first: bytes, url: str, headers: dict[str, str], pg: dict) -> bytes:
+def _paginate_json(first: bytes, url: str, headers: dict[str, str], pg: dict,
+                   max_bytes: Optional[int] = None) -> bytes:
     """Follow cursor/next-link pagination for a JSON API and merge item arrays.
 
     `pg` config: {items: <top-level array key>, next: <top-level next-URL key>,
@@ -253,7 +324,7 @@ def _paginate_json(first: bytes, url: str, headers: dict[str, str], pg: dict) ->
     pages = 1
     while nxt and isinstance(nxt, str) and nxt.startswith("http") and pages < max_pages:
         try:
-            r = _http_get(nxt, headers)
+            r = _http_get(nxt, headers, max_bytes)
             if r.status_code not in (200, 206):
                 break
             d = json.loads(r.content)
@@ -276,8 +347,67 @@ def _expand_panel(url: str, panel_row: dict[str, str]) -> str:
 _PLACEHOLDER_RE = re.compile(r"\{([A-Z_]+)\}")
 
 
+def _expand_body(obj: Any, panel_row: Optional[dict[str, str]] = None) -> Any:
+    """Recursively expand date/epoch/panel/env tokens in POST-body strings."""
+    if isinstance(obj, str):
+        out = expand_url(obj)
+        if panel_row:
+            out = _expand_panel(out, panel_row)
+        return _expand_env(out)
+    if isinstance(obj, dict):
+        return {k: _expand_body(v, panel_row) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_expand_body(v, panel_row) for v in obj]
+    return obj
+
+
+def _resolve_url(ep: dict, headers: dict) -> str:
+    """Look up the real file URL from a metadata endpoint.
+
+    Publishers that mint a fresh random URL for every release — GOV.UK
+    (assets.publishing.service.gov.uk/media/<hash>/…), CKAN portals
+    (…/resource/<uuid>/download) — can't be wired to a fixed URL: it 404s on the
+    next publication. `endpoint.resolve` fetches a stable metadata document
+    first and pulls the current URL out of it:
+
+        resolve:
+          url: https://www.gov.uk/api/content/government/statistics/<slug>
+          select: details.attachments[].url   # JSON path to candidate URLs
+          match: 'weekly_road_fuel_prices_\\d+\\.csv$'   # optional filter
+          pick: first | last                  # default: last (newest release)
+
+    Without `select`, `match` is applied to the raw response text instead, so an
+    HTML landing page works the same way.
+    """
+    meta_url = expand_url(ep["resolve"]["url"])
+    resp = _http_get(meta_url, headers, None, ep.get("timeout"))
+    if resp.status_code != 200:
+        raise RuntimeError(f"resolve HTTP {resp.status_code}: {meta_url[:120]}")
+    spec = ep["resolve"]
+    select, match = spec.get("select"), spec.get("match")
+    candidates: list[str] = []
+    if select:
+        got = _walk(resp.json(), select)
+        for item in (got if isinstance(got, list) else [got]):
+            if isinstance(item, list):
+                candidates.extend(str(x) for x in item if x)
+            elif item:
+                candidates.append(str(item))
+    else:
+        candidates = re.findall(r'https?://[^\s"\'<>]+', resp.text)
+    if match:
+        pat = re.compile(match)
+        candidates = [c for c in candidates if pat.search(c)]
+    if not candidates:
+        raise RuntimeError(f"resolve matched no URL at {meta_url[:120]}")
+    return candidates[0] if spec.get("pick") == "first" else candidates[-1]
+
+
 def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tuple[bytes, str]:
     ep = src["endpoint"]
+    if ep.get("resolve"):
+        url = _resolve_url(ep, _resolve_auth(ep.get("auth")))
+        ep = {**ep, "url": url}
     url = expand_url(ep["url"])
     if panel_row:
         url = _expand_panel(url, panel_row)
@@ -288,19 +418,38 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
             f"unresolved placeholders {leftover} in URL — define `panel` in sources.yaml or pass --panel"
         )
     headers = _resolve_auth(ep.get("auth"))
+    # Static per-source headers (Origin/Referer/contact User-Agent — several
+    # public APIs 403 without them). {ENVVAR} in values resolves from the
+    # environment so contact addresses / keys stay out of the committed catalog.
+    for name, val in (ep.get("headers") or {}).items():
+        headers[name] = _expand_env(str(val))
+    cap = ep.get("max_bytes")
+    # Some hosts are simply slow (WHO GHO serves multi-MB indicator
+    # payloads from a cold cache); let a source raise its own ceiling.
+    rto = ep.get("timeout")
     # POST/GraphQL: type: graphql (body defaults to {"query": ...}) or an explicit
-    # method: POST with a `body` JSON payload. Everything else is a GET.
-    is_post = (ep.get("method", "").upper() == "POST") or ep.get("type") == "graphql"
-    body = ep.get("body")
+    # method: POST with a `body` JSON payload; `body_form` sends it urlencoded
+    # instead. Everything else is a GET.
+    form_body = ep.get("body_form")
+    is_post = (ep.get("method", "").upper() == "POST") or ep.get("type") == "graphql" \
+        or form_body is not None
+    body = form_body if form_body is not None else ep.get("body")
     if body is None and ep.get("query"):
         body = {"query": ep["query"], "variables": ep.get("variables", {})}
+    # Date/epoch tokens and panel placeholders resolve inside POST bodies too —
+    # GraphQL APIs (Norway trafikkdata) take their time window in the body, not
+    # the URL, and a fixed window would freeze the source on historical data.
+    if body is not None:
+        body = _expand_body(body, panel_row)
     # Up to 3 attempts. Two failure modes are retried: transient transport
     # faults (DNS blips, SSL handshake stalls — observed on WSL2 / long-haul
     # routes), and 429/503 throttling with Retry-After honoured (capped) —
     # pypistats in particular 429s bursts of panel rows.
     for attempt in range(3):
         try:
-            resp = _http_post(url, headers, body) if is_post else _http_get(url, headers)
+            resp = (_http_post(url, headers, body, cap, rto,
+                               form=form_body is not None) if is_post
+                    else _http_get(url, headers, cap, rto))
         except httpx.TransportError as e:
             if attempt == 2:
                 raise
@@ -322,7 +471,7 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
         raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
     content = resp.content
     if ep.get("paginate"):
-        content = _paginate_json(content, url, headers, ep["paginate"])
+        content = _paginate_json(content, url, headers, ep["paginate"], cap)
     return content, resp.headers.get("content-type", "")
 
 
@@ -413,23 +562,227 @@ def _walk(obj: Any, path: str) -> Any:
     return _apply(obj, _tokenize(path))
 
 
+# A number is only treated as an epoch inside these ranges. This keeps *date
+# labels* — a bare year (2003), YYYYMM (202606), YYYYMMDD (20260501) or
+# YYYYMMDDHH (2026050100 ≈ 2.03e9) — from being silently converted into
+# 1970-era timestamps, which is what used to happen to WHO GHO year values.
+_EPOCH_S_RANGE = (10**8, 2 * 10**9)          # 1973-2033 in seconds
+_EPOCH_MS_RANGE = (10**12, 2 * 10**12)       # 2001-2033 in milliseconds
+_DECIMAL_YEAR_RE = re.compile(r"^(\d{4})\.(\d{1,6})$")
+
+
+def _looks_like_epoch(n: float) -> bool:
+    return (_EPOCH_S_RANGE[0] <= n < _EPOCH_S_RANGE[1]
+            or _EPOCH_MS_RANGE[0] <= n < _EPOCH_MS_RANGE[1])
+
+
 def _epoch_to_iso(v: Any) -> Optional[str]:
-    """Heuristically convert a number-or-string ts into an ISO UTC string."""
+    """Convert a number-or-string timestamp into an ISO UTC string.
+
+    Numeric-looking values are only reinterpreted as epochs when they fall in a
+    plausible epoch range (see _looks_like_epoch); otherwise they are date
+    labels and pass through untouched. Without that guard, quoted epochs from
+    OKX/KuCoin/Bitstamp/CityBikes stayed raw in the same column as ISO stamps
+    (unparseable downstream), while integer years from WHO GHO were converted
+    into 1970 timestamps.
+    """
     if v is None:
         return None
     if isinstance(v, str):
-        # Already a parseable string — best-effort, return as-is
-        return v
+        s = v.strip()
+        if s.isdigit():
+            n = int(s)
+            return _epoch_to_iso(n) if _looks_like_epoch(n) else s
+        # Decimal years ("2026.042" — NOAA GML trends files) → ISO month start.
+        m = _DECIMAL_YEAR_RE.match(s)
+        if m and 1900 <= int(m.group(1)) < 2100:
+            year, frac = int(m.group(1)), float("0." + m.group(2))
+            return f"{year}-{min(int(frac * 12) + 1, 12):02d}-01"
+        # Some feeds emit a trailing 'Z' *and* an explicit offset ("...+00:00Z").
+        if s.endswith("Z") and ("+" in s[10:] or "-" in s[10:]):
+            return s[:-1]
+        return s
     if isinstance(v, (int, float)):
         n = float(v)
-        # epoch ms vs s: anything > 1e12 is ms
-        if n > 1e12:
+        if not _looks_like_epoch(n):
+            # A date label that arrived as a number — keep it verbatim.
+            return str(int(n)) if float(n).is_integer() else str(n)
+        if n >= _EPOCH_MS_RANGE[0]:
             n /= 1000.0
         try:
             return dt.datetime.fromtimestamp(n, UTC).isoformat()
         except (ValueError, OverflowError, OSError):
             return None
     return str(v)
+
+
+def _leaf_name(path: str) -> str:
+    """Column name for a value path: its last segment, brackets flattened.
+
+    'data.stations[].num_bikes' -> 'num_bikes'; 'states[][6]' -> 'states_6'
+    (without flattening that leaf reads 'states[][6', which is a poor parquet
+    column name).
+    """
+    name = path.split(".")[-1].strip("[]")
+    if "[" in name or "]" in name:
+        name = re.sub(r"[^0-9A-Za-z]+", "_", name).strip("_")
+    return name
+
+
+def _value_names(paths: list[str]) -> list[str]:
+    """Column name per value path: the leaf segment, disambiguated by its parent
+    when leaves collide (jsDelivr's `hits.dates` and `bandwidth.dates` would
+    otherwise both be called `dates` and overwrite each other)."""
+    leaves = [_leaf_name(p) for p in paths]
+    names = []
+    for path, leaf in zip(paths, leaves):
+        if leaves.count(leaf) > 1:
+            segs = [s.strip("[]") for s in path.split(".") if s.strip("[]")]
+            leaf = "_".join(segs[-2:]) if len(segs) >= 2 else leaf
+        names.append(leaf)
+    return names
+
+
+def _records_from_date_map(data: Any, schema: dict) -> list[dict]:
+    """Rows from ``{date: number}`` maps (schema.date_keyed_map).
+
+    CDN and package-registry stats APIs (jsDelivr `hits.dates`) key the series
+    by date instead of listing timestamps, so there is no timestamp path to
+    walk — the *keys* are the timestamps. Every ``value_field`` path must
+    resolve to such a map; the maps are unioned on their keys so several metrics
+    (hits and bandwidth) share one row per date.
+    """
+    val_paths = schema.get("value_field") or []
+    if isinstance(val_paths, str):
+        val_paths = [val_paths]
+    names = _value_names(val_paths)
+    maps: dict[str, dict] = {}
+    for name, path in zip(names, val_paths):
+        try:
+            got = _walk(data, path)
+        except Exception:                                   # noqa: BLE001
+            continue
+        if isinstance(got, dict):
+            maps[name] = got
+    if not maps:
+        return []
+    keys = sorted({k for m in maps.values() for k in m})
+    return [{"timestamp": str(k), **{n: m.get(k) for n, m in maps.items()}}
+            for k in keys]
+
+
+def _compose_json_ts(data: Any, ts_path: str, schema: dict) -> Any:
+    """Walk ``timestamp_field``, composing when it names several paths.
+
+    Whitespace in a JSON path is not legal, so a space-separated
+    ``timestamp_field`` means the timestamp is split across fields the way the
+    CSV parser already handles ('Date Hour'). BLS ships every observation as
+    year + periodName ('2026' + 'June'); composing them yields '2026-06'.
+    """
+    paths = ts_path.split()
+    if len(paths) < 2:
+        return _walk(data, ts_path)
+    seqs = [_walk(data, p) for p in paths]
+    if not all(isinstance(s, list) for s in seqs):
+        return _compose_ts([str(s) for s in seqs],
+                           hour_of_day=bool(schema.get("compose_hour_of_day")),
+                           year_week=bool(schema.get("compose_year_week")))
+    return [_compose_ts([str(s[i]) for s in seqs],
+                        hour_of_day=bool(schema.get("compose_hour_of_day")),
+                        year_week=bool(schema.get("compose_year_week")))
+            for i in range(min(len(s) for s in seqs))]
+
+
+def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
+    """Expand a start-plus-step series into timestamped rows.
+
+    Some feeds send the time axis as metadata rather than data: one start
+    timestamp, a fixed step, and a bare array of values (Statnett's grid
+    frequency does this at 1-second resolution; Czech OTE sends period indices).
+    Declared as::
+
+        schema:
+          series_start: data.startPointUTC   # epoch ms/s or ISO, or a literal
+          series_step: PT1S                  # ISO duration, or a path to ms
+          value_field: [data.Frequency]
+
+    Without this the value array has no timestamps to align to and the whole
+    payload lands in one snapshot row.
+    """
+    val_path = schema.get("value_field", "")
+    paths = val_path if isinstance(val_path, list) else [val_path]
+    try:
+        seqs = {_leaf_name(p): _walk(data, p) for p in paths if p}
+    except Exception as exc:                                  # noqa: BLE001
+        log.debug("stepped series: value walk failed (%s)", exc)
+        return []
+    seqs = {k: v for k, v in seqs.items() if isinstance(v, list) and v}
+    if not seqs:
+        return []
+    n = min(len(v) for v in seqs.values())
+
+    start_spec = schema.get("series_start", "")
+    start_raw = start_spec
+    if isinstance(start_spec, str) and not _EPOCHISH_RE.match(start_spec.strip()):
+        try:
+            start_raw = _walk(data, start_spec)
+        except Exception:                                     # noqa: BLE001
+            return []
+    start = _parse_epoch_or_iso(start_raw)
+    if start is None:
+        return []
+
+    step_spec = schema.get("series_step")
+    step_s = _period_seconds(str(step_spec)) if step_spec else None
+    if step_s is None:                        # not a duration: treat as a path
+        try:
+            step_s = _parse_step_seconds(_walk(data, str(step_spec)))
+        except Exception:                                     # noqa: BLE001
+            step_s = None
+    if not step_s:
+        return []
+
+    records = []
+    for i in range(n):
+        ts = start + dt.timedelta(seconds=step_s * i)
+        row: dict[str, Any] = {"timestamp": ts.isoformat()}
+        if len(seqs) == 1:
+            row["value"] = next(iter(seqs.values()))[i]
+        else:
+            for name, seq in seqs.items():
+                row[name] = seq[i]
+        records.append(row)
+    return records
+
+
+_EPOCHISH_RE = re.compile(r"^\d{4}-\d{2}-\d{2}|^\d{9,}$")
+
+
+def _parse_epoch_or_iso(raw: Any) -> Optional[dt.datetime]:
+    if isinstance(raw, (int, float)):
+        # Millisecond epochs are the norm in these feeds; seconds would place
+        # the series in 1970.
+        secs = float(raw) / 1000.0 if float(raw) > 1e11 else float(raw)
+        return dt.datetime.fromtimestamp(secs, UTC)
+    s = str(raw or "").strip()
+    if not s:
+        return None
+    if s.isdigit():
+        return _parse_epoch_or_iso(int(s))
+    try:
+        got = dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return got if got.tzinfo else got.replace(tzinfo=UTC)
+
+
+def _parse_step_seconds(raw: Any) -> Optional[float]:
+    """A numeric step from the payload, in milliseconds (as these feeds send it)."""
+    try:
+        v = float(raw)
+    except (TypeError, ValueError):
+        return None
+    return v / 1000.0 if v >= 1000 else v
 
 
 def _records_from_json(data: Any, schema: dict) -> list[dict]:
@@ -444,20 +797,26 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
     val_path = schema.get("value_field", "")
     now_iso = dt.datetime.now(UTC).isoformat()
 
+    if schema.get("date_keyed_map"):
+        return _records_from_date_map(data, schema)
+
+    if schema.get("series_step"):
+        return _records_from_stepped_series(data, schema)
+
     # Special: timestamp_field == 'now()' -> snapshot semantics
     if ts_path == "now()":
         return [{"timestamp": now_iso, "value": json.dumps(data)[:200000]}]
 
     # Try to walk
     try:
-        ts_seq = _walk(data, ts_path) if ts_path else None
+        ts_seq = _compose_json_ts(data, ts_path, schema) if ts_path else None
     except Exception as e:                                  # noqa: BLE001
         log.debug("ts walk failed (%s); fallback snapshot row", e)
         return [{"timestamp": now_iso, "value": json.dumps(data)[:200000]}]
 
     if isinstance(val_path, list):
         try:
-            val_seqs = {p.split(".")[-1].strip("[]"): _walk(data, p) for p in val_path}
+            val_seqs = {_leaf_name(p): _walk(data, p) for p in val_path}
         except Exception:
             return [{"timestamp": now_iso, "value": json.dumps(data)[:200000]}]
     else:
@@ -496,11 +855,69 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
         return rows
 
     if ts_seq is None and val_seqs:
-        # snapshot with one current value
+        # Snapshot payloads (no timestamp path). If value paths resolved to
+        # parallel LISTS (schema.snapshot_now feeds: SEPTA TrainView — many
+        # entities, no per-record ts), explode into per-entity rows with
+        # panel tags; parse_payload stamps fetch time on them. Otherwise a
+        # single current-value row.
+        list_vals = {n: s for n, s in val_seqs.items() if isinstance(s, list)}
+        if list_vals:
+            panel_paths = schema.get("panel_field")
+            if isinstance(panel_paths, str):
+                panel_paths = [panel_paths]
+            panel_seqs = []
+            for pp in (panel_paths or []):
+                try:
+                    panel_seqs.append(("_panel_" + pp.split(".")[-1].strip("[]"),
+                                       _walk(data, pp)))
+                except Exception:  # noqa: BLE001
+                    pass
+            n = max(len(s) for s in list_vals.values())
+            rows = []
+            for i in range(n):
+                row = {"timestamp": now_iso}
+                for name, seq in val_seqs.items():
+                    if isinstance(seq, list):
+                        row[name] = seq[i] if i < len(seq) else None
+                    else:
+                        row[name] = seq
+                for pname, pseq in panel_seqs:
+                    if isinstance(pseq, list) and i < len(pseq):
+                        row[pname] = str(pseq[i])
+                rows.append(row)
+            return rows
         row = {"timestamp": now_iso}
         for name, seq in val_seqs.items():
             row[name] = seq
         return [row]
+
+    list_vals = {n: s for n, s in val_seqs.items() if isinstance(s, list)}
+    if ts_seq is not None and list_vals:
+        # One timestamp for many entities — the GBFS shape: a top-level
+        # `last_updated` epoch beside `data.stations[]`. Broadcast the scalar
+        # across the rows instead of falling through to the raw-JSON dump
+        # below, which is what citibike_station_status did for months.
+        panel_paths = schema.get("panel_field")
+        if isinstance(panel_paths, str):
+            panel_paths = [panel_paths]
+        panel_seqs = []
+        for pp in (panel_paths or []):
+            try:
+                panel_seqs.append(("_panel_" + pp.split(".")[-1].strip("[]"),
+                                   _walk(data, pp)))
+            except Exception:  # noqa: BLE001
+                pass
+        stamp = _epoch_to_iso(ts_seq) or now_iso
+        rows = []
+        for i in range(max(len(s) for s in list_vals.values())):
+            row = {"timestamp": stamp}
+            for name, seq in val_seqs.items():
+                row[name] = (seq[i] if i < len(seq) else None) if isinstance(seq, list) else seq
+            for pname, pseq in panel_seqs:
+                if isinstance(pseq, list) and i < len(pseq):
+                    row[pname] = str(pseq[i])
+            rows.append(row)
+        return rows
 
     # last resort
     return [{"timestamp": _epoch_to_iso(ts_seq) or now_iso,
@@ -508,9 +925,19 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
 
 
 def _sniff_delim(line: str) -> str | None:
-    """Best-effort delimiter for one line: tab, comma, or None (= whitespace)."""
+    """Best-effort delimiter for one line: tab, semicolon, comma, or None
+    (= whitespace).
+
+    Semicolon beats comma when it is the more frequent separator — European
+    stats offices (SNB, Destatis, Eurostat bulk) ship ';'-delimited CSV in
+    which ',' is the *decimal* mark, so comma-splitting would shred the rows.
+    """
     if "\t" in line:
         return "\t"
+    if line.count("|") > line.count(","):
+        return "|"
+    if line.count(";") > line.count(","):
+        return ";"
     if "," in line:
         return ","
     return None
@@ -520,35 +947,117 @@ def _split_cols(line: str, delim: str | None) -> list[str]:
     line = line.lstrip("#").strip()
     if delim is None:
         return line.split()
-    return [t.strip() for t in line.split(delim)]
+    # Strip the surrounding quotes these exporters wrap every field in.
+    return [t.strip().strip('"') for t in line.split(delim)]
 
 
-def _compose_ts(parts: list[str]) -> str:
+_MONTH_NAMES = {name.lower(): i for i, name in enumerate(
+    ("January February March April May June July August September October "
+     "November December").split(), start=1)}
+_MONTH_NAMES.update({k[:3]: v for k, v in list(_MONTH_NAMES.items())})
+
+
+def _compose_ts(parts: list[str], hour_of_day: bool = False,
+                year_week: bool = False) -> str:
     """Assemble a timestamp split across columns into ISO-ish form.
 
-    Handles three shapes, else joins verbatim:
+    Handles these shapes, else joins verbatim:
       * a date string + an integer hour ('2026-01-01' + '1'): common in grid /
         gov hourly CSVs (IESO 'Date','Hour'). Hour is treated as hour-ENDING
-        1..24 (the usual grid convention) -> hour-of-day 0..23.
+        1..24 (the usual grid convention) -> hour-of-day 0..23, unless
+        `hour_of_day` (schema.compose_hour_of_day) marks it as already 0..23
+        (Melbourne pedestrian counts — hour-ending would collapse 0 and 1).
       * NDBC 'YY MM DD hh mm' / CRW 'YYYY MM DD': all-numeric parts.
+      * year + month number ('2026' + '3') or English month name
+        ('2026' + 'January'/'Jan', CMS enrollment) -> 'YYYY-MM'.
     """
     parts = [p.strip() for p in parts]
+    # year + ISO week (schema.compose_year_week — Rutgers snow lab 'Year Week'
+    # rows). Needs the explicit flag: weeks 1..12 are indistinguishable from
+    # months. Resolves to the ISO week's Monday.
+    if (year_week and len(parts) == 2 and parts[0].isdigit()
+            and len(parts[0]) == 4 and parts[1].isdigit()):
+        try:
+            return dt.date.fromisocalendar(
+                int(parts[0]), int(parts[1]), 1).isoformat()
+        except ValueError:
+            return " ".join(parts)
     # date-string + integer hour (e.g. IESO 'Date'='2026-01-01', 'Hour'='1'..'24')
     if len(parts) == 2 and re.match(r"^\d{4}[-/]\d{1,2}[-/]\d{1,2}$", parts[0]) and parts[1].isdigit():
         d = parts[0].replace("/", "-")
         h = int(parts[1])
-        hod = (h - 1) % 24 if 1 <= h <= 24 else h % 24   # hour-ending 1..24 -> 0..23
+        if hour_of_day:
+            hod = h % 24
+        else:
+            hod = (h - 1) % 24 if 1 <= h <= 24 else h % 24   # hour-ending 1..24 -> 0..23
         return f"{d}T{hod:02d}:00:00"
     if len(parts) >= 3 and all(p.isdigit() for p in parts[:3]):
         ts = f"{parts[0]:0>4}-{parts[1]:0>2}-{parts[2]:0>2}"
         if len(parts) >= 5 and parts[3].isdigit() and parts[4].isdigit():
             ts += f"T{parts[3]:0>2}:{parts[4]:0>2}:00"
         return ts
+    # year + month ('Jahr','Monat' in DWD regional averages): '2026' + '3'
+    if (len(parts) == 2 and parts[0].isdigit() and len(parts[0]) == 4
+            and parts[1].isdigit() and 1 <= int(parts[1]) <= 12):
+        return f"{parts[0]}-{int(parts[1]):02d}"
+    # year + English month name ('2026' + 'January' / 'Jan'): CMS enrollment
+    if len(parts) == 2 and parts[0].isdigit() and len(parts[0]) == 4:
+        mon = _MONTH_NAMES.get(parts[1].lower()) or _MONTH_NAMES.get(parts[1].lower()[:3])
+        if mon:
+            return f"{parts[0]}-{mon:02d}"
     return " ".join(parts)
 
 
+# Wide-CSV date columns: 2026, 2026-07, 2026-07-01 and the compact forms
+# 202607 / 20260701 (NOAA CPC ships daily degree-days with YYYYMMDD headers).
+_WIDE_DATE_RE = re.compile(r"^\d{4}(-?\d{2}(-?\d{2})?)?$")
+
+
+def _skip_rows(text: str, schema: dict) -> str:
+    """Drop `schema.skip_rows` leading lines — preamble above the real header
+    (NOAA CPC degree-day files open with Product/Regions/Weights lines)."""
+    n = int(schema.get("skip_rows", 0))
+    return "\n".join(text.splitlines()[n:]) if n else text
+
+
+def _records_from_wide_csv(text: str, schema: dict) -> list[dict]:
+    """Melt a wide/pivot CSV — one row per entity, one *column per date* — into
+    long (timestamp, value, _panel_*) records.
+
+    Zillow's research CSVs, and many economic/real-estate exports, ship this
+    shape: `RegionID,SizeRank,RegionName,...,2000-01-31,2000-02-29,...`.
+
+    Config:
+      schema.wide.id_fields: columns identifying the entity (become _panel_*).
+    Every remaining column whose name looks like a date (YYYY, YYYY-MM or
+    YYYY-MM-DD) is treated as a timestamp. Blank cells are skipped.
+    """
+    wide = schema.get("wide") or {}
+    id_fields = wide.get("id_fields") or []
+    if isinstance(id_fields, str):
+        id_fields = [id_fields]
+
+    text = _skip_rows(text, schema)
+    delim = schema.get("csv_delimiter") or _sniff_delim(text.splitlines()[0]) or ","
+    reader = csv.DictReader(io.StringIO(text), delimiter=delim)
+    rows: list[dict] = []
+    for rec in reader:
+        panel = {"_panel_" + f: str(rec.get(f, "")) for f in id_fields}
+        for col, val in rec.items():
+            if col is None or col in id_fields or not _WIDE_DATE_RE.match(col.strip()):
+                continue
+            if val is None or val == "":
+                continue
+            rows.append({"timestamp": col.strip(), "value": val, **panel})
+    return rows
+
+
 def _records_from_csv(text: str, schema: dict) -> list[dict]:
-    ts_field = schema.get("timestamp_field", "").split("/")[-1]
+    if schema.get("wide"):
+        return _records_from_wide_csv(text, schema)
+    text = _skip_rows(text, schema)
+    raw_ts_field = schema.get("timestamp_field", "")
+    ts_field = raw_ts_field.split("/")[-1]
     val_fields = schema.get("value_field")
     if isinstance(val_fields, str):
         val_fields = [val_fields]
@@ -562,19 +1071,48 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
     lines = [l for l in text.splitlines() if l.strip()]
     if not lines:
         return []
-    want = set(ts_cols) | {vf.split("/")[-1] for vf in (val_fields or [])}
+    # A declared field may be a '/'-separated path (shortened to its last
+    # segment) OR a literal column name that itself contains '/' — e.g. NYISO's
+    # "LBMP ($/MWHr)". Accept a header matching either reading.
+    want_short = set(ts_cols) | {vf.split("/")[-1] for vf in (val_fields or [])}
+    # The full reading keeps the RAW timestamp name: BPA's column is literally
+    # "Date/Time", which the '/'-leaf shortening turns into "Time" and never
+    # matches, leaving the header undetected and every line in one field.
+    want_full = set(raw_ts_field.split()) | set(val_fields or [])
+    # An explicit schema.csv_delimiter overrides sniffing — for files where the
+    # heuristic misfires (e.g. ';'-delimited rows whose cells contain commas).
+    forced = schema.get("csv_delimiter")
+    # schema.csv_columns names the columns explicitly for files with no usable
+    # header — headerless data (Rutgers snow: bare 'year week value' rows) or a
+    # header whose delimiter differs from the data rows' (NMDB NEST: whitespace
+    # header over ';' rows). Lines that don't split into exactly these columns
+    # (including any stray header) are skipped.
+    explicit_cols = schema.get("csv_columns")
+    if explicit_cols:
+        recs = []
+        for l in lines:
+            if l.lstrip().startswith("#"):
+                continue
+            toks = _split_cols(l, forced or _sniff_delim(l))
+            if len(toks) != len(explicit_cols) or toks == list(explicit_cols):
+                continue
+            recs.append(dict(zip(explicit_cols, toks)))
+        return _csv_recs_to_rows(recs, schema, ts_field, ts_cols, val_fields,
+                                 raw_ts_field)
+
     header_idx, delim, header = None, None, None
-    if want:
+    if want_short:
         for i, l in enumerate(lines[:200]):
-            d = _sniff_delim(l)
+            d = forced or _sniff_delim(l)
             toks = _split_cols(l, d)
-            if want <= set(toks):
+            if want_short <= set(toks) or want_full <= set(toks):
                 header_idx, delim, header = i, d, toks
                 break
 
-    if header_idx is None or delim == ",":
+    if header_idx is None or delim == "," or (forced and header_idx == 0):
         start = 0 if header_idx is None else header_idx
-        reader = csv.DictReader(io.StringIO("\n".join(lines[start:])))
+        reader = csv.DictReader(io.StringIO("\n".join(lines[start:])),
+                                delimiter=forced or ",")
         recs = list(reader)
     else:
         recs = []
@@ -586,6 +1124,13 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
                 continue
             recs.append(dict(zip(header, toks)))
 
+    return _csv_recs_to_rows(recs, schema, ts_field, ts_cols, val_fields,
+                             raw_ts_field)
+
+
+def _csv_recs_to_rows(recs: list[dict], schema: dict, ts_field: str,
+                      ts_cols: list[str], val_fields: Optional[list[str]],
+                      raw_ts_field: str = "") -> list[dict]:
     panel_cols = schema.get("panel_field")
     if isinstance(panel_cols, str):
         panel_cols = [panel_cols]
@@ -594,13 +1139,18 @@ def _records_from_csv(text: str, schema: dict) -> list[dict]:
     rows = []
     for r in recs:
         if len(ts_cols) > 1 and all(c in r for c in ts_cols):
-            ts_raw = _compose_ts([r[c] for c in ts_cols])
+            ts_raw = _compose_ts([r[c] for c in ts_cols],
+                                 hour_of_day=bool(schema.get("compose_hour_of_day")),
+                                 year_week=bool(schema.get("compose_year_week")))
         else:
-            ts_raw = r.get(ts_field) or next(iter(r.values()), None)
+            # Exact column name wins over the path-leaf, as for value fields.
+            ts_raw = (r.get(raw_ts_field) if raw_ts_field in r
+                      else r.get(ts_field)) or next(iter(r.values()), None)
         row = {"timestamp": _epoch_to_iso(ts_raw) or ts_raw}
         for vf in (val_fields or []):
-            short = vf.split("/")[-1]
-            row[short] = r.get(short)
+            # Exact column name wins; fall back to the last path segment.
+            key = vf if vf in r else vf.split("/")[-1]
+            row[key] = r.get(key)
         if not val_fields:
             row.update({k: v for k, v in r.items() if k != ts_field and k not in ts_cols})
         for pc in panel_cols:
@@ -639,7 +1189,13 @@ def _records_from_zip_xml(blob: bytes, schema: dict) -> list[dict]:
 
 
 def _records_from_rss(text: str, schema: dict) -> list[dict]:
-    """RSS items -> rows of {timestamp=pubDate, value=title|category}."""
+    """RSS items -> rows of {timestamp=pubDate, value=title|category}.
+
+    `timestamp_field`/`value_field` name a different child element when the feed
+    puts them somewhere else — Geoscience Australia's quake feed has no pubDate
+    and carries the event time in <description>. Unknown names fall back to the
+    defaults, so feeds that declared a field the parser never read keep working.
+    """
     import xml.etree.ElementTree as ET
 
     try:
@@ -647,10 +1203,17 @@ def _records_from_rss(text: str, schema: dict) -> list[dict]:
     except ET.ParseError as e:
         raise RuntimeError(f"RSS parse error: {e}")
 
+    def _leaf(field: object) -> str:
+        if isinstance(field, list):
+            field = field[0] if field else ""
+        return str(field or "").split("/")[-1]
+
+    ts_field, val_field = _leaf(schema.get("timestamp_field")), _leaf(schema.get("value_field"))
     rows = []
     for item in root.iter("item"):
-        ts = item.findtext("pubDate")
-        val = item.findtext("category") or item.findtext("title") or ""
+        ts = (item.findtext(ts_field) if ts_field else None) or item.findtext("pubDate")
+        val = ((item.findtext(val_field) if val_field else None)
+               or item.findtext("category") or item.findtext("title") or "")
         rows.append({"timestamp": _epoch_to_iso(ts) or ts, "value": val})
     if not rows:
         # Atom feeds (tsunami.gov, many gov alert streams): namespaced
@@ -694,8 +1257,20 @@ def write_records(sid: str, records: list[dict], dry_run: bool = False) -> int:
         return t.cast(pa.schema([(f.name, pa.string()) for f in t.schema]))
 
     new_table = _all_string(new_table)
+    existing = None
     if out_path.exists():
-        existing = _all_string(pq.read_table(out_path))
+        try:
+            existing = _all_string(pq.read_table(out_path))
+        except Exception as e:                              # noqa: BLE001
+            # A truncated parquet (process killed mid-write before the atomic
+            # write below existed) would otherwise wedge this source forever,
+            # since every run re-reads today's file. Quarantine and start clean
+            # rather than lose all subsequent observations too.
+            corrupt = out_path.with_suffix(".parquet.corrupt")
+            log.error("%s: unreadable parquet %s (%s) — quarantining to %s",
+                      sid, out_path.name, e, corrupt.name)
+            os.replace(out_path, corrupt)
+    if existing is not None:
         try:
             combined = pa.concat_tables(
                 [existing, new_table], promote_options="default"
@@ -714,7 +1289,17 @@ def write_records(sid: str, records: list[dict], dry_run: bool = False) -> int:
     if dry_run:
         log.info("[dry-run] %s: would write %d unique rows to %s", sid, n_written, out_path)
         return n_written
-    pq.write_table(pa.Table.from_pandas(df, preserve_index=False), out_path)
+    # Write to a sibling temp file then rename. os.replace is atomic within a
+    # filesystem, so a kill mid-write (OOM, cron timeout) leaves the previous
+    # good file intact instead of a truncated one. 14 day-files were lost this
+    # way before this was added.
+    tmp = out_path.with_suffix(f".parquet.tmp{os.getpid()}")
+    try:
+        pq.write_table(pa.Table.from_pandas(df, preserve_index=False), tmp)
+        os.replace(tmp, out_path)
+    finally:
+        if tmp.exists():
+            tmp.unlink(missing_ok=True)
     return n_written
 
 
@@ -731,14 +1316,108 @@ def log_error(sid: str, msg: str) -> None:
 # ──────────────────────────────────────────────────────────────────────────
 
 
+_DECIMAL_COMMA_RE = re.compile(r"^-?\d{1,3}(\.\d{3})*,\d+$")
+
+
 def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     """Parse a payload into records, then apply optional aggregation.
 
     `schema.aggregate: {op: count|sum, bin: PT1H}` turns an irregular event
     stream (per-event rows) into a regular per-bin series — count of events (or
-    sum of the value) in each time bin, preserving `_panel_*` grouping."""
+    sum of the value) in each time bin, preserving `_panel_*` grouping.
+
+    `schema.drop_null_values: true` drops records whose every value field is
+    null/empty — for feeds that null-pad future periods to the end of the
+    current year/day (SMARD weekly files): kept, those pad rows make the max
+    written timestamp always sit in the future, blinding the freshness audit."""
     recs = _dispatch_parse(src, blob, content_type)
-    agg = src.get("schema", {}).get("aggregate")
+    schema = src.get("schema", {})
+    if schema.get("snapshot_now"):
+        # Live-snapshot APIs with no per-record timestamp (SEPTA TrainView,
+        # TTC vehicle positions): stamp fetch time. Without a timestamp list
+        # to zip against, the JSON parser collapses `a[].b` paths into ONE
+        # row of parallel lists — explode those back into per-entity rows.
+        # Only meaningful with a panel_field (many entities per poll) or
+        # aggregate — a lone row per poll can never pass the volume gate.
+        now_iso = dt.datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S")
+        exploded: list[dict] = []
+        for r in recs:
+            list_keys = [k for k, v in r.items()
+                         if k != "timestamp" and isinstance(v, list)]
+            if list_keys:
+                n = max(len(r[k]) for k in list_keys)
+                for i in range(n):
+                    row = {k: (r[k][i] if k in list_keys and i < len(r[k])
+                               else r[k])
+                           for k in r if k != "timestamp"}
+                    row["timestamp"] = now_iso
+                    exploded.append(row)
+            else:
+                r["timestamp"] = now_iso
+                exploded.append(r)
+        recs = exploded
+    if schema.get("decimal_comma"):
+        # European decimal commas ("1.234,56" / "1,395") -> dot decimals, so
+        # the numeric gate and downstream casts see real numbers (Spanish
+        # MITECO / Portuguese DGEG fuel prices).
+        for r in recs:
+            for k, v in r.items():
+                if (k != "timestamp" and not k.startswith("_panel_")
+                        and isinstance(v, str) and _DECIMAL_COMMA_RE.match(v)):
+                    r[k] = v.replace(".", "").replace(",", ".")
+    if schema.get("drop_null_values"):
+        recs = [r for r in recs
+                if any(v not in (None, "")
+                       for k, v in r.items()
+                       if k != "timestamp" and not k.startswith("_panel_"))]
+    ts_re, val_re = schema.get("timestamp_regex"), schema.get("value_regex")
+    if ts_re or val_re:
+        # Feeds that bury the number in prose — an RSS <title> reading
+        # "Magnitude 5.1, Tonga Trench", a <description> of
+        # "2026-07-27T03:36:40Z(UTC)". Each regex replaces the field with its
+        # first capture group; non-matching values are left alone.
+        ts_c = re.compile(ts_re) if ts_re else None
+        val_c = re.compile(val_re) if val_re else None
+        for r in recs:
+            if ts_c and isinstance(r.get("timestamp"), str):
+                m = ts_c.search(r["timestamp"])
+                if m:
+                    r["timestamp"] = m.group(1)
+            if val_c:
+                for k, v in r.items():
+                    if k == "timestamp" or k.startswith("_panel_"):
+                        continue
+                    if isinstance(v, str):
+                        m = val_c.search(v)
+                        if m:
+                            r[k] = m.group(1)
+    where = schema.get("where")
+    if where:
+        # Keep only rows matching every {field: value} pair. Feeds often
+        # interleave several series in one response — Malaysia's fuel prices
+        # return `level` and `change_weekly` rows on the SAME dates, which
+        # collide into one timestamp with two meanings. The discriminator is a
+        # field rather than the timestamp, so timestamp_pattern cannot express
+        # it; name the field in panel_field to carry it into the row, and match
+        # here on either the bare or the _panel_-prefixed name.
+        def _keeps(row: dict) -> bool:
+            for field, want in where.items():
+                got = row.get(field, row.get("_panel_" + field))
+                if str(got) != str(want):
+                    return False
+            return True
+        recs = [r for r in recs if _keeps(r)]
+    pattern = schema.get("timestamp_pattern")
+    if pattern:
+        # Keep only rows whose timestamp matches. Some publishers stack several
+        # cadences of the SAME series in one column — an ONS generator CSV runs
+        # annual ("2026"), then quarterly ("2026 Q1"), then monthly
+        # ("2026 JUN") rows. Mixed, the annual and January rows collide on one
+        # timestamp with different values; filtered, each cadence is its own
+        # clean series.
+        keep = re.compile(pattern)
+        recs = [r for r in recs if keep.match(str(r.get("timestamp", "")))]
+    agg = schema.get("aggregate")
     return _aggregate_records(recs, agg) if agg else recs
 
 
@@ -814,7 +1493,9 @@ def _dispatch_parse(src: dict, blob: bytes, content_type: str) -> list[dict]:
             return _records_from_jsonstat2(data, schema)
         return _records_from_json(data, schema)
     if ep_type == "rest_csv":
-        text = blob.decode("utf-8", errors="replace")
+        # endpoint.encoding for non-UTF-8 hosts (TEPCO ships Shift_JIS).
+        enc = src["endpoint"].get("encoding", "utf-8")
+        text = blob.decode(enc, errors="replace")
         # Some "csv" sources actually return zipped XML (CAISO).
         if blob[:2] == b"PK":
             return _records_from_zip_xml(blob, schema)
@@ -862,6 +1543,12 @@ def _records_from_xml(blob: bytes, schema: dict) -> list[dict]:
     Example schema for FAA NASSTATUS (returns <AIRPORT_STATUS_INFORMATION>...):
         timestamp_field: AIRPORT_STATUS_INFORMATION/Update_Time
         value_field: AIRPORT_STATUS_INFORMATION/Delay_type/ARPT/Delay/Min
+
+    Attribute-style XML (values in attributes, one element per observation —
+    SDMX-ML generic, many gov feeds) uses schema.record_path + '@attr' fields:
+        record_path: obs            # iterate every <obs .../> element
+        timestamp_field: '@date'    # attribute of the record element
+        value_field: ['@value']     # or 'child/@attr', or a child element path
     """
     import xml.etree.ElementTree as ET
     root = ET.fromstring(blob)
@@ -869,6 +1556,37 @@ def _records_from_xml(blob: bytes, schema: dict) -> list[dict]:
     val_paths = schema.get("value_field", [])
     if isinstance(val_paths, str):
         val_paths = [val_paths]
+
+    record_path = schema.get("record_path")
+    if record_path:
+        def _field(elt, path: str) -> Optional[str]:
+            if path.startswith("@"):
+                return elt.get(path[1:])
+            if "/@" in path:
+                child_path, attr = path.rsplit("/@", 1)
+                child = elt.find(child_path)
+                return child.get(attr) if child is not None else None
+            child = elt.find(path)
+            return child.text if child is not None else None
+
+        # Strip namespaces from tag matching: iterate by local name.
+        local = record_path.split("/")[-1]
+        out: list[dict] = []
+        for elt in root.iter():
+            if elt.tag.split("}")[-1] != local:
+                continue
+            rec: dict = {"timestamp": _epoch_to_iso(_field(elt, ts_path))
+                         or _field(elt, ts_path)}
+            for vp in val_paths:
+                key = vp.lstrip("@").split("/")[-1].lstrip("@") or "value"
+                rec[key] = _field(elt, vp)
+            pf = schema.get("panel_field")
+            for p in ([pf] if isinstance(pf, str) else (pf or [])):
+                got = _field(elt, p)
+                if got is not None:
+                    rec["_panel_" + p.lstrip("@").split("/")[-1].lstrip("@")] = str(got)
+            out.append(rec)
+        return out
 
     def _find_all(node, path: str) -> list:
         # xpath-lite: consume the root name if it matches, then use the tail as a
@@ -940,12 +1658,28 @@ def _records_from_html_table(blob: bytes, schema: dict, endpoint: dict) -> list[
 def _records_from_xlsx(blob: bytes, schema: dict) -> list[dict]:
     """Parse .xlsx → rows using openpyxl. Reads the first sheet's first two
     columns as (timestamp, value) unless schema overrides column names.
+
+    `schema.sheet` picks a sheet by name (or 0-based index) — statistical
+    offices ship workbooks whose active sheet is a cover page and whose data
+    sits in a differently-named tab (Destatis' truck-toll index).
+    `schema.skip_rows` drops that many rows before the header, for workbooks
+    with title banners above the table.
     """
     import io
     from openpyxl import load_workbook
     wb = load_workbook(io.BytesIO(blob), read_only=True, data_only=True)
-    ws = wb.active
+    sheet = schema.get("sheet")
+    if sheet is None:
+        ws = wb.active
+    elif isinstance(sheet, int):
+        ws = wb.worksheets[sheet]
+    elif sheet in wb.sheetnames:
+        ws = wb[sheet]
+    else:
+        raise RuntimeError(f"sheet {sheet!r} not in workbook: {wb.sheetnames}")
     rows_iter = ws.iter_rows(values_only=True)
+    for _ in range(int(schema.get("skip_rows", 0))):
+        next(rows_iter, None)
     header = next(rows_iter, None)
     if not header:
         return []
@@ -1043,6 +1777,19 @@ def _records_from_jsonstat2(data: dict, schema: dict) -> list[dict]:
         values = flat
 
     role = data.get("role") or {}
+    # `schema.timestamp_dims: [Година, Месец]` names the time dimension(s)
+    # explicitly, composing them in order. Needed wherever `role.time` is absent
+    # and the id is not a recognisable English word: several national offices
+    # label the dimension in their own script (North Macedonia's `Месец`) or
+    # split the period across separate year and month dimensions, neither of
+    # which any amount of guessing here would find.
+    declared = schema.get("timestamp_dims")
+    if declared:
+        want = [d for d in ([declared] if isinstance(declared, str) else declared)
+                if d in dims]
+        if want:
+            return _jsonstat_rows(data, dims, sizes, values, dimension, want)
+
     time_dim = (role.get("time") or [None])[0]
     if time_dim not in dims:
         time_dim = next((d for d in dims if str(d).lower() in
@@ -1082,6 +1829,122 @@ def _records_from_jsonstat2(data: dict, schema: dict) -> list[dict]:
             row[f"_panel_{d}"] = labs[ci] if 0 <= ci < len(labs) else str(ci)
         records.append(row)
     return records
+
+
+def _jsonstat_rows(data: dict, dims: list, sizes: list, values: list,
+                   dimension: dict, time_dims: list) -> list[dict]:
+    """JSON-stat decode with the time axis given explicitly, possibly spread over
+    several dimensions (year x month). Everything else with size > 1 is panel."""
+    def _labels(dim_id) -> list[str]:
+        idx = ((dimension.get(dim_id) or {}).get("category") or {}).get("index") or {}
+        if isinstance(idx, dict):
+            return [k for k, _ in sorted(idx.items(), key=lambda kv: kv[1])]
+        return list(idx)
+
+    positions = [dims.index(d) for d in time_dims]
+    labels = {d: _labels(d) for d in time_dims}
+    panel_dims = [d for i, d in enumerate(dims)
+                  if i not in positions and sizes[i] > 1]
+    panel_labels = {d: _labels(d) for d in panel_dims}
+
+    strides = [1] * len(sizes)
+    for k in range(len(sizes) - 2, -1, -1):
+        strides[k] = strides[k + 1] * sizes[k + 1]
+
+    records: list[dict] = []
+    for f in range(len(values)):
+        v = values[f]
+        if v is None:
+            continue
+        parts = []
+        for d, pos in zip(time_dims, positions):
+            ci = (f // strides[pos]) % sizes[pos]
+            labs = labels[d]
+            parts.append(labs[ci] if 0 <= ci < len(labs) else str(ci))
+        row = {"timestamp": _compose_pxweb_parts(parts), "value": v}
+        for d in panel_dims:
+            di = dims.index(d)
+            ci = (f // strides[di]) % sizes[di]
+            labs = panel_labels[d]
+            row[f"_panel_{d}"] = labs[ci] if 0 <= ci < len(labs) else str(ci)
+        records.append(row)
+    return records
+
+
+def _compose_pxweb_parts(parts: list[str]) -> str:
+    """Join a split period into one label: ``['2026', '1.']`` -> ``2026-01``.
+
+    Month labels in these feeds carry ordinal punctuation (`1.`) or a range
+    (`1. - 12.`, meaning the annual total). Digits are taken from each part, and
+    a part that yields none — or a range, which is an aggregate rather than a
+    period — leaves the label as just the parts that parsed.
+    """
+    if len(parts) == 1:
+        return _norm_pxweb_time(parts[0])
+    out: list[str] = []
+    for i, p in enumerate(parts):
+        s = str(p).strip()
+        if i == 0:
+            out.append(_norm_pxweb_time(s))
+            continue
+        if re.search(r"\d\s*\.?\s*[-–]\s*\d", s):  # '1. - 12.' == annual aggregate
+            break
+        digits = re.sub(r"\D", "", s)
+        if not digits:
+            break
+        out.append(f"{int(digits):02d}")
+    return "-".join(out)
+
+
+_DUR_RE = re.compile(
+    r"^P(?:(?P<y>\d+)Y)?(?:(?P<mo>\d+)M)?(?:(?P<w>\d+)W)?(?:(?P<d>\d+)D)?"
+    r"(?:T(?:(?P<h>\d+)H)?(?:(?P<mi>\d+)M)?(?:(?P<s>\d+)S)?)?$"
+)
+_DUR_UNITS = {"y": 31_536_000, "mo": 2_592_000, "w": 604_800, "d": 86_400,
+              "h": 3600, "mi": 60, "s": 1}
+
+# Sources at or below this period are refetched on every sweep; slower ones are
+# refreshed at most this often.
+_MIN_REFRESH_SECONDS = 3600
+_MAX_REFRESH_SECONDS = 6 * 3600
+
+
+def _period_seconds(freq: str) -> Optional[int]:
+    """ISO-8601 duration -> seconds. None if unparseable (e.g. 'irregular')."""
+    m = _DUR_RE.match(str(freq or "").strip())
+    if not m or not any(m.groupdict().values()):
+        return None
+    return sum(int(v) * _DUR_UNITS[k] for k, v in m.groupdict().items() if v)
+
+
+def _last_scraped_age(sid: str) -> Optional[float]:
+    """Seconds since this source last wrote a parquet file; None if never."""
+    d = DATA_DIR / sid
+    if not d.is_dir():
+        return None
+    mtimes = [p.stat().st_mtime for p in d.glob("*.parquet")]
+    if not mtimes:
+        return None
+    return time.time() - max(mtimes)
+
+
+def is_due(src: dict) -> bool:
+    """Should this source be fetched on the current sweep?
+
+    The full sweep runs every 15 minutes, so anything hourly-or-faster is
+    always due. Slower feeds (daily/weekly/monthly) do not gain anything from
+    96 fetches a day — and each write re-reads and dedupes the whole day-file,
+    so refetching a large monthly panel that often is the dominant cost of a
+    sweep. Those are refreshed at most every 6 hours, which still gives several
+    chances a day to pick up revisions.
+    """
+    period = _period_seconds(src.get("frequency"))
+    if period is None or period <= _MIN_REFRESH_SECONDS:
+        return True
+    age = _last_scraped_age(src["id"])
+    if age is None:
+        return True                       # never scraped — always fetch
+    return age >= min(period, _MAX_REFRESH_SECONDS)
 
 
 def _norm_pxweb_time(t: str) -> str:
@@ -1152,6 +2015,8 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true",
                     help="fetch + parse but do not write parquet")
     ap.add_argument("--list", action="store_true", help="print all source ids and exit")
+    ap.add_argument("--force", action="store_true",
+                    help="with --all, ignore cadence and refetch every source")
     args = ap.parse_args()
 
     sources = load_sources()
@@ -1165,7 +2030,13 @@ def main() -> int:
     if args.id:
         targets = [args.id]
     elif args.all:
-        targets = [s["id"] for s in sources]
+        # Skip slow feeds already refreshed recently — see is_due().
+        due = sources if args.force else [s for s in sources if is_due(s)]
+        skipped = len(sources) - len(due)
+        if skipped:
+            log.info("cadence: %d/%d sources due this sweep (%d not yet stale)",
+                     len(due), len(sources), skipped)
+        targets = [s["id"] for s in due]
     elif args.domain:
         targets = [s["id"] for s in sources if s["domain"] == args.domain]
     else:

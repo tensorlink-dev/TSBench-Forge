@@ -13,6 +13,9 @@ import json
 import os
 import urllib.error
 
+import pytest
+import yaml
+
 from source_discovery import config, coverage, llm, runner, vet
 
 CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "src", "sources", "sources.yaml")
@@ -385,3 +388,44 @@ def test_propose_surfaces_choice_error_after_exhausting_retries(monkeypatch) -> 
     else:
         raise AssertionError("expected RuntimeError after retries are exhausted")
     assert calls[0] == llm._MAX_ERROR_RETRIES + 1  # first attempt + N retries
+
+
+# --------------------------------------------------------------------------- #
+# coverage: banding, disabled filtering, provider diversity
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize("freq,band", [
+    ("PT10S", "sub-min"), ("PT1M", "sub-min"), ("PT4M", "few-min"),
+    ("PT15M", "few-min"), ("PT20M", "half-hour"),   # config convention
+    ("PT1H", "hourly"), ("P3D", "daily"),
+    ("P2W", "weekly"), ("P30D", "monthly"), ("P3M", "quarterly"),
+    ("P1Y", "yearly"), ("irregular", "irregular"), ("", "irregular"),
+])
+def test_band_for_parses_durations_not_just_known_strings(freq, band) -> None:
+    assert coverage.band_for(freq) == band
+
+
+def test_load_registry_skips_disabled_sources(tmp_path) -> None:
+    cat = tmp_path / "sources.yaml"
+    cat.write_text(yaml.safe_dump([
+        {"id": "live_one", "domain": "energy", "frequency": "P1D",
+         "endpoint": {"url": "https://a.example/x"}},
+        {"id": "dead_one", "domain": "energy", "frequency": "P1D",
+         "disabled": True, "endpoint": {"url": "https://b.example/x"}},
+    ]))
+    assert [s["id"] for s in coverage.load_registry(cat)] == ["live_one"]
+    assert len(coverage.load_registry(cat, include_disabled=True)) == 2
+
+
+def test_diversity_discounts_single_host_domains() -> None:
+    reg = [{"domain": "energy", "url_or_endpoint": f"https://one.example/{i}"}
+           for i in range(10)]
+    reg += [{"domain": "nature", "url_or_endpoint": f"https://h{i}.example/x"}
+            for i in range(10)]
+    div = coverage.diversity(reg, cap=5)
+    assert div["energy"]["sources"] == div["nature"]["sources"] == 10
+    # ten sources on one host count as five; ten hosts count as ten
+    assert div["energy"]["effective"] == 5
+    assert div["nature"]["effective"] == 10
+    assert div["energy"]["top_host_share"] == 1.0
+    assert div["nature"]["hosts"] == 10
