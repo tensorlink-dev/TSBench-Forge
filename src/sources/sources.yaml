@@ -26814,3 +26814,363 @@
   audit_slack_days: 73
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'air quality monitoring'). Fields
     chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+
+# -- wired batch: wave21 --
+- id: nordpool_umm_remit_messages
+  name: Nord Pool UMM - REMIT urgent market messages (event stream, hourly counts)
+  domain: energy
+  frequency: irregular
+  audit_slack_days: 60
+  license: Nord Pool UMM public API terms
+  notes: 'REMIT urgent market messages published by Nordic/Baltic/European market participants: unplanned
+    and planned generator/transmission unavailability notices. Each item is one event message; binned to
+    hourly counts. 500 newest messages span roughly 12-14 days.'
+  endpoint:
+    url: https://ummapi.nordpoolgroup.com/messages?limit=500
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: items[].publicationDate
+    value_field:
+    - items[].messageId
+    aggregate:
+      op: count
+      bin: PT1H
+- id: cpsc_product_recalls
+  name: US CPSC - consumer product safety recalls (event stream, daily counts)
+  domain: healthcare
+  frequency: irregular
+  audit_slack_days: 60
+  license: Public domain (US Consumer Product Safety Commission)
+  notes: Consumer Product Safety Commission recall REST service; each row is one recall announcement (injury/hazard
+    driven). Binned to daily counts over a rolling ~2-year window. Recalls cluster on Thursdays; many zero
+    days.
+  endpoint:
+    url: https://www.saferproducts.gov/RestWebServices/Recall?format=json&RecallDateStart={YYYY-MM-DD-730d}
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: '[].RecallDate'
+    value_field:
+    - '[].RecallID'
+    aggregate:
+      op: count
+      bin: P1D
+- id: drivebc_open511_road_events
+  name: DriveBC Open511 - active British Columbia road events (daily counts by report date)
+  domain: transport
+  frequency: irregular
+  audit_slack_days: 60
+  license: Open Government Licence - British Columbia
+  notes: Open511 feed of all currently ACTIVE road events in British Columbia (incidents, closures, construction,
+    weather conditions). Each row is one event; binned to daily counts by the event creation timestamp,
+    so the series is the daily arrival rate of new road events still in force.
+  endpoint:
+    url: https://api.open511.gov.bc.ca/events?format=json&limit=500
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: events[].created
+    value_field:
+    - events[].id
+    aggregate:
+      op: count
+      bin: P1D
+- id: ontario_511_road_events
+  name: Ontario 511 - road events (daily counts by last-update time)
+  domain: transport
+  frequency: irregular
+  audit_slack_days: 60
+  license: Ontario MTO open data (511on.ca open API)
+  notes: 'Ontario Ministry of Transportation 511 event feed: every currently listed incident, closure, construction
+    and restriction on provincial highways. LastUpdated is a Unix epoch (seconds) of the last record refresh;
+    binned to daily counts. Reported/StartDate are NOT used because planned works carry future start dates.'
+  endpoint:
+    url: https://511on.ca/api/v2/get/event
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[].LastUpdated'
+    value_field:
+    - '[].ID'
+    aggregate:
+      op: count
+      bin: P1D
+- id: alberta_511_road_events
+  name: Alberta 511 - road events (hourly counts by last-update time)
+  domain: transport
+  frequency: irregular
+  audit_slack_days: 60
+  license: Alberta Open Government Licence (511 Alberta open API)
+  notes: 'Alberta 511 event feed: incidents, closures, construction and restrictions on Alberta highways.
+    LastUpdated is a Unix epoch (seconds) of the last record refresh; binned to hourly counts. Reported/StartDate
+    are NOT used because planned works carry future start dates.'
+  endpoint:
+    url: https://511.alberta.ca/api/v2/get/event
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[].LastUpdated'
+    value_field:
+    - '[].ID'
+    aggregate:
+      op: count
+      bin: PT1H
+- id: xm_colombia_commercial_demand
+  name: XM Colombia - hourly commercial electricity demand (national system)
+  domain: energy
+  frequency: P1D
+  audit_slack_days: 45
+  license: XM S.A. E.S.P. public API (Colombian system operator)
+  notes: Colombian national grid commercial demand (kWh) from XM, the Colombian market and system operator.
+    The API returns one record per day with 24 hour columns, so each row is a day carrying 24 hourly variates.
+    Rolling 30-day window (the API caps the hourly query range).
+  endpoint:
+    url: https://servapibi.xm.com.co/hourly
+    type: rest_json
+    method: POST
+    body:
+      MetricId: DemaCome
+      StartDate: '{YYYY-MM-DD-30d}'
+      EndDate: '{YYYY-MM-DD}'
+      Entity: Sistema
+    timeout: 60
+  schema:
+    timestamp_field: Items[].Date
+    value_field:
+    - Items[].HourlyEntities[].Values.Hour01
+    - Items[].HourlyEntities[].Values.Hour02
+    - Items[].HourlyEntities[].Values.Hour03
+    - Items[].HourlyEntities[].Values.Hour04
+    - Items[].HourlyEntities[].Values.Hour05
+    - Items[].HourlyEntities[].Values.Hour06
+    - Items[].HourlyEntities[].Values.Hour07
+    - Items[].HourlyEntities[].Values.Hour08
+    - Items[].HourlyEntities[].Values.Hour09
+    - Items[].HourlyEntities[].Values.Hour10
+    - Items[].HourlyEntities[].Values.Hour11
+    - Items[].HourlyEntities[].Values.Hour12
+    - Items[].HourlyEntities[].Values.Hour13
+    - Items[].HourlyEntities[].Values.Hour14
+    - Items[].HourlyEntities[].Values.Hour15
+    - Items[].HourlyEntities[].Values.Hour16
+    - Items[].HourlyEntities[].Values.Hour17
+    - Items[].HourlyEntities[].Values.Hour18
+    - Items[].HourlyEntities[].Values.Hour19
+    - Items[].HourlyEntities[].Values.Hour20
+    - Items[].HourlyEntities[].Values.Hour21
+    - Items[].HourlyEntities[].Values.Hour22
+    - Items[].HourlyEntities[].Values.Hour23
+    - Items[].HourlyEntities[].Values.Hour24
+- id: woah_wahis_outbreak_reports
+  name: WOAH WAHIS - animal disease outbreak reports (daily counts)
+  domain: healthcare
+  frequency: irregular
+  audit_slack_days: 60
+  license: World Organisation for Animal Health (WOAH) WAHIS public interface
+  notes: 'World Organisation for Animal Health WAHIS: every immediate notification and follow-up report
+    of a notifiable animal disease outbreak submitted by member countries (avian influenza, ASF, FMD, rabies,
+    Rift Valley fever...). Rows are binned to daily counts of report submissions. POST JSON, 500 newest
+    reports sorted by last update.'
+  endpoint:
+    url: https://wahis.woah.org/api/v1/pi/event/filtered-list
+    type: rest_json
+    method: POST
+    body:
+      eventIds: []
+      reportHistoryTypes: []
+      diseaseIds: []
+      countries: []
+      years: []
+      reportTypes: []
+      sortColName: lastUpdate
+      sortDirection: DESC
+      pageNumber: 1
+      pageSize: 500
+    headers:
+      Accept: application/json
+    timeout: 90
+  schema:
+    timestamp_field: list[].submissionDate
+    value_field:
+    - list[].reportId
+    aggregate:
+      op: count
+      bin: P1D
+- id: nic_ch_domain_count
+  name: SWITCH .ch registry - total registered .ch domain names (monthly)
+  domain: web_cloudops
+  frequency: P1M
+  audit_slack_days: 75
+  license: SWITCH / nic.ch published registry statistics
+  notes: Total number of registered .ch domain names, published monthly by SWITCH (the .ch registry) as
+    the CSV backing the nic.ch statistics chart. Dates are DD.MM.YYYY and stamped mid-month. History back
+    to 1999.
+  endpoint:
+    url: https://www.nic.ch/statistics-data/domains_ch_monthly.csv
+    type: rest_csv
+    timeout: 45
+  schema:
+    timestamp_field: DATUM
+    value_field:
+    - Total Domain-Namen
+- id: jao_core_max_net_positions
+  name: JAO Core CCR - hourly maximum net positions (flow-based capacity)
+  domain: energy
+  frequency: PT1H
+  audit_slack_days: 45
+  license: JAO (Joint Allocation Office) publication tool, public data
+  notes: 'Joint Allocation Office publication tool: hourly maximum/minimum net positions per bidding zone
+    produced by the Core capacity-calculation region flow-based process. Query range is capped at 2 days
+    by the API, so the window is D-2..D (already-settled hours only, no forward-looking rows).'
+  endpoint:
+    url: https://publicationtool.jao.eu/core/api/data/maxNetPos?FromUtc={YYYY-MM-DD-2d}T00:00:00Z&ToUtc={YYYY-MM-DD}T00:00:00Z
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: data[].dateTimeUtc
+    value_field:
+    - data[].maxDE
+    - data[].maxFR
+    - data[].maxNL
+    - data[].maxBE
+    - data[].maxPL
+    - data[].maxCZ
+    - data[].maxAT
+    - data[].maxHU
+    - data[].maxRO
+- id: sistat_slovenia_broadband_connections
+  name: SURS Slovenia - broadband internet connections (quarterly)
+  domain: web_cloudops
+  frequency: P1Q
+  audit_slack_days: 300
+  license: Statistical Office of the Republic of Slovenia (SiStat), open data
+  notes: Total number of fixed broadband internet access connections in Slovenia, quarterly, from the SiStat
+    PxWeb database (table 2963309S). Quarter labels are period-START; the two most recent quarters are flagged
+    provisional. Published about 2-3 months after quarter end, so freshness slack is wide.
+  endpoint:
+    url: https://pxweb.stat.si/SiStatData/api/v1/en/Data/2963309S.px
+    type: rest_json
+    method: POST
+    body:
+      query:
+      - code: VRSTA DOSTOPA
+        selection:
+          filter: item
+          values:
+          - '00'
+      - code: STATUS UPORABNIKA
+        selection:
+          filter: item
+          values:
+          - '0'
+      response:
+        format: json-stat2
+    headers:
+      User-Agent: Mozilla/5.0 (compatible; TSBench-Forge/1.0; +chris@tensor-link.com)
+    timeout: 60
+  schema:
+    timestamp_dims:
+    - ČETRTLETJE
+    drop_null_values: true
+- id: uk_fsa_food_alerts
+  name: UK Food Standards Agency - food alerts and product recalls (daily counts)
+  domain: healthcare
+  frequency: irregular
+  audit_slack_days: 60
+  license: UK Open Government Licence (FSA open data)
+  notes: 'Food Standards Agency food alerts: product recall information notices, allergy alerts and food
+    alerts for action issued to UK consumers. Each item is one alert; binned to daily counts of newly created
+    alerts. 300 newest alerts sorted by creation date cover roughly two years.'
+  endpoint:
+    url: https://data.food.gov.uk/food-alerts/id?_limit=300&_sort=-created
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: items[].created
+    value_field:
+    - items[].notation
+    aggregate:
+      op: count
+      bin: P1D
+- id: aemo_wa_reference_trading_price
+  name: AEMO Western Australia (WEM) - reference trading price (30-minute)
+  domain: energy
+  frequency: PT30M
+  audit_slack_days: 45
+  license: AEMO WA public market data
+  notes: Wholesale Electricity Market (Western Australia) reference trading price per 30-minute trading
+    interval, published as one JSON file per trading day in the WEMDE public data directory. The URL takes
+    the UTC date minus one day; the file for a trading day appears about 08:30 AWST, so there is a ~30 minute
+    window just after 00:00 UTC when the -1d file is not yet published.
+  endpoint:
+    url: https://data.wa.aemo.com.au/public/market-data/wemde/referenceTradingPrice/current/ReferenceTradingPrice_{YYYY-MM-DD-1d}.json
+    type: rest_json
+    timeout: 45
+  schema:
+    timestamp_field: data.referenceTradingPrices[].tradingInterval
+    value_field:
+    - data.referenceTradingPrices[].referenceTradingPrice
+- id: aemo_wa_market_advisories
+  name: AEMO Western Australia - WEM market advisories (event stream, daily counts)
+  domain: energy
+  frequency: irregular
+  audit_slack_days: 60
+  license: AEMO WA public market data
+  notes: 'Market Advisories issued by AEMO for the Wholesale Electricity Market of Western Australia: credible-contingency
+    reclassifications for network works, low-reserve conditions, report-publication failures and other operational
+    notices. Each row is one advisory; binned to daily counts by the Issued At timestamp. The CSV is a rolling
+    window of roughly the last two months.'
+  endpoint:
+    url: https://data.wa.aemo.com.au/public/market-data/wemde/marketAdvisory/marketAdvisoryReport/market-advisories.csv
+    type: rest_csv
+    timeout: 60
+  schema:
+    timestamp_field: Issued At
+    value_field:
+    - Id
+    aggregate:
+      op: count
+      bin: P1D
+- id: entur_norway_transit_situations
+  name: Entur Norway - public transport disruption situations (daily counts)
+  domain: transport
+  frequency: irregular
+  audit_slack_days: 60
+  license: Entur open data (NLOD), keyless with an ET-Client-Name identifier header
+  notes: SIRI-SX situation exchange feed covering every currently active disruption, cancellation and service
+    change across Norwegian public transport (rail, bus, ferry, tram). Each PtSituationElement is one event;
+    binned to daily counts by CreationTime. Payload is roughly 1.2 MB.
+  endpoint:
+    url: https://api.entur.io/realtime/v1/rest/sx
+    type: rest_xml
+    headers:
+      ET-Client-Name: tensorlink-tsbenchforge
+    timeout: 90
+  schema:
+    record_path: PtSituationElement
+    timestamp_field: '{http://www.siri.org.uk/siri}CreationTime'
+    value_field:
+    - '{http://www.siri.org.uk/siri}SituationNumber'
+    aggregate:
+      op: count
+      bin: P1D
+- id: cnd_panama_generation_units
+  name: CND Panama - live generation by unit (panel snapshot)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 45
+  license: CND Panama (Centro Nacional de Despacho) public SITR data
+  notes: Live output in MW of every generating unit on the Panamanian national grid, from the CND SITR public
+    dashboard feed (~270 units). The payload carries no machine-readable timestamp - its update field is
+    a Spanish-language date string - so snapshot_now stamps the fetch time and each unit becomes a panel
+    entity. Poll every few minutes to build history.
+  endpoint:
+    url: https://sitr.cnd.com.pa/m/pub/data/gen.json
+    type: rest_json
+    timeout: 45
+  schema:
+    snapshot_now: true
+    panel_field: unit[].name
+    value_field:
+    - unit[].value

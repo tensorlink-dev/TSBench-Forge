@@ -116,6 +116,7 @@ schedules:
   - longbeach_go_long_beach_service_requests
   - okiden_jp_demand_5min
   - hk_carpark_vacancy
+  - cnd_panama_generation_units
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -378,6 +379,12 @@ schedules:
   - nola_non_commercial_short_term_rental_license
   - fr_prix_des_carburants_en_france_flux_quoti
   - ch_tagliche_klimadaten_der_nbcn_station_bas
+  - nordpool_umm_remit_messages
+  - drivebc_open511_road_events
+  - ontario_511_road_events
+  - alberta_511_road_events
+  - jao_core_max_net_positions
+  - entur_norway_transit_situations
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -870,6 +877,14 @@ schedules:
   - opendatasoft_encampment_cleanup_notices
   - au_bikeway_counts
   - se_air_quality_measurements_vastra_esplanad
+  - cpsc_product_recalls
+  - xm_colombia_commercial_demand
+  - woah_wahis_outbreak_reports
+  - nic_ch_domain_count
+  - sistat_slovenia_broadband_connections
+  - uk_fsa_food_alerts
+  - aemo_wa_reference_trading_price
+  - aemo_wa_market_advisories
   cron: 10 1 * * *
 - every: P1D
   sources:
