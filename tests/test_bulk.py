@@ -442,3 +442,102 @@ def test_wired_ods_datasets_dedupe(tmp_path):
     cat.write_text(yaml.dump([{"id": "a", "endpoint": {"url":
         "https://opendata.tpg.ch/api/explore/v2.1/catalog/datasets/freq-x/exports/json?limit=10"}}]))
     assert bulk.wired_ods_datasets(str(cat)) == {"freq-x"}
+
+
+# --------------------------------------------------------------------------- #
+# CKAN — linked file resources
+# --------------------------------------------------------------------------- #
+def test_ckan_text_handles_multilingual_fields():
+    """Several national portals return {'en': ..., 'nl': ...} where CKAN's
+    schema says string; calling .strip() on that crashed a whole sweep."""
+    assert bulk._text({"nl": "Luchtkwaliteit", "en": "Air quality"}) == "Air quality"
+    assert bulk._text({"fr": "Qualité"}) == "Qualité"
+    assert bulk._text("plain") == "plain"
+    assert bulk._text(None) == ""
+
+
+def test_csv_timestamp_column_chosen_from_the_data():
+    """A raw file has no declared types, so the values must answer for
+    themselves — a text column merely NAMED 'date' proves nothing."""
+    header = ["station", "date", "value"]
+    body = [["A", f"2026-07-{d:02d}", str(d)] for d in range(1, 21)]
+    assert bulk._csv_timestamp_column(header, body) == "date"
+
+
+def test_csv_timestamp_column_rejects_unparseable():
+    header = ["name", "note"]
+    body = [["A", "hello"] for _ in range(20)]
+    assert bulk._csv_timestamp_column(header, body) is None
+
+
+def test_csv_numeric_column_detection():
+    header = ["d", "n", "t"]
+    body = [[f"2026-07-{i:02d}", str(i * 1.5), "text"] for i in range(1, 21)]
+    assert bulk._csv_column_is_numeric(header, body, "n")
+    assert not bulk._csv_column_is_numeric(header, body, "t")
+
+
+def test_sniff_csv_detects_semicolon_delimiter():
+    text = "date;value\n2026-07-01;1\n2026-07-02;2\n"
+    rows = bulk._sniff_csv_rows(text)
+    assert rows[0] == ["date", "value"]
+    assert rows[1] == ["2026-07-01", "1"]
+
+
+def test_sniff_csv_drops_truncated_last_line():
+    """The head fetch cuts mid-record; a partial row would corrupt the sniff."""
+    text = "date,value,comment\n2026-07-01,1,aaaaaaaaaaaaaaaaaaaa\n2026-0"
+    rows = bulk._sniff_csv_rows(text)
+    assert len(rows) == 2
+
+
+def test_ckan_file_candidate_rejects_non_csv():
+    got = bulk.ckan_file_candidate({"format": "PDF", "url": "https://x/y.pdf"}, 21)
+    assert "error" in got and "CSV" in got["error"]
+
+
+def test_ckan_file_candidate_rejects_stale_metadata():
+    got = bulk.ckan_file_candidate(
+        {"format": "CSV", "url": "https://x/y.csv",
+         "last_modified": "2020-01-01T00:00:00"}, 21)
+    assert "stale" in got["error"]
+
+
+def test_ckan_file_candidate_rejects_oversized():
+    got = bulk.ckan_file_candidate(
+        {"format": "CSV", "url": "https://x/y.csv", "size": 99_000_000,
+         "last_modified": "2026-07-27T00:00:00"}, 21)
+    assert "too large" in got["error"]
+
+
+def test_ckan_file_entry_reads_the_file_directly():
+    """A linked file is fetched as CSV with its own column names — the
+    result.records[] wrapper only exists for the DataStore API."""
+    res = {"id": "r1", "name": "Air quality", "format": "CSV",
+           "url": "https://portal.example/aq.csv"}
+    fields = [("date", "date", "timestamp"), ("pm25", "pm25", "numeric")]
+    probe = {"rows": 100, "distinct": 100, "future": 0,
+             "newest": "2026-07-27T00:00:00+00:00", "age_days": 1.0,
+             "median_gap_s": 3600.0}
+    block = bulk.ckan_synthesize("data.gov.ie", "Ireland", {"title": "AQ"}, res,
+                                 ("air quality monitoring", "nature", "air_quality"),
+                                 fields, probe)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["endpoint"]["type"] == "rest_csv"
+    assert entry["endpoint"]["url"] == "https://portal.example/aq.csv"
+    assert entry["schema"]["timestamp_field"] == "date"
+    assert entry["schema"]["value_field"] == ["pm25"]
+
+
+def test_ckan_datastore_entry_keeps_the_records_wrapper():
+    res = {"id": "r1", "name": "AQ", "datastore_active": True}
+    fields = [("date", "date", "timestamp"), ("pm25", "pm25", "numeric")]
+    probe = {"rows": 100, "distinct": 100, "future": 0,
+             "newest": "2026-07-27T00:00:00+00:00", "age_days": 1.0,
+             "median_gap_s": 3600.0}
+    block = bulk.ckan_synthesize("data.gov.ie", "Ireland", {"title": "AQ"}, res,
+                                 ("air quality monitoring", "nature", "air_quality"),
+                                 fields, probe)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["schema"]["timestamp_field"] == "result.records[].date"
+    assert entry["schema"]["value_field"] == ["result.records[].pm25"]

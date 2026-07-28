@@ -44,6 +44,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import re
+import csv
 import statistics
 import time
 import unicodedata
@@ -1284,6 +1285,149 @@ def ckan_probe(host: str, rid: str, ts: str, timeout: int = 30) -> dict:
     }
 
 
+def _text(v: Any) -> str:
+    """CKAN fields are usually strings but some portals return a per-language
+    dict ({'en': ..., 'nl': ...}); prefer English, else any value."""
+    if isinstance(v, dict):
+        for k in ("en", "en-GB", "en-US"):
+            if v.get(k):
+                return str(v[k])
+        return str(next((x for x in v.values() if x), ""))
+    return str(v or "")
+
+
+# Enough of a CSV to see the header and judge the columns, without pulling a
+# file that may be hundreds of MB.
+CKAN_SNIFF_BYTES = 196_608
+
+
+def ckan_fetch_head(url: str, timeout: int = 30) -> Optional[str]:
+    try:
+        with requests.get(url, headers={"User-Agent": UA}, timeout=timeout,
+                          stream=True) as r:
+            if r.status_code != 200:
+                return None
+            buf = b""
+            for chunk in r.iter_content(32768):
+                buf += chunk
+                if len(buf) >= CKAN_SNIFF_BYTES:
+                    break
+    except Exception:                                         # noqa: BLE001
+        return None
+    for enc in ("utf-8-sig", "utf-8", "latin-1"):
+        try:
+            return buf.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    return None
+
+
+def ckan_file_candidate(res: dict, max_age_days: float) -> dict:
+    """Judge a linked CSV resource by sniffing its head.
+
+    Freshness comes from the portal's own ``last_modified`` rather than the
+    data, because a CSV is written oldest-first: the newest row is at the END of
+    a file that may be enormous, and downloading all of it just to date it would
+    cost more than the source is worth. The wire gate downloads it in full
+    anyway and applies the real freshness check there, so a portal whose
+    metadata flatters a stale file is still caught — just later and cheaper.
+    """
+    fmt = _text(res.get("format")).lower()
+    url = _text(res.get("url"))
+    if "csv" not in fmt or not url.startswith("http"):
+        return {"error": f"not a CSV resource (format={fmt or '?'})"}
+    size = res.get("size")
+    if isinstance(size, (int, float)) and size > 48_000_000:
+        return {"error": f"file too large ({int(size)} bytes)"}
+    stamp = _parse_iso(res.get("last_modified") or res.get("created"))
+    if stamp is None:
+        return {"error": "no parseable last_modified"}
+    age = (dt.datetime.now(dt.timezone.utc) - stamp).total_seconds() / 86400
+    if age > max_age_days:
+        return {"error": f"stale: file modified {age:.0f}d ago"}
+
+    text = ckan_fetch_head(url)
+    if not text:
+        return {"error": "could not read the file head"}
+    rows = _sniff_csv_rows(text)
+    if len(rows) < 3:
+        return {"error": "fewer than 3 readable CSV rows"}
+    header, body = rows[0], rows[1:]
+    ts_col = _csv_timestamp_column(header, body)
+    if not ts_col:
+        return {"error": "no column parses as a date"}
+    fields = [(h, h, "timestamp" if h == ts_col else
+               ("numeric" if _csv_column_is_numeric(header, body, h) else "text"))
+              for h in header]
+    stamps = sorted({
+        d for d in (_parse_iso(r[header.index(ts_col)])
+                    for r in body if len(r) > header.index(ts_col))
+        if d is not None
+    })
+    gaps = [(stamps[i + 1] - stamps[i]).total_seconds() for i in range(len(stamps) - 1)]
+    gaps = [g for g in gaps if g > 0]
+    probe = {
+        "rows": len(body),
+        # The head of the file is the OLDEST data, so distinct-count here is a
+        # sample, and freshness is the metadata's age — both re-checked by the
+        # gate against the whole file.
+        "distinct": len(stamps),
+        "future": 0,
+        "newest": stamp.isoformat(),
+        "age_days": age,
+        "median_gap_s": statistics.median(gaps) if gaps else 86400.0,
+    }
+    return {"fields": fields, "ts": ts_col, "probe": probe}
+
+
+def _sniff_csv_rows(text: str, limit: int = 200) -> list[list[str]]:
+    lines = [l for l in text.splitlines() if l.strip()][:limit]
+    if not lines:
+        return []
+    delim = max([",", ";", "\t", "|"], key=lambda d: lines[0].count(d))
+    if lines[0].count(delim) == 0:
+        return []
+    rows = [next(csv.reader([l], delimiter=delim)) for l in lines]
+    # The head fetch cuts mid-record, so the last row is usually partial. Field
+    # count is the reliable tell — a short final line may still be a valid row.
+    if len(rows) > 1 and len(rows[-1]) < len(rows[0]):
+        rows = rows[:-1]
+    return rows
+
+
+def _csv_timestamp_column(header: list[str], body: list[list[str]]) -> Optional[str]:
+    """The column whose values actually parse as dates — declared types do not
+    exist for a raw file, so the data has to answer for itself."""
+    best, best_hits = None, 0
+    for i, name in enumerate(header):
+        vals = [r[i] for r in body[:40] if len(r) > i and r[i].strip()]
+        if not vals:
+            continue
+        hits = sum(1 for v in vals if _parse_iso(v) is not None)
+        if hits < max(5, 0.8 * len(vals)):
+            continue
+        score = hits + (4 if any(t in name.lower() for t in _ODS_TS_PROMOTE) else 0)
+        if score > best_hits:
+            best, best_hits = name, score
+    return best
+
+
+def _csv_column_is_numeric(header: list[str], body: list[list[str]],
+                           name: str) -> bool:
+    i = header.index(name)
+    vals = [r[i] for r in body[:40] if len(r) > i and r[i].strip()]
+    if not vals:
+        return False
+    ok = 0
+    for v in vals:
+        try:
+            float(v.replace(",", "."))
+            ok += 1
+        except ValueError:
+            pass
+    return ok >= 0.8 * len(vals)
+
+
 def ckan_synthesize(host: str, country: str, pkg: dict, res: dict,
                     klass: tuple[str, str, str], fields: list[tuple[str, str, str]],
                     probe: dict, taken: Optional[set[str]] = None) -> Optional[dict]:
@@ -1298,6 +1442,7 @@ def ckan_synthesize(host: str, country: str, pkg: dict, res: dict,
     vals = ckan_pick_values(fields, ts)
     freq = freq_from_delta(probe["median_gap_s"])
     slack = max(45, int(probe["age_days"]) + 45)
+    is_file = not res.get("datastore_active")
 
     sid = entry_id(host, title)
     if taken and sid in taken:
@@ -1311,15 +1456,17 @@ def ckan_synthesize(host: str, country: str, pkg: dict, res: dict,
         "archetypes": ["count_discrete"] if not vals else ["non_stationary_regime"],
         "frequency": freq,
         "endpoint": {
-            "type": "rest_json",
-            "url": ckan_data_url(host, rid, ts, vals),
+            "type": "rest_csv" if is_file else "rest_json",
+            "url": _text(res.get("url")) if is_file
+                   else ckan_data_url(host, rid, ts, vals),
             "auth": "none",
             "rate_limit": "CKAN anonymous (per-portal)",
         },
         "schema": {
-            # CKAN wraps records one level down. A slash-separated path here
-            # would silently parse as a single empty row.
-            "timestamp_field": f"result.records[].{ts}",
+            # A linked file is read with its own column names; the DataStore API
+            # wraps records one level down. A slash-separated path there would
+            # silently parse as a single empty row.
+            "timestamp_field": ts if is_file else f"result.records[].{ts}",
             "variates": max(1, len(vals)),
         },
         "history_available": "unknown",
@@ -1337,9 +1484,11 @@ def ckan_synthesize(host: str, country: str, pkg: dict, res: dict,
         ),
     }
     if vals:
-        entry["schema"]["value_field"] = [f"result.records[].{v}" for v in vals]
+        entry["schema"]["value_field"] = (
+            list(vals) if is_file else [f"result.records[].{v}" for v in vals]
+        )
     else:
-        entry["schema"]["value_field"] = f"result.records[].{ts}"
+        entry["schema"]["value_field"] = ts if is_file else f"result.records[].{ts}"
         bin_ = "P1D" if freq in ("P1D", "P1W", "P1M", "P1Q", "P1Y") else "PT1H"
         entry["schema"]["aggregate"] = {"op": "count", "bin": bin_}
         if bin_ == "PT1H":
@@ -1399,28 +1548,42 @@ def ckan_sweep(
                     if got >= per_portal:
                         break
                     rid = res.get("id") or ""
-                    if not rid or not res.get("datastore_active"):
+                    if not rid or rid in known_res:
                         continue
-                    if rid in known_res:
-                        continue
-                    title = (res.get("name") or pkg.get("title") or "").strip()
+                    # Some portals return multilingual objects rather than
+                    # strings for name/title.
+                    title = (_text(res.get("name")) or _text(pkg.get("title"))).strip()
                     tag = f"{host}/{rid}"
                     use_class = resolve_class(
-                        klass, title, pkg.get("notes") or pkg.get("title") or ""
+                        klass, title, _text(pkg.get("notes")) or _text(pkg.get("title"))
                     )
                     if use_class is None:
                         continue
-                    fields = ckan_datastore_fields(host, rid)
-                    time.sleep(sleep_s)
-                    if not fields:
-                        skipped.append({"id": tag, "reason": "no DataStore fields"})
-                        continue
-                    ts = ckan_pick_timestamp(fields)
-                    if not ts:
-                        skipped.append({"id": tag, "reason": "no timestamp column"})
-                        continue
-                    probe = ckan_probe(host, rid, ts)
-                    time.sleep(sleep_s)
+                    if res.get("datastore_active"):
+                        fields = ckan_datastore_fields(host, rid)
+                        time.sleep(sleep_s)
+                        if not fields:
+                            skipped.append({"id": tag, "reason": "no DataStore fields"})
+                            continue
+                        ts = ckan_pick_timestamp(fields)
+                        if not ts:
+                            skipped.append({"id": tag, "reason": "no timestamp column"})
+                            continue
+                        probe = ckan_probe(host, rid, ts)
+                        time.sleep(sleep_s)
+                    else:
+                        # The DataStore is the exception, not the rule: across
+                        # every national portal swept, essentially no resource
+                        # had datastore_active, because they publish FILES and
+                        # link them. Those files are still perfectly good
+                        # sources — they just have to be read directly.
+                        got_file = ckan_file_candidate(res, max_age_days)
+                        if "error" in got_file:
+                            skipped.append({"id": tag, "reason": got_file["error"]})
+                            continue
+                        fields, ts, probe = (got_file["fields"], got_file["ts"],
+                                             got_file["probe"])
+                        time.sleep(sleep_s)
                     if "error" in probe:
                         skipped.append({"id": tag,
                                         "reason": f"probe failed: {probe['error']}"})
