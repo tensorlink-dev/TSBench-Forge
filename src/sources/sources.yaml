@@ -992,6 +992,9 @@
     timestamp_field: features[].properties.sent
     value_field: features[].properties.event
     variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
   history_available: P5Y
   update_cadence_observed: every minute
   pretraining_novelty: clean
@@ -1103,6 +1106,9 @@
     timestamp_field: pubDate
     value_field: gdacs:alertlevel
     variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
   history_available: P10Y
   update_cadence_observed: every 15 minutes
   pretraining_novelty: clean
@@ -1713,6 +1719,9 @@
     timestamp_field: items[].creation_date
     value_field: items[].tags
     variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
   history_available: P15Y
   update_cadence_observed: near real-time
   pretraining_novelty: clean
@@ -2534,6 +2543,9 @@
     timestamp_field: features[].properties.sent
     value_field: features[].properties.severity
     variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
   history_available: P5Y
   update_cadence_observed: minute-resolution, sparse — most weeks empty
   pretraining_novelty: clean
@@ -3471,6 +3483,9 @@
     timestamp_field: vulnerabilities[].dateAdded
     value_field: vulnerabilities[].vendorProject
     variates: 1
+    aggregate:
+      op: count
+      bin: P1D
   history_available: P5Y
   update_cadence_observed: business-day additions
   pretraining_novelty: partial
@@ -3500,6 +3515,9 @@
     timestamp_field: results[].report_date
     value_field: results[].classification
     variates: 1
+    aggregate:
+      op: count
+      bin: P1D
   history_available: P20Y
   update_cadence_observed: weekly-ish enforcement report batches
   pretraining_novelty: partial
@@ -3830,6 +3848,9 @@
     timestamp_field: incidents[].created_at
     value_field: incidents[].impact
     variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
   history_available: P1Y
   update_cadence_observed: event-driven
   pretraining_novelty: partial
@@ -3973,6 +3994,9 @@
     timestamp_field: results[].net
     value_field: results[].status.abbrev
     variates: 1
+    aggregate:
+      op: count
+      bin: P1D
   history_available: P70Y
   update_cadence_observed: event-driven
   pretraining_novelty: partial
@@ -4077,6 +4101,9 @@
     timestamp_field: results[].publication_date
     value_field: results[].type
     variates: 1
+    aggregate:
+      op: count
+      bin: P1D
   history_available: P25Y
   update_cadence_observed: several notices per week; new OFAC sanctions actions appear within a day or
     two of designation (2589 total docs)
@@ -4114,6 +4141,9 @@
     timestamp_field: pubDate
     value_field: ndaq:ReasonCode
     variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
   history_available: P1D
   update_cadence_observed: rolling intraday list; channel <ndaq:numItems> ~39 during a trading day, feed
     ttl=1 min
@@ -4494,6 +4524,9 @@
     timestamp_field: results[].public_timestamp
     value_field: results[].title
     variates: 1
+    aggregate:
+      op: count
+      bin: P1D
   history_available: P10Y
   update_cadence_observed: irregular event stream; latest 2026-07-07 at probe, total 1416 alerts indexed
   pretraining_novelty: clean
@@ -4526,6 +4559,9 @@
     timestamp_field: inspection_date
     value_field: results
     variates: 1
+    aggregate:
+      op: count
+      bin: P1D
   history_available: P14Y
   update_cadence_observed: daily business-day updates; latest inspection_date 2026-07-06 at probe
   pretraining_novelty: partial
@@ -5534,6 +5570,9 @@
     timestamp_field: incidents[].created_at
     value_field: incidents[].impact
     variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
   history_available: P1Y
   update_cadence_observed: event-driven; incidents.json returns the recent incident history
   pretraining_novelty: partial
