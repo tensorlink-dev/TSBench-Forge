@@ -25,7 +25,11 @@ HORIZON: int = 48
 # ctx 512 cuts hourly-band error ~35% vs 256 and keeps the context-parrot floor
 # honest (parrot only dominates at 1024); daily horizons beyond ~2 weeks are
 # noise-dominated (parrot ranked #1 in 8/9 daily cells at h>=24). Horizons track
-# the operational loop: daily cutoff, forecast O(12-24h) ahead at native cadence.
+# the operational loop: forecast O(12-24h) ahead at native cadence. The cutoff
+# is per round, twice daily since cascade moved to 12h rounds (epoch_blocks
+# 3600). Round length does NOT bound the horizon — the eval pool is a held-out
+# snapshot of data that has already happened, so a 14-day daily horizon scores
+# against known actuals rather than waiting for them.
 PROFILES: dict[str, tuple[int, int]] = {
     "sub-min": (512, 48),
     "few-min": (512, 48),
