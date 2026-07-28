@@ -564,3 +564,20 @@ def test_resource_title_avoids_duplicating_the_package_name():
     pkg = {"title": "Air Quality Monitoring"}
     got = bulk._resource_title({"name": "air quality monitoring"}, pkg)
     assert got == "Air Quality Monitoring"
+
+
+def test_host_counts_seed_the_cap_from_the_catalog(tmp_path):
+    """The cap must count what the catalog already holds. Counting only within a
+    run lets an already-full host collect more sources past the point where the
+    coverage metric credits them — volume that reads as breadth and is not."""
+    cat = tmp_path / "sources.yaml"
+    cat.write_text(yaml.dump([
+        {"id": "a", "endpoint": {"url": "https://data.x.gov/resource/aa11-bb22.json"}},
+        {"id": "b", "endpoint": {"url": "https://data.x.gov/resource/cc33-dd44.json"}},
+        {"id": "c", "endpoint": {"url": "https://other.gov/f.csv"}},
+        {"id": "d", "disabled": True,
+         "endpoint": {"url": "https://data.x.gov/resource/ee55-ff66.json"}},
+    ]))
+    counts = bulk.host_counts(str(cat))
+    assert counts["data.x.gov"] == 2      # the disabled one does not count
+    assert counts["other.gov"] == 1

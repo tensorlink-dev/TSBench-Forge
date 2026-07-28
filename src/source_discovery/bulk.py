@@ -609,6 +609,27 @@ def synthesize(
 # --------------------------------------------------------------------------- #
 # The sweep
 # --------------------------------------------------------------------------- #
+def host_counts(catalog_path: str) -> dict[str, int]:
+    """How many LIVE sources each host already carries.
+
+    The per-host cap has to count what is already in the catalog, not just what
+    this sweep found. Counting only within a run lets a host that already holds
+    five sources collect several more, every one of them past the point where the
+    coverage metric stops crediting them — effort spent on volume that reads as
+    breadth and is not.
+    """
+    reg = yaml.safe_load(open(catalog_path)) or []
+    counts: dict[str, int] = {}
+    for src in reg:
+        if src.get("disabled"):
+            continue
+        url = (src.get("endpoint") or {}).get("url", "")
+        if url:
+            h = urlparse(url).netloc.lower()
+            counts[h] = counts.get(h, 0) + 1
+    return counts
+
+
 def wired_hosts(catalog_path: str) -> set[str]:
     reg = yaml.safe_load(open(catalog_path)) or []
     hosts = set()
@@ -646,7 +667,7 @@ def sweep(
 ) -> tuple[list[dict], list[dict]]:
     """Returns (candidates, skipped). ``skipped`` carries a reason per drop so
     the sweep's own blind spots are visible rather than silent."""
-    seen_hosts: dict[str, int] = {}
+    seen_hosts: dict[str, int] = host_counts(catalog_path)
     known_hosts = wired_hosts(catalog_path)
     known_ids = wired_resource_ids(catalog_path)
     taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
@@ -1069,7 +1090,7 @@ def ods_sweep(
 ) -> tuple[list[dict], list[dict]]:
     if classes is None:
         classes = ODS_KEYWORD_CLASSES + KEYWORD_CLASSES
-    seen_hosts: dict[str, int] = {}
+    seen_hosts: dict[str, int] = host_counts(catalog_path)
     known_hosts = wired_hosts(catalog_path)
     known_ds = wired_ods_datasets(catalog_path)
     taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
