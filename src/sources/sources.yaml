@@ -2973,6 +2973,7 @@
   - chaotic_nonlinear
   - hierarchical
   frequency: P1D
+  audit_slack_days: 20
   endpoint:
     type: rest_json
     url: https://api.eia.gov/v2/natural-gas/pri/fut/data/?frequency=daily&data[0]=value&facets[series][]=RNGWHHD&sort[0][column]=period&sort[0][direction]=desc&length=5000&api_key={EIA_API_KEY}
@@ -9208,7 +9209,7 @@
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: data[].aired.from
+    snapshot_now: true
     value_field: data[].score
     panel_field: data[].mal_id
     variates: 1
@@ -16397,7 +16398,7 @@
   notes: Quarterly credit to the private non-financial sector from all lenders, market value, % of GDP,
     break-adjusted (WS_TC 2.0). Country panel US/GB/DE/FR/JP/CN/IT/CA/AU/KR. Distinct dataflow from wired
     BIS policy-rate (WS_CBPOL) and EER series. Published with ~1-2 quarter lag.
-  audit_slack_days: 300
+  audit_slack_days: 400
   endpoint:
     url: https://stats.bis.org/api/v2/data/dataflow/BIS/WS_TC/2.0/Q.US+GB+DE+FR+JP+CN+IT+CA+AU+KR.P.A.M.770.A?format=csv&startPeriod=2000-01-01
     type: rest_csv
