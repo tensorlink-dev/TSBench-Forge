@@ -25053,3 +25053,32 @@
   audit_slack_days: 73
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'consommation électrique'). Fields
     chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+
+# -- wired batch: soc4 --
+- id: calgary_water_main_breaks
+  name: Water Main Breaks (data.calgary.ca)
+  domain: nature
+  dgp_class: asset_faults
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.calgary.ca/resource/dpcu-jr23.json?$select=break_date,%3A%40computed_region_4b54_tmc4,%3A%40computed_region_kxmf_bzkv,%3A%40computed_region_4a3i_ccfj&$order=break_date%20DESC&$limit=5000
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+  schema:
+    timestamp_field: '[].break_date'
+    variates: 3
+    value_field:
+    - '[].:@computed_region_4b54_tmc4'
+    - '[].:@computed_region_kxmf_bzkv'
+    - '[].:@computed_region_4a3i_ccfj'
+  history_available: unknown
+  update_cadence_observed: median gap 4320.0 min over the newest 49 timestamps; newest 2026-05-28T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Municipal/agency Socrata series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 106
+  notes: Bulk-generated from the Socrata federated catalog (query 'water main breaks'). Columns chosen mechanically
+    from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
