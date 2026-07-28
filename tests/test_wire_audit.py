@@ -388,3 +388,20 @@ def test_parse_ts_slash_date_with_hour_ending() -> None:
     assert audit.parse_ts("07/26/2026") == dt.datetime(2026, 7, 26, tzinfo=UTC)
     assert audit.parse_ts("07/26/2026 14:05:00") == \
         dt.datetime(2026, 7, 26, 14, 5, tzinfo=UTC)
+
+
+@pytest.mark.parametrize("raw,expect", [
+    # Japanese TSO settled-demand CSVs: a compact date column composed with a
+    # separate slot-start time, hour NOT zero-padded.
+    ("20260727 0:00", dt.datetime(2026, 7, 27, 0, 0, tzinfo=UTC)),
+    ("20260727 23:30", dt.datetime(2026, 7, 27, 23, 30, tzinfo=UTC)),
+    ("20260727 9:05:30", dt.datetime(2026, 7, 27, 9, 5, 30, tzinfo=UTC)),
+])
+def test_parse_compact_date_with_slot_time(raw, expect) -> None:
+    assert audit.parse_ts(raw) == expect
+
+
+def test_compact_date_alone_still_parses_by_length() -> None:
+    """The 8-digit form must keep going through the length dispatcher — greedy
+    strptime would read '20260726' as %Y%m%d%H."""
+    assert audit.parse_ts("20260726") == dt.datetime(2026, 7, 26, tzinfo=UTC)

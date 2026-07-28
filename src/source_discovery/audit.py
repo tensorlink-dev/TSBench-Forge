@@ -58,6 +58,9 @@ _FORMATS = (
     "%Y %b",  # ONS generator CSV month labels: "2026 JUN"
     "%a %b %d %H:%M:%S %Y %Z",  # FAA NAS status: "Mon Jul 27 00:06:02 2026 GMT"
     "%m/%d/%Y %I:%M:%S %p",     # NRC reactor status: "1/1/2026 12:00:00 AM"
+    # Japanese TSO settled-demand CSVs compose a compact date column with a
+    # separate start-of-slot time: "20260727 0:00" (hour is not zero-padded).
+    "%Y%m%d %H:%M:%S", "%Y%m%d %H:%M",
 )
 
 # Digit-only strings are ambiguous under greedy strptime ("20260726" parses as

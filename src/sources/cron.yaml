@@ -52,6 +52,7 @@ schedules:
   - cita_lu_motorway_traffic_speed
   - packagist_php_release_rate
   - fr_ancien_disponibilite_en_temps_reel_des_p
+  - statnett_no_grid_frequency_1s
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -113,6 +114,8 @@ schedules:
   - kyuden_jp_demand_5min
   - johnscreekga_incidentcad
   - longbeach_go_long_beach_service_requests
+  - okiden_jp_demand_5min
+  - hk_carpark_vacancy
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -208,6 +211,13 @@ schedules:
   - waterlevel_ie_opw_hydrometric_15min
   - opendatasoft_fire_incidents_queensland
   - maryland_power_outages_by_county
+  - tohoku_jp_demand_5min
+  - rikuden_jp_demand_5min
+  - kansai_td_jp_demand_5min
+  - energia_jp_demand_5min
+  - yonden_jp_demand_5min
+  - hepco_jp_demand_5min
+  - hko_hk_station_temperature
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -254,6 +264,9 @@ schedules:
   - coes_pe_demand_30min
   - ch_luftqualitat_station_a2_hard_halbstundli
   - ch_luftqualitat_station_sissach_butzenen_ha
+  - energia_jp_area_balance_30min
+  - rikuden_jp_area_balance_30min
+  - kansai_td_jp_area_balance_30min
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -744,6 +757,12 @@ schedules:
   - ch_luftqualitatsmessungen_ostluft_thurgau_t
   - ch_kantonaler_stromverbrauch
   - de_klimasensoren_messdaten
+  - israel_rail_trip_execution_monthly
+  - boi_il_exchange_rates_daily
+  - jepx_jp_spot_prices
+  - twse_tw_index_close_snapshot
+  - hepco_jp_area_balance_30min
+  - yonden_jp_area_balance_30min
   cron: 10 1 * * *
 - every: P1D
   sources:

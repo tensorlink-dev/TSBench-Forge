@@ -168,6 +168,14 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
         url = url.replace("{HH}", f"{now.hour:02d}")
     if "{H}" in url:
         url = url.replace("{H}", str(now.hour))
+    if "{FY_JP}" in url:
+        # Japanese fiscal year: April 1 - March 31, named for the starting
+        # calendar year. JEPX names its spot-price file this way, so a plain
+        # {YYYY} silently fetches a file that does not exist for the three
+        # months of January-March — a failure that would surface long after
+        # the source was wired and verified.
+        jst = now + dt.timedelta(hours=9)
+        url = url.replace("{FY_JP}", str(jst.year - 1 if jst.month < 4 else jst.year))
     if "{ISO_DATE}" in url:
         url = url.replace("{ISO_DATE}", now.strftime("%Y-%m-%d"))
     if "{ISO_DATETIME}" in url:

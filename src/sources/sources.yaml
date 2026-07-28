@@ -23476,3 +23476,420 @@
   audit_slack_days: 67
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields
     chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+
+# -- wired batch: wave20 --
+- id: tohoku_jp_demand_5min
+  name: Tohoku Electric Power Network 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 46
+  license: Tohoku Electric Power Network public denki-yoho CSV (open, attribution requested)
+  notes: Tohoku (north-east Honshu) grid demand and solar (and wind, where published) in 5-minute steps
+    for one JST day; Shift_JIS CSV of several stacked blocks - the 5-minute block is selected by its unique
+    column names. The URL takes the UTC date, so between 15:00-24:00 UTC it serves the previous (complete)
+    JST day, which avoids the empty-file window around JST midnight. Timestamps are JST with no offset;
+    drop_null_values removes the blank not-yet-observed slots.
+  endpoint:
+    url: https://setsuden.nw.tohoku-epco.co.jp/common/demand/juyo_02_{YYYYMMDD}.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績(5分間隔値)(万kW)
+    - 太陽光発電実績(5分間隔値)(万kW)
+    - 風力発電実績(5分間隔値)(万kW)
+    drop_null_values: true
+- id: rikuden_jp_demand_5min
+  name: Hokuriku Electric Power Transmission 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 46
+  license: Hokuriku Electric Power Transmission public denki-yoho CSV (open, attribution requested)
+  notes: Hokuriku (Toyama/Ishikawa/Fukui) grid demand and solar (and wind, where published) in 5-minute
+    steps for one JST day; Shift_JIS CSV of several stacked blocks - the 5-minute block is selected by its
+    unique column names. The URL takes the UTC date, so between 15:00-24:00 UTC it serves the previous (complete)
+    JST day, which avoids the empty-file window around JST midnight. Timestamps are JST with no offset;
+    drop_null_values removes the blank not-yet-observed slots.
+  endpoint:
+    url: https://www.rikuden.co.jp/nw/denki-yoho/csv/juyo_05_{YYYYMMDD}.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績（５分間隔値）(万kW)
+    - 太陽光発電実績（５分間隔値）(万kW)
+    drop_null_values: true
+- id: kansai_td_jp_demand_5min
+  name: Kansai Transmission and Distribution 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 46
+  license: Kansai Transmission and Distribution public denki-yoho CSV (open, attribution requested)
+  notes: Kansai (Osaka/Kyoto/Kobe) grid demand and solar (and wind, where published) in 5-minute steps for
+    one JST day; Shift_JIS CSV of several stacked blocks - the 5-minute block is selected by its unique
+    column names. The URL takes the UTC date, so between 15:00-24:00 UTC it serves the previous (complete)
+    JST day, which avoids the empty-file window around JST midnight. Timestamps are JST with no offset;
+    drop_null_values removes the blank not-yet-observed slots.
+  endpoint:
+    url: https://www.kansai-td.co.jp/yamasou/juyo_06_{YYYYMMDD}.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績(５分間隔値)(万kW)
+    - 太陽光発電実績(５分間隔値)(万kW)
+    drop_null_values: true
+- id: energia_jp_demand_5min
+  name: Chugoku Electric Power Transmission 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 46
+  license: Chugoku Electric Power Transmission public denki-yoho CSV (open, attribution requested)
+  notes: Chugoku (Hiroshima/Okayama) grid demand and solar (and wind, where published) in 5-minute steps
+    for one JST day; Shift_JIS CSV of several stacked blocks - the 5-minute block is selected by its unique
+    column names. The URL takes the UTC date, so between 15:00-24:00 UTC it serves the previous (complete)
+    JST day, which avoids the empty-file window around JST midnight. Timestamps are JST with no offset;
+    drop_null_values removes the blank not-yet-observed slots.
+  endpoint:
+    url: https://www.energia.co.jp/nw/jukyuu/sys/juyo_07_{YYYYMMDD}.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績(５分間隔値)(万kW)
+    - 太陽光発電実績(５分間隔値)(万kW)
+    drop_null_values: true
+- id: yonden_jp_demand_5min
+  name: Shikoku Electric Power Transmission 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 46
+  license: Shikoku Electric Power Transmission public denki-yoho CSV (open, attribution requested)
+  notes: Shikoku grid demand and solar (and wind, where published) in 5-minute steps for one JST day; Shift_JIS
+    CSV of several stacked blocks - the 5-minute block is selected by its unique column names. The URL takes
+    the UTC date, so between 15:00-24:00 UTC it serves the previous (complete) JST day, which avoids the
+    empty-file window around JST midnight. Timestamps are JST with no offset; drop_null_values removes the
+    blank not-yet-observed slots.
+  endpoint:
+    url: https://www.yonden.co.jp/nw/denkiyoho/juyo_08_{YYYYMMDD}.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績(5分間隔値)(万kW)
+    - 太陽光発電実績(5分間隔値)(万kW)
+    drop_null_values: true
+- id: okiden_jp_demand_5min
+  name: Okinawa Electric Power 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 46
+  license: Okinawa Electric Power public denki-yoho CSV (open, attribution requested)
+  notes: Okinawa islands grid demand and solar (and wind, where published) in 5-minute steps for one JST
+    day; Shift_JIS CSV of several stacked blocks - the 5-minute block is selected by its unique column names.
+    The URL takes the UTC date, so between 15:00-24:00 UTC it serves the previous (complete) JST day, which
+    avoids the empty-file window around JST midnight. Timestamps are JST with no offset; drop_null_values
+    removes the blank not-yet-observed slots.
+  endpoint:
+    url: https://www.okiden.co.jp/denki2/juyo_10_{YYYYMMDD}.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績(5分間隔値)(万kW)
+    - 太陽光発電実績(5分間値)(万kW)
+    drop_null_values: true
+- id: hepco_jp_demand_5min
+  name: Hokkaido Electric Power Network 5-minute electricity demand (Japan)
+  domain: energy
+  frequency: PT5M
+  audit_slack_days: 46
+  license: Hokkaido Electric Power Network public denki-yoho CSV (open, attribution requested)
+  notes: Hokkaido grid demand and solar output in 5-minute steps for one JST day; Shift_JIS CSV of several
+    stacked blocks - the 5-minute block is selected by its unique column names. The URL takes the UTC date,
+    so between 15:00-24:00 UTC it serves the previous (complete) JST day, which avoids the empty-file window
+    around JST midnight. Timestamps are JST with no offset; drop_null_values removes the blank not-yet-observed
+    slots.
+  endpoint:
+    url: https://denkiyoho.hepco.co.jp/area/data/juyo_01_{YYYYMMDD}.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - 当日実績(５分間隔値)(万kW)
+    - 太陽光発電実績(５分間隔値)(万kW)
+    drop_null_values: true
+- id: statnett_no_grid_frequency_1s
+  name: Statnett Nordic grid frequency (per-second)
+  domain: energy
+  frequency: PT1S
+  audit_slack_days: 45
+  license: Statnett driftsdata open REST API
+  notes: Per-second system frequency (Hz) of the Nordic synchronous area, published by the Norwegian TSO
+    Statnett. The payload is a bare array of measurements plus one start timestamp (epoch ms) and a period
+    length in ms, so it needs series_start/series_step. Each call returns the most recent ~60 seconds; the
+    fastest cadence in the catalogue.
+  endpoint:
+    url: https://driftsdata.statnett.no/restapi/Frequency/BySecond
+    type: rest_json
+  schema:
+    series_start: StartPointUTC
+    series_step: PeriodTickMs
+    value_field:
+    - Measurements
+- id: israel_rail_trip_execution_monthly
+  name: Israel Railways planned-vs-executed trips (monthly, Nahariya-Ben Gurion route)
+  domain: transport
+  frequency: P1M
+  audit_slack_days: 75
+  license: data.gov.il CKAN open government data (Israel)
+  notes: Monthly count of scheduled train trips and the percentage actually executed on Israel Railways
+    route code 1. The CKAN datastore holds every route; the filter pins one route so a single fetch returns
+    a long monthly history instead of one month across ~950 routes. Timestamps compose the Hebrew-named
+    year (shana) and month (hodesh) columns. The current month is partial and is revised, so allow generous
+    slack.
+  endpoint:
+    url: https://data.gov.il/api/3/action/datastore_search?resource_id=6cf35ec2-c0eb-4ef0-a904-f093dab0abfd&limit=1000&sort=_id%20desc&filters=%7B%22train_trip_cd%22%3A1%7D
+    type: rest_json
+  schema:
+    timestamp_field: result.records[].shana result.records[].hodesh
+    value_field:
+    - result.records[].rishui_all
+    - result.records[].ahuz_bitzua
+- id: hk_carpark_vacancy
+  name: Hong Kong public car park real-time vacancy
+  domain: transport
+  frequency: PT5M
+  audit_slack_days: 45
+  license: DATA.GOV.HK open data (Transport Department, HKSAR)
+  notes: Live private-car space vacancy for ~560 Hong Kong car parks, each row carrying the operator's own
+    lastupdate stamp (HKT, no offset). A handful of car parks have not reported for years, so the feed always
+    mixes very old and very fresh stamps - the audit should look at the newest. Panelled by park_Id.
+  endpoint:
+    url: https://api.data.gov.hk/v1/carpark-info-vacancy?data=vacancy&vehicleTypes=privateCar
+    type: rest_json
+  schema:
+    timestamp_field: results[].privateCar[].lastupdate
+    value_field:
+    - results[].privateCar[].vacancy
+    panel_field: results[].park_Id
+- id: boi_il_exchange_rates_daily
+  name: Bank of Israel representative exchange rates (USD/ILS, daily)
+  domain: econ_fin
+  frequency: P1D
+  audit_slack_days: 50
+  license: Bank of Israel open SDMX API (public, no key)
+  notes: Daily representative (official) exchange rates of the shekel against the US dollar (SDMX series
+    are not panel-labelled by the parser, so one currency per entry), from the Bank of Israel FusionEdge
+    SDMX 2.1 service. SDMX-JSON is parsed natively. Rates are published on business days only, so gaps over
+    weekends and Israeli holidays are normal.
+  endpoint:
+    url: https://edge.boi.gov.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/EXR/1.0/RER_USD_ILS?startperiod=2022-01-01&format=sdmx-json
+    type: rest_json
+    timeout: 90
+  schema:
+    value_field: []
+- id: jepx_jp_spot_prices
+  name: JEPX Japan day-ahead spot electricity prices (48 half-hour delivery slots)
+  domain: energy
+  frequency: P1D
+  audit_slack_days: 47
+  license: Japan Electric Power Exchange (JEPX) public market data CSV
+  notes: 'Cleared day-ahead prices and volumes on the Japan Electric Power Exchange spot market: system
+    price plus the nine area prices, for each of the 48 half-hour delivery slots of every day of the Japanese
+    fiscal year. Panelled by 時刻コード (delivery slot 1-48), so each panel is a daily series for one half-hour
+    slot; the timestamp is the delivery date. csv_read.php refuses to serve the file without a Referer header.
+    Prices for tomorrow''s delivery day are present from the afternoon - that is the genuine day-ahead auction
+    result, not padding. CAVEAT: the file is named by JAPANESE FISCAL year (April-March), so {YYYY} is correct
+    only from April to December; in January-March the URL must point at the previous calendar year.'
+  endpoint:
+    url: https://www.jepx.jp/js/csv_read.php?dir=spot_summary&file=spot_summary_{FY_JP}.csv
+    type: rest_csv
+    timeout: 90
+    headers:
+      Referer: https://www.jepx.jp/electricpower/market-data/spot/
+  schema:
+    timestamp_field: 受渡日
+    value_field:
+    - システムプライス(円/kWh)
+    - 約定総量(kWh)
+    - エリアプライス東京(円/kWh)
+    - エリアプライス関西(円/kWh)
+    panel_field: 時刻コード
+- id: twse_tw_index_close_snapshot
+  name: Taiwan Stock Exchange index closing levels (all published indices)
+  domain: econ_fin
+  frequency: P1D
+  audit_slack_days: 45
+  license: TWSE OpenAPI (public, no key)
+  notes: Closing level and daily change for every index the Taiwan Stock Exchange publishes (~265 series,
+    including the TAIEX weighted index and all sector indices). The feed carries only a Republic-of-China-calendar
+    date (e.g. 1150727 = 2026-07-27) which is not parseable, so the row is stamped with the fetch time via
+    snapshot_now and panelled by index name - poll once per trading day after the close (Taipei time, UTC+8).
+  endpoint:
+    url: https://openapi.twse.com.tw/v1/exchangeReport/MI_INDEX
+    type: rest_json
+  schema:
+    snapshot_now: true
+    value_field:
+    - '[].收盤指數'
+    - '[].漲跌百分比'
+    panel_field: '[].指數'
+- id: energia_jp_area_balance_30min
+  name: Chugoku area supply-demand and generation mix (half-hourly, Japan)
+  domain: energy
+  frequency: PT30M
+  audit_slack_days: 47
+  license: Chugoku Electric Power Transmission and Distribution public area supply-demand CSV
+  notes: '30-minute average area demand and the full generation mix for the Chugoku balancing area (nuclear,
+    LNG / coal / oil / other thermal, hydro, geothermal, biomass, solar, wind, pumped storage, batteries,
+    interconnector flows), in MW. One Shift_JIS file per calendar month with a single units line above the
+    header (skip_rows). Rows for slots that have not happened yet are blank, so drop_null_values is required.
+    Timestamps are JST with no offset. CAVEAT: the file is keyed on the UTC month, so in the first ~2 hours
+    of the 1st of a month the JST day has produced fewer than 20 filled rows.'
+  endpoint:
+    url: https://www.energia.co.jp/nw/jukyuu/sys/eria_jukyu_{YYYYMM}_07.csv
+    type: rest_csv
+    encoding: shift_jis
+    timeout: 90
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - エリア需要
+    - 火力(LNG)
+    - 水力
+    - 太陽光発電実績
+    - 風力発電実績
+    - 連系線
+    skip_rows: 1
+    drop_null_values: true
+- id: rikuden_jp_area_balance_30min
+  name: Hokuriku area supply-demand and generation mix (half-hourly, Japan)
+  domain: energy
+  frequency: PT30M
+  audit_slack_days: 47
+  license: Hokuriku Electric Power Transmission and Distribution public area supply-demand CSV
+  notes: '30-minute average area demand and the full generation mix for the Hokuriku balancing area (nuclear,
+    LNG / coal / oil / other thermal, hydro, geothermal, biomass, solar, wind, pumped storage, batteries,
+    interconnector flows), in MW. One Shift_JIS file per calendar month with a single units line above the
+    header (skip_rows). Rows for slots that have not happened yet are blank, so drop_null_values is required.
+    Timestamps are JST with no offset. CAVEAT: the file is keyed on the UTC month, so in the first ~2 hours
+    of the 1st of a month the JST day has produced fewer than 20 filled rows.'
+  endpoint:
+    url: https://www.rikuden.co.jp/nw/denki-yoho/csv/eria_jukyu_{YYYYMM}_05.csv
+    type: rest_csv
+    encoding: shift_jis
+    timeout: 90
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - エリア需要
+    - 火力(LNG)
+    - 水力
+    - 太陽光発電実績
+    - 風力発電実績
+    - 連系線
+    skip_rows: 1
+    drop_null_values: true
+- id: hko_hk_station_temperature
+  name: Hong Kong Observatory current air temperature by station
+  domain: nature
+  frequency: PT10M
+  audit_slack_days: 45
+  license: Hong Kong Observatory open data (data.weather.gov.hk), CC-BY-style government terms
+  notes: Latest air temperature reading at the 26 Hong Kong Observatory automatic weather stations, panelled
+    by station name. The whole block carries one recordTime (ISO with +08:00 offset), which is used as the
+    row timestamp. Refreshed about every 10 minutes.
+  endpoint:
+    url: https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en
+    type: rest_json
+  schema:
+    timestamp_field: temperature.recordTime
+    value_field:
+    - temperature.data[].value
+    panel_field: temperature.data[].place
+- id: kansai_td_jp_area_balance_30min
+  name: Kansai area supply-demand and generation mix (half-hourly, Japan)
+  domain: energy
+  frequency: PT30M
+  audit_slack_days: 47
+  license: Kansai Transmission and Distribution public area supply-demand CSV
+  notes: '30-minute average area demand and the full generation mix for the Kansai balancing area (nuclear,
+    LNG / coal / oil / other thermal, hydro, geothermal, biomass, solar, wind, pumped storage, batteries,
+    interconnector flows), in MW. One Shift_JIS file per calendar month with a single units line above the
+    header (skip_rows). Column labels use FULL-WIDTH parentheses. Not-yet-observed slots are blank, so drop_null_values
+    is required. Timestamps are JST with no offset. CAVEAT: the file is keyed on the UTC month, so in the
+    first ~2 hours of the 1st of a month fewer than 20 filled rows exist.'
+  endpoint:
+    url: https://www.kansai-td.co.jp/interchange/denkiyoho/area-performance/eria_jukyu_{YYYYMM}_06.csv
+    type: rest_csv
+    encoding: shift_jis
+    timeout: 90
+  schema:
+    timestamp_field: DATE TIME
+    value_field:
+    - エリア需要
+    - 原子力
+    - 火力（LNG）
+    - 水力
+    - 太陽光発電実績
+    - 連系線
+    skip_rows: 1
+    drop_null_values: true
+
+# -- wired batch: wave20-retry --
+- id: hepco_jp_area_balance_30min
+  name: Hokkaido area supply-demand half-hourly actuals (Japan)
+  domain: energy
+  frequency: PT30M
+  audit_slack_days: 48
+  license: Hokkaido Electric Power Network public area supply-demand CSV (open, attribution requested)
+  notes: 'Half-hourly settled area totals for the Hokkaido balancing area - total area demand, total area
+    generation and combined wind+solar output, all in kWh. Different series from the denki-yoho 5-minute
+    demand file. Shift_JIS CSV with a 2-line preamble (skip_rows). The URL uses yesterday''s UTC date on
+    purpose: the current-day file is empty-padded for future slots, so only the completed previous JST day
+    reliably carries all 48 slots. Timestamps compose the YYYYMMDD date column with the slot start time;
+    JST, no offset.'
+  endpoint:
+    url: https://denkiyoho.hepco.co.jp/area/data/{YYYYMMDD-1d}_hokkaido_jisseki.csv
+    type: rest_csv
+    encoding: shift_jis
+  schema:
+    timestamp_field: 日付 時間帯_自
+    value_field:
+    - エリア総需要量(kWh)
+    - エリア総発電量(kWh)
+    - エリア風力・太陽光発電量(kWh)
+    skip_rows: 2
+    drop_null_values: true
+- id: yonden_jp_area_balance_30min
+  name: Shikoku area supply-demand half-hourly actuals (Japan)
+  domain: energy
+  frequency: PT30M
+  audit_slack_days: 47
+  license: Shikoku Electric Power Transmission and Distribution public area supply-demand CSV
+  notes: 'Settled half-hourly totals for the Shikoku balancing area - total area demand, total area generation
+    and combined wind+solar output, all in kWh. One Shift_JIS file per CALENDAR year with a 2-line preamble
+    (skip_rows) covering every 30-minute slot of the year up to the previous JST day. Timestamps compose
+    the YYYYMMDD date column with the slot start time; JST, no offset. CAVEAT: the file is keyed on the
+    calendar year, so on 1-2 January the new year''s file is still nearly empty.'
+  endpoint:
+    url: https://www.yonden.co.jp/nw/denkiyoho/supply_demand/csv/jisseki_{YYYY}.csv
+    type: rest_csv
+    encoding: shift_jis
+    timeout: 90
+  schema:
+    timestamp_field: 日付 時間帯_自
+    value_field:
+    - エリア総需要量
+    - エリア総発電量
+    - エリア風力・太陽光発電量
+    skip_rows: 2
+    drop_null_values: true

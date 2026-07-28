@@ -1023,3 +1023,28 @@ def test_parse_epoch_or_iso_distinguishes_ms_from_seconds():
     ms = scraper._parse_epoch_or_iso(1769500800000)
     s = scraper._parse_epoch_or_iso(1769500800)
     assert ms.year == 2026 and s.year == 2026
+
+
+# --------------------------------------------------------------------------- #
+# {FY_JP} — Japanese fiscal year (April-March, named for the start year)
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("when,expect", [
+    (dt.datetime(2026, 7, 28, tzinfo=dt.timezone.utc), "2026"),   # mid-FY
+    (dt.datetime(2026, 4, 1, tzinfo=dt.timezone.utc), "2026"),    # first day
+    (dt.datetime(2026, 3, 31, tzinfo=dt.timezone.utc), "2025"),   # last day
+    (dt.datetime(2027, 1, 15, tzinfo=dt.timezone.utc), "2026"),   # Jan: prior FY
+])
+def test_fy_jp_token(when, expect):
+    """JEPX names its spot file by fiscal year, so a plain {YYYY} fetches a
+    non-existent file every January-March — months after the source was wired
+    and verified, which is exactly when nobody is looking."""
+    url = scraper.expand_url("https://x/spot_summary_{FY_JP}.csv", now=when)
+    assert url == f"https://x/spot_summary_{expect}.csv"
+
+
+def test_fy_jp_uses_japan_local_date():
+    """The boundary is JST midnight — at 2026-03-31T20:00Z it is already
+    April 1 in Japan and the new fiscal year's file is the live one."""
+    url = scraper.expand_url("https://x/{FY_JP}.csv",
+                             now=dt.datetime(2026, 3, 31, 20, 0, tzinfo=dt.timezone.utc))
+    assert url == "https://x/2026.csv"
