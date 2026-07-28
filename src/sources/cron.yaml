@@ -117,6 +117,16 @@ schedules:
   - okiden_jp_demand_5min
   - hk_carpark_vacancy
   - cnd_panama_generation_units
+  - inex_ixp_traffic
+  - lonap_ixp_traffic
+  - grix_ixp_traffic
+  - qix_ixp_traffic
+  - inxza_ixp_traffic
+  - kixp_ixp_traffic
+  - marine_ie_tide_gauges
+  - rws_nl_water_levels
+  - ixdenver_ixp_traffic
+  - pitix_ixp_traffic
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -268,6 +278,7 @@ schedules:
   - energia_jp_area_balance_30min
   - rikuden_jp_area_balance_30min
   - kansai_td_jp_area_balance_30min
+  - arso_si_river_gauges
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -385,6 +396,13 @@ schedules:
   - alberta_511_road_events
   - jao_core_max_net_positions
   - entur_norway_transit_situations
+  - ncedc_norcal_earthquakes
+  - sed_ethz_earthquakes
+  - gfz_kp_index
+  - marine_ie_wave_buoys
+  - bfs_odl_gamma_dose_rate
+  - ipma_pt_surface_observations
+  - axiom_cormp_ilm2_buoy
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -885,6 +903,9 @@ schedules:
   - uk_fsa_food_alerts
   - aemo_wa_reference_trading_price
   - aemo_wa_market_advisories
+  - potaroo_bgp_table_size
+  - faroe_cpi_quarterly
+  - kosovo_hicp_monthly
   cron: 10 1 * * *
 - every: P1D
   sources:

@@ -27177,3 +27177,429 @@
     panel_field: unit[].name
     value_field:
     - unit[].value
+
+# -- wired batch: wave22 --
+- id: inex_ixp_traffic
+  name: INEX Dublin IXP aggregate traffic (5-minute)
+  domain: web_cloudops
+  frequency: PT5M
+  license: Public IXP statistics page (IXP Manager grapher)
+  notes: Aggregate peering traffic in bits/sec across INEX Dublin (IE) internet exchange; rolling 48h window
+    at 5-minute resolution. Payload is a bare array of [epoch, bits_in, bits_out] triples.
+  endpoint:
+    url: https://www.inex.ie/ixp/grapher/ixp?id=1&period=day&category=bits&protocol=all&type=log
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+- id: lonap_ixp_traffic
+  name: LONAP London IXP aggregate traffic (5-minute)
+  domain: web_cloudops
+  frequency: PT5M
+  license: Public IXP statistics page (IXP Manager grapher)
+  notes: Aggregate peering traffic in bits/sec across LONAP London (UK) internet exchange; rolling 48h window
+    at 5-minute resolution. Payload is a bare array of [epoch, bits_in, bits_out] triples.
+  endpoint:
+    url: https://portal.lonap.net/grapher/ixp?id=1&period=day&category=bits&protocol=all&type=log
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+- id: grix_ixp_traffic
+  name: GR-IX Athens IXP aggregate traffic (5-minute)
+  domain: web_cloudops
+  frequency: PT5M
+  license: Public IXP statistics page (IXP Manager grapher)
+  notes: Aggregate peering traffic in bits/sec across GR-IX Greek internet exchange; rolling 48h window
+    at 5-minute resolution. Payload is a bare array of [epoch, bits_in, bits_out] triples.
+  endpoint:
+    url: https://portal.gr-ix.gr/grapher/ixp?id=1&period=day&category=bits&protocol=all&type=log
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+- id: qix_ixp_traffic
+  name: QIX Montreal IXP aggregate traffic (5-minute)
+  domain: web_cloudops
+  frequency: PT5M
+  license: Public IXP statistics page (IXP Manager grapher)
+  notes: Aggregate peering traffic in bits/sec across QIX Montreal (CA) internet exchange; rolling 48h window
+    at 5-minute resolution. Payload is a bare array of [epoch, bits_in, bits_out] triples.
+  endpoint:
+    url: https://portal.qix.ca/grapher/ixp?id=1&period=day&category=bits&protocol=all&type=log
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+- id: inxza_ixp_traffic
+  name: INX-ZA Johannesburg (JINX) IXP aggregate traffic (5-minute)
+  domain: web_cloudops
+  frequency: PT5M
+  license: Public IXP statistics page (IXP Manager grapher)
+  notes: Aggregate peering traffic in bits/sec across the INX-ZA South African internet exchange (JINX,
+    Johannesburg); rolling 48h window at 5-minute resolution. Payload is a bare array of [epoch, bits_in,
+    bits_out] triples.
+  endpoint:
+    url: https://portal.inx.net.za/grapher/ixp?id=1&period=day&category=bits&protocol=all&type=log
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+- id: kixp_ixp_traffic
+  name: KIXP Nairobi IXP aggregate traffic (5-minute)
+  domain: web_cloudops
+  frequency: PT5M
+  license: Public IXP statistics page (IXP Manager grapher)
+  notes: Aggregate peering traffic in bits/sec across the Kenya Internet Exchange Point (Nairobi); rolling
+    48h window at 5-minute resolution. Payload is a bare array of [epoch, bits_in, bits_out] triples.
+  endpoint:
+    url: https://portal.kixp.or.ke/grapher/ixp?id=1&period=day&category=bits&protocol=all&type=log
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+- id: ncedc_norcal_earthquakes
+  name: NCEDC Northern California earthquake catalogue
+  domain: nature
+  frequency: PT1H
+  license: NCEDC/UC Berkeley open data
+  notes: Rolling 14-day window of Northern California Seismic System located events from the NCEDC FDSN
+    event service; one row per event, values are magnitude and depth in km. Dense irregular event stream.
+  endpoint:
+    url: https://service.ncedc.org/fdsnws/event/1/query?starttime={YYYY-MM-DD-14d}T00:00:00&format=text&orderby=time&limit=2000
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: ts
+    value_field:
+    - magnitude
+    - depth_km
+    csv_columns:
+    - eventid
+    - ts
+    - lat
+    - lon
+    - depth_km
+    - author
+    - catalog
+    - contributor
+    - contributorid
+    - magtype
+    - magnitude
+    - magauthor
+    - place
+    - evtype
+    csv_delimiter: '|'
+- id: sed_ethz_earthquakes
+  name: Swiss Seismological Service (SED/ETH) earthquake catalogue
+  domain: nature
+  frequency: PT1H
+  license: SED/ETH Zurich open data
+  notes: Rolling 60-day window of Swiss Seismological Service located events from the ETH Zurich FDSN event
+    service; one row per event, values are magnitude and depth in km.
+  endpoint:
+    url: http://eida.ethz.ch/fdsnws/event/1/query?starttime={YYYY-MM-DD-60d}&format=text&orderby=time&limit=2000
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: Time
+    value_field:
+    - Magnitude
+    - Depth/km
+    csv_delimiter: '|'
+- id: gfz_kp_index
+  name: GFZ Potsdam planetary Kp geomagnetic index (3-hourly)
+  domain: nature
+  frequency: PT3H
+  license: CC BY 4.0 (GFZ Potsdam)
+  notes: 'Planetary three-hour geomagnetic activity index Kp from GFZ Potsdam, rolling 30-day window. Parallel
+    arrays: datetime[] and Kp[]. Latest values carry status "pre" (preliminary) and are revised.'
+  endpoint:
+    url: https://kp.gfz.de/app/json/?start={YYYY-MM-DD-30d}T00:00:00Z&end={YYYY-MM-DD}T23:59:59Z&index=Kp
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: datetime
+    value_field:
+    - Kp
+- id: potaroo_bgp_table_size
+  name: Global BGP routing table size (AS2.0 route collector, potaroo)
+  domain: web_cloudops
+  frequency: PT1H
+  license: Public research statistics (Geoff Huston / APNIC, potaroo.net)
+  notes: Count of active IPv4 prefixes in the global BGP routing table as seen by the AS2.0 route collector,
+    sampled hourly since 1988. Payload is the full headerless history (epoch value), ~4.7MB; poll daily.
+  endpoint:
+    url: https://bgp.potaroo.net/as2.0/bgp-active.txt
+    type: rest_csv
+    timeout: 120
+  schema:
+    timestamp_field: t
+    value_field:
+    - v
+    csv_columns:
+    - t
+    - v
+- id: marine_ie_wave_buoys
+  name: Irish Marine Institute weather buoy network (hourly)
+  domain: nature
+  frequency: PT1H
+  license: Marine Institute Ireland open data (CC-BY)
+  notes: 'Hourly observations from the Irish offshore weather buoy network (M2-M6) via the Marine Institute
+    ERDDAP: sea-level pressure, wind speed, significant wave height and sea temperature. Rolling 5-day window;
+    a units row follows the header and is dropped as unparseable.'
+  endpoint:
+    url: https://erddap.marine.ie/erddap/tabledap/IWBNetwork.csv?station_id,time,AtmosphericPressure,WindSpeed,WaveHeight,SeaTemperature&time%3E={YYYY-MM-DD-5d}
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: time
+    value_field:
+    - AtmosphericPressure
+    - WindSpeed
+    - WaveHeight
+    - SeaTemperature
+    panel_field: station_id
+    timestamp_pattern: ^\d{4}-
+- id: marine_ie_tide_gauges
+  name: Irish National Tide Gauge Network water level (5-minute)
+  domain: nature
+  frequency: PT5M
+  license: Marine Institute Ireland open data (CC-BY)
+  notes: Five-minute water level (metres above Ordnance Datum Malin, and above chart datum LAT) at ~30 Irish
+    tide gauge stations, via the Marine Institute ERDDAP. Rolling 1-day window; the units row under the
+    header is dropped by timestamp_pattern.
+  endpoint:
+    url: https://erddap.marine.ie/erddap/tabledap/IrishNationalTideGaugeNetwork.csv?station_id,time,Water_Level_OD_Malin,Water_Level_LAT&time%3E={YYYY-MM-DD-1d}
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: time
+    value_field:
+    - Water_Level_OD_Malin
+    - Water_Level_LAT
+    panel_field: station_id
+    timestamp_pattern: ^\d{4}-
+- id: faroe_cpi_quarterly
+  name: Faroe Islands consumer price index by commodity group (quarterly)
+  domain: econ_fin
+  frequency: P1Q
+  audit_slack_days: 240
+  license: Statistics Faroe Islands (Hagstova Foroya) open data
+  notes: Quarterly CPI index levels for the Faroe Islands, headline plus 12 COICOP divisions, from the Hagstova
+    PxWeb API (json-stat2). Period labels are quarter-START.
+  endpoint:
+    url: https://statbank.hagstova.fo/api/v1/en/H2/IP/IP02/pris_alt_t.px
+    type: rest_json
+    method: POST
+    timeout: 60
+    body:
+      query:
+      - code: Measure
+        selection:
+          filter: item
+          values:
+          - INDEX
+      - code: commodity groups
+        selection:
+          filter: item
+          values:
+          - CPI
+          - '0100'
+          - '0200'
+          - '0300'
+          - '0400'
+          - '0500'
+          - '0600'
+          - '0700'
+          - 0800
+          - 0900
+          - '1000'
+          - '1100'
+          - '1200'
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: period
+    value_field:
+    - value
+    panel_field: commodity groups
+- id: kosovo_hicp_monthly
+  name: Kosovo harmonised consumer price index (monthly)
+  domain: econ_fin
+  audit_slack_days: 120
+  frequency: P1M
+  license: Kosovo Agency of Statistics (ASK) open data
+  notes: 'Monthly HICP for Kosovo (2015=100) from the ASK PxWeb API (json-stat2): index level plus monthly
+    and annual percentage change. Series starts 2002M05.'
+  endpoint:
+    url: https://askdata.rks-gov.net/api/v1/en/ASKdata/Prices/Consumer%20Price%20Index/Monthly%20indicators/cpi01.px
+    type: rest_json
+    method: POST
+    timeout: 60
+    body:
+      query:
+      - code: variabla
+        selection:
+          filter: item
+          values:
+          - '0'
+          - '1'
+          - '2'
+      response:
+        format: json-stat2
+  schema:
+    timestamp_field: Viti/muaji
+    value_field:
+    - value
+    panel_field: variabla
+- id: bfs_odl_gamma_dose_rate
+  name: German BfS ambient gamma dose rate (ODL, hourly)
+  domain: nature
+  frequency: PT1H
+  license: Bundesamt fuer Strahlenschutz (BfS) open data / DL-DE-BY-2.0
+  notes: Hourly ambient gamma dose rate (microSv/h) at eight German ODL monitoring stations of the Bundesamt
+    fuer Strahlenschutz radiological early-warning network, via the IMIS WFS. Rolling 7-day history; stations
+    are selected by their kenn code in the CQL filter.
+  endpoint:
+    url: https://www.imis.bfs.de/ogc/opendata/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=opendata%3Aodlinfo_timeseries_odl_1h&outputFormat=application%2Fjson&CQL_FILTER=kenn%20IN%20(%27151710701%27%2C%27082250582%27%2C%27096731232%27%2C%27065310050%27%2C%27141811901%27%2C%27151710041%27%2C%27081280070%27%2C%27130590451%27)
+    type: rest_json
+    timeout: 90
+  schema:
+    timestamp_field: features[].properties.end_measure
+    value_field:
+    - features[].properties.value
+    panel_field: features[].properties.name
+- id: ipma_pt_surface_observations
+  name: IPMA Portugal surface weather station observations (hourly)
+  domain: nature
+  frequency: PT1H
+  license: IPMA open data (Instituto Portugues do Mar e da Atmosfera)
+  notes: 'Hourly automatic weather station observations across mainland Portugal, Madeira and the Azores
+    (~180 stations): air temperature, relative humidity, MSL pressure, wind speed and accumulated precipitation.
+    The GeoJSON carries the last ~3 hours for every station, so this is a wide panel snapshot polled hourly.
+    Sentinel value -99.0 marks missing readings.'
+  endpoint:
+    url: https://api.ipma.pt/open-data/observation/meteorology/stations/obs-surface.geojson
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: features[].properties.time
+    value_field:
+    - features[].properties.temperatura
+    - features[].properties.humidade
+    - features[].properties.pressao
+    - features[].properties.intensidadeVento
+    - features[].properties.precAcumulada
+    panel_field: features[].properties.localEstacao
+- id: axiom_cormp_ilm2_buoy
+  name: CORMP Wrightsville Beach nearshore buoy (ILM2) met/ocean observations
+  domain: nature
+  frequency: PT1H
+  license: Axiom Data Science / CORMP open data (IOOS)
+  notes: 'Hourly met-ocean observations from the CORMP nearshore buoy ILM2 (41038, Wrightsville Beach NC)
+    served by the Axiom sensors ERDDAP: sea-level pressure, relative humidity, sea-water salinity, air and
+    sea temperature, wind speed and gust. Rolling 7-day window; a units row follows the header and is dropped
+    by timestamp_pattern.'
+  endpoint:
+    url: https://erddap.sensors.axds.co/erddap/tabledap/org_cormp_ilm2.csv?time,air_pressure_at_mean_sea_level,relative_humidity,sea_water_practical_salinity,air_temperature,sea_water_temperature,wind_speed,wind_speed_of_gust&time%3E={YYYY-MM-DD-7d}
+    type: rest_csv
+    timeout: 90
+  schema:
+    timestamp_field: time
+    value_field:
+    - air_pressure_at_mean_sea_level
+    - relative_humidity
+    - sea_water_practical_salinity
+    - air_temperature
+    - sea_water_temperature
+    - wind_speed
+    - wind_speed_of_gust
+    timestamp_pattern: ^\d{4}-
+- id: rws_nl_water_levels
+  name: Rijkswaterstaat Dutch surface water levels (national panel)
+  domain: nature
+  frequency: PT10M
+  license: Rijkswaterstaat / waterinfo.rws.nl open data
+  notes: Latest measured surface water level (cm relative to NAP) at every Rijkswaterstaat waterinfo measuring
+    location in the Netherlands - several hundred stations in one panel snapshot. Poll every 10 minutes
+    to build the series; unitCode is cm.
+  endpoint:
+    url: https://waterinfo.rws.nl/api/point/latestmeasurement?parameterid=waterhoogte
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: features[].properties.measurements[].dateTime
+    value_field:
+    - features[].properties.measurements[].latestValue
+    panel_field: features[].properties.measurements[].locationCode
+- id: ixdenver_ixp_traffic
+  name: IX-Denver IXP aggregate traffic (5-minute)
+  domain: web_cloudops
+  frequency: PT5M
+  license: Public IXP statistics page (IXP Manager grapher)
+  notes: Aggregate peering traffic in bits/sec across the IX-Denver internet exchange (Colorado, US); rolling
+    48h window at 5-minute resolution. Payload is a bare array of [epoch, bits_in, bits_out] triples.
+  endpoint:
+    url: https://portal.ix-denver.org/grapher/ixp?id=1&period=day&category=bits&protocol=all&type=log
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+- id: pitix_ixp_traffic
+  name: PIT-IX Pittsburgh IXP aggregate traffic (5-minute)
+  domain: web_cloudops
+  frequency: PT5M
+  license: Public IXP statistics page (IXP Manager grapher)
+  notes: Aggregate peering traffic in bits/sec across the Pittsburgh Internet Exchange (PIT-IX); rolling
+    48h window at 5-minute resolution. Payload is a bare array of [epoch, bits_in, bits_out] triples.
+  endpoint:
+    url: https://portal.pit-ix.net/grapher/ixp?id=1&period=day&category=bits&protocol=all&type=log
+    type: rest_json
+    timeout: 60
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+- id: arso_si_river_gauges
+  name: ARSO Slovenia river gauging stations (half-hourly)
+  domain: nature
+  frequency: PT30M
+  license: ARSO (Slovenian Environment Agency) open data
+  notes: 'Half-hourly snapshot of every Slovenian hydrological gauging station: water level in cm (vodostaj),
+    discharge in m3/s (pretok) and water temperature in degC (temp_vode). One row per station per poll;
+    ARSO recommends fetching 5 minutes past each half hour.'
+  endpoint:
+    url: https://www.arso.gov.si/xml/vode/hidro_podatki_zadnji.xml
+    type: rest_xml
+    timeout: 60
+  schema:
+    record_path: postaja
+    timestamp_field: datum
+    value_field:
+    - vodostaj
+    - pretok
+    - temp_vode
+    panel_field: ime_kratko
