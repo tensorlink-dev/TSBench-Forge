@@ -1400,6 +1400,15 @@ def _text(v: Any) -> str:
 CKAN_SNIFF_BYTES = 196_608
 
 
+def _content_length(url: str, timeout: int = 20) -> Optional[int]:
+    try:
+        r = requests.head(url, headers={"User-Agent": UA}, timeout=timeout,
+                          allow_redirects=True)
+        return int(r.headers.get("Content-Length") or 0) or None
+    except Exception:                                         # noqa: BLE001
+        return None
+
+
 def ckan_fetch_head(url: str, timeout: int = 30) -> Optional[str]:
     try:
         with requests.get(url, headers={"User-Agent": UA}, timeout=timeout,
@@ -1438,6 +1447,13 @@ def ckan_file_candidate(res: dict, max_age_days: float) -> dict:
     size = res.get("size")
     if isinstance(size, (int, float)) and size > 48_000_000:
         return {"error": f"file too large ({int(size)} bytes)"}
+    if not size:
+        # `size` is frequently absent, and the scraper caps a response at 48MB —
+        # so without this the file is downloaded twice before anyone learns it
+        # is too big: once here and once at wire time.
+        declared = _content_length(url)
+        if declared and declared > 48_000_000:
+            return {"error": f"Content-Length {declared} exceeds the 48MB cap"}
     stamp = _parse_iso(res.get("last_modified") or res.get("created")
                        or res.get("metadata_modified"))
     if stamp is None:

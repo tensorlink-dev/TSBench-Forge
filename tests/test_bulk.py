@@ -629,3 +629,13 @@ def test_ckan_file_candidate_accepts_a_fresh_csv(monkeypatch):
     assert got["ts"] == "datum"
     assert ("pm25", "pm25", "numeric") in got["fields"]
     assert got["probe"]["distinct"] == 25
+
+
+def test_ckan_file_candidate_uses_content_length_when_size_missing(monkeypatch):
+    """CKAN's `size` is frequently absent. Without a HEAD check the file gets
+    downloaded twice before anyone learns it is over the scraper's 48MB cap."""
+    monkeypatch.setattr(bulk, "_content_length", lambda url, timeout=20: 60_000_000)
+    got = bulk.ckan_file_candidate(
+        {"format": "CSV", "url": "https://p.example/big.csv",
+         "last_modified": "2026-07-27T00:00:00"}, 3650)
+    assert "48MB cap" in got["error"]

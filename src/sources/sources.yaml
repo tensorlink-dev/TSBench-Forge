@@ -24944,3 +24944,112 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Socrata federated catalog (query 'fréquentation transport'). Columns chosen
     mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+
+# -- wired batch: small1 --
+- id: swiss_weekly_number_of_deaths_in_switzerland_2
+  name: Weekly number of deaths in Switzerland, 2010-2026 — Switzerland (opendata.swiss)
+  domain: healthcare
+  dgp_class: mortality_surveillance
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_csv
+    url: https://dam-api.bfs.admin.ch/hub/api/dam/assets/36753900/master
+    auth: none
+    rate_limit: CKAN anonymous (per-portal)
+  schema:
+    timestamp_field: Ending
+    variates: 3
+    value_field:
+    - NoDeaths_EP
+    - Expected
+    - LowerB
+  history_available: unknown
+  update_cadence_observed: median gap 10080.0 min over the newest 199 timestamps; newest 2026-07-22T14:31:17+00:00
+  pretraining_novelty: clean
+  novelty_notes: National open-data portal series (Switzerland); novel.
+  license: open data (see portal terms)
+  audit_slack_days: 50
+  notes: 'Bulk-generated from the opendata.swiss CKAN DataStore (query ''overdose deaths''). Package: wochentliche-todesfalle-in-der-schweiz-2010-2026.'
+- id: opendatasoft_donnees_du_signal_ecowatt_a_partir_du_01
+  name: Données du signal Ecowatt (à partir du 01/09/2022) (odre.opendatasoft.com)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/nouveau_signal_ecowatt/exports/json?limit=2000&order_by=date%20desc&select=date,h0,h1,h2
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].h0'
+    - '[].h1'
+    - '[].h2'
+  history_available: 1423 records
+  update_cadence_observed: median gap 1440.0 min over the newest 100 timestamps; newest 2026-07-27T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'consommation électrique'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: hydroquebec_peak_demand_events_winter
+  name: Peak demand events – Winter (donnees.hydroquebec.com)
+  domain: nature
+  dgp_class: water_quality
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://donnees.hydroquebec.com/api/explore/v2.1/catalog/datasets/evenements-pointe/exports/json?limit=2000&order_by=datedebut%20desc&select=datedebut
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datedebut'
+    variates: 1
+    value_field: '[].datedebut'
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 473 records
+  update_cadence_observed: median gap 120.0 min over the newest 44 timestamps; newest 2026-07-02T17:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-NC 4.0
+  audit_slack_days: 70
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'qualité des eaux'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendatasoft_pic_journalier_de_la_consommation_brute
+  name: Pic journalier de la consommation brute d'électricité (odre.opendatasoft.com)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/pic-journalier-consommation-brute/exports/json?limit=2000&order_by=date%20desc&select=date,pic_journalier_consommation,temperature_moyenne,temperature_reference
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].pic_journalier_consommation'
+    - '[].temperature_moyenne'
+    - '[].temperature_reference'
+  history_available: 5295 records
+  update_cadence_observed: median gap 1440.0 min over the newest 100 timestamps; newest 2026-06-30T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 73
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'consommation électrique'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
