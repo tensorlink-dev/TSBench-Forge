@@ -51,6 +51,7 @@ schedules:
   - rata_digitraffic_train_speeds
   - cita_lu_motorway_traffic_speed
   - packagist_php_release_rate
+  - fr_ancien_disponibilite_en_temps_reel_des_p
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -251,6 +252,8 @@ schedules:
   - montgomery_md_police_dispatch_halfhour
   - montgomery_md_fire_rescue_dispatch_halfhour
   - coes_pe_demand_30min
+  - ch_luftqualitat_station_a2_hard_halbstundli
+  - ch_luftqualitat_station_sissach_butzenen_ha
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -335,6 +338,14 @@ schedules:
   - hydroquebec_sources_of_electricity_generated_in_qu_b
   - ideam_co_air_temperature_stations
   - act_air_quality_hourly
+  - be_bornes_de_comptage_cyclistes_et_pietons
+  - fr_prix_des_carburants_j_7
+  - huwise_prix_des_carburants_j_1_avec_historique
+  - fr_prix_des_carburants_flux_quotidien
+  - huwise_prix_des_carburants_flux_quotidien
+  - opendatasoft_prix_des_carburants_en_france_flux_quoti
+  - ch_luftqualitat_station_basel_binningen
+  - ch_gasverbrauch_im_versorgungsgebiet_der_iw
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -718,6 +729,21 @@ schedules:
   - cenace_mx_zonal_price_dayahead_monterrey
   - colorado_earnings_hours_monthly
   - colorado_gasoline_prices_weekly
+  - fr_comptage_des_passages_des_velos_rue_etie
+  - fr_comptage_velo_compteurs_syndicat_des_mob
+  - fr_capteur_de_trafic_velo
+  - fr_comptages_routiers_sicoval
+  - fr_compteur_de_trafic
+  - fr_fichier_consolide_des_bornes_de_recharge
+  - fr_fichier_consolide_des_bornes_de_recharge_bornes_irv
+  - be_qualite_de_l_air_en_province_de_namur_ca
+  - fr_liste_des_autorisations_d_urbanisme_crea
+  - fr_pc_dp_logements_sitadel_gps_depuis_2017
+  - fr_prix_des_carburants_sur_le_territoire_de
+  - ch_durchschnittlicher_tagesverkehr_basieren
+  - ch_luftqualitatsmessungen_ostluft_thurgau_t
+  - ch_kantonaler_stromverbrauch
+  - de_klimasensoren_messdaten
   cron: 10 1 * * *
 - every: P1D
   sources:

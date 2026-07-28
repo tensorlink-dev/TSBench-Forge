@@ -59,7 +59,7 @@
     auth: none
     rate_limit: 10 req/s
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: markets[].last_price_dollars
     variates: 1
   history_available: P3Y
@@ -1220,7 +1220,7 @@
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: '[]'
     variates: 500
   history_available: P10Y
@@ -1958,7 +1958,7 @@
     auth: none
     rate_limit: 1 req/s
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: count
     variates: 1
   history_available: P5Y
@@ -3595,7 +3595,7 @@
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: '[].Speed'
     variates: 1
   history_available: P0D
@@ -4426,7 +4426,7 @@
     auth: none
     rate_limit: 3 req/sec without API key, 10/sec with free key
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: esearchresult.count
     variates: 1
   history_available: P1D
@@ -5050,7 +5050,7 @@
     auth: none
     rate_limit: ~60 req/min, 10k/day (unauthenticated); no key needed
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: total_results
     variates: 1
   history_available: P0D
@@ -5111,7 +5111,7 @@
     auth: none
     rate_limit: ~25 req/min unauthenticated; User-Agent header required
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: pagination.items
     variates: 1
   history_available: P0D
@@ -5232,7 +5232,7 @@
     auth: none
     rate_limit: 1 req/sec per IP; descriptive User-Agent required
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: count
     variates: 1
   history_available: P0D
@@ -5261,7 +5261,7 @@
     auth: none
     rate_limit: be polite; no key for public read endpoints
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: best.rating
     variates: 1
   history_available: P0D
@@ -5294,7 +5294,7 @@
     auth: none
     rate_limit: ~50 req/5s per IP; no key
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: tracks.data[].rank
     variates: 1
   history_available: P0D
@@ -5694,7 +5694,7 @@
     auth: none
     rate_limit: no published limit; be polite — identify via User-Agent, poll <=1 req/min
   schema:
-    timestamp_field: now()
+    snapshot_now: true
     value_field: '[].score'
     variates: 25
   history_available: P0D
@@ -22776,3 +22776,703 @@
     - regulargasprice
     - midgradegasprice
     - premiumgasprice
+
+# -- wired batch: ods3 --
+- id: fr_comptage_des_passages_des_velos_rue_etie
+  name: Comptage des passages des vélos rue Etienne Marcel (data.montreuil.fr)
+  domain: transport
+  dgp_class: vehicle_counts
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.montreuil.fr/api/explore/v2.1/catalog/datasets/comptage-des-passages-des-velos-rue-etienne-marcel/exports/json?limit=2000&order_by=date%20desc&select=date,total,vers_paris,vers_croix
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].total'
+    - '[].vers_paris'
+    - '[].vers_croix'
+  history_available: 116214 records
+  update_cadence_observed: median gap 15.0 min over the newest 100 timestamps; newest 2026-07-23T22:15:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 49
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'comptage vélo'). Fields chosen from
+    the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: be_bornes_de_comptage_cyclistes_et_pietons
+  name: Bornes de comptage cyclistes et piétons - Chiffres (www.odwb.be)
+  domain: transport
+  dgp_class: vehicle_counts
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://www.odwb.be/api/explore/v2.1/catalog/datasets/bornes-de-comptage-cyclistes-et-pietons-chiffres/exports/json?limit=2000&order_by=start_datetime%20desc&select=start_datetime,bikes,people
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].start_datetime'
+    variates: 2
+    value_field:
+    - '[].bikes'
+    - '[].people'
+  history_available: 124872 records
+  update_cadence_observed: median gap 60.0 min over the newest 62 timestamps; newest 2026-07-28T21:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'comptage vélo'). Fields chosen from
+    the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_comptage_velo_compteurs_syndicat_des_mob
+  name: Comptage vélo - Compteurs - Syndicat des Mobilités de Touraine (data.tours-metropole.fr)
+  domain: transport
+  dgp_class: vehicle_counts
+  archetypes:
+  - non_stationary_regime
+  frequency: P1Q
+  endpoint:
+    type: rest_json
+    url: https://data.tours-metropole.fr/api/explore/v2.1/catalog/datasets/comptage-velo-compteurs-syndicat-des-mobilites-de-touraine/exports/json?limit=2000&order_by=installation_date%20desc&select=installation_date,interval
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].installation_date'
+    variates: 1
+    value_field:
+    - '[].interval'
+  history_available: 44 records
+  update_cadence_observed: median gap 82080.0 min over the newest 24 timestamps; newest 2026-07-02T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 71
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'comptage vélo'). Fields chosen from
+    the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_capteur_de_trafic_velo
+  name: Capteur de trafic vélo (datahub.bordeaux-metropole.fr)
+  domain: transport
+  dgp_class: vehicle_counts
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://datahub.bordeaux-metropole.fr/api/explore/v2.1/catalog/datasets/pc_captv_p/exports/json?limit=2000&order_by=cdate%20desc&select=cdate,gid,comptage_5m
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].cdate'
+    variates: 2
+    value_field:
+    - '[].gid'
+    - '[].comptage_5m'
+  history_available: 419 records
+  update_cadence_observed: median gap 7.0 min over the newest 55 timestamps; newest 2026-06-17T07:59:22+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte
+  audit_slack_days: 85
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'comptage vélo'). Fields chosen from
+    the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_comptages_routiers_sicoval
+  name: Comptages routiers Sicoval (data.sicoval.fr)
+  domain: transport
+  dgp_class: vehicle_counts
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://data.sicoval.fr/api/explore/v2.1/catalog/datasets/comptage-routiers-sicoval/exports/json?limit=2000&order_by=date_debut%20desc&select=date_debut,limite_vitesse,traffic_moyen_journalier,pourcentage_pl
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_debut'
+    variates: 3
+    value_field:
+    - '[].limite_vitesse'
+    - '[].traffic_moyen_journalier'
+    - '[].pourcentage_pl'
+  history_available: 161 records
+  update_cadence_observed: median gap 21610.8 min over the newest 100 timestamps; newest 2026-06-24T11:14:30+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 78
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'comptage routier'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_compteur_de_trafic
+  name: Compteur de trafic (datahub.bordeaux-metropole.fr)
+  domain: transport
+  dgp_class: service_reliability
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://datahub.bordeaux-metropole.fr/api/explore/v2.1/catalog/datasets/pc_capte_p/exports/json?limit=2000&order_by=cdate%20desc&select=cdate,gid,comptage_5m
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].cdate'
+    variates: 2
+    value_field:
+    - '[].gid'
+    - '[].comptage_5m'
+  history_available: 622 records
+  update_cadence_observed: median gap 5.1 min over the newest 97 timestamps; newest 2026-07-08T14:03:52+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte
+  audit_slack_days: 64
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'bus on time performance'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_ancien_disponibilite_en_temps_reel_des_p
+  name: '[Ancien] Disponibilité en temps réel des places et des vélos dans les stations vélos en libre-service
+    Naolib de Nantes Métropole (data.nantesmetropole.fr)'
+  domain: transport
+  dgp_class: micromobility
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.nantesmetropole.fr/api/explore/v2.1/catalog/datasets/244400404_stations-velos-libre-service-nantes-metropole-disponibilites/exports/json?limit=2000&order_by=last_update%20desc&select=last_update,bike_stands,available_bike_stands,available_bikes
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].last_update'
+    variates: 3
+    value_field:
+    - '[].bike_stands'
+    - '[].available_bike_stands'
+    - '[].available_bikes'
+  history_available: 129 records
+  update_cadence_observed: median gap 0.0 min over the newest 49 timestamps; newest 2026-07-28T02:47:02+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte-LO
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'vélos libre service disponibilité').
+    Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not
+    the aggregator.
+- id: fr_fichier_consolide_des_bornes_de_recharge
+  name: Fichier consolidé des Bornes de Recharge pour Véhicules Électriques sur le territoire Métropolitain
+    (v2.3.1) (data.ampmetropole.fr)
+  domain: energy
+  dgp_class: ev_charging
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/ol-bornes-de-recharge-pour-vehicules-electriques/exports/json?limit=2000&order_by=date_mise_en_service%20desc&select=date_mise_en_service,nbre_pdc,puissance_nominale
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_mise_en_service'
+    variates: 2
+    value_field:
+    - '[].nbre_pdc'
+    - '[].puissance_nominale'
+  history_available: 4084 records
+  update_cadence_observed: median gap 5040.0 min over the newest 21 timestamps; newest 2026-07-24T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte 2.0 (Etalab)
+  audit_slack_days: 49
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'bornes recharge électrique'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_fichier_consolide_des_bornes_de_recharge_bornes_irv
+  name: Fichier consolidé des Bornes de Recharge pour Véhicules Électriques (IRVE) en Région Centre-Val
+    de Loire (data.centrevaldeloire.fr)
+  domain: energy
+  dgp_class: ev_charging
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.centrevaldeloire.fr/api/explore/v2.1/catalog/datasets/bornes-irve-schema-2-rcvl/exports/json?limit=2000&order_by=date_mise_en_service%20desc&select=date_mise_en_service,nbre_pdc,puissance_nominale
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_mise_en_service'
+    variates: 2
+    value_field:
+    - '[].nbre_pdc'
+    - '[].puissance_nominale'
+  history_available: 8980 records
+  update_cadence_observed: median gap 5760.0 min over the newest 22 timestamps; newest 2026-07-17T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open License v2.0
+  audit_slack_days: 56
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'bornes recharge électrique'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: be_qualite_de_l_air_en_province_de_namur_ca
+  name: Qualité de l'air en Province de Namur (capteurs mobiles) - Indice BELAQI estimé - situation récente
+    (30 deniers jours) (www.odwb.be)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://www.odwb.be/api/explore/v2.1/catalog/datasets/issep_airquality_last30d_camions/exports/json?limit=2000&order_by=premiere_mesure%20desc&select=premiere_mesure,valeur_agregee,indice_belaqi,nombre_mesures
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].premiere_mesure'
+    variates: 3
+    value_field:
+    - '[].valeur_agregee'
+    - '[].indice_belaqi'
+    - '[].nombre_mesures'
+  history_available: 2638 records
+  update_cadence_observed: median gap 9.8 min over the newest 34 timestamps; newest 2026-07-20T04:34:21+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC-BY
+  audit_slack_days: 52
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'qualité de l'air mesures'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_liste_des_autorisations_d_urbanisme_crea
+  name: Liste des autorisations d'urbanisme créant des logements - Sitadel - GPS - màj trimestrielle (data.grandparissud.fr)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.grandparissud.fr/api/explore/v2.1/catalog/datasets/liste-autorisations-urbanisme-creant-logements-sitadel-gps-maj-trimestrielle/exports/json?limit=2000&order_by=date_reelle_autorisation%20desc&select=date_reelle_autorisation,comm,etat_dau,cj_dem
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_reelle_autorisation'
+    variates: 3
+    value_field:
+    - '[].comm'
+    - '[].etat_dau'
+    - '[].cj_dem'
+  history_available: 2014 records
+  update_cadence_observed: median gap 8640.0 min over the newest 83 timestamps; newest 2026-05-27T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 107
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'permis de construire'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_pc_dp_logements_sitadel_gps_depuis_2017
+  name: PC-DP logements - Sitadel - GPS - depuis 2017 - màj trimestrielle (data.grandparissud.fr)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.grandparissud.fr/api/explore/v2.1/catalog/datasets/pc-logements-sitadel-gps-depuis-2017/exports/json?limit=2000&order_by=date_reelle_autorisation%20desc&select=date_reelle_autorisation,comm,etat_dau,cj_dem
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_reelle_autorisation'
+    variates: 3
+    value_field:
+    - '[].comm'
+    - '[].etat_dau'
+    - '[].cj_dem'
+  history_available: 2014 records
+  update_cadence_observed: median gap 8640.0 min over the newest 83 timestamps; newest 2026-05-27T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 107
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'permis de construire'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_prix_des_carburants_j_7
+  name: Prix des carburants - J-7 (data.ampmetropole.fr)
+  domain: econ_fin
+  dgp_class: price_series
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/mod-prix-des-carburants-j-7/exports/json?limit=2000&order_by=mise_a_jour%20desc&select=mise_a_jour,prix_gazole,prix_sp95,prix_sp98
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].mise_a_jour'
+    variates: 3
+    value_field:
+    - '[].prix_gazole'
+    - '[].prix_sp95'
+    - '[].prix_sp98'
+  history_available: 235 records
+  update_cadence_observed: median gap 14.8 min over the newest 47 timestamps; newest 2026-07-26T21:59:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte (Etalab)
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: huwise_prix_des_carburants_j_1_avec_historique
+  name: Prix des carburants - J-1 - avec historique (hub.huwise.com)
+  domain: econ_fin
+  dgp_class: price_series
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://hub.huwise.com/api/explore/v2.1/catalog/datasets/prix-des-carburants-j-1/exports/json?limit=2000&order_by=update%20desc&select=update,price_gazole,price_sp95,price_sp98
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].update'
+    variates: 3
+    value_field:
+    - '[].price_gazole'
+    - '[].price_sp95'
+    - '[].price_sp98'
+  history_available: 2983510 records
+  update_cadence_observed: median gap 0.0 min over the newest 65 timestamps; newest 2026-07-26T21:59:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open License v1.0
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_prix_des_carburants_sur_le_territoire_de
+  name: Prix des carburants sur le territoire de Bourges Plus - Flux quotidien (data.bourgesplus.fr)
+  domain: econ_fin
+  dgp_class: price_series
+  archetypes:
+  - non_stationary_regime
+  frequency: P1Q
+  endpoint:
+    type: rest_json
+    url: https://data.bourgesplus.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-quotidien-bourges-plus/exports/json?limit=2000&order_by=rupture_debut%20desc&select=rupture_debut,prix_valeur
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].rupture_debut'
+    variates: 1
+    value_field:
+    - '[].prix_valeur'
+  history_available: 142 records
+  update_cadence_observed: median gap 79280.2 min over the newest 26 timestamps; newest 2026-07-25T17:33:42+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte (Etalab)
+  audit_slack_days: 47
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_prix_des_carburants_flux_quotidien
+  name: Prix des carburants - Flux Quotidien (data.iledefrance.fr)
+  domain: econ_fin
+  dgp_class: price_series
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-j-7/exports/json?limit=2000&order_by=update%20desc&select=update,price_gazole,price_sp95,price_sp98
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].update'
+    variates: 3
+    value_field:
+    - '[].price_gazole'
+    - '[].price_sp95'
+    - '[].price_sp98'
+  history_available: 854 records
+  update_cadence_observed: median gap 0.3 min over the newest 81 timestamps; newest 2026-07-26T20:39:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open License v1.0
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: huwise_prix_des_carburants_flux_quotidien
+  name: Prix des carburants - Flux Quotidien (hub.huwise.com)
+  domain: econ_fin
+  dgp_class: price_series
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://hub.huwise.com/api/explore/v2.1/catalog/datasets/prix_des_carburants_j_7/exports/json?limit=2000&order_by=update%20desc&select=update,price_gazole,price_sp95,price_sp98
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].update'
+    variates: 3
+    value_field:
+    - '[].price_gazole'
+    - '[].price_sp95'
+    - '[].price_sp98'
+  history_available: 9910 records
+  update_cadence_observed: median gap 0.0 min over the newest 65 timestamps; newest 2026-07-26T21:59:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open License v1.0
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendatasoft_prix_des_carburants_en_france_flux_quoti
+  name: Prix des carburants en France - Flux quotidien (kfabre.opendatasoft.com)
+  domain: web_cloudops
+  dgp_class: ticket_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://kfabre.opendatasoft.com/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-quotidien/exports/json?limit=2000&order_by=rupture_debut%20desc&select=rupture_debut,prix_valeur
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].rupture_debut'
+    variates: 1
+    value_field:
+    - '[].prix_valeur'
+  history_available: 73884 records
+  update_cadence_observed: median gap 2.4 min over the newest 43 timestamps; newest 2026-07-26T23:12:58+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte (Etalab)
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'demandes signalements'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ch_durchschnittlicher_tagesverkehr_basieren
+  name: Durchschnittlicher Tagesverkehr (basierend auf dem Geschwindigkeitsmonitoring der Kantonspolizei)
+    (data.bs.ch)
+  domain: transport
+  dgp_class: service_reliability
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://data.bs.ch/api/explore/v2.1/catalog/datasets/100199/exports/json?limit=2000&order_by=min_timestamp%20desc&select=min_timestamp,messdauer_h,count,count_lt_3_5m
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].min_timestamp'
+    variates: 3
+    value_field:
+    - '[].messdauer_h'
+    - '[].count'
+    - '[].count_lt_3_5m'
+  history_available: 1669 records
+  update_cadence_observed: median gap 26.8 min over the newest 55 timestamps; newest 2026-06-29T08:21:28+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 73
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'bus on time performance'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ch_luftqualitat_station_a2_hard_halbstundli
+  name: Luftqualität Station A2 Hard (halbstündliche Messdaten seit Januar 2020) (data.bl.ch)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://data.bl.ch/api/explore/v2.1/catalog/datasets/12510/exports/json?limit=2000&order_by=anfangszeit%20desc&select=anfangszeit,pm10,pm2_5,no2
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].anfangszeit'
+    variates: 3
+    value_field:
+    - '[].pm10'
+    - '[].pm2_5'
+    - '[].no2'
+  history_available: 115209 records
+  update_cadence_observed: median gap 30.0 min over the newest 100 timestamps; newest 2026-07-28T02:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Luftqualität Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ch_luftqualitatsmessungen_ostluft_thurgau_t
+  name: Luftqualitätsmessungen Ostluft Thurgau – Tagesmittelwerte 16uhr (data.tg.ch)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - count_discrete
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.tg.ch/api/explore/v2.1/catalog/datasets/dbu-afu-13/exports/json?limit=2000&order_by=startzeit%20desc&select=startzeit
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].startzeit'
+    variates: 1
+    value_field: '[].startzeit'
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 1463 records
+  update_cadence_observed: median gap 1440.0 min over the newest 20 timestamps; newest 2026-07-25T16:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC0 1.0
+  audit_slack_days: 47
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Luftqualität Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ch_luftqualitat_station_sissach_butzenen_ha
+  name: Luftqualität Station Sissach-Bützenen (halbstündliche Messdaten seit Januar 2020) (data.bl.ch)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://data.bl.ch/api/explore/v2.1/catalog/datasets/12450/exports/json?limit=2000&order_by=anfangszeit%20desc&select=anfangszeit,pm10,pm2_5,no2
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].anfangszeit'
+    variates: 3
+    value_field:
+    - '[].pm10'
+    - '[].pm2_5'
+    - '[].no2'
+  history_available: 115209 records
+  update_cadence_observed: median gap 30.0 min over the newest 100 timestamps; newest 2026-07-28T02:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Luftqualität Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ch_luftqualitat_station_basel_binningen
+  name: Luftqualität Station Basel-Binningen (data.bs.ch)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.bs.ch/api/explore/v2.1/catalog/datasets/100051/exports/json?limit=2000&order_by=datum_zeit%20desc&select=datum_zeit,o3_ug_m3,no2_ug_m3,pm10_ug_m3
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datum_zeit'
+    variates: 3
+    value_field:
+    - '[].o3_ug_m3'
+    - '[].no2_ug_m3'
+    - '[].pm10_ug_m3'
+  history_available: 71520 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-07-28T23:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Luftqualität Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ch_gasverbrauch_im_versorgungsgebiet_der_iw
+  name: Gasverbrauch im Versorgungsgebiet der IWB (data.bs.ch)
+  domain: transport
+  dgp_class: service_reliability
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.bs.ch/api/explore/v2.1/catalog/datasets/100304/exports/json?limit=2000&order_by=timestamp%20desc&select=timestamp,value,weekday,dayofyear
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].timestamp'
+    variates: 3
+    value_field:
+    - '[].value'
+    - '[].weekday'
+    - '[].dayofyear'
+  history_available: 42960 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-07-27T02:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open use. Must provide the source. Use for commercial purposes requires permission of the data
+    owner.
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'bus on time performance'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ch_kantonaler_stromverbrauch
+  name: Kantonaler Stromverbrauch (data.bs.ch)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.bs.ch/api/explore/v2.1/catalog/datasets/100233/exports/json?limit=2000&order_by=timestamp_interval_start%20desc&select=timestamp_interval_start,stromverbrauch_kwh,grundversorgte_kunden_kwh,freie_kunden_kwh
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].timestamp_interval_start'
+    variates: 3
+    value_field:
+    - '[].stromverbrauch_kwh'
+    - '[].grundversorgte_kunden_kwh'
+    - '[].freie_kunden_kwh'
+  history_available: 510371 records
+  update_cadence_observed: median gap 15.0 min over the newest 100 timestamps; newest 2026-07-22T21:45:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 50
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Stromverbrauch'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: de_klimasensoren_messdaten
+  name: Klimasensoren - Messdaten (open-data.dortmund.de)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://open-data.dortmund.de/api/explore/v2.1/catalog/datasets/klimasensoren-messdaten/exports/json?limit=2000&order_by=body_item_fields_gerateinformation_installationsdatum%20desc&select=body_item_fields_gerateinformation_installationsdatum,body_item_data_sensor_temperature_internal,body_item_data_air_temperature,body_item_data_relative_humidity
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].body_item_fields_gerateinformation_installationsdatum'
+    variates: 3
+    value_field:
+    - '[].body_item_data_sensor_temperature_internal'
+    - '[].body_item_data_air_temperature'
+    - '[].body_item_data_relative_humidity'
+  history_available: 145 records
+  update_cadence_observed: median gap 15840.0 min over the newest 23 timestamps; newest 2026-07-06T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Datenlizenz Deutschland - Zero- Version 2.0
+  audit_slack_days: 67
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
