@@ -804,6 +804,36 @@ ODS_KEYWORD_CLASSES: tuple[tuple[str, str, str], ...] = (
     ("Luftqualität Messwerte", "nature", "air_quality"),
     ("Stromverbrauch", "energy", "grid_demand"),
     ("Niederschlag Messwerte", "nature", "hydrology"),
+    # --- second pass: aimed at the cadence cells that stay thin (half-hour,
+    # weekly, irregular) and at energy provider diversity, which is the
+    # catalogue's worst-concentrated domain.
+    ("places disponibles parking", "transport", "parking_occupancy"),
+    ("temps d'attente", "web_cloudops", "service_latency"),
+    ("perturbations trafic", "transport", "disruption_stream"),
+    ("travaux voirie chantiers", "transport", "disruption_stream"),
+    ("incidents réseau électrique", "energy", "asset_faults"),
+    ("coupures électricité", "energy", "outage_stream"),
+    ("production photovoltaïque", "energy", "generation"),
+    ("production éolienne", "energy", "generation"),
+    ("épisodes de pollution", "nature", "air_quality"),
+    ("débit rivière hydrométrie", "nature", "hydrology"),
+    ("température station météo", "nature", "meteorology"),
+    ("consommation eau potable", "nature", "water_demand"),
+    ("affluence piscine équipement", "sales", "attendance"),
+    ("alertes sanitaires", "healthcare", "health_alerts"),
+    ("passages urgences hebdomadaire", "healthcare", "health_utilisation"),
+    ("ocupación aparcamiento", "transport", "parking_occupancy"),
+    ("caudal río", "nature", "hydrology"),
+    ("producción eólica", "energy", "generation"),
+    ("incidencias tráfico", "transport", "disruption_stream"),
+    ("Pegelstand Gewässer", "nature", "hydrology"),
+    ("Parkhaus Belegung", "transport", "parking_occupancy"),
+    ("Störungen Netz", "energy", "asset_faults"),
+    ("Photovoltaik Erzeugung", "energy", "generation"),
+    ("parkeergarage bezetting", "transport", "parking_occupancy"),
+    ("waterstand meting", "nature", "hydrology"),
+    ("qualidade do ar", "nature", "air_quality"),
+    ("consumo de energia", "energy", "grid_demand"),
 )
 
 ODS_TS_TYPES = frozenset({"date", "datetime"})
@@ -1285,6 +1315,26 @@ def ckan_probe(host: str, rid: str, ts: str, timeout: int = 30) -> dict:
     }
 
 
+# Resource "names" that describe the FILE rather than the data. Naming an entry
+# after one of these produces ids like `ie_csv`, which say nothing about the
+# series and collide across every package on the portal.
+_GENERIC_RESOURCE_NAMES = frozenset({
+    "csv", "data", "dataset", "download", "file", "link", "resource", "export",
+    "csv file", "data file", "download csv", "csv download", "open data",
+    "données", "fichier", "datos", "archivo", "bestand", "daten",
+})
+
+
+def _resource_title(res: dict, pkg: dict) -> str:
+    name = _text(res.get("name")).strip()
+    pkg_title = _text(pkg.get("title")).strip()
+    if not name or name.lower() in _GENERIC_RESOURCE_NAMES:
+        return pkg_title or name
+    if pkg_title and name.lower() not in pkg_title.lower():
+        return f"{pkg_title} — {name}"
+    return pkg_title or name
+
+
 def _text(v: Any) -> str:
     """CKAN fields are usually strings but some portals return a per-language
     dict ({'en': ..., 'nl': ...}); prefer English, else any value."""
@@ -1433,7 +1483,7 @@ def ckan_synthesize(host: str, country: str, pkg: dict, res: dict,
                     probe: dict, taken: Optional[set[str]] = None) -> Optional[dict]:
     kw, dom, dgp = klass
     rid = res.get("id") or ""
-    title = (res.get("name") or pkg.get("title") or "").strip()
+    title = _resource_title(res, pkg)
     if not rid or not title:
         return None
     ts = ckan_pick_timestamp(fields)

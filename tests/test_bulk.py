@@ -541,3 +541,26 @@ def test_ckan_datastore_entry_keeps_the_records_wrapper():
     entry = yaml.safe_load(block["yaml_block"])[0]
     assert entry["schema"]["timestamp_field"] == "result.records[].date"
     assert entry["schema"]["value_field"] == ["result.records[].pm25"]
+
+
+def test_resource_title_ignores_format_names():
+    """Resource names are frequently just the format, which would produce ids
+    like `ie_csv` that say nothing and collide across every package."""
+    pkg = {"title": "Air Quality Monitoring"}
+    assert bulk._resource_title({"name": "CSV"}, pkg) == "Air Quality Monitoring"
+    assert bulk._resource_title({"name": "Download"}, pkg) == "Air Quality Monitoring"
+    assert bulk._resource_title({}, pkg) == "Air Quality Monitoring"
+
+
+def test_resource_title_keeps_distinguishing_names():
+    """When one package holds several series, the resource name is what tells
+    them apart and must survive."""
+    pkg = {"title": "Air Quality Monitoring"}
+    got = bulk._resource_title({"name": "Station Dublin PM10"}, pkg)
+    assert got == "Air Quality Monitoring — Station Dublin PM10"
+
+
+def test_resource_title_avoids_duplicating_the_package_name():
+    pkg = {"title": "Air Quality Monitoring"}
+    got = bulk._resource_title({"name": "air quality monitoring"}, pkg)
+    assert got == "Air Quality Monitoring"
