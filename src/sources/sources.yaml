@@ -26355,3 +26355,462 @@
   audit_slack_days: 158
   notes: Bulk-generated from the Socrata federated catalog (query 'lead testing results'). Columns chosen
     mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
+
+# -- wired batch: ods6 --
+- id: huwise_stations_de_recharge_pour_vehicule_elect
+  name: Stations de recharge pour véhicule électrique - France - données OSM (hub.huwise.com)
+  domain: energy
+  dgp_class: ev_charging
+  archetypes:
+  - count_discrete
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://hub.huwise.com/api/explore/v2.1/catalog/datasets/osm-france-charging-station/exports/json?limit=2000&order_by=date_mise_en_service%20desc&select=date_mise_en_service
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_mise_en_service'
+    variates: 1
+    value_field: '[].date_mise_en_service'
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 20846 records
+  update_cadence_observed: median gap 5760.0 min over the newest 63 timestamps; newest 2026-06-01T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open Database License (ODbL)
+  audit_slack_days: 102
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'bornes recharge électrique'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_liste_des_points_de_charge_pour_vehicule
+  name: Liste des points de charge pour véhicules électriques (www.opendata56.fr)
+  domain: energy
+  dgp_class: ev_charging
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://www.opendata56.fr/api/explore/v2.1/catalog/datasets/bornes-de-recharge-de-vehicules-electriques-irve-copie/exports/json?limit=2000&order_by=date_mise_en_service%20desc&select=date_mise_en_service,nbre_pdc,puissance_nominale
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_mise_en_service'
+    variates: 2
+    value_field:
+    - '[].nbre_pdc'
+    - '[].puissance_nominale'
+  history_available: 589 records
+  update_cadence_observed: median gap 11520.0 min over the newest 32 timestamps; newest 2026-03-04T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 191
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'bornes recharge électrique'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_pa_permis_d_amenager_sitadel_gps_depuis
+  name: PA - Permis d'Aménager - Sitadel - GPS - depuis 2013 - màj trimestrielle (data.grandparissud.fr)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://data.grandparissud.fr/api/explore/v2.1/catalog/datasets/permis-amenager-sitadel-gps-depuis-2013-maj-trimestrielle/exports/json?limit=2000&order_by=date_reelle_autorisation%20desc&select=date_reelle_autorisation,comm,etat_pa,cj_dem
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_reelle_autorisation'
+    variates: 3
+    value_field:
+    - '[].comm'
+    - '[].etat_pa'
+    - '[].cj_dem'
+  history_available: 122 records
+  update_cadence_observed: median gap 41760.0 min over the newest 98 timestamps; newest 2026-01-10T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 244
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'permis de construire'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: nc_etablissements_artisanaux_actifs_au_31_1
+  name: Etablissements artisanaux actifs au 31/12/2025 en Nouvelle-Calédonie (data.gouv.nc)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.gouv.nc/api/explore/v2.1/catalog/datasets/etablissements-artisanaux-actifs-au-31-12-2025/exports/json?limit=2000&order_by=date_de_declaration%20desc&select=date_de_declaration,netab,anciennete,anciennete_sup_5_ans
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_de_declaration'
+    variates: 3
+    value_field:
+    - '[].netab'
+    - '[].anciennete'
+    - '[].anciennete_sup_5_ans'
+  history_available: 10941 records
+  update_cadence_observed: median gap 4320.0 min over the newest 27 timestamps; newest 2026-04-02T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0
+  audit_slack_days: 162
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'créations entreprises'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_prix_des_carburants_en_france_flux_quoti
+  name: Prix des carburants en France - Flux quotidien (data.economie.gouv.fr)
+  domain: econ_fin
+  dgp_class: price_series
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-carburants-quotidien/exports/json?limit=2000&order_by=rupture_debut%20desc&select=rupture_debut,prix_valeur
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].rupture_debut'
+    variates: 1
+    value_field:
+    - '[].prix_valeur'
+  history_available: 73884 records
+  update_cadence_observed: median gap 2.4 min over the newest 43 timestamps; newest 2026-07-26T23:12:58+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte (Etalab)
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: fr_prix_des_carburants_j_1_avec_historique
+  name: Prix des carburants - J-1 - avec historique à Noisy-le-Grand (opendata.noisylegrand.fr)
+  domain: econ_fin
+  dgp_class: price_series
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://opendata.noisylegrand.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-j-1-avec-historique-a-noisy-le-grand/exports/json?limit=2000&order_by=update%20desc&select=update,price_gazole,price_sp95,price_sp98
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].update'
+    variates: 3
+    value_field:
+    - '[].price_gazole'
+    - '[].price_sp95'
+    - '[].price_sp98'
+  history_available: 2393 records
+  update_cadence_observed: median gap 444.7 min over the newest 70 timestamps; newest 2026-07-25T22:01:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte
+  audit_slack_days: 47
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ch_tagliche_klimadaten_der_nbcn_station_bas
+  name: Tägliche Klimadaten der NBCN-Station Basel-Binningen (data.bs.ch)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.bs.ch/api/explore/v2.1/catalog/datasets/100254/exports/json?limit=2000&order_by=date%20desc&select=date,gre000d0,hto000d0,nto000d0
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].gre000d0'
+    - '[].hto000d0'
+    - '[].nto000d0'
+  history_available: 59378 records
+  update_cadence_observed: median gap 1440.0 min over the newest 100 timestamps; newest 2026-07-27T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: de_wetterstation_zu_rheinstra_e
+  name: Wetterstation - Zu Rheinstraße (opendata.wuerzburg.de)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.wuerzburg.de/api/explore/v2.1/catalog/datasets/wetterstation-zu-rheinstrasse/exports/json?limit=2000&order_by=zeit%20desc&select=zeit,temperatur_maximum,temperatur_durchschnitt,temperatur_minimum
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].zeit'
+    variates: 3
+    value_field:
+    - '[].temperatur_maximum'
+    - '[].temperatur_durchschnitt'
+    - '[].temperatur_minimum'
+  history_available: 65952 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-02-02T08:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-SA 4.0
+  audit_slack_days: 220
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: de_wetterstation_paradeplatz
+  name: Wetterstation - Paradeplatz (opendata.wuerzburg.de)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.wuerzburg.de/api/explore/v2.1/catalog/datasets/wetterstation-paradeplatz/exports/json?limit=2000&order_by=zeit%20desc&select=zeit,temperatur_maximum,temperatur_durchschnitt,temperatur_minimum
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].zeit'
+    variates: 3
+    value_field:
+    - '[].temperatur_maximum'
+    - '[].temperatur_durchschnitt'
+    - '[].temperatur_minimum'
+  history_available: 65933 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-02-02T08:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-SA 4.0
+  audit_slack_days: 220
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: de_wetterstation_rottendorf
+  name: Wetterstation - Rottendorf (opendata.wuerzburg.de)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.wuerzburg.de/api/explore/v2.1/catalog/datasets/wetterstation-rottendorf/exports/json?limit=2000&order_by=zeit%20desc&select=zeit,temperatur_maximum,temperatur_durchschnitt,temperatur_minimum
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].zeit'
+    variates: 3
+    value_field:
+    - '[].temperatur_maximum'
+    - '[].temperatur_durchschnitt'
+    - '[].temperatur_minimum'
+  history_available: 65943 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-02-02T08:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-SA 4.0
+  audit_slack_days: 220
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: de_wetterstation_gerbrunn
+  name: Wetterstation - Gerbrunn (opendata.wuerzburg.de)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.wuerzburg.de/api/explore/v2.1/catalog/datasets/wetterstation-gerbrunn/exports/json?limit=2000&order_by=zeit%20desc&select=zeit,temperatur_maximum,temperatur_durchschnitt,temperatur_minimum
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].zeit'
+    variates: 3
+    value_field:
+    - '[].temperatur_maximum'
+    - '[].temperatur_durchschnitt'
+    - '[].temperatur_minimum'
+  history_available: 63690 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-02-02T08:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-SA 4.0
+  audit_slack_days: 220
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: de_wetterstation_ludwigkai
+  name: Wetterstation - Ludwigkai (opendata.wuerzburg.de)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.wuerzburg.de/api/explore/v2.1/catalog/datasets/wetterstation-ludwigkai/exports/json?limit=2000&order_by=zeit%20desc&select=zeit,temperatur_maximum,temperatur_durchschnitt,temperatur_minimum
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].zeit'
+    variates: 3
+    value_field:
+    - '[].temperatur_maximum'
+    - '[].temperatur_durchschnitt'
+    - '[].temperatur_minimum'
+  history_available: 64664 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-02-02T08:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-SA 4.0
+  audit_slack_days: 220
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: townofcary_crash_data
+  name: Crash Data (data.townofcary.org)
+  domain: healthcare
+  dgp_class: public_safety_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.townofcary.org/api/explore/v2.1/catalog/datasets/cpd-crash-incidents/exports/json?limit=2000&order_by=crash_date%20desc&select=crash_date,fatality,possblinj,numpassengers
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].crash_date'
+    variates: 3
+    value_field:
+    - '[].fatality'
+    - '[].possblinj'
+    - '[].numpassengers'
+  history_available: 20366 records
+  update_cadence_observed: median gap 61.0 min over the newest 100 timestamps; newest 2025-10-14T12:23:28+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC0 1.0 Universal
+  audit_slack_days: 331
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'crime offense arrests police incidents
+    stops'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own
+    host, not the aggregator.
+- id: uk_west_midlands_fire_service_incidents
+  name: West Midlands Fire Service Incidents (cityobservatory.birmingham.gov.uk)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://cityobservatory.birmingham.gov.uk/api/explore/v2.1/catalog/datasets/wmfs-incidents/exports/json?limit=2000&order_by=incident_date%20desc&select=incident_date,injuries,fatalities,brv_count
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].incident_date'
+    variates: 3
+    value_field:
+    - '[].injuries'
+    - '[].fatalities'
+    - '[].brv_count'
+  history_available: 482339 records
+  update_cadence_observed: median gap 9.0 min over the newest 95 timestamps; newest 2026-03-31T23:58:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open Government Licence v3.0
+  audit_slack_days: 163
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'fire incidents'). Fields chosen
+    from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendatasoft_encampment_cleanup_notices
+  name: Encampment Cleanup Notices (cityofsalinas.opendatasoft.com)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://cityofsalinas.opendatasoft.com/api/explore/v2.1/catalog/datasets/cleanupnotices/exports/json?limit=2000&order_by=dateopened%20desc&select=dateopened,peoplect,clnupsize,tonnage
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].dateopened'
+    variates: 3
+    value_field:
+    - '[].peoplect'
+    - '[].clnupsize'
+    - '[].tonnage'
+  history_available: 666 records
+  update_cadence_observed: median gap 1522.5 min over the newest 87 timestamps; newest 2025-09-02T09:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open Database License (ODbL)
+  audit_slack_days: 373
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'business licenses issued'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: au_bikeway_counts
+  name: Bikeway counts (data.brisbane.qld.gov.au)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/bikeway-counts/exports/json?limit=2000&order_by=date%20desc&select=date,a001_cyclist,a001_pedestrian,a002_cyclist
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].a001_cyclist'
+    - '[].a001_pedestrian'
+    - '[].a002_cyclist'
+  history_available: 1461 records
+  update_cadence_observed: median gap 1440.0 min over the newest 100 timestamps; newest 2025-12-31T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 254
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'air quality monitoring'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: se_air_quality_measurements_vastra_esplanad
+  name: Air Quality Measurements Västra Esplanaden from 2025 (opendata.umea.se)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.umea.se/api/explore/v2.1/catalog/datasets/luftkvalitetsmaetningar-vaestra-esplanaden-fr-o-m-2025/exports/json?limit=2000&order_by=period%20desc&select=period,no2_ppb,no2_ug,pm10
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].period'
+    variates: 3
+    value_field:
+    - '[].no2_ppb'
+    - '[].no2_ug'
+    - '[].pm10'
+  history_available: 13014 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-06-29T21:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC0
+  audit_slack_days: 73
+  notes: Bulk-generated from the Opendatasoft federated catalog (query 'air quality monitoring'). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.

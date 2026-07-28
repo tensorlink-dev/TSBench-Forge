@@ -376,6 +376,8 @@ schedules:
   - montgomerycountymd_residential_permit
   - nola_active_short_term_rental_licenses
   - nola_non_commercial_short_term_rental_license
+  - fr_prix_des_carburants_en_france_flux_quoti
+  - ch_tagliche_klimadaten_der_nbcn_station_bas
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -853,6 +855,21 @@ schedules:
   - kingcounty_adult_jail_booking_jul_1_2025_to_jun_30
   - roseville_potholes_dataset
   - ny_lead_testing_in_school_drinking_water_sa
+  - huwise_stations_de_recharge_pour_vehicule_elect
+  - fr_liste_des_points_de_charge_pour_vehicule
+  - fr_pa_permis_d_amenager_sitadel_gps_depuis
+  - nc_etablissements_artisanaux_actifs_au_31_1
+  - fr_prix_des_carburants_j_1_avec_historique
+  - de_wetterstation_zu_rheinstra_e
+  - de_wetterstation_paradeplatz
+  - de_wetterstation_rottendorf
+  - de_wetterstation_gerbrunn
+  - de_wetterstation_ludwigkai
+  - townofcary_crash_data
+  - uk_west_midlands_fire_service_incidents
+  - opendatasoft_encampment_cleanup_notices
+  - au_bikeway_counts
+  - se_air_quality_measurements_vastra_esplanad
   cron: 10 1 * * *
 - every: P1D
   sources:
