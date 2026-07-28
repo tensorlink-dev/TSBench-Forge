@@ -3350,8 +3350,11 @@
     auth: none
     rate_limit: polite
   schema:
-    timestamp_field: AIRPORT_STATUS_INFORMATION/Update_Time
-    value_field: AIRPORT_STATUS_INFORMATION/Delay_type/ARPT/Delay/Min
+    snapshot_now: true
+    value_field: AIRPORT_STATUS_INFORMATION.Delay_type.Ground_Delay_List.Ground_Delay.ARPT
+    aggregate:
+      op: count
+      bin: PT1H
     variates: 1
   history_available: P0D
   update_cadence_observed: every ~5-15 minutes
