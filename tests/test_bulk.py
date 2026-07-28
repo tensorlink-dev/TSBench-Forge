@@ -581,3 +581,28 @@ def test_host_counts_seed_the_cap_from_the_catalog(tmp_path):
     counts = bulk.host_counts(str(cat))
     assert counts["data.x.gov"] == 2      # the disabled one does not count
     assert counts["other.gov"] == 1
+
+
+@pytest.mark.parametrize("raw,expect", [
+    ("2026-07-27", (2026, 7, 27)),
+    ("27/07/2026", (2026, 7, 27)),
+    ("27-07-2026", (2026, 7, 27)),
+    ("01.03.2026", (2026, 3, 1)),
+    ("20260727", (2026, 7, 27)),
+])
+def test_parse_loose_date(raw, expect):
+    """European portals overwhelmingly write DD/MM/YYYY; an ISO-only sniffer
+    finds no timestamp column on most of them and the portal reads as unusable."""
+    got = bulk._parse_loose_date(raw)
+    assert (got.year, got.month, got.day) == expect
+
+
+@pytest.mark.parametrize("raw", ["", None, "hello", "13/13/2026"])
+def test_parse_loose_date_rejects_junk(raw):
+    assert bulk._parse_loose_date(raw) is None
+
+
+def test_csv_timestamp_column_accepts_day_first_dates():
+    header = ["station", "datum", "waarde"]
+    body = [["A", f"{d:02d}/07/2026", str(d)] for d in range(1, 21)]
+    assert bulk._csv_timestamp_column(header, body) == "datum"

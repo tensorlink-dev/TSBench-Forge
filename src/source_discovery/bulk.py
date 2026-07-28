@@ -1410,7 +1410,8 @@ def ckan_file_candidate(res: dict, max_age_days: float) -> dict:
     size = res.get("size")
     if isinstance(size, (int, float)) and size > 48_000_000:
         return {"error": f"file too large ({int(size)} bytes)"}
-    stamp = _parse_iso(res.get("last_modified") or res.get("created"))
+    stamp = _parse_iso(res.get("last_modified") or res.get("created")
+                       or res.get("metadata_modified"))
     if stamp is None:
         return {"error": "no parseable last_modified"}
     age = (dt.datetime.now(dt.timezone.utc) - stamp).total_seconds() / 86400
@@ -1431,7 +1432,7 @@ def ckan_file_candidate(res: dict, max_age_days: float) -> dict:
                ("numeric" if _csv_column_is_numeric(header, body, h) else "text"))
               for h in header]
     stamps = sorted({
-        d for d in (_parse_iso(r[header.index(ts_col)])
+        d for d in (_parse_loose_date(r[header.index(ts_col)])
                     for r in body if len(r) > header.index(ts_col))
         if d is not None
     })
@@ -1466,6 +1467,37 @@ def _sniff_csv_rows(text: str, limit: int = 200) -> list[list[str]]:
     return rows
 
 
+_LOOSE_DATE_RES = (
+    # DD/MM/YYYY and DD-MM-YYYY dominate European portals; a sniffer that only
+    # accepts ISO finds no timestamp column on most of them and the whole
+    # portal reads as unusable.
+    (re.compile(r"^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})"), ("d", "m", "y")),
+    (re.compile(r"^(\d{4})(\d{2})(\d{2})$"), ("y", "m", "d")),
+)
+
+
+def _parse_loose_date(v: Any) -> Optional[dt.datetime]:
+    """ISO first, then the common national orderings. Day-first is assumed for
+    ambiguous DD/MM vs MM/DD — these are European portals, and guessing wrong
+    only shifts a date within a month, never the cadence the column is chosen
+    for."""
+    got = _parse_iso(v)
+    if got is not None:
+        return got
+    s = str(v or "").strip()
+    for rx, order in _LOOSE_DATE_RES:
+        m = rx.match(s)
+        if not m:
+            continue
+        parts = dict(zip(order, m.groups()))
+        try:
+            return dt.datetime(int(parts["y"]), int(parts["m"]), int(parts["d"]),
+                               tzinfo=dt.timezone.utc)
+        except ValueError:
+            return None
+    return None
+
+
 def _csv_timestamp_column(header: list[str], body: list[list[str]]) -> Optional[str]:
     """The column whose values actually parse as dates — declared types do not
     exist for a raw file, so the data has to answer for itself."""
@@ -1474,7 +1506,7 @@ def _csv_timestamp_column(header: list[str], body: list[list[str]]) -> Optional[
         vals = [r[i] for r in body[:40] if len(r) > i and r[i].strip()]
         if not vals:
             continue
-        hits = sum(1 for v in vals if _parse_iso(v) is not None)
+        hits = sum(1 for v in vals if _parse_loose_date(v) is not None)
         if hits < max(5, 0.8 * len(vals)):
             continue
         score = hits + (4 if any(t in name.lower() for t in _ODS_TS_PROMOTE) else 0)
