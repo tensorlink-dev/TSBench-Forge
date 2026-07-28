@@ -606,3 +606,26 @@ def test_csv_timestamp_column_accepts_day_first_dates():
     header = ["station", "datum", "waarde"]
     body = [["A", f"{d:02d}/07/2026", str(d)] for d in range(1, 21)]
     assert bulk._csv_timestamp_column(header, body) == "datum"
+
+
+def test_ckan_data_url_sorts_newest_first():
+    url = bulk.ckan_data_url("data.gov.ie", "abc-123", "date", ["v"])
+    assert "sort=date%20desc" in url
+    assert "resource_id=abc-123" in url
+    assert "fields=date,v" in url
+
+
+def test_ckan_file_candidate_accepts_a_fresh_csv(monkeypatch):
+    """End-to-end on the file path: a fresh CSV whose head parses should yield
+    a timestamp column, numeric fields and a usable probe."""
+    csv_text = "station;datum;pm25\n" + "".join(
+        f"A;{d:02d}/07/2026;{d}.5\n" for d in range(1, 26)
+    )
+    monkeypatch.setattr(bulk, "ckan_fetch_head", lambda url, timeout=30: csv_text)
+    got = bulk.ckan_file_candidate(
+        {"format": "CSV", "url": "https://p.example/aq.csv",
+         "last_modified": "2026-07-27T00:00:00"}, 3650)
+    assert "error" not in got
+    assert got["ts"] == "datum"
+    assert ("pm25", "pm25", "numeric") in got["fields"]
+    assert got["probe"]["distinct"] == 25

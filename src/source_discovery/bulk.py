@@ -1712,6 +1712,12 @@ def ckan_sweep(
                     if target and len(cands) >= target:
                         log(f"target {target} reached")
                         return cands, skipped
+                    # One resource per package. A package's other resources are
+                    # nearly always the SAME series in another language or
+                    # format — opendata.swiss offered Swiss weekly deaths three
+                    # times over — and wiring each would triple-count one series
+                    # as three sources while adding no information.
+                    break
         log(f"[{host}] {got} candidate(s)")
     return cands, skipped
 
