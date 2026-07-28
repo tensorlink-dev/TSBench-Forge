@@ -1048,3 +1048,57 @@ def test_fy_jp_uses_japan_local_date():
     url = scraper.expand_url("https://x/{FY_JP}.csv",
                              now=dt.datetime(2026, 3, 31, 20, 0, tzinfo=dt.timezone.utc))
     assert url == "https://x/2026.csv"
+
+
+def test_jsonstat_ordinal_codes_defer_to_labels():
+    """PSA OpenSTAT indexes its period dimension by bare ordinals and carries
+    the real period only in category.label; taking the code composes '0-00' and
+    loses the whole catalogue."""
+    data = {
+        "class": "dataset",
+        "id": ["Year", "Period"],
+        "size": [1, 3],
+        "dimension": {
+            "Year": {"category": {"index": {"0": 0}, "label": {"0": "2026"}}},
+            "Period": {"category": {
+                "index": {"0": 0, "1": 1, "2": 2},
+                "label": {"0": "01", "1": "02", "2": "03"},
+            }},
+        },
+        "value": [10.0, 11.0, 12.0],
+    }
+    rows = scraper._records_from_jsonstat2(data, {"timestamp_dims": ["Year", "Period"]})
+    assert [r["timestamp"] for r in rows] == ["2026-01", "2026-02", "2026-03"]
+
+
+def test_jsonstat_period_codes_are_preferred_over_labels():
+    """Where the code IS the period, it stays authoritative — a localised label
+    like 'January 2026' would not parse."""
+    data = {
+        "class": "dataset",
+        "id": ["Tid"],
+        "size": [2],
+        "dimension": {"Tid": {"category": {
+            "index": {"2026M01": 0, "2026M02": 1},
+            "label": {"2026M01": "January 2026", "2026M02": "February 2026"},
+        }}},
+        "value": [1, 2],
+    }
+    rows = scraper._records_from_jsonstat2(data, {})
+    assert [r["timestamp"] for r in rows] == ["2026-01", "2026-02"]
+
+
+def test_jsonstat_four_digit_year_code_is_not_an_ordinal():
+    """A bare '2026' is a period, not an index — only 1-2 digit codes defer."""
+    data = {
+        "class": "dataset",
+        "id": ["Tid"],
+        "size": [2],
+        "dimension": {"Tid": {"category": {
+            "index": {"2025": 0, "2026": 1},
+            "label": {"2025": "Year 2025", "2026": "Year 2026"},
+        }}},
+        "value": [1, 2],
+    }
+    rows = scraper._records_from_jsonstat2(data, {})
+    assert [r["timestamp"] for r in rows] == ["2025", "2026"]

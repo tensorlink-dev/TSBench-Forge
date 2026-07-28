@@ -1758,6 +1758,32 @@ def _records_from_sdmx_json(data: dict, schema: dict) -> list[dict]:
     return records
 
 
+def _jsonstat_labels(dimension: dict, dim_id: str) -> list[str]:
+    """Ordered category labels for a json-stat dimension.
+
+    `category.index` maps a CODE to its position, and for most publishers the
+    code is itself the period ("2026M01"), so the code is what you want. Some —
+    the Philippines PSA OpenSTAT catalogue among them — use bare ordinals as
+    codes and carry the real period only in `category.label`. Taking the code
+    there composes timestamps like "0-00" and loses the entire catalogue, so a
+    purely ordinal code defers to its label when one exists.
+    """
+    cat = (dimension.get(dim_id) or {}).get("category") or {}
+    idx = cat.get("index") or {}
+    labels = cat.get("label") or {}
+    codes = ([k for k, _ in sorted(idx.items(), key=lambda kv: kv[1])]
+             if isinstance(idx, dict) else list(idx))
+    if not labels:
+        return codes
+    return [
+        str(labels.get(c, c)) if _ORDINAL_CODE_RE.match(str(c)) else c
+        for c in codes
+    ]
+
+
+_ORDINAL_CODE_RE = re.compile(r"^\d{1,2}$")
+
+
 def _records_from_jsonstat2(data: dict, schema: dict) -> list[dict]:
     """Decode JSON-stat 2.0 (`class: dataset`) → flat rows.
 
@@ -1807,10 +1833,7 @@ def _records_from_jsonstat2(data: dict, schema: dict) -> list[dict]:
     time_pos = dims.index(time_dim)
 
     def _idx_to_label(dim_id: str) -> list[str]:
-        idx = ((dimension.get(dim_id) or {}).get("category") or {}).get("index") or {}
-        if isinstance(idx, dict):
-            return [k for k, _ in sorted(idx.items(), key=lambda kv: kv[1])]
-        return list(idx)  # already an ordered list
+        return _jsonstat_labels(dimension, dim_id)
 
     time_labels = _idx_to_label(time_dim)
     # panel = non-time dims with size > 1
@@ -1844,10 +1867,7 @@ def _jsonstat_rows(data: dict, dims: list, sizes: list, values: list,
     """JSON-stat decode with the time axis given explicitly, possibly spread over
     several dimensions (year x month). Everything else with size > 1 is panel."""
     def _labels(dim_id) -> list[str]:
-        idx = ((dimension.get(dim_id) or {}).get("category") or {}).get("index") or {}
-        if isinstance(idx, dict):
-            return [k for k, _ in sorted(idx.items(), key=lambda kv: kv[1])]
-        return list(idx)
+        return _jsonstat_labels(dimension, dim_id)
 
     positions = [dims.index(d) for d in time_dims]
     labels = {d: _labels(d) for d in time_dims}
