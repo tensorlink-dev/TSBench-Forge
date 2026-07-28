@@ -640,6 +640,7 @@ def sweep(
     new_hosts_only: bool = True,
     target: Optional[int] = None,
     sleep_s: float = 0.35,
+    checkpoint_path: Optional[str] = None,
     log=print,
 ) -> tuple[list[dict], list[dict]]:
     """Returns (candidates, skipped). ``skipped`` carries a reason per drop so
@@ -729,6 +730,7 @@ def sweep(
             taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
             cands.append(block)
             seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
             log(f"  + {block['candidate_name']}  [{block['cron_cadence']}]")
             if target and len(cands) >= target:
                 log(f"target {target} reached")
@@ -1031,6 +1033,7 @@ def ods_sweep(
     new_hosts_only: bool = True,
     target: Optional[int] = None,
     sleep_s: float = 0.35,
+    checkpoint_path: Optional[str] = None,
     log=print,
 ) -> tuple[list[dict], list[dict]]:
     if classes is None:
@@ -1117,6 +1120,7 @@ def ods_sweep(
             taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
             cands.append(block)
             seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
             log(f"  + {block['candidate_name']}  [{block['cron_cadence']}]")
             if target and len(cands) >= target:
                 log(f"target {target} reached")
@@ -1364,6 +1368,7 @@ def ckan_sweep(
     max_age_days: float = 21.0,
     target: Optional[int] = None,
     sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
     log=print,
 ) -> tuple[list[dict], list[dict]]:
     """One portal at a time, a handful of keywords each. ``per_portal`` is
@@ -1436,6 +1441,7 @@ def ckan_sweep(
                     taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
                     cands.append(block)
                     got += 1
+                    _checkpoint(cands, checkpoint_path)
                     log(f"  + [{country}] {block['candidate_name'][:70]}")
                     if target and len(cands) >= target:
                         log(f"target {target} reached")
@@ -1459,3 +1465,20 @@ def write_batch(candidates: list[dict], out_path: str) -> str:
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(candidates, fh, indent=2)
     return out_path
+
+
+def _checkpoint(candidates: list[dict], path: Optional[str]) -> None:
+    """Persist progress after every find.
+
+    A full sweep runs for tens of minutes across thousands of HTTP requests, and
+    writing only at the end means any interruption — a killed shell, a lost
+    session — throws away every candidate found so far. That has already
+    happened once, losing 23 verified candidates that each cost a live probe.
+    """
+    if not path:
+        return
+    try:
+        write_batch(candidates, path)
+    except OSError as exc:                                    # noqa: BLE001
+        log_write_failed = f"checkpoint write failed: {exc}"
+        print(log_write_failed)

@@ -102,7 +102,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.bulk_ckan:
         cands, skipped = bulk.ckan_sweep(
             args.catalog, max_age_days=args.bulk_max_age_days,
-            target=args.bulk_target, log=lambda m: print(m, file=sys.stderr),
+            target=args.bulk_target, checkpoint_path=args.bulk_ckan,
+            log=lambda m: print(m, file=sys.stderr),
         )
         bulk.write_batch(cands, args.bulk_ckan)
         reasons: dict[str, int] = {}
@@ -137,6 +138,7 @@ def main(argv: list[str] | None = None) -> int:
             classes=classes, host_cap=args.bulk_host_cap,
             max_age_days=args.bulk_max_age_days,
             new_hosts_only=not args.bulk_any_host, target=args.bulk_target,
+            checkpoint_path=out_path,
             log=lambda m: print(m, file=sys.stderr),
         )
         if args.bulk_per_keyword:
