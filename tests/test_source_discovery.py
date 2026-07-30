@@ -11,12 +11,14 @@ from __future__ import annotations
 import io
 import json
 import os
+import sys
 import urllib.error
 
 import pytest
 import yaml
 
 from source_discovery import config, coverage, llm, runner, vet
+from source_discovery.__main__ import main
 
 CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "src", "sources", "sources.yaml")
 
@@ -403,6 +405,35 @@ def test_propose_surfaces_choice_error_after_exhausting_retries(monkeypatch) -> 
 ])
 def test_band_for_parses_durations_not_just_known_strings(freq, band) -> None:
     assert coverage.band_for(freq) == band
+
+
+def test_band_for_does_not_import_the_scraper() -> None:
+    """Banding a cadence must not drag in the ingestion stack.
+
+    ``scraper`` imports httpx and pyarrow at module scope and *raises* when they
+    are absent — which they are in the autosearch gap gate, whose job installs
+    pyyaml + numpy only. Reaching into it for a five-line ISO-8601 parse took
+    the whole ``--coverage`` run down at import time.
+    """
+    sys.modules.pop("scraper", None)
+    assert coverage.band_for("PT10S") == "sub-min"
+    assert "scraper" not in sys.modules
+
+
+def test_coverage_cli_puts_only_json_on_stdout(capsys) -> None:
+    """stdout is the machine channel — the CI gate pipes it into ``json.load``.
+
+    The matrix is for whoever is reading the terminal; printing it to stdout
+    ahead of the JSON made every parse of that pipe fail on line 1.
+    """
+    rc = main(["--coverage", "--catalog", CATALOG])
+    cap = capsys.readouterr()
+
+    assert rc == 0
+    summary = json.loads(cap.out)               # the whole of stdout, not a slice
+    assert summary["n_sources"] > 0
+    assert isinstance(summary["gap_cells"], list)
+    assert "TOP HOST" in cap.err                # matrix + ranked gaps: human channel
 
 
 def test_load_registry_skips_disabled_sources(tmp_path) -> None:

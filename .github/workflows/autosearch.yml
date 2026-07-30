@@ -82,8 +82,15 @@ jobs:
       - name: Coverage gaps (free, deterministic — no model call)
         id: gaps
         run: |
-          n=$(python -m source_discovery --coverage 2>/dev/null \
-              | python -c "import sys,json;print(len(json.load(sys.stdin).get('gap_cells',[])))")
+          # JSON to a file, diagnostics to the log. The old form was
+          # `--coverage 2>/dev/null | python -c 'json.load(sys.stdin)'`, which
+          # discarded the traceback and reported every failure — crash, empty
+          # stdout, non-JSON on stdout alike — as the same unreadable
+          # "Expecting value: line 1 column 1 (char 0)". Redirecting only stdout
+          # keeps the matrix and the ranked gaps visible in the run log, and
+          # `bash -e` stops here with the real error if the sweep dies.
+          python -m source_discovery --coverage > "$RUNNER_TEMP/coverage.json"
+          n=$(python -c "import json,os;print(len(json.load(open(os.environ['RUNNER_TEMP']+'/coverage.json')).get('gap_cells',[])))")
           echo "count=$n" >> "$GITHUB_OUTPUT"
           echo "under-target cells: $n"
 

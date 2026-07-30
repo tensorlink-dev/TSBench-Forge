@@ -181,11 +181,13 @@ def parse_ts(raw: object) -> Optional[dt.datetime]:
 
 
 def _period_seconds(freq: str) -> Optional[int]:
+    # duration, not scraper — the audit reads parquet off disk and never
+    # fetches, so it must not require the scraper's httpx/pyarrow imports.
     sources_dir = str(Path(__file__).resolve().parent.parent / "sources")
     if sources_dir not in sys.path:
         sys.path.insert(0, sources_dir)
-    import scraper  # noqa: PLC0415
-    return scraper._period_seconds(freq)
+    import duration  # noqa: PLC0415
+    return duration.period_seconds(freq)
 
 
 _FREQ_ALIASES = {"P1Q": "P3M"}  # ISO-ish quarter shorthand the scraper can't parse

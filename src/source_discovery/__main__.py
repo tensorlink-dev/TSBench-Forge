@@ -198,7 +198,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.coverage:
         reg = coverage.load_registry(args.catalog)
         summary = coverage.summarize(reg)
-        print(coverage.render_matrix(reg))
+        # stdout is the machine-readable channel and carries the JSON alone —
+        # the CI gap gate pipes it straight into json.load. The matrix and the
+        # ranked gaps are for the human reading the terminal, so they go to
+        # stderr alongside each other.
+        print(coverage.render_matrix(reg), file=sys.stderr)
         print(json.dumps(summary, indent=2, default=str))
         gaps = summary["gap_cells"]
         print(f"\n{len(gaps)} under-target cells; top 10 gaps:", file=sys.stderr)

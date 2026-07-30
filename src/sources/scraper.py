@@ -43,6 +43,7 @@ import zipfile
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
+import duration
 import yaml
 
 try:
@@ -1924,25 +1925,15 @@ def _compose_pxweb_parts(parts: list[str]) -> str:
     return "-".join(out)
 
 
-_DUR_RE = re.compile(
-    r"^P(?:(?P<y>\d+)Y)?(?:(?P<mo>\d+)M)?(?:(?P<w>\d+)W)?(?:(?P<d>\d+)D)?"
-    r"(?:T(?:(?P<h>\d+)H)?(?:(?P<mi>\d+)M)?(?:(?P<s>\d+)S)?)?$"
-)
-_DUR_UNITS = {"y": 31_536_000, "mo": 2_592_000, "w": 604_800, "d": 86_400,
-              "h": 3600, "mi": 60, "s": 1}
-
 # Sources at or below this period are refetched on every sweep; slower ones are
 # refreshed at most this often.
 _MIN_REFRESH_SECONDS = 3600
 _MAX_REFRESH_SECONDS = 6 * 3600
 
-
-def _period_seconds(freq: str) -> Optional[int]:
-    """ISO-8601 duration -> seconds. None if unparseable (e.g. 'irregular')."""
-    m = _DUR_RE.match(str(freq or "").strip())
-    if not m or not any(m.groupdict().values()):
-        return None
-    return sum(int(v) * _DUR_UNITS[k] for k, v in m.groupdict().items() if v)
+# Lives in duration.py so the discovery tools can band a cadence without
+# importing this module (and, with it, httpx + pyarrow). Kept under the private
+# name because that is what the rest of this file calls it.
+_period_seconds = duration.period_seconds
 
 
 def _last_scraped_age(sid: str) -> Optional[float]:

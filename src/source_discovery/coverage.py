@@ -126,13 +126,16 @@ def band_for(freq: str) -> str:
 
 
 def _period_seconds(freq: str) -> int | None:
+    # duration, not scraper: the scraper needs httpx + pyarrow and raises on
+    # import without them, which would take the whole (network-free, dependency-
+    # light) coverage report down with it.
     import sys
     sources_dir = str(Path(__file__).resolve().parent.parent / "sources")
     if sources_dir not in sys.path:
         sys.path.insert(0, sources_dir)
-    import scraper  # noqa: PLC0415
+    import duration  # noqa: PLC0415
     try:
-        return scraper._period_seconds(freq or "")
+        return duration.period_seconds(freq or "")
     except Exception:  # noqa: BLE001
         return None
 
