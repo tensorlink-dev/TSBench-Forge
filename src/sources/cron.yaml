@@ -403,6 +403,8 @@ schedules:
   - bfs_odl_gamma_dose_rate
   - ipma_pt_surface_observations
   - axiom_cormp_ilm2_buoy
+  - opensensemap_pm10_network
+  - cta_chicago_service_alerts
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -906,6 +908,7 @@ schedules:
   - potaroo_bgp_table_size
   - faroe_cpi_quarterly
   - kosovo_hicp_monthly
+  - sentry_status_incidents
   cron: 10 1 * * *
 - every: P1D
   sources:

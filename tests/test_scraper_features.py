@@ -1,5 +1,6 @@
 """Unit tests for the scraper's composite-timestamp and field-paneling features."""
 import datetime as dt
+import json
 import pathlib
 import sys
 
@@ -1102,3 +1103,76 @@ def test_jsonstat_four_digit_year_code_is_not_an_ordinal():
     }
     rows = scraper._records_from_jsonstat2(data, {})
     assert [r["timestamp"] for r in rows] == ["2025", "2026"]
+
+
+# --------------------------------------------------------------------------- #
+# schema.drop_future_timestamps — planned events mixed into an observation feed
+# --------------------------------------------------------------------------- #
+def _future(days):
+    return (dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=days)).isoformat()
+
+
+def _past(days):
+    return (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
+
+
+def test_drop_future_timestamps_removes_planned_rows():
+    """Event feeds interleave observations with SCHEDULED items on the same
+    field — Chicago CTA carries 52 started alerts and 58 planned months ahead.
+    A planned row pins the newest timestamp permanently ahead of now, so the
+    freshness audit reads the source as alive however long it has been dead."""
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "[].t", "value_field": "[].v",
+                      "drop_future_timestamps": True}}
+    payload = json.dumps([
+        {"t": _past(2), "v": 1}, {"t": _past(1), "v": 2}, {"t": _future(90), "v": 3},
+    ]).encode()
+    rows = scraper.parse_payload(src, payload, "application/json")
+    assert len(rows) == 2
+    assert all(dt.datetime.fromisoformat(r["timestamp"]) <= dt.datetime.now(dt.timezone.utc)
+               for r in rows)
+
+
+def test_drop_future_timestamps_respects_a_forecast_horizon():
+    """Day-ahead feeds are legitimately ahead of now, so the horizon is
+    configurable rather than a hard 'no future'."""
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "[].t", "value_field": "[].v",
+                      "drop_future_timestamps": True, "forecast_horizon_days": 3}}
+    payload = json.dumps([
+        {"t": _past(1), "v": 1}, {"t": _future(2), "v": 2}, {"t": _future(30), "v": 3},
+    ]).encode()
+    rows = scraper.parse_payload(src, payload, "application/json")
+    assert len(rows) == 2
+
+
+def test_drop_future_timestamps_keeps_unparseable_rows():
+    """Returning None must mean 'keep': this filter removes known-future rows,
+    it must not quietly discard rows whose format the parser cannot read."""
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "[].t", "value_field": "[].v",
+                      "drop_future_timestamps": True}}
+    payload = json.dumps([
+        {"t": "Q3 2026", "v": 1}, {"t": _past(1), "v": 2}, {"t": _future(60), "v": 3},
+    ]).encode()
+    rows = scraper.parse_payload(src, payload, "application/json")
+    assert len(rows) == 2
+    assert any(r["timestamp"] == "Q3 2026" for r in rows)
+
+
+def test_drop_future_timestamps_off_by_default():
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "[].t", "value_field": "[].v"}}
+    payload = json.dumps([{"t": _past(1), "v": 1}, {"t": _future(90), "v": 2}]).encode()
+    assert len(scraper.parse_payload(src, payload, "application/json")) == 2
+
+
+@pytest.mark.parametrize("raw,ok", [
+    ("2026-08-01T10:00:00Z", True), ("2026-08-01T10:00:00+00:00", True),
+    ("2026-08-01", True), ("not a date", False), ("", False), (None, False),
+])
+def test_coerce_utc(raw, ok):
+    got = scraper._coerce_utc(raw)
+    assert (got is not None) == ok
+    if got is not None:
+        assert got.tzinfo is not None

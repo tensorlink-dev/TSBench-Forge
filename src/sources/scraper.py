@@ -701,6 +701,26 @@ def _compose_json_ts(data: Any, ts_path: str, schema: dict) -> Any:
             for i in range(min(len(s) for s in seqs))]
 
 
+def _coerce_utc(raw: Any) -> Optional[dt.datetime]:
+    """Best-effort ISO-8601 -> aware UTC datetime, or None if not recognisable.
+
+    Deliberately narrow: it backs `drop_future_timestamps`, where returning None
+    means "keep the row". Guessing at exotic label formats here would risk
+    discarding real observations, which is the opposite of what the filter is
+    for.
+    """
+    if isinstance(raw, dt.datetime):
+        return raw if raw.tzinfo else raw.replace(tzinfo=UTC)
+    s = str(raw or "").strip()
+    if not s:
+        return None
+    try:
+        got = dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return got if got.tzinfo else got.replace(tzinfo=UTC)
+
+
 def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
     """Expand a start-plus-step series into timestamped rows.
 
@@ -1415,6 +1435,25 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
                     return False
             return True
         recs = [r for r in recs if _keeps(r)]
+    if schema.get("drop_future_timestamps"):
+        # Drop rows dated beyond `forecast_horizon_days` (default 1) into the
+        # future. Many event feeds interleave OBSERVATIONS with PLANNED items on
+        # the same timestamp field: Chicago CTA's alert feed carries 52 alerts
+        # that have started and 58 scheduled months ahead. Storing the planned
+        # ones pins the newest timestamp permanently ahead of now, so the
+        # freshness audit reads the source as alive however long it has been
+        # dead — the single most dangerous failure mode in this catalogue,
+        # because it is silent. Unparseable timestamps are KEPT: this filter
+        # exists to remove known-future rows, not to quietly discard rows whose
+        # format the parser does not recognise.
+        horizon = float(schema.get("forecast_horizon_days", 1))
+        cutoff = dt.datetime.now(UTC) + dt.timedelta(days=horizon)
+        kept = []
+        for r in recs:
+            got = _coerce_utc(r.get("timestamp"))
+            if got is None or got <= cutoff:
+                kept.append(r)
+        recs = kept
     pattern = schema.get("timestamp_pattern")
     if pattern:
         # Keep only rows whose timestamp matches. Some publishers stack several

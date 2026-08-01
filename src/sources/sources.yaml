@@ -27603,3 +27603,107 @@
     - pretok
     - temp_vode
     panel_field: ime_kratko
+
+# -- wired batch: proposals-pr61 --
+- id: sentry_status_incidents
+  name: Sentry Status — incident stream (Statuspage)
+  domain: web_cloudops
+  dgp_class: service_health
+  archetypes:
+  - zero_inflated_sparse
+  - categorical
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://status.sentry.io/api/v2/incidents.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: incidents[].created_at
+    value_field: incidents[].impact
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P1Y
+  update_cadence_observed: event-driven; 50 incidents over the last ~6 months
+  pretraining_novelty: clean
+  novelty_notes: Third independent SaaS incident stream alongside Cloudflare and DigitalOcean; observability-platform
+    incidents are event-driven and post-cutoff.
+  license: Public status feed (Statuspage)
+  audit_slack_days: 120
+  notes: From the auto-search proposal ledger (PR 61). The proposal guessed a half-hour cadence; the real
+    event rate is roughly one incident every 3.6 days, so it is binned hourly like its siblings and given
+    generous slack.
+
+# -- wired batch: proposals-osm --
+- id: opensensemap_pm10_network
+  name: openSenseMap — citizen PM10 network (Berlin panel)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://api.opensensemap.org/boxes/{BOX}/data/{SENSOR}
+    auth: none
+    rate_limit: null
+  panel:
+  - BOX: 59fe4c93d13da400100069ad
+    SENSOR: 59fe4c93d13da400100069b2
+  - BOX: 5a1185849fd3c200118188af
+    SENSOR: 5a1185849fd3c200118188b3
+  - BOX: 5a8c3d36bc2d4100190c49fb
+    SENSOR: 5a8c3d36bc2d4100190c49ff
+  - BOX: 5af4b3c3223bd80019284e95
+    SENSOR: 5af4b3c3223bd80019284e99
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P48H rolling window per request
+  update_cadence_observed: ~45-90s per station; endpoint returns a rolling 48h window
+  pretraining_novelty: clean
+  novelty_notes: Citizen-operated openSenseMap stations; not the ETT-companion weather bundle.
+  license: openSenseMap — ODbL
+  audit_slack_days: 45
+  notes: 'From the auto-search proposal ledger (PR 61). Box/sensor pairs were screened for value VARIANCE,
+    not just row count: several openSenseMap sensors report a single stuck value forever and would contribute
+    a constant series. Stations: Feinstaubsensor-01, DAN, Gesellschaft zur Entwicklung, Fels14.'
+
+# -- wired batch: proposals-cta --
+- id: cta_chicago_service_alerts
+  name: Chicago CTA — service alert stream
+  domain: transport
+  dgp_class: disruption_stream
+  archetypes:
+  - zero_inflated_sparse
+  - count_discrete
+  - categorical
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://www.transitchicago.com/api/1.0/alerts.aspx?outputType=JSON
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: CTAAlerts.Alert[].EventStart
+    value_field: CTAAlerts.Alert[].SeverityScore
+    drop_future_timestamps: true
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: rolling — alerts remain listed while active
+  update_cadence_observed: event-driven; 52 started alerts in the current feed
+  pretraining_novelty: clean
+  novelty_notes: Transit disruption event stream; not in known TSFM pretraining mixes.
+  license: CTA developer terms — public
+  audit_slack_days: 60
+  notes: From the auto-search proposal ledger (PR 61). The proposal named the protobuf GTFS-RT endpoint,
+    which the scraper cannot read; the JSON alerts API carries the same events. EventStart mixes started
+    and SCHEDULED alerts, so drop_future_timestamps is REQUIRED here — without it the newest stamp sits
+    months ahead and the source reads as permanently fresh.
