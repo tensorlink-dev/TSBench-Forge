@@ -20,11 +20,19 @@ file. Re-running the same minute does not duplicate.
 
 Failures are logged to data/<id>/_errors.log with HTTP code + message.
 
+A full sweep is ~1k sources against ~1k hosts, so it is bound by other people's
+latency. Two flags keep it inside a CI job timeout: `--workers` fetches several
+sources at once (never two against the same host), and `--deadline-minutes`
+stops starting new sources in time to exit cleanly. Overshooting the job timeout
+is not a partial run — the step is killed, the mirror step never runs, and every
+row of that sweep is lost.
+
 Usage:
     python scraper.py --id <source_id>            # single source
     python scraper.py --all                       # iterate every source
     python scraper.py --domain energy             # subset
     python scraper.py --id <id> --dry-run         # fetch + parse but do not write
+    python scraper.py --all --workers 8 --deadline-minutes 70   # full sweep, bounded
 """
 
 from __future__ import annotations
@@ -38,10 +46,13 @@ import logging
 import os
 import re
 import sys
+import threading
 import time
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Iterable, Optional
+from urllib.parse import urlsplit
 
 import yaml
 
@@ -77,19 +88,78 @@ UTC = dt.timezone.utc
 # ──────────────────────────────────────────────────────────────────────────
 
 
-def load_sources() -> list[dict]:
-    with open(SOURCES_YAML) as f:
-        sources = yaml.safe_load(f)
-    if not isinstance(sources, list):
-        raise ValueError("sources.yaml must be a YAML list")
-    return sources
+_SOURCES_CACHE: Optional[list[dict]] = None
+_SOURCE_INDEX: dict[str, dict] = {}
+_SOURCES_LOCK = threading.Lock()
+
+
+def load_sources(refresh: bool = False) -> list[dict]:
+    """Parse sources.yaml once per process.
+
+    The catalog is ~1k entries / 20k lines and costs ~1.5s to parse. run_one()
+    resolves its source by id, so re-parsing per source added ~30 minutes of
+    pure YAML to a `--all` sweep — most of what pushed the scheduled run past
+    its job timeout before any network time was spent. Pass `refresh=True`
+    after editing the file in-process.
+    """
+    global _SOURCES_CACHE, _SOURCE_INDEX
+    with _SOURCES_LOCK:
+        if _SOURCES_CACHE is None or refresh:
+            with open(SOURCES_YAML) as f:
+                sources = yaml.safe_load(f)
+            if not isinstance(sources, list):
+                raise ValueError("sources.yaml must be a YAML list")
+            # Rebind rather than mutate in place: --workers reads the index
+            # outside this lock, and a refresh must never expose a half-built one.
+            _SOURCE_INDEX = {s["id"]: s for s in sources if "id" in s}
+            _SOURCES_CACHE = sources
+        return _SOURCES_CACHE
 
 
 def get_source(sid: str) -> dict:
-    for s in load_sources():
-        if s["id"] == sid:
-            return s
-    raise KeyError(f"source id not found: {sid}")
+    load_sources()
+    try:
+        return _SOURCE_INDEX[sid]
+    except KeyError:
+        raise KeyError(f"source id not found: {sid}") from None
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# Sweep deadline
+# ──────────────────────────────────────────────────────────────────────────
+
+# A sweep runs under a wall-clock ceiling it does not control (the CI job's
+# timeout-minutes). Overshooting it is not a partial failure — the runner is
+# killed mid-step, so the mirror-to-storage step never runs and *every* row
+# scraped that sweep is discarded. The deadline below makes the scraper stop
+# starting new work on its own terms and exit cleanly, leaving the rows it did
+# collect to be published. Set with --deadline-minutes / SCRAPER_DEADLINE_MINUTES.
+_DEADLINE: Optional[float] = None            # time.monotonic() value, or None
+
+
+def set_deadline(minutes: Optional[float]) -> None:
+    global _DEADLINE
+    _DEADLINE = None if not minutes else time.monotonic() + minutes * 60.0
+
+
+def time_left() -> Optional[float]:
+    """Seconds until the sweep deadline; None when no deadline is set."""
+    return None if _DEADLINE is None else _DEADLINE - time.monotonic()
+
+
+def _out_of_time() -> bool:
+    left = time_left()
+    return left is not None and left <= 0
+
+
+def _no_time_for(wait: float) -> bool:
+    """True when sleeping `wait` seconds would run into the deadline.
+
+    Callers use it to abandon a retry rather than burn the remaining budget on
+    a host that is already failing.
+    """
+    left = time_left()
+    return left is not None and left <= wait
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -462,6 +532,12 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
             if attempt == 2:
                 raise
             wait = 5 * (attempt + 1)
+            # A host stalling its TLS handshake costs the connect timeout on
+            # every attempt (~10s each) plus the backoff. Near the deadline
+            # that spend buys nothing, so fail this source now and leave the
+            # remaining budget to sources that can still succeed.
+            if _no_time_for(wait):
+                raise
             log.info("transport error for %s (%s) — retrying in %ds", url[:100], e, wait)
             time.sleep(wait)
             continue
@@ -470,6 +546,8 @@ def fetch_payload(src: dict, panel_row: Optional[dict[str, str]] = None) -> tupl
                 wait = min(float(resp.headers.get("Retry-After") or 15), 60.0)
             except ValueError:  # HTTP-date form; just use the default
                 wait = 15.0
+            if _no_time_for(wait):
+                break                       # falls through to the HTTP-error raise
             log.info("HTTP %d for %s — retrying in %.0fs", resp.status_code, url[:100], wait)
             time.sleep(wait)
             continue
@@ -2040,6 +2118,43 @@ def _prod(xs: list[int]) -> int:
     return p
 
 
+_HOST_LOCKS: dict[str, threading.Lock] = {}
+_HOST_LOCKS_GUARD = threading.Lock()
+
+
+def _host_lock(url: str) -> threading.Lock:
+    """One lock per hostname, so --workers never points two requests at the
+    same host at once. The catalog wires dozens of series per publisher
+    (www150.statcan.gc.ca alone has ~30 cubes); fetching those concurrently
+    trades a timeout for a throttle. Cross-host parallelism is where the
+    wall-clock saving is anyway."""
+    host = urlsplit(url).netloc.lower()
+    with _HOST_LOCKS_GUARD:
+        return _HOST_LOCKS.setdefault(host, threading.Lock())
+
+
+def _interleave_by_host(sids: list[str]) -> list[str]:
+    """Reorder ids round-robin across hosts, preserving each host's own order.
+
+    sources.yaml is grouped by wiring batch, so same-publisher entries sit next
+    to each other. Handing that order to a worker pool puts every worker on one
+    host, where _host_lock serialises them and the parallelism evaporates.
+    Interleaving keeps the in-flight set spread across distinct hosts.
+    """
+    buckets: dict[str, list[str]] = {}
+    for sid in sids:
+        try:
+            host = urlsplit(get_source(sid)["endpoint"]["url"]).netloc.lower()
+        except Exception:                                   # noqa: BLE001
+            host = sid                                      # unresolvable — treat as its own host
+        buckets.setdefault(host, []).append(sid)
+    out: list[str] = []
+    queues = list(buckets.values())
+    for i in range(max((len(q) for q in queues), default=0)):
+        out.extend(q[i] for q in queues if i < len(q))
+    return out
+
+
 def run_one(sid: str, dry_run: bool = False) -> int:
     src = get_source(sid)
     if src.get("disabled"):
@@ -2048,10 +2163,12 @@ def run_one(sid: str, dry_run: bool = False) -> int:
     log.info("fetch %s -> %s", sid, src["endpoint"]["url"][:120])
 
     panel = src.get("panel") or [None]   # list of dicts or [None] for single-poll
+    lock = _host_lock(src["endpoint"]["url"])
     total_written = 0
     for panel_row in panel:
         try:
-            blob, ct = fetch_payload(src, panel_row=panel_row)
+            with lock:
+                blob, ct = fetch_payload(src, panel_row=panel_row)
         except Exception as e:                              # noqa: BLE001
             log.error("fetch failed for %s%s: %s", sid, f" [{panel_row}]" if panel_row else "", e)
             log_error(sid, f"FETCH {e} {panel_row or ''}")
@@ -2084,7 +2201,17 @@ def main() -> int:
     ap.add_argument("--list", action="store_true", help="print all source ids and exit")
     ap.add_argument("--force", action="store_true",
                     help="with --all, ignore cadence and refetch every source")
+    ap.add_argument("--workers", type=int,
+                    default=int(os.environ.get("SCRAPER_WORKERS") or 1),
+                    help="fetch this many sources concurrently (default 1; env SCRAPER_WORKERS). "
+                         "Never more than one request per host at a time.")
+    ap.add_argument("--deadline-minutes", type=float,
+                    default=float(os.environ.get("SCRAPER_DEADLINE_MINUTES") or 0) or None,
+                    help="stop starting new sources after this many minutes and exit cleanly "
+                         "(default none; env SCRAPER_DEADLINE_MINUTES). Set it below the CI job "
+                         "timeout so the run publishes what it collected instead of being killed.")
     args = ap.parse_args()
+    set_deadline(args.deadline_minutes)
 
     sources = load_sources()
     if args.list:
@@ -2110,15 +2237,47 @@ def main() -> int:
         ap.print_help()
         return 1
 
-    failed = 0
-    for sid in targets:
+    targets = list(targets)
+    workers = max(1, args.workers)
+    if workers > 1:
+        targets = _interleave_by_host(targets)
+
+    counts = {"done": 0, "failed": 0, "skipped": 0}
+    counts_lock = threading.Lock()
+
+    def _run_target(sid: str) -> None:
+        if _out_of_time():
+            with counts_lock:
+                counts["skipped"] += 1
+            return
         try:
             run_one(sid, dry_run=args.dry_run)
+            outcome = "done"
         except Exception as e:                              # noqa: BLE001
             log.exception("%s: unrecoverable error", sid)
             log_error(sid, f"UNCAUGHT {e}")
-            failed += 1
-    return 0 if failed == 0 else 2
+            outcome = "failed"
+        with counts_lock:
+            counts[outcome] += 1
+
+    started = time.monotonic()
+    if workers == 1:
+        for sid in targets:
+            _run_target(sid)
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            list(pool.map(_run_target, targets))
+
+    elapsed = time.monotonic() - started
+    log.info("sweep finished: %d ok, %d failed, %d skipped of %d in %.0fs (%d worker%s)",
+             counts["done"], counts["failed"], counts["skipped"], len(targets),
+             elapsed, workers, "" if workers == 1 else "s")
+    if counts["skipped"]:
+        # Not an error: the rows already collected still need to be published,
+        # so exit 0 and let the next sweep pick these up.
+        log.warning("deadline reached after %.0f min — %d source(s) not started this sweep",
+                    (args.deadline_minutes or 0), counts["skipped"])
+    return 0 if counts["failed"] == 0 else 2
 
 
 if __name__ == "__main__":
