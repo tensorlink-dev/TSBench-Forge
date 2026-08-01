@@ -3,6 +3,7 @@ import datetime as dt
 import json
 import pathlib
 import sys
+import time as _time
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "src" / "sources"))
 import pytest  # noqa: E402
@@ -1176,3 +1177,178 @@ def test_coerce_utc(raw, ok):
     assert (got is not None) == ok
     if got is not None:
         assert got.tzinfo is not None
+
+
+# ── sweep budget: catalog cache, deadline, worker fan-out ──────────────────
+
+
+def test_load_sources_parses_the_catalog_once(monkeypatch):
+    """get_source() used to re-parse ~20k lines of YAML per source, which alone
+    put a full sweep over the CI job timeout."""
+    scraper.load_sources(refresh=True)
+    parses = []
+    real = yaml_safe_load = __import__("yaml").safe_load
+    monkeypatch.setattr(scraper.yaml, "safe_load",
+                        lambda *a, **k: (parses.append(1), real(*a, **k))[1])
+    ids = [s["id"] for s in scraper.load_sources()[:20]]
+    for sid in ids:
+        assert scraper.get_source(sid)["id"] == sid
+    assert parses == []
+    assert yaml_safe_load is real
+
+
+def test_load_sources_refresh_rereads(monkeypatch):
+    scraper.load_sources(refresh=True)
+    parses = []
+    real = __import__("yaml").safe_load
+    monkeypatch.setattr(scraper.yaml, "safe_load",
+                        lambda *a, **k: (parses.append(1), real(*a, **k))[1])
+    scraper.load_sources(refresh=True)
+    assert len(parses) == 1
+
+
+def test_deadline_helpers(monkeypatch):
+    try:
+        scraper.set_deadline(None)
+        assert scraper.time_left() is None
+        assert scraper._out_of_time() is False
+        assert scraper._no_time_for(3600) is False      # no deadline -> never short
+
+        scraper.set_deadline(1.0)                        # 60s
+        assert 55 < scraper.time_left() <= 60
+        assert scraper._no_time_for(5) is False
+        assert scraper._no_time_for(120) is True         # would run past it
+        assert scraper._out_of_time() is False
+
+        scraper.set_deadline(-1.0)                       # already elapsed
+        assert scraper._out_of_time() is True
+    finally:
+        scraper.set_deadline(None)
+
+
+def test_transport_retry_abandoned_at_deadline(monkeypatch):
+    """A host stalling its TLS handshake must not burn the sweep's last minute
+    on backoff it has no time to use."""
+    slept, attempts = [], []
+
+    def boom(*a, **k):
+        attempts.append(1)
+        raise scraper.httpx.ConnectTimeout("_ssl.c:999: The handshake operation timed out")
+
+    monkeypatch.setattr(scraper, "_http_get", boom)
+    monkeypatch.setattr(scraper.time, "sleep", lambda s: slept.append(s))
+    src = {"endpoint": {"url": "https://slow.example/data", "type": "rest_json"}}
+    try:
+        scraper.set_deadline(2.0 / 60)                   # 2 seconds left
+        with pytest.raises(scraper.httpx.TransportError):
+            scraper.fetch_payload(src)
+    finally:
+        scraper.set_deadline(None)
+    assert attempts == [1]                               # failed once, did not retry
+    assert slept == []
+
+
+def test_transport_retry_still_retries_without_a_deadline(monkeypatch):
+    slept, attempts = [], []
+
+    def boom(*a, **k):
+        attempts.append(1)
+        raise scraper.httpx.ConnectTimeout("handshake timed out")
+
+    monkeypatch.setattr(scraper, "_http_get", boom)
+    monkeypatch.setattr(scraper.time, "sleep", lambda s: slept.append(s))
+    scraper.set_deadline(None)
+    src = {"endpoint": {"url": "https://slow.example/data", "type": "rest_json"}}
+    with pytest.raises(scraper.httpx.TransportError):
+        scraper.fetch_payload(src)
+    assert len(attempts) == 3
+    assert slept == [5, 10]
+
+
+def test_interleave_by_host_spreads_adjacent_publishers(monkeypatch):
+    catalog = {
+        "a1": "https://stats.example/1", "a2": "https://stats.example/2",
+        "a3": "https://stats.example/3", "b1": "https://grid.example/1",
+        "c1": "https://tide.example/1",
+    }
+    monkeypatch.setattr(scraper, "get_source",
+                        lambda sid: {"id": sid, "endpoint": {"url": catalog[sid]}})
+    got = scraper._interleave_by_host(["a1", "a2", "a3", "b1", "c1"])
+    assert got == ["a1", "b1", "c1", "a2", "a3"]         # no two neighbours share a host
+    assert sorted(got) == sorted(catalog)                 # nothing dropped
+
+
+def test_interleave_by_host_tolerates_unresolvable_ids(monkeypatch):
+    monkeypatch.setattr(scraper, "get_source", lambda sid: {}.get(sid) or {})
+    assert scraper._interleave_by_host(["x", "y"]) == ["x", "y"]
+    assert scraper._interleave_by_host([]) == []
+
+
+def test_host_lock_is_per_host_and_shared():
+    a = scraper._host_lock("https://www150.statcan.gc.ca/t1/wds/a")
+    b = scraper._host_lock("https://www150.statcan.gc.ca/t1/wds/b")
+    c = scraper._host_lock("https://api.irishrail.ie/realtime")
+    assert a is b and a is not c
+
+
+def _fake_catalog(n, host="https://h{}.example/x"):
+    return [{"id": f"s{i}", "domain": "test", "frequency": "PT1M",
+             "endpoint": {"url": host.format(i), "type": "rest_json"}} for i in range(n)]
+
+
+def test_main_workers_fetch_sources_concurrently(monkeypatch):
+    catalog = _fake_catalog(8)
+    monkeypatch.setattr(scraper, "load_sources", lambda *a, **k: catalog)
+    monkeypatch.setattr(scraper, "get_source", lambda sid: next(s for s in catalog if s["id"] == sid))
+
+    import threading as _th
+    live, peak, guard = [0], [0], _th.Lock()
+
+    def slow_run_one(sid, dry_run=False):
+        with guard:
+            live[0] += 1
+            peak[0] = max(peak[0], live[0])
+        _time.sleep(0.05)
+        with guard:
+            live[0] -= 1
+        return 1
+
+    monkeypatch.setattr(scraper, "run_one", slow_run_one)
+    monkeypatch.setattr(sys, "argv", ["scraper.py", "--domain", "test", "--workers", "4"])
+    assert scraper.main() == 0
+    assert peak[0] > 1                                   # actually ran in parallel
+    assert peak[0] <= 4                                  # and respected the cap
+
+
+def test_main_stops_starting_sources_at_the_deadline(monkeypatch):
+    """The point of the deadline: exit cleanly with rows in hand, rather than be
+    killed by the CI job timeout with the mirror step never reached."""
+    catalog = _fake_catalog(6)
+    monkeypatch.setattr(scraper, "load_sources", lambda *a, **k: catalog)
+    monkeypatch.setattr(scraper, "get_source", lambda sid: next(s for s in catalog if s["id"] == sid))
+
+    started = []
+
+    def run_one(sid, dry_run=False):
+        started.append(sid)
+        scraper.set_deadline(-1)                         # budget spent during source 1
+        return 1
+
+    monkeypatch.setattr(scraper, "run_one", run_one)
+    monkeypatch.setattr(sys, "argv", ["scraper.py", "--domain", "test", "--deadline-minutes", "5"])
+    try:
+        assert scraper.main() == 0                       # partial sweep is not a failure
+    finally:
+        scraper.set_deadline(None)
+    assert started == ["s0"]                             # the other five never started
+
+
+def test_main_without_a_deadline_runs_every_target(monkeypatch):
+    catalog = _fake_catalog(5)
+    monkeypatch.setattr(scraper, "load_sources", lambda *a, **k: catalog)
+    monkeypatch.setattr(scraper, "get_source", lambda sid: next(s for s in catalog if s["id"] == sid))
+    started = []
+    monkeypatch.setattr(scraper, "run_one", lambda sid, dry_run=False: started.append(sid))
+    monkeypatch.setattr(sys, "argv", ["scraper.py", "--domain", "test"])
+    assert scraper.main() == 0
+    assert started == [s["id"] for s in catalog]
