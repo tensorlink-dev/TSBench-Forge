@@ -164,7 +164,7 @@ A human is in the loop only for **licensing / legal sign-off** on paywalled or
 contract sources.
 
 ```bash
-python -m source_discovery --coverage                       # gaps only (deterministic)
+python -m source_discovery --coverage                       # gaps only (deterministic; JSON on stdout, matrix on stderr)
 python -m source_discovery --dry-run                        # print the agent prompt, no model call
 python -m source_discovery --out src/sources/discovered     # full run (needs OPENROUTER_API_KEY)
 python -m source_discovery --vet candidates.json --out ...  # vet a candidate list from elsewhere
