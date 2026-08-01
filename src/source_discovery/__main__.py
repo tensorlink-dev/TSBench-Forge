@@ -198,7 +198,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.coverage:
         reg = coverage.load_registry(args.catalog)
         summary = coverage.summarize(reg)
-        print(coverage.render_matrix(reg))
+        # stdout is the machine contract: the summary JSON and nothing else, so
+        # `--coverage | python -c 'json.load(sys.stdin)'` keeps working. The
+        # human-facing matrix and gap list go to stderr, which a terminal shows
+        # anyway and a pipeline can drop.
+        print(coverage.render_matrix(reg), file=sys.stderr)
         print(json.dumps(summary, indent=2, default=str))
         gaps = summary["gap_cells"]
         print(f"\n{len(gaps)} under-target cells; top 10 gaps:", file=sys.stderr)

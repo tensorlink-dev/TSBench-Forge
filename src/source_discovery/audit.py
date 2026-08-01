@@ -27,11 +27,12 @@ from __future__ import annotations
 import datetime as dt
 import email.utils
 import re
-import sys
 from pathlib import Path
 from typing import Optional
 
 import yaml
+
+from . import duration
 
 UTC = dt.timezone.utc
 
@@ -181,11 +182,7 @@ def parse_ts(raw: object) -> Optional[dt.datetime]:
 
 
 def _period_seconds(freq: str) -> Optional[int]:
-    sources_dir = str(Path(__file__).resolve().parent.parent / "sources")
-    if sources_dir not in sys.path:
-        sys.path.insert(0, sources_dir)
-    import scraper  # noqa: PLC0415
-    return scraper._period_seconds(freq)
+    return duration.period_seconds(freq)
 
 
 _FREQ_ALIASES = {"P1Q": "P3M"}  # ISO-ish quarter shorthand the scraper can't parse

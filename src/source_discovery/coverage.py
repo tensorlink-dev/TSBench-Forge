@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from . import config
+from . import config, duration
 
 
 # Map the catalog's `pretraining_novelty` field onto the agent's risk scale.
@@ -126,15 +126,7 @@ def band_for(freq: str) -> str:
 
 
 def _period_seconds(freq: str) -> int | None:
-    import sys
-    sources_dir = str(Path(__file__).resolve().parent.parent / "sources")
-    if sources_dir not in sys.path:
-        sys.path.insert(0, sources_dir)
-    import scraper  # noqa: PLC0415
-    try:
-        return scraper._period_seconds(freq or "")
-    except Exception:  # noqa: BLE001
-        return None
+    return duration.period_seconds(freq)
 
 
 def host_of(entry: dict) -> str:

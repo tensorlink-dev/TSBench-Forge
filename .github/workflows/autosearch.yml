@@ -76,14 +76,23 @@ jobs:
 
       # stdlib urllib handles the OpenRouter call; the module needs pyyaml
       # (catalog) and numpy (quality.py is imported by the CLI entrypoint).
+      # Nothing on the --coverage path may import scraper.py — that pulls in
+      # httpx + pyarrow, which this job deliberately does not install (see
+      # source_discovery/duration.py).
       - name: Install deps
         run: pip install pyyaml numpy
 
+      # `--coverage` writes the summary JSON to stdout and the human matrix /
+      # gap list to stderr. Capture stdout to a file rather than piping into a
+      # parser: a crash inside the module then fails *here*, with its traceback
+      # in the log, instead of surfacing as an unexplained "Expecting value:
+      # line 1 column 1" from a parser handed an empty stream.
       - name: Coverage gaps (free, deterministic — no model call)
         id: gaps
         run: |
-          n=$(python -m source_discovery --coverage 2>/dev/null \
-              | python -c "import sys,json;print(len(json.load(sys.stdin).get('gap_cells',[])))")
+          python -m source_discovery --coverage > "$RUNNER_TEMP/coverage.json"
+          n=$(python -c "import json,sys; print(len(json.load(open(sys.argv[1])).get('gap_cells',[])))" \
+                "$RUNNER_TEMP/coverage.json")
           echo "count=$n" >> "$GITHUB_OUTPUT"
           echo "under-target cells: $n"
 

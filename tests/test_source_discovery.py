@@ -16,7 +16,7 @@ import urllib.error
 import pytest
 import yaml
 
-from source_discovery import config, coverage, llm, runner, vet
+from source_discovery import __main__, audit, config, coverage, duration, llm, runner, vet
 
 CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "src", "sources", "sources.yaml")
 
@@ -429,3 +429,57 @@ def test_diversity_discounts_single_host_domains() -> None:
     assert div["nature"]["effective"] == 10
     assert div["energy"]["top_host_share"] == 1.0
     assert div["nature"]["hosts"] == 10
+
+
+# --------------------------------------------------------------------------- #
+# CLI contracts the autosearch workflow depends on
+# --------------------------------------------------------------------------- #
+
+def test_coverage_stdout_is_json_only(capsys) -> None:
+    """`--coverage`'s stdout must parse as JSON on its own.
+
+    The workflow pipes stdout straight into ``json.load``. When the human
+    coverage matrix was printed to stdout alongside the summary, that pipe died
+    with "Expecting value: line 1 column 1" — the matrix, not the JSON, was what
+    the parser saw first.
+    """
+    assert __main__.main(["--coverage", "--catalog", CATALOG]) == 0
+    out = capsys.readouterr()
+    summary = json.loads(out.out)
+    assert "gap_cells" in summary and "n_sources" in summary
+    # the matrix is still shown, just on the stream a pipeline can drop
+    assert "EFFCTV" in out.err
+
+
+def test_coverage_needs_no_scraper_dependencies(monkeypatch) -> None:
+    """Banding a duration must not import the scraper (httpx/pyarrow at import).
+
+    The autosearch job installs pyyaml + numpy only. Pulling ``scraper`` in to
+    parse an ISO-8601 duration made every unlisted frequency an ImportError, so
+    ``--coverage`` printed nothing at all and the workflow's parse failed with
+    an empty stream.
+    """
+    import builtins
+
+    real_import = builtins.__import__
+
+    def blocked(name, *a, **kw):
+        if name in ("scraper", "httpx", "pyarrow"):
+            raise ImportError(f"{name} is not installed in this job")
+        return real_import(name, *a, **kw)
+
+    monkeypatch.setattr(builtins, "__import__", blocked)
+    assert coverage.band_for("PT10S") == "sub-min"   # not in config.FREQ_BAND
+    assert coverage.band_for("P3M") == "quarterly"
+    assert audit.staleness_threshold("PT5M").total_seconds() > 0
+
+
+@pytest.mark.parametrize("freq", [
+    "PT1S", "PT10S", "PT2M30S", "PT4M", "PT15M", "PT30M", "PT3H",
+    "P1D", "P3D", "P2W", "P30D", "P3M", "P1Y", "irregular", "P1Q", "",
+])
+def test_period_seconds_matches_scraper(freq) -> None:
+    """The local parser must stay bit-identical to the scraper's original."""
+    scraper = pytest.importorskip(
+        "scraper", reason="scraper needs httpx/pyarrow; parity check is opt-in")
+    assert duration.period_seconds(freq) == scraper._period_seconds(freq)

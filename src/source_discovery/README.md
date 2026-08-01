@@ -72,7 +72,11 @@ as "a useful challenge".
 
 ```bash
 # Coverage + the biggest gaps (deterministic, no model, no key):
+#   stdout = the summary JSON, and only that, so it can be piped into a parser;
+#   stderr = the domain x cadence matrix and the ranked gap list, for humans.
+#   Needs pyyaml + numpy only — no httpx/pyarrow, so it runs on a bare CI job.
 python -m source_discovery --coverage
+python -m source_discovery --coverage 2>/dev/null | jq '.gap_cells | length'
 
 # See the exact prompt the agent would receive (no model call):
 python -m source_discovery --dry-run
