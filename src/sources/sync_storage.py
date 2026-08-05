@@ -56,7 +56,8 @@ DEFAULT_BUCKET = "tsbench-forge-sources"
 
 
 def _endpoint() -> str:
-    return os.environ.get("HIPPIUS_S3_ENDPOINT", DEFAULT_ENDPOINT)
+    # `or`, not a .get() default: CI exports unset secrets as empty strings.
+    return os.environ.get("HIPPIUS_S3_ENDPOINT") or DEFAULT_ENDPOINT
 
 
 def _client():
@@ -70,7 +71,7 @@ def _client():
     return boto3.client(
         "s3",
         endpoint_url=_endpoint(),
-        region_name=os.environ.get("HIPPIUS_S3_REGION", "decentralized"),
+        region_name=os.environ.get("HIPPIUS_S3_REGION") or "decentralized",
         aws_access_key_id=access,
         aws_secret_access_key=secret,
     )
@@ -199,7 +200,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--data-dir", default=str(DATA_DIR),
                     help="the forge data/ dir; its parent (holding sources.yaml) is the sync root")
-    ap.add_argument("--bucket", default=os.environ.get("HIPPIUS_S3_BUCKET", DEFAULT_BUCKET))
+    ap.add_argument("--bucket", default=os.environ.get("HIPPIUS_S3_BUCKET") or DEFAULT_BUCKET)
     ap.add_argument("--download", action="store_true",
                     help="pull remote -> local (missing or size-changed) instead of uploading")
     ap.add_argument("--today", action="store_true",
