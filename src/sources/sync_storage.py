@@ -60,13 +60,18 @@ def _endpoint() -> str:
 
 
 def _client():
-    import boto3
-
     access = os.environ.get("HIPPIUS_S3_ACCESS_KEY")
     secret = os.environ.get("HIPPIUS_S3_SECRET_KEY")
     if not access or not secret:
-        sys.exit("HIPPIUS_S3_ACCESS_KEY / HIPPIUS_S3_SECRET_KEY not set — "
-                 "load .env first (set -a; source .env; set +a)")
+        missing = [name for name, val in
+                   [("HIPPIUS_S3_ACCESS_KEY", access), ("HIPPIUS_S3_SECRET_KEY", secret)]
+                   if not val]
+        where = ("add the missing repo secret(s) under Settings -> Secrets and "
+                 "variables -> Actions" if os.environ.get("GITHUB_ACTIONS")
+                 else "load .env first (set -a; source .env; set +a)")
+        sys.exit(f"{' / '.join(missing)} not set — {where}")
+    import boto3
+
     return boto3.client(
         "s3",
         endpoint_url=_endpoint(),
