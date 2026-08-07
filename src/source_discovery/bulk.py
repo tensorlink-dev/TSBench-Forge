@@ -3271,6 +3271,223 @@ def socrata_publisher_sweep(
 
 
 
+
+# --------------------------------------------------------------------------- #
+# IXP Manager traffic
+# --------------------------------------------------------------------------- #
+# Internet exchange points, from the public IXP database at api.ixpdb.net. Two
+# things make this the best-shaped vein for web_cloudops, which is the catalog's
+# thinnest domain: the registry already records each IXP's traffic API in a
+# machine-readable `apis.traffic` field, and almost all of them are the same
+# software (IXP Manager), so one URL shape covers the lot.
+#
+# The series is aggregate exchange throughput -- strongly diurnal, strongly
+# weekly, occasionally step-changing when a big member joins. Nothing about it
+# is derived from a model.
+#
+# `&format=json` turns the grapher into [epoch, in, out, in_max, out_max] rows.
+# At period=day the max columns are identical to the mean columns (the sample IS
+# the maximum over a 5-minute bucket), so only in/out are taken -- two constant
+# duplicate columns would be two dead variates.
+IXPDB_PROVIDERS = "https://api.ixpdb.net/v1/provider/list"
+IXP_PERIOD = "day"                   # ~33h of 5-minute samples per request
+IXP_MIN_ROWS = 100
+IXP_MAX_BYTES = 4_000_000
+
+
+def _bits(bps: float) -> str:
+    """Small island exchanges run at single-digit Mbit/s; reporting them as
+    "0.0 Gbit/s" writes a misleading number into the catalog."""
+    for unit, scale in (("Tbit/s", 1e12), ("Gbit/s", 1e9), ("Mbit/s", 1e6),
+                        ("kbit/s", 1e3)):
+        if bps >= scale:
+            return f"{bps / scale:.1f} {unit}"
+    return f"{bps:.0f} bit/s"
+
+
+def ixp_providers(timeout: int = 60) -> list[dict]:
+    r = requests.get(IXPDB_PROVIDERS, headers={"User-Agent": UA}, timeout=timeout)
+    r.raise_for_status()
+    return [p for p in r.json() if (p.get("apis") or {}).get("traffic")]
+
+
+def ixp_traffic_url(traffic_api: str) -> str:
+    sep = "&" if "?" in traffic_api else "?"
+    url = re.sub(r"([?&])period=[^&]*", r"\1period=" + IXP_PERIOD, traffic_api)
+    if "period=" not in url:
+        url += f"{sep}period={IXP_PERIOD}"
+    return url + ("&" if "?" in url else "?") + "format=json"
+
+
+def ixp_probe(url: str, timeout: int = 30, max_age_days: float = 2.0) -> dict:
+    try:
+        with requests.get(url, headers={"User-Agent": UA}, timeout=timeout,
+                          stream=True) as r:
+            if r.status_code != 200:
+                return {"error": f"HTTP {r.status_code}"}
+            buf = bytearray()
+            for chunk in r.iter_content(65536):
+                buf += chunk
+                if len(buf) > IXP_MAX_BYTES:
+                    return {"error": "response exceeds the byte cap"}
+            rows = json.loads(bytes(buf).decode("utf-8", "replace"))
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:120]}
+    if not isinstance(rows, list) or len(rows) < IXP_MIN_ROWS:
+        return {"error": f"only {len(rows) if isinstance(rows, list) else 0} rows"}
+    good = [r for r in rows
+            if isinstance(r, list) and len(r) >= 3
+            and isinstance(r[0], (int, float))
+            and all(isinstance(v, (int, float)) for v in r[1:3])]
+    if len(good) < IXP_MIN_ROWS:
+        return {"error": f"only {len(good)} well-formed rows"}
+    now = dt.datetime.now(dt.timezone.utc)
+    stamps = sorted({r[0] for r in good})
+    newest = dt.datetime.fromtimestamp(stamps[-1], dt.timezone.utc)
+    age = (now - newest).total_seconds() / 86400
+    if age > max_age_days:
+        return {"error": f"newest sample {age:.0f}d old"}
+    if newest > now + dt.timedelta(days=1):
+        return {"error": "newest sample is future-dated"}
+    # An infrastructure that is provisioned but carries nothing reports a clean,
+    # dense, perfectly fresh series of zeros. It passes every other check.
+    if not any(r[1] or r[2] for r in good):
+        return {"error": "all-zero traffic (infrastructure carries nothing)"}
+    gaps = [b - a for a, b in zip(stamps, stamps[1:]) if b > a]
+    return {
+        "rows": len(good),
+        "distinct": len(stamps),
+        "newest": newest.isoformat(),
+        "age_days": age,
+        "median_gap_s": statistics.median(gaps) if gaps else 300.0,
+        "peak_bps": max(max(r[1], r[2]) for r in good),
+    }
+
+
+def ixp_synthesize(provider: dict, url: str, probe: dict,
+                   taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = urlparse(url).netloc.lower()
+    name = (provider.get("name") or "").strip()
+    if not host or not name:
+        return None
+    country = (provider.get("country") or "").strip()
+    city = (provider.get("city") or "").strip()
+    where = ", ".join(x for x in (city, country) if x)
+    infra = re.search(r"[?&]id=(\d+)", url)
+    sid = f"ixp_{entry_id(host, name)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:56]}_{infra.group(1) if infra else '0'}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{name} — exchange traffic{f' ({where})' if where else ''}",
+        "domain": "web_cloudops",
+        "dgp_class": "ixp_traffic",
+        "archetypes": ["smooth_periodic", "positive_continuous", "multi_seasonal"],
+        "frequency": freq_from_delta(probe["median_gap_s"]),
+        "endpoint": {
+            "type": "rest_json",
+            "url": url,
+            "auth": "none",
+            "rate_limit": None,
+        },
+        "schema": {
+            # Positional: the grapher emits bare arrays, not objects.
+            "timestamp_field": "[][0]",
+            "value_field": ["[][1]", "[][2]"],
+            "variates": 2,
+        },
+        "history_available": (
+            f"~33h rolling window per request at "
+            f"{freq_from_delta(probe['median_gap_s'])}"
+        ),
+        "update_cadence_observed": (
+            f"{probe['distinct']} samples, median gap "
+            f"{probe['median_gap_s'] / 60:.0f} min; peak "
+            f"{_bits(probe['peak_bps'])}; newest {probe['newest']}"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Live IXP throughput read from the exchange's own grapher; the "
+            "rolling window means the stored series starts at wiring time."
+        ),
+        "license": "public IXP statistics (see exchange terms)",
+        "audit_slack_days": 2,
+        "notes": (
+            f"Bulk-generated from the IXP database ({IXPDB_PROVIDERS}); "
+            f"apis.traffic for provider {provider.get('id')}. Columns are "
+            f"[epoch, in, out]; the grapher's in_max/out_max are dropped "
+            f"because at period=day they duplicate in/out exactly."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        # The window is 33h wide, so hourly polling loses nothing and costs
+        # a twelfth of what matching the 5-minute sample rate would.
+        "cron_cadence": "PT1H",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"IXP Manager grapher: {probe['distinct']} samples, peak "
+                   f"{_bits(probe['peak_bps'])}, host {host}"),
+    }
+
+
+def ixp_sweep(
+    catalog_path: str,
+    host_cap: int = 2,
+    max_age_days: float = 2.0,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    known_urls = {(s.get("endpoint") or {}).get("url", "")
+                  for s in (yaml.safe_load(open(catalog_path)) or [])}
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    try:
+        providers = ixp_providers()
+    except Exception as exc:                                  # noqa: BLE001
+        return [], [{"id": "ixpdb", "reason": f"registry unreachable: {exc}"}]
+    log(f"[IXP] {len(providers)} providers publish a traffic API")
+
+    for prov in providers:
+        name = (prov.get("name") or "").strip()
+        url = ixp_traffic_url(prov["apis"]["traffic"].strip())
+        host = urlparse(url).netloc.lower()
+        if not host:
+            continue
+        if seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": name, "reason": f"host cap {host_cap} reached"})
+            continue
+        if url in known_urls:
+            skipped.append({"id": name, "reason": "endpoint already in catalog"})
+            continue
+        probe = ixp_probe(url, max_age_days=max_age_days)
+        time.sleep(sleep_s)
+        if "error" in probe:
+            skipped.append({"id": name, "reason": probe["error"]})
+            continue
+        block = ixp_synthesize(prov, url, probe, taken=taken_ids)
+        if block is None:
+            skipped.append({"id": name, "reason": "could not synthesise"})
+            continue
+        taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+        known_urls.add(url)
+        cands.append(block)
+        seen_hosts[host] = seen_hosts.get(host, 0) + 1
+        _checkpoint(cands, checkpoint_path)
+        log(f"  + {block['candidate_name'][:64]}  "
+            f"[{probe['peak_bps'] / 1e9:.1f} Gbit/s peak]")
+        if target and len(cands) >= target:
+            log(f"target {target} reached")
+            return cands, skipped
+    return cands, skipped
+
+
+
 def write_batch(candidates: list[dict], out_path: str) -> str:
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(candidates, fh, indent=2)

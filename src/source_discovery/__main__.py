@@ -91,6 +91,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="same inversion over Socrata: enumerate domains from "
                          "the federated catalog, then take the best series each "
                          "one has (Socrata has no domains endpoint)")
+    ap.add_argument("--bulk-ixp", metavar="OUT_FILE",
+                    help="sweep IXP Manager traffic graphers listed in the "
+                         "public IXP database (web_cloudops)")
     ap.add_argument("--bulk-per-host", type=int, default=None,
                     help="with --bulk-erddap: datasets to take per server "
                          "(default: --bulk-host-cap); with "
@@ -115,6 +118,24 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --bulk-socrata: sweep only these keywords "
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
+
+    if args.bulk_ixp:
+        cands, skipped = bulk.ixp_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            target=args.bulk_target, checkpoint_path=args.bulk_ixp,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_ixp)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_ixp,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
 
     if args.bulk_socrata_publishers:
         cands, skipped = bulk.socrata_publisher_sweep(

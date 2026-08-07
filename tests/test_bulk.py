@@ -857,6 +857,24 @@ def test_erddap_datasets_treats_404_as_an_empty_catalog(monkeypatch):
 # --------------------------------------------------------------------------- #
 # GBFS
 # --------------------------------------------------------------------------- #
+class _FakeStream:
+    """requests.get(..., stream=True) used as a context manager."""
+
+    def __init__(self, payload, status=200):
+        import json as _j
+        self._body = _j.dumps(payload).encode()
+        self.status_code = status
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+    def iter_content(self, n):
+        yield self._body
+
+
 class _FakeResp:
     def __init__(self, payload, status=200, text=""):
         self._payload = payload
@@ -1240,3 +1258,73 @@ def test_ods_id_val_rejects_unnamed_spreadsheet_columns():
     for v in ("column_0", "column_12", "unnamed_3"):
         assert bulk._ODS_ID_VAL.search(v), v
     assert not bulk._ODS_ID_VAL.search("column_density")
+
+
+# --------------------------------------------------------------------------- #
+# IXP Manager
+# --------------------------------------------------------------------------- #
+def _ixp_rows(n=200, step=300, value=1_000_000_000, end=None):
+    import time as _t
+    end = end if end is not None else int(_t.time()) - 300
+    if value == 0:                       # a genuinely dead infrastructure
+        return [[end - (n - 1 - i) * step, 0, 0, 0, 0] for i in range(n)]
+    return [[end - (n - 1 - i) * step, value + i, value - i, value + i, value - i]
+            for i in range(n)]
+
+
+def test_ixp_traffic_url_forces_the_period_and_format():
+    u = bulk.ixp_traffic_url(
+        "https://x.net/grapher/infrastructure?id=1&type=log&period=week")
+    assert "period=day" in u and "period=week" not in u and u.endswith("format=json")
+    # No period at all, and no query string at all, both have to work.
+    assert "period=day" in bulk.ixp_traffic_url("https://x.net/g?id=2&type=log")
+    assert bulk.ixp_traffic_url("https://x.net/stats").count("?") == 1
+
+
+def test_ixp_probe_rejects_an_all_zero_infrastructure(monkeypatch):
+    """A provisioned exchange carrying no traffic reports a clean, dense,
+    perfectly fresh series of zeros -- it passes every other check."""
+    monkeypatch.setattr(bulk.requests, "get",
+                        lambda *a, **k: _FakeStream(_ixp_rows(value=0)))
+    got = bulk.ixp_probe("https://x.net/g")
+    assert "all-zero" in got["error"]
+
+
+def test_ixp_probe_rejects_a_stale_grapher(monkeypatch):
+    old = _ixp_rows(end=int(dt.datetime(2016, 2, 9, tzinfo=dt.timezone.utc).timestamp()))
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeStream(old))
+    assert "old" in bulk.ixp_probe("https://x.net/g")["error"]
+
+
+def test_ixp_probe_accepts_a_live_exchange(monkeypatch):
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeStream(_ixp_rows()))
+    got = bulk.ixp_probe("https://x.net/g")
+    assert "error" not in got
+    assert got["distinct"] == 200 and got["median_gap_s"] == 300
+
+
+def test_ixp_synthesize_drops_the_duplicate_max_columns():
+    """At period=day the grapher's in_max/out_max are identical to in/out --
+    wiring all four would be two constant variates."""
+    probe = {"distinct": 200, "median_gap_s": 300.0, "age_days": 0.01,
+             "newest": "2026-08-07T12:00:00+00:00", "peak_bps": 2.5e10, "rows": 200}
+    block = bulk.ixp_synthesize(
+        {"name": "Test IX", "city": "Springfield", "country": "US", "id": 7},
+        "https://ix.example/grapher/infrastructure?id=1&period=day&format=json",
+        probe)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["schema"]["value_field"] == ["[][1]", "[][2]"]
+    assert entry["schema"]["timestamp_field"] == "[][0]"
+    assert entry["domain"] == "web_cloudops"
+    # The window is 33h wide, so the fetch rate need not match the sample rate.
+    assert entry["frequency"] == "PT5M" and block["cron_cadence"] == "PT1H"
+
+
+def test_ixp_bits_scales_to_the_exchange():
+    """Small island exchanges run at single-digit Mbit/s. Reporting Vanuatu's
+    5.4 Mbit/s peak as "0.0 Gbit/s" puts a misleading number in the catalog."""
+    assert bulk._bits(5_452_408) == "5.5 Mbit/s"
+    assert bulk._bits(30_758_880) == "30.8 Mbit/s"
+    assert bulk._bits(25_700_000_000) == "25.7 Gbit/s"
+    assert bulk._bits(9_124_986_715_752) == "9.1 Tbit/s"
+    assert bulk._bits(800) == "800 bit/s"
