@@ -28335,3 +28335,1059 @@
   pretraining_novelty: clean
   license: Bike Santiago / PBSC open GBFS
   notes: Andean valley city with severe winter air-quality episodes that suppress cycling — an exogenous-shock channel absent from the other bikeshare feeds.
+
+# -- wired batch: wave 25: ODS publisher walk (+43) --
+- id: opendatasoft_procedures_collectives_france_entiere
+  name: Procédures collectives, France entière (acoss.opendatasoft.com)
+  domain: econ_fin
+  dgp_class: economic_indicator
+  archetypes:
+  - non_stationary_regime
+  frequency: P1Q
+  endpoint:
+    type: rest_json
+    url: https://acoss.opendatasoft.com/api/explore/v2.1/catalog/datasets/procedures-collectives-france-entiere/exports/json?limit=2000&order_by=dernier_jour_du_trimestre%20desc&select=dernier_jour_du_trimestre,trimestre,nombre_de_procedures_brut,nombre_de_procedures_cvs
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].dernier_jour_du_trimestre'
+    variates: 3
+    value_field:
+    - '[].trimestre'
+    - '[].nombre_de_procedures_brut'
+    - '[].nombre_de_procedures_cvs'
+  history_available: 270 records
+  update_cadence_observed: median gap 131040.0 min over the newest 34 timestamps; newest 2026-06-30T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open Database License (ODbL)
+  audit_slack_days: 83
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: datajoule_production_quotidienne_consolidee_de_bio
+  name: Production Quotidienne Consolidée de Biométhane sur le réseau de transport et de distribution par
+    Opérateur (app.datajoule.fr)
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://app.datajoule.fr/api/explore/v2.1/catalog/datasets/production-quotidienne-consolidee-de-biomethane-sur-le-reseau-de-transport-et-de/exports/json?limit=2000&order_by=date%20desc&select=date,production_biomethane
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 1
+    value_field:
+    - '[].production_biomethane'
+  history_available: 23350 records
+  update_cadence_observed: median gap 1440.0 min over the newest 32 timestamps; newest 2026-08-05T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 47
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: vic_solar_radiation_observations
+  name: Solar Radiation Observations (data.ballarat.vic.gov.au)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.ballarat.vic.gov.au/api/explore/v2.1/catalog/datasets/solar-radiation-observations/exports/json?limit=2000&order_by=date_time%20desc&select=date_time,solar_radiation
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_time'
+    variates: 1
+    value_field:
+    - '[].solar_radiation'
+  history_available: 41794 records
+  update_cadence_observed: median gap 15.0 min over the newest 100 timestamps; newest 2026-08-07T12:05:41+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 3
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: vic_air_temperature_observations
+  name: Air Temperature Observations (data.ballarat.vic.gov.au)
+  domain: nature
+  dgp_class: meteorology
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.ballarat.vic.gov.au/api/explore/v2.1/catalog/datasets/air-temperature-observations/exports/json?limit=2000&order_by=date_time%20desc&select=date_time,air_temperature
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_time'
+    variates: 1
+    value_field:
+    - '[].air_temperature'
+  history_available: 39938 records
+  update_cadence_observed: median gap 15.2 min over the newest 100 timestamps; newest 2026-08-07T11:36:09+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 3
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: bep_qualite_de_l_air_en_province_de_namur_pa
+  name: Qualité de l'air en province de Namur par heure (indicateurs régionaux) (data.bep.be)
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.bep.be/api/explore/v2.1/catalog/datasets/qualite-de-l-air-en-province-de-namur-par-heure-indicateurs-regionaux/exports/json?limit=2000&order_by=moment%20desc&select=moment,reg_avg_value,aqi
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].moment'
+    variates: 2
+    value_field:
+    - '[].reg_avg_value'
+    - '[].aqi'
+  history_available: 49731 records
+  update_cadence_observed: median gap 60.0 min over the newest 20 timestamps; newest 2026-08-07T11:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC-BY
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: star_prochains_passages_applicables_des_ligne
+  name: Prochains passages applicables des lignes de métro du réseau STAR (data.explore.star.fr)
+  domain: transport
+  dgp_class: transport_activity
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.explore.star.fr/api/explore/v2.1/catalog/datasets/tco-metro-circulation-passages-tr/exports/json?limit=2000&order_by=depart%20desc&select=depart,sens
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].depart'
+    variates: 1
+    value_field:
+    - '[].sens'
+  history_available: 2899 records
+  update_cadence_observed: median gap 0.1 min over the newest 88 timestamps; newest 2026-08-07T15:06:29+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Open Database License (ODbL)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: nsw_solar_energy_generation_hawkesbury_city
+  name: Solar Energy Generation (Hawkesbury City Council) (data.hawkesbury.nsw.gov.au)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.hawkesbury.nsw.gov.au/api/explore/v2.1/catalog/datasets/solar-aggregated-data/exports/json?limit=2000&order_by=time%20desc&select=time,energyselfconsumption,energyconsumptiontotal,production
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].time'
+    variates: 3
+    value_field:
+    - '[].energyselfconsumption'
+    - '[].energyconsumptiontotal'
+    - '[].production'
+  history_available: 381145 records
+  update_cadence_observed: median gap 60.0 min over the newest 20 timestamps; newest 2026-08-06T12:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: nsw_water_quality_real_time_sensor_hawkesbur
+  name: Water Quality Real Time Sensor (Hawkesbury City Council) (data.hawkesbury.nsw.gov.au)
+  domain: nature
+  dgp_class: water_quality
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://data.hawkesbury.nsw.gov.au/api/explore/v2.1/catalog/datasets/smart-water-quality-data-eagleio/exports/json?limit=2000&order_by=timestamp%20desc&select=timestamp,waterquality1_wq1bga_pc_rfu,waterquality1_wq1bga_pc_ugl,waterquality1_wq1chl_a_rfu
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].timestamp'
+    variates: 3
+    value_field:
+    - '[].waterquality1_wq1bga_pc_rfu'
+    - '[].waterquality1_wq1bga_pc_ugl'
+    - '[].waterquality1_wq1chl_a_rfu'
+  history_available: 8921 records
+  update_cadence_observed: median gap 30.0 min over the newest 100 timestamps; newest 2026-08-07T10:36:03+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: melunvaldeseine_diagnostics_de_performances_energetiques
+  name: Diagnostics de Performances Énergétiques (DPE) - Logements existants (data.melunvaldeseine.fr)
+  domain: energy
+  dgp_class: building_energy_rating
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.melunvaldeseine.fr/api/explore/v2.1/catalog/datasets/diagnostics-de-performances-energetiques-dpe/exports/json?limit=2000&order_by=date_visite_diagnostiqueur%20desc&select=date_visite_diagnostiqueur,conso_chauffage_installation_chauffage_n1,score_ban,conso_auxiliaires_ep
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date_visite_diagnostiqueur'
+    variates: 3
+    value_field:
+    - '[].conso_chauffage_installation_chauffage_n1'
+    - '[].score_ban'
+    - '[].conso_auxiliaires_ep'
+  history_available: 29061 records
+  update_cadence_observed: median gap 1440.0 min over the newest 21 timestamps; newest 2026-07-27T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0
+  audit_slack_days: 56
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: saint_marches_publics_de_saint_maur_des_fosses
+  name: Marchés publics de Saint-Maur-des-Fossés 2024-2026 (data.saint-maur.com)
+  domain: econ_fin
+  dgp_class: economic_indicator
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://data.saint-maur.com/api/explore/v2.1/catalog/datasets/donnees-essentielles-de-la-commande-publique-arrete-du-22-12-2022-marches/exports/json?limit=2000&order_by=datenotification%20desc&select=datenotification,dureemois,montant
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datenotification'
+    variates: 2
+    value_field:
+    - '[].dureemois'
+    - '[].montant'
+  history_available: 242 records
+  update_cadence_observed: median gap 5760.0 min over the newest 71 timestamps; newest 2026-07-29T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 54
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: gent_recente_bezetting_parking_reep_gent
+  name: Recente bezetting parking Reep Gent (data.stad.gent)
+  domain: transport
+  dgp_class: transport_activity
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.stad.gent/api/explore/v2.1/catalog/datasets/recente-bezetting-parking-reep-gent/exports/json?limit=2000&order_by=datetime%20desc&select=datetime,availablespaces,numberofspaces
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datetime'
+    variates: 2
+    value_field:
+    - '[].availablespaces'
+    - '[].numberofspaces'
+  history_available: 180 records
+  update_cadence_observed: median gap 1.1 min over the newest 100 timestamps; newest 2026-08-07T12:04:12+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Modellicentie Gratis Hergebruik
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: gent_recente_bezetting_parking_sint_michiels
+  name: Recente bezetting parking Sint-Michiels Gent (data.stad.gent)
+  domain: transport
+  dgp_class: transport_activity
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.stad.gent/api/explore/v2.1/catalog/datasets/recente-bezetting-parking-sint-michiels-gent/exports/json?limit=2000&order_by=datetime%20desc&select=datetime,availablespaces,numberofspaces
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datetime'
+    variates: 2
+    value_field:
+    - '[].availablespaces'
+    - '[].numberofspaces'
+  history_available: 180 records
+  update_cadence_observed: median gap 1.1 min over the newest 100 timestamps; newest 2026-08-07T12:07:04+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Modellicentie Gratis Hergebruik
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: toulouse_37_station_meteo_toulouse_universite_pau
+  name: 37 Station météo Toulouse université Paul Sabatier (data.toulouse-metropole.fr)
+  domain: nature
+  dgp_class: meteorology
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/37-station-meteo-toulouse-universite-paul-sabatier/exports/json?limit=2000&order_by=heure_de_paris%20desc&select=heure_de_paris,humidite,direction_du_vecteur_de_vent_max,pluie_intensite_max
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].heure_de_paris'
+    variates: 3
+    value_field:
+    - '[].humidite'
+    - '[].direction_du_vecteur_de_vent_max'
+    - '[].pluie_intensite_max'
+  history_available: 196098 records
+  update_cadence_observed: median gap 15.0 min over the newest 100 timestamps; newest 2026-08-07T12:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: toulouse_12_station_meteo_toulouse_montaudran
+  name: 12 Station météo Toulouse Montaudran (data.toulouse-metropole.fr)
+  domain: nature
+  dgp_class: meteorology
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/12-station-meteo-toulouse-montaudran/exports/json?limit=2000&order_by=heure_de_paris%20desc&select=heure_de_paris,humidite,direction_du_vecteur_de_vent_max,pluie_intensite_max
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].heure_de_paris'
+    variates: 3
+    value_field:
+    - '[].humidite'
+    - '[].direction_du_vecteur_de_vent_max'
+    - '[].pluie_intensite_max'
+  history_available: 133662 records
+  update_cadence_observed: median gap 15.0 min over the newest 100 timestamps; newest 2026-08-07T12:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: kapsarc_usa_daily_spot_prices_for_heating_oil
+  name: USA Daily Spot Prices for Heating Oil (datasource.kapsarc.org)
+  domain: econ_fin
+  dgp_class: price_level
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/daily-spot-prices-for-heating-oil-1986-march-2016/exports/json?limit=2000&order_by=period%20desc&select=period,value
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].period'
+    variates: 1
+    value_field:
+    - '[].value'
+  history_available: 7608 records
+  update_cadence_observed: median gap 1440.0 min over the newest 100 timestamps; newest 2026-08-03T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Public Domain
+  audit_slack_days: 49
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: kapsarc_weekly_us_ending_stocks_of_total_gasolin
+  name: Weekly US Ending Stocks of Total Gasoline (datasource.kapsarc.org)
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/weekly-us-ending-stocks-of-total-gasoline/exports/json?limit=2000&order_by=period%20desc&select=period,value
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].period'
+    variates: 1
+    value_field:
+    - '[].value'
+  history_available: 1909 records
+  update_cadence_observed: median gap 10080.0 min over the newest 100 timestamps; newest 2026-07-31T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Public Domain
+  audit_slack_days: 52
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: stadt_bader_aktualisierung_der_webseite
+  name: Bäder Aktualisierung der Webseite (daten.stadt.sg.ch)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://daten.stadt.sg.ch/api/explore/v2.1/catalog/datasets/baeder-aktualisierung-der-webseite/exports/json?limit=2000&order_by=fertigstellungszeit%20desc&select=fertigstellungszeit,wassertemperatur
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].fertigstellungszeit'
+    variates: 1
+    value_field:
+    - '[].wassertemperatur'
+  history_available: 1363 records
+  update_cadence_observed: median gap 32.8 min over the newest 100 timestamps; newest 2026-08-07T06:07:46+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: stadt_windmessung_bahnhofplatz_stadt_st_gallen
+  name: Windmessung Bahnhofplatz Stadt St.Gallen (daten.stadt.sg.ch)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://daten.stadt.sg.ch/api/explore/v2.1/catalog/datasets/windmessung-bahnhofplatz-stadt-stgallen/exports/json?limit=2000&order_by=measured_at_new%20desc&select=measured_at_new,data_y_orientation_angle,data_x_orientation_angle,data_wind_speed
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].measured_at_new'
+    variates: 3
+    value_field:
+    - '[].data_y_orientation_angle'
+    - '[].data_x_orientation_angle'
+    - '[].data_wind_speed'
+  history_available: 17426 records
+  update_cadence_observed: median gap 60.0 min over the newest 100 timestamps; newest 2026-08-07T12:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendatasoft_energy_injected_into_the_distribution_ne
+  name: Energy Injected into the Distribution Network (e-redes.opendatasoft.com)
+  domain: energy
+  dgp_class: building_load
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://e-redes.opendatasoft.com/api/explore/v2.1/catalog/datasets/energia-injetada-na-rede-de-distribuicao/exports/json?limit=2000&order_by=datahora%20desc&select=datahora,cogeracao,eolica,fotovoltaica
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datahora'
+    variates: 3
+    value_field:
+    - '[].cogeracao'
+    - '[].eolica'
+    - '[].fotovoltaica'
+  history_available: 441552 records
+  update_cadence_observed: median gap 15.0 min over the newest 100 timestamps; newest 2026-08-04T23:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 47
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendatasoft_total_national_produced_energy
+  name: Total National Produced Energy (e-redes.opendatasoft.com)
+  domain: energy
+  dgp_class: building_load
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://e-redes.opendatasoft.com/api/explore/v2.1/catalog/datasets/energia-produzida-total-nacional/exports/json?limit=2000&order_by=datahora%20desc&select=datahora,dgm,pre,total
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datahora'
+    variates: 3
+    value_field:
+    - '[].dgm'
+    - '[].pre'
+    - '[].total'
+  history_available: 441552 records
+  update_cadence_observed: median gap 15.0 min over the newest 100 timestamps; newest 2026-08-04T23:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 47
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: birdz_leko_indicateurs_prd
+  name: Leko - indicateurs - prd (leko.apps.birdz.com)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://leko.apps.birdz.com/api/explore/v2.1/catalog/datasets/leko-indicateurs-prd/exports/json?limit=2000&order_by=nightstart%20desc&select=nightstart,indicateur_spec,indicateur_lum,indicateur_arb
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].nightstart'
+    variates: 3
+    value_field:
+    - '[].indicateur_spec'
+    - '[].indicateur_lum'
+    - '[].indicateur_arb'
+  history_available: 38978 records
+  update_cadence_observed: median gap 1440.0 min over the newest 51 timestamps; newest 2026-08-05T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendatasoft_tide_data_realtime
+  name: Tide Data Realtime (nsw-bayside.opendatasoft.com)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://nsw-bayside.opendatasoft.com/api/explore/v2.1/catalog/datasets/tide-data-realtime/exports/json?limit=2000&order_by=datetime%20desc&select=datetime,height
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datetime'
+    variates: 1
+    value_field:
+    - '[].height'
+  history_available: 11932 records
+  update_cadence_observed: median gap 374.5 min over the newest 25 timestamps; newest 2026-08-07T11:47:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendatasoft_bom_weather_observations_sydney_airport
+  name: BOM Weather Observations - Sydney Airport (nsw-bayside.opendatasoft.com)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://nsw-bayside.opendatasoft.com/api/explore/v2.1/catalog/datasets/bom-weather-observations-sydney-airport/exports/json?limit=2000&order_by=time%20desc&select=time,wmo,air_temp,apparent_t
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].time'
+    variates: 2
+    value_field:
+    - '[].air_temp'
+    - '[].apparent_t'
+  history_available: 37344 records
+  update_cadence_observed: median gap 30.0 min over the newest 100 timestamps; newest 2026-08-07T12:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: aude_donnees_essentielles_de_la_commande_publ
+  name: Données Essentielles de la Commande Publique - Arrêté du 22/12/2022 - Marchés CD11 (opendata.aude.fr)
+  domain: econ_fin
+  dgp_class: economic_indicator
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://opendata.aude.fr/api/explore/v2.1/catalog/datasets/cd11_donnees-essentielles-de-la-commande-publique-arrete-du-22-12-2022-marches/exports/json?limit=2000&order_by=datenotification%20desc&select=datenotification,dureemois,montant
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].datenotification'
+    variates: 2
+    value_field:
+    - '[].dureemois'
+    - '[].montant'
+  history_available: 538 records
+  update_cadence_observed: median gap 5760.0 min over the newest 53 timestamps; newest 2026-07-29T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte v2.0 (Etalab)
+  audit_slack_days: 54
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: brussels_real_time_availability_of_villo_bicycles
+  name: Real-time availability of "Villo" bicycles in the Brussels-Capital Region (opendata.brussels.be)
+  domain: transport
+  dgp_class: micromobility
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.brussels.be/api/explore/v2.1/catalog/datasets/disponibilite-en-temps-reel-des-velos-villo-rbc/exports/json?limit=2000&order_by=last_update%20desc&select=last_update,available_bikes,available_bike_stands,bike_stands
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].last_update'
+    variates: 3
+    value_field:
+    - '[].available_bikes'
+    - '[].available_bike_stands'
+    - '[].bike_stands'
+  history_available: 346 records
+  update_cadence_observed: median gap 0.1 min over the newest 90 timestamps; newest 2026-08-07T10:09:33+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: bologna_temperature_bologna
+  name: Temperature Bologna (opendata.comune.bologna.it)
+  domain: nature
+  dgp_class: meteorology
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://opendata.comune.bologna.it/api/explore/v2.1/catalog/datasets/temperature_bologna/exports/json?limit=2000&order_by=date%20desc&select=date,avg,max,min
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 3
+    value_field:
+    - '[].avg'
+    - '[].max'
+    - '[].min'
+  history_available: 9349 records
+  update_cadence_observed: median gap 1440.0 min over the newest 100 timestamps; newest 2026-08-06T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 4.0
+  audit_slack_days: 46
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendata_fr_ch_mesures_de_vents_schwyberg
+  name: Mesures de vents - Schwyberg (opendata.fr.ch)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.fr.ch/api/explore/v2.1/catalog/datasets/08_02_eolien_schwyberg/exports/json?limit=2000&order_by=timestamp%20desc&select=timestamp,ff_top_sonic_avg,ff_top_sonic_max,ff_150_lidar_avg
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].timestamp'
+    variates: 3
+    value_field:
+    - '[].ff_top_sonic_avg'
+    - '[].ff_top_sonic_max'
+    - '[].ff_150_lidar_avg'
+  history_available: 48960 records
+  update_cadence_observed: median gap 10.0 min over the newest 100 timestamps; newest 2026-08-06T23:50:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-SA 4.0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: opendata_fr_ch_mesures_de_vents_massif_du_gibloux
+  name: Mesures de vents - Massif du Gibloux (opendata.fr.ch)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.fr.ch/api/explore/v2.1/catalog/datasets/08_02_eolien_gibloux/exports/json?limit=2000&order_by=timestamp%20desc&select=timestamp,ff_top_sonic_avg,ff_top_sonic_max,ff_80_thies_avg
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].timestamp'
+    variates: 3
+    value_field:
+    - '[].ff_top_sonic_avg'
+    - '[].ff_top_sonic_max'
+    - '[].ff_80_thies_avg'
+  history_available: 54432 records
+  update_cadence_observed: median gap 10.0 min over the newest 100 timestamps; newest 2026-08-06T23:50:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY-SA 4.0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: grdf_quantites_journalieres_definitives_injec
+  name: Quantités journalières définitives injectées de biométhane, agrégées à la maille France, toute unité
+    confondue (opendata.grdf.fr)
+  domain: econ_fin
+  dgp_class: economic_indicator
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://opendata.grdf.fr/api/explore/v2.1/catalog/datasets/quantite-definitive-journaliere-injectee-de-biomethane/exports/json?limit=2000&order_by=journee_gaziere%20desc&select=journee_gaziere,quantite_injectee,nombre_de_sites_comptabilises
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].journee_gaziere'
+    variates: 2
+    value_field:
+    - '[].quantite_injectee'
+    - '[].nombre_de_sites_comptabilises'
+  history_available: 4265 records
+  update_cadence_observed: median gap 1440.0 min over the newest 100 timestamps; newest 2026-08-04T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte (Etalab)
+  audit_slack_days: 48
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: grdf_quantites_journalieres_provisoires_injec
+  name: Quantités journalières provisoires injectées de biométhane, agrégées à la maille France, toute unité
+    confondue (opendata.grdf.fr)
+  domain: econ_fin
+  dgp_class: economic_indicator
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://opendata.grdf.fr/api/explore/v2.1/catalog/datasets/quantites-journalieres-provisoires-injectees-de-biomethane-agregees-a-la-maille1/exports/json?limit=2000&order_by=journee_gaziere%20desc&select=journee_gaziere,quantite_injectee,nombre_de_sites_comptabilises
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].journee_gaziere'
+    variates: 2
+    value_field:
+    - '[].quantite_injectee'
+    - '[].nombre_de_sites_comptabilises'
+  history_available: 7875 records
+  update_cadence_observed: median gap 1440.0 min over the newest 20 timestamps; newest 2026-08-05T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Licence Ouverte (Etalab)
+  audit_slack_days: 47
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: liege_shop_drive_kiss_ride_real_time
+  name: Shop&Drive + Kiss&Ride Real Time (opendata.liege.be)
+  domain: transport
+  dgp_class: parking_occupancy
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.liege.be/api/explore/v2.1/catalog/datasets/shop-and-drive-real-time/exports/json?limit=2000&order_by=jsondatas_status_metadata_timestamp_value%20desc&select=jsondatas_status_metadata_timestamp_value,jsondatas_refdevice_value,jsondatas_refparkinggroup_value
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].jsondatas_status_metadata_timestamp_value'
+    variates: 2
+    value_field:
+    - '[].jsondatas_refdevice_value'
+    - '[].jsondatas_refparkinggroup_value'
+  history_available: 470 records
+  update_cadence_observed: median gap 0.3 min over the newest 85 timestamps; newest 2026-08-07T12:11:31+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC 0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: vic_solar_energy_generation
+  name: Solar Energy Generation (opendata.portphillip.vic.gov.au)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.portphillip.vic.gov.au/api/explore/v2.1/catalog/datasets/solar-energy-generation/exports/json?limit=2000&order_by=date%20desc&select=date,production,avoided_emissions
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].date'
+    variates: 2
+    value_field:
+    - '[].production'
+    - '[].avoided_emissions'
+  history_available: 45504 records
+  update_cadence_observed: median gap 60.0 min over the newest 34 timestamps; newest 2026-08-07T11:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: potsdam_potsdam_10_minutenwerte_station_03987
+  name: Potsdam 10-Minutenwerte Station 03987 (opendata.potsdam.de)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.potsdam.de/api/explore/v2.1/catalog/datasets/10minutenwerte_tu_03987_now/exports/json?limit=2000&order_by=mess_datum%20desc&select=mess_datum,qn,pp_10,tt_10
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].mess_datum'
+    variates: 3
+    value_field:
+    - '[].qn'
+    - '[].pp_10'
+    - '[].tt_10'
+  history_available: 69 records
+  update_cadence_observed: median gap 10.0 min over the newest 69 timestamps; newest 2026-08-07T11:20:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: potsdam_wetterstation_steubenplatz
+  name: Wetterstation Steubenplatz (opendata.potsdam.de)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://opendata.potsdam.de/api/explore/v2.1/catalog/datasets/wetterstation-steubenplatz/exports/json?limit=2000&order_by=time%20desc&select=time,air_temperature,uv_index,wind_speed
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].time'
+    variates: 3
+    value_field:
+    - '[].air_temperature'
+    - '[].uv_index'
+    - '[].wind_speed'
+  history_available: 7446 records
+  update_cadence_observed: median gap 120.8 min over the newest 100 timestamps; newest 2026-08-07T07:06:46+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: dl-by-de/2.0
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: rhein_meerbusch_smart_city_dashboard
+  name: 'Meerbusch: Smart City-Dashboard (opendata.rhein-kreis-neuss.de)'
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.rhein-kreis-neuss.de/api/explore/v2.1/catalog/datasets/meerbusch-smart-city-dashboard/exports/json?limit=2000&order_by=zeitpunkt%20desc&select=zeitpunkt,temperatur
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].zeitpunkt'
+    variates: 1
+    value_field:
+    - '[].temperatur'
+  history_available: 19739 records
+  update_cadence_observed: median gap 15.6 min over the newest 100 timestamps; newest 2026-08-07T12:06:32+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: Creative Commons Attribution - 4.0 International (CC BY 4.0)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: westofengland_domestic_energy_performance_certificate
+  name: Domestic Energy Performance Certificate (EPC) Data (opendata.westofengland-ca.gov.uk)
+  domain: energy
+  dgp_class: building_energy_rating
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://opendata.westofengland-ca.gov.uk/api/explore/v2.1/catalog/datasets/epc_domestic_lep_ods/exports/json?limit=2000&order_by=lodgement_datetime%20desc&select=lodgement_datetime,current_energy_efficiency,potential_energy_efficiency,energy_consumption_current
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].lodgement_datetime'
+    variates: 3
+    value_field:
+    - '[].current_energy_efficiency'
+    - '[].potential_energy_efficiency'
+    - '[].energy_consumption_current'
+  history_available: 341915 records
+  update_cadence_observed: median gap 5.6 min over the newest 100 timestamps; newest 2026-06-30T22:30:12+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: OGL v.3
+  audit_slack_days: 82
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: westofengland_non_domestic_energy_performance_certific
+  name: Non Domestic Energy Performance Certificate (EPC) Data (opendata.westofengland-ca.gov.uk)
+  domain: energy
+  dgp_class: building_energy_rating
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.westofengland-ca.gov.uk/api/explore/v2.1/catalog/datasets/epc_non_domestic_lep_ods/exports/json?limit=2000&order_by=lodgement_datetime%20desc&select=lodgement_datetime,asset_rating,new_build_benchmark,existing_stock_benchmark
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].lodgement_datetime'
+    variates: 3
+    value_field:
+    - '[].asset_rating'
+    - '[].new_build_benchmark'
+    - '[].existing_stock_benchmark'
+  history_available: 16681 records
+  update_cadence_observed: median gap 94.4 min over the newest 100 timestamps; newest 2026-07-04T15:26:49+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 78
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: ornl_odin_real_time_outages_county
+  name: ODIN Real-time Outages (County) (openenergyhub.ornl.gov)
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://openenergyhub.ornl.gov/api/explore/v2.1/catalog/datasets/odin-real-time-outages-county/exports/json?limit=2000&order_by=reportedstarttime%20desc&select=reportedstarttime,metersaffected,customersrestored
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].reportedstarttime'
+    variates: 2
+    value_field:
+    - '[].metersaffected'
+    - '[].customersrestored'
+  history_available: 324 records
+  update_cadence_observed: median gap 2.2 min over the newest 95 timestamps; newest 2026-08-07T11:57:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: open data (see host portal terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: geelongdataexchange_weather_together_temperature_and_humidit
+  name: Weather Together - Temperature and Humidity (www.geelongdataexchange.com.au)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.geelongdataexchange.com.au/api/explore/v2.1/catalog/datasets/weather-together-temperature-and-humidity/exports/json?limit=2000&order_by=time%20desc&select=time,temperature_merged,humidity_merged,battery
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].time'
+    variates: 3
+    value_field:
+    - '[].temperature_merged'
+    - '[].humidity_merged'
+    - '[].battery'
+  history_available: 27606 records
+  update_cadence_observed: median gap 1.6 min over the newest 100 timestamps; newest 2026-08-07T11:54:17+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 3
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
+- id: geelongdataexchange_temperature_and_humidity_for_bats_monito
+  name: Temperature and Humidity for Bats monitoring (www.geelongdataexchange.com.au)
+  domain: nature
+  dgp_class: environmental_measurement
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.geelongdataexchange.com.au/api/explore/v2.1/catalog/datasets/temperature-and-humidity-monitoring-for-bats/exports/json?limit=2000&order_by=metadata_time%20desc&select=metadata_time,payload_fields_battery,payload_fields_hum,payload_fields_temp
+    auth: none
+    rate_limit: Opendatasoft anonymous quota (per-portal)
+  schema:
+    timestamp_field: '[].metadata_time'
+    variates: 3
+    value_field:
+    - '[].payload_fields_battery'
+    - '[].payload_fields_hum'
+    - '[].payload_fields_temp'
+  history_available: 726015 records
+  update_cadence_observed: median gap 3.0 min over the newest 100 timestamps; newest 2026-08-07T12:12:51+00:00
+  pretraining_novelty: clean
+  novelty_notes: European/municipal Opendatasoft series; not in known TSFM pretraining mixes.
+  license: CC BY 3
+  audit_slack_days: 45
+  notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields
+    chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.

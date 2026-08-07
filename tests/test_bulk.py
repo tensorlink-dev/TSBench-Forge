@@ -1169,3 +1169,30 @@ def test_ods_title_override_beats_a_departmental_theme():
     assert got[1] == "nature" and got[2] == "air_quality"
     got = bulk.ods_publisher_class(["Environnement"], "Prix des Énergies en France")
     assert got[1] == "econ_fin"
+
+
+def test_ods_record_ts_catches_a_glued_maj():
+    """`datemajobs` is a last-updated column with no separators. It got a river
+    obstacle registry through the first pass of these filters."""
+    for ts in ("datemajobs", "majdate", "date_maj", "equip_maj_date"):
+        assert bulk._ODS_RECORD_TS.search(ts), ts
+    # ...but "maj" glued into an unrelated word must not fire.
+    for ts in ("majoration_tarifaire", "major_incident_time"):
+        assert not bulk._ODS_RECORD_TS.search(ts), ts
+
+
+def test_ods_id_val_rejects_dublin_core_and_area_codes():
+    for v in ("dc_coverage_temporal_periodoftime", "dc_date", "cdcommune",
+              "code_departement", "wmo"):
+        assert bulk._ODS_ID_VAL.search(v), v
+
+
+def test_ods_epc_and_dpe_land_in_the_same_domain():
+    """The same process in two languages was landing in two domains -- the
+    English EPC in nature, the French DPE in sales -- purely on theme."""
+    en = bulk.ods_publisher_class(
+        ["Environment"], "Domestic Energy Performance Certificate (EPC) Data")
+    fr = bulk.ods_publisher_class(
+        ["Logement"], "Diagnostics de Performances Énergétiques (DPE)")
+    assert en[1] == fr[1] == "energy"
+    assert en[2] == fr[2] == "building_energy_rating"

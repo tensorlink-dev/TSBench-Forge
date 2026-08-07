@@ -60,6 +60,11 @@ schedules:
   - gbfs_buenos_aires_station_status
   - gbfs_rio_de_janeiro_station_status
   - gbfs_santiago_station_status
+  - star_prochains_passages_applicables_des_ligne
+  - gent_recente_bezetting_parking_reep_gent
+  - gent_recente_bezetting_parking_sint_michiels
+  - brussels_real_time_availability_of_villo_bicycles
+  - liege_shop_drive_kiss_ride_real_time
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -176,6 +181,9 @@ schedules:
   - gbfs_publicbikesystem_biki_honolulu_hi
   - gbfs_peacehealthrides_peacehealth_rides_eugene_or
   - gbfs_socialbicycles_reddy_bikeshare_buffalo_ny
+  - ornl_odin_real_time_outages_county
+  - geelongdataexchange_weather_together_temperature_and_humidit
+  - geelongdataexchange_temperature_and_humidity_for_bats_monito
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -283,6 +291,12 @@ schedules:
   - smartatlantic_cove_weather_station_idartm1
   - cioosatlantic_force_meteorological_tower
   - cioosatlantic_halifax_ocean_terminals_fairview
+  - vic_solar_radiation_observations
+  - vic_air_temperature_observations
+  - toulouse_37_station_meteo_toulouse_universite_pau
+  - toulouse_12_station_meteo_toulouse_montaudran
+  - potsdam_potsdam_10_minutenwerte_station_03987
+  - rhein_meerbusch_smart_city_dashboard
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -335,6 +349,8 @@ schedules:
   - arso_si_river_gauges
   - cencoos_045_oceanside_offshore_ca_46224
   - gcoos_data_for_ioos_station_cbi_074
+  - nsw_water_quality_real_time_sensor_hawkesbur
+  - opendatasoft_bom_weather_observations_sydney_airport
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -491,6 +507,14 @@ schedules:
   - noaa_sacramento_river_valley_salmonid_tagging
   - ondeckdata_fixed_gear_oceanographic_data
   - ondeckdata_mobile_gear_oceanographic_data
+  - bep_qualite_de_l_air_en_province_de_namur_pa
+  - nsw_solar_energy_generation_hawkesbury_city
+  - stadt_bader_aktualisierung_der_webseite
+  - stadt_windmessung_bahnhofplatz_stadt_st_gallen
+  - bologna_temperature_bologna
+  - opendata_fr_ch_mesures_de_vents_schwyberg
+  - opendata_fr_ch_mesures_de_vents_massif_du_gibloux
+  - vic_solar_energy_generation
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -999,6 +1023,22 @@ schedules:
   - noaa_nino_region_weekly_sst_oisst_v2_ncepninoss
   - gcoos_data_for_ioos_station_cbi_076
   - linkedsystems_pisces_sg637_deployment_726_real_time_se
+  - opendatasoft_procedures_collectives_france_entiere
+  - datajoule_production_quotidienne_consolidee_de_bio
+  - melunvaldeseine_diagnostics_de_performances_energetiques
+  - saint_marches_publics_de_saint_maur_des_fosses
+  - kapsarc_usa_daily_spot_prices_for_heating_oil
+  - kapsarc_weekly_us_ending_stocks_of_total_gasolin
+  - opendatasoft_energy_injected_into_the_distribution_ne
+  - opendatasoft_total_national_produced_energy
+  - birdz_leko_indicateurs_prd
+  - opendatasoft_tide_data_realtime
+  - aude_donnees_essentielles_de_la_commande_publ
+  - grdf_quantites_journalieres_definitives_injec
+  - grdf_quantites_journalieres_provisoires_injec
+  - potsdam_wetterstation_steubenplatz
+  - westofengland_domestic_energy_performance_certificate
+  - westofengland_non_domestic_energy_performance_certific
   cron: 10 1 * * *
 - every: P1D
   sources:

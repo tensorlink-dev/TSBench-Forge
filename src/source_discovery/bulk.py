@@ -1431,7 +1431,10 @@ _ODS_THEME_RE: tuple[tuple[Any, str], ...] = tuple(
 # clock and numeric columns that are coordinates and identifiers. Half of the
 # first publisher-first batch was registries; all of them carried one of these.
 _ODS_RECORD_TS = re.compile(
-    r"(^|_)maj(_|$)|mise[_ ]?a[_ ]?jour|mise[_ ]en[_ ]service|"
+    # "maj" also arrives glued: datemajobs, majdate. Anchored to date/obs words
+    # so it cannot fire on major/majoration.
+    r"(^|_)maj(_|$)|date_?maj|maj_?(date|obs)|mise[_ ]?a[_ ]?jour|"
+    r"mise[_ ]en[_ ]service|"
     r"creat|instal|publi|demande|saisie|enregistr|validation|"
     r"import|integration|depot|inscription|derniere",
     re.I,
@@ -1441,6 +1444,8 @@ _ODS_RECORD_TS = re.compile(
 # arrive glued together (uiccountrycode, organisationnumber, c_xy_precis).
 _ODS_ID_VAL = re.compile(
     r"^[xy]$|(^|_)xy(_|$)|^g?id$|coord|geo|uic|insee|siret|siren|"
+    # Dublin Core metadata fields describe the RECORD, never a measurement.
+    r"^dc_|commune|departement|arrondissement|^wmo$|"
     r"(id|code|numero|number|num)$|^(id|code|no)_|"
     # "numbershort" is an identifier, "number_of_passengers" is a measurement.
     r"^(number|numero|nombre)(?!s?[_ ]?(of|de|d))",
@@ -1455,6 +1460,11 @@ ODS_TITLE_OVERRIDE: tuple[tuple[str, str, str], ...] = (
     (r"qualit[ée] de l.air|air quality|luchtkwaliteit|"
      r"(^|\W)(pm10|pm2[.,]?5|no2|ozone)(\W|$)", "nature", "air_quality"),
     (r"prix|tarif|price|precio|preis", "econ_fin", "price_level"),
+    # Same process, two languages, and it was landing in two domains: the
+    # English EPC in nature, the French DPE in sales.
+    (r"energy performance certificate|\bepc\b|"
+     r"diagnostics? de performances? [ée]nerg[ée]tiques?|\bdpe\b",
+     "energy", "building_energy_rating"),
 )
 _ODS_TITLE_OVERRIDE_RE = tuple(
     (re.compile(p, re.I), d, c) for p, d, c in ODS_TITLE_OVERRIDE)
