@@ -1853,3 +1853,19 @@ def test_misskey_probe_walks_the_configured_value_path(monkeypatch):
                         lambda *a, **k: _FakeResp(payload))
     p = bulk.misskey_probe("example.tld", "active-users")
     assert "error" not in p and p["buckets"] == 499
+
+
+def test_misskey_probe_splits_connect_from_read_timeout(monkeypatch):
+    """Dead domains dominate any fediverse index; they must fail on connect
+    rather than spend the whole read budget."""
+    seen = {}
+
+    def post(*a, **k):
+        seen["timeout"] = k.get("timeout")
+        return _FakeResp(_chart(_live_inc()))
+
+    monkeypatch.setattr(bulk.requests, "post", post)
+    bulk.misskey_probe("example.tld", timeout=20)
+    assert isinstance(seen["timeout"], tuple)
+    connect, read = seen["timeout"]
+    assert connect < read and read == 20

@@ -124,6 +124,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-any-host", action="store_true",
                     help="with --bulk-socrata: allow already-wired hosts "
                          "(default is new providers only)")
+    ap.add_argument("--bulk-scan-instances", type=int, default=600,
+                    help="with --bulk-peertube: how deep to read the instance "
+                         "index, which is sorted biggest-first (default 600 "
+                         "of ~1900 listed)")
     ap.add_argument("--bulk-max-age-days", type=float, default=21.0,
                     help="with --bulk-socrata: reject datasets whose newest "
                          "observation is older than this (default 21)")
@@ -154,6 +158,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.bulk_peertube:
         cands, skipped = bulk.peertube_sweep(
             args.catalog, host_cap=1,
+            scan_instances=args.bulk_scan_instances,
             max_age_days=args.bulk_max_age_days,
             target=args.bulk_target, checkpoint_path=args.bulk_peertube,
             log=lambda m: print(m, file=sys.stderr),

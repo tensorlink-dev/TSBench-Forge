@@ -3840,9 +3840,15 @@ def misskey_probe(host: str, chart: str = "notes", timeout: int = 20) -> dict:
     """Measure the chart series the scraper would actually collect."""
     spec = MISSKEY_CHARTS[chart]
     try:
+        # Split connect from read. A large share of any fediverse index is
+        # domains that no longer resolve or no longer listen, and they are the
+        # slowest thing in the sweep if they get the full read budget to fail
+        # in -- 1123 nodes at a flat 20s spent most of the wall clock waiting
+        # on hosts that were never going to answer. A live instance answers
+        # this endpoint in well under 5s to connect; a dead one never connects.
         r = requests.post(f"https://{host}/api/charts/{chart}",
                           json={"span": MISSKEY_SPAN, "limit": MISSKEY_LIMIT},
-                          headers={"User-Agent": UA}, timeout=timeout)
+                          headers={"User-Agent": UA}, timeout=(5, timeout))
     except Exception as exc:                                  # noqa: BLE001
         # Unreachable now is not the same as having no data, and the caller
         # records it as unexamined rather than folding it in with the rejects.
