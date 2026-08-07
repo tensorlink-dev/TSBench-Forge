@@ -1561,3 +1561,31 @@ def test_pxweb_period_age_reads_the_label_shapes():
     assert age("2026M07") < 60
     assert age("2026Q2") < 200 and age("2026H1") < 250
     assert age("not-a-period") is None
+
+
+def test_pxweb_slack_covers_the_offices_publication_lag():
+    """Several offices publish a monthly series five months in arrears. A flat
+    75-day limit flags that stale every day when nothing is wrong."""
+    assert bulk._pxweb_slack("P1M") == 75
+    assert bulk._pxweb_slack("P6M") == 300          # Greenland's CPI is 1971H1-
+    assert bulk._pxweb_freq("2026H1") == "P6M"
+
+
+def test_pxweb_probe_rejects_index_style_period_labels(monkeypatch):
+    """Greenland labels CPI periods "1".."99"; the scraper cannot build a
+    timestamp from that."""
+    payload = {"class": "dataset", "value": list(range(60)),
+               "role": {"time": ["Tid"]},
+               "dimension": {"Tid": {"category": {
+                   "index": {str(i): i for i in range(60)}}}}}
+
+    class _P:
+        status_code = 200
+        text = ""
+
+        def json(self):
+            return payload
+
+    monkeypatch.setattr(bulk.requests, "post", lambda *a, **k: _P())
+    got = bulk.pxweb_probe("https://x/t.px", {"query": []})
+    assert "not a date" in got["error"]
