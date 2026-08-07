@@ -852,3 +852,115 @@ def test_erddap_datasets_treats_404_as_an_empty_catalog(monkeypatch):
     monkeypatch.setattr(bulk, "erddap_get", other)
     with pytest.raises(RuntimeError):
         bulk.erddap_datasets("https://e.example/erddap")
+
+
+# --------------------------------------------------------------------------- #
+# GBFS
+# --------------------------------------------------------------------------- #
+class _FakeResp:
+    def __init__(self, payload, status=200, text=""):
+        self._payload = payload
+        self.status_code = status
+        self.text = text
+
+    def json(self):
+        return self._payload
+
+    def raise_for_status(self):
+        if self.status_code != 200:
+            raise RuntimeError(f"HTTP {self.status_code}")
+
+
+def _stations(n, field="num_bikes_available", clock=True, docks=True):
+    out = []
+    for i in range(n):
+        s = {"station_id": f"s{i}", field: i % 7}
+        if clock:
+            s["last_reported"] = 1_770_000_000 + i
+        if docks:
+            s["num_docks_available"] = 10 - (i % 7)
+        out.append(s)
+    return {"data": {"stations": out}, "ttl": 60}
+
+
+def test_gbfs_feeds_reads_both_layouts(monkeypatch):
+    """Pre-3.0 nests the feed list under a language key, 3.0 does not. Assuming
+    either one silently loses half the registry."""
+    pre = {"data": {"en": {"feeds": [{"name": "station_status",
+                                      "url": "https://a/ss.json"}]}}}
+    v3 = {"data": {"feeds": [{"name": "station_status",
+                              "url": "https://b/ss.json"}]}}
+    for payload, want in ((pre, "https://a/ss.json"), (v3, "https://b/ss.json")):
+        monkeypatch.setattr(bulk.requests, "get",
+                            lambda *a, **k: _FakeResp(payload))
+        assert bulk.gbfs_feeds("https://x/gbfs.json")["station_status"] == want
+
+
+def test_gbfs_feeds_falls_back_to_an_unlisted_language(monkeypatch):
+    payload = {"data": {"sv": {"feeds": [{"name": "station_status",
+                                          "url": "https://c/ss.json"}]}}}
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeResp(payload))
+    assert bulk.gbfs_feeds("https://x/gbfs.json")["station_status"] == "https://c/ss.json"
+
+
+def test_gbfs_probe_accepts_the_v3_availability_spelling(monkeypatch):
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeResp(
+        _stations(30, field="num_vehicles_available")))
+    got = bulk.gbfs_probe("https://x/ss.json")
+    assert got["stations"] == 30
+    assert got["value_fields"][0] == "num_vehicles_available"
+
+
+def test_gbfs_probe_rejects_a_panel_below_the_gate(monkeypatch):
+    """The wire gate admits a panel at >=20 entities; 19 docks is a rejection,
+    not a thin candidate."""
+    monkeypatch.setattr(bulk.requests, "get",
+                        lambda *a, **k: _FakeResp(_stations(19)))
+    assert "20 entities" in bulk.gbfs_probe("https://x/ss.json")["error"]
+
+
+def test_gbfs_probe_requires_a_clock(monkeypatch):
+    """Without last_reported every dock shares the fetch time, so the series has
+    no timestamp of its own."""
+    monkeypatch.setattr(bulk.requests, "get",
+                        lambda *a, **k: _FakeResp(_stations(40, clock=False)))
+    assert "last_reported" in bulk.gbfs_probe("https://x/ss.json")["error"]
+
+
+def test_gbfs_probe_rejects_a_free_floating_payload(monkeypatch):
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeResp(
+        {"data": {"bikes": [{"bike_id": "b1"}]}}))
+    assert "stations" in bulk.gbfs_probe("https://x/ss.json")["error"]
+
+
+def test_gbfs_synthesize_keys_the_panel_on_station_id():
+    system = {"Name": "Test Bikes", "Location": "Springfield",
+              "Country Code": "US", "System ID": "test_bikes"}
+    block = bulk.gbfs_synthesize(system, "https://gbfs.example/ss.json",
+                                 {"stations": 40, "ttl": 60,
+                                  "value_fields": ["num_bikes_available",
+                                                   "num_docks_available"]})
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["schema"]["panel_field"] == "data.stations[].station_id"
+    assert entry["schema"]["timestamp_field"] == "data.stations[].last_reported"
+    assert entry["schema"]["variates"] == 2
+    assert entry["domain"] == "transport"
+    assert entry["frequency"] == "PT5M"
+    assert len(entry["id"]) <= 64
+
+
+def test_gbfs_synthesize_disambiguates_a_taken_id():
+    """Two systems can share an operator host and a city name; a colliding id
+    would overwrite a wired source rather than add one."""
+    system = {"Name": "Test Bikes", "Location": "Springfield",
+              "Country Code": "US", "System ID": "test_bikes_2"}
+    first = yaml.safe_load(bulk.gbfs_synthesize(
+        system, "https://gbfs.example/ss.json",
+        {"stations": 40, "ttl": None, "value_fields": ["num_bikes_available"]},
+    )["yaml_block"])[0]["id"]
+    second = yaml.safe_load(bulk.gbfs_synthesize(
+        system, "https://gbfs.example/ss.json",
+        {"stations": 40, "ttl": None, "value_fields": ["num_bikes_available"]},
+        taken={first},
+    )["yaml_block"])[0]["id"]
+    assert second != first and len(second) <= 64

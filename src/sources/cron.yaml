@@ -25,8 +25,6 @@ schedules:
   - datacite_doi_registration_rate
   - gbfs_velib_paris_station_status
   - gbfs_bixi_montreal_station_status
-  - gbfs_bicing_barcelona_station_status
-  - gbfs_toronto_station_status
   - gbfs_oslo_bysykkel_station_status
   - gbfs_ecobici_cdmx_station_status
   - gbfs_divvy_chicago_station_status
@@ -40,11 +38,8 @@ schedules:
   - upbit_krw_btc_1m
   - tfl_victoria_line_arrival_predictions
   - gbfs_bikemi_milan_station_status
-  - gbfs_buenos_aires_station_status
   - gbfs_indego_philadelphia_station_status
   - gbfs_trondheim_station_status
-  - gbfs_rio_de_janeiro_station_status
-  - gbfs_santiago_station_status
   - gbfs_bergen_station_status
   - nextbike_zagreb_station_status
   - elia_system_imbalance_1min
@@ -60,6 +55,11 @@ schedules:
   - smartatlantic_diamond_jubilee_cruise_ship_terminal_met
   - linkedsystems_mogli_unit_1209_deployment_729_real_time
   - ondeckdata_emolt_data
+  - gbfs_bicing_barcelona_station_status
+  - gbfs_toronto_station_status
+  - gbfs_buenos_aires_station_status
+  - gbfs_rio_de_janeiro_station_status
+  - gbfs_santiago_station_status
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -134,6 +134,48 @@ schedules:
   - rws_nl_water_levels
   - ixdenver_ixp_traffic
   - pitix_ixp_traffic
+  - gbfs_publicbikesystem_careem_bike_dubai
+  - gbfs_ridedott_dott_abu_dhabi_abu_dhabi
+  - gbfs_gob_mibicitubici_rosario
+  - gbfs_delijn_blue_bike_antwerp
+  - gbfs_bike_donkey_republic_antwerp_antwerp
+  - gbfs_cyclocity_li_bia_velo_namur
+  - gbfs_smartbike_velo_antwerpen_antwerp
+  - gbfs_io_voi_antwerp_antwerp
+  - gbfs_bird_bird_halifax_halifax
+  - gbfs_bike_lime_vancouver_vancouver
+  - gbfs_fifteen_mobi_bike_share_vancouver
+  - gbfs_socialbicycles_sobi_hamilton_hamilton
+  - gbfs_auto_share_birrer_switzerland
+  - gbfs_publicbikesystem_bogota_bogota
+  - gbfs_jetzt_car_ship_constance
+  - gbfs_fifteen_swabi_augsburg_augsburg
+  - gbfs_publicbikesystem_bicimad_madrid
+  - gbfs_cat_ganxeta_reus
+  - gbfs_fifteen_city_bikes_helsinki_helsinki
+  - gbfs_mobi_altervelo_libre_service_saint_pierre_l_e
+  - gbfs_mobi_clem_france
+  - gbfs_mecatran_le_velo_par_tbm_bordeaux
+  - gbfs_opendatasoft_le_velo_star_rennes
+  - gbfs_fifteen_levelo_marseille_marseille
+  - gbfs_optymo_optymo_belfort_belfort
+  - gbfs_gouv_pony_angers_angers
+  - gbfs_ilevia_v_lille_lille
+  - gbfs_transdev_vel_in_calais
+  - gbfs_saint_velivert_saint_etienne
+  - gbfs_app_beryl_bcp_bournemouth_christchurch_poole
+  - gbfs_odpt_docomo_bike_share_service_japan
+  - gbfs_publicbikesystem_mibici_guadalajara_guadalajara
+  - gbfs_goabout_goabout_netherlands
+  - gbfs_openov_ns_ov_fiets_netherlands
+  - gbfs_io_hertz_bildeling_bildeling
+  - gbfs_rideflamingo_flamingo_auckland_auckland
+  - gbfs_primelayer_bora_viseu_dao_lafoes
+  - gbfs_linkalock_aar_bike_konya
+  - gbfs_lyft_lyft_bike_san_francisco_ca
+  - gbfs_publicbikesystem_biki_honolulu_hi
+  - gbfs_peacehealthrides_peacehealth_rides_eugene_or
+  - gbfs_socialbicycles_reddy_bikeshare_buffalo_ny
   cron: '*/5 * * * *'
 - every: PT15M
   sources:

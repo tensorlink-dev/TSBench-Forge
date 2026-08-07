@@ -2349,6 +2349,243 @@ def wired_erddap_datasets(catalog_path: str) -> set[str]:
     return out
 
 
+
+# --------------------------------------------------------------------------- #
+# GBFS
+# --------------------------------------------------------------------------- #
+# The bike/scooter-share standard, with an official registry of every system
+# that speaks it. It is the largest single list of live feeds available -- and
+# the clearest illustration of why SOURCE count and HOST count are different
+# numbers: 1,536 registered systems resolve to only ~134 distinct hostnames,
+# because operators like nextbike, urbansharing and Lyft serve dozens of cities
+# each from one endpoint. Wiring all 1,536 would multiply the source count by a
+# factor the coverage metric would refuse to credit, and would hand one operator
+# a hundred entries. So the cap here is per HOST, not per system, and it is
+# tight.
+#
+# Station status is a genuine panel -- one series per dock -- which the gate
+# admits (>=20 entities x >=20 numeric rows) and which the eval pool caps at 25
+# series per feed downstream. Free-floating vehicle feeds are deliberately NOT
+# used: their panel ids are individual bikes that appear and vanish, so the
+# "series" churns its own identity between polls.
+GBFS_SYSTEMS_CSV = ("https://raw.githubusercontent.com/MobilityData/gbfs/"
+                    "master/systems.csv")
+
+# GBFS 3.0 renamed the availability field; both spellings are live in the wild.
+_GBFS_COUNT_FIELDS = ("num_bikes_available", "num_vehicles_available")
+_GBFS_DOCK_FIELDS = ("num_docks_available", "num_docks_disabled")
+
+
+def gbfs_systems(timeout: int = 60) -> list[dict]:
+    r = requests.get(GBFS_SYSTEMS_CSV, headers={"User-Agent": UA}, timeout=timeout)
+    r.raise_for_status()
+    return list(csv.DictReader(r.text.splitlines()))
+
+
+def gbfs_feeds(discovery_url: str, timeout: int = 30) -> dict[str, str]:
+    """feed name -> url, across both GBFS layouts.
+
+    Pre-3.0 keys the feed list by language (`data.en.feeds`); 3.0 drops the
+    language level (`data.feeds`). Assuming either one silently loses half the
+    registry.
+    """
+    r = requests.get(discovery_url, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    data = (r.json() or {}).get("data") or {}
+    feeds: list[dict] = []
+    if isinstance(data.get("feeds"), list):
+        feeds = data["feeds"]
+    else:
+        for lang in ("en", "fr", "de", "es", "nl", "no", "fi", "pl", "it"):
+            if isinstance(data.get(lang), dict) and data[lang].get("feeds"):
+                feeds = data[lang]["feeds"]
+                break
+        else:
+            for val in data.values():
+                if isinstance(val, dict) and isinstance(val.get("feeds"), list):
+                    feeds = val["feeds"]
+                    break
+    return {f.get("name", ""): f.get("url", "") for f in feeds if f.get("url")}
+
+
+def gbfs_probe(url: str, timeout: int = 30) -> dict:
+    """Measure the panel: how many stations, and do they carry a usable clock?"""
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}"}
+        payload = r.json()
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:120]}
+    stations = ((payload or {}).get("data") or {}).get("stations")
+    if not isinstance(stations, list) or not stations:
+        return {"error": "no data.stations array"}
+    if len(stations) < 20:
+        return {"error": f"only {len(stations)} stations (gate needs 20 entities)"}
+    field = next((f for f in _GBFS_COUNT_FIELDS
+                  if sum(1 for s in stations if isinstance(s.get(f), (int, float)))
+                  >= 0.5 * len(stations)), None)
+    if not field:
+        return {"error": "no availability count on >=50% of stations"}
+    if not any(isinstance(s.get("station_id"), (str, int)) for s in stations):
+        return {"error": "stations carry no station_id to key the panel on"}
+    reported = [s.get("last_reported") for s in stations]
+    has_clock = sum(1 for v in reported if isinstance(v, (int, float, str)) and v)
+    if has_clock < 0.5 * len(stations):
+        return {"error": "no last_reported on >=50% of stations"}
+    docks = [f for f in _GBFS_DOCK_FIELDS
+             if sum(1 for s in stations if isinstance(s.get(f), (int, float)))
+             >= 0.5 * len(stations)]
+    ttl = payload.get("ttl")
+    return {
+        "stations": len(stations),
+        "value_fields": [field] + docks[:1],
+        "ttl": ttl if isinstance(ttl, (int, float)) and ttl > 0 else None,
+    }
+
+
+def gbfs_synthesize(system: dict, url: str, probe: dict,
+                    taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = urlparse(url).netloc.lower()
+    name = (system.get("Name") or "").strip()
+    location = (system.get("Location") or "").strip()
+    country = (system.get("Country Code") or "").strip()
+    if not (host and name):
+        return None
+    label = f"{name} ({location})" if location else name
+    # Dedupe on the id that actually ships. This generator is the only one that
+    # prefixes, so comparing the bare sid against a set of wired ids would never
+    # match and a collision would overwrite a source instead of adding one.
+    sid = f"gbfs_{entry_id(host, f'{name} {location}')}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:52]}_{_slug(system.get('System ID') or '', 10)}"[:64]
+    vals = probe["value_fields"]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{label} — per-station availability (GBFS panel)",
+        "domain": "transport",
+        "dgp_class": "micromobility_availability",
+        "archetypes": ["count_discrete", "bounded", "smooth_periodic",
+                       "hierarchical"],
+        # The SERIES moves per minute, but polling ~100 systems that often costs
+        # more sweep budget than dock occupancy at 1-minute resolution is worth.
+        "frequency": "PT5M",
+        "endpoint": {
+            "type": "rest_json",
+            "url": url,
+            "auth": "none",
+            "rate_limit": None,
+        },
+        "schema": {
+            "timestamp_field": "data.stations[].last_reported",
+            "value_field": [f"data.stations[].{v}" for v in vals],
+            "panel_field": "data.stations[].station_id",
+            "variates": len(vals),
+        },
+        "history_available": "P0D — live snapshot, history accrues from wiring",
+        "update_cadence_observed": (
+            f"{probe['stations']} stations; ttl "
+            f"{probe['ttl'] if probe['ttl'] is not None else 'unset'}s"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Live dock occupancy; the snapshot series begins at wiring time and "
+            "so post-dates every known TSFM pretraining cutoff."
+        ),
+        "license": "GBFS open data (see operator terms)",
+        "audit_slack_days": 3,
+        "notes": (
+            f"Bulk-generated from the MobilityData GBFS registry "
+            f"({country or '??'}, system id {system.get('System ID') or '?'}). "
+            f"Station panel keyed on station_id; free-floating vehicle feeds are "
+            f"excluded because their panel ids churn between polls."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "cron_cadence": "PT5M",
+        "reason": (f"GBFS registry: {probe['stations']} stations, fields "
+                   f"{vals}, host {host}"),
+    }
+
+
+def gbfs_sweep(
+    catalog_path: str,
+    host_cap: int = 2,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    known_urls = {(s.get("endpoint") or {}).get("url", "")
+                  for s in (yaml.safe_load(open(catalog_path)) or [])}
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    try:
+        systems = gbfs_systems()
+    except Exception as exc:                                  # noqa: BLE001
+        return [], [{"id": "registry", "reason": f"registry unreachable: {exc}"}]
+    log(f"[GBFS] {len(systems)} registered systems")
+
+    for system in systems:
+        disc = (system.get("Auto-Discovery URL") or "").strip()
+        name = (system.get("Name") or "").strip()
+        if not disc.startswith("http"):
+            continue
+        if (system.get("Authentication Type") or "").strip() not in ("", "None"):
+            skipped.append({"id": name, "reason": "feed requires authentication"})
+            continue
+        dhost = urlparse(disc).netloc.lower()
+        if seen_hosts.get(dhost, 0) >= host_cap:
+            skipped.append({"id": name, "reason": f"host cap {host_cap} reached"})
+            continue
+        try:
+            feeds = gbfs_feeds(disc)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": name,
+                            "reason": f"discovery failed: {type(exc).__name__}"})
+            continue
+        time.sleep(sleep_s)
+        url = feeds.get("station_status") or ""
+        if not url:
+            skipped.append({"id": name, "reason": "no station_status feed "
+                                                  "(free-floating system)"})
+            continue
+        if url in known_urls:
+            skipped.append({"id": name, "reason": "feed already in catalog"})
+            continue
+        host = urlparse(url).netloc.lower()
+        if seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": name, "reason": f"host cap {host_cap} reached"})
+            continue
+        probe = gbfs_probe(url)
+        time.sleep(sleep_s)
+        if "error" in probe:
+            skipped.append({"id": name, "reason": probe["error"]})
+            continue
+        block = gbfs_synthesize(system, url, probe, taken=taken_ids)
+        if block is None:
+            skipped.append({"id": name, "reason": "could not synthesise"})
+            continue
+        taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+        cands.append(block)
+        known_urls.add(url)
+        seen_hosts[host] = seen_hosts.get(host, 0) + 1
+        seen_hosts[dhost] = seen_hosts.get(dhost, 0) + 1
+        _checkpoint(cands, checkpoint_path)
+        log(f"  + {block['candidate_name'][:70]}  [{probe['stations']} stations]")
+        if target and len(cands) >= target:
+            log(f"target {target} reached")
+            return cands, skipped
+    return cands, skipped
+
+
 def write_batch(candidates: list[dict], out_path: str) -> str:
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(candidates, fh, indent=2)
