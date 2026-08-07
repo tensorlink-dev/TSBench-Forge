@@ -1608,3 +1608,248 @@ def test_pxweb_throttling_is_not_reported_as_a_missing_table(monkeypatch):
 
     monkeypatch.setattr(bulk, "pxweb_get", missing)
     assert bulk.pxweb_table_url("https://px.example/DB", "a/b.px") is None
+
+
+# --------------------------------------------------------------------------- #
+# Misskey / Sharkey
+# --------------------------------------------------------------------------- #
+def _chart(inc):
+    """A /api/charts/notes body: newest-first, element 0 the partial hour."""
+    return {"local": {"inc": list(inc)}, "remote": {"inc": [9] * len(inc)}}
+
+
+def _live_inc(n=500):
+    # 499 kept buckets, plenty of levels, all populated.
+    return [0] + [50 + (i * 7) % 90 for i in range(n - 1)]
+
+
+def test_misskey_probe_accepts_a_busy_instance(monkeypatch):
+    monkeypatch.setattr(bulk.requests, "post",
+                        lambda *a, **k: _FakeResp(_chart(_live_inc())))
+    p = bulk.misskey_probe("example.tld")
+    assert "error" not in p
+    assert p["buckets"] == 499
+    assert p["nonzero"] == 499
+
+
+def test_misskey_probe_ignores_the_partial_head_bucket(monkeypatch):
+    """Element 0 is the hour still filling; scoring it would mark healthy
+    instances down for a zero the scraper never keeps."""
+    inc = _live_inc()
+    inc[0] = 0
+    monkeypatch.setattr(bulk.requests, "post",
+                        lambda *a, **k: _FakeResp(_chart(inc)))
+    p = bulk.misskey_probe("example.tld")
+    assert "error" not in p
+    # 499 kept, not 500 -- the head is excluded from the count entirely.
+    assert p["buckets"] == 499
+    assert p["nonzero"] == 499
+
+
+def test_misskey_probe_rejects_a_dead_instance(monkeypatch):
+    monkeypatch.setattr(bulk.requests, "post",
+                        lambda *a, **k: _FakeResp(_chart([0] * 500)))
+    p = bulk.misskey_probe("example.tld")
+    assert "error" in p
+    assert not p.get("transient")
+
+
+def test_misskey_probe_rejects_a_flicker_between_two_levels(monkeypatch):
+    inc = [0] + [1 if i % 2 else 2 for i in range(499)]
+    monkeypatch.setattr(bulk.requests, "post",
+                        lambda *a, **k: _FakeResp(_chart(inc)))
+    p = bulk.misskey_probe("example.tld")
+    assert "distinct" in p["error"]
+
+
+def test_misskey_probe_rejects_an_instance_that_went_quiet(monkeypatch):
+    """Rich history but nothing in the last day: it is no longer a live feed."""
+    inc = [0] * 25 + [50 + (i * 7) % 90 for i in range(475)]
+    monkeypatch.setattr(bulk.requests, "post",
+                        lambda *a, **k: _FakeResp(_chart(inc)))
+    p = bulk.misskey_probe("example.tld")
+    assert "newest 24" in p["error"]
+
+
+def test_misskey_probe_marks_501_as_a_missing_feature_not_transient(monkeypatch):
+    """Iceshrimp.NET answers 501. Rerunning will never change that."""
+    monkeypatch.setattr(bulk.requests, "post",
+                        lambda *a, **k: _FakeResp(None, status=501))
+    p = bulk.misskey_probe("example.tld")
+    assert "501" in p["error"]
+    assert not p.get("transient")
+
+
+def test_misskey_probe_marks_throttling_as_transient(monkeypatch):
+    """A 429 is a host this sweep did not measure, not a host with no data."""
+    for status in (403, 429, 503):
+        monkeypatch.setattr(bulk.requests, "post",
+                            lambda *a, s=status, **k: _FakeResp(None, status=s))
+        p = bulk.misskey_probe("example.tld")
+        assert p.get("transient") is True, status
+
+
+def test_misskey_probe_marks_a_timeout_as_transient(monkeypatch):
+    def boom(*a, **k):
+        raise TimeoutError("read timed out")
+    monkeypatch.setattr(bulk.requests, "post", boom)
+    p = bulk.misskey_probe("example.tld")
+    assert p.get("transient") is True
+
+
+def test_misskey_synthesize_declares_skip_and_backwards_axis():
+    entry = yaml.safe_load(bulk.misskey_synthesize(
+        {"domain": "example.tld"},
+        {"buckets": 499, "nonzero": 480, "distinct": 60, "recent": 22,
+         "peak": 140},
+        "misskey")["yaml_block"])[0]
+    assert entry["schema"]["series_end"] == "now"
+    assert entry["schema"]["series_step"] == "PT1H"
+    assert entry["schema"]["series_skip"] == 1
+    # local, never remote: remote counts what this host mirrored from peers.
+    assert entry["schema"]["value_field"] == ["local.inc"]
+    assert entry["endpoint"]["method"] == "POST"
+    assert entry["endpoint"]["body"]["limit"] == 500
+
+
+def test_misskey_synthesize_avoids_an_id_collision():
+    a = yaml.safe_load(bulk.misskey_synthesize(
+        {"domain": "example.tld"},
+        {"buckets": 499, "nonzero": 480, "distinct": 60, "recent": 22,
+         "peak": 1}, "misskey")["yaml_block"])[0]
+    b = yaml.safe_load(bulk.misskey_synthesize(
+        {"domain": "example.tld"},
+        {"buckets": 499, "nonzero": 480, "distinct": 60, "recent": 22,
+         "peak": 1}, "misskey", taken={a["id"]})["yaml_block"])[0]
+    assert a["id"] != b["id"]
+
+
+def test_misskey_sweep_separates_unexamined_hosts_from_rejects(
+        monkeypatch, tmp_path):
+    """The failure shape that has bitten this repo four times: a transient
+    error must never be counted as 'this host has no data'."""
+    cat = tmp_path / "c.yaml"
+    cat.write_text(yaml.dump([]))
+    monkeypatch.setattr(bulk, "observer_nodes",
+                        lambda sw, **k: [{"domain": "up.tld"},
+                                         {"domain": "throttled.tld"},
+                                         {"domain": "dead.tld"}])
+
+    def probe(host, chart="notes", **k):
+        if host == "up.tld":
+            return {"buckets": 499, "nonzero": 480, "distinct": 60,
+                    "recent": 22, "peak": 9}
+        if host == "throttled.tld":
+            return {"error": "HTTP 429", "transient": True}
+        return {"error": "only 0/499 populated hours"}
+
+    monkeypatch.setattr(bulk, "misskey_probe", probe)
+    monkeypatch.setattr(bulk.time, "sleep", lambda *_: None)
+    cands, skipped = bulk.misskey_sweep(str(cat), software=("misskey",),
+                                        log=lambda *_: None)
+    assert len(cands) == 1
+    reasons = {s["id"]: s["reason"] for s in skipped}
+    assert reasons["throttled.tld/notes"].startswith("unexamined")
+    assert not reasons["dead.tld/notes"].startswith("unexamined")
+
+
+def test_misskey_sweep_survives_one_software_failing_to_enumerate(
+        monkeypatch, tmp_path):
+    cat = tmp_path / "c.yaml"
+    cat.write_text(yaml.dump([]))
+
+    def nodes(sw, **k):
+        if sw == "misskey":
+            raise RuntimeError("observer HTTP 502")
+        return [{"domain": "shark.tld"}]
+
+    monkeypatch.setattr(bulk, "observer_nodes", nodes)
+    monkeypatch.setattr(bulk, "misskey_probe",
+                        lambda h, c="notes", **k: {"buckets": 499, "nonzero": 480,
+                                                   "distinct": 60, "recent": 22,
+                                                   "peak": 9})
+    monkeypatch.setattr(bulk.time, "sleep", lambda *_: None)
+    cands, skipped = bulk.misskey_sweep(str(cat),
+                                        software=("misskey", "sharkey"),
+                                        log=lambda *_: None)
+    assert [c["reason"].split(":")[0] for c in cands] == ["sharkey notes"]
+    assert any("observer unreachable" in s["reason"] for s in skipped)
+
+
+def test_misskey_sweep_respects_hosts_already_in_the_catalog(
+        monkeypatch, tmp_path):
+    cat = tmp_path / "c.yaml"
+    cat.write_text(yaml.dump([{
+        "id": "x", "name": "x", "domain": "web_cloudops",
+        "endpoint": {"type": "rest_json", "url": "https://taken.tld/api"},
+    }]))
+    monkeypatch.setattr(bulk, "observer_nodes",
+                        lambda sw, **k: [{"domain": "taken.tld"}])
+    called = []
+    monkeypatch.setattr(bulk, "misskey_probe",
+                        lambda h, c="notes", **k: called.append(h) or {"error": "x"})
+    monkeypatch.setattr(bulk.time, "sleep", lambda *_: None)
+    cands, _ = bulk.misskey_sweep(str(cat), software=("misskey",),
+                                  log=lambda *_: None)
+    assert cands == [] and called == []
+
+
+def test_misskey_sweep_can_take_two_charts_from_one_host(monkeypatch, tmp_path):
+    """Two different processes on one host is two series, not one twice."""
+    cat = tmp_path / "c.yaml"
+    cat.write_text(yaml.dump([]))
+    monkeypatch.setattr(bulk, "observer_nodes",
+                        lambda sw, **k: [{"domain": "busy.tld"}])
+    monkeypatch.setattr(bulk, "misskey_probe",
+                        lambda h, c="notes", **k: {"buckets": 499,
+                                                   "nonzero": 480,
+                                                   "distinct": 60,
+                                                   "recent": 22, "peak": 9})
+    monkeypatch.setattr(bulk.time, "sleep", lambda *_: None)
+    cands, _ = bulk.misskey_sweep(str(cat), software=("misskey",),
+                                  charts=("notes", "active-users"),
+                                  log=lambda *_: None)
+    assert len(cands) == 2
+    ids = [yaml.safe_load(c["yaml_block"])[0]["id"] for c in cands]
+    assert len(set(ids)) == 2, "two charts on one host must not collide"
+    urls = [yaml.safe_load(c["yaml_block"])[0]["endpoint"]["url"] for c in cands]
+    assert urls[0].endswith("/notes") and urls[1].endswith("/active-users")
+
+
+def test_misskey_host_cap_counts_the_host_once_across_charts(
+        monkeypatch, tmp_path):
+    """The cap limits reliance on one publisher, so taking two charts from a
+    host must not consume two of its budget."""
+    cat = tmp_path / "c.yaml"
+    cat.write_text(yaml.dump([]))
+    monkeypatch.setattr(bulk, "observer_nodes",
+                        lambda sw, **k: [{"domain": "a.tld"}, {"domain": "b.tld"}])
+    monkeypatch.setattr(bulk, "misskey_probe",
+                        lambda h, c="notes", **k: {"buckets": 499,
+                                                   "nonzero": 480,
+                                                   "distinct": 60,
+                                                   "recent": 22, "peak": 9})
+    monkeypatch.setattr(bulk.time, "sleep", lambda *_: None)
+    cands, _ = bulk.misskey_sweep(str(cat), software=("misskey",),
+                                  charts=("notes", "active-users"),
+                                  host_cap=1, log=lambda *_: None)
+    hosts = {yaml.safe_load(c["yaml_block"])[0]["endpoint"]["url"].split("/")[2]
+             for c in cands}
+    assert hosts == {"a.tld", "b.tld"}
+    assert len(cands) == 4
+
+
+def test_misskey_charts_are_all_local_never_remote():
+    """`remote.*` counts the same global firehose from every host: dense, and
+    correlated across every instance that would carry it."""
+    for chart, spec in bulk.MISSKEY_CHARTS.items():
+        assert not spec["value"].startswith("remote."), chart
+
+
+def test_misskey_probe_walks_the_configured_value_path(monkeypatch):
+    """active-users puts its series at the top level, notes nests under local."""
+    payload = {"readWrite": [0] + [20 + (i * 3) % 40 for i in range(499)]}
+    monkeypatch.setattr(bulk.requests, "post",
+                        lambda *a, **k: _FakeResp(payload))
+    p = bulk.misskey_probe("example.tld", "active-users")
+    assert "error" not in p and p["buckets"] == 499

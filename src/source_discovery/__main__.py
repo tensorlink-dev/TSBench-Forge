@@ -97,6 +97,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-peertube", metavar="OUT_FILE",
                     help="sweep the PeerTube instance index for per-instance "
                          "video publication rates (web_cloudops)")
+    ap.add_argument("--bulk-misskey", metavar="OUT_FILE",
+                    help="sweep Misskey/Sharkey instances for hourly note "
+                         "publication rates via /api/charts (web_cloudops)")
+    ap.add_argument("--bulk-misskey-charts", default="notes",
+                    help="comma-separated Misskey charts to take per host "
+                         f"({','.join(bulk.MISSKEY_CHARTS)}); a second chart "
+                         "needs --bulk-host-cap 2 to clear the first pass")
     ap.add_argument("--bulk-pxweb", metavar="OUT_FILE",
                     help="walk PX-Web statistics-office subject trees "
                          "(econ_fin-heavy; json-stat2 over POST)")
@@ -159,6 +166,33 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({
             "candidates": len(cands), "out": args.bulk_peertube,
             "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_misskey:
+        charts = [c.strip() for c in args.bulk_misskey_charts.split(",")
+                  if c.strip()]
+        unknown = [c for c in charts if c not in bulk.MISSKEY_CHARTS]
+        if unknown:
+            print(f"unknown misskey chart(s): {', '.join(unknown)}; "
+                  f"known: {', '.join(bulk.MISSKEY_CHARTS)}", file=sys.stderr)
+            return 2
+        cands, skipped = bulk.misskey_sweep(
+            args.catalog, host_cap=args.bulk_host_cap or 1, charts=charts,
+            target=args.bulk_target, checkpoint_path=args.bulk_misskey,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_misskey)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_misskey,
+            "skipped": len(skipped),
+            "unexamined": sum(1 for s in skipped
+                              if s.get("reason", "").startswith("unexamined")),
             "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
         }, indent=2))
         return 0 if cands else 1

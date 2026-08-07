@@ -828,6 +828,15 @@ def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
     `now` is floored to the step, so the axis is stable across refetches within
     the same bucket instead of drifting by however many hours apart two polls
     happen to land.
+
+    `series_skip: 1` drops that many elements from the head of the array. The
+    head of a newest-first feed is usually the bucket still being filled --
+    Misskey's daily chart reports today, so a poll at 00:00:36 UTC reads a
+    near-zero that climbs all day. Left in, every such series ends in a cliff
+    that is an artefact of poll timing rather than anything the publisher did,
+    and the final point is precisely the one a forecast is scored against. The
+    axis stays anchored to the original array head, so skipping shifts which
+    points are kept, never the timestamps they carry.
     """
     val_path = schema.get("value_field", "")
     paths = val_path if isinstance(val_path, list) else [val_path]
@@ -870,8 +879,13 @@ def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
     if start is None:
         return []
 
+    try:
+        skip = max(0, int(schema.get("series_skip") or 0))
+    except (TypeError, ValueError):
+        skip = 0
+
     records = []
-    for i in range(n):
+    for i in range(skip, n):
         ts = (start - dt.timedelta(seconds=step_s * i) if backwards
               else start + dt.timedelta(seconds=step_s * i))
         row: dict[str, Any] = {"timestamp": ts.isoformat()}

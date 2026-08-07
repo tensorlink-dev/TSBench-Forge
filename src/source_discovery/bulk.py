@@ -48,7 +48,7 @@ import csv
 import statistics
 import time
 import unicodedata
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable, Optional, Sequence
 from urllib.parse import quote, urlparse
 
 import requests
@@ -3756,6 +3756,272 @@ def peertube_sweep(
     return cands, skipped
 
 
+
+
+# --------------------------------------------------------------------------- #
+# Misskey family (Misskey, Sharkey)
+# --------------------------------------------------------------------------- #
+# The largest remaining host vein. Misskey ships an unauthenticated
+# /api/charts/notes that answers with 500 hourly buckets in one POST -- a real
+# time series rather than a page of items that has to be binned into one, which
+# is what PeerTube and the Mastodon family force. Sharkey forks Misskey and
+# keeps the endpoint. Iceshrimp.NET forks it too but answers 501, so it is
+# deliberately NOT in this list: it is an absent feature, not a broken host.
+#
+# The charts arrays are newest-first with no timestamps anywhere in the payload,
+# which is what schema.series_end exists for, and element 0 is the bucket still
+# being filled -- a poll at 00:00:36 reads a near-zero that climbs all hour --
+# which is what schema.series_skip exists for.
+#
+# Two fields in the observer index look like filters and are not. `status` is 1
+# for all 1123 Misskey nodes, and `total_users` does not predict activity in
+# either direction: a 13,939-user instance measured 70 populated hours out of
+# 499 while a 24-user instance measured 499. Both were checked before being
+# rejected as pre-filters. Only the probe decides, which costs one request per
+# host and is the whole reason this sweep is slow.
+FEDIVERSE_OBSERVER = "https://api.fediverse.observer/"
+MISSKEY_SOFTWARE: tuple[str, ...] = ("misskey", "sharkey")
+MISSKEY_SPAN = "hour"
+MISSKEY_LIMIT = 500
+MISSKEY_MIN_NONZERO = 250     # of 499 kept buckets: at least half the hours live
+MISSKEY_MIN_DISTINCT = 15     # below this it is a flicker between a few levels
+MISSKEY_MIN_RECENT = 6        # populated hours in the newest completed 24
+
+# Charts worth a series, and the reason the rest are not here.
+#
+# Both of these measure THIS instance's own community: how much it posts, and
+# how many of its people are awake. Two different processes on one host, so a
+# host carrying both carries two series rather than one series twice.
+#
+# The drive charts are excluded despite being the densest thing on offer
+# (remote.incSize measured 499/499 populated hours with 499 distinct values on
+# every instance sampled). They count media arriving from the rest of the
+# network, so every instance is a viewport onto the same global firehose, and
+# 300 hosts would contribute 300 correlated copies of one signal. Dense is not
+# the same as informative. Anything under `remote.` has this problem; anything
+# under `local.` does not.
+MISSKEY_CHARTS: dict[str, dict[str, Any]] = {
+    "notes": {
+        "value": "local.inc",
+        "dgp_class": "social_posting_rate",
+        "label": "local note publication rate",
+        "archetypes": ["count_discrete", "smooth_periodic",
+                       "non_stationary_regime"],
+        "measures": "notes created per hour by this instance's own users",
+    },
+    "active-users": {
+        "value": "readWrite",
+        "dgp_class": "active_user_count",
+        "label": "active local users",
+        "archetypes": ["count_discrete", "smooth_periodic", "bounded"],
+        "measures": "distinct local users who read or wrote in the hour",
+    },
+}
+
+
+def observer_nodes(software: str, timeout: int = 60,
+                   log=print) -> list[dict]:
+    """Domains running one fediverse software, from fediverse.observer."""
+    query = ('{nodes(softwarename:"%s"){domain,total_users,'
+             'active_users_monthly,status}}' % software)
+    r = requests.post(FEDIVERSE_OBSERVER, json={"query": query},
+                      headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"observer HTTP {r.status_code}")
+    nodes = ((r.json() or {}).get("data") or {}).get("nodes")
+    if not isinstance(nodes, list):
+        raise RuntimeError("observer returned no node list")
+    out = [n for n in nodes if isinstance(n, dict) and n.get("domain")]
+    log(f"  [misskey] {len(out)} {software} nodes from the observer")
+    return out
+
+
+def misskey_probe(host: str, chart: str = "notes", timeout: int = 20) -> dict:
+    """Measure the chart series the scraper would actually collect."""
+    spec = MISSKEY_CHARTS[chart]
+    try:
+        r = requests.post(f"https://{host}/api/charts/{chart}",
+                          json={"span": MISSKEY_SPAN, "limit": MISSKEY_LIMIT},
+                          headers={"User-Agent": UA}, timeout=timeout)
+    except Exception as exc:                                  # noqa: BLE001
+        # Unreachable now is not the same as having no data, and the caller
+        # records it as unexamined rather than folding it in with the rejects.
+        return {"error": f"{type(exc).__name__}", "transient": True}
+    if r.status_code == 501:
+        return {"error": "HTTP 501 (no charts API on this fork)"}
+    if r.status_code != 200:
+        return {"error": f"HTTP {r.status_code}",
+                "transient": r.status_code in (403, 429, 502, 503, 504)}
+    try:
+        node: Any = r.json() or {}
+        for part in spec["value"].split("."):
+            node = (node or {}).get(part)
+        inc = node
+    except Exception:                                         # noqa: BLE001
+        return {"error": "response was not JSON", "transient": True}
+    if not isinstance(inc, list) or len(inc) < MISSKEY_LIMIT // 2:
+        return {"error": f"chart returned {len(inc) if isinstance(inc, list) else 0} "
+                         f"buckets"}
+
+    # Judge the slice the scraper KEEPS, not the one the API returned. Element
+    # 0 is the partial current hour and series_skip drops it; scoring it here
+    # would be the probe validating a window that never reaches the catalog.
+    body = [v for v in inc[1:] if isinstance(v, (int, float))]
+    if len(body) < MISSKEY_LIMIT // 2:
+        return {"error": f"only {len(body)} numeric buckets"}
+    nonzero = sum(1 for v in body if v)
+    distinct = len(set(body))
+    recent = sum(1 for v in body[:24] if v)
+    if recent < MISSKEY_MIN_RECENT:
+        return {"error": f"only {recent} populated hours in the newest 24"}
+    if nonzero < MISSKEY_MIN_NONZERO:
+        return {"error": f"only {nonzero}/{len(body)} populated hours"}
+    if distinct < MISSKEY_MIN_DISTINCT:
+        return {"error": f"only {distinct} distinct values over {len(body)} hours"}
+    return {"buckets": len(body), "nonzero": nonzero, "distinct": distinct,
+            "recent": recent, "peak": max(body), "chart": chart}
+
+
+def misskey_synthesize(node: dict, probe: dict, software: str,
+                       chart: str = "notes",
+                       taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = (node.get("domain") or "").strip().lower()
+    if not host:
+        return None
+    spec = MISSKEY_CHARTS[chart]
+    sid = f"misskey_{entry_id(host, chart)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:57]}_{_slug(host, 6)}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{host} — {spec['label']} ({software.title()})",
+        "domain": "web_cloudops",
+        "dgp_class": spec["dgp_class"],
+        "archetypes": list(spec["archetypes"]),
+        "frequency": "PT1H",
+        "endpoint": {
+            "type": "rest_json",
+            "url": f"https://{host}/api/charts/{chart}",
+            "method": "POST",
+            "body": {"span": MISSKEY_SPAN, "limit": MISSKEY_LIMIT},
+            "auth": "none",
+            "rate_limit": "polite",
+        },
+        "schema": {
+            "series_end": "now",
+            "series_step": "PT1H",
+            "series_skip": 1,
+            "value_field": [spec["value"]],
+            "variates": 1,
+        },
+        "history_available": (
+            f"{probe['buckets']} hourly buckets (~{probe['buckets'] // 24}d) "
+            f"in every response"
+        ),
+        "update_cadence_observed": (
+            f"{probe['nonzero']}/{probe['buckets']} populated hours, "
+            f"{probe['distinct']} distinct levels, peak {probe['peak']}/h; "
+            f"{probe['recent']}/24 newest hours populated"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Per-instance activity on one federated server. No aggregator "
+            "republishes these counts, and the instance itself only serves a "
+            "rolling ~21-day window, so no long history exists to have been "
+            "scraped into a pretraining mix."
+        ),
+        "license": "public Misskey charts API (see instance terms)",
+        "audit_slack_days": 3,
+        "notes": (
+            f"Bulk-generated from fediverse.observer ({software}). Measures "
+            f"{spec['measures']}. The chart array is newest-first with no "
+            f"timestamps in the payload, hence series_end/series_step; "
+            f"series_skip drops element 0 because it is the hour still being "
+            f"filled and would otherwise put a false cliff at the end of "
+            f"every series. The value is a local counter -- the `remote.*` "
+            f"series on this API count what the instance mirrored from its "
+            f"peers, which is the same global firehose seen from every host."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "cron_cadence": "PT6H",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"{software} {chart}: {probe['nonzero']}/{probe['buckets']} "
+                   f"populated hours, {probe['distinct']} distinct levels, "
+                   f"host {host}"),
+    }
+
+
+def misskey_sweep(
+    catalog_path: str,
+    host_cap: int = 1,
+    software: Sequence[str] = MISSKEY_SOFTWARE,
+    charts: Sequence[str] = ("notes",),
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    timeout: int = 20,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    transient = 0
+
+    for sw in software:
+        try:
+            nodes = observer_nodes(sw, log=log)
+        except Exception as exc:                              # noqa: BLE001
+            # One software family failing to enumerate says nothing about the
+            # others, and nothing about the hosts inside it.
+            skipped.append({"id": sw, "reason": f"observer unreachable: {exc}"})
+            log(f"  [misskey] could not enumerate {sw}: {exc}")
+            continue
+        for node in nodes:
+            host = (node.get("domain") or "").strip().lower()
+            if not host or seen_hosts.get(host, 0) >= host_cap:
+                continue
+            for chart in charts:
+                probe = misskey_probe(host, chart, timeout=timeout)
+                time.sleep(sleep_s)
+                if "error" in probe:
+                    if probe.get("transient"):
+                        transient += 1
+                    skipped.append({
+                        "id": f"{host}/{chart}",
+                        "reason": ("unexamined: " if probe.get("transient")
+                                   else "") + probe["error"],
+                    })
+                    continue
+                block = misskey_synthesize(node, probe, sw, chart,
+                                           taken=taken_ids)
+                if block is None:
+                    skipped.append({"id": f"{host}/{chart}",
+                                    "reason": "could not synthesise"})
+                    continue
+                taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+                cands.append(block)
+                _checkpoint(cands, checkpoint_path)
+                log(f"  + {host[:40]:40} {chart:13} "
+                    f"[{probe['nonzero']}/{probe['buckets']} hrs, "
+                    f"{probe['distinct']} lv]")
+                if target and len(cands) >= target:
+                    log(f"target {target} reached")
+                    return cands, skipped
+            # Count the host once, however many of its charts qualified: the
+            # cap is about not leaning on one publisher, not about series.
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+    if transient:
+        # Say this out loud. A host that timed out or rate-limited is a host
+        # this sweep did not measure, and rerunning later will find some of
+        # them alive -- it is not part of the vein's exhausted remainder.
+        log(f"  [misskey] {transient} hosts left UNEXAMINED (timeout/403/429); "
+            f"they are recoverable on a rerun, not rejects")
+    return cands, skipped
 
 
 # --------------------------------------------------------------------------- #

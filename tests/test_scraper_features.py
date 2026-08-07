@@ -1400,3 +1400,66 @@ def test_series_start_still_wins_and_runs_forwards():
     )
     stamps = [dt.datetime.fromisoformat(r["timestamp"]) for r in rows]
     assert stamps[1] > stamps[0]
+
+
+# --------------------------------------------------------------------------- #
+# schema.series_skip — drop the partial bucket at the head of the array
+# --------------------------------------------------------------------------- #
+def test_series_skip_drops_the_leading_partial_bucket():
+    """Misskey's element 0 is the day still being filled; a poll just after
+    midnight reads a near-zero that climbs all day."""
+    rows = scraper._records_from_json(
+        {"v": [3, 200, 210, 190]},
+        {"series_end": "2026-03-10T00:00:00Z", "series_step": "P1D",
+         "value_field": ["v"], "series_skip": 1},
+    )
+    assert [r["value"] for r in rows] == [200, 210, 190]
+
+
+def test_series_skip_does_not_shift_the_kept_timestamps():
+    """The axis is anchored to the array head, so skipping must change which
+    points survive and nothing about when they happened."""
+    schema = {"series_end": "2026-03-10T00:00:00Z", "series_step": "P1D",
+              "value_field": ["v"]}
+    full = scraper._records_from_json({"v": [1, 2, 3, 4]}, schema)
+    cut = scraper._records_from_json({"v": [1, 2, 3, 4]}, {**schema,
+                                                           "series_skip": 1})
+    assert [r["timestamp"] for r in cut] == [r["timestamp"] for r in full[1:]]
+    assert [r["value"] for r in cut] == [2, 3, 4]
+
+
+def test_series_skip_applies_to_forward_series_too():
+    schema = {"series_start": "2026-03-10T00:00:00Z", "series_step": "P1D",
+              "value_field": ["v"], "series_skip": 2}
+    rows = scraper._records_from_json({"v": [1, 2, 3, 4]}, schema)
+    assert [r["value"] for r in rows] == [3, 4]
+    assert [r["timestamp"][:10] for r in rows] == ["2026-03-12", "2026-03-13"]
+
+
+def test_series_skip_absent_or_junk_keeps_every_point():
+    """A malformed skip must not silently eat data."""
+    for bad in (None, "", "abc", -3, [1]):
+        rows = scraper._records_from_json(
+            {"v": [1, 2, 3]},
+            {"series_end": "2026-03-10T00:00:00Z", "series_step": "P1D",
+             "value_field": ["v"], "series_skip": bad},
+        )
+        assert [r["value"] for r in rows] == [1, 2, 3], f"skip={bad!r}"
+
+
+def test_series_skip_larger_than_the_array_yields_nothing_not_a_crash():
+    rows = scraper._records_from_json(
+        {"v": [1, 2]},
+        {"series_end": "now", "series_step": "P1D", "value_field": ["v"],
+         "series_skip": 9},
+    )
+    assert rows == []
+
+
+def test_series_skip_with_multiple_value_fields_stays_aligned():
+    rows = scraper._records_from_json(
+        {"a": [1, 2, 3], "b": [10, 20, 30]},
+        {"series_end": "2026-03-10T00:00:00Z", "series_step": "P1D",
+         "value_field": ["a", "b"], "series_skip": 1},
+    )
+    assert [(r["a"], r["b"]) for r in rows] == [(2, 20), (3, 30)]
