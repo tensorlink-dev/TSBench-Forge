@@ -3488,6 +3488,210 @@ def ixp_sweep(
 
 
 
+
+# --------------------------------------------------------------------------- #
+# PeerTube
+# --------------------------------------------------------------------------- #
+# Federated software is the largest remaining supply of independently operated
+# hosts running one API: the public index lists ~1,800 PeerTube instances, and
+# there are comparable registries for Misskey (~900), Lemmy (~500) and Mastodon
+# (~340). PeerTube is taken first because it is the only one of the four whose
+# history is usable WITHOUT a scraper change -- its videos carry real
+# publishedAt timestamps, so `aggregate: count` bins them into a publication
+# rate. Misskey's charts endpoint hands back 90 daily points but as a bare
+# newest-first array with no start timestamp, which series_start/series_step
+# cannot express today.
+#
+# `totalVideos` in the index counts FEDERATED videos -- what the instance has
+# mirrored from its peers, which on a small instance is most of the network and
+# says nothing about local activity. `totalLocalVideos` is the one that matters,
+# and the sweep reads publication rate off the instance's own local feed.
+PEERTUBE_INDEX = "https://instances.joinpeertube.org/api/v1/instances"
+PEERTUBE_PAGE = 100
+PEERTUBE_VIDEOS = 100
+PEERTUBE_MIN_VIDEOS = 40
+PEERTUBE_MIN_BINS = 24            # the gate wants 20 distinct stamps; leave slack
+
+
+def peertube_instances(want: int = 600, timeout: int = 45,
+                       sleep_s: float = 0.2, log=print) -> list[dict]:
+    out: list[dict] = []
+    while len(out) < want:
+        r = requests.get(PEERTUBE_INDEX, params={
+            "count": min(PEERTUBE_PAGE, want - len(out)),
+            "start": len(out), "sort": "-totalLocalVideos",
+        }, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            break
+        page = r.json().get("data") or []
+        if not page:
+            break
+        out.extend(page)
+        time.sleep(sleep_s)
+    log(f"  [peertube] {len(out)} instances from the index")
+    return out
+
+
+def peertube_probe(host: str, timeout: int = 25,
+                   max_age_days: float = 21.0) -> dict:
+    """Bin the newest local videos into a publication rate."""
+    url = (f"https://{host}/api/v1/videos?sort=-publishedAt"
+           f"&count={PEERTUBE_VIDEOS}&isLocal=true&nsfw=false")
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}"}
+        data = (r.json() or {}).get("data")
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:110]}
+    if not isinstance(data, list) or len(data) < PEERTUBE_MIN_VIDEOS:
+        return {"error": f"only {len(data) if isinstance(data, list) else 0} "
+                         f"local videos"}
+    now = dt.datetime.now(dt.timezone.utc)
+    stamps = sorted(d for d in (_parse_iso(v.get("publishedAt")) for v in data
+                                if isinstance(v, dict)) if d is not None)
+    stamps = [s for s in stamps if s <= now + dt.timedelta(days=1)]
+    if len(stamps) < PEERTUBE_MIN_VIDEOS:
+        return {"error": f"only {len(stamps)} usable publishedAt values"}
+    age = (now - stamps[-1]).total_seconds() / 86400
+    if age > max_age_days:
+        return {"error": f"newest video {age:.0f}d old"}
+    span_days = (stamps[-1] - stamps[0]).total_seconds() / 86400
+    # Pick the coarsest bin that still clears the gate, so the series is a rate
+    # rather than a string of ones. Count POPULATED bins, not span/width: a
+    # hundred videos posted in one afternoon span five days but occupy three
+    # hourly bins, and it is the populated ones the gate counts.
+    epoch = dt.datetime(1970, 1, 1, tzinfo=dt.timezone.utc)
+    for bin_iso, bin_s in (("P1D", 86400), ("PT6H", 21600), ("PT1H", 3600)):
+        bins = {int((t - epoch).total_seconds()) // bin_s for t in stamps}
+        if len(bins) >= PEERTUBE_MIN_BINS:
+            return {"videos": len(stamps), "span_days": span_days,
+                    "bin": bin_iso, "bins": len(bins),
+                    "newest": stamps[-1].isoformat(), "age_days": age}
+    return {"error": f"{len(stamps)} videos over {span_days:.1f}d fill too few "
+                     f"bins at any resolution"}
+
+
+def peertube_synthesize(inst: dict, probe: dict,
+                        taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = (inst.get("host") or "").strip().lower()
+    name = (inst.get("name") or host).strip()
+    if not host:
+        return None
+    country = (inst.get("country") or "").strip()
+    sid = f"peertube_{entry_id(host, name)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:58]}_{_slug(host, 6)}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{name} — local video publication rate (PeerTube)",
+        "domain": "web_cloudops",
+        "dgp_class": "media_publishing_rate",
+        "archetypes": ["count_discrete", "intermittent", "smooth_periodic"],
+        "frequency": probe["bin"],
+        "endpoint": {
+            "type": "rest_json",
+            "url": (f"https://{host}/api/v1/videos?sort=-publishedAt"
+                    f"&count={PEERTUBE_VIDEOS}&isLocal=true&nsfw=false"),
+            "auth": "none",
+            "rate_limit": "polite",
+        },
+        "schema": {
+            "timestamp_field": "data[].publishedAt",
+            "value_field": "data[].name",
+            "variates": 1,
+            "aggregate": {"op": "count", "bin": probe["bin"]},
+        },
+        "history_available": (
+            f"{probe['videos']} newest local videos, spanning "
+            f"{probe['span_days']:.0f} days"
+        ),
+        "update_cadence_observed": (
+            f"{probe['videos']} videos over {probe['span_days']:.0f}d "
+            f"=> {probe['bins']} bins of {probe['bin']}; "
+            f"newest {probe['newest']}"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Publication rate on one federated instance; no aggregator "
+            "publishes this series, so it cannot be in a pretraining mix."
+        ),
+        "license": "public PeerTube API (see instance terms)",
+        "audit_slack_days": max(7, int(probe["age_days"]) + 7),
+        "notes": (
+            f"Bulk-generated from the PeerTube instance index "
+            f"({PEERTUBE_INDEX}){f', {country}' if country else ''}. "
+            f"isLocal=true because the index's totalVideos counts FEDERATED "
+            f"videos mirrored from peers, which measures the network rather "
+            f"than this instance."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "cron_cadence": "PT6H" if probe["bin"] == "P1D" else "PT1H",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"PeerTube: {probe['videos']} local videos over "
+                   f"{probe['span_days']:.0f}d, {probe['bins']} bins of "
+                   f"{probe['bin']}, host {host}"),
+    }
+
+
+def peertube_sweep(
+    catalog_path: str,
+    host_cap: int = 1,
+    scan_instances: int = 600,
+    max_age_days: float = 21.0,
+    target: Optional[int] = None,
+    sleep_s: float = 0.25,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    try:
+        instances = peertube_instances(scan_instances, log=log)
+    except Exception as exc:                                  # noqa: BLE001
+        return [], [{"id": "index", "reason": f"index unreachable: {exc}"}]
+
+    for inst in instances:
+        host = (inst.get("host") or "").strip().lower()
+        if not host or seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": host, "reason": f"host cap {host_cap} reached"})
+            continue
+        if (inst.get("health") or 0) < 80:
+            skipped.append({"id": host,
+                            "reason": f"index health {inst.get('health')}"})
+            continue
+        if (inst.get("totalLocalVideos") or 0) < PEERTUBE_MIN_VIDEOS:
+            skipped.append({"id": host,
+                            "reason": f"only {inst.get('totalLocalVideos')} "
+                                      f"local videos"})
+            continue
+        probe = peertube_probe(host, max_age_days=max_age_days)
+        time.sleep(sleep_s)
+        if "error" in probe:
+            skipped.append({"id": host, "reason": probe["error"]})
+            continue
+        block = peertube_synthesize(inst, probe, taken=taken_ids)
+        if block is None:
+            skipped.append({"id": host, "reason": "could not synthesise"})
+            continue
+        taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+        cands.append(block)
+        seen_hosts[host] = seen_hosts.get(host, 0) + 1
+        _checkpoint(cands, checkpoint_path)
+        log(f"  + {block['candidate_name'][:62]}  [{probe['bins']} x {probe['bin']}]")
+        if target and len(cands) >= target:
+            log(f"target {target} reached")
+            return cands, skipped
+    return cands, skipped
+
+
+
 def write_batch(candidates: list[dict], out_path: str) -> str:
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(candidates, fh, indent=2)

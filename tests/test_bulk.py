@@ -1328,3 +1328,59 @@ def test_ixp_bits_scales_to_the_exchange():
     assert bulk._bits(25_700_000_000) == "25.7 Gbit/s"
     assert bulk._bits(9_124_986_715_752) == "9.1 Tbit/s"
     assert bulk._bits(800) == "800 bit/s"
+
+
+# --------------------------------------------------------------------------- #
+# PeerTube
+# --------------------------------------------------------------------------- #
+def _pt_videos(stamps):
+    return {"data": [{"name": f"v{i}", "publishedAt": s.strftime("%Y-%m-%dT%H:%M:%SZ")}
+                     for i, s in enumerate(stamps)]}
+
+
+def test_peertube_probe_counts_populated_bins_not_span(monkeypatch):
+    """A hundred videos posted in one afternoon span several days but occupy a
+    handful of hourly bins, and it is the populated ones the gate counts."""
+    base = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=2)
+    burst = [base + dt.timedelta(seconds=30 * i) for i in range(100)]   # ~50 min
+    monkeypatch.setattr(bulk.requests, "get",
+                        lambda *a, **k: _FakeResp(_pt_videos(burst)))
+    assert "too few bins" in bulk.peertube_probe("x.example")["error"]
+
+
+def test_peertube_probe_picks_the_coarsest_bin_that_clears_the_gate(monkeypatch):
+    now = dt.datetime.now(dt.timezone.utc)
+    daily = [now - dt.timedelta(days=i) for i in range(60)]
+    monkeypatch.setattr(bulk.requests, "get",
+                        lambda *a, **k: _FakeResp(_pt_videos(daily)))
+    got = bulk.peertube_probe("x.example")
+    assert got["bin"] == "P1D" and got["bins"] == 60
+
+    hourly = [now - dt.timedelta(hours=i) for i in range(60)]
+    monkeypatch.setattr(bulk.requests, "get",
+                        lambda *a, **k: _FakeResp(_pt_videos(hourly)))
+    got = bulk.peertube_probe("x.example")
+    # 60 hours spans under three days, so daily cannot clear 24 bins.
+    assert got["bin"] == "PT1H" and got["bins"] == 60
+
+
+def test_peertube_probe_rejects_an_abandoned_instance(monkeypatch):
+    old = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=200 + i)
+           for i in range(60)]
+    monkeypatch.setattr(bulk.requests, "get",
+                        lambda *a, **k: _FakeResp(_pt_videos(old)))
+    assert "old" in bulk.peertube_probe("x.example")["error"]
+
+
+def test_peertube_synthesize_reads_the_local_feed():
+    """The index's totalVideos counts FEDERATED videos mirrored from peers,
+    which measures the network rather than the instance."""
+    probe = {"videos": 100, "span_days": 160.0, "bin": "P1D", "bins": 79,
+             "newest": "2026-08-07T08:53:24+00:00", "age_days": 0.2}
+    block = bulk.peertube_synthesize({"host": "tilvids.com", "name": "TILvids",
+                                      "country": "US"}, probe)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert "isLocal=true" in entry["endpoint"]["url"]
+    assert entry["schema"]["aggregate"] == {"op": "count", "bin": "P1D"}
+    assert entry["schema"]["timestamp_field"] == "data[].publishedAt"
+    assert entry["domain"] == "web_cloudops"
