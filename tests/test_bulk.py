@@ -1589,3 +1589,22 @@ def test_pxweb_probe_rejects_index_style_period_labels(monkeypatch):
     monkeypatch.setattr(bulk.requests, "post", lambda *a, **k: _P())
     got = bulk.pxweb_probe("https://x/t.px", {"query": []})
     assert "not a date" in got["error"]
+
+
+def test_pxweb_throttling_is_not_reported_as_a_missing_table(monkeypatch):
+    """Statistics Finland answered 429 for 479 consecutive tables and the sweep
+    logged "table not addressable by path or id" for every one -- reading as
+    "479 tables do not exist" when the truth was "slow down"."""
+    def throttled(url, timeout=30):
+        raise bulk.PxWebThrottled("HTTP 429")
+
+    monkeypatch.setattr(bulk, "pxweb_get", throttled)
+    with pytest.raises(bulk.PxWebThrottled):
+        bulk.pxweb_table_url("https://px.example/DB", "a/b.px")
+
+    # A genuine 404 still means "try the other addressing form, then give up".
+    def missing(url, timeout=30):
+        raise RuntimeError("HTTP 404")
+
+    monkeypatch.setattr(bulk, "pxweb_get", missing)
+    assert bulk.pxweb_table_url("https://px.example/DB", "a/b.px") is None

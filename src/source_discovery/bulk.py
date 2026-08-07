@@ -3808,8 +3808,15 @@ def _safe_unescape(text: str) -> str:
     return text
 
 
+class PxWebThrottled(RuntimeError):
+    """The office is rate-limiting. Distinct from 404 because the caller must
+    back off rather than conclude the table is missing."""
+
+
 def pxweb_get(url: str, timeout: int = 30) -> Any:
     r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code in (429, 503):
+        raise PxWebThrottled(f"HTTP {r.status_code}")
     if r.status_code != 200:
         raise RuntimeError(f"HTTP {r.status_code}")
     return r.json()
@@ -3885,6 +3892,8 @@ def pxweb_table_url(root: str, path: str) -> Optional[str]:
         try:
             pxweb_get(cand)
             return cand
+        except PxWebThrottled:
+            raise            # let the sweep abandon this office, not this table
         except Exception:                                     # noqa: BLE001
             continue
     return None
@@ -4117,7 +4126,13 @@ def pxweb_sweep(
         if seen_hosts.get(host, 0) >= host_cap:
             skipped.append({"id": host, "reason": f"host cap {host_cap} reached"})
             continue
-        tables = pxweb_tables(root, max_age_days=max_age_days, log=log)
+        try:
+            tables = pxweb_tables(root, max_age_days=max_age_days, log=log)
+        except PxWebThrottled:
+            skipped.append({"id": host, "reason": "office is rate-limiting "
+                                                  "during the tree walk"})
+            log(f"  [pxweb] {office} is rate-limiting during the walk -- skipped")
+            continue
         log(f"[pxweb] {office}: {len(tables)} tables updated inside "
             f"{max_age_days:.0f}d")
         got = 0
@@ -4127,7 +4142,17 @@ def pxweb_sweep(
             url = f"{root}/{table['path']}"
             if url in known_urls:
                 continue
-            resolved = pxweb_table_url(root, table["path"])
+            try:
+                resolved = pxweb_table_url(root, table["path"])
+            except PxWebThrottled as exc:
+                # Reporting this per-table would read as "479 tables do not
+                # exist" when the truth is "this office asked me to slow down".
+                skipped.append({"id": host,
+                                "reason": f"office is rate-limiting ({exc}); "
+                                          f"abandoned with {len(tables)} tables "
+                                          f"unexamined"})
+                log(f"  [pxweb] {office} is rate-limiting -- backing off")
+                break
             if resolved is None:
                 skipped.append({"id": table["path"],
                                 "reason": "table not addressable by path or id"})
