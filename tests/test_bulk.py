@@ -1224,3 +1224,19 @@ def test_socrata_domain_datasets_sends_both_domain_params(monkeypatch):
     assert seen["search_context"] == "data.austintexas.gov"
     assert seen["order"] == "updatedAt DESC"
     assert seen["limit"] == 9
+
+
+def test_ods_record_ts_catches_revision_and_refresh_dates():
+    """`resource_revised` got a registry of learning resources through -- its
+    "series" was the runtime of each video."""
+    for ts in ("resource_revised", "last_updated", "lastupdate", "refresh_date",
+               "date_amended"):
+        assert bulk._ODS_RECORD_TS.search(ts), ts
+
+
+def test_ods_id_val_rejects_unnamed_spreadsheet_columns():
+    """Socrata exports unnamed columns as column_0; whatever is in that cell is
+    not a declared measurement."""
+    for v in ("column_0", "column_12", "unnamed_3"):
+        assert bulk._ODS_ID_VAL.search(v), v
+    assert not bulk._ODS_ID_VAL.search("column_density")

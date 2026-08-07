@@ -1436,7 +1436,8 @@ _ODS_RECORD_TS = re.compile(
     r"(^|_)maj(_|$)|date_?maj|maj_?(date|obs)|mise[_ ]?a[_ ]?jour|"
     r"mise[_ ]en[_ ]service|"
     r"creat|instal|publi|demande|saisie|enregistr|validation|"
-    r"import|integration|depot|inscription|derniere",
+    r"import|integration|depot|inscription|derniere|revis|last_?update|"
+    r"refresh|amended",
     re.I,
 )
 # Numeric columns that identify or locate a row rather than measure anything.
@@ -1448,7 +1449,10 @@ _ODS_ID_VAL = re.compile(
     r"^dc_|commune|departement|arrondissement|^wmo$|"
     r"(id|code|numero|number|num)$|^(id|code|no)_|"
     # "numbershort" is an identifier, "number_of_passengers" is a measurement.
-    r"^(number|numero|nombre)(?!s?[_ ]?(of|de|d))",
+    r"^(number|numero|nombre)(?!s?[_ ]?(of|de|d))|"
+    # Socrata exports unnamed spreadsheet columns as column_0, column_1...
+    # They are whatever the publisher left in that cell.
+    r"^column_?\d+$|^unnamed",
     re.I,
 )
 
