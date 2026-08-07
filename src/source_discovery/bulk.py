@@ -3078,6 +3078,195 @@ def gbfs_sweep(
     return cands, skipped
 
 
+
+# --------------------------------------------------------------------------- #
+# Socrata, publisher-first
+# --------------------------------------------------------------------------- #
+# Same inversion as ods_publisher_sweep, and the same two hazards: no query to
+# anchor a class to, and a portal walk that returns the whole portal rather than
+# datasets about a topic. Both are handled the same way -- classify off the
+# publisher's own filing (`classification.domain_category`, Socrata's analogue
+# of ODS `theme`) and reject registry timestamps and identifier columns.
+#
+# Enumerating the domains is the part that differs. Socrata has no domains
+# endpoint (/api/catalog/v1/domains is a 404 on both the US and EU catalogs), so
+# the list comes from scrolling the federated catalog and collecting
+# metadata.domain. That surfaces a lot of abandoned Socrata-hosted portals:
+# of 249 domains found, 164 were unwired and production, and only 58 had
+# anything updated in the last three weeks. Measure liveness before sweeping --
+# it is one request per domain and skips two thirds of the work.
+SOCRATA_NONPROD = ("demo", "qa", "beta", "test", "staging", "sandbox",
+                   "training", "internal")
+
+
+def socrata_is_production(domain: str) -> bool:
+    """Token-wise, not substring: these markers turn up in any position and with
+    either separator (budget-QA-reporting.data.socrata.com), while a substring
+    test would also reject legitimate names containing them."""
+    parts = set(re.split(r"[.\-_]+", domain.lower()))
+    return not (parts & set(SOCRATA_NONPROD))
+
+
+def socrata_domains(scroll_pages: int = 400, timeout: int = 60,
+                    sleep_s: float = 0.15, log=print) -> list[str]:
+    """Every domain the federated catalog will admit to, by scroll paging."""
+    doms: set[str] = set()
+    scroll, pages = None, 0
+    while pages < scroll_pages:
+        params: dict[str, Any] = {"only": "dataset", "limit": 100}
+        if scroll:
+            params["scroll_id"] = scroll
+        try:
+            r = requests.get(CATALOG_API, params=params,
+                             headers={"User-Agent": UA}, timeout=timeout)
+            res = r.json().get("results", []) if r.status_code == 200 else []
+        except Exception:                                     # noqa: BLE001
+            break
+        if not res:
+            break
+        for x in res:
+            d = (x.get("metadata") or {}).get("domain")
+            if d:
+                doms.add(d.lower())
+        scroll = res[-1]["resource"]["id"]
+        pages += 1
+        time.sleep(sleep_s)
+    log(f"  [socrata-pub] {pages * 100} datasets scanned, {len(doms)} domains")
+    return sorted(doms)
+
+
+def socrata_domain_datasets(domain: str, want: int = 25,
+                            timeout: int = 45) -> list[dict]:
+    """That domain's most recently updated datasets, newest first.
+
+    Both `domains` and `search_context` are required: with `domains` alone the
+    big portals answer 0 (data.austintexas.gov reports 0 vs 705 with context).
+    """
+    r = requests.get(CATALOG_API, params={
+        "domains": domain, "search_context": domain,
+        "only": "dataset", "order": "updatedAt DESC",
+        "limit": min(CATALOG_PAGE, want),
+    }, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    return r.json().get("results", [])
+
+
+def socrata_publisher_sweep(
+    catalog_path: str,
+    host_cap: int = 2,
+    scan_per_host: int = 25,
+    max_age_days: float = 21.0,
+    domains: Optional[Iterable[str]] = None,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    known_hosts = wired_hosts(catalog_path)
+    seen_hosts = host_counts(catalog_path)
+    known_ids = wired_resource_ids(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    if domains is None:
+        log("[socrata-pub] enumerating domains...")
+        domains = socrata_domains(log=log)
+    domains = [d for d in domains if d and socrata_is_production(d)]
+    log(f"[socrata-pub] {len(domains)} production domains; "
+        f"{sum(1 for d in domains if d in known_hosts)} already wired")
+
+    for domain in domains:
+        if domain in known_hosts or seen_hosts.get(domain, 0) >= host_cap:
+            skipped.append({"id": domain, "reason": "host already wired"})
+            continue
+        try:
+            records = socrata_domain_datasets(domain, scan_per_host)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": domain, "reason": f"listing failed: {exc}"})
+            continue
+        time.sleep(sleep_s)
+        got = 0
+        for res in records:
+            if got >= host_cap:
+                break
+            resource = res.get("resource") or {}
+            rid = resource.get("id") or ""
+            title = (resource.get("name") or "").strip()
+            tag = f"{domain}/{rid}"
+            if not rid or rid in known_ids:
+                continue
+            updated = _parse_iso(resource.get("updatedAt"))
+            if updated is None:
+                continue
+            age = (dt.datetime.now(dt.timezone.utc) - updated).total_seconds() / 86400
+            if age > max_age_days:
+                # Sorted newest-first, so the rest of this portal is older.
+                skipped.append({"id": domain,
+                                "reason": f"nothing updated inside "
+                                          f"{max_age_days:.0f}d (newest {age:.0f}d)"})
+                break
+            if _ODS_REJECT_TITLE.search(title):
+                skipped.append({"id": tag,
+                                "reason": f"not a forecastable process: {title[:50]}"})
+                continue
+            category = (res.get("classification") or {}).get("domain_category", "")
+            use_class = ods_publisher_class([category] if category else [], title,
+                                            resource.get("description") or "")
+            if use_class is None:
+                skipped.append({"id": tag,
+                                "reason": f"category not in the map: {category!r}"})
+                continue
+            cols = _cols(resource)
+            ts = pick_timestamp_column(cols)
+            if not ts:
+                skipped.append({"id": tag, "reason": "no date/timestamp column"})
+                continue
+            if _ODS_RECORD_TS.search(ts):
+                skipped.append({"id": tag,
+                                "reason": f"registry: '{ts}' is a record-keeping "
+                                          f"date, not an observation clock"})
+                continue
+            vals = [v for v in pick_value_columns(cols, ts)
+                    if not _ODS_ID_VAL.search(v)]
+            if not vals:
+                skipped.append({"id": tag,
+                                "reason": "no numeric field that measures anything"})
+                continue
+
+            probe = probe_series(domain, rid, ts)
+            time.sleep(sleep_s)
+            if probe is None or "error" in probe:
+                skipped.append({"id": tag,
+                                "reason": f"probe failed: {(probe or {}).get('error')}"})
+                continue
+            if probe["distinct"] < 20:
+                skipped.append({"id": tag,
+                                "reason": f"only {probe['distinct']} distinct ts"})
+                continue
+            if probe["age_days"] > max_age_days * 3:
+                skipped.append({"id": tag,
+                                "reason": f"newest observation {probe['age_days']:.0f}d old"})
+                continue
+            block = synthesize(res, use_class, probe, taken=taken_ids)
+            if block is None:
+                skipped.append({"id": tag, "reason": "could not synthesise entry"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            known_ids.add(rid)
+            cands.append(block)
+            got += 1
+            seen_hosts[domain] = seen_hosts.get(domain, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + [{use_class[1]}] {block['candidate_name'][:66]}")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+
 def write_batch(candidates: list[dict], out_path: str) -> str:
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(candidates, fh, indent=2)

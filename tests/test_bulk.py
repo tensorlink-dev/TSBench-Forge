@@ -1196,3 +1196,31 @@ def test_ods_epc_and_dpe_land_in_the_same_domain():
         ["Logement"], "Diagnostics de Performances Énergétiques (DPE)")
     assert en[1] == fr[1] == "energy"
     assert en[2] == fr[2] == "building_energy_rating"
+
+
+def test_socrata_is_production_rejects_demo_portals():
+    """The scrolled domain list is full of Socrata-hosted demo and QA portals;
+    wiring one is a source that vanishes without notice."""
+    for d in ("austin-metro.demo.socrata.com", "budget-qa-reporting.data.socrata.com",
+              "internal-data.ct.gov", "auditor-ca.demo.socrata.com"):
+        assert not bulk.socrata_is_production(d), d
+    for d in ("data.vermont.gov", "data.auburnwa.gov", "albany.data.socrata.com",
+              "open.piercecountywa.gov"):
+        assert bulk.socrata_is_production(d), d
+
+
+def test_socrata_domain_datasets_sends_both_domain_params(monkeypatch):
+    """With `domains` alone the big portals answer 0 -- data.austintexas.gov
+    reports 0 datasets without search_context and 705 with it."""
+    seen = {}
+
+    def fake(url, params=None, headers=None, timeout=0):
+        seen.update(params or {})
+        return _FakeResp({"results": []})
+
+    monkeypatch.setattr(bulk.requests, "get", fake)
+    bulk.socrata_domain_datasets("data.austintexas.gov", want=9)
+    assert seen["domains"] == "data.austintexas.gov"
+    assert seen["search_context"] == "data.austintexas.gov"
+    assert seen["order"] == "updatedAt DESC"
+    assert seen["limit"] == 9
