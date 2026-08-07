@@ -1037,7 +1037,8 @@ def ods_probe(host: str, dsid: str, ts: str, timeout: int = 30) -> dict:
 
 
 def ods_synthesize(rec: dict, klass: tuple[str, str, str], probe: dict,
-                   taken: Optional[set[str]] = None) -> Optional[dict]:
+                   taken: Optional[set[str]] = None,
+                   origin: Optional[str] = None) -> Optional[dict]:
     kw, dom, dgp = klass
     metas = (rec.get("metas") or {}).get("default") or {}
     host = (metas.get("source_domain_address") or "").strip().lower()
@@ -1056,6 +1057,7 @@ def ods_synthesize(rec: dict, klass: tuple[str, str, str], probe: dict,
     sid = entry_id(host, title)
     if taken and sid in taken:
         sid = f"{sid[:52]}_{_slug(dsid, 10)}"[:64]
+    provenance = origin or f"query '{kw}'"
 
     entry: dict[str, Any] = {
         "id": sid,
@@ -1087,9 +1089,10 @@ def ods_synthesize(rec: dict, klass: tuple[str, str, str], probe: dict,
         "license": metas.get("license") or "open data (see host portal terms)",
         "audit_slack_days": slack,
         "notes": (
-            f"Bulk-generated from the Opendatasoft federated catalog (query "
-            f"'{kw}'). Fields chosen from the portal's declared types; the "
-            f"endpoint points at the publisher's own host, not the aggregator."
+            f"Bulk-generated from the Opendatasoft federated catalog "
+            f"({provenance}). Fields chosen from the portal's declared types; "
+            f"the endpoint points at the publisher's own host, not the "
+            f"aggregator."
         ),
     }
     if vals:
@@ -1420,6 +1423,43 @@ ODS_THEME_PATTERNS: tuple[tuple[str, str], ...] = (
 _ODS_THEME_RE: tuple[tuple[Any, str], ...] = tuple(
     (re.compile(pat, re.I), dom) for pat, dom in ODS_THEME_PATTERNS)
 
+# A keyword sweep only ever sees datasets a topic query matched. A publisher
+# walk sees the WHOLE portal, and an open-data portal is mostly registries:
+# address bases, defibrillator locations, charge points, cemetery records. Those
+# pass every structural check, because a registry built incrementally has a
+# per-row "created"/"last updated" column that looks exactly like an observation
+# clock and numeric columns that are coordinates and identifiers. Half of the
+# first publisher-first batch was registries; all of them carried one of these.
+_ODS_RECORD_TS = re.compile(
+    r"(^|_)maj(_|$)|mise[_ ]?a[_ ]?jour|mise[_ ]en[_ ]service|"
+    r"creat|instal|publi|demande|saisie|enregistr|validation|"
+    r"import|integration|depot|inscription|derniere",
+    re.I,
+)
+# Numeric columns that identify or locate a row rather than measure anything.
+# Checked as a substring, unlike _ODS_VAL_REJECT's token match, because these
+# arrive glued together (uiccountrycode, organisationnumber, c_xy_precis).
+_ODS_ID_VAL = re.compile(
+    r"^[xy]$|(^|_)xy(_|$)|^g?id$|coord|geo|uic|insee|siret|siren|"
+    r"(id|code|numero|number|num)$|^(id|code|no)_|"
+    # "numbershort" is an identifier, "number_of_passengers" is a measurement.
+    r"^(number|numero|nombre)(?!s?[_ ]?(of|de|d))",
+    re.I,
+)
+
+# The theme is the publisher's own filing, and publishers file by DEPARTMENT:
+# a health agency tags its air-quality monitors "Santé". These few phrases name
+# the measured process unambiguously enough to outrank that. Kept deliberately
+# short -- every entry here is a hole in the closed vocabulary.
+ODS_TITLE_OVERRIDE: tuple[tuple[str, str, str], ...] = (
+    (r"qualit[ée] de l.air|air quality|luchtkwaliteit|"
+     r"(^|\W)(pm10|pm2[.,]?5|no2|ozone)(\W|$)", "nature", "air_quality"),
+    (r"prix|tarif|price|precio|preis", "econ_fin", "price_level"),
+)
+_ODS_TITLE_OVERRIDE_RE = tuple(
+    (re.compile(p, re.I), d, c) for p, d, c in ODS_TITLE_OVERRIDE)
+
+
 # Used when the theme fixes the domain but no keyword class in that domain
 # matches the title well enough to name the process more precisely.
 ODS_DOMAIN_DEFAULT_CLASS: dict[str, str] = {
@@ -1452,6 +1492,9 @@ def ods_publisher_class(themes: Any, title: str,
     already live in the theme's domain — so a bad title match costs precision
     inside a domain instead of putting the source in the wrong one.
     """
+    for rx, dom, dgp in _ODS_TITLE_OVERRIDE_RE:
+        if rx.search(title):
+            return (dgp, dom, dgp)
     if isinstance(themes, str):
         themes = [themes]
     doms = set()
@@ -1596,7 +1639,18 @@ def ods_publisher_sweep(
                 break
             fields = _ods_fields(rec)
             ts = ods_pick_timestamp(fields)
-            if not ts or not ods_pick_values(fields, ts):
+            if not ts:
+                continue
+            if _ODS_RECORD_TS.search(ts):
+                skipped.append({"id": tag,
+                                "reason": f"registry: '{ts}' is a record-keeping "
+                                          f"date, not an observation clock"})
+                continue
+            vals = ods_pick_values(fields, ts)
+            vals = [v for v in vals if not _ODS_ID_VAL.search(v)]
+            if not vals:
+                skipped.append({"id": tag,
+                                "reason": "no numeric field that measures anything"})
                 continue
             # Publisher-first means no keyword to inherit a class from, so the
             # title has to carry it alone; an unclassifiable dataset is skipped
@@ -1625,7 +1679,8 @@ def ods_publisher_sweep(
                 skipped.append({"id": tag,
                                 "reason": f"newest observation {probe['age_days']:.0f}d old"})
                 continue
-            block = ods_synthesize(rec, use_class, probe, taken=taken_ids)
+            block = ods_synthesize(rec, use_class, probe, taken=taken_ids,
+                                   origin="publisher walk, theme-classified")
             if block is None:
                 skipped.append({"id": tag, "reason": "could not synthesise entry"})
                 continue

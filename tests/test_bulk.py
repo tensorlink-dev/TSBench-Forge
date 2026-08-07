@@ -1135,3 +1135,37 @@ def test_ods_theme_patterns_are_valid_and_on_known_domains():
 def test_ods_theme_pattern_ambiguity_is_a_skip():
     # One theme string hitting two domains is a coin flip, not a signal.
     assert bulk.ods_publisher_class(["Transport et Énergie"], "x") is None
+
+
+def test_ods_rejects_registry_timestamps():
+    """A publisher walk sees the whole portal, and an open-data portal is mostly
+    registries. A registry built incrementally has a per-row created/updated
+    column that looks exactly like an observation clock -- half of the first
+    publisher-first batch got in this way."""
+    for ts in ("date_der_maj", "c_date_instal", "date_mise_en_service",
+               "date_creation", "creationtime", "creationdate", "date_demande",
+               "published"):
+        assert bulk._ODS_RECORD_TS.search(ts), ts
+    for ts in ("date_time", "moment", "depart", "timestamp", "periode",
+               "date_visite_diagnostique", "datenotification",
+               "dernier_jour_du_trimestre"):
+        assert not bulk._ODS_RECORD_TS.search(ts), ts
+
+
+def test_ods_rejects_identifier_columns_as_values():
+    for v in ("x", "y", "gid", "c_xy_precis", "said", "organisationnumber",
+              "uiccountrycode", "numbershort", "code_insee"):
+        assert bulk._ODS_ID_VAL.search(v), v
+    for v in ("solar_radiation", "air_temperature", "production_biomethane",
+              "aqi", "reg_avg_value", "nbre_pdc", "montant", "conso_chauffage",
+              "number_of_passengers", "nombre_de_velos"):
+        assert not bulk._ODS_ID_VAL.search(v), v
+
+
+def test_ods_title_override_beats_a_departmental_theme():
+    """Publishers file by department: a health agency tags its air-quality
+    monitors 'Santé'. The measured process is still air quality."""
+    got = bulk.ods_publisher_class(["Santé"], "Qualité de l'air par heure")
+    assert got[1] == "nature" and got[2] == "air_quality"
+    got = bulk.ods_publisher_class(["Environnement"], "Prix des Énergies en France")
+    assert got[1] == "econ_fin"
