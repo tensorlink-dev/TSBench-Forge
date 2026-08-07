@@ -1384,3 +1384,34 @@ def test_peertube_synthesize_reads_the_local_feed():
     assert entry["schema"]["aggregate"] == {"op": "count", "bin": "P1D"}
     assert entry["schema"]["timestamp_field"] == "data[].publishedAt"
     assert entry["domain"] == "web_cloudops"
+
+
+def test_peeringdb_derives_grapher_paths_from_the_stats_url(monkeypatch):
+    """ixpdb's apis.traffic is the set of exchanges that DECLARE a traffic API,
+    not the set that has one; deriving from PeeringDB's human stats page finds
+    a further ~33 hosts."""
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeResp({"data": [
+        {"id": 1, "name": "Alpha IX", "city": "A", "country": "AT",
+         "url_stats": "https://ixp.alpha.at/statistics"},
+        {"id": 2, "name": "Beta IX", "city": "B", "country": "DE",
+         "url_stats": "https://www.beta.de/ixp/traffic"},
+        {"id": 3, "name": "No Stats", "url_stats": ""},
+    ]}))
+    got = bulk.peeringdb_ixp_candidates(log=lambda m: None)
+    urls = [c["apis"]["traffic"] for c in got]
+    # Bare host, and host plus the first path segment, because IXP Manager is
+    # commonly mounted under a prefix like /ixp.
+    assert "https://ixp.alpha.at/grapher/infrastructure?id=1&type=log&period=day" in urls
+    assert "https://www.beta.de/ixp/grapher/infrastructure?id=1&type=log&period=day" in urls
+    assert all("No Stats" != c["name"] for c in got)
+
+
+def test_peeringdb_throttle_is_not_reported_as_an_empty_vein(monkeypatch):
+    """PeeringDB answers 429 with a retry-after message. Swallowing that into
+    an empty list logs "0 hosts", which reads as "this vein is dry"."""
+    said = []
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeResp(
+        {"message": "Request was throttled."}, status=429,
+        text="Request was throttled."))
+    assert bulk.peeringdb_ixp_candidates(log=said.append) == []
+    assert any("429" in m and "not concluding" in m for m in said)

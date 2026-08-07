@@ -33710,3 +33710,785 @@
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
     FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
     measures the network rather than this instance.
+
+# -- wired batch: wave 29: IXPs derived from PeeringDB (+26) --
+- id: ixp_aaix_aaix
+  name: AAIX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixp-manager.aaix.at/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 881.9 Mbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixp-manager.aaix.at. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_id_bix_jakarta
+  name: BIX Jakarta — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.bix.id/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 772.6 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-portal.bix.id. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because
+    at period=day they duplicate in/out exactly.
+- id: ixp_rheintal_rheintal_ix
+  name: Rheintal IX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixp.rheintal-ix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 400 samples, median gap 5 min; peak 5.9 Gbit/s; newest 2026-08-07T13:07:39+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixp.rheintal-ix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_zm_lusaka_internet_exchange_poi
+  name: Lusaka Internet Exchange Poi — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.lskix.net.zm/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 1.7 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-portal.lskix.net.zm. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_slix_slix_salt_lake_city_intern
+  name: SLIX - Salt Lake City Intern — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixp.slix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 299.8 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixp.slix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because
+    at period=day they duplicate in/out exactly.
+- id: ixp_fl_fl_ix
+  name: FL-IX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://my.fl-ix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 3.8 Tbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-my.fl-ix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because
+    at period=day they duplicate in/out exactly.
+- id: ixp_tirol_tirol_ix
+  name: Tirol-IX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixp.tirol-ix.at/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 400 samples, median gap 5 min; peak 2.1 Gbit/s; newest 2026-08-07T13:10:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixp.tirol-ix.at. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_lsix_lsix
+  name: LSIX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://my.lsix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 401 samples, median gap 5 min; peak 305.3 Gbit/s; newest 2026-08-07T13:10:06+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-my.lsix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because
+    at period=day they duplicate in/out exactly.
+- id: ixp_communityix_cix_atl
+  name: CIX-ATL — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://atl.communityix.org/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 400 samples, median gap 5 min; peak 2.7 Tbit/s; newest 2026-08-07T13:10:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-atl.communityix.org. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_net_9654_mmix_yangon
+  name: MMIX Yangon — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixpmanager.mm-ix.net:9654/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 400 samples, median gap 5 min; peak 205.3 Gbit/s; newest 2026-08-07T13:10:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixpmanager.mm-ix.net:9654. Columns are [epoch, in, out]; the grapher's in_max/out_max are
+    dropped because at period=day they duplicate in/out exactly.
+- id: ixp_jktix_jkt_ix
+  name: JKT-IX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixpmanager.jktix.com/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 7.1 Tbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixpmanager.jktix.com. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_onenet_ix_okc
+  name: iX-OKC — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixp.onenet.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 25.3 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixp.onenet.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_th_jtix_thailand
+  name: JTIX (Thailand) — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://jtix.jastel.co.th/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 185.3 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-jtix.jastel.co.th. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_trueintergateway_true_ix
+  name: TRUE-IX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://trueix.trueintergateway.com/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 2.0 Tbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-trueix.trueintergateway.com. Columns are [epoch, in, out]; the grapher's in_max/out_max
+    are dropped because at period=day they duplicate in/out exactly.
+- id: ixp_dreamserver_dsix
+  name: DSIX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ix.dreamserver.ro/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 192.8 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ix.dreamserver.ro. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_douala_douala_ix
+  name: Douala-IX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.douala-ix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 175.2 kbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-portal.douala-ix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_sumix_sumix
+  name: sumIX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://member.sumix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 3.3 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-member.sumix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_edgeix_edgeix_auckland
+  name: EdgeIX - Auckland — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: http://ixp.edgeix.net.au/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT1M
+  update_cadence_observed: 1441 samples, median gap 1 min; peak 705.1 Mbit/s; newest 2026-08-07T13:11:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixp.edgeix.net.au. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_studio_datasphere_internet_exchange
+  name: DataSphere Internet Exchange — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixpm.datasphere.studio/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 1.2 Mbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixpm.datasphere.studio. Columns are [epoch, in, out]; the grapher's in_max/out_max are
+    dropped because at period=day they duplicate in/out exactly.
+- id: ixp_ilixchange_ilix
+  name: ILIX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixp.ilixchange.com/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 316.2 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixp.ilixchange.com. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_ve_napve_mcbo
+  name: NAPVE MCBO — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixpmanager-mcbo.nap.com.ve/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 401 samples, median gap 5 min; peak 83.0 Gbit/s; newest 2026-08-07T13:10:08+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixpmanager-mcbo.nap.com.ve. Columns are [epoch, in, out]; the grapher's in_max/out_max
+    are dropped because at period=day they duplicate in/out exactly.
+- id: ixp_indyix_indyix
+  name: IndyIX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixp.indyix.com/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 1.4 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixp.indyix.com. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.
+- id: ixp_cxix_cxix_great_lakes
+  name: CXIX - Great Lakes — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixpm.cxix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 266.1 Mbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixpm.cxix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because
+    at period=day they duplicate in/out exactly.
+- id: ixp_ve_napve_vln
+  name: NAPVE VLN — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixpmanager-vln.nap.com.ve/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 401 samples, median gap 5 min; peak 60.2 Gbit/s; newest 2026-08-07T13:10:02+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-ixpmanager-vln.nap.com.ve. Columns are [epoch, in, out]; the grapher's in_max/out_max are
+    dropped because at period=day they duplicate in/out exactly.
+- id: ixp_id_panda_ix
+  name: PANDA-IX — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://pandascope.pandanaran.id/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 28.8 Gbit/s; newest 2026-08-07T13:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-pandascope.pandanaran.id. Columns are [epoch, in, out]; the grapher's in_max/out_max are
+    dropped because at period=day they duplicate in/out exactly.
+- id: ixp_communityix_cix_nova
+  name: CIX-NoVA — exchange traffic
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://nova.communityix.org/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 400 samples, median gap 5 min; peak 789.4 Gbit/s; newest 2026-08-07T13:10:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-nova.communityix.org. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped
+    because at period=day they duplicate in/out exactly.

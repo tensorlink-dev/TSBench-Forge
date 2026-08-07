@@ -3311,6 +3311,57 @@ def ixp_providers(timeout: int = 60) -> list[dict]:
     return [p for p in r.json() if (p.get("apis") or {}).get("traffic")]
 
 
+PEERINGDB_IX = "https://www.peeringdb.com/api/ix?limit=3000"
+
+
+def peeringdb_ixp_candidates(timeout: int = 90, log=print) -> list[dict]:
+    """Exchanges whose IXP Manager grapher can be DERIVED from their stats page.
+
+    ixpdb's `apis.traffic` is the registry of exchanges that declare a traffic
+    API, and it is not the same set as the exchanges that have one. PeeringDB
+    records a human `url_stats` for 767 exchanges on 437 hosts; deriving the
+    grapher path from it finds a further ~33 that ixpdb never listed. Emitted
+    in ixpdb's provider shape so both feed one sweep.
+    """
+    try:
+        r = requests.get(PEERINGDB_IX, headers={"User-Agent": UA}, timeout=timeout)
+    except Exception as exc:                                  # noqa: BLE001
+        log(f"  [ixp] PeeringDB unreachable: {exc}")
+        return []
+    if r.status_code != 200:
+        # PeeringDB throttles hard (429 with a "try again in N minutes" body).
+        # Swallowing that into an empty list logs "0 hosts", which reads as
+        # "this vein is dry" -- the exact wrong conclusion, and one already made
+        # once here from a half-finished probe.
+        log(f"  [ixp] PeeringDB returned HTTP {r.status_code}: "
+            f"{r.text[:120]} -- SKIPPING the derived set, not concluding it is "
+            f"empty")
+        return []
+    data = (r.json() or {}).get("data") or []
+    out, seen = [], set()
+    for x in data:
+        u = (x.get("url_stats") or "").strip()
+        if not u.startswith("http"):
+            continue
+        p = urlparse(u)
+        if not p.netloc or p.netloc.lower() in seen:
+            continue
+        seen.add(p.netloc.lower())
+        segs = [seg for seg in p.path.split("/") if seg]
+        for base in ([f"{p.scheme}://{p.netloc}"]
+                     + ([f"{p.scheme}://{p.netloc}/{segs[0]}"] if segs else [])):
+            out.append({
+                "name": x.get("name") or p.netloc,
+                "city": x.get("city") or "", "country": x.get("country") or "",
+                "id": f"pdb-{x.get('id')}",
+                "apis": {"traffic": f"{base}/grapher/infrastructure"
+                                    f"?id=1&type=log&period=day"},
+            })
+    log(f"  [ixp] {len(seen)} PeeringDB hosts with a stats URL "
+        f"=> {len(out)} derived grapher paths to try")
+    return out
+
+
 def ixp_traffic_url(traffic_api: str) -> str:
     sep = "&" if "?" in traffic_api else "?"
     url = re.sub(r"([?&])period=[^&]*", r"\1period=" + IXP_PERIOD, traffic_api)
@@ -3436,6 +3487,7 @@ def ixp_sweep(
     catalog_path: str,
     host_cap: int = 2,
     max_age_days: float = 2.0,
+    include_peeringdb: bool = True,
     target: Optional[int] = None,
     sleep_s: float = 0.3,
     checkpoint_path: Optional[str] = None,
@@ -3452,6 +3504,8 @@ def ixp_sweep(
     except Exception as exc:                                  # noqa: BLE001
         return [], [{"id": "ixpdb", "reason": f"registry unreachable: {exc}"}]
     log(f"[IXP] {len(providers)} providers publish a traffic API")
+    if include_peeringdb:
+        providers = providers + peeringdb_ixp_candidates(log=log)
 
     for prov in providers:
         name = (prov.get("name") or "").strip()
