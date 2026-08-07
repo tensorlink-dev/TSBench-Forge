@@ -1039,3 +1039,62 @@ def test_resolve_class_without_a_query_class():
         "energy", "nature", "econ_fin", "transport", "sales", "healthcare",
         "web_cloudops"}
     assert bulk.resolve_class(None, "") is None
+
+
+def test_ods_publisher_class_uses_the_theme_not_the_title():
+    """The failures that motivated the closed map, all from one real sweep:
+    without a theme these titles scored a single accidental token against an
+    English keyword list and landed in the wrong domain."""
+    assert bulk.ods_publisher_class(["Energy"],
+        "Hourly electricity consumption by feeder")[1] == "energy"
+    assert bulk.ods_publisher_class(["Hydrography"],
+        "Daily river water level gauge readings")[1] == "nature"
+    assert bulk.ods_publisher_class(["Santé"],
+        "Passages aux urgences par jour")[1] == "healthcare"
+
+
+def test_ods_publisher_class_skips_what_it_cannot_place():
+    # Unmapped theme: real data, but no class in this build describes it.
+    assert bulk.ods_publisher_class(["Orthoimagery"], "Aerial photos 2019") is None
+    assert bulk.ods_publisher_class([], "No theme") is None
+    assert bulk.ods_publisher_class(None, "No theme") is None
+    # Two themes pointing at different domains is a coin flip, so don't flip it.
+    assert bulk.ods_publisher_class(["Economy", "Transport"], "Mixed") is None
+    # Two spellings of ONE domain is not a disagreement.
+    assert bulk.ods_publisher_class(["Transport", "Mobilité"], "Bus")[1] == "transport"
+
+
+def test_ods_publisher_class_accepts_a_bare_string_theme():
+    assert bulk.ods_publisher_class("Energy", "Grid load")[1] == "energy"
+
+
+def test_ods_publisher_class_falls_back_to_a_domain_default():
+    """A theme the map knows plus a title no keyword class matches is still a
+    usable source; it just gets the generic class for its domain."""
+    got = bulk.ods_publisher_class(["Electricity"], "Zzzz qqqq wwww")
+    assert got[1] == "energy"
+    assert got[2] == bulk.ODS_DOMAIN_DEFAULT_CLASS["energy"]
+
+
+def test_ods_theme_map_only_emits_known_domains():
+    DOMAINS = {"nature", "econ_fin", "transport", "energy", "sales",
+               "healthcare", "web_cloudops"}
+    assert set(bulk.ODS_THEME_DOMAIN.values()) <= DOMAINS
+    assert set(bulk.ODS_DOMAIN_DEFAULT_CLASS) == DOMAINS
+    # Keys are matched lowercased; a capitalised key would never fire.
+    assert all(k == k.lower() for k in bulk.ODS_THEME_DOMAIN)
+
+
+def test_ods_rejects_games_of_chance():
+    """A lottery draw passes every structural check -- clean timestamp, dense
+    numeric column, daily cadence -- and is i.i.d. uniform by construction."""
+    for t in ("Résultats Loto", "Keno winning numbers", "EuroMillions tirage",
+              "dedicated-integers", "random walk sample_data"):
+        assert bulk._ODS_REJECT_TITLE.search(t), t
+    # Only the draw itself is the problem. A grants ledger that happens to be
+    # lottery-funded is a real spending series and several UK portals publish
+    # one, so "lottery" on its own must not be a rejection.
+    for t in ("Lottery Fund grant payments to community groups",
+              "National Lottery Community Fund awards by month",
+              "Random sample survey of household energy use"):
+        assert not bulk._ODS_REJECT_TITLE.search(t), t

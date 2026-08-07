@@ -463,7 +463,8 @@ def _topic_tokens(text: str) -> list[str]:
 
 
 def resolve_class(
-    query_class: Optional[tuple[str, str, str]], title: str, description: str = ""
+    query_class: Optional[tuple[str, str, str]], title: str, description: str = "",
+    min_score: int = 1,
 ) -> Optional[tuple[str, str, str]]:
     """Decide a dataset's domain from the dataset ITSELF, not from the query that
     surfaced it.
@@ -475,11 +476,21 @@ def resolve_class(
     mislabelled entry misdirects every later decision about what to go find next.
     Scoring every known class against the dataset's own title keeps the good
     series and files it correctly. Returns None when nothing matches, which is
-    the honest answer for a result the sweep simply should not have surfaced."""
+    the honest answer for a result the sweep simply should not have surfaced.
+
+    `min_score` is how many of a class's tokens the title has to hit. One is
+    right for a keyword sweep, where the query already established the topic and
+    this call is only checking the result did not drift. It is far too loose
+    without that anchor: a publisher-first walk hands this function raw titles,
+    many of them not in English, so token overlap with an English keyword list is
+    near zero and a single incidental hit wins by default. Measured on the ODS
+    federation at min_score=1: French headcount statistics filed as transport,
+    lottery draws as healthcare. Raise it and those become None, which is
+    correct — they are datasets this build has no class for."""
     hay = " ".join(_topic_tokens(f"{title} {description}"))
     if not hay:
         return None
-    best, best_score = None, 0
+    best, best_score = None, min_score - 1
     # A publisher-first sweep has no query to inherit from, so query_class is
     # None and the dataset's own title has to carry the classification alone.
     head = (query_class,) if query_class is not None else ()
@@ -1241,7 +1252,158 @@ def ods_sweep(
 ODS_FACETS = "https://data.opendatasoft.com/api/explore/v2.1/catalog/facets"
 ODS_FACET_CAP = 100                  # /catalog/facets caps a facet at 100 values
 ODS_PREFIX_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789-"
-ODS_MAX_PREFIX_DEPTH = 4
+# 4 truncates on 'data', which is the most common prefix in the federation
+# by a wide margin -- the depth limit is a backstop, the request budget in
+# ods_publishers is what actually bounds the walk.
+ODS_MAX_PREFIX_DEPTH = 8
+
+# A keyword sweep never surfaces these because no keyword class describes them.
+# Walking a portal end-to-end does. Lottery draws are the sharpest case: they
+# have a clean timestamp, a dense numeric column and daily cadence, so every
+# structural check passes -- and they are i.i.d. uniform by construction. A
+# forecasting benchmark that contains them is measuring nothing and paying for
+# the privilege. The rest are portals' own test fixtures.
+_ODS_REJECT_TITLE = re.compile(
+    # Games of chance. "lottery" alone would also take out National Lottery
+    # FUND grant payments, which are a real spending series, so the draw words
+    # need draw context; loto/keno/euromillions carry it on their own.
+    # (euromillion\b would never match "EuroMillions" -- same trap as
+    # climatolog\b not matching "climatology".)
+    r"\b(loto|lotto|keno|euromillions?|powerball|jackpots?|raffles?|sorteos?)\b"
+    r"|\b(lottery|tirage|draw)\b[^,;]{0,24}"
+    r"\b(result|resultat|résultat|number|numero|winning|draw|gagnant)"
+    r"|\b(winning|gagnant)\b[^,;]{0,16}\b(number|numero|combinaison)"
+    # Portals' own test fixtures.
+    r"|\b(dummy|sample[_ ]data|test[_ ]dataset|random[_ ]walk|"
+    r"dedicated[_ -]integers|all[_ ]geometries)\b",
+    re.I,
+)
+
+# Without a query class to anchor on, one token of overlap is noise.
+ODS_PUBLISHER_MIN_CLASS_SCORE = 2
+
+
+
+# Publisher-first has no query to anchor a domain to, and the title cannot carry
+# it alone: `resolve_class` scores an English/French municipal keyword list
+# against raw titles and lets one token win, which on this federation filed
+# French headcount statistics as transport, lottery draws as healthcare, and
+# "Hourly electricity consumption by feeder" as nature (it matched the class
+# "water consumption" on the word consumption). Raising the threshold fixes the
+# wrong answers and loses the right ones.
+#
+# So classification here is CLOSED, the same shape that fixed ERDDAP, keyed on
+# a field the publisher filled in rather than on prose: ODS `theme`. The whole
+# federation uses 116 distinct values, enumerated by prefix walk, and this map
+# covers every one that plausibly carries a time series. Themes absent from the
+# map -- Orthoimagery, Elevation, Land cover, Archaeology, Politics, Census --
+# are skipped rather than guessed. Skipping is the cheap error here: an
+# unclassified dataset costs one candidate, a misclassified one distorts the
+# domain x cadence matrix that steers what the build looks for next.
+ODS_THEME_DOMAIN: dict[str, str] = {
+    # nature
+    "environment": "nature",
+    "environnement": "nature",
+    "environmental monitoring facilities": "nature",
+    "meteorological geographical features": "nature",
+    "hydrography": "nature",
+    "hydrographie": "nature",
+    "climate & sustainability": "nature",
+    "environment, climate": "nature",
+    "territory and environment": "nature",
+    "farming, environment": "nature",
+    "water & agriculture": "nature",
+    "sea regions": "nature",
+    "natural risk zones": "nature",
+    # energy
+    "energy": "energy",
+    "electricity": "energy",
+    "conventional fuels": "energy",
+    "environment & energy": "energy",
+    # transport
+    "transport": "transport",
+    "transportation": "transport",
+    "trasporti": "transport",
+    "transports, déplacements": "transport",
+    "transport, movements": "transport",
+    "transport & mobility": "transport",
+    "mobility": "transport",
+    "mobility and transport": "transport",
+    "mobilité": "transport",
+    "mobiliteit": "transport",
+    "traffic": "transport",
+    "routes / transports": "transport",
+    "07-territories, transport & services": "transport",
+    # healthcare
+    "health": "healthcare",
+    "santé": "healthcare",
+    "santé / social": "healthcare",
+    "chronic deases": "healthcare",          # the federation's own typo
+    "services, social": "healthcare",
+    # econ_fin
+    "economy": "econ_fin",
+    "economie": "econ_fin",
+    "economy and finance": "econ_fin",
+    "finance": "econ_fin",
+    "employment": "econ_fin",
+    "industry": "econ_fin",
+    "production": "econ_fin",
+    "03-economy, employment": "econ_fin",
+    # sales
+    "housing & properties": "sales",
+    "housing": "sales",
+    "property and planning": "sales",
+    "tourism": "sales",
+    "tourism, culture, sport and leisure": "sales",
+    # web_cloudops
+    "digital and telecommunications": "web_cloudops",
+}
+
+# Used when the theme fixes the domain but no keyword class in that domain
+# matches the title well enough to name the process more precisely.
+ODS_DOMAIN_DEFAULT_CLASS: dict[str, str] = {
+    "nature": "environmental_measurement",
+    "energy": "energy_consumption",
+    "transport": "transport_activity",
+    "healthcare": "public_health_indicator",
+    "econ_fin": "economic_indicator",
+    "sales": "property_market_activity",
+    "web_cloudops": "digital_service_usage",
+}
+
+
+def _best_class(pool: Iterable[tuple[str, str, str]], hay: str,
+                min_score: int) -> Optional[tuple[str, str, str]]:
+    best, best_score = None, min_score - 1
+    for klass in pool:
+        toks = _topic_tokens(klass[0])
+        score = sum(1 for t in toks if t in hay or t.rstrip("s") in hay)
+        if score > best_score:
+            best, best_score = klass, score
+    return best
+
+
+def ods_publisher_class(themes: Any, title: str,
+                        description: str = "") -> Optional[tuple[str, str, str]]:
+    """Domain from the publisher's own `theme`, dgp_class from the title.
+
+    The title is still allowed to name the process, but only from classes that
+    already live in the theme's domain — so a bad title match costs precision
+    inside a domain instead of putting the source in the wrong one.
+    """
+    if isinstance(themes, str):
+        themes = [themes]
+    doms = {ODS_THEME_DOMAIN[t.strip().lower()]
+            for t in (themes or []) if isinstance(t, str)
+            and t.strip().lower() in ODS_THEME_DOMAIN}
+    if len(doms) != 1:
+        return None            # unmapped, or two themes that disagree
+    dom = doms.pop()
+    pool = [k for k in (tuple(KEYWORD_CLASSES) + tuple(ODS_KEYWORD_CLASSES)
+                        + EXTRA_CLASSES) if k[1] == dom]
+    hay = " ".join(_topic_tokens(f"{title} {description}"))
+    hit = _best_class(pool, hay, ODS_PUBLISHER_MIN_CLASS_SCORE) if hay else None
+    return hit or (dom, dom, ODS_DOMAIN_DEFAULT_CLASS[dom])
 
 
 def _ods_facet_page(prefix: str, timeout: int) -> Optional[list[str]]:
@@ -1372,9 +1534,16 @@ def ods_publisher_sweep(
             # Publisher-first means no keyword to inherit a class from, so the
             # title has to carry it alone; an unclassifiable dataset is skipped
             # rather than guessed into a domain it would then distort.
-            use_class = resolve_class(None, title, metas.get("description") or "")
+            if _ODS_REJECT_TITLE.search(f"{title} {dsid}"):
+                skipped.append({"id": tag,
+                                "reason": f"not a forecastable process: {title[:50]}"})
+                continue
+            use_class = ods_publisher_class(
+                metas.get("theme"), title, metas.get("description") or "")
             if use_class is None:
-                skipped.append({"id": tag, "reason": f"unclassifiable: {title[:60]}"})
+                skipped.append({
+                    "id": tag,
+                    "reason": f"theme not in the map: {metas.get('theme')}"})
                 continue
             probe = ods_probe(host, dsid, ts)
             time.sleep(sleep_s)
