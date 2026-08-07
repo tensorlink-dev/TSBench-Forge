@@ -1352,3 +1352,51 @@ def test_main_without_a_deadline_runs_every_target(monkeypatch):
     monkeypatch.setattr(sys, "argv", ["scraper.py", "--domain", "test"])
     assert scraper.main() == 0
     assert started == [s["id"] for s in catalog]
+
+
+# --------------------------------------------------------------------------- #
+# schema.series_end — newest-first arrays running backwards from now
+# --------------------------------------------------------------------------- #
+def test_stepped_series_runs_backwards_from_series_end():
+    """Misskey's /api/charts/* returns element 0 as today, element 1 as
+    yesterday, with no timestamp anywhere in the payload."""
+    rows = scraper._records_from_json(
+        {"local": {"inc": [10, 20, 30, 40]}},
+        {"series_end": "now", "series_step": "P1D", "value_field": ["local.inc"]},
+    )
+    assert [r["value"] for r in rows] == [10, 20, 30, 40]
+    stamps = [dt.datetime.fromisoformat(r["timestamp"]) for r in rows]
+    assert (stamps[0] - stamps[1]).total_seconds() == 86400.0
+    assert stamps[0] > stamps[-1]
+
+
+def test_series_end_now_is_floored_to_the_step():
+    """Two polls in the same bucket must agree on the axis, or every refetch
+    lays down a second copy of the same days offset by a few hours."""
+    rows = scraper._records_from_json(
+        {"v": [1, 2, 3]},
+        {"series_end": "now", "series_step": "P1D", "value_field": ["v"]},
+    )
+    for r in rows:
+        got = dt.datetime.fromisoformat(r["timestamp"])
+        assert (got.hour, got.minute, got.second) == (0, 0, 0)
+
+
+def test_series_end_accepts_a_literal_instant():
+    rows = scraper._records_from_json(
+        {"v": [1, 2, 3]},
+        {"series_end": "2026-03-10T00:00:00Z", "series_step": "P1D",
+         "value_field": ["v"]},
+    )
+    stamps = [r["timestamp"][:10] for r in rows]
+    assert stamps == ["2026-03-10", "2026-03-09", "2026-03-08"]
+
+
+def test_series_start_still_wins_and_runs_forwards():
+    """series_end must not change the meaning of any source already wired."""
+    rows = scraper._records_from_json(
+        {"t0": 1769500800000, "v": [1, 2, 3]},
+        {"series_start": "t0", "series_step": "PT1S", "value_field": ["v"]},
+    )
+    stamps = [dt.datetime.fromisoformat(r["timestamp"]) for r in rows]
+    assert stamps[1] > stamps[0]

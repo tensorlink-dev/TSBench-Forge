@@ -30916,3 +30916,2797 @@
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
     provider 494. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
     they duplicate in/out exactly.
+
+# -- wired batch: wave 28: PeerTube publication rates (+90) --
+- id: peertube_makertube_makertube
+  name: MakerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://makertube.net/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 6 days
+  update_cadence_observed: 100 videos over 6d => 24 bins of PT6H; newest 2026-08-07T10:48:43+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_ye
+  name: ميون - النسخة التجريبية — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://meyon.com.ye/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 631 days
+  update_cadence_observed: 100 videos over 631d => 24 bins of P1D; newest 2026-08-06T21:19:38+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    YE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_sciences_technologies
+  name: Sciences & Technologies — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube-sciences-technologies.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 31 days
+  update_cadence_observed: 100 videos over 31d => 40 bins of PT6H; newest 2026-08-07T08:25:22+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_art_sciences_humaines
+  name: Art & Sciences Humaines — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube-arts-lettres-sciences-humaines.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 30 days
+  update_cadence_observed: 100 videos over 30d => 36 bins of PT6H; newest 2026-08-07T09:27:20+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_cotv_cotv_play
+  name: COTV Play — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://play.cotv.org.br/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 240 days
+  update_cadence_observed: 100 videos over 240d => 83 bins of P1D; newest 2026-08-06T17:19:12+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_numerique_educatif
+  name: Numérique Éducatif — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube-numerique-educatif.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 29 days
+  update_cadence_observed: 100 videos over 29d => 33 bins of PT6H; newest 2026-07-31T12:17:28+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 14
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_hardlimit_hardlimit
+  name: Hardlimit — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://video.hardlimit.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 5 days
+  update_cadence_observed: 100 videos over 5d => 51 bins of PT1H; newest 2026-08-07T11:43:31+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    ES. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tube_pony_tube
+  name: Pony.Tube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://www.pony.tube/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 19 days
+  update_cadence_observed: 100 videos over 19d => 37 bins of PT6H; newest 2026-08-07T09:32:55+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_action_educative
+  name: Action Éducative — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube-action-educative.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 36 days
+  update_cadence_observed: 100 videos over 36d => 31 bins of PT6H; newest 2026-08-06T19:52:48+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_indymotion_indymotion
+  name: IndyMotion — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://indymotion.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 31 days
+  update_cadence_observed: 100 videos over 31d => 32 bins of P1D; newest 2026-08-06T12:28:12+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_video_spectra_video
+  name: Spectra Video — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://spectra.video/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 14 days
+  update_cadence_observed: 100 videos over 14d => 33 bins of PT6H; newest 2026-08-07T11:53:19+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_wtf_peertube_wtf
+  name: PeerTube.wtf — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://peertube.wtf/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 5 days
+  update_cadence_observed: 100 videos over 5d => 42 bins of PT1H; newest 2026-08-07T12:52:37+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DK. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_media_blurt_media
+  name: Blurt.media — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://blurt.media/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 7 days
+  update_cadence_observed: 100 videos over 7d => 24 bins of PT6H; newest 2026-08-07T09:38:47+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_freedif_peertube
+  name: PeerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://vid.freedif.org/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 3 days
+  update_cadence_observed: 100 videos over 3d => 34 bins of PT1H; newest 2026-08-07T11:16:33+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    SG. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tchncs_tchncs
+  name: tchncs — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube.tchncs.de/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 37 days
+  update_cadence_observed: 100 videos over 37d => 35 bins of P1D; newest 2026-08-07T09:44:30+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_blueben_bluebentube
+  name: BluebenTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube.blueben.net/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 7 days
+  update_cadence_observed: 100 videos over 7d => 26 bins of PT6H; newest 2026-08-07T10:42:50+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    SY. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tube_p2j_pair_2_jeux
+  name: 'P2J : Pair 2 Jeux — local video publication rate (PeerTube)'
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://videos.pair2jeux.tube/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 34 days
+  update_cadence_observed: 100 videos over 34d => 35 bins of P1D; newest 2026-08-07T10:00:28+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_videohaven_video_haven
+  name: Video Haven — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://videohaven.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 28 days
+  update_cadence_observed: 100 videos over 28d => 27 bins of P1D; newest 2026-08-06T14:28:46+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_mgtow_peertube_mgtow
+  name: PeerTube MGTOW — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://peertube.mgtow.pl/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 14 days
+  update_cadence_observed: 100 videos over 14d => 44 bins of PT6H; newest 2026-08-07T11:24:54+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    PL. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_langues_vivantes
+  name: Langues Vivantes — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube-langues-vivantes.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 52 days
+  update_cadence_observed: 100 videos over 52d => 37 bins of P1D; newest 2026-08-06T14:28:07+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_uno_peertube_uno_italia_video_streaming_ital
+  name: PeerTube Uno Italia - Video Streaming italiano libero e federato — local video publication rate
+    (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://peertube.uno/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 13 days
+  update_cadence_observed: 100 videos over 13d => 39 bins of PT6H; newest 2026-08-07T09:54:20+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_cycle_3_educatif
+  name: Cycle-3 Éducatif — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube-cycle-3.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 43 days
+  update_cadence_observed: 100 videos over 43d => 40 bins of PT6H; newest 2026-07-31T10:26:10+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 14
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_maternelle_educatif
+  name: Maternelle Éducatif — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube-maternelle.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 42 days
+  update_cadence_observed: 100 videos over 42d => 31 bins of PT6H; newest 2026-08-06T13:40:36+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_news_megatube
+  name: MegaTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://video.megaphone.news/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 19 days
+  update_cadence_observed: 100 videos over 19d => 51 bins of PT6H; newest 2026-08-07T06:38:45+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances).
+    isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures
+    the network rather than this instance.
+- id: peertube_education_cycle_2_educatif
+  name: Cycle-2 Éducatif — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube-cycle-2.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 45 days
+  update_cadence_observed: 100 videos over 45d => 36 bins of PT6H; newest 2026-08-01T05:56:39+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 13
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_yiny_yiny_org
+  name: YinY.org — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://www.yiny.org/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 45 days
+  update_cadence_observed: 100 videos over 45d => 24 bins of PT1H; newest 2026-08-06T11:45:34+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tubedu_tubedu
+  name: TubEdu — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tubedu.org/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 76 days
+  update_cadence_observed: 100 videos over 76d => 29 bins of P1D; newest 2026-08-07T01:03:05+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    ES. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_ru_peertube
+  name: PeerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube.azbyka.ru/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 164 days
+  update_cadence_observed: 100 videos over 164d => 36 bins of P1D; newest 2026-07-27T07:54:39+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 18
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_domainepublic_peertube
+  name: PeerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://videos.domainepublic.net/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 37 days
+  update_cadence_observed: 100 videos over 37d => 36 bins of P1D; newest 2026-08-07T08:08:18+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    BE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tube_dilertube
+  name: DiLerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://diler.tube/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 41 days
+  update_cadence_observed: 100 videos over 41d => 50 bins of PT1H; newest 2026-08-04T12:42:17+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 10
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tv_fediversetv
+  name: FediverseTV — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://fediverse.tv/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 93 days
+  update_cadence_observed: 100 videos over 93d => 56 bins of P1D; newest 2026-08-06T19:13:52+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    ES. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_vip_liberta_video
+  name: Liberta Vidéo — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://video.liberta.vip/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 69 days
+  update_cadence_observed: 100 videos over 69d => 52 bins of P1D; newest 2026-08-07T10:15:33+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_xy_peertube_xy_space
+  name: PeerTube (xy-space) — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://tube.xy-space.de/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 19 days
+  update_cadence_observed: 100 videos over 19d => 29 bins of PT6H; newest 2026-08-06T18:41:27+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_me_sark_s
+  name: Sark's ビデオ — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://virtual-girls-are.definitely-for.me/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 78 days
+  update_cadence_observed: 100 videos over 78d => 51 bins of P1D; newest 2026-08-07T10:27:32+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_echelon_peertube
+  name: PeerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://video.echelon.pl/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 10 days
+  update_cadence_observed: 100 videos over 10d => 27 bins of PT6H; newest 2026-08-07T09:37:42+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    GB. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_810video_2nd
+  name: 野獣動画2nd — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://810video.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 9 days
+  update_cadence_observed: 100 videos over 9d => 31 bins of PT1H; newest 2026-08-07T05:55:51+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances).
+    isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures
+    the network rather than this instance.
+- id: peertube_europalestine_europalestine
+  name: EuroPalestine — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://video.europalestine.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 14 days
+  update_cadence_observed: 100 videos over 14d => 36 bins of PT6H; newest 2026-08-07T07:02:53+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    CH. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_phijkchu_rawb_art
+  name: Rawb.Art — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://phijkchu.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 163 days
+  update_cadence_observed: 100 videos over 163d => 33 bins of P1D; newest 2026-07-26T21:21:10+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 18
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_stream_peertube
+  name: PeerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://peertube.stream/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 79 days
+  update_cadence_observed: 100 videos over 79d => 55 bins of P1D; newest 2026-07-29T15:57:58+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 15
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tube_autonomy_tube
+  name: Autonomy.Tube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://autonomy.tube/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 52 days
+  update_cadence_observed: 100 videos over 52d => 46 bins of P1D; newest 2026-08-06T23:22:07+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_lemediatv_le_media
+  name: Le Média — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://video.lemediatv.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 65 days
+  update_cadence_observed: 100 videos over 65d => 54 bins of P1D; newest 2026-08-05T16:23:01+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_enseignement_professionnel
+  name: Enseignement Professionnel — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube-enseignement-professionnel.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 64 days
+  update_cadence_observed: 100 videos over 64d => 31 bins of P1D; newest 2026-07-28T16:04:06+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 16
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_fedimovie_fedimovie
+  name: FediMovie — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://fedimovie.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 93 days
+  update_cadence_observed: 100 videos over 93d => 55 bins of P1D; newest 2026-08-05T12:24:15+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 9
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    JP. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_danksquad_danktube
+  name: DankTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://videos.danksquad.org/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 432 days
+  update_cadence_observed: 100 videos over 432d => 67 bins of P1D; newest 2026-08-01T20:15:55+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 12
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_place_clip_place
+  name: clip.place — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://clip.place/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 9 days
+  update_cadence_observed: 100 videos over 9d => 30 bins of PT6H; newest 2026-08-07T11:06:31+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tv_garr_tv
+  name: GARR.tv — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://garr.tv/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 156 days
+  update_cadence_observed: 100 videos over 156d => 27 bins of P1D; newest 2026-08-07T12:55:12+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    IT. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tf_videos_trom_tf
+  name: videos.trom.tf — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://videos.trom.tf/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 88 days
+  update_cadence_observed: 100 videos over 88d => 37 bins of P1D; newest 2026-08-06T12:44:36+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_iriseden_iriseden_peertube
+  name: iriseden Peertube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://peertube.iriseden.eu/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 557 days
+  update_cadence_observed: 100 videos over 557d => 72 bins of P1D; newest 2026-07-30T14:13:51+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 14
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tv_koreus_tv
+  name: Koreus TV — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://koreus.tv/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 7 days
+  update_cadence_observed: 100 videos over 7d => 39 bins of PT1H; newest 2026-08-07T11:27:23+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_re_tubefedere
+  name: TubeFédéré — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube.fede.re/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 444 days
+  update_cadence_observed: 100 videos over 444d => 68 bins of P1D; newest 2026-08-06T16:26:14+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tv_phpc_tv
+  name: phpc.tv — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://phpc.tv/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 24 days
+  update_cadence_observed: 100 videos over 24d => 25 bins of P1D; newest 2026-08-07T12:44:42+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_ru_tube_mgppu
+  name: tube MGPPU — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube.mgppu.ru/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 247 days
+  update_cadence_observed: 100 videos over 247d => 58 bins of P1D; newest 2026-07-30T10:39:28+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 15
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_education_institutionnel_educatif
+  name: Institutionnel Éducatif — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube-institutionnel.apps.education.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 51 days
+  update_cadence_observed: 100 videos over 51d => 31 bins of P1D; newest 2026-07-24T15:00:33+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 20
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tilvids_tilvids
+  name: TILvids — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tilvids.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 159 days
+  update_cadence_observed: 100 videos over 159d => 79 bins of P1D; newest 2026-08-07T08:53:24+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_ufasofilmebi
+  name: უფასო ფილმები — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://ufasofilmebi.net/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 40 days
+  update_cadence_observed: 100 videos over 40d => 28 bins of P1D; newest 2026-08-07T00:05:43+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    GE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_social_peertube_debian_social
+  name: peertube.debian.social — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://peertube.debian.social/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 247 days
+  update_cadence_observed: 100 videos over 247d => 27 bins of P1D; newest 2026-08-06T09:54:42+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_toobnix_toobnix
+  name: toobnix — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://toobnix.org/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 81 days
+  update_cadence_observed: 100 videos over 81d => 51 bins of P1D; newest 2026-08-07T00:43:24+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_eus_peertube_eus
+  name: PeerTube.eus — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://peertube.eus/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 45 days
+  update_cadence_observed: 100 videos over 45d => 31 bins of P1D; newest 2026-08-07T09:26:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    ES. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_pw_shmallstube
+  name: shmallstube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://videos.shmalls.pw/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 209 days
+  update_cadence_observed: 100 videos over 209d => 25 bins of P1D; newest 2026-08-02T20:59:55+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 11
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_mesnumeriques_mes_numeriques
+  name: Mes Numériques — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://peertube.mesnumeriques.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 17 days
+  update_cadence_observed: 100 videos over 17d => 29 bins of PT6H; newest 2026-08-06T13:48:33+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_moment_moment_at_peertube
+  name: MOMENT.at Peertube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube.moment.at/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 86 days
+  update_cadence_observed: 100 videos over 86d => 56 bins of P1D; newest 2026-08-04T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 10
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_rankett_rankett_net
+  name: rankett.net — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://rankett.net/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 159 days
+  update_cadence_observed: 100 videos over 159d => 64 bins of P1D; newest 2026-08-06T19:01:20+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_lagbag_lagtube
+  name: Lagtube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://peertube.lagbag.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 61 days
+  update_cadence_observed: 100 videos over 61d => 24 bins of PT1H; newest 2026-08-02T15:53:05+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 11
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_antopie_anttube
+  name: AntTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://video.antopie.org/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 500 days
+  update_cadence_observed: 100 videos over 500d => 59 bins of P1D; newest 2026-08-02T10:03:20+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 12
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_blast_blast_le_souffle_de_l_info
+  name: Blast le souffle de l'info — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://video.blast-info.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 102 days
+  update_cadence_observed: 100 videos over 102d => 94 bins of P1D; newest 2026-08-06T16:00:01+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_nadajemy_nadajemy_com
+  name: nadajemy.com — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT6H
+  endpoint:
+    type: rest_json
+    url: https://nadajemy.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT6H
+  history_available: 100 newest local videos, spanning 224 days
+  update_cadence_observed: 100 videos over 224d => 27 bins of PT6H; newest 2026-07-20T22:49:44+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 24
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tv_fps_gbg_peertube
+  name: '@fps_gbg – PeerTube — local video publication rate (PeerTube)'
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://friprogramvarusyndikatet.tv/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 70 days
+  update_cadence_observed: 100 videos over 70d => 47 bins of P1D; newest 2026-08-05T22:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    SE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_taz_taztube
+  name: TazTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube.taz.de/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 71 days
+  update_cadence_observed: 100 videos over 71d => 54 bins of P1D; newest 2026-08-07T09:45:01+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_marcorennmaus_video_marcorennmaus_de
+  name: video.marcorennmaus.de — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://video.marcorennmaus.de/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 242 days
+  update_cadence_observed: 100 videos over 242d => 58 bins of P1D; newest 2026-08-05T20:29:56+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_ru_peertube_elforcer
+  name: PeerTube ELForcer — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://peertube.elforcer.ru/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 90 days
+  update_cadence_observed: 100 videos over 90d => 51 bins of P1D; newest 2026-08-06T21:57:49+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_skeptikon_skeptikon
+  name: Skeptikón — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://skeptikon.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 214 days
+  update_cadence_observed: 100 videos over 214d => 72 bins of P1D; newest 2026-07-31T20:12:19+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 13
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_vhsky_vhsky
+  name: VHSky — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://vhsky.cz/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 36 days
+  update_cadence_observed: 100 videos over 36d => 35 bins of P1D; newest 2026-08-07T00:10:48+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_me_peertube
+  name: PeerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://peertube.fschaupp.me/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 107 days
+  update_cadence_observed: 100 videos over 107d => 67 bins of P1D; newest 2026-08-06T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_video_solarsystem_video
+  name: SolarSystem.video — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://solarsystem.video/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 154 days
+  update_cadence_observed: 100 videos over 154d => 38 bins of P1D; newest 2026-08-07T03:31:35+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tedomum_peertube_tedomum
+  name: PeerTube TeDomum — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://video.tedomum.net/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 226 days
+  update_cadence_observed: 100 videos over 226d => 59 bins of P1D; newest 2026-08-02T16:00:39+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 11
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_kuoushi_kuotube
+  name: KuoTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://videos.kuoushi.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 131 days
+  update_cadence_observed: 100 videos over 131d => 39 bins of P1D; newest 2026-08-02T14:50:45+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 11
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_ua_peertube_in_ua
+  name: PeerTube in UA — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://peertube.in.ua/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 241 days
+  update_cadence_observed: 100 videos over 241d => 52 bins of P1D; newest 2026-08-04T20:09:52+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 9
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tube_fairtube
+  name: fairtube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://fair.tube/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 46 days
+  update_cadence_observed: 100 videos over 46d => 32 bins of P1D; newest 2026-08-07T02:48:33+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_viorsan_vrr_videos
+  name: VRR Videos — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://videos.viorsan.com/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 208 days
+  update_cadence_observed: 100 videos over 208d => 39 bins of P1D; newest 2026-07-24T12:26:27+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 21
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_ynm_ynm_tube
+  name: YnM Tube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube.ynm.hu/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 62 days
+  update_cadence_observed: 100 videos over 62d => 43 bins of P1D; newest 2026-08-07T08:01:47+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances).
+    isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures
+    the network rather than this instance.
+- id: peertube_aquilenet_aquiletube_peertube_aquilenet_fr
+  name: 'AquileTube: Peertube@Aquilenet.fr — local video publication rate (PeerTube)'
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://tube.aquilenet.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 197 days
+  update_cadence_observed: 100 videos over 197d => 55 bins of P1D; newest 2026-08-07T10:43:54+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_video_pallenberg_video
+  name: Pallenberg.video — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://pallenberg.video/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 33 days
+  update_cadence_observed: 100 videos over 33d => 34 bins of P1D; newest 2026-08-07T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_lokalmedial_lokalmedial_de_lokal_offen_gemeinsam_med
+  name: 'LokalMedial.de: Lokal. Offen. Gemeinsam – Mediathek & lokale Nachrichten aus Sachsen-Anhalt — local
+    video publication rate (PeerTube)'
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://lokalmedial.de/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 25 days
+  update_cadence_observed: 100 videos over 25d => 25 bins of P1D; newest 2026-08-07T12:40:12+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 7
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_uni_grypstube
+  name: GrypsTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://grypstube.uni-greifswald.de/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 445 days
+  update_cadence_observed: 100 videos over 445d => 51 bins of P1D; newest 2026-07-28T10:55:46+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 17
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_exchange_infosec_exchange_video
+  name: Infosec.Exchange Video — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://video.infosec.exchange/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 91 days
+  update_cadence_observed: 100 videos over 91d => 55 bins of P1D; newest 2026-08-01T17:03:27+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 12
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_live_monero_talk
+  name: Monero Talk — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://watch.monerotalk.live/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 30 days
+  update_cadence_observed: 100 videos over 30d => 24 bins of PT1H; newest 2026-08-01T18:47:44+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 12
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    SE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_tube_canardtube
+  name: CanardTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://canard.tube/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 236 days
+  update_cadence_observed: 100 videos over 236d => 90 bins of P1D; newest 2026-08-05T17:23:58+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_eqver_peertube
+  name: PeerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://peertube.eqver.se/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 100 newest local videos, spanning 9 days
+  update_cadence_observed: 100 videos over 9d => 86 bins of PT1H; newest 2026-08-05T08:07:03+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 9
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_online_northtube
+  name: NorthTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://vid.northbound.online/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 103 days
+  update_cadence_observed: 100 videos over 103d => 49 bins of P1D; newest 2026-08-06T12:19:36+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    SE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
+- id: peertube_pcf_pcf_peertube
+  name: PCF-PeerTube — local video publication rate (PeerTube)
+  domain: web_cloudops
+  dgp_class: media_publishing_rate
+  archetypes:
+  - count_discrete
+  - intermittent
+  - smooth_periodic
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://video.pcf.fr/api/v1/videos?sort=-publishedAt&count=100&isLocal=true&nsfw=false
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: data[].publishedAt
+    value_field: data[].name
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 100 newest local videos, spanning 1294 days
+  update_cadence_observed: 100 videos over 1294d => 77 bins of P1D; newest 2026-08-06T09:33:33+00:00
+  pretraining_novelty: clean
+  novelty_notes: Publication rate on one federated instance; no aggregator publishes this series, so it
+    cannot be in a pretraining mix.
+  license: public PeerTube API (see instance terms)
+  audit_slack_days: 8
+  notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
+    FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
+    measures the network rather than this instance.
