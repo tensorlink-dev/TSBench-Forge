@@ -517,6 +517,13 @@ _GENERIC_LABELS = frozenset({
     "data", "opendata", "open", "datos", "dados", "donnees", "api", "www",
     "portal", "catalog", "gov", "us", "org", "com", "net", "co", "ca", "city",
     "state", "county", "info", "public", "internal", "performance", "insights",
+    # Country-code TLDs. Without these a European host walks in from the right
+    # and stops on the TLD itself: erddap.emodnet-physics.eu -> "eu", which
+    # names a continent rather than a publisher and collides with every other
+    # .eu source.
+    "eu", "uk", "ie", "fr", "de", "es", "it", "nl", "be", "pt", "at", "ch",
+    "no", "se", "fi", "dk", "is", "pl", "cz", "gr", "ro", "hu", "si", "sk",
+    "au", "nz", "jp", "kr", "in", "sg", "za", "br", "mx", "cl", "ar", "il",
 })
 
 
@@ -1774,6 +1781,571 @@ def wired_ckan_resources(catalog_path: str) -> set[str]:
         m = re.search(r"resource_id=([0-9a-f\-]{8,})", url)
         if m:
             out.add(m.group(1))
+    return out
+
+
+
+# --------------------------------------------------------------------------- #
+# ERDDAP
+# --------------------------------------------------------------------------- #
+# ERDDAP is the third federated shape, and structurally the best one yet: ~60
+# INDEPENDENTLY OPERATED servers (each a distinct host, which is the axis the
+# catalog is short on) that all speak an identical REST dialect. Every server
+# exposes its own catalog as a queryable table -- `tabledap/allDatasets` --
+# carrying datasetID, title, institution and, decisively, `maxTime`: the newest
+# observation the dataset actually holds. No other platform hands over the
+# freshness of the DATA rather than of the METADATA, which was the single
+# biggest source of wasted probes on Socrata/ODS/CKAN.
+#
+# Two ERDDAP-specific traps, both of which would poison the benchmark rather
+# than merely waste a request:
+#
+# * Many servers publish MODEL OUTPUT next to observations -- forecasts,
+#   hindcasts, climatologies, reanalyses. A forecast grid is not an observed
+#   series; predicting a prediction measures nothing. They also carry maxTime in
+#   the FUTURE, so they read as permanently fresh (`_ERDDAP_REJECT_TITLE`, plus
+#   a hard future-maxTime cut).
+# * Half the variables on a typical mooring are QC flags, coordinates and
+#   instrument ids, all numeric. Wiring those yields a "series" that is a
+#   constant 1 (`_ERDDAP_DROP_VAR`).
+#
+# The URL needs no date token: ERDDAP understands server-relative constraints
+# (`time>=now-3days`), so a generated entry stays fresh forever with no
+# templating.
+ERDDAP_SERVERS: tuple[tuple[str, str], ...] = (
+    ("https://erddap.observations.voiceoftheocean.org/erddap", "VOTO"),
+    ("https://erddap.ogsl.ca/erddap", "SLGO-OGSL"),
+    ("https://coastwatch.pfeg.noaa.gov/erddap", "CSWC"),
+    ("https://apdrc.soest.hawaii.edu/erddap", "APDRC"),
+    ("https://www.ncei.noaa.gov/erddap", "NCEI"),
+    ("https://erddap.bco-dmo.org/erddap", "BCODMO"),
+    ("https://erddap.emodnet.eu/erddap", "EMODnet"),
+    ("https://erddap.emodnet-physics.eu/erddap", "EMODnet Physics"),
+    ("https://erddap.marine.ie/erddap", "MII"),
+    ("https://cwcgom.aoml.noaa.gov/erddap", "CSCGOM"),
+    ("https://erddap.sensors.ioos.us/erddap", "IOOS-Sensors"),
+    ("http://erddap.cencoos.org/erddap", "CeNCOOS ERDDAP"),
+    ("https://data.neracoos.org/erddap", "NERACOOS"),
+    ("https://gliders.ioos.us/erddap", "NGDAC"),
+    ("https://pae-paha.pacioos.hawaii.edu/erddap", "PacIOOS"),
+    ("https://sccoos.org/erddap", "SCCOOS"),
+    ("http://erddap.secoora.org/erddap", "SECOORA"),
+    ("http://osmc.noaa.gov/erddap", "OSMC"),
+    ("http://dap.onc.uvic.ca/erddap", "ONC"),
+    ("http://erddap.oceantrack.org/erddap", "OTN"),
+    ("https://oceanwatch.pifsc.noaa.gov/erddap", "PIFSC"),
+    ("https://erddap.dataexplorer.oceanobservatories.org/erddap", "OOI"),
+    ("https://erddap-goldcopy.dataexplorer.oceanobservatories.org/erddap", "OOI Goldcopy"),
+    ("http://www.myroms.org:8080/erddap", "MYROMS"),
+    ("http://tds.marine.rutgers.edu/erddap", "RUTGERS"),
+    ("https://comet.nefsc.noaa.gov/erddap", "NEFSC"),
+    ("https://opendap.co-ops.nos.noaa.gov/erddap", "COOPS-NOS"),
+    ("https://gcoos5.geos.tamu.edu/erddap", "GCOO5-TAMU"),
+    ("https://gcoos4.tamu.edu/erddap", "GCOO4-TAMU"),
+    ("https://apps.glerl.noaa.gov/erddap", "GLERL"),
+    ("https://spraydata.ucsd.edu/erddap", "UCSD"),
+    ("https://salishsea.eos.ubc.ca/erddap", "UBC"),
+    ("http://bmlsc.ucdavis.edu:8080/erddap", "BMLSC"),
+    ("https://upwell.pfeg.noaa.gov/erddap", "UAF"),
+    ("https://www.ifremer.fr/erddap", "IFREMER"),
+    ("https://data.pmel.noaa.gov/pmel/erddap", "PMEL"),
+    ("https://ferret.pmel.noaa.gov/alamo/erddap", "ALAMO"),
+    ("https://ferret.pmel.noaa.gov/socat/erddap", "SOCAT"),
+    ("https://catalogue.hakai.org/erddap", "Hakai"),
+    ("https://polarwatch.noaa.gov/erddap", "POLARWATCH"),
+    ("https://geoport.usgs.esipfed.org/erddap", "USGS"),
+    ("https://erddap.incois.gov.in/erddap", "INCOIS"),
+    ("https://www.smartatlantic.ca/erddap", "SmartAtlantic"),
+    ("https://erddap.griidc.org/erddap", "GRIIDC"),
+    ("https://atn.ioos.us/erddap", "ATN-IOOS"),
+    ("https://pub-data.diver.orr.noaa.gov/erddap", "DIVER"),
+    ("https://erddap.gcoos.org/erddap", "GCOOS"),
+    ("https://basin.ceoe.udel.edu/erddap", "CEOE"),
+    ("https://cioosatlantic.ca/erddap", "CIOOS Atlantic"),
+    ("https://data.cioospacific.ca/erddap", "CIOOS Pacific"),
+    ("http://erddap.emso.eu/erddap", "EMSO ERIC"),
+    ("https://coastwatch.noaa.gov/erddap", "NCCO"),
+    ("https://canwinerddap.ad.umanitoba.ca/erddap", "CanWIN"),
+    ("https://oceanview.pfeg.noaa.gov/erddap", "NOAA Oceanview"),
+    ("https://erddap.oa.iode.org/erddap", "IOC-IODE-OA"),
+    ("https://linkedsystems.uk/erddap", "NOC-BODC Linked Systems"),
+    ("https://erddap.bio-oracle.org/erddap", "Bio-Oracle"),
+    ("https://erddap.ondeckdata.com/erddap", "CFRF"),
+)
+
+# Variables that are numeric but are not observations: QC flags, coordinates,
+# instrument/deployment bookkeeping. On a typical mooring these OUTNUMBER the
+# real measurements, and a QC flag column is a constant, which is worse than no
+# series at all.
+_ERDDAP_DROP_VAR = re.compile(
+    r"(?:^|_)(?:qc|qa|qartod|flag|flags|test|tests|agg|mask|status|"
+    r"instrument\d*|deployment|profile|trajectory|rowsize|row_size)(?:$|_)"
+    r"|^(?:latitude|longitude|lat|lon|depth|altitude|z|station|station_id|"
+    r"platform|crs|id|time_modified|actual_time|time_created|precise_time|"
+    r"sample_time|obs_time|feature_type_instance)$",
+    re.I,
+)
+_ERDDAP_NUM_TYPES = frozenset({"double", "float", "int", "long", "short"})
+
+# Titles that mean "this is a model, not a measurement". A forecast dataset is
+# both scientifically wrong for the benchmark (forecasting a forecast measures
+# nothing) and operationally poisonous: its newest timestamp is in the FUTURE,
+# so the freshness audit can never see it die.
+_ERDDAP_REJECT_TITLE = re.compile(
+    r"\b(forecast|hindcast|nowcast|prediction|predicted|model|modell?ed|"
+    r"simulation|reanalys[ie]s|climatolog[a-z]*|projection|scenario|"
+    r"particle track|trajectory analysis)\b"
+    # ERDDAP's own placeholder title, left in place by many installs. It names
+    # nothing, so the entry it would generate is unidentifiable in the catalog.
+    r"|^data from a (local|remote) source",
+    re.I,
+)
+
+# A glider/mooring DEPLOYMENT rather than a station: the id carries the launch
+# timestamp ("AsterSEA068-20260804T0908"). These are fresh today and dead in
+# three weeks when the instrument is recovered -- a source that is guaranteed to
+# go stale is worse than no source, because it consumes an audit slot forever.
+_ERDDAP_DEPLOYMENT = re.compile(r"\d{8}T\d{3,6}|[-_]\d{8}$")
+
+# Probe windows, widest-first fallback. A 10-minute mooring fills 20 distinct
+# timestamps in hours; a monthly cruise series needs years. Starting narrow and
+# widening only on failure keeps the common case to a few KB.
+_ERDDAP_WINDOWS: tuple[int, ...] = (2, 14, 120, 1200)
+
+ERDDAP_DEFAULT_CLASS = ("ocean marine buoy mooring water observations",
+                        "nature", "environmental_sensor")
+
+# ERDDAP classification is deliberately CLOSED, unlike the catalog sweeps'.
+# `resolve_class` scores a title against every municipal keyword class there is,
+# which is right for a general-purpose portal and actively harmful here: an
+# ocean federation has exactly one domain, so every cross-domain match it finds
+# is a false one. Left open, it filed "NOAA Ship ... Near Real Time" under sales
+# (the token "real" hitting a real-estate class) and "RADS Altimeter" under
+# econ_fin -- 12 of 50 candidates mislabelled, in the very matrix that steers
+# what the build goes looking for next. So the domain is fixed and only the
+# dgp_class is inferred.
+ERDDAP_CLASSES: tuple[tuple[str, str, str], ...] = (
+    ("wave height swell period directional waves", "nature", "ocean_waves"),
+    ("water temperature salinity conductivity density currents", "nature",
+     "ocean_physics"),
+    ("tide sea level water level surge datum", "nature", "sea_level"),
+    ("meteorological air temperature wind barometric pressure humidity",
+     "nature", "met_station"),
+    ("river discharge streamflow stage hydrology runoff", "nature", "hydrology"),
+    ("chlorophyll oxygen nutrient nitrate ph carbon dioxide pco2", "nature",
+     "biogeochemistry"),
+    ("radiation irradiance solar par light", "nature", "radiation"),
+    ("acoustic detection fish tag telemetry biodiversity", "nature",
+     "biodiversity"),
+    ("glider profiler mooring underway ship transect", "nature",
+     "ocean_physics"),
+)
+
+
+def erddap_class(title: str, institution: str = "") -> tuple[str, str, str]:
+    """Pick a dgp_class from the ocean/met vocabulary; domain is always nature."""
+    hay = " ".join(_topic_tokens(f"{title} {institution}"))
+    best, best_score = ERDDAP_DEFAULT_CLASS, 0
+    for klass in ERDDAP_CLASSES:
+        score = sum(1 for t in _topic_tokens(klass[0])
+                    if t in hay or t.rstrip("s") in hay)
+        if score > best_score:
+            best, best_score = klass, score
+    return best
+
+
+def erddap_platform_key(title: str, dsid: str) -> str:
+    """What PHYSICAL platform a dataset comes from, for within-server spread.
+
+    A server's fresh list is sorted by platform, so taking the first N datasets
+    takes N instruments on ONE buoy -- `A01_met`, `A01_waves`, `A01_ocean_001m`
+    are three depths of the same mooring in the same water, which is volume
+    without information. Station codes lead the title and are the only reliably
+    machine-findable part of them, so a leading token carrying a digit ("A01",
+    "(41024", "W60-G500") keys the platform; titles with no such token are left
+    alone, because there the distinguishing part is prose and over-eager
+    deduping would throw away genuinely separate sites (each EMODnet HF radar
+    station is titled "Near Real Time Surface Ocean ... by HFR-<site>").
+    """
+    first = (title or "").strip().split(" ")[0] if title else ""
+    if first and any(ch.isdigit() for ch in first):
+        return re.sub(r"[^a-z0-9]", "", first.lower())
+    return _slug(title or dsid, 60)
+
+
+# A tabledap query has no LIMIT clause: the window IS the limit. When a
+# dataset's declared maxTime lies, or the probe widens to its 1200-day fallback
+# against a high-rate instrument, the honest answer to the query is hundreds of
+# megabytes -- and parsing that into Python dicts costs an order of magnitude
+# more again. One such response took this 4GB box to 2.6GB RSS and into swap,
+# which slows the production scrape cron sharing the machine. A probe that needs
+# more than a few MB is a probe whose answer is "too big to wire" anyway.
+ERDDAP_PROBE_BYTES = 8_000_000
+ERDDAP_CATALOG_BYTES = 48_000_000        # allDatasets on a 10k-dataset server
+
+
+def erddap_get(url: str, timeout: int = 60,
+               max_bytes: int = ERDDAP_PROBE_BYTES) -> dict:
+    with requests.get(url, headers={"User-Agent": UA}, timeout=timeout,
+                      stream=True) as r:
+        if r.status_code != 200:
+            raise RuntimeError(f"HTTP {r.status_code}")
+        buf = bytearray()
+        for chunk in r.iter_content(65536):
+            buf += chunk
+            if len(buf) > max_bytes:
+                raise RuntimeError(f"response exceeds {max_bytes // 1_000_000}MB")
+        return json.loads(bytes(buf).decode("utf-8", "replace"))
+
+
+def _erddap_rows(payload: dict) -> list[dict]:
+    """ERDDAP's uniform response shape: {"table": {columnNames, rows}}."""
+    table = (payload or {}).get("table") or {}
+    names = table.get("columnNames") or []
+    return [dict(zip(names, row)) for row in table.get("rows") or []]
+
+
+def erddap_datasets(
+    base: str, max_age_days: float = 7.0, horizon_days: float = 0.5,
+    timeout: int = 90,
+) -> list[dict]:
+    """Every tabledap dataset on one server whose newest observation is recent.
+
+    The `maxTime<=` half of the constraint is not symmetry for its own sake: it
+    is what keeps forecast and model-output datasets -- which legitimately carry
+    timestamps months ahead -- out of the candidate pool.
+    """
+    now = dt.datetime.now(dt.timezone.utc)
+    lo = (now - dt.timedelta(days=max_age_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    hi = (now + dt.timedelta(days=horizon_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    cols = "datasetID,title,institution,minTime,maxTime,dataStructure"
+    url = (f"{base}/tabledap/allDatasets.json?{quote(cols, safe=',')}"
+           f"&maxTime%3E={lo}&maxTime%3C={hi}")
+    try:
+        rows = _erddap_rows(erddap_get(url, timeout=timeout,
+                                       max_bytes=ERDDAP_CATALOG_BYTES))
+    except RuntimeError as exc:
+        # ERDDAP answers an empty result set with HTTP 404, not an empty table.
+        # Reported as an error it reads as "server down" and hides the real
+        # finding, which is that the freshness window was simply too tight.
+        if "404" in str(exc):
+            return []
+        raise
+    out = []
+    for r in rows:
+        if r.get("datasetID") == "allDatasets":
+            continue
+        if (r.get("dataStructure") or "table") != "table":
+            continue
+        out.append(r)
+    return out
+
+
+def erddap_variables(base: str, dsid: str, timeout: int = 45) -> list[tuple[str, str]]:
+    rows = _erddap_rows(erddap_get(f"{base}/info/{quote(dsid)}/index.json",
+                                   timeout=timeout))
+    return [
+        (r.get("Variable Name") or "", (r.get("Data Type") or "").lower())
+        for r in rows if r.get("Row Type") == "variable"
+    ]
+
+
+def erddap_pick_values(
+    variables: Iterable[tuple[str, str]], limit: int = 4
+) -> list[str]:
+    """The observation-bearing columns, QC/coordinate/bookkeeping ones removed."""
+    out = []
+    for name, typ in variables:
+        if not name or name == "time":
+            continue
+        if typ not in _ERDDAP_NUM_TYPES:
+            continue
+        if _ERDDAP_DROP_VAR.search(name):
+            continue
+        out.append(name)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def erddap_data_url(base: str, dsid: str, vals: list[str], days: int) -> str:
+    """`time>=now-Nd` is evaluated by the SERVER, so the entry never goes stale
+    and needs no date templating in the scraper."""
+    select = ",".join(["time"] + vals)
+    return (f"{base}/tabledap/{quote(dsid)}.json"
+            f"?{quote(select, safe=',')}&time%3E=now-{days}days")
+
+
+def erddap_probe(
+    base: str, dsid: str, vals: list[str], timeout: int = 60,
+    windows: Iterable[int] = _ERDDAP_WINDOWS,
+) -> dict:
+    """Fetch real rows and measure what the wire gate will measure.
+
+    Returns the window that worked, so the emitted URL asks for the same span --
+    a window tuned to the dataset's own cadence rather than a global guess.
+    """
+    now = dt.datetime.now(dt.timezone.utc)
+    last_err = "no window tried"
+    for days in windows:
+        url = erddap_data_url(base, dsid, vals, days)
+        try:
+            rows = _erddap_rows(erddap_get(url, timeout=timeout))
+        except Exception as exc:                              # noqa: BLE001
+            last_err = f"{type(exc).__name__}: {exc}"[:120]
+            # Widening a window that already blew the size cap only asks for a
+            # bigger version of the same answer.
+            if "exceeds" in str(exc):
+                return {"error": f"{days}d window {exc}"}
+            continue
+        if not rows:
+            last_err = f"no rows in {days}d window"
+            continue
+        all_stamps = [_parse_iso(r.get("time")) for r in rows]
+        all_stamps = [s for s in all_stamps if s is not None]
+        cutoff = now + dt.timedelta(days=1)
+        stamps = sorted({s for s in all_stamps if s <= cutoff}, reverse=True)
+        n_future = len([s for s in all_stamps if s > cutoff])
+        if n_future > max(1, 0.02 * len(all_stamps)):
+            return {"error": f"{n_future}/{len(all_stamps)} timestamps are "
+                             f"future-dated -- model output, not observations"}
+        if len(stamps) < 20:
+            last_err = f"only {len(stamps)} distinct ts in {days}d window"
+            continue
+        # Rows per distinct timestamp: >1 means several stations/depths share a
+        # timestamp, i.e. a PANEL. The gate reads one series per entry, so a
+        # panel silently collapses into whichever row lands last.
+        ratio = len(rows) / len(stamps)
+        if ratio > 1.5:
+            return {"error": f"panel: {len(rows)} rows over {len(stamps)} "
+                             f"distinct timestamps ({ratio:.1f}x)"}
+        kept = []
+        for v in vals:
+            good = sum(1 for r in rows if isinstance(r.get(v), (int, float)))
+            if good >= 0.5 * len(rows):
+                kept.append(v)
+        if not kept:
+            return {"error": f"no value column is >=50% numeric over {len(rows)} rows"}
+        gaps = [(stamps[i] - stamps[i + 1]).total_seconds()
+                for i in range(len(stamps) - 1)]
+        gaps = [g for g in gaps if g > 0]
+        return {
+            "rows": len(rows),
+            "distinct": len(stamps),
+            "window_days": days,
+            "values": kept,
+            "newest": stamps[0].isoformat(),
+            "age_days": (now - stamps[0]).total_seconds() / 86400.0,
+            "median_gap_s": statistics.median(gaps) if gaps else 0.0,
+        }
+    return {"error": last_err}
+
+
+def _erddap_slack(median_gap_s: float, age_days: float) -> int:
+    """Slack proportional to the CADENCE, not one global number.
+
+    The Socrata generator's flat 45-day floor is right for a monthly municipal
+    extract and useless for a 10-minute buoy: a mooring that goes dark stays
+    "fresh" for six weeks. Slack has to be generous enough to absorb ordinary
+    publication slip and tight enough that death is visible.
+    """
+    if median_gap_s <= 7200:                     # sub-daily: hours matter
+        return max(3, int(age_days) + 3)
+    if median_gap_s <= 129600:                   # daily-ish
+        return max(14, int(age_days) + 10)
+    return max(45, int(age_days) + 45)
+
+
+def erddap_synthesize(
+    base: str, label: str, ds: dict, klass: tuple[str, str, str],
+    probe: dict, taken: Optional[set[str]] = None,
+) -> Optional[dict]:
+    host = urlparse(base).netloc.lower()
+    dsid = ds.get("datasetID") or ""
+    title = (ds.get("title") or dsid).strip()
+    inst = (ds.get("institution") or label or "").strip()
+    vals = probe.get("values") or []
+    if not (host and dsid and vals):
+        return None
+    _kw, dom, dgp = klass
+    freq = freq_from_delta(probe["median_gap_s"])
+    sid = entry_id(host, title)
+    if taken and sid in taken:
+        sid = f"{sid[:52]}_{_slug(dsid, 10)}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title} ({inst or host})",
+        "domain": dom,
+        "dgp_class": dgp,
+        "archetypes": ["non_stationary_regime", "seasonal_multi"],
+        "frequency": freq,
+        "endpoint": {
+            "type": "rest_json",
+            "url": erddap_data_url(base, dsid, vals, probe["window_days"]),
+            "auth": "none",
+            "rate_limit": None,
+        },
+        "schema": {
+            # ERDDAP answers with parallel arrays under table.rows, so the
+            # fields are POSITIONAL: column 0 is always the requested `time`.
+            "timestamp_field": "table.rows[][0]",
+            "value_field": [f"table.rows[][{i}]" for i in range(1, len(vals) + 1)],
+            "variates": len(vals),
+        },
+        "history_available": (
+            f"from {(ds.get('minTime') or '?')[:10]} (server retains full series; "
+            f"the entry polls a rolling {probe['window_days']}d window)"
+        ),
+        "update_cadence_observed": (
+            f"median gap {probe['median_gap_s'] / 60:.1f} min over "
+            f"{probe['distinct']} distinct timestamps; newest {probe['newest']}"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Operational ocean/met observing platform served over ERDDAP; the "
+            "live rolling window post-dates every known TSFM pretraining cutoff."
+        ),
+        "license": f"open data -- {inst or label} via ERDDAP",
+        "audit_slack_days": _erddap_slack(probe["median_gap_s"], probe["age_days"]),
+        "notes": (
+            f"Bulk-generated from the {label} ERDDAP server ({host}). Variables "
+            f"chosen mechanically from the dataset's declared types with QC "
+            f"flags, coordinates and instrument ids excluded; verified against "
+            f"the live endpoint by the wire gate. Columns: {', '.join(vals)}."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "cron_cadence": cron_cadence_for(freq, probe["age_days"]),
+        "reason": (
+            f"ERDDAP {label}: {probe['distinct']} distinct ts in a "
+            f"{probe['window_days']}d window, newest {probe['newest']} "
+            f"({probe['age_days']:.2f}d old), median gap "
+            f"{probe['median_gap_s']:.0f}s, values={vals}"
+        ),
+    }
+
+
+def erddap_sweep(
+    catalog_path: str,
+    servers: Iterable[tuple[str, str]] = ERDDAP_SERVERS,
+    host_cap: int = DEFAULT_HOST_CAP,
+    max_age_days: float = 14.0,
+    per_server: Optional[int] = None,
+    new_hosts_only: bool = False,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    """Sweep the ERDDAP federation, at most `host_cap` datasets per server.
+
+    `new_hosts_only` defaults to FALSE here, unlike the catalog sweeps: on
+    Socrata a wired host means the portal is already represented, but an ERDDAP
+    server is an entire regional observing system, and the three already in the
+    catalog carry one dataset each out of hundreds.
+    """
+    seen_hosts = host_counts(catalog_path)
+    known_hosts = wired_hosts(catalog_path)
+    known_ds = wired_erddap_datasets(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    cap = per_server if per_server is not None else host_cap
+
+    for base, label in servers:
+        base = base.rstrip("/")
+        host = urlparse(base).netloc.lower()
+        if new_hosts_only and host in known_hosts:
+            skipped.append({"id": host, "reason": "host already wired"})
+            continue
+        room = cap - seen_hosts.get(host, 0)
+        if room <= 0:
+            skipped.append({"id": host, "reason": f"host cap {cap} reached"})
+            continue
+        try:
+            datasets = erddap_datasets(base, max_age_days=max_age_days)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": host,
+                            "reason": f"catalog unreachable: "
+                                      f"{type(exc).__name__}: {exc}"[:110]})
+            continue
+        log(f"[{label} {host}] {len(datasets)} fresh tabledap datasets, room {room}")
+        got = 0
+        platforms: set[str] = set()
+        for ds in datasets:
+            if got >= room:
+                break
+            dsid = ds.get("datasetID") or ""
+            title = (ds.get("title") or "").strip()
+            tag = f"{host}/{dsid}"
+            pkey = erddap_platform_key(title, dsid)
+            if pkey in platforms:
+                skipped.append({"id": tag,
+                                "reason": f"same platform '{pkey}' as an "
+                                          f"earlier pick on this server"})
+                continue
+            if f"{host}|{dsid}" in known_ds:
+                skipped.append({"id": tag, "reason": "dataset already in catalog"})
+                continue
+            if _ERDDAP_REJECT_TITLE.search(f"{title} {dsid}"):
+                skipped.append({"id": tag, "reason": f"model output: {title[:50]}"})
+                continue
+            if _ERDDAP_DEPLOYMENT.search(dsid) or _ERDDAP_DEPLOYMENT.search(title):
+                skipped.append({"id": tag,
+                                "reason": f"one-off deployment: {dsid[:40]}"})
+                continue
+            try:
+                variables = erddap_variables(base, dsid)
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": tag,
+                                "reason": f"info failed: {type(exc).__name__}"})
+                continue
+            time.sleep(sleep_s)
+            if not any(n == "time" for n, _ in variables):
+                skipped.append({"id": tag, "reason": "no time variable"})
+                continue
+            vals = erddap_pick_values(variables)
+            if not vals:
+                skipped.append({"id": tag,
+                                "reason": "no non-QC numeric variable"})
+                continue
+            probe = erddap_probe(base, dsid, vals)
+            time.sleep(sleep_s)
+            if "error" in probe:
+                skipped.append({"id": tag, "reason": probe["error"]})
+                continue
+            use_class = erddap_class(title, ds.get("institution") or "")
+            block = erddap_synthesize(base, label, ds, use_class, probe,
+                                      taken=taken_ids)
+            if block is None:
+                skipped.append({"id": tag, "reason": "could not synthesise"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            cands.append(block)
+            got += 1
+            platforms.add(pkey)
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + {block['candidate_name'][:72]}  [{block['cron_cadence']}]")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+def wired_erddap_datasets(catalog_path: str) -> set[str]:
+    """`host|datasetID` for every ERDDAP entry already wired."""
+    reg = yaml.safe_load(open(catalog_path)) or []
+    out = set()
+    for src in reg:
+        url = (src.get("endpoint") or {}).get("url", "")
+        m = re.search(r"^(https?://[^/]+).*/(?:tabledap|griddap)/([^/?.]+)", url)
+        if m:
+            out.add(f"{urlparse(m.group(1)).netloc.lower()}|{m.group(2)}")
     return out
 
 

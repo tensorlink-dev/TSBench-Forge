@@ -27707,3 +27707,1450 @@
     which the scraper cannot read; the JSON alerts API carries the same events. EventStart mixes started
     and SCHEDULED alerts, so drop_future_timestamps is REQUIRED here — without it the newest stamp sits
     months ahead and the source reads as permanently fresh.
+
+# -- wired batch: wave 23: ERDDAP federation (+52) --
+- id: noaa_noaa_ship_bell_m_shimada_underway_meteor
+  name: NOAA Ship Bell M. Shimada Underway Meteorological Data, Near Real Time (FSU)
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://coastwatch.pfeg.noaa.gov/erddap/tabledap/fsuNoaaShipWTEDnrt.json?time,airPressure,airTemperature,relativeHumidity&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2026-01-14 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 1.0 min over 227 distinct timestamps; newest 2026-08-05T23:59:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- FSU via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the CSWC ERDDAP server (coastwatch.pfeg.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: airPressure, airTemperature, relativeHumidity.'
+- id: emodnet_moanaproject_mangopare_sensor_deployment
+  name: MOANAPROJECT - Mangopare sensor deployments (MOANA PROJECT)
+  domain: nature
+  dgp_class: radiation
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://erddap.emodnet-physics.eu/erddap/tabledap/moanaproject.json?time,TEMP&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2023-10-11 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.1 min over 12259 distinct timestamps; newest 2026-08-06T05:43:23+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- MOANA PROJECT via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the EMODnet Physics ERDDAP server (erddap.emodnet-physics.eu). Variables chosen
+    mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
+    verified against the live endpoint by the wire gate. Columns: TEMP.'
+- id: ioos_41024_sun2_sunset_nearshore_met_and_wate
+  name: (41024 / SUN2) Sunset Nearshore Met and Water, NC (UNCW - Coastal Ocean Research and Monitoring
+    Program (CORMP))
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://erddap.sensors.ioos.us/erddap/tabledap/org_cormp_sun2.json?time,air_pressure_at_mean_sea_level,relative_humidity,sea_water_practical_salinity,air_temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2004-10-23 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 48 distinct timestamps; newest 2026-08-07T03:08:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UNCW - Coastal Ocean Research and Monitoring Program (CORMP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the IOOS-Sensors ERDDAP server (erddap.sensors.ioos.us). Variables chosen
+    mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
+    verified against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity,
+    sea_water_practical_salinity, air_temperature.'
+- id: ioos_41029_cap2_capers_nearshore_sc
+  name: (41029 / CAP2) Capers Nearshore, SC (UNCW - Coastal Ocean Research and Monitoring Program (CORMP))
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://erddap.sensors.ioos.us/erddap/tabledap/org_cormp_cap2.json?time,air_pressure_at_mean_sea_level,relative_humidity&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    variates: 2
+  history_available: from 2005-02-11 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 47 distinct timestamps; newest 2026-08-07T03:08:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UNCW - Coastal Ocean Research and Monitoring Program (CORMP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the IOOS-Sensors ERDDAP server (erddap.sensors.ioos.us). Variables chosen
+    mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
+    verified against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity.'
+- id: ioos_41033_frp2_fripp_nearshore_nc
+  name: (41033 / FRP2) Fripp Nearshore, NC (UNCW - Coastal Ocean Research and Monitoring Program (CORMP))
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://erddap.sensors.ioos.us/erddap/tabledap/org_cormp_frp2.json?time,air_pressure_at_mean_sea_level,relative_humidity,sea_water_practical_salinity,air_temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2002-06-07 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 47 distinct timestamps; newest 2026-08-07T03:08:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UNCW - Coastal Ocean Research and Monitoring Program (CORMP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the IOOS-Sensors ERDDAP server (erddap.sensors.ioos.us). Variables chosen
+    mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
+    verified against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity,
+    sea_water_practical_salinity, air_temperature.'
+- id: cencoos_028_santa_monica_bay_ca_46221
+  name: 028 - Santa Monica Bay, CA (46221) (Coastal Data Information Program (CDIP))
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: http://erddap.cencoos.org/erddap/tabledap/edu_ucsd_cdip_028.json?time,sea_water_temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2000-03-16 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 15.0 min over 189 distinct timestamps; newest 2026-08-07T02:58:20+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Coastal Data Information Program (CDIP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CeNCOOS ERDDAP ERDDAP server (erddap.cencoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: sea_water_temperature.'
+- id: cencoos_029_point_reyes_ca_46214
+  name: 029 - Point Reyes, CA (46214) (Coastal Data Information Program (CDIP))
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: http://erddap.cencoos.org/erddap/tabledap/edu_ucsd_cdip_029.json?time,sea_water_temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 1996-12-06 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 15.0 min over 189 distinct timestamps; newest 2026-08-07T02:58:20+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Coastal Data Information Program (CDIP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CeNCOOS ERDDAP ERDDAP server (erddap.cencoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: sea_water_temperature.'
+- id: cencoos_045_oceanside_offshore_ca_46224
+  name: 045 - Oceanside Offshore, CA (46224) (Coastal Data Information Program (CDIP))
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: http://erddap.cencoos.org/erddap/tabledap/edu_ucsd_cdip_045.json?time,sea_water_temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 1997-05-19 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 28.3 min over 187 distinct timestamps; newest 2026-08-07T02:58:20+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Coastal Data Information Program (CDIP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CeNCOOS ERDDAP ERDDAP server (erddap.cencoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: sea_water_temperature.'
+- id: neracoos_a01_directional_waves
+  name: A01 Directional Waves (Physical Oceanography Group, School of Marine Sciences, University of Maine)
+  domain: nature
+  dgp_class: ocean_waves
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.neracoos.org/erddap/tabledap/A01_waves.json?time,significant_wave_height,dominant_wave_period,mean_wave_direction&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2003-02-07 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 48 distinct timestamps; newest 2026-08-07T03:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Physical Oceanography Group, School of Marine Sciences, University of Maine via
+    ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the NERACOOS ERDDAP server (data.neracoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: significant_wave_height, dominant_wave_period,
+    mean_wave_direction.'
+- id: neracoos_b01_directional_waves
+  name: B01 Directional Waves (Physical Oceanography Group, School of Marine Sciences, University of Maine)
+  domain: nature
+  dgp_class: ocean_waves
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.neracoos.org/erddap/tabledap/B01_waves.json?time,significant_wave_height,dominant_wave_period,mean_wave_direction&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2002-10-02 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 48 distinct timestamps; newest 2026-08-07T03:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Physical Oceanography Group, School of Marine Sciences, University of Maine via
+    ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the NERACOOS ERDDAP server (data.neracoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: significant_wave_height, dominant_wave_period,
+    mean_wave_direction.'
+- id: neracoos_cvow_wave_buoy_timeseries_data
+  name: CVOW Wave Buoy, Timeseries Data (Virginia Electric and Power Company, d/b/a Dominion Energy Virginia)
+  domain: nature
+  dgp_class: ocean_waves
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.neracoos.org/erddap/tabledap/CVOW_temp_wave.json?time,WATER_TEMPERATURE,WAVE_MEAN_DIRECTION&time%3E=now-14days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    variates: 2
+  history_available: from 2025-04-11 (server retains full series; the entry polls a rolling 14d window)
+  update_cadence_observed: median gap 1.0 min over 10682 distinct timestamps; newest 2026-07-31T20:56:43+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Virginia Electric and Power Company, d/b/a Dominion Energy Virginia via ERDDAP
+  audit_slack_days: 9
+  notes: 'Bulk-generated from the NERACOOS ERDDAP server (data.neracoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: WATER_TEMPERATURE, WAVE_MEAN_DIRECTION.'
+- id: secoora_41024_sun2_sunset_nearshore_met_and_wate
+  name: (41024 / SUN2) Sunset Nearshore Met and Water, NC (UNCW - Coastal Ocean Research and Monitoring
+    Program (CORMP))
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: http://erddap.secoora.org/erddap/tabledap/org_cormp_sun2.json?time,air_pressure_at_mean_sea_level,relative_humidity,sea_water_practical_salinity,air_temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2004-10-23 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 48 distinct timestamps; newest 2026-08-07T03:08:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UNCW - Coastal Ocean Research and Monitoring Program (CORMP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the SECOORA ERDDAP server (erddap.secoora.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity,
+    sea_water_practical_salinity, air_temperature.'
+- id: secoora_41029_cap2_capers_nearshore_sc
+  name: (41029 / CAP2) Capers Nearshore, SC (UNCW - Coastal Ocean Research and Monitoring Program (CORMP))
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: http://erddap.secoora.org/erddap/tabledap/org_cormp_cap2.json?time,air_pressure_at_mean_sea_level,relative_humidity&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    variates: 2
+  history_available: from 2005-02-11 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 47 distinct timestamps; newest 2026-08-07T03:08:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UNCW - Coastal Ocean Research and Monitoring Program (CORMP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the SECOORA ERDDAP server (erddap.secoora.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity.'
+- id: secoora_41033_frp2_fripp_nearshore_nc
+  name: (41033 / FRP2) Fripp Nearshore, NC (UNCW - Coastal Ocean Research and Monitoring Program (CORMP))
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: http://erddap.secoora.org/erddap/tabledap/org_cormp_frp2.json?time,air_pressure_at_mean_sea_level,relative_humidity,sea_water_practical_salinity,air_temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2002-06-07 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 47 distinct timestamps; newest 2026-08-07T03:08:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UNCW - Coastal Ocean Research and Monitoring Program (CORMP) via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the SECOORA ERDDAP server (erddap.secoora.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity,
+    sea_water_practical_salinity, air_temperature.'
+- id: oceantrack_glider_deployment_228_sambro_2026_07_19
+  name: 'Glider deployment #228 - sambro 2026-07-19 (realtime) (OTN)'
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: http://erddap.oceantrack.org/erddap/tabledap/sambro_20260719_228_realtime.json?time,row&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2026-07-19 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.5 min over 4514 distinct timestamps; newest 2026-08-06T23:30:51+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- OTN via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the OTN ERDDAP server (erddap.oceantrack.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: row.'
+- id: oceanobservatories_coastal_endurance_oregon_offshore_cabled
+  name: 'Coastal Endurance: Oregon Offshore Cabled Benthic Experiment Package: Low-Power JBox (LJ01C): 3-D
+    Single Point Velocity Meter (Ocean Observatories Initiative (OOI))'
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://erddap.dataexplorer.oceanobservatories.org/erddap/tabledap/ooi-ce04osbp-lj01c-07-vel3dc107.json?time,eastward_sea_water_velocity,northward_sea_water_velocity,upward_sea_water_velocity&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2014-08-25 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 1.0 min over 1427 distinct timestamps; newest 2026-08-06T03:24:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Ocean Observatories Initiative (OOI) via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the OOI ERDDAP server (erddap.dataexplorer.oceanobservatories.org). Variables
+    chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids
+    excluded; verified against the live endpoint by the wire gate. Columns: eastward_sea_water_velocity,
+    northward_sea_water_velocity, upward_sea_water_velocity.'
+- id: oceanobservatories_coastal_endurance_oregon_offshore_ooi_ce04os
+  name: 'Coastal Endurance: Oregon Offshore Cabled Shallow Profiler Mooring: 200m Platform (PC01B): CTD
+    (Ocean Observatories Initiative (OOI))'
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://erddap.dataexplorer.oceanobservatories.org/erddap/tabledap/ooi-ce04osps-pc01b-4a-ctdpfa109.json?time,sea_water_electrical_conductivity,moles_of_oxygen_per_unit_mass_in_sea_water,mole_concentration_of_dissolved_molecular_oxygen_in_sea_water&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2014-10-08 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 1.0 min over 1431 distinct timestamps; newest 2026-08-06T03:28:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Ocean Observatories Initiative (OOI) via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the OOI ERDDAP server (erddap.dataexplorer.oceanobservatories.org). Variables
+    chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids
+    excluded; verified against the live endpoint by the wire gate. Columns: sea_water_electrical_conductivity,
+    moles_of_oxygen_per_unit_mass_in_sea_water, mole_concentration_of_dissolved_molecular_oxygen_in_sea_water.'
+- id: oceanobservatories_coastal_endurance_oregon_shelf_cabled_be
+  name: 'Coastal Endurance: Oregon Shelf Cabled Benthic Experiment Package: Low-Power JBox (LJ01D): pCO2
+    Water (Ocean Observatories Initiative (OOI))'
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://erddap.dataexplorer.oceanobservatories.org/erddap/tabledap/ooi-ce02shbp-lj01d-09-pco2wb103.json?time,partial_pressure_of_carbon_dioxide_in_sea_water&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2014-09-25 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 24 distinct timestamps; newest 2026-08-06T03:05:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Ocean Observatories Initiative (OOI) via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the OOI ERDDAP server (erddap.dataexplorer.oceanobservatories.org). Variables
+    chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids
+    excluded; verified against the live endpoint by the wire gate. Columns: partial_pressure_of_carbon_dioxide_in_sea_water.'
+- id: edu_rads_altimeter_along_track_data
+  name: RADS Altimeter Along-Track Data (Rutgers University)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: http://tds.marine.rutgers.edu/erddap/tabledap/RADS_ALTIMETER_V2.json?time,sla,provenance,dry_tropo,wet_tropo&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2010-07-16 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.0 min over 855 distinct timestamps; newest 2026-08-05T20:25:46+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Rutgers University via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the RUTGERS ERDDAP server (tds.marine.rutgers.edu). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: sla, provenance, dry_tropo, wet_tropo.'
+- id: edu_rads_altimeter_along_track_data_for_the
+  name: RADS Altimeter Along-Track Data for the ECCOFS domain (Rutgers University)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: http://tds.marine.rutgers.edu/erddap/tabledap/RADS_ALTIMETER_ECCOFS.json?time,sla,provenance,dry_tropo,wet_tropo&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2023-10-20 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.0 min over 6469 distinct timestamps; newest 2026-08-05T22:27:02+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Rutgers University via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the RUTGERS ERDDAP server (tds.marine.rutgers.edu). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: sla, provenance, dry_tropo, wet_tropo.'
+- id: noaa_emolt_data
+  name: eMOLT data (Environmental Monitors on Lobster Traps and Large Trawlers)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://comet.nefsc.noaa.gov/erddap/tabledap/eMOLT_realtime_bottom_temps_and_profiles.json?time,tow_id,segment_type,temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2018-03-23 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.0 min over 4191 distinct timestamps; newest 2026-08-06T22:05:31+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Environmental Monitors on Lobster Traps and Large Trawlers via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the NEFSC ERDDAP server (comet.nefsc.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: tow_id, segment_type, temperature.'
+- id: noaa_lake_erie_angola_surface_temperature_con
+  name: Lake Erie   Angola Surface Temperature Contour Map (2022-present) (CoastWatch Great Lakes Node)
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://apps.glerl.noaa.gov/erddap/tabledap/LE_NRT_TC_e32.json?time,size&time%3E=now-14days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2022-11-03 (server retains full series; the entry polls a rolling 14d window)
+  update_cadence_observed: median gap 50.0 min over 131 distinct timestamps; newest 2026-08-06T18:50:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- CoastWatch Great Lakes Node via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the GLERL ERDDAP server (apps.glerl.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: size.'
+- id: noaa_lake_erie_black_river_surface_temperatur
+  name: Lake Erie   Black River Surface Temperature Contour Map (2022-present) (CoastWatch Great Lakes Node)
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://apps.glerl.noaa.gov/erddap/tabledap/LE_NRT_TC_e13.json?time,size&time%3E=now-14days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2022-11-01 (server retains full series; the entry polls a rolling 14d window)
+  update_cadence_observed: median gap 50.0 min over 134 distinct timestamps; newest 2026-08-06T18:50:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- CoastWatch Great Lakes Node via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the GLERL ERDDAP server (apps.glerl.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: size.'
+- id: noaa_lake_erie_erie_surface_temperature_conto
+  name: Lake Erie  Erie Surface Temperature Contour Map (2022-present) (CoastWatch Great Lakes Node)
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://apps.glerl.noaa.gov/erddap/tabledap/LE_NRT_TC_e31.json?time,size&time%3E=now-14days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2022-11-01 (server retains full series; the entry polls a rolling 14d window)
+  update_cadence_observed: median gap 50.0 min over 135 distinct timestamps; newest 2026-08-06T18:50:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- CoastWatch Great Lakes Node via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the GLERL ERDDAP server (apps.glerl.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: size.'
+- id: ubc_onc_strait_of_georgia_bc_ferries_tsawwas
+  name: ONC, Strait of Georgia, BC Ferries, Tsawwassen - Duke Point, 1min, v18-01 (UBC EOAS)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://salishsea.eos.ubc.ca/erddap/tabledap/ubcONCTWDP1mV18-01.json?time,nemo_grid_j,nemo_grid_i,crossing_number&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2012-05-10 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 1.0 min over 1215 distinct timestamps; newest 2026-08-05T23:58:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UBC EOAS via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the UBC ERDDAP server (salishsea.eos.ubc.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: nemo_grid_j, nemo_grid_i, crossing_number.'
+- id: ubc_onc_strait_of_georgia_central_node_salin
+  name: ONC, Strait of Georgia, Central Node, Salinity and Temperature, 15min, v1 (UBC EOAS)
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://salishsea.eos.ubc.ca/erddap/tabledap/ubcONCSCVIPCTD15mV1.json?time,temperature_sample_count,salinity_std_dev,salinity,salinity_sample_count&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2014-09-01 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 15.0 min over 81 distinct timestamps; newest 2026-08-05T23:45:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UBC EOAS via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the UBC ERDDAP server (salishsea.eos.ubc.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: temperature_sample_count, salinity_std_dev, salinity,
+    salinity_sample_count.'
+- id: ubc_onc_strait_of_georgia_east_node_salinity
+  name: ONC, Strait of Georgia, East Node, Salinity and Temperature, 15min, v1 (UBC EOAS)
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://salishsea.eos.ubc.ca/erddap/tabledap/ubcONCSEVIPCTD15mV1.json?time,salinity,temperature,temperature_std_dev,salinity_std_dev&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2014-09-01 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 15.0 min over 81 distinct timestamps; newest 2026-08-05T23:45:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- UBC EOAS via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the UBC ERDDAP server (salishsea.eos.ubc.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: salinity, temperature, temperature_std_dev, salinity_std_dev.'
+- id: noaa_ecocast_species_weightings_and_environme_ecocast_in
+  name: Ecocast species weightings and environmental data dates (NOAA NMFS SWFSC ERD)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://upwell.pfeg.noaa.gov/erddap/tabledap/ecocast_inputs.json?time,blueshark,bluesharkTRK,sealions,leatherbacks&time%3E=now-120days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2018-05-09 (server retains full series; the entry polls a rolling 120d window)
+  update_cadence_observed: median gap 1440.0 min over 119 distinct timestamps; newest 2026-08-05T12:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- NOAA NMFS SWFSC ERD via ERDDAP
+  audit_slack_days: 14
+  notes: 'Bulk-generated from the UAF ERDDAP server (upwell.pfeg.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: blueshark, bluesharkTRK, sealions, leatherbacks.'
+- id: noaa_nino_region_weekly_sst_oisst_v2_ncepninoss
+  name: Nino Region Weekly SST OISST.v2 (NCEP)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://upwell.pfeg.noaa.gov/erddap/tabledap/ncepNinoSSTwk.json?time,Nino1_2_sst,Nino1_2_ssta,Nino3_sst,Nino3_ssta&time%3E=now-1200days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 1981-09-02 (server retains full series; the entry polls a rolling 1200d window)
+  update_cadence_observed: median gap 10080.0 min over 171 distinct timestamps; newest 2026-07-29T00:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- NCEP via ERDDAP
+  audit_slack_days: 54
+  notes: 'Bulk-generated from the UAF ERDDAP server (upwell.pfeg.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: Nino1_2_sst, Nino1_2_ssta, Nino3_sst, Nino3_ssta.'
+- id: noaa_noaa_ship_bell_m_shimada_underway_meteor_fsunoaashi
+  name: NOAA Ship Bell M. Shimada Underway Meteorological Data, Near Real Time (FSU)
+  domain: nature
+  dgp_class: ocean_physics
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://upwell.pfeg.noaa.gov/erddap/tabledap/fsuNoaaShipWTEDnrt.json?time,airPressure,airTemperature,relativeHumidity&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2026-01-14 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 1.0 min over 227 distinct timestamps; newest 2026-08-05T23:59:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- FSU via ERDDAP
+  audit_slack_days: 4
+  notes: 'Bulk-generated from the UAF ERDDAP server (upwell.pfeg.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: airPressure, airTemperature, relativeHumidity.'
+- id: noaa_engineering_data_for_pmel_bgc_navis_floa
+  name: Engineering data for PMEL BGC Navis floats (NOAA-PMEL)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://data.pmel.noaa.gov/pmel/erddap/tabledap/argo_eng_navis.json?time,floatid,msgEOT,ActiveBallastAdjustments&time%3E=now-120days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2022-08-18 (server retains full series; the entry polls a rolling 120d window)
+  update_cadence_observed: median gap 878.7 min over 118 distinct timestamps; newest 2026-08-06T01:07:44+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- NOAA-PMEL via ERDDAP
+  audit_slack_days: 14
+  notes: 'Bulk-generated from the PMEL ERDDAP server (data.pmel.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: floatid, msgEOT, ActiveBallastAdjustments.'
+- id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026
+  name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1030 (NOAA Atlantic Oceanographic and Meteorological
+    Laboratory, NOAA PMEL)
+  domain: nature
+  dgp_class: met_station
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.pmel.noaa.gov/pmel/erddap/tabledap/sd1030_hurricane_2026.json?time,baro_pressure_filtered,baro_pressure_rms,air_temperature_filtered,air_temperature_rms&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2026-07-21 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 1.0 min over 2824 distinct timestamps; newest 2026-08-07T03:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- NOAA Atlantic Oceanographic and Meteorological Laboratory, NOAA PMEL via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the PMEL ERDDAP server (data.pmel.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered,
+    air_temperature_rms.'
+- id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1040_hur
+  name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1040 (NOAA Atlantic Oceanographic and Meteorological
+    Laboratory, NOAA PMEL)
+  domain: nature
+  dgp_class: met_station
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://data.pmel.noaa.gov/pmel/erddap/tabledap/sd1040_hurricane_2026.json?time,baro_pressure_filtered,baro_pressure_rms,air_temperature_filtered,air_temperature_rms&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2026-07-21 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 1.0 min over 2824 distinct timestamps; newest 2026-08-07T03:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- NOAA Atlantic Oceanographic and Meteorological Laboratory, NOAA PMEL via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the PMEL ERDDAP server (data.pmel.noaa.gov). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered,
+    air_temperature_rms.'
+- id: smartatlantic_cove_weather_station_idartm1
+  name: COVE Weather Station, IDARTM1 (COVE)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://www.smartatlantic.ca/erddap/tabledap/cove_weather_station_idartm1.json?time,wind_dir_avg,air_temp_avg,wind_spd_avg,wind_gust_avg&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2019-07-30 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 15.0 min over 189 distinct timestamps; newest 2026-08-07T03:45:13+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- COVE via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the SmartAtlantic ERDDAP server (www.smartatlantic.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: wind_dir_avg, air_temp_avg, wind_spd_avg, wind_gust_avg.'
+- id: smartatlantic_diamond_jubilee_cruise_ship_terminal_met
+  name: Diamond Jubilee Cruise Ship Terminal Meteorological Station (COVE)
+  domain: nature
+  dgp_class: met_station
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://www.smartatlantic.ca/erddap/tabledap/SMA_saint_john_cruise_terminal.json?time,wind_dir_avg,wind_spd_avg,wind_spd_max&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2016-12-22 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 1.0 min over 2305 distinct timestamps; newest 2026-08-07T03:54:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- COVE via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the SmartAtlantic ERDDAP server (www.smartatlantic.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: wind_dir_avg, wind_spd_avg, wind_spd_max.'
+- id: smartatlantic_halifax_herring_cove_buoy
+  name: Halifax (Herring Cove) Buoy (COVE)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://www.smartatlantic.ca/erddap/tabledap/SMA_halifax.json?time,wind_spd_avg,wind_spd_max&time%3E=now-14days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    variates: 2
+  history_available: from 2013-11-07 (server retains full series; the entry polls a rolling 14d window)
+  update_cadence_observed: median gap 30.0 min over 110 distinct timestamps; newest 2026-08-06T13:53:11+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- COVE via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the SmartAtlantic ERDDAP server (www.smartatlantic.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_spd_max.'
+- id: gcoos_data_for_ioos_station_cbi_042
+  name: Data for ioos-station-CBI-042 (GCOOS)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://erddap.gcoos.org/erddap/tabledap/CBI_042.json?time,sea_surface_temperature_1&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2023-07-10 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 56 distinct timestamps; newest 2026-08-07T01:36:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- GCOOS via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the GCOOS ERDDAP server (erddap.gcoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: sea_surface_temperature_1.'
+- id: gcoos_data_for_ioos_station_cbi_074
+  name: Data for ioos-station-CBI-074 (GCOOS)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://erddap.gcoos.org/erddap/tabledap/CBI_074.json?time,sea_surface_temperature_1&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2023-07-10 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 36.0 min over 76 distinct timestamps; newest 2026-08-07T02:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- GCOOS via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the GCOOS ERDDAP server (erddap.gcoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: sea_surface_temperature_1.'
+- id: gcoos_data_for_ioos_station_cbi_076
+  name: Data for ioos-station-CBI-076 (GCOOS)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://erddap.gcoos.org/erddap/tabledap/CBI_076.json?time,sea_surface_temperature_1&time%3E=now-14days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2023-07-10 (server retains full series; the entry polls a rolling 14d window)
+  update_cadence_observed: median gap 36.0 min over 193 distinct timestamps; newest 2026-07-28T17:30:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- GCOOS via ERDDAP
+  audit_slack_days: 12
+  notes: 'Bulk-generated from the GCOOS ERDDAP server (erddap.gcoos.org). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: sea_surface_temperature_1.'
+- id: cioosatlantic_force_meteorological_tower
+  name: FORCE Meteorological Tower (FORCE)
+  domain: nature
+  dgp_class: met_station
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://cioosatlantic.ca/erddap/tabledap/force_meteorological_tower.json?time,StationID,battery_voltage,air_temperature,solar_irradiance&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2016-12-09 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 15.0 min over 192 distinct timestamps; newest 2026-08-07T03:44:28+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- FORCE via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CIOOS Atlantic ERDDAP server (cioosatlantic.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: StationID, battery_voltage, air_temperature, solar_irradiance.'
+- id: cioosatlantic_halifax_herring_cove_buoy
+  name: Halifax (Herring Cove) Buoy (COVE)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://cioosatlantic.ca/erddap/tabledap/SMA_halifax.json?time,wind_spd_avg,wind_spd_max&time%3E=now-14days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    variates: 2
+  history_available: from 2013-11-07 (server retains full series; the entry polls a rolling 14d window)
+  update_cadence_observed: median gap 30.0 min over 110 distinct timestamps; newest 2026-08-06T13:53:11+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- COVE via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CIOOS Atlantic ERDDAP server (cioosatlantic.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_spd_max.'
+- id: cioosatlantic_halifax_ocean_terminals_fairview
+  name: 'Halifax Ocean Terminals: Fairview (COVE)'
+  domain: nature
+  dgp_class: met_station
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://cioosatlantic.ca/erddap/tabledap/SMA_halifax_fairview.json?time,wind_spd_avg,wind_dir_avg,wind_spd_max,air_temp_avg&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2015-11-18 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 10.0 min over 271 distinct timestamps; newest 2026-08-07T03:40:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- COVE via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CIOOS Atlantic ERDDAP server (cioosatlantic.ca). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_dir_avg, wind_spd_max, air_temp_avg.'
+- id: noaa_sacramento_river_valley_salmonid_tagging
+  name: Sacramento River Valley Salmonid Tagging Project (NOAA/NMFS/SWFSC/FED)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://oceanview.pfeg.noaa.gov/erddap/tabledap/FEDcalFishTrack.json?time,river_km,length,release_rkm&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from ? (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.1 min over 103 distinct timestamps; newest 2026-08-06T20:29:32+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- NOAA/NMFS/SWFSC/FED via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the NOAA Oceanview ERDDAP server (oceanview.pfeg.noaa.gov). Variables chosen
+    mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
+    verified against the live endpoint by the wire gate. Columns: river_km, length, release_rkm.'
+- id: linkedsystems_mogli_unit_1209_deployment_729_real_time
+  name: MOGli unit_1209 (deployment 729) real-time slocum data (NOC)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://linkedsystems.uk/erddap/tabledap/Unit_1209_729_R.json?time,CNDC&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    variates: 1
+  history_available: from 2026-07-30 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.1 min over 14732 distinct timestamps; newest 2026-08-07T01:26:34+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- NOC via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the NOC-BODC Linked Systems ERDDAP server (linkedsystems.uk). Variables chosen
+    mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
+    verified against the live endpoint by the wire gate. Columns: CNDC.'
+- id: linkedsystems_pisces_sg637_deployment_726_real_time_se
+  name: PISCES sg637 (deployment 726) real-time seaglider data (NOC)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://linkedsystems.uk/erddap/tabledap/Omura_726_R.json?time,AAFDZZ01,CNDC,ENGINEERING_CYCLE_NUMBER&time%3E=now-14days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2026-07-01 (server retains full series; the entry polls a rolling 14d window)
+  update_cadence_observed: median gap 0.1 min over 53915 distinct timestamps; newest 2026-07-28T06:11:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- NOC via ERDDAP
+  audit_slack_days: 12
+  notes: 'Bulk-generated from the NOC-BODC Linked Systems ERDDAP server (linkedsystems.uk). Variables chosen
+    mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
+    verified against the live endpoint by the wire gate. Columns: AAFDZZ01, CNDC, ENGINEERING_CYCLE_NUMBER.'
+- id: ondeckdata_emolt_data
+  name: eMOLT data (Environmental Monitors on Lobster Traps and Large Trawlers)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://erddap.ondeckdata.com/erddap/tabledap/emolt_data.json?time,tow_id,segment_type,temperature&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2018-03-23 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.0 min over 4188 distinct timestamps; newest 2026-08-06T22:05:31+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- Environmental Monitors on Lobster Traps and Large Trawlers via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CFRF ERDDAP server (erddap.ondeckdata.com). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: tow_id, segment_type, temperature.'
+- id: ondeckdata_fixed_gear_oceanographic_data
+  name: Fixed Gear Oceanographic Data (CFRF)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://erddap.ondeckdata.com/erddap/tabledap/fixed_gear_oceanography.json?time,temperature,sensor_sn,stat_area&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    variates: 3
+  history_available: from 2014-01-24 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 60.0 min over 32 distinct timestamps; newest 2026-08-06T11:00:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- CFRF via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CFRF ERDDAP server (erddap.ondeckdata.com). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: temperature, sensor_sn, stat_area.'
+- id: ondeckdata_mobile_gear_oceanographic_data
+  name: Mobile Gear Oceanographic Data (CFRF)
+  domain: nature
+  dgp_class: environmental_sensor
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multi
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://erddap.ondeckdata.com/erddap/tabledap/mobile_gear_oceanography.json?time,temperature,sensor_sn,stat_area,pressure&time%3E=now-2days
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: table.rows[][0]
+    value_field:
+    - table.rows[][1]
+    - table.rows[][2]
+    - table.rows[][3]
+    - table.rows[][4]
+    variates: 4
+  history_available: from 2023-07-31 (server retains full series; the entry polls a rolling 2d window)
+  update_cadence_observed: median gap 0.0 min over 37 distinct timestamps; newest 2026-08-06T11:09:57+00:00
+  pretraining_novelty: clean
+  novelty_notes: Operational ocean/met observing platform served over ERDDAP; the live rolling window post-dates
+    every known TSFM pretraining cutoff.
+  license: open data -- CFRF via ERDDAP
+  audit_slack_days: 3
+  notes: 'Bulk-generated from the CFRF ERDDAP server (erddap.ondeckdata.com). Variables chosen mechanically
+    from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
+    against the live endpoint by the wire gate. Columns: temperature, sensor_sn, stat_area, pressure.'

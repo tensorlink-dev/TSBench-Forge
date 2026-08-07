@@ -79,6 +79,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-ckan", metavar="OUT_FILE",
                     help="same, over a curated list of national CKAN portals "
                          "(chosen for geographic spread, not volume)")
+    ap.add_argument("--bulk-erddap", metavar="OUT_FILE",
+                    help="same, over the ERDDAP federation (~60 independently "
+                         "operated ocean/met observing servers)")
+    ap.add_argument("--bulk-per-host", type=int, default=None,
+                    help="with --bulk-erddap: datasets to take per server "
+                         "(default: --bulk-host-cap)")
     ap.add_argument("--bulk-per-keyword", type=int, default=None,
                     help="catalog results to page through per keyword "
                          "(default 200 Socrata / 100 ODS)")
@@ -98,6 +104,30 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --bulk-socrata: sweep only these keywords "
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
+
+    if args.bulk_erddap:
+        cands, skipped = bulk.erddap_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            per_server=args.bulk_per_host,
+            max_age_days=args.bulk_max_age_days,
+            # Always allow wired hosts: an ERDDAP server is a whole regional
+            # observing system, and the three already in the catalog carry one
+            # dataset each. The per-host cap is what bounds concentration.
+            new_hosts_only=False,
+            target=args.bulk_target, checkpoint_path=args.bulk_erddap,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_erddap)
+        reasons: dict[str, int] = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_erddap,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
 
     if args.bulk_ckan:
         cands, skipped = bulk.ckan_sweep(

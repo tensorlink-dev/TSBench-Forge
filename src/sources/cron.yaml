@@ -53,6 +53,13 @@ schedules:
   - packagist_php_release_rate
   - fr_ancien_disponibilite_en_temps_reel_des_p
   - statnett_no_grid_frequency_1s
+  - oceantrack_glider_deployment_228_sambro_2026_07_19
+  - noaa_emolt_data
+  - noaa_noaa_aoml_pmel_hurricane_monitoring_2026
+  - noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1040_hur
+  - smartatlantic_diamond_jubilee_cruise_ship_terminal_met
+  - linkedsystems_mogli_unit_1209_deployment_729_real_time
+  - ondeckdata_emolt_data
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -229,6 +236,11 @@ schedules:
   - yonden_jp_demand_5min
   - hepco_jp_demand_5min
   - hko_hk_station_temperature
+  - cencoos_028_santa_monica_bay_ca_46221
+  - cencoos_029_point_reyes_ca_46214
+  - smartatlantic_cove_weather_station_idartm1
+  - cioosatlantic_force_meteorological_tower
+  - cioosatlantic_halifax_ocean_terminals_fairview
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -279,6 +291,8 @@ schedules:
   - rikuden_jp_area_balance_30min
   - kansai_td_jp_area_balance_30min
   - arso_si_river_gauges
+  - cencoos_045_oceanside_offshore_ca_46224
+  - gcoos_data_for_ioos_station_cbi_074
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -405,6 +419,36 @@ schedules:
   - axiom_cormp_ilm2_buoy
   - opensensemap_pm10_network
   - cta_chicago_service_alerts
+  - noaa_noaa_ship_bell_m_shimada_underway_meteor
+  - emodnet_moanaproject_mangopare_sensor_deployment
+  - ioos_41024_sun2_sunset_nearshore_met_and_wate
+  - ioos_41029_cap2_capers_nearshore_sc
+  - ioos_41033_frp2_fripp_nearshore_nc
+  - neracoos_a01_directional_waves
+  - neracoos_b01_directional_waves
+  - secoora_41024_sun2_sunset_nearshore_met_and_wate
+  - secoora_41029_cap2_capers_nearshore_sc
+  - secoora_41033_frp2_fripp_nearshore_nc
+  - oceanobservatories_coastal_endurance_oregon_offshore_cabled
+  - oceanobservatories_coastal_endurance_oregon_offshore_ooi_ce04os
+  - oceanobservatories_coastal_endurance_oregon_shelf_cabled_be
+  - edu_rads_altimeter_along_track_data
+  - edu_rads_altimeter_along_track_data_for_the
+  - noaa_lake_erie_angola_surface_temperature_con
+  - noaa_lake_erie_black_river_surface_temperatur
+  - noaa_lake_erie_erie_surface_temperature_conto
+  - ubc_onc_strait_of_georgia_bc_ferries_tsawwas
+  - ubc_onc_strait_of_georgia_central_node_salin
+  - ubc_onc_strait_of_georgia_east_node_salinity
+  - noaa_ecocast_species_weightings_and_environme_ecocast_in
+  - noaa_noaa_ship_bell_m_shimada_underway_meteor_fsunoaashi
+  - noaa_engineering_data_for_pmel_bgc_navis_floa
+  - smartatlantic_halifax_herring_cove_buoy
+  - gcoos_data_for_ioos_station_cbi_042
+  - cioosatlantic_halifax_herring_cove_buoy
+  - noaa_sacramento_river_valley_salmonid_tagging
+  - ondeckdata_fixed_gear_oceanographic_data
+  - ondeckdata_mobile_gear_oceanographic_data
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -909,6 +953,10 @@ schedules:
   - faroe_cpi_quarterly
   - kosovo_hicp_monthly
   - sentry_status_incidents
+  - neracoos_cvow_wave_buoy_timeseries_data
+  - noaa_nino_region_weekly_sst_oisst_v2_ncepninoss
+  - gcoos_data_for_ioos_station_cbi_076
+  - linkedsystems_pisces_sg637_deployment_726_real_time_se
   cron: 10 1 * * *
 - every: P1D
   sources:

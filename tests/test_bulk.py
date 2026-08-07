@@ -10,6 +10,7 @@ entries at once — so the mechanical choices need pinning down.
 from __future__ import annotations
 
 import datetime as dt
+import re
 
 import pytest
 import yaml
@@ -639,3 +640,215 @@ def test_ckan_file_candidate_uses_content_length_when_size_missing(monkeypatch):
         {"format": "CSV", "url": "https://p.example/big.csv",
          "last_modified": "2026-07-27T00:00:00"}, 3650)
     assert "48MB cap" in got["error"]
+
+
+# --------------------------------------------------------------------------- #
+# ERDDAP
+# --------------------------------------------------------------------------- #
+def _erddap_payload(names, rows):
+    return {"table": {"columnNames": names, "rows": rows}}
+
+
+def test_erddap_pick_values_drops_qc_and_coordinates():
+    """On a typical mooring the QC flags OUTNUMBER the measurements, and every
+    one of them is numeric. Wiring a flag column yields a constant series."""
+    variables = [
+        ("time", "double"), ("station", "String"),
+        ("latitude", "float"), ("longitude", "float"), ("depth", "double"),
+        ("air_temperature", "float"), ("air_temperature_qc", "byte"),
+        ("wind_speed", "float"), ("wind_speed_qc_agg", "byte"),
+        ("crs", "double"), ("instrument_1", "byte"), ("time_modified", "double"),
+    ]
+    assert bulk.erddap_pick_values(variables) == ["air_temperature", "wind_speed"]
+
+
+def test_erddap_pick_values_caps_the_width():
+    variables = [(f"var_{i}", "float") for i in range(10)]
+    assert len(bulk.erddap_pick_values(variables, limit=4)) == 4
+
+
+def test_erddap_data_url_is_server_relative():
+    """`now-Nd` is evaluated server-side, so a generated entry never needs a
+    date token re-templated and cannot silently pin to a fixed past window."""
+    url = bulk.erddap_data_url("https://e.example/erddap", "A01_met",
+                               ["air_temperature"], 2)
+    assert url == ("https://e.example/erddap/tabledap/A01_met.json"
+                   "?time,air_temperature&time%3E=now-2days")
+
+
+def test_erddap_rejects_model_output_titles():
+    for title in ("Irish Marine Institute NE Atlantic Model",
+                  "Wave forecast, 7 day", "SST climatology 1991-2020",
+                  "Data from a local source."):
+        assert bulk._ERDDAP_REJECT_TITLE.search(title), title
+    for title in ("A01 Met - Meteorology", "Halifax (Herring Cove) Buoy"):
+        assert not bulk._ERDDAP_REJECT_TITLE.search(title), title
+
+
+def test_erddap_rejects_one_off_deployments():
+    """A glider deployment is fresh today and dead when the glider is recovered;
+    the id carries its launch stamp."""
+    assert bulk._ERDDAP_DEPLOYMENT.search("AsterSEA068-20260804T0908")
+    assert not bulk._ERDDAP_DEPLOYMENT.search("A01_met")
+
+
+def test_erddap_platform_key_groups_one_buoys_instruments():
+    """Three depths of the same mooring are the same water. Taking all three
+    buys volume and no information."""
+    k = bulk.erddap_platform_key
+    assert k("A01 Directional Waves", "A01_waves") == "a01"
+    assert k("A01 Ocean - 1 meter", "A01_ocean_001m") == "a01"
+    assert k("(41024 / SUN2) Sunset Nearshore", "org_cormp_sun2") == "41024"
+    # Prose titles carry the distinguishing part at the END, so keying on the
+    # leading token there would collapse genuinely separate radar sites.
+    assert (k("Near Real Time Surface Velocity by HFR-Granitola", "a")
+            != k("Near Real Time Surface Velocity by HFR-Galicia", "b"))
+
+
+def test_erddap_slack_scales_with_cadence():
+    """A flat 45-day floor lets a 10-minute buoy stay 'fresh' for six weeks
+    after it goes dark."""
+    assert bulk._erddap_slack(600, 0.02) == 3          # 10-minute mooring
+    assert bulk._erddap_slack(86_400, 1.0) == 14       # daily
+    assert bulk._erddap_slack(2_600_000, 10.0) == 55   # monthly
+
+
+def test_erddap_datasets_filters_grids_and_the_catalog_row(monkeypatch):
+    payload = _erddap_payload(
+        ["datasetID", "title", "institution", "minTime", "maxTime", "dataStructure"],
+        [["allDatasets", "*", "*", "", "", "table"],
+         ["gridThing", "SST grid", "X", "", "", "grid"],
+         ["A01_met", "A01 Met", "UMaine", "2001-01-01T00:00:00Z",
+          "2026-08-07T00:00:00Z", "table"]],
+    )
+    monkeypatch.setattr(bulk, "erddap_get",
+                        lambda url, timeout=60, max_bytes=0: payload)
+    got = bulk.erddap_datasets("https://e.example/erddap")
+    assert [d["datasetID"] for d in got] == ["A01_met"]
+
+
+def test_erddap_probe_rejects_a_panel(monkeypatch):
+    """Several stations sharing a timestamp is a panel; the gate reads one
+    series per entry, so the extra rows silently overwrite each other."""
+    base = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=30)
+    rows = [[(base + dt.timedelta(days=i // 3)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+             float(i)] for i in range(60)]
+    monkeypatch.setattr(bulk, "erddap_get",
+                        lambda url, timeout=60: _erddap_payload(["time", "v"], rows))
+    got = bulk.erddap_probe("https://e.example/erddap", "ds", ["v"])
+    assert "panel" in got["error"]
+
+
+def test_erddap_probe_rejects_future_dated_rows(monkeypatch):
+    future = dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=30)
+    rows = [[(future + dt.timedelta(hours=i)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+             float(i)] for i in range(40)]
+    monkeypatch.setattr(bulk, "erddap_get",
+                        lambda url, timeout=60: _erddap_payload(["time", "v"], rows))
+    got = bulk.erddap_probe("https://e.example/erddap", "ds", ["v"])
+    assert "future-dated" in got["error"]
+
+
+def test_erddap_probe_drops_all_null_columns(monkeypatch):
+    now = dt.datetime.now(dt.timezone.utc)
+    rows = [[(now - dt.timedelta(hours=i)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+             float(i), None] for i in range(40)]
+    monkeypatch.setattr(
+        bulk, "erddap_get",
+        lambda url, timeout=60: _erddap_payload(["time", "good", "empty"], rows))
+    got = bulk.erddap_probe("https://e.example/erddap", "ds", ["good", "empty"])
+    assert got["values"] == ["good"]
+    assert got["distinct"] == 40
+
+
+def test_erddap_probe_widens_the_window_for_slow_series(monkeypatch):
+    """A monthly series has nothing in a 2-day window; giving up there would
+    drop every low-cadence dataset on the federation."""
+    now = dt.datetime.now(dt.timezone.utc)
+    calls: list[int] = []
+
+    def fake(url, timeout=60):
+        days = int(re.search(r"now-(\d+)days", url).group(1))
+        calls.append(days)
+        if days < 120:
+            return _erddap_payload(["time", "v"], [])
+        rows = [[(now - dt.timedelta(days=3 * i)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                 float(i)] for i in range(30)]
+        return _erddap_payload(["time", "v"], rows)
+
+    monkeypatch.setattr(bulk, "erddap_get", fake)
+    got = bulk.erddap_probe("https://e.example/erddap", "ds", ["v"])
+    assert calls == [2, 14, 120]
+    assert got["window_days"] == 120
+
+
+def test_erddap_synthesize_uses_positional_fields():
+    """ERDDAP answers with parallel arrays, so the schema is positional: column
+    0 is always the requested `time`."""
+    probe = {"values": ["air_temperature", "wind_speed"], "window_days": 2,
+             "distinct": 288, "rows": 288, "newest": "2026-08-07T00:00:00+00:00",
+             "age_days": 0.01, "median_gap_s": 600.0}
+    block = bulk.erddap_synthesize(
+        "https://data.neracoos.org/erddap", "NERACOOS",
+        {"datasetID": "A01_met", "title": "A01 Met", "institution": "UMaine",
+         "minTime": "2001-01-01T00:00:00Z"},
+        bulk.ERDDAP_DEFAULT_CLASS, probe)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["schema"]["timestamp_field"] == "table.rows[][0]"
+    assert entry["schema"]["value_field"] == ["table.rows[][1]", "table.rows[][2]"]
+    assert entry["id"].startswith("neracoos_")
+    assert entry["frequency"] == "PT15M"   # nearest rung of the ladder
+    assert entry["audit_slack_days"] == 3
+
+
+def test_wired_erddap_datasets_reads_host_and_id():
+    import tempfile, os
+    reg = [{"id": "x", "endpoint": {"url": "https://data.neracoos.org/erddap/"
+                                           "tabledap/A01_met.json?time&x=1"}}]
+    fd, path = tempfile.mkstemp(suffix=".yaml")
+    with os.fdopen(fd, "w") as fh:
+        yaml.dump(reg, fh)
+    try:
+        assert bulk.wired_erddap_datasets(path) == {"data.neracoos.org|A01_met"}
+    finally:
+        os.unlink(path)
+
+
+def test_host_label_walks_past_country_tlds():
+    """Without this a European host stops on its TLD: 'eu' names a continent,
+    not a publisher, and every .eu source would collide."""
+    assert bulk.host_label("erddap.emodnet-physics.eu") == "emodnet"
+    assert bulk.host_label("erddap.marine.ie") == "marine"
+
+
+def test_erddap_class_never_leaves_the_nature_domain():
+    """An ocean federation has one domain, so every cross-domain match the
+    open-vocabulary classifier finds is a false one: the token 'real' in 'Near
+    Real Time' filed NOAA ship met data under sales, and 'RADS Altimeter' under
+    econ_fin. A mislabelled domain corrupts the matrix that steers the build."""
+    for title in ("NOAA Ship Bell M. Shimada Underway Meteorological Data, "
+                  "Near Real Time",
+                  "RADS Altimeter Along-Track Data",
+                  "028 - Santa Monica Bay, CA (46221)"):
+        assert bulk.erddap_class(title)[1] == "nature", title
+
+
+def test_erddap_class_picks_the_sub_class():
+    assert bulk.erddap_class("A01 Directional Waves")[2] == "ocean_waves"
+    assert bulk.erddap_class("Halifax tide gauge water level")[2] == "sea_level"
+
+
+def test_erddap_datasets_treats_404_as_an_empty_catalog(monkeypatch):
+    """ERDDAP answers an empty result set with HTTP 404. Reported as an error it
+    reads as 'server down' and hides the real finding: the freshness window was
+    too tight."""
+    def boom(url, timeout=60, max_bytes=0):
+        raise RuntimeError("HTTP 404")
+    monkeypatch.setattr(bulk, "erddap_get", boom)
+    assert bulk.erddap_datasets("https://e.example/erddap") == []
+
+    def other(url, timeout=60, max_bytes=0):
+        raise RuntimeError("HTTP 500")
+    monkeypatch.setattr(bulk, "erddap_get", other)
+    with pytest.raises(RuntimeError):
+        bulk.erddap_datasets("https://e.example/erddap")
