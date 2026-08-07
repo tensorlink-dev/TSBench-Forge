@@ -1418,6 +1418,17 @@ ODS_THEME_PATTERNS: tuple[tuple[str, str], ...] = (
     # web_cloudops
     (r"num[ée]rique|digital|t[ée]l[ée]com|telecom|internet|broadband|"
      r"informatique", "web_cloudops"),
+    # Statistics offices file far more finely than open-data portals: their
+    # subject areas are "Births", "Causes of death", "Building cost index"
+    # rather than "Health" or "Economy". One PX-Web run skipped 162 tables on
+    # "Population" alone.
+    (r"\bbirths?\b|\bdeaths?\b|mortalit|natalit|cause of death|"
+     r"causes of death|marital status|life expectancy", "healthcare"),
+    (r"cost index|price index|consumer price|producer price|"
+     r"harmonised index|inflation", "econ_fin"),
+    (r"wages?|salar|earnings|turnover|bankrupt|insolven|"
+     r"national accounts|gross domestic", "econ_fin"),
+    (r"greenhouse gas|emission|air pollut|climate gas", "nature"),
 )
 
 _ODS_THEME_RE: tuple[tuple[Any, str], ...] = tuple(
@@ -3783,6 +3794,20 @@ PXWEB_MIN_PERIODS = 24
 PXWEB_MAX_NODES = 150         # tree-walk budget per root
 
 
+_SAFE_ENTITIES = (("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"),
+                  ("&quot;", '"'), ("&#39;", "'"), ("&#x27;", "'"),
+                  ("&nbsp;", " "))
+
+
+def _safe_unescape(text: str) -> str:
+    """Decode only the entities we expect. html.unescape would also turn things
+    like &copy; and numeric escapes into characters that then need re-escaping
+    on the way into YAML."""
+    for ent, ch in _SAFE_ENTITIES:
+        text = text.replace(ent, ch)
+    return text
+
+
 def pxweb_get(url: str, timeout: int = 30) -> Any:
     r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
     if r.status_code != 200:
@@ -3817,14 +3842,22 @@ def pxweb_tables(root: str, max_nodes: int = PXWEB_MAX_NODES,
         if not isinstance(nodes, list):
             continue
         for n in nodes:
-            if not isinstance(n, dict) or not n.get("id"):
+            if not isinstance(n, dict):
                 continue
-            child = f"{path}/{n['id']}" if path else n["id"]
-            if n.get("type") == "l":
+            # Roots pointed at the LANGUAGE level list databases as
+            # {"dbid": ..., "text": ...} with no id and no type, which a
+            # strict id/type walker skips -- reporting "0 tables" for a whole
+            # statistics office that is in fact fully populated.
+            nid = n.get("id") or n.get("dbid")
+            if not nid:
+                continue
+            ntype = n.get("type") or ("l" if n.get("dbid") else "")
+            child = f"{path}/{nid}" if path else nid
+            if ntype == "l":
                 # The FIRST level is the subject area; deeper levels are
                 # sub-topics that say less about the domain.
                 queue.append((child, subject or (n.get("text") or "")))
-            elif n.get("type") == "t":
+            elif ntype == "t":
                 upd = _parse_iso(n.get("updated"))
                 if upd is None:
                     continue
@@ -3838,6 +3871,23 @@ def pxweb_tables(root: str, max_nodes: int = PXWEB_MAX_NODES,
         log(f"  [pxweb] node budget {max_nodes} spent, {len(queue)} branches "
             f"unexplored under {root}")
     return out
+
+
+def pxweb_table_url(root: str, path: str) -> Optional[str]:
+    """The addressable URL for a table found at `path` in the tree.
+
+    Installations disagree about whether a table is addressed by its full tree
+    path or by its id directly under the database. Statistics Finland accepts
+    both at depth 2 and answers 400 for deeper nestings -- 185 of one run's 722
+    skips were that. Try the path, fall back to the bare id.
+    """
+    for cand in (f"{root}/{path}", f"{root}/{path.rsplit('/', 1)[-1]}"):
+        try:
+            pxweb_get(cand)
+            return cand
+        except Exception:                                     # noqa: BLE001
+            continue
+    return None
 
 
 def pxweb_query(meta: dict) -> Optional[tuple[dict, str, int]]:
@@ -3863,8 +3913,16 @@ def pxweb_query(meta: dict) -> Optional[tuple[dict, str, int]]:
     # away before the POST, so this costs nothing to check.
     if _pxweb_freq(str((tvar.get("values") or [""])[-1])) == "P1Y":
         return None
+    # NOT filter:"top" -- PX-Web's "top" is the top of the value LIST, and most
+    # tables list periods oldest-first, so it selects the 1960s. The wire gate
+    # caught this ("newest observation 2004-12-01 ... likely an oldest-first
+    # page"); the probe could not, because it only ever saw the window it had
+    # asked for. Period labels within one variable share a format, so sorting
+    # them lexicographically orders them chronologically.
+    periods = sorted(str(v) for v in (tvar.get("values") or []))
     query = [{"code": tvar["code"],
-              "selection": {"filter": "top", "values": [str(PXWEB_TOP_PERIODS)]}}]
+              "selection": {"filter": "item",
+                            "values": periods[-PXWEB_TOP_PERIODS:]}}]
     measure = ""
     for v in variables:
         if v is tvar:
@@ -3886,7 +3944,35 @@ def pxweb_query(meta: dict) -> Optional[tuple[dict, str, int]]:
             measure, len(tvar.get("values") or []))
 
 
-def pxweb_probe(url: str, body: dict, timeout: int = 45) -> dict:
+def _pxweb_period_age_days(period: str) -> Optional[float]:
+    """Age of a PX-Web period label, or None if it is not a shape we know.
+
+    The probe used to trust whatever window it asked for, which is how a
+    selection bug shipped a table whose newest point was 2004.
+    """
+    p = str(period).strip()
+    now = dt.datetime.now(dt.timezone.utc)
+    m = re.fullmatch(r"(\d{4})M(\d{2})", p) or re.fullmatch(r"(\d{4})-(\d{2})", p)
+    if m:
+        y, mo = int(m.group(1)), int(m.group(2))
+        return (now - dt.datetime(y, mo, 1, tzinfo=dt.timezone.utc)).days
+    m = re.fullmatch(r"(\d{4})[QK](\d)", p)
+    if m:
+        y, q = int(m.group(1)), int(m.group(2))
+        return (now - dt.datetime(y, 1 + 3 * (q - 1), 1,
+                                  tzinfo=dt.timezone.utc)).days
+    m = re.fullmatch(r"(\d{4})[HS](\d)", p)
+    if m:
+        y, h = int(m.group(1)), int(m.group(2))
+        return (now - dt.datetime(y, 1 + 6 * (h - 1), 1,
+                                  tzinfo=dt.timezone.utc)).days
+    if re.fullmatch(r"\d{4}", p):
+        return (now - dt.datetime(int(p), 1, 1, tzinfo=dt.timezone.utc)).days
+    return None
+
+
+def pxweb_probe(url: str, body: dict, timeout: int = 45,
+                max_age_days: float = 200.0) -> dict:
     try:
         r = requests.post(url, json=body, headers={"User-Agent": UA},
                           timeout=timeout)
@@ -3908,8 +3994,12 @@ def pxweb_probe(url: str, body: dict, timeout: int = 45) -> dict:
     periods = sorted(idx) if isinstance(idx, dict) else list(idx or [])
     if len(periods) < PXWEB_MIN_PERIODS:
         return {"error": f"only {len(periods)} periods in the response"}
+    newest = periods[-1]
+    age = _pxweb_period_age_days(newest)
+    if age is not None and age > max_age_days:
+        return {"error": f"newest period {newest} is {age:.0f}d old"}
     return {"periods": len(periods), "numeric": len(nums),
-            "newest_period": periods[-1], "time_dim": role_time,
+            "newest_period": newest, "time_dim": role_time,
             "label": js.get("label") or ""}
 
 
@@ -3918,7 +4008,9 @@ def pxweb_synthesize(root: str, office: str, table: dict, body: dict,
                      taken: Optional[set[str]] = None) -> Optional[dict]:
     host = urlparse(root).netloc.lower()
     url = f"{root}/{table['path']}"
-    title = re.sub(r"\s+", " ", table["text"]).strip()
+    # Some offices put markup in the table label (<em>[PREPRISF]</em>).
+    title = re.sub(r"<[^>]+>", "", table["text"])
+    title = re.sub(r"\s+", " ", _safe_unescape(title)).strip()
     sid = f"pxweb_{entry_id(host, title)}"[:64]
     if taken and sid in taken:
         sid = f"{sid[:56]}_{_slug(table['path'], 6)}"[:64]
@@ -4019,6 +4111,14 @@ def pxweb_sweep(
             if got >= host_cap or seen_hosts.get(host, 0) >= host_cap:
                 break
             url = f"{root}/{table['path']}"
+            if url in known_urls:
+                continue
+            resolved = pxweb_table_url(root, table["path"])
+            if resolved is None:
+                skipped.append({"id": table["path"],
+                                "reason": "table not addressable by path or id"})
+                continue
+            url = resolved
             if url in known_urls:
                 continue
             klass = ods_publisher_class([table["subject"]], table["text"])

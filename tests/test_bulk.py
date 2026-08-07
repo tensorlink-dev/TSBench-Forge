@@ -1448,7 +1448,8 @@ def test_pxweb_query_pins_free_dims_and_drops_eliminable_ones():
     ]}
     body, measure, _ = bulk.pxweb_query(meta)
     codes = {q["code"]: q["selection"] for q in body["query"]}
-    assert codes["Month"] == {"filter": "top", "values": ["60"]}
+    assert codes["Month"]["filter"] == "item"
+    assert codes["Month"]["values"][-1] == "2026M12"
     assert measure == "measureA"
     assert codes["Sector"]["values"] == ["s1"]      # pinned
     assert "Region" not in codes                    # eliminated -> aggregate
@@ -1473,3 +1474,90 @@ def test_pxweb_tables_skips_stale_and_keeps_the_subject_area(monkeypatch):
     got = bulk.pxweb_tables("/root", max_age_days=120.0, log=lambda m: None)
     assert [t["text"] for t in got] == ["Monthly turnover"]
     assert got[0]["subject"] == "Economy"       # drives the domain
+
+
+def test_pxweb_tables_descends_database_nodes(monkeypatch):
+    """A root pointed at the LANGUAGE level lists databases as
+    {"dbid":..., "text":...} -- no id, no type. Skipping those reports
+    "0 tables" for an office that is in fact fully populated."""
+    fresh = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=2)).isoformat()
+
+    def fake(url, timeout=30):
+        if url.endswith("/root"):
+            return [{"dbid": "Efnahagur", "text": "Economy"}]
+        if url.endswith("/Efnahagur"):
+            return [{"id": "t1.px", "type": "t", "text": "Monthly index",
+                     "updated": fresh}]
+        return []
+
+    monkeypatch.setattr(bulk, "pxweb_get", fake)
+    got = bulk.pxweb_tables("/root", sleep_s=0, log=lambda m: None)
+    assert [t["text"] for t in got] == ["Monthly index"]
+    assert got[0]["subject"] == "Economy"
+
+
+def test_pxweb_subject_map_covers_statistics_office_vocabulary():
+    """Offices file far more finely than open-data portals. One run skipped 162
+    tables on 'Population' alone and 12 each on 'Births' and 'Causes of death'."""
+    for subject, want in (("Births", "healthcare"), ("Causes of death", "healthcare"),
+                          ("Building cost index", "econ_fin"),
+                          ("Consumer price index", "econ_fin"),
+                          ("Wages and salaries", "econ_fin")):
+        got = bulk.ods_publisher_class([subject], "a table")
+        assert got is not None and got[1] == want, (subject, got)
+
+
+def test_pxweb_synthesize_strips_markup_from_the_label():
+    """Some offices put markup in the table label: '... <em>[PREPRISF]</em>'."""
+    probe = {"periods": 60, "newest_period": "2026M06", "numeric": 60,
+             "time_dim": "Tid", "label": ""}
+    block = bulk.pxweb_synthesize(
+        "https://px.example/api/v1/en/DB", "Office",
+        {"path": "eco/t1.px", "subject": "Economy",
+         "text": "Consumer price index <em>[PREPRISF]</em> &amp; more",
+         "updated": "2026-08-01T00:00:00+00:00", "age_days": 6.0},
+        {"query": []}, probe, ("x", "econ_fin", "price_level"))
+    name = yaml.safe_load(block["yaml_block"])[0]["name"]
+    assert "<em>" not in name and "&amp;" not in name and "& more" in name
+
+
+def test_pxweb_table_url_falls_back_to_the_bare_id(monkeypatch):
+    """Finland accepts a table at depth 2 by path and answers 400 for deeper
+    nestings; 185 of one run's 722 skips were that."""
+    def fake(url, timeout=30):
+        if url.endswith("/DB/deep/nested/t1.px"):
+            raise RuntimeError("HTTP 400")
+        if url.endswith("/DB/t1.px"):
+            return {"title": "ok"}
+        raise RuntimeError("HTTP 404")
+
+    monkeypatch.setattr(bulk, "pxweb_get", fake)
+    got = bulk.pxweb_table_url("https://px.example/DB", "deep/nested/t1.px")
+    assert got == "https://px.example/DB/t1.px"
+
+
+def test_pxweb_query_selects_the_newest_periods_explicitly():
+    """PX-Web's filter:"top" is the top of the value LIST, and most tables list
+    oldest-first -- it selected the 1960s. Every candidate in the first run
+    failed the wire gate on it."""
+    vals = [f"{y}M{m:02d}" for y in range(1990, 2027) for m in range(1, 13)]
+    meta = {"variables": [{"code": "Tid", "time": True, "values": vals},
+                          {"code": "ContentsCode", "values": ["v1"]}]}
+    body, _, _ = bulk.pxweb_query(meta)
+    sel = next(q for q in body["query"] if q["code"] == "Tid")["selection"]
+    assert sel["filter"] == "item"
+    assert sel["values"][-1] == "2026M12"
+    assert len(sel["values"]) == bulk.PXWEB_TOP_PERIODS
+    # Also correct when the office lists newest-first.
+    meta["variables"][0]["values"] = list(reversed(vals))
+    body, _, _ = bulk.pxweb_query(meta)
+    sel = next(q for q in body["query"] if q["code"] == "Tid")["selection"]
+    assert sel["values"][-1] == "2026M12"
+
+
+def test_pxweb_period_age_reads_the_label_shapes():
+    age = bulk._pxweb_period_age_days
+    assert age("2004M12") > 7000
+    assert age("2026M07") < 60
+    assert age("2026Q2") < 200 and age("2026H1") < 250
+    assert age("not-a-period") is None
