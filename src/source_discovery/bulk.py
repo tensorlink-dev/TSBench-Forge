@@ -3746,6 +3746,324 @@ def peertube_sweep(
 
 
 
+
+# --------------------------------------------------------------------------- #
+# PX-Web
+# --------------------------------------------------------------------------- #
+# The statistics-office vein, and the one that moves econ_fin. PX-Web is the
+# software most national and regional statistics offices publish through, and
+# it speaks one dialect: a tree of list/table nodes under /api/v1/<lang>/, a
+# metadata document per table, and a POST that returns json-stat2 -- which the
+# scraper already decodes (see _records_from_jsonstat2), so nothing new is
+# needed downstream.
+#
+# There is no registry of installations, so the roots are curated. Guessing
+# from the shape `<host>/<app>/api/v1/<lang>/<db>` hit 13 of 28 tries, which is
+# a good enough rate that the list is worth extending by hand over time.
+#
+# Classification reuses the ODS theme patterns, applied to the SUBJECT AREA the
+# table sits under in the tree ("Economy", "Environment", "Transport and
+# tourism"). Same principle as everywhere else here: the publisher's own filing,
+# matched against a closed vocabulary, never the title.
+PXWEB_ROOTS: tuple[tuple[str, str], ...] = (
+    ("https://statfin.stat.fi/PXWeb/api/v1/en/StatFin", "Statistics Finland"),
+    ("https://pxdata.stat.fi/PXWeb/api/v1/en/StatFin", "Statistics Finland"),
+    ("https://px.hagstofa.is/pxen/api/v1/en", "Statistics Iceland"),
+    ("https://andmed.stat.ee/api/v1/en/stat", "Statistics Estonia"),
+    ("https://data.stat.gov.lv/api/v1/en/OSP_PUB", "Statistics Latvia"),
+    ("https://pxweb.asub.ax/PXWeb/api/v1/en", "Statistics Aland"),
+    ("https://statbank.hagstova.fo/api/v1/en/H2", "Statistics Faroe Islands"),
+    ("https://bank.stat.gl/api/v1/en/Greenland", "Statistics Greenland"),
+    ("https://pxweb.stat.si/SiStatData/api/v1/en", "Statistics Slovenia"),
+    ("https://statistik.linkoping.se/PXWeb/api/v1/sv", "Linkoping"),
+    ("https://statistik.sjv.se/PXWeb/api/v1/sv", "Swedish Board of Agriculture"),
+)
+PXWEB_TOP_PERIODS = 60        # newest N periods; the gate wants 20 distinct
+PXWEB_MIN_PERIODS = 24
+PXWEB_MAX_NODES = 150         # tree-walk budget per root
+
+
+def pxweb_get(url: str, timeout: int = 30) -> Any:
+    r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    return r.json()
+
+
+def pxweb_tables(root: str, max_nodes: int = PXWEB_MAX_NODES,
+                 max_age_days: float = 120.0, sleep_s: float = 0.25,
+                 log=print) -> list[dict]:
+    """Breadth-first over the subject tree, returning fresh table nodes.
+
+    Each table node carries its own `updated` stamp, so staleness is settled
+    from the tree without opening the table.
+
+    The walk is one request per node and the budget is in the hundreds, so it
+    paces itself: these are national statistics offices, not a CDN, and getting
+    blocked would cost the whole vein.
+    """
+    now = dt.datetime.now(dt.timezone.utc)
+    out: list[dict] = []
+    queue: list[tuple[str, str]] = [("", "")]      # (path, subject area)
+    spent = 0
+    while queue and spent < max_nodes:
+        path, subject = queue.pop(0)
+        try:
+            nodes = pxweb_get(f"{root}/{path}" if path else root)
+        except Exception:                                     # noqa: BLE001
+            continue
+        spent += 1
+        time.sleep(sleep_s)
+        if not isinstance(nodes, list):
+            continue
+        for n in nodes:
+            if not isinstance(n, dict) or not n.get("id"):
+                continue
+            child = f"{path}/{n['id']}" if path else n["id"]
+            if n.get("type") == "l":
+                # The FIRST level is the subject area; deeper levels are
+                # sub-topics that say less about the domain.
+                queue.append((child, subject or (n.get("text") or "")))
+            elif n.get("type") == "t":
+                upd = _parse_iso(n.get("updated"))
+                if upd is None:
+                    continue
+                age = (now - upd).total_seconds() / 86400
+                if age > max_age_days:
+                    continue
+                out.append({"path": child, "subject": subject,
+                            "text": n.get("text") or n["id"],
+                            "updated": upd.isoformat(), "age_days": age})
+    if queue:
+        log(f"  [pxweb] node budget {max_nodes} spent, {len(queue)} branches "
+            f"unexplored under {root}")
+    return out
+
+
+def pxweb_query(meta: dict) -> Optional[tuple[dict, str, int]]:
+    """Build the POST body: newest N periods, one measure, one slice.
+
+    Dimensions marked `elimination` are omitted, which asks PX-Web for the
+    aggregate over them rather than every combination. The rest are pinned to a
+    single value -- without that the response is the full cross-product, which
+    is both enormous and not a series.
+    """
+    variables = meta.get("variables") or []
+    tvar = next((v for v in variables if v.get("time")), None)
+    if tvar is None:
+        tvar = next((v for v in variables
+                     if re.search(r"time|tid|aika|ar$|year|month|period",
+                                  v.get("code", ""), re.I)), None)
+    if tvar is None or len(tvar.get("values") or []) < PXWEB_MIN_PERIODS:
+        return None
+    # Annual tables clear the gate on 20+ distinct stamps and are still not
+    # worth wiring: the WHOLE series is a few dozen points, so it can never
+    # form an evaluation window, and headline annual statistics are the most
+    # widely republished data there is. The period labels give the frequency
+    # away before the POST, so this costs nothing to check.
+    if _pxweb_freq(str((tvar.get("values") or [""])[-1])) == "P1Y":
+        return None
+    query = [{"code": tvar["code"],
+              "selection": {"filter": "top", "values": [str(PXWEB_TOP_PERIODS)]}}]
+    measure = ""
+    for v in variables:
+        if v is tvar:
+            continue
+        vals = v.get("values") or []
+        if not vals:
+            return None
+        code = (v.get("code") or "").lower()
+        if code == "contentscode":
+            measure = vals[0]
+            query.append({"code": v["code"],
+                          "selection": {"filter": "item", "values": [vals[0]]}})
+        elif v.get("elimination"):
+            continue                       # ask for the aggregate
+        else:
+            query.append({"code": v["code"],
+                          "selection": {"filter": "item", "values": [vals[0]]}})
+    return ({"query": query, "response": {"format": "json-stat2"}},
+            measure, len(tvar.get("values") or []))
+
+
+def pxweb_probe(url: str, body: dict, timeout: int = 45) -> dict:
+    try:
+        r = requests.post(url, json=body, headers={"User-Agent": UA},
+                          timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}: {r.text[:90]}"}
+        js = r.json()
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:110]}
+    if (js or {}).get("class") != "dataset":
+        return {"error": "not a json-stat2 dataset"}
+    values = js.get("value") or []
+    nums = [v for v in values if isinstance(v, (int, float))]
+    if len(nums) < PXWEB_MIN_PERIODS:
+        return {"error": f"only {len(nums)} numeric values"}
+    role_time = ((js.get("role") or {}).get("time") or [None])[0]
+    dim = (js.get("dimension") or {})
+    tdim = dim.get(role_time) or {}
+    idx = ((tdim.get("category") or {}).get("index")) or {}
+    periods = sorted(idx) if isinstance(idx, dict) else list(idx or [])
+    if len(periods) < PXWEB_MIN_PERIODS:
+        return {"error": f"only {len(periods)} periods in the response"}
+    return {"periods": len(periods), "numeric": len(nums),
+            "newest_period": periods[-1], "time_dim": role_time,
+            "label": js.get("label") or ""}
+
+
+def pxweb_synthesize(root: str, office: str, table: dict, body: dict,
+                     probe: dict, klass: tuple[str, str, str],
+                     taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = urlparse(root).netloc.lower()
+    url = f"{root}/{table['path']}"
+    title = re.sub(r"\s+", " ", table["text"]).strip()
+    sid = f"pxweb_{entry_id(host, title)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:56]}_{_slug(table['path'], 6)}"[:64]
+    freq = _pxweb_freq(probe["newest_period"])
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title[:80]} ({office})",
+        "domain": klass[1],
+        "dgp_class": klass[2],
+        "archetypes": ["trend", "smooth_periodic", "positive_continuous"],
+        "frequency": freq,
+        "endpoint": {
+            "type": "rest_json",
+            "method": "POST",
+            "url": url,
+            "auth": "none",
+            "rate_limit": "polite",
+            "body": body,
+        },
+        # json-stat2 carries its own axis; the scraper reads role.time.
+        "schema": {"timestamp_field": "", "value_field": "", "variates": 1},
+        "history_available": f"{probe['periods']} periods, newest "
+                             f"{probe['newest_period']}",
+        "update_cadence_observed": (
+            f"table updated {table['updated']} "
+            f"({table['age_days']:.0f}d ago); {probe['periods']} periods"
+        ),
+        "pretraining_novelty": "unknown",
+        "novelty_notes": (
+            "National statistics are widely republished, so headline series "
+            "here may appear in pretraining mixes; the municipal and sectoral "
+            "tables are far less likely to."
+        ),
+        "license": "open data (see statistics office terms)",
+        "audit_slack_days": _pxweb_slack(freq),
+        "notes": (
+            f"Bulk-generated by walking the PX-Web subject tree at {root}. "
+            f"Domain from the subject area {table['subject']!r}. Dimensions "
+            f"marked elimination are omitted so the response is the aggregate "
+            f"rather than the full cross-product."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "cron_cadence": "P1D",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"PX-Web: {probe['periods']} periods of {freq}, newest "
+                   f"{probe['newest_period']}, host {host}"),
+    }
+
+
+def _pxweb_freq(period: str) -> str:
+    p = str(period)
+    if re.fullmatch(r"\d{4}", p):
+        return "P1Y"
+    if re.search(r"M\d{2}$", p) or re.fullmatch(r"\d{4}-\d{2}", p):
+        return "P1M"
+    if re.search(r"[QK]\d$", p):
+        return "P3M"
+    if re.search(r"W\d{2}$", p):
+        return "P1W"
+    return "P1M"
+
+
+def _pxweb_slack(freq: str) -> int:
+    return {"P1Y": 500, "P3M": 180, "P1M": 75, "P1W": 30}.get(freq, 90)
+
+
+def pxweb_sweep(
+    catalog_path: str,
+    roots: Optional[Iterable[tuple[str, str]]] = None,
+    host_cap: int = 2,
+    max_age_days: float = 120.0,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    known_urls = {(s.get("endpoint") or {}).get("url", "")
+                  for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for root, office in (roots if roots is not None else PXWEB_ROOTS):
+        host = urlparse(root).netloc.lower()
+        if seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": host, "reason": f"host cap {host_cap} reached"})
+            continue
+        tables = pxweb_tables(root, max_age_days=max_age_days, log=log)
+        log(f"[pxweb] {office}: {len(tables)} tables updated inside "
+            f"{max_age_days:.0f}d")
+        got = 0
+        for table in tables:
+            if got >= host_cap or seen_hosts.get(host, 0) >= host_cap:
+                break
+            url = f"{root}/{table['path']}"
+            if url in known_urls:
+                continue
+            klass = ods_publisher_class([table["subject"]], table["text"])
+            if klass is None:
+                skipped.append({"id": table["path"],
+                                "reason": f"subject not in the map: "
+                                          f"{table['subject']!r}"})
+                continue
+            try:
+                meta = pxweb_get(url)
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": table["path"], "reason": f"meta: {exc}"})
+                continue
+            time.sleep(sleep_s)
+            built = pxweb_query(meta)
+            if built is None:
+                skipped.append({"id": table["path"],
+                                "reason": "no time variable with enough periods"})
+                continue
+            body, _measure, _n = built
+            probe = pxweb_probe(url, body)
+            time.sleep(sleep_s)
+            if "error" in probe:
+                skipped.append({"id": table["path"],
+                                "reason": f"probe: {probe['error']}"})
+                continue
+            block = pxweb_synthesize(root, office, table, body, probe, klass,
+                                     taken=taken_ids)
+            if block is None:
+                skipped.append({"id": table["path"], "reason": "synthesise failed"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            known_urls.add(url)
+            cands.append(block)
+            got += 1
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + [{klass[1]}] {block['candidate_name'][:64]}")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+
 def write_batch(candidates: list[dict], out_path: str) -> str:
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(candidates, fh, indent=2)

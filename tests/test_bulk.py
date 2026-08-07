@@ -1415,3 +1415,61 @@ def test_peeringdb_throttle_is_not_reported_as_an_empty_vein(monkeypatch):
         text="Request was throttled."))
     assert bulk.peeringdb_ixp_candidates(log=said.append) == []
     assert any("429" in m and "not concluding" in m for m in said)
+
+
+# --------------------------------------------------------------------------- #
+# PX-Web
+# --------------------------------------------------------------------------- #
+def test_pxweb_freq_reads_the_period_label():
+    f = bulk._pxweb_freq
+    assert f("2026") == "P1Y" and f("2026M06") == "P1M"
+    assert f("2026Q2") == "P3M" and f("2026W12") == "P1W"
+
+
+def test_pxweb_query_rejects_annual_tables():
+    """An annual table clears the gate on 20+ stamps and is still not worth
+    wiring: the whole series is a few dozen points."""
+    meta = {"variables": [
+        {"code": "Year", "time": True, "values": [str(y) for y in range(1990, 2026)]},
+        {"code": "ContentsCode", "values": ["v1"]},
+    ]}
+    assert bulk.pxweb_query(meta) is None
+
+
+def test_pxweb_query_pins_free_dims_and_drops_eliminable_ones():
+    """Without pinning, the response is the full cross-product -- enormous, and
+    not a series. Eliminable dims are omitted so PX-Web aggregates them."""
+    meta = {"variables": [
+        {"code": "Month", "time": True,
+         "values": [f"2026M{m:02d}" for m in range(1, 13)] * 3},
+        {"code": "ContentsCode", "values": ["measureA", "measureB"]},
+        {"code": "Region", "elimination": True, "values": ["r1", "r2"]},
+        {"code": "Sector", "values": ["s1", "s2", "s3"]},
+    ]}
+    body, measure, _ = bulk.pxweb_query(meta)
+    codes = {q["code"]: q["selection"] for q in body["query"]}
+    assert codes["Month"] == {"filter": "top", "values": ["60"]}
+    assert measure == "measureA"
+    assert codes["Sector"]["values"] == ["s1"]      # pinned
+    assert "Region" not in codes                    # eliminated -> aggregate
+    assert body["response"]["format"] == "json-stat2"
+
+
+def test_pxweb_tables_skips_stale_and_keeps_the_subject_area(monkeypatch):
+    fresh = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=3)).isoformat()
+    old = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=900)).isoformat()
+
+    def fake(url, timeout=30):
+        if url.endswith("/root"):
+            return [{"id": "eco", "type": "l", "text": "Economy"}]
+        if url.endswith("/eco"):
+            return [{"id": "t1.px", "type": "t", "text": "Monthly turnover",
+                     "updated": fresh},
+                    {"id": "t2.px", "type": "t", "text": "Ancient table",
+                     "updated": old}]
+        return []
+
+    monkeypatch.setattr(bulk, "pxweb_get", fake)
+    got = bulk.pxweb_tables("/root", max_age_days=120.0, log=lambda m: None)
+    assert [t["text"] for t in got] == ["Monthly turnover"]
+    assert got[0]["subject"] == "Economy"       # drives the domain

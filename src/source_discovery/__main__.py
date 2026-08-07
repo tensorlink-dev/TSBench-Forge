@@ -97,6 +97,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-peertube", metavar="OUT_FILE",
                     help="sweep the PeerTube instance index for per-instance "
                          "video publication rates (web_cloudops)")
+    ap.add_argument("--bulk-pxweb", metavar="OUT_FILE",
+                    help="walk PX-Web statistics-office subject trees "
+                         "(econ_fin-heavy; json-stat2 over POST)")
     ap.add_argument("--bulk-per-host", type=int, default=None,
                     help="with --bulk-erddap: datasets to take per server "
                          "(default: --bulk-host-cap); with "
@@ -121,6 +124,25 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --bulk-socrata: sweep only these keywords "
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
+
+    if args.bulk_pxweb:
+        cands, skipped = bulk.pxweb_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            max_age_days=max(args.bulk_max_age_days, 120.0),
+            target=args.bulk_target, checkpoint_path=args.bulk_pxweb,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_pxweb)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_pxweb,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
 
     if args.bulk_peertube:
         cands, skipped = bulk.peertube_sweep(
