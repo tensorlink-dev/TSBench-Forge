@@ -1359,6 +1359,67 @@ ODS_THEME_DOMAIN: dict[str, str] = {
     "digital and telecommunications": "web_cloudops",
 }
 
+
+# Exact values will not do the job: portals define their own themes, so the
+# federation has far more than the ~116 the global facet shows, in at least six
+# languages ("Solidarité et soutien à l'activité", "Itinerarios y horarios",
+# "Mobiliteit"). Worse, /catalog/facets cannot enumerate them cleanly --
+# startswith is case-sensitive AND returns the CO-OCCURRING themes of matching
+# datasets, so a prefix walk returns neither a filtered nor a complete list.
+#
+# So the closed vocabulary is a pattern list rather than a value list. It stays
+# closed -- a theme matching nothing here is skipped, never guessed -- but it
+# generalises across a portal's own naming. Substring matching is safe on this
+# field in a way it was not on titles: "transport" appearing in a curator's
+# theme label means the theme is about transport, whereas in prose it can be
+# one incidental word in a sentence about something else.
+ODS_THEME_PATTERNS: tuple[tuple[str, str], ...] = (
+    # nature
+    (r"environn?ement|environmental|ambiente|umwelt|milieu", "nature"),
+    (r"hydro|water|\beau\b|\beaux\b|acqua|agua|rivi[eè]re|nappe", "nature"),
+    (r"m[ée]t[ée]o|weather|climat|clima\b|atmosph", "nature"),
+    (r"qualit[ée] de l.air|air quality|luchtkwaliteit|pollution", "nature"),
+    (r"biodiv|habitat|esp[eè]ce|species|faune|flore|for[eê]t|forest", "nature"),
+    (r"agricultur|farming|agricol|agraria|p[eê]che|fisher", "nature"),
+    (r"risque naturel|natural risk|s[ée]isme|seismic|inondation|flood", "nature"),
+    (r"d[ée]chet|waste|recycl", "nature"),
+    (r"\bmer\b|marine|maritim|oc[ée]an|ocean|coastal|littoral", "nature"),
+    # energy
+    (r"[ée]nerg|energy|energia|energie", "energy"),
+    (r"[ée]lectric|electric|elettric|el[ée]ctric|strom", "energy"),
+    (r"chauffage|heating|fuel|carburant|petrol|p[ée]trole", "energy"),
+    # transport
+    (r"transport|trasport|verkehr|vervoer", "transport"),
+    (r"mobilit|d[ée]placement|movement", "transport"),
+    (r"traffic|trafic|traffico|circulation routi", "transport"),
+    (r"stationnement|parking|aparcamiento", "transport"),
+    (r"v[ée]lo|bicycl|\bbike\b|cycl(ing|isme)|fiets", "transport"),
+    (r"\bbus\b|tramway|\btram\b|m[ée]tro\b|rail|train|horaires?\b", "transport"),
+    (r"a[ée]roport|airport|\bport\b|navigation", "transport"),
+    (r"itinerario|horario|fahrplan|timetable|dessertes?\b", "transport"),
+    # healthcare
+    (r"sant[ée]|health|salute|salud|gesundheit|sanitar", "healthcare"),
+    (r"solidarit|social|handicap|autonomie|m[ée]dico|medical", "healthcare"),
+    (r"h[oô]pital|hospital|urgence|emergency care", "healthcare"),
+    (r"petite enfance|childcare|cr[eè]che|enfance et jeunesse", "healthcare"),
+    # econ_fin
+    (r"[ée]conom|economy|wirtschaft", "econ_fin"),
+    (r"financ|budget|fiscal|imp[oô]t|\btax\b|comptes? public", "econ_fin"),
+    (r"emploi|employment|travail|labour|labor market|arbeit|ch[oô]mage", "econ_fin"),
+    (r"industr|manufactur|production", "econ_fin"),
+    (r"entreprise|business|commerce|trade|march[ée] public", "econ_fin"),
+    # sales
+    (r"logement|housing|immobil|real estate|propert|wohnen|vivienda", "sales"),
+    (r"tourism|tourisme|turismo|tourismus|h[oô]tell", "sales"),
+    (r"consommation des m[ée]nages|retail|vente", "sales"),
+    # web_cloudops
+    (r"num[ée]rique|digital|t[ée]l[ée]com|telecom|internet|broadband|"
+     r"informatique", "web_cloudops"),
+)
+
+_ODS_THEME_RE: tuple[tuple[Any, str], ...] = tuple(
+    (re.compile(pat, re.I), dom) for pat, dom in ODS_THEME_PATTERNS)
+
 # Used when the theme fixes the domain but no keyword class in that domain
 # matches the title well enough to name the process more precisely.
 ODS_DOMAIN_DEFAULT_CLASS: dict[str, str] = {
@@ -1393,9 +1454,15 @@ def ods_publisher_class(themes: Any, title: str,
     """
     if isinstance(themes, str):
         themes = [themes]
-    doms = {ODS_THEME_DOMAIN[t.strip().lower()]
-            for t in (themes or []) if isinstance(t, str)
-            and t.strip().lower() in ODS_THEME_DOMAIN}
+    doms = set()
+    for t in (themes or []):
+        if not isinstance(t, str):
+            continue
+        exact = ODS_THEME_DOMAIN.get(t.strip().lower())
+        if exact:
+            doms.add(exact)
+            continue
+        doms.update(dom for rx, dom in _ODS_THEME_RE if rx.search(t))
     if len(doms) != 1:
         return None            # unmapped, or two themes that disagree
     dom = doms.pop()

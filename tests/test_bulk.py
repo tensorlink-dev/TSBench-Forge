@@ -1098,3 +1098,40 @@ def test_ods_rejects_games_of_chance():
               "National Lottery Community Fund awards by month",
               "Random sample survey of household energy use"):
         assert not bulk._ODS_REJECT_TITLE.search(t), t
+
+
+def test_ods_theme_patterns_cover_a_portals_own_vocabulary():
+    """Portals define their own themes, so exact values are not enough: these
+    are real values that the exact-match map alone skipped."""
+    cases = [("Solidarité et soutien à l'activité", "healthcare"),
+             ("Petite enfance", "healthcare"),
+             ("Handicap et autonomie", "healthcare"),
+             ("Logement", "sales"),
+             ("Mobiliteit", "transport"),
+             ("Itinerarios y horarios", "transport"),
+             ("Hydrographie", "nature")]
+    for theme, want in cases:
+        got = bulk.ods_publisher_class([theme], "a title")
+        assert got is not None and got[1] == want, (theme, got)
+
+
+def test_ods_theme_patterns_still_skip_the_contentless_ones():
+    """A theme that names no subject must stay a skip; the whole point of a
+    closed vocabulary is that it declines rather than guesses."""
+    for theme in ("Données générales", "International", "Institution",
+                  "Données de référence", "Orthoimagery", "Elevation",
+                  "No Theme"):
+        assert bulk.ods_publisher_class([theme], "a title") is None, theme
+
+
+def test_ods_theme_patterns_are_valid_and_on_known_domains():
+    DOMAINS = {"nature", "econ_fin", "transport", "energy", "sales",
+               "healthcare", "web_cloudops"}
+    for pat, dom in bulk.ODS_THEME_PATTERNS:
+        re.compile(pat)
+        assert dom in DOMAINS, pat
+
+
+def test_ods_theme_pattern_ambiguity_is_a_skip():
+    # One theme string hitting two domains is a coin flip, not a signal.
+    assert bulk.ods_publisher_class(["Transport et Énergie"], "x") is None
