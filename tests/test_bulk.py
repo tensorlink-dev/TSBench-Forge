@@ -964,3 +964,78 @@ def test_gbfs_synthesize_disambiguates_a_taken_id():
         taken={first},
     )["yaml_block"])[0]["id"]
     assert second != first and len(second) <= 64
+
+
+# --------------------------------------------------------------------------- #
+# ODS, publisher-first
+# --------------------------------------------------------------------------- #
+def _facet_payload(names):
+    return {"facets": [{"name": "source_domain_address",
+                        "facets": [{"name": n, "count": 1} for n in names]}]}
+
+
+def test_ods_publishers_recurses_only_into_full_prefixes(monkeypatch):
+    """A page of exactly 100 means the facet was truncated; anything less is the
+    whole prefix and recursing into it would cost 37 requests for nothing."""
+    calls = []
+
+    def fake(url, params=None, headers=None, timeout=0):
+        where = (params or {}).get("where", "")
+        calls.append(where)
+        if not where:                                  # root: full, so truncated
+            return _FakeResp(_facet_payload([f"h{i}.example" for i in range(100)]))
+        if 'startswith(source_domain_address, "a")' == where:
+            return _FakeResp(_facet_payload(["only-one.example"]))
+        return _FakeResp(_facet_payload([]))
+
+    monkeypatch.setattr(bulk.requests, "get", fake)
+    monkeypatch.setattr(bulk.time, "sleep", lambda s: None)
+    got = bulk.ods_publishers(sleep_s=0, log=lambda m: None)
+    assert "only-one.example" in got
+    assert len(got) == 101                              # 100 root + the a-prefix one
+    # One request per alphabet letter at depth 1, and no deeper.
+    assert len(calls) == 1 + len(bulk.ODS_PREFIX_ALPHABET)
+
+
+def test_ods_publishers_stops_at_max_depth(monkeypatch):
+    """A prefix that is still full at max depth must return what it has rather
+    than recurse forever."""
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeResp(
+        _facet_payload([f"h{i}.example" for i in range(bulk.ODS_FACET_CAP)])))
+    monkeypatch.setattr(bulk.time, "sleep", lambda s: None)
+    warned = []
+    got = bulk.ods_publishers(sleep_s=0, max_requests=200, log=warned.append)
+    assert len(got) == bulk.ODS_FACET_CAP
+    # Every prefix full at every level is the pathological case: 37 per level.
+    # It must come back with a budget warning, not 1.8M requests.
+    assert any("budget" in w for w in warned)
+
+
+def test_ods_publishers_survives_a_dead_facet_call(monkeypatch):
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: _FakeResp({}, status=500))
+    assert bulk.ods_publishers(sleep_s=0, log=lambda m: None) == []
+
+
+def test_ods_publisher_datasets_orders_newest_first(monkeypatch):
+    seen = {}
+
+    def fake(url, params=None, headers=None, timeout=0):
+        seen.update(params or {})
+        return _FakeResp({"results": [{"dataset_id": "d1"}]})
+
+    monkeypatch.setattr(bulk.requests, "get", fake)
+    bulk.ods_publisher_datasets("portal.example", want=7)
+    assert seen["where"] == 'source_domain_address="portal.example"'
+    # `metas.default.data_processed desc` is a 400 on this endpoint.
+    assert seen["order_by"] == "data_processed desc"
+    assert seen["limit"] == 7
+
+
+def test_resolve_class_without_a_query_class():
+    """Publisher-first has no keyword to inherit a domain from, so query_class is
+    None and the title must carry it alone."""
+    got = bulk.resolve_class(None, "Hourly electricity consumption by feeder")
+    assert got is not None and got[1] in {
+        "energy", "nature", "econ_fin", "transport", "sales", "healthcare",
+        "web_cloudops"}
+    assert bulk.resolve_class(None, "") is None

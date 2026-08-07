@@ -463,7 +463,7 @@ def _topic_tokens(text: str) -> list[str]:
 
 
 def resolve_class(
-    query_class: tuple[str, str, str], title: str, description: str = ""
+    query_class: Optional[tuple[str, str, str]], title: str, description: str = ""
 ) -> Optional[tuple[str, str, str]]:
     """Decide a dataset's domain from the dataset ITSELF, not from the query that
     surfaced it.
@@ -480,7 +480,10 @@ def resolve_class(
     if not hay:
         return None
     best, best_score = None, 0
-    for klass in ((query_class,) + tuple(KEYWORD_CLASSES)
+    # A publisher-first sweep has no query to inherit from, so query_class is
+    # None and the dataset's own title has to carry the classification alone.
+    head = (query_class,) if query_class is not None else ()
+    for klass in (head + tuple(KEYWORD_CLASSES)
                   + tuple(ODS_KEYWORD_CLASSES) + EXTRA_CLASSES):
         toks = _topic_tokens(klass[0])
         score = sum(1 for t in toks if t in hay or t.rstrip("s") in hay)
@@ -1209,6 +1212,194 @@ def ods_sweep(
             seen_hosts[host] = seen_hosts.get(host, 0) + 1
             _checkpoint(cands, checkpoint_path)
             log(f"  + {block['candidate_name']}  [{block['cron_cadence']}]")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+
+# --------------------------------------------------------------------------- #
+# ODS, publisher-first
+# --------------------------------------------------------------------------- #
+# `ods_sweep` above picks a keyword and sees which publishers turn up. That is
+# the right shape for finding DATASETS and the wrong shape for finding
+# PUBLISHERS: popular topics are dominated by the same large portals, so you
+# re-meet them keyword after keyword. Measured, on this federation: a breadth
+# run examined 1,680 datasets and produced ONE candidate, with 372 skips reading
+# "host already wired".
+#
+# Inverting it -- enumerate publishers, then ask each one for its best series --
+# turns host count into the thing being maximised rather than a by-product.
+#
+# The enumeration is the awkward part. /catalog/facets caps a facet at 100
+# values and this endpoint rejects the `facet=name(limit:N)` syntax, so the list
+# has to be partitioned. Excluding everything already seen works but grows the
+# `where` clause without bound; partitioning on a name prefix keeps every URL
+# short, and recursing only into prefixes that come back full means the walk
+# costs about one request per 100 publishers found.
+ODS_FACETS = "https://data.opendatasoft.com/api/explore/v2.1/catalog/facets"
+ODS_FACET_CAP = 100                  # /catalog/facets caps a facet at 100 values
+ODS_PREFIX_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789-"
+ODS_MAX_PREFIX_DEPTH = 4
+
+
+def _ods_facet_page(prefix: str, timeout: int) -> Optional[list[str]]:
+    """Publisher names under `prefix`, or None if the call failed."""
+    params = {"facet": "source_domain_address"}
+    if prefix:
+        params["where"] = f'startswith(source_domain_address, "{prefix}")'
+    try:
+        r = requests.get(ODS_FACETS, params=params,
+                         headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return None
+        facets = (r.json().get("facets") or [{}])[0].get("facets") or []
+    except Exception:                                         # noqa: BLE001
+        return None
+    return [f["name"] for f in facets if f.get("name")]
+
+
+def ods_publishers(timeout: int = 60, sleep_s: float = 0.25,
+                   max_requests: int = 1500, log=print) -> list[str]:
+    """Every publisher hostname in the ODS federation, by bounded prefix walk.
+
+    Breadth-first with a hard request budget rather than plain recursion. The
+    fan-out is 37 per level, so a run where most prefixes come back full would
+    cost 37^depth requests — a budget makes the worst case a truncated answer
+    the caller is told about, instead of a sweep that never returns.
+    """
+    found: set[str] = set()
+    queue: list[str] = [""]
+    spent, truncated = 0, []
+    while queue and spent < max_requests:
+        prefix = queue.pop(0)
+        names = _ods_facet_page(prefix, timeout)
+        spent += 1
+        time.sleep(sleep_s)
+        if names is None:
+            continue
+        found.update(names)
+        # A full page means the facet was truncated and there is more behind it.
+        if len(names) < ODS_FACET_CAP:
+            continue
+        if len(prefix) >= ODS_MAX_PREFIX_DEPTH:
+            truncated.append(prefix or "(root)")
+            continue
+        queue.extend(prefix + ch for ch in ODS_PREFIX_ALPHABET)
+    if queue:
+        log(f"  [ods-pub] request budget {max_requests} spent with "
+            f"{len(queue)} prefixes unexplored")
+    if truncated:
+        log(f"  [ods-pub] still full at max depth, publishers below these are "
+            f"unreachable: {', '.join(truncated[:8])}")
+    return sorted(found)
+
+
+def ods_publisher_datasets(host: str, want: int = 25, timeout: int = 45) -> list[dict]:
+    """That publisher's most recently processed datasets, newest first."""
+    r = requests.get(ODS_CATALOG, params={
+        "where": f'source_domain_address="{host}"',
+        "order_by": "data_processed desc",
+        "limit": min(ODS_PAGE, want),
+    }, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    return r.json().get("results", [])
+
+
+def ods_publisher_sweep(
+    catalog_path: str,
+    host_cap: int = 2,
+    scan_per_host: int = 25,
+    max_age_days: float = 21.0,
+    publishers: Optional[Iterable[str]] = None,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    known_hosts = wired_hosts(catalog_path)
+    seen_hosts = host_counts(catalog_path)
+    known_ds = wired_ods_datasets(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    if publishers is None:
+        log("[ods-pub] enumerating the federation...")
+        publishers = ods_publishers(log=log)
+    publishers = [h for h in publishers if h]
+    log(f"[ods-pub] {len(publishers)} publishers; "
+        f"{sum(1 for h in publishers if h in known_hosts)} already wired")
+
+    for host in publishers:
+        if host in known_hosts or seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": host, "reason": "host already wired"})
+            continue
+        try:
+            records = ods_publisher_datasets(host, scan_per_host)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": host, "reason": f"listing failed: {exc}"})
+            continue
+        time.sleep(sleep_s)
+        got = 0
+        for rec in records:
+            if got >= host_cap:
+                break
+            metas = (rec.get("metas") or {}).get("default") or {}
+            dsid = metas.get("source_dataset") or rec.get("dataset_id") or ""
+            title = (metas.get("title") or "").strip()
+            tag = f"{host}/{dsid}"
+            if not dsid or dsid in known_ds or not rec.get("has_records"):
+                continue
+            if (metas.get("records_count") or 0) < 40:
+                continue
+            mod = _parse_iso(metas.get("data_processed") or metas.get("modified"))
+            if mod is None:
+                continue
+            age = (dt.datetime.now(dt.timezone.utc) - mod).total_seconds() / 86400
+            if age > max_age_days:
+                # Sorted newest-first, so the rest of this publisher is older.
+                skipped.append({"id": host,
+                                "reason": f"nothing processed inside {max_age_days:.0f}d "
+                                          f"(newest {age:.0f}d)"})
+                break
+            fields = _ods_fields(rec)
+            ts = ods_pick_timestamp(fields)
+            if not ts or not ods_pick_values(fields, ts):
+                continue
+            # Publisher-first means no keyword to inherit a class from, so the
+            # title has to carry it alone; an unclassifiable dataset is skipped
+            # rather than guessed into a domain it would then distort.
+            use_class = resolve_class(None, title, metas.get("description") or "")
+            if use_class is None:
+                skipped.append({"id": tag, "reason": f"unclassifiable: {title[:60]}"})
+                continue
+            probe = ods_probe(host, dsid, ts)
+            time.sleep(sleep_s)
+            if "error" in probe:
+                skipped.append({"id": tag, "reason": f"probe failed: {probe['error']}"})
+                continue
+            if probe["distinct"] < 20:
+                skipped.append({"id": tag,
+                                "reason": f"only {probe['distinct']} distinct ts"})
+                continue
+            if probe["age_days"] > max_age_days * 3:
+                skipped.append({"id": tag,
+                                "reason": f"newest observation {probe['age_days']:.0f}d old"})
+                continue
+            block = ods_synthesize(rec, use_class, probe, taken=taken_ids)
+            if block is None:
+                skipped.append({"id": tag, "reason": "could not synthesise entry"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            known_ds.add(dsid)
+            cands.append(block)
+            got += 1
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + [{use_class[1]}] {block['candidate_name'][:66]}")
             if target and len(cands) >= target:
                 log(f"target {target} reached")
                 return cands, skipped

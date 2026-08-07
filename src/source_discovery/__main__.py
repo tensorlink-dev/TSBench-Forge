@@ -82,9 +82,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-erddap", metavar="OUT_FILE",
                     help="same, over the ERDDAP federation (~60 independently "
                          "operated ocean/met observing servers)")
+    ap.add_argument("--bulk-ods-publishers", metavar="OUT_FILE",
+                    help="walk the Opendatasoft federation PUBLISHER-first: "
+                         "enumerate every portal, then take the best series "
+                         "each one has. Finds hosts where --bulk-ods, which is "
+                         "keyword-first, keeps re-meeting the same big portals")
     ap.add_argument("--bulk-per-host", type=int, default=None,
                     help="with --bulk-erddap: datasets to take per server "
-                         "(default: --bulk-host-cap)")
+                         "(default: --bulk-host-cap); with "
+                         "--bulk-ods-publishers: datasets to SCAN per portal "
+                         "(default 25)")
     ap.add_argument("--bulk-per-keyword", type=int, default=None,
                     help="catalog results to page through per keyword "
                          "(default 200 Socrata / 100 ODS)")
@@ -104,6 +111,27 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --bulk-socrata: sweep only these keywords "
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
+
+    if args.bulk_ods_publishers:
+        cands, skipped = bulk.ods_publisher_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            scan_per_host=args.bulk_per_host or 25,
+            max_age_days=args.bulk_max_age_days,
+            target=args.bulk_target,
+            checkpoint_path=args.bulk_ods_publishers,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_ods_publishers)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_ods_publishers,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
 
     if args.bulk_erddap:
         cands, skipped = bulk.erddap_sweep(
