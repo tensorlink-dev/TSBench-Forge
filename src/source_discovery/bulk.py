@@ -3953,7 +3953,14 @@ def misskey_synthesize(node: dict, probe: dict, software: str,
     return {
         "candidate_name": entry["name"],
         "wireable": True,
-        "cron_cadence": "PT6H",
+        # Hourly RESOLUTION, daily POLL. Every response carries ~21 days of
+        # hourly buckets, so one poll a day captures all 24 of the previous
+        # day's hours with nothing lost, and only a 21-day outage could cost
+        # data. Polling hourly instead would be 24x the requests against
+        # volunteer-run instances for exactly the same series. (PT6H, the
+        # first thing declared here, is not one of wire's cadence tiers and
+        # was silently falling back to the entry's PT1H frequency.)
+        "cron_cadence": "P1D",
         "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
         "reason": (f"{software} {chart}: {probe['nonzero']}/{probe['buckets']} "
                    f"populated hours, {probe['distinct']} distinct levels, "
