@@ -97,6 +97,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-peertube", metavar="OUT_FILE",
                     help="sweep the PeerTube instance index for per-instance "
                          "video publication rates (web_cloudops)")
+    ap.add_argument("--bulk-gbfs", metavar="OUT_FILE",
+                    help="sweep the GBFS bikeshare system index for station "
+                         "occupancy series (transport)")
     ap.add_argument("--bulk-misskey", metavar="OUT_FILE",
                     help="sweep Misskey/Sharkey instances for hourly note "
                          "publication rates via /api/charts (web_cloudops)")
@@ -170,6 +173,24 @@ def main(argv: list[str] | None = None) -> int:
             reasons[key] = reasons.get(key, 0) + 1
         print(json.dumps({
             "candidates": len(cands), "out": args.bulk_peertube,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_gbfs:
+        cands, skipped = bulk.gbfs_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            target=args.bulk_target, checkpoint_path=args.bulk_gbfs,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_gbfs)
+        reasons = {}
+        for sk in skipped:
+            key = re.sub(r"\d+", "N", sk.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_gbfs,
             "skipped": len(skipped),
             "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
         }, indent=2))
