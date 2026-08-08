@@ -2386,3 +2386,19 @@ def test_misskey_sweep_skips_a_chart_already_wired(tmp_path, monkeypatch):
                        charts=("notes", "active-users"), sleep_s=0,
                        log=lambda m: None)
     assert probed == ["active-users"]
+
+
+def test_arcgis_extra_keywords_are_well_formed():
+    """The keyword IS the closed vocabulary for this vein, so a typo in a
+    domain name would file a whole sweep's worth of sources wrongly."""
+    domains = {"nature", "econ_fin", "transport", "energy", "sales",
+               "healthcare", "web_cloudops"}
+    kws = [k for k, _d, _c in bulk.ARCGIS_EXTRA_KEYWORDS]
+    assert len(kws) == len(set(kws)), "duplicate keyword"
+    assert not (set(kws) & {k for k, _d, _c in bulk.KEYWORD_CLASSES}), \
+        "keyword already swept by KEYWORD_CLASSES"
+    for kw, dom, dgp in bulk.ARCGIS_EXTRA_KEYWORDS:
+        assert dom in domains, f"{kw} -> {dom}"
+        assert dgp and dgp.islower()
+        # the contamination denylist the Socrata list also respects
+        assert not any(t in kw for t in ("traffic", "electricit", "weather")), kw
