@@ -1952,3 +1952,261 @@ def test_waterborne_is_shipping_not_hydrology():
     for s in ("Watershed", "Drinking water quality by municipality"):
         got = bulk.ods_publisher_class([s], s)
         assert got is not None and got[1] == "nature", s
+
+
+# --------------------------------------------------------------------------- #
+# SDMX: period arithmetic, flow-ID classification, series selection
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("period, expect", [
+    ("2024", "2024-12-31"),          # a year is labelled by its start
+    ("2024-Q3", "2024-09-30"),
+    ("2024-S1", "2024-06-30"),
+    ("2024-05", "2024-05-31"),
+    ("2024-05-31", "2024-05-31"),
+    ("2024-02", "2024-02-29"),       # leap year
+    ("2023-02", "2023-02-28"),
+])
+def test_sdmx_period_end_is_the_end_of_the_period(period, expect):
+    got = bulk.sdmx_period_end(period)
+    assert got is not None and got.date().isoformat() == expect
+
+
+@pytest.mark.parametrize("period", ["", "junk", "20XX", "2024-Q7", "2024-13"])
+def test_sdmx_period_end_rejects_unparsable_labels(period):
+    assert bulk.sdmx_period_end(period) is None
+
+
+def test_sdmx_annual_period_is_not_aged_from_january():
+    """Ageing '2024' from its label makes a December series look eleven months
+    stale on the day it is published."""
+    jan = dt.datetime(2024, 1, 1, tzinfo=dt.timezone.utc)
+    assert bulk.sdmx_period_end("2024") > jan + dt.timedelta(days=300)
+
+
+def test_sdmx_agency_domain_overrides_the_id_map():
+    """The ILO publishes labour statistics and nothing else. Its flow IDs spell
+    nothing out (DF_CLD_2POP_SEX_AGE_NB), and 116 of the first 120 were
+    discarded as unfilable before the agency domain existed."""
+    got = bulk.sdmx_class("DF_CLD_2POP_SEX_AGE_NB", "Child labour",
+                          agency_domain="econ_fin")
+    assert got is not None and got[1] == "econ_fin"
+
+
+def test_sdmx_class_reads_whole_tokens_only():
+    assert bulk.sdmx_class("WS_CBPOL", "Policy rates")[1] == "econ_fin"
+    assert bulk.sdmx_class("BPM6_BOP_M", "Balance of payments")[1] == "econ_fin"
+    # GDP is a token; GDPR-ish substrings inside a longer word are not.
+    assert bulk.sdmx_class("DF_GDPXYZ", "") is None
+
+
+def test_sdmx_class_skips_ids_that_span_two_domains():
+    """EMP says econ_fin and GHG says nature; guessing between them is worse
+    than skipping the flow."""
+    assert bulk.sdmx_class("EMP_GHG_A", "") is None
+
+
+def test_sdmx_class_falls_back_to_the_shared_vocabulary():
+    got = bulk.sdmx_class("DF_TOURISM_ARRIVALS", "Visitor arrivals")
+    assert got is not None and got[1] == "sales"
+
+
+@pytest.mark.parametrize("flow_id", [
+    "DSD_FUA_CLIM@DF_CLIM_PROJ", "DF_POP_PROJECTION", "WS_FORECAST_A",
+    "DF_SSP585_HEAT", "BIS_REL_CAL", "ANN_TEST", "DF_SCENARIO_B",
+])
+def test_sdmx_rejects_model_output_and_registry_flows(flow_id):
+    """OECD serves SSP585 climate runs through the same API as its
+    measurements; a model trace dressed as a series is the contamination the
+    ERDDAP sweep already learned to reject."""
+    assert bulk._SDMX_REJECT_ID.search(flow_id), flow_id
+
+
+@pytest.mark.parametrize("flow_id", [
+    "DF_CCF_XOXR_CUR_RT", "WS_CBPOL", "NASEC_IDCFINA_Q", "DF_BOP",
+])
+def test_sdmx_keeps_ordinary_flows(flow_id):
+    assert not bulk._SDMX_REJECT_ID.search(flow_id), flow_id
+
+
+def _csv(header, rows):
+    return ",".join(header) + "\n" + "\n".join(",".join(r) for r in rows) + "\n"
+
+
+def _stub_fetch(monkeypatch, text, truncated=False):
+    monkeypatch.setattr(bulk, "sdmx_fetch",
+                        lambda *a, **k: (text, truncated))
+
+
+def test_sdmx_pick_series_prefers_frequency_then_length(monkeypatch):
+    header = ["DATAFLOW", "REF_AREA", "FREQ", "MEASURE", "TIME_PERIOD",
+              "OBS_VALUE"]
+    rows = []
+    # a long annual series...
+    for y in range(1980, 2025):
+        rows.append(["X:F(1.0)", "AAA", "A", "M1", str(y), "1.0"])
+    # ...and a shorter monthly one, which still wins on frequency
+    for m in range(30):
+        rows.append(["X:F(1.0)", "BBB", "M", "M1",
+                     f"{2022 + m // 12}-{m % 12 + 1:02d}", "2.0"])
+    _stub_fetch(monkeypatch, _csv(header, rows))
+    key, code = bulk.sdmx_pick_series("http://h", "A,F,1.0")
+    assert code == "M" and key == "BBB.M.M1"
+
+
+def test_sdmx_pick_series_handles_freq_not_being_the_first_dimension(monkeypatch):
+    """The ILO puts REF_AREA first and answers 422 to every key-prefix query,
+    so the frequency has to be read out of the rows."""
+    header = ["DATAFLOW", "REF_AREA", "FREQ", "CUR", "TIME_PERIOD", "OBS_VALUE"]
+    rows = [["X:F(1.0)", "ABW", "A", "NATL", str(y), "1.79"]
+            for y in range(1990, 2026)]
+    _stub_fetch(monkeypatch, _csv(header, rows))
+    assert bulk.sdmx_pick_series("http://h", "A,F,1.0") == ("ABW.A.NATL", "A")
+
+
+def test_sdmx_pick_series_rejects_a_series_shorter_than_the_gate(monkeypatch):
+    """ILO's first flows hold 12 annual observations against a 20-period gate.
+    Finding that out after pinning cost a full fetch per flow."""
+    header = ["DATAFLOW", "REF_AREA", "FREQ", "TIME_PERIOD", "OBS_VALUE"]
+    rows = [["X:F(1.0)", "ABW", "A", str(y), "1.0"] for y in range(2010, 2022)]
+    _stub_fetch(monkeypatch, _csv(header, rows))
+    assert bulk.sdmx_pick_series("http://h", "A,F,1.0") is None
+
+
+def test_sdmx_pick_series_ignores_rows_with_an_unpinnable_dimension(monkeypatch):
+    header = ["DATAFLOW", "REF_AREA", "FREQ", "TIME_PERIOD", "OBS_VALUE"]
+    rows = [["X:F(1.0)", "", "A", str(y), "1.0"] for y in range(1980, 2030)]
+    _stub_fetch(monkeypatch, _csv(header, rows))
+    assert bulk.sdmx_pick_series("http://h", "A,F,1.0") is None
+
+
+def test_sdmx_pick_series_drops_the_half_row_of_a_truncated_response(monkeypatch):
+    header = ["DATAFLOW", "REF_AREA", "FREQ", "TIME_PERIOD", "OBS_VALUE"]
+    rows = [["X:F(1.0)", "AAA", "A", str(y), "1.0"] for y in range(1980, 2025)]
+    text = _csv(header, rows) + "X:F(1.0),BBB,A,20"      # cut mid-row
+    _stub_fetch(monkeypatch, text, truncated=True)
+    key, _ = bulk.sdmx_pick_series("http://h", "A,F,1.0")
+    assert key == "AAA.A"
+
+
+def test_sdmx_probe_rejects_future_dated_periods(monkeypatch):
+    header = ["DATAFLOW", "FREQ", "TIME_PERIOD", "OBS_VALUE"]
+    future = dt.datetime.now(dt.timezone.utc).year + 3
+    rows = [["X:F(1.0)", "A", str(y), "1.0"]
+            for y in range(future - 40, future + 1)]
+    _stub_fetch(monkeypatch, _csv(header, rows))
+    got = bulk.sdmx_probe("http://h", "A,F,1.0", "A")
+    assert "error" in got and "future" in got["error"]
+
+
+def test_sdmx_synthesize_sets_the_content_negotiation_header():
+    """The same URL returns XML without it, and rest_csv would see one column."""
+    probe = {"url": "http://h/data/A,F,1.0/K?startPeriod=1990-01-01",
+             "periods": 40, "numeric": 40, "newest_period": "2025",
+             "age_days": 120.0}
+    block = bulk.sdmx_synthesize(
+        "http://h", "ILO", {"id": "DF_X", "agency": "ILO", "version": "1.0",
+                            "name": "Official exchange rate"},
+        "K", "A", probe, ("economic_indicator", "econ_fin", "economic_indicator"))
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["endpoint"]["headers"]["Accept"].startswith(
+        "application/vnd.sdmx.data+csv")
+    assert entry["schema"]["timestamp_field"] == "TIME_PERIOD"
+    assert entry["schema"]["value_field"] == ["OBS_VALUE"]
+    assert entry["domain"] == "econ_fin"
+    assert entry["frequency"] == "P1Y"
+
+
+def test_sdmx_slack_covers_the_agencys_own_publication_lag():
+    """International agencies routinely publish a year in arrears; a limit
+    derived from the period alone flags them dead on the day they are wired."""
+    assert bulk._sdmx_slack("P1M", 400.0) >= 445
+    assert bulk._sdmx_slack("P1Y", 0.0) == 500
+    # An annual point 220 days past its period END is 586 days past its
+    # LABEL, which is what the freshness check measures.
+    assert bulk._sdmx_slack("P1Y", 220.0) > 584
+
+
+def test_sdmx_cron_cadence_is_a_real_tier():
+    """A cadence outside CRON_CADENCES is silently dropped by the wire step and
+    the entry falls back to its frequency — a whole wave once landed on the
+    wrong tier that way."""
+    probe = {"url": "http://h/x", "periods": 40, "numeric": 40,
+             "newest_period": "2025-06", "age_days": 30.0}
+    block = bulk.sdmx_synthesize(
+        "http://h", "BIS", {"id": "WS_CBPOL", "agency": "BIS",
+                            "version": "1.0", "name": "Policy rates"},
+        "K", "M", probe, ("economic_indicator", "econ_fin", "economic_indicator"))
+    from source_discovery import wire
+    assert block["cron_cadence"] in wire.CRON_CADENCES
+
+
+@pytest.mark.parametrize("subject, domain", [
+    ("Priser och prisindex", "econ_fin"),      # prices and price indices
+    ("Forvarvsarbetande", "econ_fin"),         # gainfully employed
+    ("Arbete och Tillvaxt", "econ_fin"),       # work and growth
+    ("Socioekonomi", "econ_fin"),
+    ("Ekologisk produktion", "nature"),        # organic farming
+    ("Leva och Bo", "sales"),                  # housing, municipal heading
+])
+def test_swedish_municipal_headings_classify(subject, domain):
+    """Municipal PX-Web installations file under headings no national office
+    uses; Linkoping and Orebro lost 32 tables between them to these six."""
+    got = bulk.ods_publisher_class([subject], subject)
+    assert got is not None and got[1] == domain, f"{subject} -> {got}"
+
+
+def test_gender_statistics_is_still_unfiled():
+    """It spans labour, health and education at once. 66 tables is not a reason
+    to invent a domain for it."""
+    assert bulk.ods_publisher_class(["Gender Statistics"],
+                                    "Gender Statistics") is None
+
+
+def test_sdmx_age_ceiling_is_tighter_than_the_slack_it_feeds():
+    """The slack rule stretches to cover an agency's publication lag, so it
+    also stretches to cover an ABANDONED series: Istat's agricultural prices
+    stop at 2018-06 and would have been handed 2,900 days of slack. The
+    ceiling is what stops the freshness gate from being talked out of its job.
+    """
+    for freq, ceiling in bulk.SDMX_MAX_AGE_DAYS.items():
+        # nothing that survives the ceiling can claim more than the ceiling
+        # plus the fixed grace period
+        assert (bulk._sdmx_slack(freq, ceiling)
+                <= ceiling + 45 + bulk._SDMX_PERIOD_DAYS[freq]), freq
+    # a monthly series two years dead is past the limit
+    assert 730 > bulk.SDMX_MAX_AGE_DAYS["P1M"]
+
+
+def test_sdmx_pick_series_reads_sdmx_csv_2_headers(monkeypatch):
+    """SDMX-CSV 2.0 opens with STRUCTURE, STRUCTURE_ID, ACTION instead of
+    DATAFLOW. Counting those as dimensions produced keys like
+    'dataflow.BIS:WS_CBPOL(1.0).I.M.BR', which the server rejects -- so every
+    BIS, IMF and Norges Bank flow came back as a probe error and the whole
+    central-bank half of the vein read as empty."""
+    header = ["STRUCTURE", "STRUCTURE_ID", "ACTION", "FREQ", "REF_AREA",
+              "TIME_PERIOD", "OBS_VALUE"]
+    rows = [["dataflow", "BIS:WS_CBPOL(1.0)", "I", "M", "BR",
+             f"{2020 + m // 12}-{m % 12 + 1:02d}", "13.75"] for m in range(30)]
+    _stub_fetch(monkeypatch, _csv(header, rows))
+    assert bulk.sdmx_pick_series("http://h", "BIS,WS_CBPOL,1.0") == ("M.BR", "M")
+
+
+def test_sdmx_pick_series_strips_column_labels(monkeypatch):
+    """With labels on, a column arrives as 'TIME_PERIOD:Announcement date'.
+    Norges Bank serves that by default, and an exact match on TIME_PERIOD
+    reported all 23 of its flows as having no usable series."""
+    header = ["STRUCTURE", "STRUCTURE_ID", "ACTION",
+              "INSTRUMENT_TYPE:Instrument Type", "TIME_PERIOD:Announcement date",
+              "OBS_VALUE:Observation Value"]
+    rows = [["dataflow", "NB:ANN_KPRA(1.0)", "I", "KPRA",
+             f"{2021 + m // 12}-{m % 12 + 1:02d}-19", "0.25"] for m in range(24)]
+    _stub_fetch(monkeypatch, _csv(header, rows))
+    got = bulk.sdmx_pick_series("http://h", "NB,ANN_KPRA,1.0")
+    assert got is not None and got[0] == "KPRA"
+
+
+def test_imf_is_not_in_the_endpoint_list():
+    """sdmxcentral serves the IMF's structure API and answers 501 to every
+    data query. Keeping it listed spends two requests per flow to rediscover
+    that on every run."""
+    assert not any("imf" in base for base, _o, _p, _d in bulk.SDMX_ENDPOINTS)

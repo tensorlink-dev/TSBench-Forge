@@ -107,6 +107,13 @@ def main(argv: list[str] | None = None) -> int:
                     help="comma-separated Misskey charts to take per host "
                          f"({','.join(bulk.MISSKEY_CHARTS)}); a second chart "
                          "needs --bulk-host-cap 2 to clear the first pass")
+    ap.add_argument("--bulk-sdmx", metavar="OUT_FILE",
+                    help="sweep SDMX 2.1 REST endpoints (central banks and "
+                         "international agencies; econ_fin-heavy, SDMX-CSV "
+                         "over the existing rest_csv reader)")
+    ap.add_argument("--bulk-max-flows", type=int, default=400,
+                    help="with --bulk-sdmx: how deep to read each agency's "
+                         "dataflow list (default 400)")
     ap.add_argument("--bulk-pxweb", metavar="OUT_FILE",
                     help="walk PX-Web statistics-office subject trees "
                          "(econ_fin-heavy; json-stat2 over POST)")
@@ -138,6 +145,25 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --bulk-socrata: sweep only these keywords "
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
+
+    if args.bulk_sdmx:
+        cands, skipped = bulk.sdmx_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            max_flows=args.bulk_max_flows,
+            target=args.bulk_target, checkpoint_path=args.bulk_sdmx,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_sdmx)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_sdmx,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
 
     if args.bulk_pxweb:
         cands, skipped = bulk.pxweb_sweep(

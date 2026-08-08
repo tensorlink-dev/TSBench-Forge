@@ -42,6 +42,7 @@ buys volume without buying coverage.
 from __future__ import annotations
 
 import datetime as dt
+import io
 import json
 import re
 import csv
@@ -1343,6 +1344,12 @@ ODS_THEME_DOMAIN: dict[str, str] = {
     "santé / social": "healthcare",
     "chronic deases": "healthcare",          # the federation's own typo
     "services, social": "healthcare",
+    # "Environmental Health" matches both the nature and healthcare patterns,
+    # so the disagreement guard threw every one of them away. In US municipal
+    # filing it is a public-health department function -- restaurant grades,
+    # lead testing, air-quality complaints -- so the tie is settled here, by
+    # exact category string, rather than by loosening either pattern.
+    "environmental health": "healthcare",
     # econ_fin
     "economy": "econ_fin",
     "economie": "econ_fin",
@@ -1462,7 +1469,13 @@ ODS_THEME_PATTERNS: tuple[tuple[str, str], ...] = (
      r"t[oö][oö]h[oõ]ive|nodarbin[aā]t|"
      r"l[oö]ner|palkat|palgad|darba samaksa|"
      r"n[aä]ringsliv|f[oö]retag|yritys|ettev[oõ]t|uz[nņ][eē]mumu|"
-     r"nationalr[aä]kenskap|kansantalouden|rahvamajanduse", "econ_fin"),
+     r"nationalr[aä]kenskap|kansantalouden|rahvamajanduse|"
+     # Municipal offices file these headings and the national ones do not:
+     # Linkoping and Orebro lost 32 tables between them to the three below.
+     r"priser|prisindex|f[oö]rv[aä]rvsarbetande|\barbete\b|socioekonom",
+     "econ_fin"),
+    (r"ekologisk produktion|luomutuotanto", "nature"),
+    (r"leva och bo", "sales"),
 
     # Vital and demographic statistics. Births, deaths and marital status
     # already route to healthcare above; the bare subject area they sit under
@@ -1473,7 +1486,21 @@ ODS_THEME_PATTERNS: tuple[tuple[str, str], ...] = (
     # than swept in.
     (r"^(?!.*\belection)(?!.*\bval\b).*"
      r"(population|demograph|befolkning|v[aä]est[oö]|rahvastik|"
-     r"iedz[iī]vot[aā]j|mannfj[oö]ld)", "healthcare"),
+     r"iedz[iī]vot[aā]j|mannfj[oö]ld|stanovni[sš]tv|popula[tţ]i)", "healthcare"),
+
+    # Croatian and Romanian. Both offices serve their own language's subject
+    # areas even from the /en tree -- Croatia's English database list comes
+    # back as "Cijene", "Energija", "Gradevinarstvo" -- so without these the
+    # walk finds the tables and then discards every one of them as unfiled.
+    # Energija/Industrija/Agricultura already match the Romance stems above;
+    # only the terms that do not are listed here.
+    (r"okoli[sš]|\bvode\b|mediu(l)? [iî]nconjur", "nature"),
+    (r"[sš]umarstv|ribarstv|silvicultur|pescuit", "nature"),
+    (r"\bpromet\b|prijevoz|transporturi", "transport"),
+    (r"zdravstv|s[aă]n[aă]tate", "healthcare"),
+    (r"cijene|pre[tţ]uri|pla[cć]e|zaposlen|trgovin|comer[tţ]|"
+     r"gra[dđ]evinarstv|construc[tţ]ii", "econ_fin"),
+    (r"turiz|turis(m|ti)", "sales"),
 )
 
 _ODS_THEME_RE: tuple[tuple[Any, str], ...] = tuple(
@@ -4112,6 +4139,25 @@ PXWEB_ROOTS: tuple[tuple[str, str], ...] = (
     ("https://pxweb.stat.si/SiStatData/api/v1/en", "Statistics Slovenia"),
     ("https://statistik.linkoping.se/PXWeb/api/v1/sv", "Linkoping"),
     ("https://statistik.sjv.se/PXWeb/api/v1/sv", "Swedish Board of Agriculture"),
+    # Sector agencies. Each is its own host AND files under its own subject, so
+    # unlike another national office these land outside econ_fin -- which is
+    # where the catalog is thin once you count hosts rather than sources.
+    ("https://pxexternal.energimyndigheten.se/api/v1/en", "Swedish Energy Agency"),
+    ("https://pxweb.skogsstyrelsen.se/api/v1/sv", "Swedish Forest Agency"),
+    ("https://statdb.luke.fi/PXWeb/api/v1/en", "Natural Resources Institute Finland"),
+    ("https://statistik.tillvaxtanalys.se/PXWeb/api/v1/sv", "Growth Analysis Sweden"),
+    ("https://vero2.stat.fi/PXWeb/api/v1/en", "Finnish Tax Administration"),
+    # City installations, which are separate from their national office.
+    ("https://stat.hel.fi/api/v1/en", "City of Helsinki"),
+    ("https://statistik.orebro.se/api/v1/sv", "Orebro"),
+    # National offices outside the Nordics. Croatia and Moldova serve their own
+    # language's subject names even under /en, so the theme vocabulary has to
+    # carry HR and RO to classify them.
+    ("https://web.dzs.hr/pxweb/api/v1/en", "Statistics Croatia"),
+    ("https://makstat.stat.gov.mk/PXWeb/api/v1/en/MakStat", "Statistics North Macedonia"),
+    ("https://statbank.statistica.md/PxWeb/api/v1/en", "Statistics Moldova"),
+    ("https://pc-axis.geostat.ge/PXWeb/api/v1/en", "Statistics Georgia"),
+    ("https://pxweb.statistics.gov.rw/api/v1/en", "Statistics Rwanda"),
 )
 PXWEB_TOP_PERIODS = 60        # newest N periods; the gate wants 20 distinct
 PXWEB_MIN_PERIODS = 24
@@ -4543,6 +4589,594 @@ def pxweb_sweep(
                 return cands, skipped
     return cands, skipped
 
+
+
+# --------------------------------------------------------------------------- #
+# The SDMX vein: central banks, national offices and international agencies.
+# Same shape as PX-Web -- many independently operated hosts speaking one
+# dialect -- and it reaches publishers PX-Web does not, which is what econ_fin
+# needs. Counting sources, econ_fin looks healthy; counting HOSTS it does not,
+# because a handful of statistics offices carry most of it.
+#
+# Only endpoints meeting two conditions are listed. Their structure API must
+# answer JSON, so flows can be enumerated without an XML parser, and their data
+# API must answer SDMX-CSV, so the scraper's existing rest_csv path reads the
+# result with no new decoding. ECB, INSEE and the Bundesbank are alive and
+# deliberately absent: they serve structure as XML only, which is a different
+# piece of work rather than something to half-support here.
+#
+# Domain comes from the FLOW ID -- a publisher-assigned identifier filed in the
+# agency's own scheme, the direct analogue of the PX-Web subject area. The flow
+# NAME is free text and is used only to pick the dgp_class once the domain is
+# already settled.
+# --------------------------------------------------------------------------- #
+
+# Servers disagree about the exact structure media type, and they are strict:
+# the same header that returns 200 from UNICEF returns 406 from ABS. Rather
+# than curate a header per host, try them in order and keep the first that
+# answers -- one extra request on the first flow listing, none afterwards.
+SDMX_STRUCT_ACCEPTS: tuple[str, ...] = (
+    "application/vnd.sdmx.structure+json;version=1.0,application/json",
+    "application/vnd.sdmx.structure+json;version=1.0.0",
+    "application/vnd.sdmx.structure+json",
+)
+SDMX_DATA_ACCEPT = "application/vnd.sdmx.data+csv,text/csv"
+SDMX_HEAD_BYTES = 262_144     # a flow-wide response can be hundreds of MB
+SDMX_DATA_BYTES = 4_000_000
+SDMX_MIN_PERIODS = 20         # the wire gate's distinct-timestamp floor
+SDMX_START_PERIOD = "1990-01-01"
+
+# (base, office, dataflow path, agency-wide domain or None).
+#
+# ABS files every flow under its own agency and returns an empty list for
+# all/all, so it needs the agency spelled out.
+#
+# The fourth field is a whole-agency domain, set only for bodies whose remit IS
+# one domain: the ILO publishes labour statistics and nothing else, and a
+# central bank publishes financial statistics and nothing else. That is the
+# publisher's own filing at the coarsest level, and it is a stronger statement
+# than any token inside an identifier -- the first ILO run classified 116 of
+# 120 flows as unfilable because IDs like DF_CLD_2POP_SEX_AGE_NB spell nothing
+# out. Agencies with a genuinely mixed remit (OECD, the UN, national offices)
+# get None and are classified flow by flow, because for them a blanket domain
+# would be a guess.
+SDMX_ENDPOINTS: tuple[tuple[str, str, str, Optional[str]], ...] = (
+    ("https://sdmx.oecd.org/public/rest", "OECD",
+     "dataflow/all/all/latest", None),
+    ("https://sdmx.ilo.org/rest", "ILO",
+     "dataflow/all/all/latest", "econ_fin"),
+    ("https://stats-nsi-stable.pacificdata.org/rest", "Pacific Data Hub",
+     "dataflow/all/all/latest", None),
+    ("https://data.un.org/ws/rest", "UN Statistics Division",
+     "dataflow/all/all/latest", None),
+    ("https://esploradati.istat.it/SDMXWS/rest", "Istat",
+     "dataflow/all/all/latest", None),
+    ("https://sdmx.data.unicef.org/ws/public/sdmxapi/rest", "UNICEF",
+     "dataflow/all/all/latest", None),
+    ("https://stats.bis.org/api/v1", "Bank for International Settlements",
+     "dataflow/all/all/latest", "econ_fin"),
+    ("https://data.norges-bank.no/api", "Norges Bank",
+     "dataflow/all/all/latest", "econ_fin"),
+    # IMF is deliberately absent. sdmxcentral serves its STRUCTURE API
+    # happily -- 215 dataflows -- and answers HTTP 501 to every data query,
+    # because the Fund publishes data from a different service. Listing it
+    # would spend two requests per flow to rediscover that each run.
+    ("https://data.api.abs.gov.au/rest", "Australian Bureau of Statistics",
+     "dataflow/ABS/all/latest", None),
+)
+
+# Flow IDs whose content is not an observed process. Projections and scenarios
+# are the important ones: OECD publishes SSP585 climate runs through the same
+# API as its measurements, and a model trace dressed as a series is exactly the
+# contamination the ERDDAP sweep already learned to reject.
+_SDMX_REJECT_ID = re.compile(
+    r"(?:^|_)(?:PROJ|PROJECTION|FORECAST|SCENARIO|SSP\d+|OUTLOOK|TARGET|"
+    r"CAL|CALENDAR|TEST|METADATA|CODELIST|DUMMY)(?:_|$)", re.I)
+
+# Whole-token abbreviations agencies use inside flow IDs, matched exactly and
+# never as substrings. Nothing shorter than three characters: two-letter codes
+# like NA (national accounts) and IR (interest rates) collide with too much
+# else to be safe, and a wrong domain is worse than a skipped flow.
+SDMX_ID_TOKENS: dict[str, str] = {
+    # econ_fin
+    "emp": "econ_fin", "empl": "econ_fin", "unem": "econ_fin",
+    "unemp": "econ_fin", "lfs": "econ_fin", "wage": "econ_fin",
+    "wages": "econ_fin", "earn": "econ_fin", "gdp": "econ_fin",
+    "cpi": "econ_fin", "hicp": "econ_fin", "ppi": "econ_fin",
+    "infl": "econ_fin", "bop": "econ_fin", "fdi": "econ_fin",
+    "exr": "econ_fin", "cbpol": "econ_fin", "debt": "econ_fin",
+    "credit": "econ_fin", "nasec": "econ_fin", "govt": "econ_fin",
+    "labour": "econ_fin", "labor": "econ_fin",
+    # healthcare
+    "mort": "healthcare", "mortality": "healthcare", "nutrition": "healthcare",
+    "immunisation": "healthcare", "immunization": "healthcare",
+    "hiv": "healthcare", "malaria": "healthcare", "maternal": "healthcare",
+    "births": "healthcare", "fert": "healthcare",
+    # energy
+    "energy": "energy", "elec": "energy", "electricity": "energy",
+    # nature
+    "ghg": "nature", "emissions": "nature", "seea": "nature",
+    "biodiversity": "nature", "forest": "nature", "fisheries": "nature",
+    # transport
+    "transport": "transport", "aviation": "transport", "shipping": "transport",
+    # sales
+    "tourism": "sales", "retail": "sales",
+}
+
+
+def _sdmx_words(flow_id: str) -> list[str]:
+    """Flow IDs are underscore/at/dot-separated publisher identifiers."""
+    return [w for w in re.split(r"[^A-Za-z0-9]+", str(flow_id or "")) if w]
+
+
+def _sdmx_class_in(dom: str, name: str) -> tuple[str, str, str]:
+    """Name the process inside an already-decided domain."""
+    pool = [k for k in (tuple(KEYWORD_CLASSES) + tuple(ODS_KEYWORD_CLASSES)
+                        + EXTRA_CLASSES) if k[1] == dom]
+    hay = " ".join(_topic_tokens(name))
+    hit = _best_class(pool, hay, ODS_PUBLISHER_MIN_CLASS_SCORE) if hay else None
+    return hit or (dom, dom, ODS_DOMAIN_DEFAULT_CLASS[dom])
+
+
+def sdmx_class(flow_id: str, name: str = "",
+               agency_domain: Optional[str] = None
+               ) -> Optional[tuple[str, str, str]]:
+    """Domain from the flow ID, dgp_class from the flow name.
+
+    A whole-agency domain, where the endpoint declares one, short-circuits
+    everything: a body with a single remit has already filed every flow it
+    publishes, and no token inside an identifier can overrule that.
+
+    Otherwise the exact-token map runs first, because it is the more specific
+    statement: an agency that writes GDP or CBPOL into an identifier has filed
+    the flow more definitively than any prose match on the same string. Two
+    tokens that disagree means the ID spans domains, and the flow is skipped
+    rather than guessed at -- same rule as two disagreeing ODS themes.
+    """
+    if agency_domain:
+        return _sdmx_class_in(agency_domain, name)
+    words = [w.lower() for w in _sdmx_words(flow_id)]
+    doms = {SDMX_ID_TOKENS[w] for w in words if w in SDMX_ID_TOKENS}
+    if len(doms) > 1:
+        return None
+    if len(doms) == 1:
+        return _sdmx_class_in(doms.pop(), name)
+    # No abbreviation matched; fall back to the shared theme vocabulary over
+    # the ID's words. Flows spelled out in full (DF_AGRICULTURAL_PRODUCTION)
+    # are classified here.
+    return ods_publisher_class([" ".join(words)], name)
+
+
+def sdmx_fetch(url: str, accept: str, cap: int,
+               timeout: int = 60) -> tuple[str, bool]:
+    """GET with a byte ceiling. Returns (text, truncated).
+
+    A flow-wide SDMX query is unbounded -- OECD will happily stream hundreds of
+    megabytes for `all` -- so the response is read in chunks and abandoned once
+    the ceiling is hit. The truncation flag matters downstream: the final line
+    of a cut-off response is half a row and must not be parsed as data.
+    """
+    r = requests.get(url, headers={"User-Agent": UA, "Accept": accept},
+                     timeout=timeout, stream=True)
+    try:
+        if r.status_code != 200:
+            raise RuntimeError(f"HTTP {r.status_code}")
+        buf, truncated = b"", False
+        for chunk in r.iter_content(65_536):
+            buf += chunk
+            if len(buf) >= cap:
+                truncated = True
+                break
+    finally:
+        r.close()
+    return buf.decode("utf-8", "replace"), truncated
+
+
+def sdmx_dataflows(base: str, path: str = "dataflow/all/all/latest",
+                   timeout: int = 60) -> list[dict]:
+    last: Optional[Exception] = None
+    for accept in SDMX_STRUCT_ACCEPTS:
+        try:
+            text, _ = sdmx_fetch(f"{base}/{path}", accept, 32_000_000, timeout)
+            doc = json.loads(text)
+        except Exception as exc:                              # noqa: BLE001
+            last = exc
+            continue
+        out = []
+        for f in (doc.get("data") or {}).get("dataflows") or []:
+            nm = f.get("name")
+            if isinstance(nm, dict):
+                nm = nm.get("en") or next(iter(nm.values()), "")
+            out.append({"id": f.get("id") or "", "agency": f.get("agencyID") or "",
+                        "version": f.get("version") or "latest",
+                        "name": str(nm or "")})
+        if out:
+            return out
+        last = RuntimeError("empty dataflow list")
+    raise RuntimeError(str(last)[:120] if last else "no accept header worked")
+
+
+def sdmx_ref(flow: dict) -> str:
+    return f"{flow['agency']},{flow['id']},{flow['version']}"
+
+
+# Preference order when picking which series of a flow to wire. Monthly and
+# daily first: they carry more observations per year of history, clear the
+# 20-distinct-timestamp gate on a shorter window, and get a tighter staleness
+# limit, so a dead one is caught in months instead of years.
+SDMX_FREQ_ORDER: tuple[str, ...] = ("M", "D", "Q", "A")
+SDMX_PICK_OBS = 40            # observations per series in the selection head
+SDMX_FREQ_TO_ISO: dict[str, str] = {"D": "P1D", "W": "P1W", "M": "P1M",
+                                    "Q": "P3M", "S": "P6M", "A": "P1Y"}
+
+
+def sdmx_pick_series(base: str, ref: str,
+                     timeout: int = 60) -> Optional[tuple[str, str]]:
+    """(series key, FREQ code) for one fully-pinned series of a flow.
+
+    In SDMX-CSV the columns between DATAFLOW and TIME_PERIOD are the flow's
+    dimensions in DSD order, so a single series key can be read straight off
+    the response -- no separate datastructure fetch.
+
+    The frequency filter is applied by reading FREQ out of the rows rather than
+    by querying `.../M`, because FREQ is not reliably the first dimension: the
+    ILO puts REF_AREA first and answers 422 to every key-prefix query, which
+    read as "no series at any frequency" for all 60 flows of the first run.
+
+    The head is requested with lastNObservations=SDMX_PICK_OBS rather than 1 so
+    that each series arrives with its recent history attached. Series LENGTH is
+    otherwise invisible until after a series has been pinned and downloaded,
+    and picking blind means picking short: the ILO's first flows hold 12 annual
+    observations against a 20-period gate, so every one of them cost a full
+    fetch to reject.
+    """
+    try:
+        text, trunc = sdmx_fetch(
+            f"{base}/data/{ref}/all?lastNObservations={SDMX_PICK_OBS}",
+            SDMX_DATA_ACCEPT, SDMX_HEAD_BYTES, timeout)
+    except Exception:                                         # noqa: BLE001
+        return None
+    rows = list(csv.reader(io.StringIO(text)))
+    if len(rows) < 2:
+        return None
+    header = _sdmx_header(rows[0])
+    if "TIME_PERIOD" not in header or "OBS_VALUE" not in header:
+        return None
+    ti, vi = header.index("TIME_PERIOD"), header.index("OBS_VALUE")
+    start = _sdmx_first_dim(header)
+    fi = header.index("FREQ") if "FREQ" in header else None
+    # A truncated response ends mid-row, and that half-row is not data.
+    body = rows[1:-1] if trunc else rows[1:]
+    seen: dict[str, tuple[str, set[str]]] = {}
+    for row in body:
+        if len(row) <= max(ti, vi):
+            continue
+        vals = [v.strip() for v in row[start:ti]]
+        if not vals or any(v == "" for v in vals) or not row[vi].strip():
+            continue
+        try:
+            float(row[vi])
+        except ValueError:
+            continue
+        key = ".".join(vals)
+        code = row[fi].strip().upper() if fi is not None and fi < len(row) else ""
+        entry = seen.setdefault(key, (code or "A", set()))
+        entry[1].add(row[ti].strip())
+    # Long enough FIRST, then best frequency, then longest history. Ranking
+    # before filtering would let a short monthly series beat a long annual one
+    # and then fail the gate, discarding a flow that had a usable series in it.
+    # The last series in a truncated response is undercounted, which can only
+    # lose a candidate, never admit a short one.
+    usable = {k: v for k, v in seen.items() if len(v[1]) >= SDMX_MIN_PERIODS}
+    if not usable:
+        return None
+
+    def rank(item: tuple[str, tuple[str, set[str]]]) -> tuple[int, int]:
+        _key, (code, periods) = item
+        f = (SDMX_FREQ_ORDER.index(code) if code in SDMX_FREQ_ORDER
+             else len(SDMX_FREQ_ORDER))
+        return (f, -len(periods))
+
+    key, (code, _periods) = min(usable.items(), key=rank)
+    return key, code
+
+
+# Leading identification columns, which are NOT dimensions. SDMX-CSV 1.0 opens
+# with DATAFLOW; version 2.0 opens with STRUCTURE, STRUCTURE_ID, ACTION. The
+# BIS serves 2.0, and reading its first three columns as dimensions produced
+# keys like "dataflow.BIS:WS_CBPOL(1.0).I.M.BR" -- which the server rejects, so
+# every BIS, IMF and Norges Bank flow came back as a probe error and the whole
+# central-bank half of the vein read as empty.
+_SDMX_CSV_META = ("DATAFLOW", "STRUCTURE", "STRUCTURE_ID", "ACTION")
+
+
+def _sdmx_header(row: list[str]) -> list[str]:
+    """Column IDs, with any human label stripped.
+
+    With labels turned on a column arrives as "TIME_PERIOD:Announcement date".
+    Norges Bank serves that by default, so an exact match on TIME_PERIOD found
+    nothing and all 23 of its flows reported as having no usable series.
+    """
+    return [h.strip().split(":", 1)[0].strip() for h in row]
+
+
+def _sdmx_first_dim(header: list[str]) -> int:
+    i = 0
+    while i < len(header) and header[i].strip().upper() in _SDMX_CSV_META:
+        i += 1
+    return i
+
+
+_SDMX_PERIOD = re.compile(
+    r"^(\d{4})(?:-?(?:(Q[1-4])|(S[12])|(W\d{2})|(\d{2})(?:-(\d{2}))?))?$")
+
+
+def sdmx_period_end(period: str) -> Optional[dt.datetime]:
+    """Last instant of an SDMX TIME_PERIOD, as UTC.
+
+    Periods are labelled by their START ("2024" means all of 2024), so ageing
+    them from the label makes a series published on time look a year stale.
+    Everything is aged from the period's END instead.
+    """
+    m = _SDMX_PERIOD.match(str(period or "").strip())
+    if not m:
+        return None
+    year = int(m.group(1))
+    if m.group(2):                                   # quarter
+        month = int(m.group(2)[1]) * 3
+    elif m.group(3):                                 # semester
+        month = int(m.group(3)[1]) * 6
+    elif m.group(4):                                 # ISO week
+        try:
+            d = dt.date.fromisocalendar(year, int(m.group(4)[1:]), 7)
+        except ValueError:
+            return None
+        return dt.datetime(d.year, d.month, d.day, tzinfo=dt.timezone.utc)
+    elif m.group(5):
+        month = int(m.group(5))
+        if m.group(6):                               # full date
+            try:
+                return dt.datetime(year, month, int(m.group(6)),
+                                   tzinfo=dt.timezone.utc)
+            except ValueError:
+                return None
+    else:
+        month = 12
+    if not 1 <= month <= 12:
+        return None
+    nxt = dt.datetime(year + (month == 12), (month % 12) + 1, 1,
+                      tzinfo=dt.timezone.utc)
+    return nxt - dt.timedelta(days=1)
+
+
+def sdmx_probe(base: str, ref: str, key: str, timeout: int = 90) -> dict:
+    url = (f"{base}/data/{ref}/{key}?startPeriod={SDMX_START_PERIOD}"
+           f"&dimensionAtObservation=AllDimensions")
+    try:
+        text, trunc = sdmx_fetch(url, SDMX_DATA_ACCEPT, SDMX_DATA_BYTES, timeout)
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {str(exc)[:70]}"}
+    rows = list(csv.reader(io.StringIO(text)))
+    if len(rows) < 2:
+        return {"error": "no rows"}
+    header = _sdmx_header(rows[0])
+    if "TIME_PERIOD" not in header or "OBS_VALUE" not in header:
+        return {"error": f"unexpected header {header[:5]}"}
+    ti, vi = header.index("TIME_PERIOD"), header.index("OBS_VALUE")
+    periods: dict[str, dt.datetime] = {}
+    numeric = 0
+    for row in (rows[1:-1] if trunc else rows[1:]):
+        if len(row) <= max(ti, vi):
+            continue
+        end = sdmx_period_end(row[ti])
+        if end is None:
+            continue
+        try:
+            float(row[vi])
+        except (TypeError, ValueError):
+            continue
+        numeric += 1
+        periods[row[ti].strip()] = end
+    if len(periods) < SDMX_MIN_PERIODS:
+        return {"error": f"only {len(periods)} usable periods "
+                         f"({numeric} numeric rows)"}
+    newest_label = max(periods, key=lambda p: periods[p])
+    newest = periods[newest_label]
+    age = (dt.datetime.now(dt.timezone.utc) - newest).total_seconds() / 86400
+    if age < -1:
+        return {"error": f"newest period {newest_label} is in the future"}
+    return {"url": url, "periods": len(periods), "numeric": numeric,
+            "newest_period": newest_label, "age_days": age}
+
+
+# How old the newest observation may be before a flow is not worth wiring.
+# Without this the slack rule below -- which stretches to cover the agency's
+# publication lag -- stretches to cover ANY lag, and an Istat series whose
+# newest point is 2018-06 gets 2,900 days of slack and sails through the
+# freshness gate. The gate is only as good as the age it is handed.
+SDMX_MAX_AGE_DAYS: dict[str, int] = {
+    "P1D": 21, "P1W": 60, "P1M": 200, "P3M": 400, "P6M": 550, "P1Y": 800,
+}
+
+
+# Days spanned by one period. Needed because the freshness check downstream
+# ages a series from its TIME_PERIOD *label*, and the label is the period's
+# START: an annual point published on time reads as up to a year old the
+# moment it lands. Ageing here is done from the period end, so the difference
+# has to be added back before the two numbers can be compared.
+_SDMX_PERIOD_DAYS: dict[str, int] = {"P1D": 1, "P1W": 7, "P1M": 31, "P3M": 92,
+                                     "P6M": 184, "P1Y": 366}
+
+
+def _sdmx_slack(freq_iso: str, age_days: float) -> int:
+    """Staleness allowance: the nominal period plus the agency's own lag.
+
+    International agencies publish a year in arrears as a matter of course, so
+    a limit derived from the period alone would flag half of them as dead on
+    the day they are wired -- five of the first nine SDMX candidates failed
+    exactly that way, at 584 days against a 500-day limit.
+    """
+    base = {"P1D": 10, "P1W": 30, "P1M": 75, "P3M": 200,
+            "P6M": 320, "P1Y": 500}.get(freq_iso, 120)
+    label_age = int(age_days) + _SDMX_PERIOD_DAYS.get(freq_iso, 92)
+    return max(base, label_age + 45)
+
+
+def sdmx_synthesize(base: str, office: str, flow: dict, key: str,
+                    freq_code: str, probe: dict, klass: tuple[str, str, str],
+                    taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = urlparse(base).netloc.lower()
+    title = re.sub(r"\s+", " ", _safe_unescape(flow.get("name") or flow["id"]))
+    title = title.strip() or flow["id"]
+    sid = f"sdmx_{entry_id(host, title)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:56]}_{_slug(flow['id'], 6)}"[:64]
+    freq_iso = SDMX_FREQ_TO_ISO.get(freq_code, "P1Y")
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title[:80]} ({office})",
+        "domain": klass[1],
+        "dgp_class": klass[2],
+        "archetypes": ["trend", "non_stationary_regime", "positive_continuous"],
+        "frequency": freq_iso,
+        "endpoint": {
+            "type": "rest_csv",
+            "url": probe["url"],
+            "auth": "none",
+            "rate_limit": "polite",
+            # SDMX-CSV is served by content negotiation, not by a file
+            # extension: without this header the same URL returns XML.
+            "headers": {"Accept": SDMX_DATA_ACCEPT},
+        },
+        "schema": {
+            "timestamp_field": "TIME_PERIOD",
+            "value_field": ["OBS_VALUE"],
+            "drop_null_values": True,
+        },
+        "history_available": f"{probe['periods']} periods from "
+                             f"{SDMX_START_PERIOD[:4]}, newest "
+                             f"{probe['newest_period']}",
+        "update_cadence_observed": (
+            f"{freq_iso} periods; newest {probe['newest_period']} "
+            f"({probe['age_days']:.0f}d old at wire time)"
+        ),
+        "pretraining_novelty": "unknown",
+        "novelty_notes": (
+            "International-agency series are widely republished, so headline "
+            "aggregates may appear in pretraining mixes. The pinned key here "
+            "is one cell of a large cube rather than a headline aggregate."
+        ),
+        "license": "open data (see agency terms)",
+        "audit_slack_days": _sdmx_slack(freq_iso, probe.get("age_days") or 0),
+        "notes": (
+            f"SDMX 2.1 REST at {base}, dataflow {sdmx_ref(flow)}, series key "
+            f"{key}. Domain from the flow ID, which is the agency's own "
+            f"identifier; the key pins every dimension so the response is a "
+            f"single series rather than a cube. TIME_PERIOD is a period LABEL "
+            f"({probe['newest_period']}) and denotes the start of the period."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "cron_cadence": "P1D",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"SDMX: {probe['periods']} {freq_iso} periods, newest "
+                   f"{probe['newest_period']}, host {host}"),
+    }
+
+
+def sdmx_sweep(
+    catalog_path: str,
+    endpoints: Optional[Iterable[tuple[str, str, str, Optional[str]]]] = None,
+    host_cap: int = 4,
+    max_flows: int = 400,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    catalog = yaml.safe_load(open(catalog_path)) or []
+    taken_ids = {s["id"] for s in catalog}
+    known_urls = {(s.get("endpoint") or {}).get("url", "") for s in catalog}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for base, office, path, agency_domain in (endpoints if endpoints is not None
+                                              else SDMX_ENDPOINTS):
+        host = urlparse(base).netloc.lower()
+        if seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": host, "reason": f"host cap {host_cap} reached"})
+            continue
+        try:
+            flows = sdmx_dataflows(base, path)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": host, "reason": f"dataflow list: {exc}"})
+            log(f"[sdmx] {office}: dataflow list failed -- {exc}")
+            continue
+        log(f"[sdmx] {office}: {len(flows)} dataflows")
+        got = 0
+        for flow in flows[:max_flows]:
+            if got >= host_cap:
+                break
+            if not flow["id"] or _SDMX_REJECT_ID.search(flow["id"]):
+                skipped.append({"id": flow["id"],
+                                "reason": "not an observed process "
+                                          "(projection/scenario/registry)"})
+                continue
+            klass = sdmx_class(flow["id"], flow["name"], agency_domain)
+            if klass is None:
+                skipped.append({"id": flow["id"],
+                                "reason": "flow id not in the map"})
+                continue
+            try:
+                picked = sdmx_pick_series(base, sdmx_ref(flow))
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": flow["id"], "reason": f"pick: {exc}"})
+                continue
+            time.sleep(sleep_s)
+            if picked is None:
+                skipped.append({"id": flow["id"],
+                                "reason": "no complete series in the response "
+                                          "head at any frequency"})
+                continue
+            key, freq_code = picked
+            probe = sdmx_probe(base, sdmx_ref(flow), key)
+            time.sleep(sleep_s)
+            if "error" in probe:
+                skipped.append({"id": flow["id"],
+                                "reason": f"probe: {probe['error']}"})
+                continue
+            if probe["url"] in known_urls:
+                skipped.append({"id": flow["id"], "reason": "url already wired"})
+                continue
+            freq_iso = SDMX_FREQ_TO_ISO.get(freq_code, "P1Y")
+            ceiling = SDMX_MAX_AGE_DAYS.get(freq_iso, 400)
+            if probe["age_days"] > ceiling:
+                skipped.append({"id": flow["id"],
+                                "reason": f"abandoned: newest {freq_iso} period "
+                                          f"{probe['newest_period']} is "
+                                          f"{probe['age_days']:.0f}d old "
+                                          f"(limit {ceiling}d)"})
+                continue
+            block = sdmx_synthesize(base, office, flow, key, freq_code, probe,
+                                    klass, taken=taken_ids)
+            if block is None:
+                skipped.append({"id": flow["id"], "reason": "synthesise failed"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            known_urls.add(probe["url"])
+            cands.append(block)
+            got += 1
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + [{klass[1]}] {block['candidate_name'][:64]}")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
 
 
 def write_batch(candidates: list[dict], out_path: str) -> str:
