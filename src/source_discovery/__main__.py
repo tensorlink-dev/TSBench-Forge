@@ -107,6 +107,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="comma-separated Misskey charts to take per host "
                          f"({','.join(bulk.MISSKEY_CHARTS)}); a second chart "
                          "needs --bulk-host-cap 2 to clear the first pass")
+    ap.add_argument("--bulk-arcgis", metavar="OUT_FILE",
+                    help="sweep ArcGIS Hub for self-hosted local-government "
+                         "feature services (skips the vendor's shared "
+                         "services*.arcgis.com tenancy)")
     ap.add_argument("--bulk-sdmx", metavar="OUT_FILE",
                     help="sweep SDMX 2.1 REST endpoints (central banks and "
                          "international agencies; econ_fin-heavy, SDMX-CSV "
@@ -145,6 +149,26 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --bulk-socrata: sweep only these keywords "
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
+
+    if args.bulk_arcgis:
+        cands, skipped = bulk.arcgis_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            per_keyword=args.bulk_per_keyword or 300,
+            max_age_days=args.bulk_max_age_days,
+            target=args.bulk_target, checkpoint_path=args.bulk_arcgis,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_arcgis)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_arcgis,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
 
     if args.bulk_sdmx:
         cands, skipped = bulk.sdmx_sweep(

@@ -62865,3 +62865,2790 @@
     Domain from the flow ID, which is the agency's own identifier; the key pins every dimension so the response
     is a single series rather than a cube. TIME_PERIOD is a period LABEL (2025) and denotes the start of
     the period.
+
+# -- wired batch: arcgis wave 47: self-hosted local government --
+- id: agis_renvillecountymn_next_generation_911
+  name: Next Generation 911 (gis.renvillecountymn.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://gis.renvillecountymn.gov/arcgis/rest/services/Sheriff/911DataLayers/FeatureServer/0/query?where=created_date+IS+NOT+NULL&outFields=created_date%2CANUMBER%2CELEV&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 2
+    value_field:
+    - features[].attributes.ANUMBER
+    - features[].attributes.ELEV
+  history_available: 251 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 529.5 min; newest 2026-07-15T14:43:18+00:00 (23.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 68
+  notes: Bulk-generated from ArcGIS Hub (query '911 calls'), layer https://gis.renvillecountymn.gov/arcgis/rest/services/Sheriff/911DataLayers/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_columbus_restaurant_market_health_inspections
+  name: Restaurant & Market Health Inspections (maps2.columbus.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://maps2.columbus.gov/arcgis/rest/services/Schemas/Health/MapServer/3/query?where=PROGRAM_ENTERED_DATE+IS+NOT+NULL&outFields=PROGRAM_ENTERED_DATE%2CSTACKED&orderByFields=PROGRAM_ENTERED_DATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.PROGRAM_ENTERED_DATE
+    variates: 1
+    value_field:
+    - features[].attributes.STACKED
+  history_available: 135 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-07T04:00:00+00:00 (1.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'restaurant inspections'), layer https://maps2.columbus.gov/arcgis/rest/services/Schemas/Health/MapServer/3.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_wake_restaurants_in_wake_county
+  name: Restaurants in Wake County (maps.wake.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://maps.wake.gov/arcgis/rest/services/Inspections/RestaurantInspectionsOpenData/MapServer/0/query?where=RESTAURANTOPENDATE+IS+NOT+NULL&outFields=RESTAURANTOPENDATE%2CX%2CY&orderByFields=RESTAURANTOPENDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.RESTAURANTOPENDATE
+    variates: 2
+    value_field:
+    - features[].attributes.X
+    - features[].attributes.Y
+  history_available: 198 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T00:00:00+00:00 (2.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'restaurant inspections'), layer https://maps.wake.gov/arcgis/rest/services/Inspections/RestaurantInspectionsOpenData/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_sc_municipalities_sc
+  name: Municipalities (SC) (gis.state.sc.us)
+  domain: econ_fin
+  dgp_class: public_finance
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gis.state.sc.us/arcgis/rest/services/Boundaries_Districts/Municipalities/FeatureServer/0/query?where=last_edited_date+IS+NOT+NULL&outFields=last_edited_date%2CShape__Area%2CShape__Length&orderByFields=last_edited_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.last_edited_date
+    variates: 2
+    value_field:
+    - features[].attributes.Shape__Area
+    - features[].attributes.Shape__Length
+  history_available: 272 distinct timestamps in the newest 272 features
+  update_cadence_observed: median gap 0.3 min; newest 2026-08-07T13:39:43+00:00 (0.9d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'municipal revenue'), layer https://gis.state.sc.us/arcgis/rest/services/Boundaries_Districts/Municipalities/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_wacotx_publicmap_planningecondev
+  name: PublicMap_PlanningEconDev (gis.wacotx.gov)
+  domain: econ_fin
+  dgp_class: public_finance
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://gis.wacotx.gov/server/rest/services/PublicMap/PublicMap_Planning_and_Economical_Development/FeatureServer/2/query?where=created_date+IS+NOT+NULL&outFields=created_date%2CShape__Area%2CShape__Length&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 2
+    value_field:
+    - features[].attributes.Shape__Area
+    - features[].attributes.Shape__Length
+  history_available: 156 distinct timestamps in the newest 340 features
+  update_cadence_observed: median gap 70.5 min; newest 2026-08-06T14:31:49+00:00 (1.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'municipal revenue'), layer https://gis.wacotx.gov/server/rest/services/PublicMap/PublicMap_Planning_and_Economical_Development/FeatureServer/2.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_scgov_streetsweeping
+  name: StreetSweeping (ags3.scgov.net)
+  domain: transport
+  dgp_class: service_operations
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://ags3.scgov.net/server/rest/services/Hosted/StreetSweeping/FeatureServer/0/query?where=lastupdate+IS+NOT+NULL&outFields=lastupdate%2Careatype%2Ccurbmileage%2CSHAPE__Length&orderByFields=lastupdate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.lastupdate
+    variates: 3
+    value_field:
+    - features[].attributes.areatype
+    - features[].attributes.curbmileage
+    - features[].attributes.SHAPE__Length
+  history_available: 37 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 8.5 min; newest 2026-07-16T06:01:07+00:00 (23.2d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 68
+  notes: Bulk-generated from ArcGIS Hub (query 'street sweeping'), layer https://ags3.scgov.net/server/rest/services/Hosted/StreetSweeping/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_lethbridge_tst_spring_street_sweeping_areas
+  name: TST_Spring Street Sweeping Areas (gis.lethbridge.ca)
+  domain: transport
+  dgp_class: service_operations
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://gis.lethbridge.ca/gispublic/rest/services/WebMaps/StreetSweeping/MapServer/1/query?where=Last_Swept_Date+IS+NOT+NULL&outFields=Last_Swept_Date%2CTotal_Lane_Length_Km%2CTotal_CL_Length_Km%2CLocal_Lane_Length_Km&orderByFields=Last_Swept_Date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.Last_Swept_Date
+    variates: 3
+    value_field:
+    - features[].attributes.Total_Lane_Length_Km
+    - features[].attributes.Total_CL_Length_Km
+    - features[].attributes.Local_Lane_Length_Km
+  history_available: 68 distinct timestamps in the newest 79 features
+  update_cadence_observed: median gap 1390.0 min; newest 2026-07-17T20:30:00+00:00 (21.6d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 66
+  notes: Bulk-generated from ArcGIS Hub (query 'street sweeping'), layer https://gis.lethbridge.ca/gispublic/rest/services/WebMaps/StreetSweeping/MapServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mappmycity_street_sweeping_service_requests
+  name: Street Sweeping Service Requests (mappmycity.ca)
+  domain: transport
+  dgp_class: service_operations
+  archetypes:
+  - count_discrete
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://mappmycity.ca/arcgis/rest/services/open_data_services/governmentservices/MapServer/59/query?where=created_date+IS+NOT+NULL&outFields=created_date&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 1
+    value_field: features[].attributes.created_date
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 203 distinct timestamps in the newest 203 features
+  update_cadence_observed: median gap 232.8 min; newest 2026-07-16T19:14:52+00:00 (22.6d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 67
+  notes: Bulk-generated from ArcGIS Hub (query 'street sweeping'), layer https://mappmycity.ca/arcgis/rest/services/open_data_services/governmentservices/MapServer/59.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_sanjoseca_storm_discharge_points
+  name: Storm Discharge Points (geo.sanjoseca.gov)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://geo.sanjoseca.gov/server/rest/services/OPN/OPN_OpenDataService/MapServer/294/query?where=CREATIONDATE+IS+NOT+NULL&outFields=CREATIONDATE%2CINTID%2COUTELEV%2CDIAMETER&orderByFields=CREATIONDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CREATIONDATE
+    variates: 3
+    value_field:
+    - features[].attributes.INTID
+    - features[].attributes.OUTELEV
+    - features[].attributes.DIAMETER
+  history_available: 62 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 32.2 min; newest 2026-07-29T21:34:37+00:00 (9.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 54
+  notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://geo.sanjoseca.gov/server/rest/services/OPN/OPN_OpenDataService/MapServer/294.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_sagis_stormwater_maintained_ditches_savannah
+  name: Stormwater Maintained Ditches (Savannah) (pub.sagis.org)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://pub.sagis.org/arcgis/rest/services/OpenData/Hydrology/MapServer/17/query?where=created_date+IS+NOT+NULL&outFields=created_date%2CDITCH_LENGTH%2CSLOPE_BOTTOM%2CShape.STLength%28%29&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 3
+    value_field:
+    - features[].attributes.DITCH_LENGTH
+    - features[].attributes.SLOPE_BOTTOM
+    - features[].attributes.Shape.STLength()
+  history_available: 125 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 6009.6 min; newest 2026-07-17T18:18:13+00:00 (21.7d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 66
+  notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://pub.sagis.org/arcgis/rest/services/OpenData/Hydrology/MapServer/17.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_bakersfieldcity_storm_water_catch_basin
+  name: Storm Water Catch Basin (gis.bakersfieldcity.us)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://gis.bakersfieldcity.us/webmaps/rest/services/General/StormWater/MapServer/0/query?where=created_date+IS+NOT+NULL&outFields=created_date&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 1
+    value_field: features[].attributes.created_date
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 343 distinct timestamps in the newest 364 features
+  update_cadence_observed: median gap 11.3 min; newest 2026-08-06T15:36:24+00:00 (1.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://gis.bakersfieldcity.us/webmaps/rest/services/General/StormWater/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_govt_sw_facility_opendata
+  name: Sw Facility (OpenData) (gis.ccc.govt.nz)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gis.ccc.govt.nz/server/rest/services/OpenData/StormWater/FeatureServer/24/query?where=CreateDate+IS+NOT+NULL&outFields=CreateDate%2CMajorSwCatchmentID%2CTreatmentGroup%2CCapacityM3&orderByFields=CreateDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CreateDate
+    variates: 3
+    value_field:
+    - features[].attributes.MajorSwCatchmentID
+    - features[].attributes.TreatmentGroup
+    - features[].attributes.CapacityM3
+  history_available: 278 distinct timestamps in the newest 339 features
+  update_cadence_observed: median gap 0.2 min; newest 2026-07-30T04:45:31+00:00 (9.2d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 54
+  notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://gis.ccc.govt.nz/server/rest/services/OpenData/StormWater/FeatureServer/24.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_idaho_roadkill_observations
+  name: Roadkill Observations (gisportal-idfg.idaho.gov)
+  domain: nature
+  dgp_class: biodiversity
+  archetypes:
+  - count_discrete
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://gisportal-idfg.idaho.gov/hosting/rest/services/Roadkill/Roadkill_Observations/FeatureServer/1/query?where=observed+IS+NOT+NULL&outFields=observed&orderByFields=observed+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.observed
+    variates: 1
+    value_field: features[].attributes.observed
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 245 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 376.5 min; newest 2026-08-07T07:00:00+00:00 (1.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'wildlife observations'), layer https://gisportal-idfg.idaho.gov/hosting/rest/services/Roadkill/Roadkill_Observations/FeatureServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_siouxfalls_water_main_breaks
+  name: Water Main Breaks (gis.siouxfalls.gov)
+  domain: nature
+  dgp_class: asset_faults
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://gis.siouxfalls.gov/arcgis/rest/services/Data/Water/MapServer/13/query?where=Date+IS+NOT+NULL&outFields=Date%2CWater_Loss%2CBREAKYEAR&orderByFields=Date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.Date
+    variates: 2
+    value_field:
+    - features[].attributes.Water_Loss
+    - features[].attributes.BREAKYEAR
+  history_available: 337 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 5760.0 min; newest 2026-07-31T00:00:00+00:00 (8.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 53
+  notes: Bulk-generated from ArcGIS Hub (query 'water main breaks'), layer https://gis.siouxfalls.gov/arcgis/rest/services/Data/Water/MapServer/13.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_rexburg_water_main_line_breaks
+  name: Water Main Line Breaks (cw.rexburg.org)
+  domain: nature
+  dgp_class: asset_faults
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://cw.rexburg.org/Cityworks/gis/1/1/rest/services/qe/FeatureServer/56/query?where=ActualFinishDate+IS+NOT+NULL&outFields=ActualFinishDate%2CWOCost%2CWOEquipmentCost%2CWOLaborCost&orderByFields=ActualFinishDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.ActualFinishDate
+    variates: 3
+    value_field:
+    - features[].attributes.WOCost
+    - features[].attributes.WOEquipmentCost
+    - features[].attributes.WOLaborCost
+  history_available: 93 distinct timestamps in the newest 94 features
+  update_cadence_observed: median gap 30342.0 min; newest 2026-07-22T14:08:59+00:00 (16.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 61
+  notes: Bulk-generated from ArcGIS Hub (query 'water main breaks'), layer https://cw.rexburg.org/Cityworks/gis/1/1/rest/services/qe/FeatureServer/56.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_cityofames_water_main_breaks_db_item
+  name: Water Main Breaks - DB Item (gis.cityofames.org)
+  domain: nature
+  dgp_class: asset_faults
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://gis.cityofames.org/arcgis/rest/services/Ames_Edits/Ames_basemap_ALL_Edits_V2/FeatureServer/0/query?where=created_date+IS+NOT+NULL&outFields=created_date%2CPIPEDIAMETER%2CSUBTYPE&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 2
+    value_field:
+    - features[].attributes.PIPEDIAMETER
+    - features[].attributes.SUBTYPE
+  history_available: 394 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 4755.7 min; newest 2026-07-29T15:15:08+00:00 (9.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 54
+  notes: Bulk-generated from ArcGIS Hub (query 'water main breaks'), layer https://gis.cityofames.org/arcgis/rest/services/Ames_Edits/Ames_basemap_ALL_Edits_V2/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_cityworksonline_geocoded_business_licenses
+  name: Geocoded Business Licenses (app03.cityworksonline.com)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://app03.cityworksonline.com/CLIENT_MorgantownWV/gis/1/1/rest/services/qe/FeatureServer/27/query?where=DateCreated+IS+NOT+NULL&outFields=DateCreated%2CAcceptedByUserId%2CAssignedToUserId%2CBusCaseId&orderByFields=DateCreated+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.DateCreated
+    variates: 3
+    value_field:
+    - features[].attributes.AcceptedByUserId
+    - features[].attributes.AssignedToUserId
+    - features[].attributes.BusCaseId
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 156.5 min; newest 2026-08-06T21:14:07.770000+00:00 (1.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'business licenses issued'), layer https://app03.cityworksonline.com/CLIENT_MorgantownWV/gis/1/1/rest/services/qe/FeatureServer/27.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_sarnia_current_business_license_cases
+  name: Current Business License Cases (cityworks.sarnia.ca)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://cityworks.sarnia.ca/cityworks/gis/1/1/rest/services/qe/FeatureServer/160/query?where=DateCreated+IS+NOT+NULL&outFields=DateCreated%2CAcceptedByUserId%2CAssignedToUserId%2CCaseStatusId&orderByFields=DateCreated+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.DateCreated
+    variates: 3
+    value_field:
+    - features[].attributes.AcceptedByUserId
+    - features[].attributes.AssignedToUserId
+    - features[].attributes.CaseStatusId
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 0.0 min; newest 2026-07-15T15:21:04.393000+00:00 (23.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 68
+  notes: Bulk-generated from ArcGIS Hub (query 'business licenses issued'), layer https://cityworks.sarnia.ca/cityworks/gis/1/1/rest/services/qe/FeatureServer/160.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_talgov_ev_charging_stations_issued_since_2025
+  name: EV Charging Stations Issued Since 2025 (cwpll.talgov.com)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1M
+  endpoint:
+    type: rest_json
+    url: https://cwpll.talgov.com/cwPLL/gis/1/1/rest/services/qe/FeatureServer/122/query?where=DateCreated+IS+NOT+NULL&outFields=DateCreated%2CAcceptedByUserId%2CAssignedToUserId%2CCaseStatusId&orderByFields=DateCreated+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.DateCreated
+    variates: 3
+    value_field:
+    - features[].attributes.AcceptedByUserId
+    - features[].attributes.AssignedToUserId
+    - features[].attributes.CaseStatusId
+  history_available: 38 distinct timestamps in the newest 38 features
+  update_cadence_observed: median gap 18773.9 min; newest 2026-07-20T17:54:05.660000+00:00 (18.7d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 63
+  notes: Bulk-generated from ArcGIS Hub (query 'business licenses issued'), layer https://cwpll.talgov.com/cwPLL/gis/1/1/rest/services/qe/FeatureServer/122.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_greenecountyohio_sales
+  name: Sales (gis.greenecountyohio.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://gis.greenecountyohio.gov/webgis2/rest/services/ValueAnalysis/ValueAnalysis/MapServer/17/query?where=Sale_Date+IS+NOT+NULL&outFields=Sale_Date%2CSale_Price%2CValid_Sale%2CPlat_Cabinet&orderByFields=Sale_Date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.Sale_Date
+    variates: 3
+    value_field:
+    - features[].attributes.Sale_Price
+    - features[].attributes.Valid_Sale
+    - features[].attributes.Plat_Cabinet
+  history_available: 23 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T00:00:00+00:00 (2.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'real property sales'), layer https://gis.greenecountyohio.gov/webgis2/rest/services/ValueAnalysis/ValueAnalysis/MapServer/17.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mn_comparable_sales
+  name: Comparable Sales (gisweb.co.mower.mn.us)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://gisweb.co.mower.mn.us/server/rest/services/PublicServices/Public_Features_Group_2/FeatureServer/0/query?where=SLSDATE+IS+NOT+NULL&outFields=SLSDATE%2CGID%2CSID%2CSLSINDEX&orderByFields=SLSDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.SLSDATE
+    variates: 3
+    value_field:
+    - features[].attributes.GID
+    - features[].attributes.SID
+    - features[].attributes.SLSINDEX
+  history_available: 163 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-03T00:00:00+00:00 (5.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 50
+  notes: Bulk-generated from ArcGIS Hub (query 'real property sales'), layer https://gisweb.co.mower.mn.us/server/rest/services/PublicServices/Public_Features_Group_2/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_wi_real_estate_comparative_sales
+  name: Real Estate Comparative Sales (public1.co.waupaca.wi.us)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://public1.co.waupaca.wi.us/arcgis/rest/services/Public/OpenData_Tables/MapServer/3/query?where=RecordedDate+IS+NOT+NULL&outFields=RecordedDate%2CTaxParcelId%2CTransferFee%2CConsiderationAmount&orderByFields=RecordedDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.RecordedDate
+    variates: 3
+    value_field:
+    - features[].attributes.TaxParcelId
+    - features[].attributes.TransferFee
+    - features[].attributes.ConsiderationAmount
+  history_available: 53 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T00:00:00+00:00 (2.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'real property sales'), layer https://public1.co.waupaca.wi.us/arcgis/rest/services/Public/OpenData_Tables/MapServer/3.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_cuyahogacounty_commerical_industrial_sales_2021_ccpc
+  name: Commerical/Industrial Sales 2021 - CCPC (gis.cuyahogacounty.us)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://gis.cuyahogacounty.us/server/rest/services/CUYAHOGA_BASE/TaxMap_Parcels_CAMA_RP_WGS84/FeatureServer/0/query?where=transfer_date+IS+NOT+NULL&outFields=transfer_date%2Csales_amount%2Ccertified_tax_land%2Ccertified_tax_building&orderByFields=transfer_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.transfer_date
+    variates: 3
+    value_field:
+    - features[].attributes.sales_amount
+    - features[].attributes.certified_tax_land
+    - features[].attributes.certified_tax_building
+  history_available: 382 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 25.0 min; newest 2026-07-30T14:55:00+00:00 (8.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 53
+  notes: Bulk-generated from ArcGIS Hub (query 'real property sales'), layer https://gis.cuyahogacounty.us/server/rest/services/CUYAHOGA_BASE/TaxMap_Parcels_CAMA_RP_WGS84/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_charlottesville_real_estate_sales
+  name: Real Estate (Sales) (gisweb.charlottesville.org)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://gisweb.charlottesville.org/arcgis/rest/services/OpenData_2/MapServer/3/query?where=SaleDate+IS+NOT+NULL&outFields=SaleDate%2CSaleAmount&orderByFields=SaleDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.SaleDate
+    variates: 1
+    value_field:
+    - features[].attributes.SaleAmount
+  history_available: 58 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T04:00:00+00:00 (2.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'real property sales'), layer https://gisweb.charlottesville.org/arcgis/rest/services/OpenData_2/MapServer/3.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_lynchburgva_transfers_tabular
+  name: Transfers - Tabular (mapviewer.lynchburgva.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://mapviewer.lynchburgva.gov/arcgis/rest/services/OpenData/ODPDynamic/MapServer/34/query?where=SaleDate+IS+NOT+NULL&outFields=SaleDate%2CLRSN%2CSaleAmount&orderByFields=SaleDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.SaleDate
+    variates: 2
+    value_field:
+    - features[].attributes.LRSN
+    - features[].attributes.SaleAmount
+  history_available: 37 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-05T00:00:00+00:00 (3.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 48
+  notes: Bulk-generated from ArcGIS Hub (query 'real property sales'), layer https://mapviewer.lynchburgva.gov/arcgis/rest/services/OpenData/ODPDynamic/MapServer/34.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_jamescitycountyva_james_city_county_va_gis_and_real_estate
+  name: James City County, VA - GIS and Real Estate Data (1 Record per parcel) (property.jamescitycountyva.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://property.jamescitycountyva.gov/arcgis/rest/services/JCC/GIS_Data/FeatureServer/17/query?where=Sale1D+IS+NOT+NULL&outFields=Sale1D%2CRecycle_Route%2CDamageZones%2CPOINT_X&orderByFields=Sale1D+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.Sale1D
+    variates: 3
+    value_field:
+    - features[].attributes.Recycle_Route
+    - features[].attributes.DamageZones
+    - features[].attributes.POINT_X
+  history_available: 26 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T00:00:00+00:00 (2.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'real property sales'), layer https://property.jamescitycountyva.gov/arcgis/rest/services/JCC/GIS_Data/FeatureServer/17.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_dekalbcountyga_code_enforcement_cases
+  name: Code Enforcement Cases (dcgis.dekalbcountyga.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://dcgis.dekalbcountyga.gov/mapping/rest/services/Code_Enforcement_Cases/FeatureServer/0/query?where=startDateTime+IS+NOT+NULL&outFields=startDateTime&orderByFields=startDateTime+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.startDateTime
+    variates: 1
+    value_field: features[].attributes.startDateTime
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 388 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 128.0 min; newest 2026-08-05T18:51:20+00:00 (2.6d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'code enforcement cases'), layer https://dcgis.dekalbcountyga.gov/mapping/rest/services/Code_Enforcement_Cases/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_charlottenc_code_enforcement_cases_all
+  name: Code Enforcement Cases All (gis.charlottenc.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gis.charlottenc.gov/arcgis/rest/services/HNS/CodeEnforcementCasesAll/MapServer/0/query?where=DateCreated+IS+NOT+NULL&outFields=DateCreated%2CCreatedOnCalendarYear%2CCreatedOnFiscalYear%2CFOFOrdered&orderByFields=DateCreated+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.DateCreated
+    variates: 3
+    value_field:
+    - features[].attributes.CreatedOnCalendarYear
+    - features[].attributes.CreatedOnFiscalYear
+    - features[].attributes.FOFOrdered
+  history_available: 397 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 2.0 min; newest 2026-08-07T11:23:59+00:00 (1.0d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'code enforcement cases'), layer https://gis.charlottenc.gov/arcgis/rest/services/HNS/CodeEnforcementCasesAll/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_nc_code_enforcement_data
+  name: Code Enforcement - Data (gismaps.ci.fayetteville.nc.us)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gismaps.ci.fayetteville.nc.us/opendata/rest/services/DevelopmentServices/SPA_Dashboard_Code_Enforcement/MapServer/0/query?where=DATE_INITIATED+IS+NOT+NULL&outFields=DATE_INITIATED%2CCX%2CCY&orderByFields=DATE_INITIATED+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.DATE_INITIATED
+    variates: 2
+    value_field:
+    - features[].attributes.CX
+    - features[].attributes.CY
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 5.4 min; newest 2026-08-07T17:30:29+00:00 (0.7d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'code enforcement cases'), layer https://gismaps.ci.fayetteville.nc.us/opendata/rest/services/DevelopmentServices/SPA_Dashboard_Code_Enforcement/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_tucsonaz_code_cases_last_60_days
+  name: Code Cases - Last 60 Days (mapdata.tucsonaz.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mapdata.tucsonaz.gov/arcgis/rest/services/PublicMaps/PermitsCode/MapServer/103/query?where=OPENEDDATE+IS+NOT+NULL&outFields=OPENEDDATE&orderByFields=OPENEDDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.OPENEDDATE
+    variates: 1
+    value_field: features[].attributes.OPENEDDATE
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 376 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 17.1 min; newest 2026-08-06T15:05:05+00:00 (1.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'code enforcement cases'), layer https://mapdata.tucsonaz.gov/arcgis/rest/services/PublicMaps/PermitsCode/MapServer/103.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_nj_known_contaminated_site_list_for_new_jer
+  name: Known Contaminated Site List for New Jersey (mapsdep.nj.gov)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - count_discrete
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental_NJEMS/MapServer/0/query?where=CEA_DATE+IS+NOT+NULL&outFields=CEA_DATE&orderByFields=CEA_DATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CEA_DATE
+    variates: 1
+    value_field: features[].attributes.CEA_DATE
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: 283 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 2880.0 min; newest 2026-07-30T04:00:00+00:00 (9.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 54
+  notes: Bulk-generated from ArcGIS Hub (query 'groundwater levels'), layer https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental_NJEMS/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_bc_groundwater_wells
+  name: Groundwater Wells (maps.gov.bc.ca)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_water_management/MapServer/13/query?where=CONSTRUCTION_START_DATE+IS+NOT+NULL&outFields=CONSTRUCTION_START_DATE%2CGW_WW_SYSID%2CARTESIAN_FLOW%2CARTESIAN_PRESSURE&orderByFields=CONSTRUCTION_START_DATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CONSTRUCTION_START_DATE
+    variates: 3
+    value_field:
+    - features[].attributes.GW_WW_SYSID
+    - features[].attributes.ARTESIAN_FLOW
+    - features[].attributes.ARTESIAN_PRESSURE
+  history_available: 171 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-07-30T00:00:00+00:00 (9.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 54
+  notes: Bulk-generated from ArcGIS Hub (query 'groundwater levels'), layer https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_water_management/MapServer/13.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_govt_ww_valve_opendata
+  name: Ww Valve (OpenData) (gis.ccc.govt.nz)
+  domain: nature
+  dgp_class: water_quality
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1W
+  endpoint:
+    type: rest_json
+    url: https://gis.ccc.govt.nz/server/rest/services/OpenData/WasteWater/FeatureServer/24/query?where=CreateDate+IS+NOT+NULL&outFields=CreateDate%2CNominalDiameter%2CLidLevel%2CRotation&orderByFields=CreateDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CreateDate
+    variates: 3
+    value_field:
+    - features[].attributes.NominalDiameter
+    - features[].attributes.LidLevel
+    - features[].attributes.Rotation
+  history_available: 106 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 5579.4 min; newest 2026-07-29T23:08:15+00:00 (9.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 54
+  notes: Bulk-generated from ArcGIS Hub (query 'wastewater treatment flow'), layer https://gis.ccc.govt.nz/server/rest/services/OpenData/WasteWater/FeatureServer/24.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_iowadnr_wastewater_treatment_plants
+  name: Wastewater Treatment Plants (programs.iowadnr.gov)
+  domain: nature
+  dgp_class: water_quality
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://programs.iowadnr.gov/geospatial/rest/services/OneStop/QueryEnvFacs/MapServer/13/query?where=ColDate+IS+NOT+NULL&outFields=ColDate%2CLEGENDTYPE%2CPUBLICVIEW%2CLOCID&orderByFields=ColDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.ColDate
+    variates: 3
+    value_field:
+    - features[].attributes.LEGENDTYPE
+    - features[].attributes.PUBLICVIEW
+    - features[].attributes.LOCID
+  history_available: 391 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 42.5 min; newest 2026-08-03T15:29:27+00:00 (4.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 49
+  notes: Bulk-generated from ArcGIS Hub (query 'wastewater treatment flow'), layer https://programs.iowadnr.gov/geospatial/rest/services/OneStop/QueryEnvFacs/MapServer/13.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_fuquay_fuquay_varina_utilities_stormwater_syste
+  name: Fuquay-Varina Utilities - Stormwater System - Stormwater Lines (gis1.fuquay-varina.org)
+  domain: nature
+  dgp_class: water_quality
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gis1.fuquay-varina.org/server/rest/services/Public/All_Utilities/MapServer/29/query?where=created_date+IS+NOT+NULL&outFields=created_date%2Clof%2Ccof%2Cdiameter&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 3
+    value_field:
+    - features[].attributes.lof
+    - features[].attributes.cof
+    - features[].attributes.diameter
+  history_available: 307 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 0.2 min; newest 2026-08-07T20:56:40+00:00 (0.6d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'wastewater treatment flow'), layer https://gis1.fuquay-varina.org/server/rest/services/Public/All_Utilities/MapServer/29.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_sanjoseca_park_amenities_and_sports_fields
+  name: Park Amenities and Sports Fields (geo.sanjoseca.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://geo.sanjoseca.gov/server/rest/services/OPN/OPN_OpenDataService/MapServer/554/query?where=LASTUPDATE+IS+NOT+NULL&outFields=LASTUPDATE%2CGISOBJID%2CCOUNCILDISTRICT%2CPARKDISTRICT&orderByFields=LASTUPDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.LASTUPDATE
+    variates: 3
+    value_field:
+    - features[].attributes.GISOBJID
+    - features[].attributes.COUNCILDISTRICT
+    - features[].attributes.PARKDISTRICT
+  history_available: 63 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1.9 min; newest 2026-07-14T22:48:31+00:00 (24.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 69
+  notes: Bulk-generated from ArcGIS Hub (query 'parks facility reservations'), layer https://geo.sanjoseca.gov/server/rest/services/OPN/OPN_OpenDataService/MapServer/554.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_westfargond_fire_incidents
+  name: Fire Incidents (gis.westfargond.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://gis.westfargond.gov/arcgis/rest/services/Fire/Incidents/FeatureServer/0/query?where=Alarm_DateTime+IS+NOT+NULL&outFields=Alarm_DateTime&orderByFields=Alarm_DateTime+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.Alarm_DateTime
+    variates: 1
+    value_field: features[].attributes.Alarm_DateTime
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 95.3 min; newest 2026-07-31T21:26:50+00:00 (7.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 52
+  notes: Bulk-generated from ArcGIS Hub (query 'fire incidents'), layer https://gis.westfargond.gov/arcgis/rest/services/Fire/Incidents/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_westfargond_fire_incidents_public
+  name: Fire Incidents Public (map.westfargond.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://map.westfargond.gov/arcgis/rest/services/FireDepartment/PublicIncidentMap/FeatureServer/1/query?where=Alarm_DateTime+IS+NOT+NULL&outFields=Alarm_DateTime&orderByFields=Alarm_DateTime+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.Alarm_DateTime
+    variates: 1
+    value_field: features[].attributes.Alarm_DateTime
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 95.3 min; newest 2026-08-01T02:26:50+00:00 (7.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 52
+  notes: Bulk-generated from ArcGIS Hub (query 'fire incidents'), layer https://map.westfargond.gov/arcgis/rest/services/FireDepartment/PublicIncidentMap/FeatureServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mapleridge_emergency_incidents
+  name: Emergency Incidents (geoservices.mapleridge.ca)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://geoservices.mapleridge.ca/server/rest/services/DataCatalog/PublicSafety/MapServer/8/query?where=RecordedDate+IS+NOT+NULL&outFields=RecordedDate&orderByFields=RecordedDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.RecordedDate
+    variates: 1
+    value_field: features[].attributes.RecordedDate
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 36.3 min; newest 2026-08-08T07:19:58+00:00 (0.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'fire incidents'), layer https://geoservices.mapleridge.ca/server/rest/services/DataCatalog/PublicSafety/MapServer/8.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_forsythco_building_permits
+  name: Building Permits (geo.forsythco.com)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://geo.forsythco.com/gis3/rest/services/Public_EnerGovPlans/Building_Permits/FeatureServer/0/query?where=ApplyDate+IS+NOT+NULL&outFields=ApplyDate&orderByFields=ApplyDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.ApplyDate
+    variates: 1
+    value_field: features[].attributes.ApplyDate
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 17.0 min; newest 2026-08-07T23:39:03+00:00 (0.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://geo.forsythco.com/gis3/rest/services/Public_EnerGovPlans/Building_Permits/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_jacksoncountyor_permits_building
+  name: Permits - Building (jcportal.jacksoncountyor.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://jcportal.jacksoncountyor.gov/server/rest/services/Property/Permits_Building/FeatureServer/1/query?where=SUBMITDT+IS+NOT+NULL&outFields=SUBMITDT%2CESTCOST&orderByFields=SUBMITDT+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.SUBMITDT
+    variates: 1
+    value_field:
+    - features[].attributes.ESTCOST
+  history_available: 20 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T08:00:00+00:00 (2.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://jcportal.jacksoncountyor.gov/server/rest/services/Property/Permits_Building/FeatureServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_charlottesville_building_permits
+  name: Building Permits (gisweb.charlottesville.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://gisweb.charlottesville.org/cvgisweb/rest/services/OpenData_2/MapServer/33/query?where=AppliedDate+IS+NOT+NULL&outFields=AppliedDate%2CCaseObjectID%2CFee%2CValuation&orderByFields=AppliedDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.AppliedDate
+    variates: 3
+    value_field:
+    - features[].attributes.CaseObjectID
+    - features[].attributes.Fee
+    - features[].attributes.Valuation
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 25.3 min; newest 2026-08-08T01:05:07+00:00 (0.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://gisweb.charlottesville.org/cvgisweb/rest/services/OpenData_2/MapServer/33.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mecklenburgcountync_building_permits
+  name: Building Permits (meckgis.mecklenburgcountync.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://meckgis.mecklenburgcountync.gov/server/rest/services/BuildingPermits/FeatureServer/0/query?where=issuedate+IS+NOT+NULL&outFields=issuedate%2Caddressid%2Cxcoord%2Cycoord&orderByFields=issuedate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.issuedate
+    variates: 3
+    value_field:
+    - features[].attributes.addressid
+    - features[].attributes.xcoord
+    - features[].attributes.ycoord
+  history_available: 57 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T16:00:00+00:00 (1.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://meckgis.mecklenburgcountync.gov/server/rest/services/BuildingPermits/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_burlington_building_permits
+  name: Building Permits (mapping.burlington.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://mapping.burlington.ca/arcgisweb/rest/services/COB/Permits/MapServer/1/query?where=INDATE+IS+NOT+NULL&outFields=INDATE%2CRESUNITS%2CCONSTRUCTVALUE&orderByFields=INDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.INDATE
+    variates: 2
+    value_field:
+    - features[].attributes.RESUNITS
+    - features[].attributes.CONSTRUCTVALUE
+  history_available: 92 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-07-29T00:00:00+00:00 (10.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 55
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://mapping.burlington.ca/arcgisweb/rest/services/COB/Permits/MapServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_siouxfalls_building_permits
+  name: Building Permits (gis.siouxfalls.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gis.siouxfalls.gov/arcgis/rest/services/Data/Community/MapServer/3/query?where=APPLYDATE+IS+NOT+NULL&outFields=APPLYDATE%2CVALUATION%2CDwellingUnits&orderByFields=APPLYDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.APPLYDATE
+    variates: 2
+    value_field:
+    - features[].attributes.VALUATION
+    - features[].attributes.DwellingUnits
+  history_available: 397 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 6.6 min; newest 2026-08-04T22:29:59+00:00 (3.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 48
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://gis.siouxfalls.gov/arcgis/rest/services/Data/Community/MapServer/3.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_olatheks_building_permits
+  name: Building Permits (arcgis.olatheks.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://arcgis.olatheks.org/arcgis/rest/services/Public/ODP/MapServer/1/query?where=ISSUEDATE+IS+NOT+NULL&outFields=ISSUEDATE%2CVALUE%2CSQUAREFEET&orderByFields=ISSUEDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.ISSUEDATE
+    variates: 2
+    value_field:
+    - features[].attributes.VALUE
+    - features[].attributes.SQUAREFEET
+  history_available: 150 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T00:00:00+00:00 (2.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://arcgis.olatheks.org/arcgis/rest/services/Public/ODP/MapServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_cityofkingston_building_permits
+  name: Building Permits (api.cityofkingston.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.cityofkingston.ca/gis_unfed/rest/services/Planning/BuildingPermits_FGDB/MapServer/0/query?where=DATE_APPLICATION+IS+NOT+NULL&outFields=DATE_APPLICATION%2CADDRESSID&orderByFields=DATE_APPLICATION+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.DATE_APPLICATION
+    variates: 1
+    value_field:
+    - features[].attributes.ADDRESSID
+  history_available: 30 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-07T04:00:00+00:00 (1.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://api.cityofkingston.ca/gis_unfed/rest/services/Planning/BuildingPermits_FGDB/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_oakville_building_permits
+  name: Building Permits (maps.oakville.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://maps.oakville.ca/oakgis/rest/services/PGISREF_BULK/BLDG_PERMITS/FeatureServer/0/query?where=ISSUEDATE+IS+NOT+NULL&outFields=ISSUEDATE&orderByFields=ISSUEDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.ISSUEDATE
+    variates: 1
+    value_field: features[].attributes.ISSUEDATE
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 380 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 9.1 min; newest 2026-08-07T10:28:34+00:00 (1.0d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://maps.oakville.ca/oakgis/rest/services/PGISREF_BULK/BLDG_PERMITS/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_capecoral_building_permits
+  name: Building Permits (capeims.capecoral.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://capeims.capecoral.gov/arcgis/rest/services/OpenData/OpenData/MapServer/1/query?where=applydate+IS+NOT+NULL&outFields=applydate%2Cpermitvalue&orderByFields=applydate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.applydate
+    variates: 1
+    value_field:
+    - features[].attributes.permitvalue
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 12.2 min; newest 2026-08-07T22:19:43.097000+00:00 (0.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://capeims.capecoral.gov/arcgis/rest/services/OpenData/OpenData/MapServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_nhcgov_buildingpermits
+  name: BuildingPermits (gis.nhcgov.com)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://gis.nhcgov.com/server/rest/services/Thematic/BuildingPermits/FeatureServer/1/query?where=APPLY_DATE+IS+NOT+NULL&outFields=APPLY_DATE%2CSQUARE_FEET%2CTOTAL_FEE_AMOUNT%2CVALUATION&orderByFields=APPLY_DATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.APPLY_DATE
+    variates: 3
+    value_field:
+    - features[].attributes.SQUARE_FEET
+    - features[].attributes.TOTAL_FEE_AMOUNT
+    - features[].attributes.VALUATION
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 336.1 min; newest 2026-08-05T07:47:01+00:00 (3.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 48
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://gis.nhcgov.com/server/rest/services/Thematic/BuildingPermits/FeatureServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_cityworksonline_building_permits_2026
+  name: Building Permits 2026 (app06.cityworksonline.com)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://app06.cityworksonline.com/CLIENT_CodyWY/gis/1/1/rest/services/qe/FeatureServer/7/query?where=DateIssued+IS+NOT+NULL&outFields=DateIssued&orderByFields=DateIssued+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.DateIssued
+    variates: 1
+    value_field: features[].attributes.DateIssued
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 34.7 min; newest 2026-08-06T22:40:31+00:00 (1.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://app06.cityworksonline.com/CLIENT_CodyWY/gis/1/1/rest/services/qe/FeatureServer/7.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_elkgrove_trakit_building_permits
+  name: TRAKiT Building Permits (webmaps.elkgrove.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://webmaps.elkgrove.gov/arcgis/rest/services/AGOL/TRAKiT_Building_Permits/FeatureServer/0/query?where=APPLIED_DATE+IS+NOT+NULL&outFields=APPLIED_DATE%2CJOB_VALUE&orderByFields=APPLIED_DATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.APPLIED_DATE
+    variates: 1
+    value_field:
+    - features[].attributes.JOB_VALUE
+  history_available: 22 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T08:00:00+00:00 (2.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://webmaps.elkgrove.gov/arcgis/rest/services/AGOL/TRAKiT_Building_Permits/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_cityofaspen_building_permits_issued
+  name: Building Permits Issued (gispub.cityofaspen.com)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://gispub.cityofaspen.com/server/rest/services/Permits/Permits/MapServer/5/query?where=New_Application_Date+IS+NOT+NULL&outFields=New_Application_Date%2CTotal_Fees%2CTotal_Payments%2CValuation&orderByFields=New_Application_Date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.New_Application_Date
+    variates: 3
+    value_field:
+    - features[].attributes.Total_Fees
+    - features[].attributes.Total_Payments
+    - features[].attributes.Valuation
+  history_available: 136 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-05T06:00:00+00:00 (3.2d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 48
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://gispub.cityofaspen.com/server/rest/services/Permits/Permits/MapServer/5.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_lynchburgva_building_permits_tabular
+  name: Building Permits - Tabular (mapviewer.lynchburgva.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://mapviewer.lynchburgva.gov/arcgis/rest/services/OpenData/ODPDynamic/MapServer/37/query?where=StartDate+IS+NOT+NULL&outFields=StartDate%2CJobValue&orderByFields=StartDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.StartDate
+    variates: 1
+    value_field:
+    - features[].attributes.JobValue
+  history_available: 53 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1440.0 min; newest 2026-08-06T00:00:00+00:00 (2.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://mapviewer.lynchburgva.gov/arcgis/rest/services/OpenData/ODPDynamic/MapServer/37.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_ga_residential_permits
+  name: Residential Permits (alphagis.alpharetta.ga.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://alphagis.alpharetta.ga.us/arcgis/rest/services/OpenData/OpenData_PCE_Full/FeatureServer/3/query?where=TARGET_START_DATE+IS+NOT+NULL&outFields=TARGET_START_DATE%2CCZ&orderByFields=TARGET_START_DATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.TARGET_START_DATE
+    variates: 1
+    value_field:
+    - features[].attributes.CZ
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 74.6 min; newest 2026-08-05T15:10:12+00:00 (2.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://alphagis.alpharetta.ga.us/arcgis/rest/services/OpenData/OpenData_PCE_Full/FeatureServer/3.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_nc_permits_data
+  name: Permits - Data (gismaps.ci.fayetteville.nc.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://gismaps.ci.fayetteville.nc.us/opendata/rest/services/DevelopmentServices/SPA_Dashboard_Permits/MapServer/0/query?where=DATE_INITIATED+IS+NOT+NULL&outFields=DATE_INITIATED%2CCX%2CCY%2CTOTAL&orderByFields=DATE_INITIATED+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.DATE_INITIATED
+    variates: 3
+    value_field:
+    - features[].attributes.CX
+    - features[].attributes.CY
+    - features[].attributes.TOTAL
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 10.8 min; newest 2026-08-07T16:43:40+00:00 (0.7d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://gismaps.ci.fayetteville.nc.us/opendata/rest/services/DevelopmentServices/SPA_Dashboard_Permits/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_charlottenc_311_service_requests
+  name: 311 Service Requests (gis.charlottenc.gov)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gis.charlottenc.gov/arcgis/rest/services/ODP/ServiceRequests311/MapServer/0/query?where=RECEIVED_DATE+IS+NOT+NULL&outFields=RECEIVED_DATE%2CREQUEST_NO&orderByFields=RECEIVED_DATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.RECEIVED_DATE
+    variates: 1
+    value_field:
+    - features[].attributes.REQUEST_NO
+  history_available: 331 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 0.7 min; newest 2026-08-08T01:50:47+00:00 (0.4d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query '311 service requests'), layer https://gis.charlottenc.gov/arcgis/rest/services/ODP/ServiceRequests311/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mappmycity_all_311_service_requests
+  name: All 311 Service Requests (mappmycity.ca)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mappmycity.ca/arcgis/rest/services/open_data_services/governmentservices/MapServer/12/query?where=created_date+IS+NOT+NULL&outFields=created_date&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 1
+    value_field: features[].attributes.created_date
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 2.0 min; newest 2026-07-17T03:11:32+00:00 (22.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 67
+  notes: Bulk-generated from ArcGIS Hub (query '311 service requests'), layer https://mappmycity.ca/arcgis/rest/services/open_data_services/governmentservices/MapServer/12.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_suffolkcountyny_waterbody_polygon
+  name: Waterbody Polygon (gis.suffolkcountyny.gov)
+  domain: nature
+  dgp_class: water_demand
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gis.suffolkcountyny.gov/server/rest/services/LocalGovernmentSQLData/WaterbodyPolygon/FeatureServer/0/query?where=LASTUPDATE+IS+NOT+NULL&outFields=LASTUPDATE%2CShape__Area%2CShape__Length&orderByFields=LASTUPDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.LASTUPDATE
+    variates: 2
+    value_field:
+    - features[].attributes.Shape__Area
+    - features[].attributes.Shape__Length
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1.6 min; newest 2026-07-28T17:26:29+00:00 (10.7d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 55
+  notes: Bulk-generated from ArcGIS Hub (query 'water consumption'), layer https://gis.suffolkcountyny.gov/server/rest/services/LocalGovernmentSQLData/WaterbodyPolygon/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mass_2026_vehicle_level_crash_details
+  name: 2026 Vehicle Level Crash Details (gis.crashdata.dot.mass.gov)
+  domain: transport
+  dgp_class: citation_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://gis.crashdata.dot.mass.gov/arcgis/rest/services/MassDOT/MASSDOT_ODP_OPEN_2026/FeatureServer/1/query?where=CRASH_DATETIME+IS+NOT+NULL&outFields=CRASH_DATETIME%2CCRASH_NUMB%2CNUMB_VEHC%2CNUMB_NONFATAL_INJR&orderByFields=CRASH_DATETIME+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CRASH_DATETIME
+    variates: 3
+    value_field:
+    - features[].attributes.CRASH_NUMB
+    - features[].attributes.NUMB_VEHC
+    - features[].attributes.NUMB_NONFATAL_INJR
+  history_available: 196 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 10.0 min; newest 2026-08-06T12:18:00+00:00 (1.9d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'towed vehicles'), layer https://gis.crashdata.dot.mass.gov/arcgis/rest/services/MassDOT/MASSDOT_ODP_OPEN_2026/FeatureServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+
+# -- wired batch: misskey wave 46: iceshrimp + cherrypick + tail --
+- id: misskey_cloud_notes_gaysex
+  name: gaysex.cloud — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://gaysex.cloud/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 254/499 populated hours, 48 distinct levels, peak 113/h; 8/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_moe_notes_snug_m
+  name: snug.moe — local note publication rate (Iceshrimp)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://snug.moe/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 490/499 populated hours, 36 distinct levels, peak 47/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (iceshrimp). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_club_notes_himagi
+  name: himagine.club — local note publication rate (Iceshrimp)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://himagine.club/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 374/499 populated hours, 16 distinct levels, peak 15/h; 20/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (iceshrimp). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_florist_notes
+  name: peculiar.florist — local note publication rate (Iceshrimp)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://peculiar.florist/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 411/499 populated hours, 28 distinct levels, peak 31/h; 20/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (iceshrimp). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_rehab_notes
+  name: void.rehab — local note publication rate (Iceshrimp)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://void.rehab/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 442/499 populated hours, 24 distinct levels, peak 27/h; 22/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (iceshrimp). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_social_notes_fedia
+  name: fedia.social — local note publication rate (Iceshrimp)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://fedia.social/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 356/499 populated hours, 17 distinct levels, peak 22/h; 17/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (iceshrimp). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_uno_notes
+  name: misskey.uno — local note publication rate (Iceshrimp)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.uno/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 397/499 populated hours, 34 distinct levels, peak 66/h; 18/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (iceshrimp). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_social_notes_kitty
+  name: kitty.social — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://kitty.social/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 395/499 populated hours, 24 distinct levels, peak 29/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_link_notes
+  name: kokonect.link — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://kokonect.link/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 433/499 populated hours, 32 distinct levels, peak 61/h; 20/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_dev_notes_mi_rer
+  name: mi.rerac.dev — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mi.rerac.dev/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 356/499 populated hours, 19 distinct levels, peak 46/h; 16/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_express_notes
+  name: yodangang.express — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://yodangang.express/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 472/499 populated hours, 76 distinct levels, peak 138/h; 22/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_house_notes
+  name: shota.house — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://shota.house/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 415/499 populated hours, 36 distinct levels, peak 51/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_kur0den_notes
+  name: chpk.kur0den.net — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://chpk.kur0den.net/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 496/499 populated hours, 38 distinct levels, peak 82/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_xyz_notes_p_in_c
+  name: p.in-c.xyz — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://p.in-c.xyz/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 78 distinct levels, peak 132/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_xyz_active_users
+  name: p.in-c.xyz — active local users (Cherrypick)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://p.in-c.xyz/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 470/499 populated hours, 18 distinct levels, peak 19/h; 22/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures distinct local users who read or
+    wrote in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_5mbps_notes
+  name: 3.5mbps.net — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://3.5mbps.net/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 446/499 populated hours, 35 distinct levels, peak 44/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_ing_notes
+  name: milkpudd.ing — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://milkpudd.ing/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 491/499 populated hours, 70 distinct levels, peak 118/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_casa_notes
+  name: chaaren.casa — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://chaaren.casa/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 397/499 populated hours, 52 distinct levels, peak 95/h; 22/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_boats_notes
+  name: xxx.cyberpirate.boats — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://xxx.cyberpirate.boats/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 490/499 populated hours, 33 distinct levels, peak 51/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_life_notes_icco_l
+  name: icco-lab.life — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://icco-lab.life/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 444/499 populated hours, 76 distinct levels, peak 134/h; 22/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_7days_notes
+  name: eternal.7days.city — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://eternal.7days.city/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 50 distinct levels, peak 98/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_hatachanoima_notes
+  name: misskey.hatachanoima.net — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.hatachanoima.net/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 465/499 populated hours, 31 distinct levels, peak 37/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_faith_notes
+  name: lost.vermins.faith — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://lost.vermins.faith/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 333/499 populated hours, 38 distinct levels, peak 47/h; 15/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_cloud_notes_m_r_t
+  name: m-r-t.cloud — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://m-r-t.cloud/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 260/499 populated hours, 32 distinct levels, peak 52/h; 11/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_pizzahell_notes
+  name: pizzahell.net — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://pizzahell.net/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 254/499 populated hours, 26 distinct levels, peak 28/h; 11/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_monster_notes_ma_pi
+  name: ma-pi-nk.monster — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://ma-pi-nk.monster/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 351/499 populated hours, 42 distinct levels, peak 59/h; 20/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_xyz_notes_eterna
+  name: eternal-blue.xyz — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://eternal-blue.xyz/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 407/499 populated hours, 56 distinct levels, peak 80/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.

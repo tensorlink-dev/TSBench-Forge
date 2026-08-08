@@ -2210,3 +2210,179 @@ def test_imf_is_not_in_the_endpoint_list():
     data query. Keeping it listed spends two requests per flow to rediscover
     that on every run."""
     assert not any("imf" in base for base, _o, _p, _d in bulk.SDMX_ENDPOINTS)
+
+
+# --------------------------------------------------------------------------- #
+# ArcGIS: host filtering, layer expansion, epoch-millisecond dates
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("url", [
+    "https://services1.arcgis.com/abc/arcgis/rest/services/X/FeatureServer/0",
+    "https://services.arcgis.com/abc/arcgis/rest/services/X/FeatureServer/0",
+    "https://services9.arcgis.com/abc/arcgis/rest/services/X/FeatureServer/0",
+    "https://tiles.arcgis.com/abc/arcgis/rest/services/X/MapServer/0",
+])
+def test_arcgis_skips_the_vendors_shared_tenancy(url):
+    """Nine hostnames shared by thousands of publishers is the aggregator
+    trap: 384 of 500 records in one sample sat on services*.arcgis.com."""
+    assert not bulk.arcgis_is_self_hosted(url)
+
+
+@pytest.mark.parametrize("url", [
+    "https://gis.siouxfalls.gov/arcgis/rest/services/X/FeatureServer/0",
+    "https://meckgis.mecklenburgcountync.gov/server/rest/services/X/MapServer/2",
+    "https://api.cityofkingston.ca/arcgis/rest/services/X/FeatureServer/1",
+])
+def test_arcgis_keeps_self_hosted_servers(url):
+    assert bulk.arcgis_is_self_hosted(url)
+
+
+def test_arcgis_layer_url_needs_a_layer_index():
+    assert bulk._ARCGIS_LAYER.search("https://h/rest/services/X/FeatureServer/0")
+    assert not bulk._ARCGIS_LAYER.search("https://h/rest/services/X/FeatureServer")
+
+
+def test_arcgis_layer_urls_expands_a_service(monkeypatch):
+    """Most Hub records point at the SERVICE, not a layer -- 41 of 50 in one
+    sample -- and a service cannot be queried."""
+    class R:
+        status_code = 200
+
+        @staticmethod
+        def json():
+            return {"layers": [{"id": 0, "name": "Permits"},
+                               {"id": 1, "name": "Group", "type": "Group Layer"},
+                               {"id": 2, "name": "Inspections"},
+                               {"id": 3, "name": "Extra"}]}
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: R())
+    got = bulk.arcgis_layer_urls("https://gis.x.gov/rest/services/P/FeatureServer")
+    assert got == ["https://gis.x.gov/rest/services/P/FeatureServer/0",
+                   "https://gis.x.gov/rest/services/P/FeatureServer/2"]
+
+
+def test_arcgis_layer_urls_passes_a_layer_through_untouched(monkeypatch):
+    def boom(*a, **k):
+        raise AssertionError("should not have made a request")
+    monkeypatch.setattr(bulk.requests, "get", boom)
+    url = "https://gis.x.gov/rest/services/P/FeatureServer/3"
+    assert bulk.arcgis_layer_urls(url + "/") == [url]
+
+
+def test_arcgis_maps_esri_field_types_onto_the_shared_pickers(monkeypatch):
+    class R:
+        status_code = 200
+
+        @staticmethod
+        def json():
+            return {"fields": [
+                {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+                {"name": "ISSUE_DATE", "alias": "Issued",
+                 "type": "esriFieldTypeDate"},
+                {"name": "LAST_EDITED", "type": "esriFieldTypeDate"},
+                {"name": "VALUATION", "type": "esriFieldTypeDouble"},
+                {"name": "PARCEL_ID", "type": "esriFieldTypeInteger"},
+                {"name": "STATUS", "type": "esriFieldTypeString"},
+            ]}
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: R())
+    cols = bulk.arcgis_fields("https://gis.x.gov/rest/services/P/FeatureServer/0")
+    ts = bulk.pick_timestamp_column(cols)
+    assert ts == "ISSUE_DATE"          # not the row-bookkeeping LAST_EDITED
+    assert bulk.pick_value_columns(cols, ts) == ["VALUATION"]   # not PARCEL_ID
+
+
+def _arcgis_probe_stub(monkeypatch, features):
+    class R:
+        status_code = 200
+
+        @staticmethod
+        def json():
+            return {"features": features}
+    monkeypatch.setattr(bulk.requests, "get", lambda *a, **k: R())
+
+
+def test_arcgis_reads_dates_as_epoch_milliseconds(monkeypatch):
+    """Esri serves epoch MILLISECONDS. Reading them as seconds puts every
+    observation in 1970, which parses fine and is silently wrong."""
+    now_ms = int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
+    day = 86_400_000
+    feats = [{"attributes": {"D": now_ms - i * day, "V": 1.0}}
+             for i in range(30)]
+    _arcgis_probe_stub(monkeypatch, feats)
+    got = bulk.arcgis_probe("https://gis.x.gov/rest/services/P/FeatureServer/0",
+                            "D", ["V"])
+    assert "error" not in got, got
+    assert got["distinct"] == 30
+    assert got["newest"].startswith(str(dt.datetime.now(dt.timezone.utc).year))
+    assert abs(got["median_gap_s"] - 86_400) < 1
+
+
+def test_arcgis_rejects_a_layer_of_future_dates(monkeypatch):
+    """A feed carrying future dates reads as permanently fresh to the audit,
+    so it hides its own death."""
+    now_ms = int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
+    day = 86_400_000
+    feats = [{"attributes": {"D": now_ms + (i + 5) * day, "V": 1.0}}
+             for i in range(30)]
+    _arcgis_probe_stub(monkeypatch, feats)
+    got = bulk.arcgis_probe("https://gis.x.gov/rest/services/P/FeatureServer/0",
+                            "D", ["V"])
+    assert "error" in got
+
+
+def test_arcgis_synthesize_paths_match_the_esri_envelope():
+    probe = {"rows": 400, "distinct": 400, "future": 0,
+             "newest": "2026-08-08T01:05:07+00:00", "age_days": 0.4,
+             "median_gap_s": 3600.0}
+    block = bulk.arcgis_synthesize(
+        {"title": "Building Permits", "url":
+         "https://gis.siouxfalls.gov/arcgis/rest/services/P/FeatureServer/0",
+         "description": ""},
+        ("building permits", "sales", "permit_issuance"),
+        "ISSUE_DATE", ["VALUATION"], probe)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["schema"]["timestamp_field"] == "features[].attributes.ISSUE_DATE"
+    assert entry["schema"]["value_field"] == ["features[].attributes.VALUATION"]
+    assert "returnGeometry=false" in entry["endpoint"]["url"]
+    assert "f=json" in entry["endpoint"]["url"]
+    from source_discovery import wire
+    assert block["cron_cadence"] in wire.CRON_CADENCES
+
+
+def test_arcgis_falls_back_to_a_binned_count_with_no_numeric_column():
+    probe = {"rows": 400, "distinct": 400, "future": 0,
+             "newest": "2026-08-08T01:05:07+00:00", "age_days": 0.4,
+             "median_gap_s": 600.0}
+    block = bulk.arcgis_synthesize(
+        {"title": "911 Calls", "url":
+         "https://gis.x.gov/arcgis/rest/services/C/FeatureServer/0",
+         "description": ""},
+        ("911 calls", "healthcare", "emergency_dispatch"),
+        "CALL_TIME", [], probe)
+    entry = yaml.safe_load(block["yaml_block"])[0]
+    assert entry["schema"]["aggregate"]["op"] == "count"
+    assert entry["frequency"] == "PT1H"
+
+
+def test_misskey_sweep_skips_a_chart_already_wired(tmp_path, monkeypatch):
+    """A host wired for `notes` alone carries one source, so a host cap of 2
+    lets it through and the chart loop re-probes `notes` first. One run spent
+    186 probes producing candidates the wire step threw out as duplicates."""
+    catalog = tmp_path / "sources.yaml"
+    catalog.write_text(yaml.dump([{
+        "id": "misskey_example_notes",
+        "name": "example.social notes",
+        "domain": "web_cloudops",
+        "endpoint": {"url": "https://example.social/api/charts/notes"},
+    }]))
+    monkeypatch.setattr(bulk, "observer_nodes",
+                        lambda sw, **k: [{"domain": "example.social",
+                                          "total_users": 100}])
+    probed = []
+
+    def spy(host, chart="notes", **k):
+        probed.append(chart)
+        return {"error": "stub"}
+    monkeypatch.setattr(bulk, "misskey_probe", spy)
+    bulk.misskey_sweep(str(catalog), host_cap=2, software=("misskey",),
+                       charts=("notes", "active-users"), sleep_s=0,
+                       log=lambda m: None)
+    assert probed == ["active-users"]

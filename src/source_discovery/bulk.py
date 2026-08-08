@@ -3852,7 +3852,15 @@ def peertube_sweep(
 # rejected as pre-filters. Only the probe decides, which costs one request per
 # host and is the whole reason this sweep is slow.
 FEDIVERSE_OBSERVER = "https://api.fediverse.observer/"
-MISSKEY_SOFTWARE: tuple[str, ...] = ("misskey", "sharkey")
+# Misskey and the forks that kept its /api/charts endpoint. Iceshrimp and
+# CherryPick both serve it unchanged, so they cost nothing but a longer node
+# list. Firefish and Calckey are NOT here: six of their largest instances were
+# probed and every one answered 404 or 500 to /api/charts/notes, so the
+# endpoint is gone from that branch rather than merely quiet. (Six of the
+# largest is a biased sample and only ever justifies excluding a fork, never a
+# projection of how many will pass.)
+MISSKEY_SOFTWARE: tuple[str, ...] = ("misskey", "sharkey", "iceshrimp",
+                                     "cherrypick")
 MISSKEY_SPAN = "hour"
 MISSKEY_LIMIT = 500
 MISSKEY_MIN_NONZERO = 250     # of 499 kept buckets: at least half the hours live
@@ -4052,7 +4060,15 @@ def misskey_sweep(
     log=print,
 ) -> tuple[list[dict], list[dict]]:
     seen_hosts = host_counts(catalog_path)
-    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    catalog = yaml.safe_load(open(catalog_path)) or []
+    taken_ids = {s["id"] for s in catalog}
+    # The host cap alone is not enough to avoid re-proposing work already done.
+    # A host wired for `notes` only has one source, so a cap of 2 lets it
+    # through, and the chart loop then re-probes `notes` first: one run spent
+    # 186 probes to produce 186 candidates the wire step threw out as
+    # duplicates. The cap is about publisher concentration; this is about not
+    # measuring the same series twice.
+    known_urls = {(s.get("endpoint") or {}).get("url", "") for s in catalog}
     cands: list[dict] = []
     skipped: list[dict] = []
     transient = 0
@@ -4071,6 +4087,8 @@ def misskey_sweep(
             if not host or seen_hosts.get(host, 0) >= host_cap:
                 continue
             for chart in charts:
+                if f"https://{host}/api/charts/{chart}" in known_urls:
+                    continue
                 probe = misskey_probe(host, chart, timeout=timeout)
                 time.sleep(sleep_s)
                 if "error" in probe:
@@ -5179,6 +5197,387 @@ def sdmx_sweep(
             if target and len(cands) >= target:
                 log(f"target {target} reached")
                 return cands, skipped
+    return cands, skipped
+
+
+# --------------------------------------------------------------------------- #
+# The ArcGIS vein. Thousands of governments publish through ArcGIS Hub, and
+# unlike Socrata or Opendatasoft a large minority of them run the server
+# THEMSELVES -- gis.cityof<x>.gov, maps.<county>.us -- rather than on the
+# vendor's domain. That is the whole point of sweeping it: 500 Hub records for
+# one query resolved to 54 hostnames, of which 45 were self-hosted. Everything
+# on services{N}.arcgis.com is the vendor's own tenancy and is skipped, because
+# nine hostnames shared by thousands of publishers is the aggregator trap.
+#
+# Classification is keyword-first, reusing KEYWORD_CLASSES: Hub items carry
+# free-text tags and an org-defined `categories` list that is usually empty, so
+# there is no publisher-filed theme to read. The keyword we searched for IS the
+# closed vocabulary, exactly as in the original Socrata sweep.
+# --------------------------------------------------------------------------- #
+ARCGIS_HUB = "https://hub.arcgis.com/api/search/v1/collections/dataset/items"
+ARCGIS_PAGE = 100
+# startindex is 1-based and rejects 0 outright, which is worth writing down
+# because every other paged API in this file is 0-based.
+ARCGIS_FIRST_INDEX = 1
+ARCGIS_PROBE_ROWS = 400
+ARCGIS_MIN_DISTINCT = 20      # the wire gate's floor, checked before wiring
+
+# The vendor's multi-tenant hosts. A source on one of these is credited to a
+# hostname shared with thousands of unrelated publishers.
+_ARCGIS_SHARED_HOST = re.compile(
+    r"^(?:services\d*|tiles\d*|services\d*\.arcgis|utility|geocode)"
+    r"\.arcgis\.com$|\.arcgis\.com$", re.I)
+
+_ESRI_TS_TYPES = frozenset({"esriFieldTypeDate", "esriFieldTypeTimestampOffset"})
+_ESRI_NUM_TYPES = frozenset({
+    "esriFieldTypeDouble", "esriFieldTypeSingle", "esriFieldTypeInteger",
+    "esriFieldTypeSmallInteger", "esriFieldTypeBigInteger",
+})
+# A layer URL ends in /FeatureServer/<n> or /MapServer/<n>. Without the layer
+# index there is nothing to query.
+_ARCGIS_LAYER = re.compile(r"/(?:Feature|Map)Server/\d+/?$", re.I)
+
+
+def arcgis_search(keyword: str, want: int, timeout: int = 60,
+                  sleep_s: float = 0.25) -> list[dict]:
+    out: list[dict] = []
+    start = ARCGIS_FIRST_INDEX
+    while len(out) < want:
+        r = requests.get(ARCGIS_HUB, params={
+            "q": keyword, "limit": min(ARCGIS_PAGE, want - len(out)),
+            "startindex": start,
+            # Without this the results are dominated by file downloads, web
+            # maps and dashboards: of the first 120 unfiltered records, 97 had
+            # no queryable service URL at all.
+            "type": "Feature Service",
+        }, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            break
+        feats = (r.json().get("features") or [])
+        if not feats:
+            break
+        for f in feats:
+            p = f.get("properties") or {}
+            out.append({"title": (p.get("title") or "").strip(),
+                        "url": (p.get("url") or "").strip(),
+                        "owner": p.get("owner") or "",
+                        "org": (p.get("orgName") or p.get("source") or ""),
+                        "description": p.get("description") or "",
+                        "modified": p.get("modified")})
+        start += len(feats)
+        time.sleep(sleep_s)
+    return out
+
+
+def arcgis_is_self_hosted(url: str) -> bool:
+    host = urlparse(url).netloc.lower()
+    return bool(host) and not _ARCGIS_SHARED_HOST.search(host)
+
+
+ARCGIS_LAYERS_PER_SERVICE = 2
+
+
+def arcgis_layer_urls(url: str, timeout: int = 45) -> list[str]:
+    """Layer URLs for a Hub record.
+
+    Most records point at the SERVICE (.../FeatureServer), not a layer, and a
+    service cannot be queried -- 41 of 50 records in one sample. The service
+    document lists its layers, so one extra request turns those from skips
+    into candidates. Only the first few are taken: a service with 30 layers is
+    one publisher, and the host cap would drop the rest anyway.
+    """
+    url = url.rstrip("/")
+    if _ARCGIS_LAYER.search(url):
+        return [url]
+    if not re.search(r"/(?:Feature|Map)Server$", url, re.I):
+        return []
+    r = requests.get(url, params={"f": "json"},
+                     headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    doc = r.json()
+    if doc.get("error"):
+        raise RuntimeError(str(doc["error"])[:80])
+    out = []
+    for lyr in (doc.get("layers") or []):
+        if lyr.get("id") is None:
+            continue
+        # Sublayers of a group layer are queried directly; the group is not.
+        if lyr.get("type") == "Group Layer":
+            continue
+        out.append(f"{url}/{lyr['id']}")
+        if len(out) >= ARCGIS_LAYERS_PER_SERVICE:
+            break
+    return out
+
+
+def arcgis_fields(layer_url: str, timeout: int = 45) -> list[tuple[str, str, str]]:
+    """(alias, name, type) triples, in the shape the shared column pickers take.
+
+    Esri type names are mapped onto the Socrata vocabulary rather than the
+    pickers being generalised: the two agree on what a date and a number are,
+    and one mapping is easier to audit than two sets of type constants.
+    """
+    r = requests.get(layer_url, params={"f": "json"},
+                     headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    doc = r.json()
+    if doc.get("error"):
+        raise RuntimeError(str(doc["error"])[:80])
+    out = []
+    for f in (doc.get("fields") or []):
+        etype = str(f.get("type") or "")
+        if etype in _ESRI_TS_TYPES:
+            mapped = "calendar date"
+        elif etype in _ESRI_NUM_TYPES:
+            mapped = "number"
+        else:
+            mapped = "text"
+        out.append((str(f.get("alias") or f.get("name") or ""),
+                    str(f.get("name") or ""), mapped))
+    return out
+
+
+def arcgis_query_url(layer_url: str, ts: str, vals: list[str],
+                     rows: int = 2000) -> str:
+    fields = ",".join([ts] + vals)
+    return (f"{layer_url.rstrip('/')}/query?where={quote(ts)}+IS+NOT+NULL"
+            f"&outFields={quote(fields)}&orderByFields={quote(ts)}+DESC"
+            f"&resultRecordCount={rows}&returnGeometry=false&f=json")
+
+
+def arcgis_probe(layer_url: str, ts: str, vals: list[str],
+                 timeout: int = 60) -> dict:
+    url = arcgis_query_url(layer_url, ts, vals, ARCGIS_PROBE_ROWS)
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}"}
+        doc = r.json()
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {str(exc)[:70]}"}
+    if doc.get("error"):
+        return {"error": f"service: {str(doc['error'])[:70]}"}
+    feats = doc.get("features") or []
+    if not feats:
+        return {"error": "no features"}
+    now = dt.datetime.now(dt.timezone.utc)
+    cutoff = now + dt.timedelta(days=1)
+    stamps, n_future = [], 0
+    for f in feats:
+        raw = (f.get("attributes") or {}).get(ts)
+        if raw is None:
+            continue
+        # Esri dates are epoch MILLISECONDS. Reading them as seconds puts every
+        # observation in 1970, which parses fine and is silently wrong.
+        try:
+            when = dt.datetime.fromtimestamp(float(raw) / 1000.0, dt.timezone.utc)
+        except (TypeError, ValueError, OSError, OverflowError):
+            continue
+        if when > cutoff:
+            n_future += 1
+            continue
+        stamps.append(when)
+    stamps = sorted(set(stamps), reverse=True)
+    if len(stamps) < ARCGIS_MIN_DISTINCT:
+        return {"error": f"only {len(stamps)} distinct timestamps "
+                         f"({n_future} future-dated) in {len(feats)} features"}
+    if n_future > max(1, 0.02 * (len(stamps) + n_future)):
+        return {"error": f"{n_future} future-dated timestamps — the freshness "
+                         f"audit would read this as permanently alive"}
+    gaps = [(stamps[i] - stamps[i + 1]).total_seconds()
+            for i in range(len(stamps) - 1)]
+    gaps = [g for g in gaps if g > 0]
+    return {"rows": len(feats), "distinct": len(stamps),
+            "future": n_future, "newest": stamps[0].isoformat(),
+            "age_days": (now - stamps[0]).total_seconds() / 86400.0,
+            "median_gap_s": statistics.median(gaps) if gaps else 0.0}
+
+
+def arcgis_synthesize(rec: dict, klass: tuple[str, str, str], ts: str,
+                      vals: list[str], probe: dict,
+                      taken: Optional[set[str]] = None) -> Optional[dict]:
+    _kw, dom, dgp = klass
+    layer = rec["url"].rstrip("/")
+    host = urlparse(layer).netloc.lower()
+    title = re.sub(r"\s+", " ", _safe_unescape(rec["title"])).strip()
+    if not (host and title):
+        return None
+    sid = f"agis_{entry_id(host, title)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:56]}_{_slug(layer.rsplit('/', 2)[-2], 6)}"[:64]
+    freq = freq_from_delta(probe["median_gap_s"])
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title[:80]} ({host})",
+        "domain": dom,
+        "dgp_class": dgp,
+        "archetypes": (["count_discrete"] if not vals
+                       else ["non_stationary_regime", "positive_continuous"]),
+        "frequency": freq,
+        "endpoint": {
+            "type": "rest_json",
+            "url": arcgis_query_url(layer, ts, vals),
+            "auth": "none",
+            "rate_limit": "polite",
+        },
+        "schema": {
+            "timestamp_field": f"features[].attributes.{ts}",
+            "variates": max(1, len(vals)),
+        },
+        "history_available": f"{probe['distinct']} distinct timestamps in the "
+                             f"newest {probe['rows']} features",
+        "update_cadence_observed": (
+            f"median gap {probe['median_gap_s'] / 60:.1f} min; newest "
+            f"{probe['newest']} ({probe['age_days']:.1f}d old)"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Local-government ArcGIS feature service. Published as a map layer "
+            "rather than a tabular download, so it is unlikely to appear in "
+            "pretraining mixes assembled from open-data CSV dumps."
+        ),
+        "license": "open data (see publisher terms)",
+        "audit_slack_days": max(45, int(probe["age_days"]) + 45),
+        "notes": (
+            f"Bulk-generated from ArcGIS Hub (query '{_kw}'), layer {layer}. "
+            f"Columns chosen from the layer's declared field types. Esri "
+            f"serves dates as epoch MILLISECONDS. Self-hosted server, not the "
+            f"vendor's shared services*.arcgis.com tenancy."
+        ),
+    }
+    if vals:
+        entry["schema"]["value_field"] = [
+            f"features[].attributes.{v}" for v in vals]
+    else:
+        entry["schema"]["value_field"] = f"features[].attributes.{ts}"
+        entry["schema"]["aggregate"] = {
+            "op": "count",
+            "bin": "P1D" if freq in ("P1D", "P1W", "P1M", "P1Q", "P1Y") else "PT1H",
+        }
+        if entry["schema"]["aggregate"]["bin"] == "PT1H":
+            entry["frequency"] = freq = "PT1H"
+
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "cron_cadence": cron_cadence_for(freq, probe["age_days"]),
+        "reason": (f"ArcGIS: {probe['distinct']} distinct ts, newest "
+                   f"{probe['newest']} ({probe['age_days']:.1f}d), "
+                   f"values={vals or 'binned count'}, host {host}"),
+    }
+
+
+def arcgis_sweep(
+    catalog_path: str,
+    keywords: Optional[Iterable[tuple[str, str, str]]] = None,
+    host_cap: int = 2,
+    per_keyword: int = 300,
+    max_age_days: float = 30.0,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    catalog = yaml.safe_load(open(catalog_path)) or []
+    taken_ids = {s["id"] for s in catalog}
+    known_urls = {(s.get("endpoint") or {}).get("url", "") for s in catalog}
+    known_layers = {u.split("/query?")[0] for u in known_urls if "/query?" in u}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for klass in (keywords if keywords is not None else KEYWORD_CLASSES):
+        keyword = klass[0]
+        try:
+            records = arcgis_search(keyword, per_keyword)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": keyword, "reason": f"search failed: {exc}"})
+            continue
+        log(f"[arcgis] '{keyword}': {len(records)} hub records")
+        for rec in records:
+            url = rec["url"]
+            if not url:
+                skipped.append({"id": rec["title"][:40],
+                                "reason": "record has no service URL"})
+                continue
+            # Cheap checks BEFORE the layer-listing request, so a capped host
+            # or an off-topic title costs nothing.
+            if not arcgis_is_self_hosted(url):
+                skipped.append({"id": urlparse(url).netloc,
+                                "reason": "vendor-hosted tenancy "
+                                          "(services*.arcgis.com)"})
+                continue
+            host = urlparse(url).netloc.lower()
+            if seen_hosts.get(host, 0) >= host_cap:
+                skipped.append({"id": host,
+                                "reason": f"host cap {host_cap} reached"})
+                continue
+            if not is_relevant(keyword, rec["title"], rec["description"]):
+                skipped.append({"id": rec["title"][:40],
+                                "reason": f"title unrelated to '{keyword}'"})
+                continue
+            if _ODS_REJECT_TITLE.search(rec["title"]):
+                skipped.append({"id": rec["title"][:40],
+                                "reason": "not a forecastable process"})
+                continue
+            try:
+                layers = arcgis_layer_urls(url)
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": host, "reason": f"layers: {exc}"})
+                continue
+            time.sleep(sleep_s)
+            if not layers:
+                skipped.append({"id": host,
+                                "reason": "not a queryable layer URL"})
+                continue
+            for layer in layers:
+                if seen_hosts.get(host, 0) >= host_cap:
+                    break
+                if layer in known_layers:
+                    skipped.append({"id": layer,
+                                    "reason": "layer already wired"})
+                    continue
+                try:
+                    cols = arcgis_fields(layer)
+                except Exception as exc:                      # noqa: BLE001
+                    skipped.append({"id": host, "reason": f"fields: {exc}"})
+                    continue
+                time.sleep(sleep_s)
+                ts = pick_timestamp_column(cols)
+                if not ts:
+                    skipped.append({"id": rec["title"][:40],
+                                    "reason": "no date field"})
+                    continue
+                vals = pick_value_columns(cols, ts)
+                probe = arcgis_probe(layer, ts, vals)
+                time.sleep(sleep_s)
+                if "error" in probe:
+                    skipped.append({"id": host,
+                                    "reason": f"probe: {probe['error']}"})
+                    continue
+                if probe["age_days"] > max_age_days:
+                    skipped.append({"id": host,
+                                    "reason": f"newest observation "
+                                              f"{probe['age_days']:.0f}d old"})
+                    continue
+                block = arcgis_synthesize({**rec, "url": layer}, klass, ts,
+                                          vals, probe, taken=taken_ids)
+                if block is None:
+                    skipped.append({"id": host, "reason": "synthesise failed"})
+                    continue
+                taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+                known_layers.add(layer)
+                cands.append(block)
+                seen_hosts[host] = seen_hosts.get(host, 0) + 1
+                _checkpoint(cands, checkpoint_path)
+                log(f"  + [{klass[1]}] {block['candidate_name'][:64]}")
+                if target and len(cands) >= target:
+                    log(f"target {target} reached")
+                    return cands, skipped
     return cands, skipped
 
 
