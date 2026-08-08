@@ -52449,3 +52449,2071 @@
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances),
     FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which
     measures the network rather than this instance.
+
+# -- wired batch: misskey-activeusers-w33 --
+- id: misskey_noellabo_active_users
+  name: misskey.noellabo.jp — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.noellabo.jp/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 455/499 populated hours, 16 distinct levels, peak 16/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_io_active_users
+  name: misskey.io — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.io/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 423 distinct levels, peak 2309/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_moe_active_users
+  name: nijimiss.moe — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://nijimiss.moe/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 211 distinct levels, peak 279/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_ranranhome_active_users
+  name: misskey.ranranhome.info — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.ranranhome.info/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 101 distinct levels, peak 109/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_ski_active_users
+  name: sushi.ski — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://sushi.ski/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 130 distinct levels, peak 140/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_me_active_users
+  name: misskey.yukineko.me — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.yukineko.me/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 89 distinct levels, peak 96/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_tk_active_users
+  name: labo.wovs.tk — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://labo.wovs.tk/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 74 distinct levels, peak 81/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_network_active_users
+  name: mk.shrimpia.network — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mk.shrimpia.network/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 482/499 populated hours, 24 distinct levels, peak 23/h; 22/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_one_active_users
+  name: buttersc.one — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://buttersc.one/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 87 distinct levels, peak 93/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_warpday_active_users
+  name: warpday.net — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://warpday.net/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 460/499 populated hours, 17 distinct levels, peak 16/h; 20/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_maniakey_active_users
+  name: maniakey.com — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://maniakey.com/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 487/499 populated hours, 29 distinct levels, peak 29/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_site_active_users
+  name: mi.mashiro.site — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mi.mashiro.site/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 496/499 populated hours, 36 distinct levels, peak 35/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_fun_active_users
+  name: misskey.gamelore.fun — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.gamelore.fun/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 169 distinct levels, peak 203/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_cc_active_users
+  name: nicomedkey.cc — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://nicomedkey.cc/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 484/499 populated hours, 27 distinct levels, peak 28/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_art_active_users
+  name: misskey.art — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.art/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 488/499 populated hours, 33 distinct levels, peak 35/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_systems_active_users
+  name: misskey.systems — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.systems/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 477/499 populated hours, 34 distinct levels, peak 40/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_social_active_users
+  name: buicha.social — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://buicha.social/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 494/499 populated hours, 33 distinct levels, peak 32/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_games_active_users
+  name: rhythmisskey.games — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://rhythmisskey.games/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 451/499 populated hours, 22 distinct levels, peak 22/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_cafe_active_users
+  name: pari.cafe — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://pari.cafe/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 498/499 populated hours, 32 distinct levels, peak 31/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_invillage_active_users
+  name: invillage-outvillage.com — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://invillage-outvillage.com/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 459/499 populated hours, 17 distinct levels, peak 18/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_icalo_active_users
+  name: voskey.icalo.net — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://voskey.icalo.net/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 126 distinct levels, peak 151/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_productions_active_users
+  name: side.misskey.productions — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://side.misskey.productions/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 137 distinct levels, peak 161/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_live_active_users
+  name: live-theater.net — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://live-theater.net/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 142 distinct levels, peak 197/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_day_active_users
+  name: misskey.day — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.day/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 224 distinct levels, peak 318/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_gg_active_users
+  name: misskey.gg — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.gg/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 494/499 populated hours, 21 distinct levels, peak 24/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_works_active_users
+  name: stormskey.works — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://stormskey.works/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 485/499 populated hours, 30 distinct levels, peak 33/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_uma_active_users
+  name: uma-aji.com — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://uma-aji.com/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 464/499 populated hours, 18 distinct levels, peak 17/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_pro_active_users
+  name: orcacruises.pro — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://orcacruises.pro/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 433/499 populated hours, 16 distinct levels, peak 15/h; 20/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_quest_active_users
+  name: milkiyatelier.quest — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://milkiyatelier.quest/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 473/499 populated hours, 19 distinct levels, peak 18/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_love_active_users
+  name: misskey.resonite.love — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.resonite.love/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 464/499 populated hours, 23 distinct levels, peak 22/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_eostagram_active_users
+  name: eostagram.com — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://eostagram.com/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 448/499 populated hours, 21 distinct levels, peak 20/h; 20/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_me_active_users_mi_ikk
+  name: mi.ikkaku.me — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mi.ikkaku.me/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 493/499 populated hours, 15 distinct levels, peak 14/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_online_active_users
+  name: misskey.favskey.online — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.favskey.online/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 474/499 populated hours, 21 distinct levels, peak 21/h; 22/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_mivatter_active_users
+  name: mivatter.com — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mivatter.com/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 100 distinct levels, peak 113/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_misskey_active_users
+  name: misskey-square.net — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey-square.net/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 498/499 populated hours, 198 distinct levels, peak 255/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_flowers_active_users
+  name: misskey.flowers — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.flowers/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 109 distinct levels, peak 125/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_la_active_users
+  name: misskey.niri.la — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.niri.la/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 498/499 populated hours, 66 distinct levels, peak 66/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_work_active_users
+  name: n-kaiwai.work — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://n-kaiwai.work/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 473/499 populated hours, 17 distinct levels, peak 16/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_moe_active_users_feels
+  name: feels.moe — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://feels.moe/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 477/499 populated hours, 23 distinct levels, peak 24/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_takusuki_active_users
+  name: takusuki.com — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://takusuki.com/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 212 distinct levels, peak 278/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_bluearchitough_active_users
+  name: bluearchitough.net — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://bluearchitough.net/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 277/499 populated hours, 23 distinct levels, peak 37/h; 12/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_click_active_users
+  name: m.eskey.click — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://m.eskey.click/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 488/499 populated hours, 22 distinct levels, peak 21/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_ski_active_users_noc_sk
+  name: noc.ski — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://noc.ski/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 83 distinct levels, peak 90/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_f5_active_users
+  name: oyumiss.f5.si — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://oyumiss.f5.si/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 428/499 populated hours, 25 distinct levels, peak 25/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_online_active_users_submar
+  name: submarin.online — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://submarin.online/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 496/499 populated hours, 35 distinct levels, peak 36/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_oekakiskey_active_users
+  name: oekakiskey.com — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://oekakiskey.com/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 54 distinct levels, peak 61/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_design_active_users
+  name: misskey.design — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.design/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 86 distinct levels, peak 98/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_takusuki_active_users_takusu
+  name: takusuki.net — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://takusuki.net/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 213 distinct levels, peak 278/h; 24/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_site_active_users_otomad
+  name: otomad.site — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://otomad.site/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 494/499 populated hours, 43 distinct levels, peak 68/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_45sukey_active_users
+  name: 45sukey.com — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://45sukey.com/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 482/499 populated hours, 36 distinct levels, peak 37/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_moe_active_users_hoto_m
+  name: hoto.moe — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://hoto.moe/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 486/499 populated hours, 20 distinct levels, peak 20/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_absturztau_active_users
+  name: mk.absturztau.be — active local users (Sharkey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mk.absturztau.be/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 28 distinct levels, peak 29/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_social_active_users_transf
+  name: transfem.social — active local users (Sharkey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://transfem.social/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 25 distinct levels, peak 29/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_moe_active_users_stelpo
+  name: stelpolva.moe — active local users (Sharkey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://stelpolva.moe/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 39 distinct levels, peak 43/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
