@@ -1379,7 +1379,12 @@ ODS_THEME_DOMAIN: dict[str, str] = {
 ODS_THEME_PATTERNS: tuple[tuple[str, str], ...] = (
     # nature
     (r"environn?ement|environmental|ambiente|umwelt|milieu", "nature"),
-    (r"hydro|water|\beau\b|\beaux\b|acqua|agua|rivi[eè]re|nappe", "nature"),
+    # water(?!borne): "domestic waterborne traffic" is a shipping series, and
+    # matching it here made it ambiguous against transport, so the two-domain
+    # guard threw the table away rather than misfiling it. Every other water*
+    # compound (wastewater, watershed, water quality) still matches.
+    (r"hydro|water(?!borne)|\beau\b|\beaux\b|acqua|agua|rivi[eè]re|nappe",
+     "nature"),
     (r"m[ée]t[ée]o|weather|climat|clima\b|atmosph", "nature"),
     (r"qualit[ée] de l.air|air quality|luchtkwaliteit|pollution", "nature"),
     (r"biodiv|habitat|esp[eè]ce|species|faune|flore|for[eê]t|forest", "nature"),
@@ -1429,6 +1434,46 @@ ODS_THEME_PATTERNS: tuple[tuple[str, str], ...] = (
     (r"wages?|salar|earnings|turnover|bankrupt|insolven|"
      r"national accounts|gross domestic", "econ_fin"),
     (r"greenhouse gas|emission|air pollut|climate gas", "nature"),
+
+    # Nordic and Baltic vocabulary. Every PX-Web office in PXWEB_ROOTS is
+    # Nordic or Baltic and files subject areas in its own language, so the
+    # Romance/German vocabulary above misses them wholesale: Linkoping's real
+    # subjects came back as "Bilinnehav", "Boende", "Hushall" and matched
+    # nothing at all. Terms are taken from the subject areas these offices
+    # actually publish, not from a dictionary.
+    #
+    # SV/NO/DA, FI, ET, LV, IS.
+    (r"milj[oö]\b|ymp[aä]rist|keskkond|\bvide\b|umhverfi", "nature"),
+    (r"\bskog|\bmets[aä]|\bmez|fiske|kalastus|kalandus|zvejniec|"
+     r"jordbruk|lantbruk|maatalous|p[oõ]llumajandus|lauksaimniec", "nature"),
+    (r"v[aä]der|s[aä][aä]tila|ilmastik|laika apst[aā]k|ve[ðd]ur", "nature"),
+    (r"energi|energia|ener[gģ]|elektricitet|s[aä]hk[oö]|elektrienergia|"
+     r"fj[aä]rrv[aä]rme|kaukol[aä]mp[oö]|kaugk[uü]te", "energy"),
+    (r"trafik|liikenne|liiklus|satiksme|umfer[dð]|"
+     r"fordon|bilinnehav|ajoneuvo|s[oõ]iduki|transportl[iī]dzek|"
+     r"sj[oö]fart|merenkulku|laevandus|ku[gģ]niec|waterborne|"
+     r"luftfart|ilmailu|lennundus|avi[aā]cij|"
+     r"j[aä]rnv[aä]g|rautatie|raudtee|dzelzce[lļ]", "transport"),
+    (r"h[aä]lsa|h[aä]lso|helse|sundhed|terveys|tervis|vesel[iī]b|heilbrig[ðd]|"
+     r"sjukhus|sjukv[aå]rd|sairaala|haigla|slimn[iī]c", "healthcare"),
+    (r"bost[aä]d|boende|asunto|eluruum|m[aā]jok|[ií]b[uú][ðd]|"
+     r"detaljhandel|v[aä]hitt[aä]iskaup|jaekaubandus|mazumtirdzniec", "sales"),
+    (r"arbetsmarknad|sysselsattning|syssels[aä]ttning|ty[oö]llisyys|"
+     r"t[oö][oö]h[oõ]ive|nodarbin[aā]t|"
+     r"l[oö]ner|palkat|palgad|darba samaksa|"
+     r"n[aä]ringsliv|f[oö]retag|yritys|ettev[oõ]t|uz[nņ][eē]mumu|"
+     r"nationalr[aä]kenskap|kansantalouden|rahvamajanduse", "econ_fin"),
+
+    # Vital and demographic statistics. Births, deaths and marital status
+    # already route to healthcare above; the bare subject area they sit under
+    # is "Population" (347 tables skipped on that alone in one run) or its
+    # local-language equivalent. Elections are filed under the same heading by
+    # some offices -- Finland's is literally "Population and elections" -- and
+    # an election result is not a health series, so those are excluded rather
+    # than swept in.
+    (r"^(?!.*\belection)(?!.*\bval\b).*"
+     r"(population|demograph|befolkning|v[aä]est[oö]|rahvastik|"
+     r"iedz[iī]vot[aā]j|mannfj[oö]ld)", "healthcare"),
 )
 
 _ODS_THEME_RE: tuple[tuple[Any, str], ...] = tuple(
@@ -4115,10 +4160,11 @@ def pxweb_tables(root: str, max_nodes: int = PXWEB_MAX_NODES,
     """
     now = dt.datetime.now(dt.timezone.utc)
     out: list[dict] = []
-    queue: list[tuple[str, str]] = [("", "")]      # (path, subject area)
+    # (path, subject area, database name used as a fallback subject)
+    queue: list[tuple[str, str, str]] = [("", "", "")]
     spent = 0
     while queue and spent < max_nodes:
-        path, subject = queue.pop(0)
+        path, subject, db = queue.pop(0)
         try:
             nodes = pxweb_get(f"{root}/{path}" if path else root)
         except Exception:                                     # noqa: BLE001
@@ -4140,9 +4186,26 @@ def pxweb_tables(root: str, max_nodes: int = PXWEB_MAX_NODES,
             ntype = n.get("type") or ("l" if n.get("dbid") else "")
             child = f"{path}/{nid}" if path else nid
             if ntype == "l":
-                # The FIRST level is the subject area; deeper levels are
+                # The FIRST list level is the subject area; deeper levels are
                 # sub-topics that say less about the domain.
-                queue.append((child, subject or (n.get("text") or "")))
+                #
+                # A DATABASE node is different. Roots aimed at the language
+                # level list databases, and the text is the database's own
+                # name: "Data" and "PxWin" (Slovenia), "Basomraden"
+                # (Linkoping), "Atvinnuvegir" (Iceland). The real subject
+                # areas -- "Tourism", "Industry", "Arbetsmarknad" -- sit one
+                # level below, so taking the database name as the subject sent
+                # 1446 tables to "subject not in the map" in a single run.
+                #
+                # But some offices hang tables straight off the database with
+                # no subject level at all, and there the database name is the
+                # only filing on offer. So it is carried as a FALLBACK: a real
+                # subject level always wins, and the database name is used
+                # only when nothing better appears above the table.
+                if bool(n.get("dbid")) and not n.get("id"):
+                    queue.append((child, subject, db or (n.get("text") or "")))
+                else:
+                    queue.append((child, subject or (n.get("text") or ""), db))
             elif ntype == "t":
                 upd = _parse_iso(n.get("updated"))
                 if upd is None:
@@ -4150,7 +4213,7 @@ def pxweb_tables(root: str, max_nodes: int = PXWEB_MAX_NODES,
                 age = (now - upd).total_seconds() / 86400
                 if age > max_age_days:
                     continue
-                out.append({"path": child, "subject": subject,
+                out.append({"path": child, "subject": subject or db,
                             "text": n.get("text") or n["id"],
                             "updated": upd.isoformat(), "age_days": age})
     if queue:

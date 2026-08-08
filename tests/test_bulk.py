@@ -1869,3 +1869,86 @@ def test_misskey_probe_splits_connect_from_read_timeout(monkeypatch):
     assert isinstance(seen["timeout"], tuple)
     connect, read = seen["timeout"]
     assert connect < read and read == 20
+
+
+def test_pxweb_database_name_is_not_used_as_a_subject_area(monkeypatch):
+    """Roots aimed at the language level list DATABASES, whose text is the
+    database's own name ("Data", "PxWin", "Basomraden"). Treating that as the
+    subject area sent 1446 tables to "subject not in the map" in one run."""
+    tree = {
+        "": [{"dbid": "Data", "text": "Data"}],
+        "Data": [{"id": "Tourism", "type": "l", "text": "Tourism"}],
+        "Data/Tourism": [{"id": "T1.px", "type": "t", "text": "Overnight stays",
+                          "updated": "2026-08-01T00:00:00"}],
+    }
+    monkeypatch.setattr(bulk, "pxweb_get",
+                        lambda url, **k: tree[url.replace("ROOT", "").lstrip("/")])
+    monkeypatch.setattr(bulk.time, "sleep", lambda *_: None)
+    tables = bulk.pxweb_tables("ROOT", max_nodes=10, log=lambda *_: None)
+    assert len(tables) == 1
+    # "Tourism", the real subject one level down -- not "Data".
+    assert tables[0]["subject"] == "Tourism"
+
+
+def test_pxweb_real_subject_level_is_still_used(monkeypatch):
+    """Roots aimed at a database (…/en/StatFin) list real subjects with `id`,
+    and those must keep supplying the subject area."""
+    tree = {
+        "": [{"id": "Energy", "type": "l", "text": "Energy"}],
+        "Energy": [{"id": "E1.px", "type": "t", "text": "Electricity",
+                    "updated": "2026-08-01T00:00:00"}],
+    }
+    monkeypatch.setattr(bulk, "pxweb_get",
+                        lambda url, **k: tree[url.replace("ROOT", "").lstrip("/")])
+    monkeypatch.setattr(bulk.time, "sleep", lambda *_: None)
+    tables = bulk.pxweb_tables("ROOT", max_nodes=10, log=lambda *_: None)
+    assert tables[0]["subject"] == "Energy"
+
+
+# --------------------------------------------------------------------------- #
+# Nordic/Baltic subject vocabulary — every PX-Web office files in its own
+# language, so the Romance/German map missed them wholesale.
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("subject,domain", [
+    ("Bilinnehav", "transport"),        # car ownership, Linkoping
+    ("Sjofart", "transport"),
+    ("Liikenne", "transport"),          # traffic, FI
+    ("Domestic waterborne traffic", "transport"),
+    ("Boende", "sales"),                # housing, SV
+    ("Bostader", "sales"),
+    ("Arbetsmarknad", "econ_fin"),      # labour market, SV
+    ("Loner", "econ_fin"),              # wages, SV
+    ("Energi", "energy"),
+    ("Sahko", "energy"),                # electricity, FI
+    ("Miljo", "nature"),
+    ("Skog", "nature"),                 # forest, SV
+    ("Terveys", "healthcare"),          # health, FI
+    ("Befolkning", "healthcare"),       # population, SV
+    ("Population", "healthcare"),
+])
+def test_nordic_subject_vocabulary_classifies(subject, domain):
+    got = bulk.ods_publisher_class([subject], subject)
+    assert got is not None, f"{subject} did not classify"
+    assert got[0] == domain, f"{subject} -> {got[0]}, wanted {domain}"
+
+
+@pytest.mark.parametrize("subject", [
+    "Population and elections",   # Finland files them under one heading
+    "County elections",
+    "Val till riksdagen",
+])
+def test_elections_are_not_swept_into_healthcare(subject):
+    """Births and deaths are health series; an election result is not, and it
+    sits under the same subject heading at several offices."""
+    assert bulk.ods_publisher_class([subject], subject) is None
+
+
+def test_waterborne_is_shipping_not_hydrology():
+    """'water' matched 'waterborne', making the subject ambiguous against
+    transport, so the two-domain guard discarded it instead of filing it."""
+    assert bulk.ods_publisher_class(
+        ["Domestic waterborne traffic"], "Domestic waterborne traffic")[0] == "transport"
+    # and the ordinary water subjects still read as nature
+    for s in ("Watershed", "Drinking water quality by municipality"):
+        got = bulk.ods_publisher_class([s], s)
+        assert got is not None and got[1] == "nature", s
