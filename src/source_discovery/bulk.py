@@ -4778,7 +4778,10 @@ def sdmx_dataflows(base: str, path: str = "dataflow/all/all/latest",
     for accept in SDMX_STRUCT_ACCEPTS:
         try:
             text, _ = sdmx_fetch(f"{base}/{path}", accept, 32_000_000, timeout)
-            doc = json.loads(text)
+            # Some servers (World Bank WITS) prefix a UTF-8 BOM, which
+            # json.loads rejects outright -- indistinguishable from "this host
+            # has no SDMX" unless the error text is read.
+            doc = json.loads(text.lstrip("﻿"))
         except Exception as exc:                              # noqa: BLE001
             last = exc
             continue
