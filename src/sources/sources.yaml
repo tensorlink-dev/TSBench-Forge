@@ -70433,3 +70433,272 @@
   notes: 'Opendatasoft v2.1 records endpoint, newest-first; v2.1 caps `limit` at 100. The consolidated series,
     not the real-time one: it is revised and published months in arrears, which is why the slack is wide
     and the poll is daily rather than half-hourly.'
+
+# -- wired batch: energy wave 54: Energinet datasets --
+- id: energinet_afrrreservesnordic_dk1
+  name: aFRR, Automatic Frequency Restoration Reserves, Capacity Market (Energ [DK1]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/AfrrReservesNordic?limit=250&sort=TimeUTC%20DESC&columns=TimeUTC%2CUpDemandMW%2CUpProcuredMW%2CUpPriceEUR%2CUpPriceDKK&filter=%7B%22PriceArea%22%3A%5B%22DK1%22%5D%7D
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: records[].TimeUTC
+    value_field:
+    - records[].UpDemandMW
+    - records[].UpProcuredMW
+    - records[].UpPriceEUR
+    - records[].UpPriceDKK
+    drop_null_values: true
+    variates: 4
+  history_available: 250 newest rows per call
+  update_cadence_observed: PT1H over the newest 21 timestamps; newest 2026-08-09T21:00:00+00:00 (-0.7d old)
+  pretraining_novelty: clean
+  novelty_notes: Danish grid and market data from Energinet's own service. Published per-dataset rather
+    than as a bulk download.
+  license: Energinet open data
+  audit_slack_days: 5
+  notes: 'Energidataservice dataset AfrrReservesNordic, sorted newest-first with an explicit `columns` list
+    so the response carries only the observation clock and its measures. The UTC clock is preferred over
+    the Danish local one, which is ambiguous across the October fold. Price area DK1 is pinned: the dataset
+    is a panel over areas and without the pin the response carries several values per timestamp.'
+- id: energinet_co2emis_dk1
+  name: CO2 Emission (Energinet, Denmark) [DK1]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/CO2Emis?limit=250&sort=Minutes5UTC%20DESC&columns=Minutes5UTC%2CCO2Emission&filter=%7B%22PriceArea%22%3A%5B%22DK1%22%5D%7D
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: records[].Minutes5UTC
+    value_field:
+    - records[].CO2Emission
+    drop_null_values: true
+    variates: 1
+  history_available: 250 newest rows per call
+  update_cadence_observed: PT5M over the newest 125 timestamps; newest 2026-08-09T03:55:00+00:00 (0.0d old)
+  pretraining_novelty: clean
+  novelty_notes: Danish grid and market data from Energinet's own service. Published per-dataset rather
+    than as a bulk download.
+  license: Energinet open data
+  audit_slack_days: 5
+  notes: 'Energidataservice dataset CO2Emis, sorted newest-first with an explicit `columns` list so the
+    response carries only the observation clock and its measures. The UTC clock is preferred over the Danish
+    local one, which is ambiguous across the October fold. Price area DK1 is pinned: the dataset is a panel
+    over areas and without the pin the response carries several values per timestamp.'
+- id: energinet_co2emisprog_dk1
+  name: CO2 Emission Prognosis (Energinet, Denmark) [DK1]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/CO2EmisProg?limit=250&sort=Minutes5UTC%20DESC&columns=Minutes5UTC%2CCO2Emission&filter=%7B%22PriceArea%22%3A%5B%22DK1%22%5D%7D
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: records[].Minutes5UTC
+    value_field:
+    - records[].CO2Emission
+    drop_null_values: true
+    variates: 1
+  history_available: 250 newest rows per call
+  update_cadence_observed: PT5M over the newest 125 timestamps; newest 2026-08-09T21:55:00+00:00 (-0.7d
+    old)
+  pretraining_novelty: clean
+  novelty_notes: Danish grid and market data from Energinet's own service. Published per-dataset rather
+    than as a bulk download.
+  license: Energinet open data
+  audit_slack_days: 5
+  notes: 'Energidataservice dataset CO2EmisProg, sorted newest-first with an explicit `columns` list so
+    the response carries only the observation clock and its measures. The UTC clock is preferred over the
+    Danish local one, which is ambiguous across the October fold. Price area DK1 is pinned: the dataset
+    is a panel over areas and without the pin the response carries several values per timestamp.'
+- id: energinet_dayaheadprices_dk1
+  name: Day-Ahead Prices (Energinet, Denmark) [DK1]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/DayAheadPrices?limit=250&sort=TimeUTC%20DESC&columns=TimeUTC%2CDayAheadPriceEUR%2CDayAheadPriceDKK&filter=%7B%22PriceArea%22%3A%5B%22DK1%22%5D%7D
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: records[].TimeUTC
+    value_field:
+    - records[].DayAheadPriceEUR
+    - records[].DayAheadPriceDKK
+    drop_null_values: true
+    variates: 2
+  history_available: 250 newest rows per call
+  update_cadence_observed: PT15M over the newest 42 timestamps; newest 2026-08-09T21:45:00+00:00 (-0.7d
+    old)
+  pretraining_novelty: clean
+  novelty_notes: Danish grid and market data from Energinet's own service. Published per-dataset rather
+    than as a bulk download.
+  license: Energinet open data
+  audit_slack_days: 5
+  notes: 'Energidataservice dataset DayAheadPrices, sorted newest-first with an explicit `columns` list
+    so the response carries only the observation clock and its measures. The UTC clock is preferred over
+    the Danish local one, which is ambiguous across the October fold. Price area DK1 is pinned: the dataset
+    is a panel over areas and without the pin the response carries several values per timestamp.'
+- id: energinet_electricityprodex5minrealtime_dk1
+  name: Electricity Production and Exchange 5 min Realtime (Energinet, Denmark [DK1]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/ElectricityProdex5MinRealtime?limit=250&sort=Minutes5UTC%20DESC&columns=Minutes5UTC%2CProductionLt100MW%2CProductionGe100MW%2COffshoreWindPower%2COnshoreWindPower&filter=%7B%22PriceArea%22%3A%5B%22DK1%22%5D%7D
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: records[].Minutes5UTC
+    value_field:
+    - records[].ProductionLt100MW
+    - records[].ProductionGe100MW
+    - records[].OffshoreWindPower
+    - records[].OnshoreWindPower
+    drop_null_values: true
+    variates: 4
+  history_available: 250 newest rows per call
+  update_cadence_observed: PT5M over the newest 125 timestamps; newest 2026-08-09T04:25:00+00:00 (-0.0d
+    old)
+  pretraining_novelty: clean
+  novelty_notes: Danish grid and market data from Energinet's own service. Published per-dataset rather
+    than as a bulk download.
+  license: Energinet open data
+  audit_slack_days: 5
+  notes: 'Energidataservice dataset ElectricityProdex5MinRealtime, sorted newest-first with an explicit
+    `columns` list so the response carries only the observation clock and its measures. The UTC clock is
+    preferred over the Danish local one, which is ambiguous across the October fold. Price area DK1 is pinned:
+    the dataset is a panel over areas and without the pin the response carries several values per timestamp.'
+- id: energinet_fcrdk1
+  name: FCR, Frequency Containment Reserves, DK1 (Energinet, Denmark)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/FcrDK1?limit=250&sort=HourUTC%20DESC&columns=HourUTC%2CFCRdomestic_MW%2CFCRabroad_MW%2CFCRcross_EUR%2CFCRcross_DKK
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: records[].HourUTC
+    value_field:
+    - records[].FCRdomestic_MW
+    - records[].FCRabroad_MW
+    - records[].FCRcross_EUR
+    - records[].FCRcross_DKK
+    drop_null_values: true
+    variates: 4
+  history_available: 250 newest rows per call
+  update_cadence_observed: PT1H over the newest 250 timestamps; newest 2026-08-09T21:00:00+00:00 (-0.7d
+    old)
+  pretraining_novelty: clean
+  novelty_notes: Danish grid and market data from Energinet's own service. Published per-dataset rather
+    than as a bulk download.
+  license: Energinet open data
+  audit_slack_days: 5
+  notes: Energidataservice dataset FcrDK1, sorted newest-first with an explicit `columns` list so the response
+    carries only the observation clock and its measures. The UTC clock is preferred over the Danish local
+    one, which is ambiguous across the October fold.
+- id: energinet_ffrdemanddk2
+  name: FFR, Fast Frequency Reserve, Demand DK2 (Energinet, Denmark)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/FFRdemandDK2?limit=250&sort=HourUTC%20DESC&columns=HourUTC%2Cffrupdemandd0%2Cffrupdemandd1%2Cffrupdemandd2%2Cffrupdemandd3
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: records[].HourUTC
+    value_field:
+    - records[].ffrupdemandd0
+    - records[].ffrupdemandd1
+    - records[].ffrupdemandd2
+    - records[].ffrupdemandd3
+    drop_null_values: true
+    variates: 4
+  history_available: 250 newest rows per call
+  update_cadence_observed: PT1H over the newest 250 timestamps; newest 2026-08-09T21:00:00+00:00 (-0.7d
+    old)
+  pretraining_novelty: clean
+  novelty_notes: Danish grid and market data from Energinet's own service. Published per-dataset rather
+    than as a bulk download.
+  license: Energinet open data
+  audit_slack_days: 5
+  notes: Energidataservice dataset FFRdemandDK2, sorted newest-first with an explicit `columns` list so
+    the response carries only the observation clock and its measures. The UTC clock is preferred over the
+    Danish local one, which is ambiguous across the October fold.
+- id: energinet_ffrdk2
+  name: FFR, Fast Frequency Reserve, DK2 (Energinet, Denmark)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.energidataservice.dk/dataset/FFRDK2?limit=250&sort=HourUTC%20DESC&columns=HourUTC%2CFFR_DemandMW%2CFFR_PurchasedMW%2CFFR_PriceEUR%2CFFR_PriceDKK
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: records[].HourUTC
+    value_field:
+    - records[].FFR_DemandMW
+    - records[].FFR_PurchasedMW
+    - records[].FFR_PriceEUR
+    - records[].FFR_PriceDKK
+    drop_null_values: true
+    variates: 4
+  history_available: 250 newest rows per call
+  update_cadence_observed: PT1H over the newest 250 timestamps; newest 2026-08-09T21:00:00+00:00 (-0.7d
+    old)
+  pretraining_novelty: clean
+  novelty_notes: Danish grid and market data from Energinet's own service. Published per-dataset rather
+    than as a bulk download.
+  license: Energinet open data
+  audit_slack_days: 5
+  notes: Energidataservice dataset FFRDK2, sorted newest-first with an explicit `columns` list so the response
+    carries only the observation clock and its measures. The UTC clock is preferred over the Danish local
+    one, which is ambiguous across the October fold.

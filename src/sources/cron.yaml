@@ -234,6 +234,9 @@ schedules:
   - gbfs_publicbikesystem_we_cycle_aspen_co
   - agis_houstontx_hec_active_incidents_feature_layer
   - agis_govt_rainfall_monitoring_sites
+  - energinet_co2emis_dk1
+  - energinet_co2emisprog_dk1
+  - energinet_electricityprodex5minrealtime_dk1
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -350,6 +353,7 @@ schedules:
   - agis_dcgis_service_requests_initiated_by_citizen_re
   - rte_eco2mix_national_tr
   - rte_eco2mix_bretagne
+  - energinet_dayaheadprices_dk1
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -792,6 +796,10 @@ schedules:
   - svk_mfrr_capacity_se3
   - svk_mfrr_capacity_se4
   - xm_co_demanda_tiempo_real
+  - energinet_afrrreservesnordic_dk1
+  - energinet_fcrdk1
+  - energinet_ffrdemanddk2
+  - energinet_ffrdk2
   cron: 5 * * * *
 - every: P1D
   sources:
