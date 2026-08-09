@@ -70702,3 +70702,203 @@
   notes: Energidataservice dataset FFRDK2, sorted newest-first with an explicit `columns` list so the response
     carries only the observation clock and its measures. The UTC clock is preferred over the Danish local
     one, which is ambiguous across the October fold.
+
+# -- wired batch: energy wave 56: Elia per-minute balancing --
+- id: elia_ods057_frequency_and_fcr_demand_per_10_seconds
+  name: Frequency and FCR demand per 10 seconds (Elia, Belgium)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods057/records?limit=100&order_by=datetime%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].actualfrequency
+    - results[].fcrdemand
+    - results[].fcrrequested
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: PT1M over the newest 100 timestamps; newest 2026-08-07T21:59:50+00:00 (1.3d old)
+  pretraining_novelty: unknown
+  novelty_notes: Belgian grid data from the operator's own portal. Dataset ids are opaque, so this is unlikely
+    to be indexed by name in any pretraining mix.
+  license: Elia open data licence
+  audit_slack_days: 6
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods057, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which returns
+    the oldest rows of a rolling table.'
+- id: elia_ods147_system_imbalance_forecast_next_quarter
+  name: System imbalance forecast next quarter hour (near real-time) (Elia, Belgium)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods147/records?limit=100&order_by=systemimbalanceforecastdatetime%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].systemimbalanceforecastdatetime
+    value_field:
+    - results[].predictionquality
+    - results[].predictions_silinearregressionforecast
+    - results[].predictions_categoricalsiprediction_from_minus_inf_to_minus_400
+    - results[].predictions_categoricalsiprediction_from_minus_400_to_minus_200
+    drop_null_values: true
+    variates: 4
+  history_available: 100 newest points per call
+  update_cadence_observed: PT1M over the newest 100 timestamps; newest 2026-08-09T05:30:00+00:00 (-0.0d
+    old)
+  pretraining_novelty: unknown
+  novelty_notes: Belgian grid data from the operator's own portal. Dataset ids are opaque, so this is unlikely
+    to be indexed by name in any pretraining mix.
+  license: Elia open data licence
+  audit_slack_days: 5
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods147, ordered newest-first on systemimbalanceforecastdatetime;
+    v2.1 caps `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which
+    returns the oldest rows of a rolling table.'
+- id: elia_ods126_current_system_imbalance_historical_dat
+  name: Current system imbalance (Historical data as of 22/05/2024) (Elia, Belgium)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods126/records?limit=100&order_by=datetime%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].systemimbalance
+    - results[].ace
+    - results[].igccvolumeup
+    - results[].afrrvolumeup
+    drop_null_values: true
+    variates: 4
+  history_available: 100 newest points per call
+  update_cadence_observed: PT1M over the newest 100 timestamps; newest 2026-08-08T21:59:00+00:00 (0.3d old)
+  pretraining_novelty: unknown
+  novelty_notes: Belgian grid data from the operator's own portal. Dataset ids are opaque, so this is unlikely
+    to be indexed by name in any pretraining mix.
+  license: Elia open data licence
+  audit_slack_days: 5
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods126, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which returns
+    the oldest rows of a rolling table.'
+- id: elia_ods133_imbalance_price_per_minute_historical_d
+  name: Imbalance price per minute (Historical data as of 22/05/2024) (Elia, Belgium)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods133/records?limit=100&order_by=datetime%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].ace
+    - results[].systemimbalance
+    - results[].alpha
+    - results[].alpha_prime
+    drop_null_values: true
+    variates: 4
+  history_available: 100 newest points per call
+  update_cadence_observed: PT1M over the newest 100 timestamps; newest 2026-08-08T21:59:00+00:00 (0.3d old)
+  pretraining_novelty: unknown
+  novelty_notes: Belgian grid data from the operator's own portal. Dataset ids are opaque, so this is unlikely
+    to be indexed by name in any pretraining mix.
+  license: Elia open data licence
+  audit_slack_days: 5
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods133, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which returns
+    the oldest rows of a rolling table.'
+- id: elia_ods128_balancing_energy_volume_components_per
+  name: Balancing energy volume components per minute (Historical data as of 22/05/2024) (Elia, Belgium)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods128/records?limit=100&order_by=datetime%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].systemimbalance
+    - results[].ace
+    - results[].igccvolumeup
+    - results[].afrrvolumeup
+    drop_null_values: true
+    variates: 4
+  history_available: 100 newest points per call
+  update_cadence_observed: PT1M over the newest 100 timestamps; newest 2026-08-08T21:59:00+00:00 (0.3d old)
+  pretraining_novelty: unknown
+  novelty_notes: Belgian grid data from the operator's own portal. Dataset ids are opaque, so this is unlikely
+    to be indexed by name in any pretraining mix.
+  license: Elia open data licence
+  audit_slack_days: 5
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods128, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which returns
+    the oldest rows of a rolling table.'
+- id: elia_ods165_balancing_energy_prices_components_per
+  name: Balancing energy prices components per minutes (Historical as of 22/05/2024) (Elia, Belgium)
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods165/records?limit=100&order_by=datetime%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].systemimbalance
+    - results[].ace
+    - results[].marginalincrementalprice
+    - results[].floorprice
+    drop_null_values: true
+    variates: 4
+  history_available: 100 newest points per call
+  update_cadence_observed: PT1M over the newest 100 timestamps; newest 2026-08-08T21:59:00+00:00 (0.3d old)
+  pretraining_novelty: unknown
+  novelty_notes: Belgian grid data from the operator's own portal. Dataset ids are opaque, so this is unlikely
+    to be indexed by name in any pretraining mix.
+  license: Elia open data licence
+  audit_slack_days: 5
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods165, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which returns
+    the oldest rows of a rolling table.'

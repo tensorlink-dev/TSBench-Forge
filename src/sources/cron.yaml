@@ -65,6 +65,7 @@ schedules:
   - gent_recente_bezetting_parking_sint_michiels
   - brussels_real_time_availability_of_villo_bicycles
   - liege_shop_drive_kiss_ride_real_time
+  - elia_ods147_system_imbalance_forecast_next_quarter
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -800,6 +801,11 @@ schedules:
   - energinet_fcrdk1
   - energinet_ffrdemanddk2
   - energinet_ffrdk2
+  - elia_ods057_frequency_and_fcr_demand_per_10_seconds
+  - elia_ods126_current_system_imbalance_historical_dat
+  - elia_ods133_imbalance_price_per_minute_historical_d
+  - elia_ods128_balancing_energy_volume_components_per
+  - elia_ods165_balancing_energy_prices_components_per
   cron: 5 * * * *
 - every: P1D
   sources:
