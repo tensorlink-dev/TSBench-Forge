@@ -348,6 +348,8 @@ schedules:
   - potsdam_potsdam_10_minutenwerte_station_03987
   - rhein_meerbusch_smart_city_dashboard
   - agis_dcgis_service_requests_initiated_by_citizen_re
+  - rte_eco2mix_national_tr
+  - rte_eco2mix_bretagne
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -405,6 +407,7 @@ schedules:
   - tepco_jp_area_balance_30min
   - chubu_jp_area_balance_30min
   - agis_bouldercolorado_response_times_for_boulder_fire_rescue
+  - rte_consommation_brute_gaz_elec
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -781,6 +784,14 @@ schedules:
   - agis_georgetowncountysc_e911_address
   - agis_stlucieco_roads_public_access
   - agis_phoenix_zoning
+  - svk_afrr_capacity_se1
+  - svk_afrr_capacity_se2
+  - svk_afrr_capacity_se3
+  - svk_mfrr_capacity_se1
+  - svk_mfrr_capacity_se2
+  - svk_mfrr_capacity_se3
+  - svk_mfrr_capacity_se4
+  - xm_co_demanda_tiempo_real
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -2184,6 +2195,7 @@ schedules:
   - agis_wa_2017_srfb_applications
   - agis_lacounty_subdivision_activity_unincorporated_area
   - agis_topeka_planning_cases
+  - rte_eco2mix_national_cons_def
   cron: 10 1 * * *
 - every: P1D
   sources:

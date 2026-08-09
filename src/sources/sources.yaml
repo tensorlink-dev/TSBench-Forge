@@ -70035,3 +70035,401 @@
   notes: Bulk-generated from ArcGIS Hub (query 'zoning cases'), layer https://maps.phoenix.gov/pub/rest/services/Public/Zoning/MapServer/0.
     Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
     server, not the vendor's shared services*.arcgis.com tenancy.
+
+# -- wired batch: energy wave 52: SVK / XM Colombia / RTE --
+- id: svk_afrr_capacity_se1
+  name: aFRR downward capacity price and volume, SE1 (Svenska kraftnat)
+  domain: energy
+  dgp_class: grid_balancing
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.svk.se/api/3/action/datastore_search?resource_id=6351d2cc-1657-43eb-b112-b8408c700529&filters=%7B%22bidding_zone%22%3A%22SE1%22%2C%22reserve_direction%22%3A%22down%22%2C%22reserve_product%22%3A%22aFRRCapacityMarket%22%7D&sort=start_time_utc%20desc&limit=500
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].start_time_utc
+    value_field:
+    - result.records[].price
+    - result.records[].volume
+    drop_null_values: true
+    variates: 2
+  history_available: 500 newest hourly auction results per call
+  update_cadence_observed: hourly products, published ahead of the delivery day
+  pretraining_novelty: clean
+  novelty_notes: Swedish balancing capacity auctions. Published only through the operator's CKAN datastore;
+    no aggregator republishes the per-zone hourly series.
+  license: Svenska kraftnat open data (CC0)
+  audit_slack_days: 5
+  notes: 'CKAN datastore_search on data.svk.se, automatic frequency restoration reserve capacity market,
+    bidding zone SE1, downward direction. Every dimension is pinned through `filters` so the response is
+    one series; without that the zones interleave and the gate sees duplicate timestamps. Sorted on start_time_utc,
+    NOT on _id: the surrogate key is insertion order and the portal''s stale packages have their newest
+    _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
+    is normally in the future.'
+- id: svk_afrr_capacity_se2
+  name: aFRR downward capacity price and volume, SE2 (Svenska kraftnat)
+  domain: energy
+  dgp_class: grid_balancing
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.svk.se/api/3/action/datastore_search?resource_id=6351d2cc-1657-43eb-b112-b8408c700529&filters=%7B%22bidding_zone%22%3A%22SE2%22%2C%22reserve_direction%22%3A%22down%22%2C%22reserve_product%22%3A%22aFRRCapacityMarket%22%7D&sort=start_time_utc%20desc&limit=500
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].start_time_utc
+    value_field:
+    - result.records[].price
+    - result.records[].volume
+    drop_null_values: true
+    variates: 2
+  history_available: 500 newest hourly auction results per call
+  update_cadence_observed: hourly products, published ahead of the delivery day
+  pretraining_novelty: clean
+  novelty_notes: Swedish balancing capacity auctions. Published only through the operator's CKAN datastore;
+    no aggregator republishes the per-zone hourly series.
+  license: Svenska kraftnat open data (CC0)
+  audit_slack_days: 5
+  notes: 'CKAN datastore_search on data.svk.se, automatic frequency restoration reserve capacity market,
+    bidding zone SE2, downward direction. Every dimension is pinned through `filters` so the response is
+    one series; without that the zones interleave and the gate sees duplicate timestamps. Sorted on start_time_utc,
+    NOT on _id: the surrogate key is insertion order and the portal''s stale packages have their newest
+    _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
+    is normally in the future.'
+- id: svk_afrr_capacity_se3
+  name: aFRR downward capacity price and volume, SE3 (Svenska kraftnat)
+  domain: energy
+  dgp_class: grid_balancing
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.svk.se/api/3/action/datastore_search?resource_id=6351d2cc-1657-43eb-b112-b8408c700529&filters=%7B%22bidding_zone%22%3A%22SE3%22%2C%22reserve_direction%22%3A%22down%22%2C%22reserve_product%22%3A%22aFRRCapacityMarket%22%7D&sort=start_time_utc%20desc&limit=500
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].start_time_utc
+    value_field:
+    - result.records[].price
+    - result.records[].volume
+    drop_null_values: true
+    variates: 2
+  history_available: 500 newest hourly auction results per call
+  update_cadence_observed: hourly products, published ahead of the delivery day
+  pretraining_novelty: clean
+  novelty_notes: Swedish balancing capacity auctions. Published only through the operator's CKAN datastore;
+    no aggregator republishes the per-zone hourly series.
+  license: Svenska kraftnat open data (CC0)
+  audit_slack_days: 30
+  notes: 'CKAN datastore_search on data.svk.se, automatic frequency restoration reserve capacity market,
+    bidding zone SE3, downward direction. Every dimension is pinned through `filters` so the response is
+    one series; without that the zones interleave and the gate sees duplicate timestamps. Sorted on start_time_utc,
+    NOT on _id: the surrogate key is insertion order and the portal''s stale packages have their newest
+    _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
+    is normally in the future.'
+- id: svk_mfrr_capacity_se1
+  name: mFRR upward capacity price and volume, SE1 (Svenska kraftnat)
+  domain: energy
+  dgp_class: grid_balancing
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.svk.se/api/3/action/datastore_search?resource_id=0c56e30d-8fce-4c27-afc8-621c230ae34d&filters=%7B%22bidding_zone%22%3A%22SE1%22%2C%22reserve_direction%22%3A%22up%22%2C%22reserve_product%22%3A%22mFRRCapacityMarket%22%7D&sort=start_time_utc%20desc&limit=500
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].start_time_utc
+    value_field:
+    - result.records[].price
+    - result.records[].volume
+    drop_null_values: true
+    variates: 2
+  history_available: 500 newest hourly auction results per call
+  update_cadence_observed: hourly products, published ahead of the delivery day
+  pretraining_novelty: clean
+  novelty_notes: Swedish balancing capacity auctions. Published only through the operator's CKAN datastore;
+    no aggregator republishes the per-zone hourly series.
+  license: Svenska kraftnat open data (CC0)
+  audit_slack_days: 5
+  notes: 'CKAN datastore_search on data.svk.se, manual frequency restoration reserve capacity market, bidding
+    zone SE1, upward direction. Every dimension is pinned through `filters` so the response is one series;
+    without that the zones interleave and the gate sees duplicate timestamps. Sorted on start_time_utc,
+    NOT on _id: the surrogate key is insertion order and the portal''s stale packages have their newest
+    _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
+    is normally in the future.'
+- id: svk_mfrr_capacity_se2
+  name: mFRR upward capacity price and volume, SE2 (Svenska kraftnat)
+  domain: energy
+  dgp_class: grid_balancing
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.svk.se/api/3/action/datastore_search?resource_id=0c56e30d-8fce-4c27-afc8-621c230ae34d&filters=%7B%22bidding_zone%22%3A%22SE2%22%2C%22reserve_direction%22%3A%22up%22%2C%22reserve_product%22%3A%22mFRRCapacityMarket%22%7D&sort=start_time_utc%20desc&limit=500
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].start_time_utc
+    value_field:
+    - result.records[].price
+    - result.records[].volume
+    drop_null_values: true
+    variates: 2
+  history_available: 500 newest hourly auction results per call
+  update_cadence_observed: hourly products, published ahead of the delivery day
+  pretraining_novelty: clean
+  novelty_notes: Swedish balancing capacity auctions. Published only through the operator's CKAN datastore;
+    no aggregator republishes the per-zone hourly series.
+  license: Svenska kraftnat open data (CC0)
+  audit_slack_days: 5
+  notes: 'CKAN datastore_search on data.svk.se, manual frequency restoration reserve capacity market, bidding
+    zone SE2, upward direction. Every dimension is pinned through `filters` so the response is one series;
+    without that the zones interleave and the gate sees duplicate timestamps. Sorted on start_time_utc,
+    NOT on _id: the surrogate key is insertion order and the portal''s stale packages have their newest
+    _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
+    is normally in the future.'
+- id: svk_mfrr_capacity_se3
+  name: mFRR upward capacity price and volume, SE3 (Svenska kraftnat)
+  domain: energy
+  dgp_class: grid_balancing
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.svk.se/api/3/action/datastore_search?resource_id=0c56e30d-8fce-4c27-afc8-621c230ae34d&filters=%7B%22bidding_zone%22%3A%22SE3%22%2C%22reserve_direction%22%3A%22up%22%2C%22reserve_product%22%3A%22mFRRCapacityMarket%22%7D&sort=start_time_utc%20desc&limit=500
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].start_time_utc
+    value_field:
+    - result.records[].price
+    - result.records[].volume
+    drop_null_values: true
+    variates: 2
+  history_available: 500 newest hourly auction results per call
+  update_cadence_observed: hourly products, published ahead of the delivery day
+  pretraining_novelty: clean
+  novelty_notes: Swedish balancing capacity auctions. Published only through the operator's CKAN datastore;
+    no aggregator republishes the per-zone hourly series.
+  license: Svenska kraftnat open data (CC0)
+  audit_slack_days: 5
+  notes: 'CKAN datastore_search on data.svk.se, manual frequency restoration reserve capacity market, bidding
+    zone SE3, upward direction. Every dimension is pinned through `filters` so the response is one series;
+    without that the zones interleave and the gate sees duplicate timestamps. Sorted on start_time_utc,
+    NOT on _id: the surrogate key is insertion order and the portal''s stale packages have their newest
+    _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
+    is normally in the future.'
+- id: svk_mfrr_capacity_se4
+  name: mFRR upward capacity price and volume, SE4 (Svenska kraftnat)
+  domain: energy
+  dgp_class: grid_balancing
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://data.svk.se/api/3/action/datastore_search?resource_id=0c56e30d-8fce-4c27-afc8-621c230ae34d&filters=%7B%22bidding_zone%22%3A%22SE4%22%2C%22reserve_direction%22%3A%22up%22%2C%22reserve_product%22%3A%22mFRRCapacityMarket%22%7D&sort=start_time_utc%20desc&limit=500
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: result.records[].start_time_utc
+    value_field:
+    - result.records[].price
+    - result.records[].volume
+    drop_null_values: true
+    variates: 2
+  history_available: 500 newest hourly auction results per call
+  update_cadence_observed: hourly products, published ahead of the delivery day
+  pretraining_novelty: clean
+  novelty_notes: Swedish balancing capacity auctions. Published only through the operator's CKAN datastore;
+    no aggregator republishes the per-zone hourly series.
+  license: Svenska kraftnat open data (CC0)
+  audit_slack_days: 5
+  notes: 'CKAN datastore_search on data.svk.se, manual frequency restoration reserve capacity market, bidding
+    zone SE4, upward direction. Every dimension is pinned through `filters` so the response is one series;
+    without that the zones interleave and the gate sees duplicate timestamps. Sorted on start_time_utc,
+    NOT on _id: the surrogate key is insertion order and the portal''s stale packages have their newest
+    _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
+    is normally in the future.'
+- id: xm_co_demanda_tiempo_real
+  name: National electricity demand in real time (XM, Colombia)
+  domain: energy
+  dgp_class: electricity_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://serviciosfacturacion.xm.com.co/XM.Portal.Indicadores/api/Operacion/DemandaTiempoReal
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: Variables[].Datos[].Fecha
+    value_field:
+    - Variables[].Datos[].Valor
+    drop_null_values: true
+  history_available: rolling window of hourly points, ~460 per call
+  update_cadence_observed: hourly, published through the day
+  pretraining_novelty: clean
+  novelty_notes: Colombian national demand from the market operator's own indicator service. Distinct host
+    from the XM API already in the catalog.
+  license: XM public indicator service
+  audit_slack_days: 4
+  notes: 'The payload nests a chart definition: Variables[] each carry a Datos[] array of {Fecha, Valor}.
+    Two variables are served (real time and its comparison series), so both are read and the timestamps
+    repeat across them by design.'
+- id: rte_eco2mix_national_tr
+  name: eco2mix national generation mix in real time (RTE, France)
+  domain: energy
+  dgp_class: generation_mix
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/eco2mix-national-tr/records?limit=100&order_by=date_heure%20desc
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].date_heure
+    value_field:
+    - results[].consommation
+    - results[].eolien
+    - results[].solaire
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest 15-minute points per call
+  update_cadence_observed: 15-minute, published with a short lag
+  pretraining_novelty: unknown
+  novelty_notes: eco2mix is widely republished in aggregate, but the 15-minute per-source breakdown from
+    RTE's own portal is less so.
+  license: Licence Ouverte / Open Licence (Etalab)
+  audit_slack_days: 3
+  notes: Opendatasoft v2.1 records endpoint, ordered newest-first. The v2.1 API caps `limit` at 100 regardless
+    of what is asked for.
+- id: rte_eco2mix_bretagne
+  name: eco2mix regional generation mix in real time, Bretagne (RTE, France)
+  domain: energy
+  dgp_class: generation_mix
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/eco2mix-regional-tr/records?limit=100&order_by=date_heure%20desc&where=libelle_region%3D%22Bretagne%22
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].date_heure
+    value_field:
+    - results[].consommation
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: 15-minute for consumption, hourly for some generation columns
+  pretraining_novelty: unknown
+  novelty_notes: Per-region French generation mix.
+  license: Licence Ouverte / Open Licence (Etalab)
+  audit_slack_days: 3
+  notes: Region pinned with `where` so the response is one series; the dataset interleaves every region
+    on the same timestamps and would otherwise fail the distinct-timestamp gate. Bretagne was chosen for
+    a mix that is not dominated by one technology.
+- id: rte_consommation_brute_gaz_elec
+  name: Gross daily gas and electricity consumption (RTE/GRTgaz, France)
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - smooth_periodic
+  - trend
+  - positive_continuous
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/consommation-quotidienne-brute/records?limit=100&order_by=date_heure%20desc
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].date_heure
+    value_field:
+    - results[].consommation_brute_gaz_totale
+    - results[].consommation_brute_electricite_rte
+    - results[].consommation_brute_totale
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest half-hourly points per call
+  update_cadence_observed: half-hourly, consolidated with a few days' lag
+  pretraining_novelty: unknown
+  novelty_notes: Gas and electricity on one clock, which is unusual.
+  license: Licence Ouverte / Open Licence (Etalab)
+  audit_slack_days: 75
+  notes: Gas columns are null for the newest rows until GRTgaz consolidates, so drop_null_values is required
+    or the leading rows carry no value.
+
+# -- wired batch: energy wave 53: RTE consolidated --
+- id: rte_eco2mix_national_cons_def
+  name: eco2mix national consolidated generation mix (RTE, France)
+  domain: energy
+  dgp_class: generation_mix
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/eco2mix-national-cons-def/records?limit=100&order_by=date_heure%20desc
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: results[].date_heure
+    value_field:
+    - results[].consommation
+    - results[].nucleaire
+    - results[].eolien
+    - results[].solaire
+    drop_null_values: true
+    variates: 4
+  history_available: 100 newest points per call
+  update_cadence_observed: PT30M
+  pretraining_novelty: unknown
+  novelty_notes: French grid data from the operator's own portal.
+  license: Licence Ouverte / Open Licence (Etalab)
+  audit_slack_days: 120
+  notes: 'Opendatasoft v2.1 records endpoint, newest-first; v2.1 caps `limit` at 100. The consolidated series,
+    not the real-time one: it is revised and published months in arrears, which is why the slack is wide
+    and the poll is daily rather than half-hourly.'
