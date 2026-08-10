@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "round_id": "2026-07-09",
+  "generated_at": "2026-08-10T00:00:00+00:00",
+  "config": {
+    "seed": "tsfm-significance-v1",
+    "motif_len": 304,
+    "n_challenges": 256,
+    "n_series": 42
+  },
+  "note": "GPU run 2026-07-09 on the pre-autoresearch 42-series pool. Ranks reconstructed from the movement section of notebooks/tsfm_significance_result.md; per-model metric values were not preserved, so they are null here.",
+  "leaderboard": [
+    { "rank": 1, "model": "toto2", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 2, "model": "tabpfn-ts", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 3, "model": "timesfm25", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 4, "model": "tirex", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 5, "model": "chronos2", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 6, "model": "chronos-bolt", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 7, "model": "sundial", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 8, "model": "moirai2", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 9, "model": "flowstate", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 10, "model": "strong", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 11, "model": "ewma", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 12, "model": "drift", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 13, "model": "seasonal_naive", "crps_rel": 1.0, "mase_rel": null, "crps": 0.648, "mase": null },
+    { "rank": 14, "model": "context_parrot", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null },
+    { "rank": 15, "model": "ar1", "crps_rel": null, "mase_rel": null, "crps": null, "mase": null }
+  ]
+}
