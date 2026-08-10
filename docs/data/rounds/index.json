@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-10T01:51:34+00:00",
+  "updated_at": "2026-08-10T03:11:19+00:00",
   "rounds": [
     {
       "round_id": "2026-07-09",
@@ -12,7 +12,13 @@
         "tabpfn-ts",
         "timesfm25"
       ],
-      "has_metrics": true
+      "has_metrics": true,
+      "config": {
+        "seed": "tsfm-significance-v1",
+        "n_challenges": 256,
+        "n_series": 42
+      },
+      "note": "GPU run 2026-07-09 on the pre-autoresearch 42-series pool. Ranks reconstructed from the movement section of notebooks/tsfm_significance_result.md; per-model metric values were not preserved, so they are null here."
     },
     {
       "round_id": "2026-07-11",
@@ -24,7 +30,13 @@
         "tabpfn-ts",
         "timesfm25"
       ],
-      "has_metrics": true
+      "has_metrics": true,
+      "config": {
+        "seed": "tsfm-significance-v1",
+        "n_challenges": 256,
+        "n_series": 43
+      },
+      "note": "GPU run 2026-07-11 on the expanded post-autoresearch pool (28/256 challenges from newly added sources). Backfilled from notebooks/tsfm_significance_result.md."
     }
   ]
 }

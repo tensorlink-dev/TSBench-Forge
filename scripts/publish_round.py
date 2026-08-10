@@ -68,7 +68,7 @@ def round_summary(round_doc: dict) -> dict:
     """One index.json entry for a round file."""
     board = round_doc.get("leaderboard", [])
     ordered = sorted(board, key=lambda r: r.get("rank") or 1 << 30)
-    return {
+    out = {
         "round_id": round_doc["round_id"],
         "generated_at": round_doc.get("generated_at"),
         "n_models": len(board),
@@ -76,16 +76,31 @@ def round_summary(round_doc: dict) -> dict:
         "top": [r["model"] for r in ordered[:3]],
         "has_metrics": any(r.get("crps_rel") is not None for r in board),
     }
+    cfg = round_doc.get("config") or {}
+    picked = {k: cfg[k] for k in ("seed", "n_challenges", "n_series") if k in cfg}
+    if picked:
+        out["config"] = picked
+    if round_doc.get("note"):
+        out["note"] = round_doc["note"]
+    return out
+
+
+_DERIVED = {"index.json", "history.json"}
+
+
+def _round_docs(rounds_dir: Path) -> list[dict]:
+    docs = [
+        json.loads(p.read_text())
+        for p in sorted(rounds_dir.glob("*.json"))
+        if p.name not in _DERIVED
+    ]
+    docs.sort(key=lambda d: d["round_id"])
+    return docs
 
 
 def rebuild_index(rounds_dir: Path) -> dict:
     """Rebuild index.json from every round file present in ``rounds_dir``."""
-    entries = []
-    for p in sorted(rounds_dir.glob("*.json")):
-        if p.name == "index.json":
-            continue
-        entries.append(round_summary(json.loads(p.read_text())))
-    entries.sort(key=lambda e: e["round_id"])
+    entries = [round_summary(d) for d in _round_docs(rounds_dir)]
     index = {
         "schema_version": SCHEMA_VERSION,
         "updated_at": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -93,6 +108,38 @@ def rebuild_index(rounds_dir: Path) -> dict:
     }
     (rounds_dir / "index.json").write_text(json.dumps(index, indent=2) + "\n")
     return index
+
+
+def rebuild_history(rounds_dir: Path) -> dict:
+    """Rebuild history.json: the whole rank/CRPS history in one compact file.
+
+    The tracker charts hundreds of rounds; fetching one file per round does not
+    scale, so this is their feed. Per round, ``ranks`` and ``crps_rel`` are
+    arrays aligned with the top-level ``models`` list (null where a model did
+    not run). Round files stay the detailed per-round record.
+    """
+    docs = _round_docs(rounds_dir)
+    models: list[str] = []
+    for d in docs:
+        for row in d["leaderboard"]:
+            if row["model"] not in models:
+                models.append(row["model"])
+    rounds = []
+    for d in docs:
+        by_model = {r["model"]: r for r in d["leaderboard"]}
+        rounds.append({
+            "round_id": d["round_id"],
+            "ranks": [by_model.get(m, {}).get("rank") for m in models],
+            "crps_rel": [by_model.get(m, {}).get("crps_rel") for m in models],
+        })
+    history = {
+        "schema_version": SCHEMA_VERSION,
+        "updated_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "models": models,
+        "rounds": rounds,
+    }
+    (rounds_dir / "history.json").write_text(json.dumps(history) + "\n")
+    return history
 
 
 def main(argv: list[str]) -> int:
@@ -130,7 +177,9 @@ def main(argv: list[str]) -> int:
         print(f"wrote {dest} ({len(doc['leaderboard'])} models)")
 
     index = rebuild_index(rounds_dir)
+    history = rebuild_history(rounds_dir)
     print(f"wrote {rounds_dir / 'index.json'} ({len(index['rounds'])} rounds)")
+    print(f"wrote {rounds_dir / 'history.json'} ({len(history['models'])} models)")
     return 0
 
 

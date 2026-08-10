@@ -155,6 +155,14 @@ python scripts/publish_round.py \
 then commit `docs/data/`. Display names for model ids live in
 `docs/data/models.json`.
 
+Each run rewrites two derived files beside the round files:
+
+- `rounds/index.json` — one summary entry per round (top 3, counts, config).
+- `rounds/history.json` — the whole rank / `crps_rel` history in one file, as
+  arrays column-aligned to a top-level `models` list. This is what the tracker
+  charts read: at hundreds of rounds, one ~100 KB fetch instead of one request
+  per round. The per-round files stay the detailed record.
+
 ## 3. The source-discovery agent (`src/source_discovery/`)
 
 An autosearch-style LLM curation tool that keeps the catalog diverse and

@@ -62,9 +62,53 @@ def test_rebuild_index_orders_and_summarises(tmp_path):
     assert json.loads((rounds / "index.json").read_text())["rounds"] == index["rounds"]
 
 
+def test_rebuild_history_is_column_aligned(tmp_path):
+    rounds = tmp_path / "rounds"
+    rounds.mkdir()
+
+    def write(rid, merged):
+        (rounds / f"{rid}.json").write_text(json.dumps(publish_round.build_round(merged, rid)))
+
+    # round A has both models; round B drops toto2 and adds a newcomer
+    write("2026-08-01", MERGED)
+    write("2026-08-02", {"leaderboard": [
+        {"model": "seasonal_naive", "rank": 1, "crps_rel": 1.0, "mase_rel": 1.0,
+         "crps": 0.8, "mase": 3.5},
+        {"model": "newcomer", "rank": 2, "crps_rel": None, "mase_rel": None,
+         "crps": None, "mase": None},
+    ]})
+
+    hist = publish_round.rebuild_history(rounds)
+    assert hist["models"] == ["toto2", "seasonal_naive", "newcomer"]
+    assert [r["round_id"] for r in hist["rounds"]] == ["2026-08-01", "2026-08-02"]
+    # every per-round array is aligned with `models`, padded with None
+    for r in hist["rounds"]:
+        assert len(r["ranks"]) == len(hist["models"])
+        assert len(r["crps_rel"]) == len(hist["models"])
+    assert hist["rounds"][0]["ranks"] == [1, 2, None]
+    assert hist["rounds"][1]["ranks"] == [None, 1, 2]
+    assert hist["rounds"][1]["crps_rel"] == [None, 1.0, None]
+    assert json.loads((rounds / "history.json").read_text())["models"] == hist["models"]
+
+
+def test_derived_files_are_not_read_back_as_rounds(tmp_path):
+    """index.json / history.json live beside the round files; rebuilding twice
+    must not fold them into the history."""
+    rounds = tmp_path / "rounds"
+    rounds.mkdir()
+    doc = publish_round.build_round(MERGED, "2026-08-01")
+    (rounds / "2026-08-01.json").write_text(json.dumps(doc))
+    publish_round.rebuild_index(rounds)
+    publish_round.rebuild_history(rounds)
+    hist = publish_round.rebuild_history(rounds)
+    index = publish_round.rebuild_index(rounds)
+    assert [r["round_id"] for r in hist["rounds"]] == ["2026-08-01"]
+    assert [e["round_id"] for e in index["rounds"]] == ["2026-08-01"]
+
+
 def test_committed_seed_rounds_match_contract():
     rounds_dir = REPO / "docs/data/rounds"
-    paths = [p for p in rounds_dir.glob("*.json") if p.name != "index.json"]
+    paths = [p for p in rounds_dir.glob("*.json") if p.name not in publish_round._DERIVED]
     assert paths, "no committed rounds under docs/data/rounds/"
     models = json.loads((REPO / "docs/data/models.json").read_text())["models"]
     for p in paths:
@@ -77,6 +121,9 @@ def test_committed_seed_rounds_match_contract():
             assert row["model"] in models, f"{row['model']} missing from models.json"
     index = json.loads((rounds_dir / "index.json").read_text())
     assert [e["round_id"] for e in index["rounds"]] == sorted(p.stem for p in paths)
+    hist = json.loads((rounds_dir / "history.json").read_text())
+    assert [r["round_id"] for r in hist["rounds"]] == sorted(p.stem for p in paths)
+    assert set(hist["models"]) <= set(models)
 
 
 def test_cli_publish_and_index(tmp_path):
