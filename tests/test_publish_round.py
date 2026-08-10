@@ -83,11 +83,13 @@ def test_rebuild_history_is_column_aligned(tmp_path):
     assert [r["round_id"] for r in hist["rounds"]] == ["2026-08-01", "2026-08-02"]
     # every per-round array is aligned with `models`, padded with None
     for r in hist["rounds"]:
-        assert len(r["ranks"]) == len(hist["models"])
-        assert len(r["crps_rel"]) == len(hist["models"])
+        for key in ("ranks", "crps_rel", "mase_rel"):
+            assert len(r[key]) == len(hist["models"]), key
     assert hist["rounds"][0]["ranks"] == [1, 2, None]
     assert hist["rounds"][1]["ranks"] == [None, 1, 2]
     assert hist["rounds"][1]["crps_rel"] == [None, 1.0, None]
+    assert hist["rounds"][1]["mase_rel"] == [None, 1.0, None]
+    assert hist["rounds"][0]["mase_rel"] == [0.7, 1.0, None]
     assert json.loads((rounds / "history.json").read_text())["models"] == hist["models"]
 
 

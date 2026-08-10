@@ -114,9 +114,9 @@ def rebuild_history(rounds_dir: Path) -> dict:
     """Rebuild history.json: the whole rank/CRPS history in one compact file.
 
     The tracker charts hundreds of rounds; fetching one file per round does not
-    scale, so this is their feed. Per round, ``ranks`` and ``crps_rel`` are
-    arrays aligned with the top-level ``models`` list (null where a model did
-    not run). Round files stay the detailed per-round record.
+    scale, so this is their feed. Per round, ``ranks``, ``crps_rel`` and
+    ``mase_rel`` are arrays aligned with the top-level ``models`` list (null
+    where a model did not run). Round files stay the detailed per-round record.
     """
     docs = _round_docs(rounds_dir)
     models: list[str] = []
@@ -131,6 +131,7 @@ def rebuild_history(rounds_dir: Path) -> dict:
             "round_id": d["round_id"],
             "ranks": [by_model.get(m, {}).get("rank") for m in models],
             "crps_rel": [by_model.get(m, {}).get("crps_rel") for m in models],
+            "mase_rel": [by_model.get(m, {}).get("mase_rel") for m in models],
         })
     history = {
         "schema_version": SCHEMA_VERSION,
