@@ -108,10 +108,16 @@ class ScrapedLiveSource(LiveSource):
         self.frame_cache_bytes = int(frame_cache_bytes)
 
         # Index the catalog for O(1) per-source metadata lookup.
+        #
+        # Disabled sources are skipped, matching every other consumer of the
+        # catalog (scraper.py, audit.py, coverage.py). They are retired feeds —
+        # audit --apply-disables sets the flag once a source is stale past 3x
+        # its threshold — but their parquet stays on disk, so without this the
+        # eval keeps drawing windows from data the pipeline stopped trusting.
         self._meta_by_source: dict[str, dict] = {}
         for entry in catalog or []:
             sid = entry.get("id")
-            if not sid:
+            if not sid or entry.get("disabled"):
                 continue
             self._meta_by_source[sid] = {
                 "domain": entry.get("domain", "?"),

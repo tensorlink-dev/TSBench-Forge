@@ -279,6 +279,28 @@ def test_indexing_does_not_populate_the_frame_cache(catalog_tree):
     assert not src.__dict__.get("_frame_cache")
 
 
+def test_disabled_sources_are_excluded_from_the_pool(tmp_path):
+    """A disabled source keeps its parquet on disk, so nothing else stops the
+    eval serving windows from a feed the pipeline retired. Every other consumer
+    of the catalog honours the flag; this one must too."""
+    data_dir = tmp_path / "data"
+    for sid in ("live_one", "retired_one"):
+        _write(data_dir / sid / "2026-01-01.parquet", pd.DataFrame({
+            "timestamp": pd.date_range("2026-01-01", periods=300, freq="h"),
+            "value": np.arange(300.0),
+        }))
+    (tmp_path / "sources.yaml").write_text(yaml.safe_dump([
+        {"id": "live_one", "domain": "nature", "dgp_class": "x",
+         "frequency": "PT1H"},
+        {"id": "retired_one", "domain": "nature", "dgp_class": "x",
+         "frequency": "PT1H", "disabled": True,
+         "disabled_reason": "stale past 3x threshold"},
+    ]))
+    src = ScrapedLiveSource(tmp_path / "sources.yaml", data_dir,
+                            min_series_length=128)
+    assert {s["source_id"] for s in src._catalog()} == {"live_one"}
+
+
 def test_no_data_raises_clearly(tmp_path):
     """A catalog pointing at an empty data dir gives a clear error rather than
     a mysterious empty-pool downstream."""
