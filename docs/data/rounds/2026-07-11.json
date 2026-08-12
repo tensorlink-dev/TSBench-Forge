@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "round_id": "2026-07-11",
+  "generated_at": "2026-08-10T00:00:00+00:00",
+  "config": {
+    "seed": "tsfm-significance-v1",
+    "motif_len": 304,
+    "n_challenges": 256,
+    "n_series": 43,
+    "n_eligible_sources": 62
+  },
+  "note": "GPU run 2026-07-11 on the expanded post-autoresearch pool (28/256 challenges from newly added sources). Backfilled from notebooks/tsfm_significance_result.md.",
+  "leaderboard": [
+    { "rank": 1, "model": "toto2", "crps_rel": 0.427, "mase_rel": 0.671, "crps": 0.353, "mase": 2.143 },
+    { "rank": 2, "model": "tabpfn-ts", "crps_rel": 0.441, "mase_rel": 0.621, "crps": 0.384, "mase": 2.245 },
+    { "rank": 3, "model": "timesfm25", "crps_rel": 0.540, "mase_rel": 0.730, "crps": 0.517, "mase": 2.938 },
+    { "rank": 4, "model": "chronos2", "crps_rel": 0.559, "mase_rel": 0.851, "crps": 0.503, "mase": 3.075 },
+    { "rank": 5, "model": "moirai2", "crps_rel": 0.562, "mase_rel": 0.877, "crps": 0.379, "mase": 2.811 },
+    { "rank": 6, "model": "tirex", "crps_rel": 0.579, "mase_rel": 0.883, "crps": 0.490, "mase": 2.994 },
+    { "rank": 7, "model": "chronos-bolt", "crps_rel": 0.624, "mase_rel": 0.972, "crps": 0.475, "mase": 2.878 },
+    { "rank": 8, "model": "flowstate", "crps_rel": 0.749, "mase_rel": 1.124, "crps": 0.563, "mase": 8.715 },
+    { "rank": 9, "model": "sundial", "crps_rel": 0.759, "mase_rel": 1.111, "crps": 0.668, "mase": 3.868 },
+    { "rank": 10, "model": "strong", "crps_rel": 0.920, "mase_rel": 0.823, "crps": 0.748, "mase": 2.999 },
+    { "rank": 11, "model": "ewma", "crps_rel": 0.935, "mase_rel": 0.918, "crps": 0.750, "mase": 3.211 },
+    { "rank": 12, "model": "drift", "crps_rel": 0.966, "mase_rel": 0.959, "crps": 0.777, "mase": 3.290 },
+    { "rank": 13, "model": "seasonal_naive", "crps_rel": 1.000, "mase_rel": 0.960, "crps": 0.812, "mase": 3.508 },
+    { "rank": 14, "model": "context_parrot", "crps_rel": 1.017, "mase_rel": 1.034, "crps": 0.776, "mase": 3.523 },
+    { "rank": 15, "model": "ar1", "crps_rel": 1.020, "mase_rel": 1.030, "crps": 0.799, "mase": 3.810 }
+  ],
+  "friedman_crps": { "statistic": 1462.5, "p_value": 1.8e-192 },
+  "vs_baseline_crps": [
+    { "model": "toto2", "median_diff": -0.254, "win_rate": 0.89, "wilcoxon_p_holm": 7e-33, "significant": true },
+    { "model": "chronos-bolt", "median_diff": -0.244, "win_rate": 0.88, "wilcoxon_p_holm": 3e-34, "significant": true },
+    { "model": "moirai2", "median_diff": -0.228, "win_rate": 0.84, "wilcoxon_p_holm": 6e-32, "significant": true },
+    { "model": "tabpfn-ts", "median_diff": -0.228, "win_rate": 0.88, "wilcoxon_p_holm": 2e-32, "significant": true },
+    { "model": "chronos2", "median_diff": -0.226, "win_rate": 0.91, "wilcoxon_p_holm": 3e-35, "significant": true },
+    { "model": "tirex", "median_diff": -0.220, "win_rate": 0.91, "wilcoxon_p_holm": 3e-35, "significant": true },
+    { "model": "timesfm25", "median_diff": -0.207, "win_rate": 0.91, "wilcoxon_p_holm": 1e-36, "significant": true },
+    { "model": "flowstate", "median_diff": -0.177, "win_rate": 0.84, "wilcoxon_p_holm": 2e-27, "significant": true },
+    { "model": "sundial", "median_diff": -0.147, "win_rate": 0.75, "wilcoxon_p_holm": 1e-19, "significant": true },
+    { "model": "ewma", "median_diff": -0.009, "win_rate": 0.64, "wilcoxon_p_holm": 4e-06, "significant": true },
+    { "model": "strong", "median_diff": -0.003, "win_rate": 0.61, "wilcoxon_p_holm": 5e-08, "significant": true },
+    { "model": "ar1", "median_diff": -0.0, "win_rate": 0.51, "wilcoxon_p_holm": 0.37, "significant": false },
+    { "model": "drift", "median_diff": 0.0, "win_rate": 0.41, "wilcoxon_p_holm": 1.0, "significant": false },
+    { "model": "context_parrot", "median_diff": 0.01, "win_rate": 0.4, "wilcoxon_p_holm": 1.0, "significant": false }
+  ]
+}

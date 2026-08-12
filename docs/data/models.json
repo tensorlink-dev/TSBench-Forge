@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "note": "Display metadata for leaderboard model ids. class: tsfm = time-series foundation model, classical = classical baseline panel.",
+  "models": {
+    "toto2": { "name": "Toto-2", "class": "tsfm" },
+    "tabpfn-ts": { "name": "TabPFN-TS", "class": "tsfm" },
+    "timesfm25": { "name": "TimesFM-2.5", "class": "tsfm" },
+    "chronos2": { "name": "Chronos-2", "class": "tsfm" },
+    "moirai2": { "name": "Moirai-2", "class": "tsfm" },
+    "tirex": { "name": "TiRex", "class": "tsfm" },
+    "chronos-bolt": { "name": "Chronos-Bolt", "class": "tsfm" },
+    "flowstate": { "name": "FlowState", "class": "tsfm" },
+    "sundial": { "name": "Sundial", "class": "tsfm" },
+    "timesfm": { "name": "TimesFM-1", "class": "tsfm" },
+    "chronos": { "name": "Chronos", "class": "tsfm" },
+    "strong": { "name": "Strong baseline", "class": "classical" },
+    "ewma": { "name": "EWMA", "class": "classical" },
+    "drift": { "name": "Drift", "class": "classical" },
+    "ar1": { "name": "AR(1)", "class": "classical" },
+    "seasonal_naive": { "name": "Seasonal naive", "class": "classical" },
+    "context_parrot": { "name": "Context parrot", "class": "classical" }
+  }
+}

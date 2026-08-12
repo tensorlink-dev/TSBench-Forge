@@ -140,6 +140,29 @@ python src/demo.py                  # full pipeline on scraped (or fixture) data
 pip install -e ".[chronos]"         # enable the Chronos adapter (torch)
 ```
 
+### Publishing leaderboard rounds
+
+Merged GPU runs become public *rounds* under `docs/data/rounds/` (one JSON per
+round, dated, plus `index.json`), served as-is by GitHub Pages. The
+cascade-frontend leaderboard tracker fetches this feed to chart model movement
+over time. After `scripts/merge_tsfm_results.py`:
+
+```bash
+python scripts/publish_round.py \
+    --config-from notebooks/results/group_self/results.json --n-series 43
+```
+
+then commit `docs/data/`. Display names for model ids live in
+`docs/data/models.json`.
+
+Each run rewrites two derived files beside the round files:
+
+- `rounds/index.json` — one summary entry per round (top 3, counts, config).
+- `rounds/history.json` — the whole rank / `crps_rel` history in one file, as
+  arrays column-aligned to a top-level `models` list. This is what the tracker
+  charts read: at hundreds of rounds, one ~100 KB fetch instead of one request
+  per round. The per-round files stay the detailed record.
+
 ## 3. The source-discovery agent (`src/source_discovery/`)
 
 An autosearch-style LLM curation tool that keeps the catalog diverse and
