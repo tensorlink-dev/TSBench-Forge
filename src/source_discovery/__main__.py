@@ -22,6 +22,10 @@
     # Freshness audit: newest observation on disk vs declared cadence:
     python -m source_discovery --audit [--audit-json out.json] [--apply-disables]
 
+    # Composition of the EVAL POOL (what clears min_series_length on disk),
+    # which is not the same as the catalog's composition:
+    python -m source_discovery --pool-report [--pool-report-json out.json]
+
     # Bulk-generate candidates from the Socrata federated catalog (no model);
     # writes a batch in --wire's own format, so pipe it straight into --wire:
     python -m source_discovery --bulk-socrata batch.json --bulk-target 60
@@ -36,7 +40,7 @@ import re
 from pathlib import Path
 import sys
 
-from . import audit, bulk, coverage, llm, quality, runner, wire
+from . import audit, bulk, coverage, llm, pool_report, quality, runner, wire
 
 _DEFAULT_CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "sources.yaml")
 _DEFAULT_DATA = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "data")
@@ -64,6 +68,11 @@ def main(argv: list[str] | None = None) -> int:
                          "register in cron.yaml, and settle the ledger")
     ap.add_argument("--label", default="unlabeled",
                     help="with --wire: batch label written above the appended block")
+    ap.add_argument("--pool-report", action="store_true",
+                    help="composition of the EVAL POOL (what clears "
+                         "min_series_length on disk), not of the catalog")
+    ap.add_argument("--pool-report-json", metavar="FILE",
+                    help="with --pool-report: also write the full report JSON")
     ap.add_argument("--audit", action="store_true",
                     help="freshness audit: newest observation on disk vs cadence")
     ap.add_argument("--audit-json", metavar="FILE",
@@ -423,6 +432,21 @@ def main(argv: list[str] | None = None) -> int:
                               apply=args.apply)
         print(json.dumps(rep, indent=2))
         return 0 if rep["counts"]["wire"] or not rep["detail"] else 1
+
+    if args.pool_report:
+        report = pool_report.build(args.catalog, args.data_dir)
+        if args.pool_report_json:
+            Path(args.pool_report_json).write_text(
+                json.dumps(report, indent=2) + "\n")
+        print(pool_report.summarize(report))
+        print()
+        print(pool_report.render_table(report))
+        print()
+        print(json.dumps({k: report[k] for k in (
+            "totals", "eligible_sources_by_domain", "eligible_series_by_domain",
+            "ineligible_on_depth_by_domain", "sampled_by_domain",
+            "sampled_by_cadence")}, indent=2))
+        return 0 if not report["sample_error"] else 1
 
     if args.audit:
         findings = audit.audit_catalog(args.catalog, args.data_dir)
