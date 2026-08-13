@@ -66,6 +66,10 @@ schedules:
   - brussels_real_time_availability_of_villo_bicycles
   - liege_shop_drive_kiss_ride_real_time
   - elia_ods147_system_imbalance_forecast_next_quarter
+  - emodnet_mobile_gears_oceanographic_data_from_fis
+  - noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1045_hur
+  - noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1069_hur
+  - cioosatlantic_diamond_jubilee_cruise_ship_terminal_met
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -238,6 +242,7 @@ schedules:
   - energinet_co2emis_dk1
   - energinet_co2emisprog_dk1
   - energinet_electricityprodex5minrealtime_dk1
+  - gbfs_bolt_bolt_technology_ou_brussels
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -355,6 +360,14 @@ schedules:
   - rte_eco2mix_national_tr
   - rte_eco2mix_bretagne
   - energinet_dayaheadprices_dk1
+  - cencoos_067_san_nicolas_island_ca_46219
+  - cencoos_071_harvest_ca_46218
+  - neracoos_a01_met_meteorology
+  - neracoos_b01_met_meteorology
+  - smartatlantic_halifax_ocean_terminals_fairview
+  - smartatlantic_halifax_ocean_terminals_pier_31
+  - cioosatlantic_halifax_ocean_terminals_pier_31
+  - noaa_sfsu_eos_metstation_real_time_data
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -413,6 +426,8 @@ schedules:
   - chubu_jp_area_balance_30min
   - agis_bouldercolorado_response_times_for_boulder_fire_rescue
   - rte_consommation_brute_gaz_elec
+  - gcoos_data_for_ioos_station_cbi_127
+  - gcoos_data_for_ioos_station_cbi_130
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -808,6 +823,17 @@ schedules:
   - elia_ods165_balancing_energy_prices_components_per
   - swiss_weekly_number_of_deaths_in_switzerland_2_c6aaa916
   - agis_charlestoncounty_charleston_county_calls_yesterday
+  - noaa_noaa_ship_fairweather_underway_meteorolo
+  - noaa_noaa_ship_gordon_gunter_underway_meteoro
+  - ioos_41037_ilm3_wrightsville_beach_offshore_n
+  - ioos_41038_ilm2_wrightsville_beach_nearshore
+  - secoora_41037_ilm3_wrightsville_beach_offshore_n
+  - secoora_41038_ilm2_wrightsville_beach_nearshore
+  - noaa_lake_erie_normalized_radar_cross_section
+  - noaa_lake_erie_sandusky_surface_temperature_c
+  - noaa_noaa_ship_fairweather_underway_meteorolo_fsunoaashi
+  - noaa_noaa_ship_gordon_gunter_underway_meteoro_fsunoaashi
+  - ondeckdata_qaqc_flagged_oceanographic_data
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -2223,6 +2249,275 @@ schedules:
   - opendata_real_time_air_quality_pm10_fine_particulate_mat_6552
   - data_62_station_meteo_toulouse_parc_maourine
   - data_37_station_meteo_toulouse_universite_paul_sabatier
+  - data_food_service_inspection_temperature_observati_00_0_f
+  - data_food_service_inspection_violation_comments_10d
+  - data_food_service_inspection_violation_comments_11c
+  - data_food_service_inspection_violation_comments_12a
+  - data_food_service_inspection_violation_comments_1_2a
+  - data_food_service_inspection_violation_comments_12b
+  - data_food_service_inspections
+  - data_fin_daily_po_notifications
+  - data_fin_ap_vendor_emails
+  - healthdata_showcase_projects
+  - www_vetpop2023_national_data_1l_80_to_84
+  - www_vetpop2023_national_data_1l_60_to_64
+  - www_vetpop2023_national_data_1l_45_to_49
+  - www_vetpop2023_national_data_1l_17_to_19
+  - www_vetpop2023_national_data_1l_70_to_74
+  - www_vetpop2023_national_period_of_service_data_2l_r_vne_gw
+  - www_vetpop2023_national_period_of_service_data_2l_x_post_g
+  - www_vetpop2023_national_period_of_service_data_2l_k_wwii_k
+  - data_freshwater_swim_beach_data_madison
+  - data_freshwater_swim_beach_data_sammamis
+  - data_freshwater_swim_beach_data_juanita
+  - data_freshwater_swim_beach_data_gene_cou
+  - data_freshwater_swim_beach_data_mt_baker
+  - data_service_requests_received_by_the_oakland_call
+  - datahub_highway_rail_grade_crossing_incident_data
+  - datahub_rail_equipment_accident_incident_data_form
+  - policedata_ticket_and_citation_data_with_charges
+  - policedata_crash_data
+  - www_expenditures_10
+  - www_expenditures_20
+  - data_parking_infractions
+  - data_financial_services_payroll_run_times
+  - data_community_living_disability_support_program
+  - sharefulton_human_resources_personnel_metrics_by_m_arts_coo
+  - sharefulton_human_resources_personnel_metrics_by_m_at_large
+  - sharefulton_human_resources_personnel_metrics_by_m_child_at
+  - sharefulton_human_resources_personnel_metrics_by_m_commissi
+  - sharefulton_human_resources_personnel_metrics_by_m_county_a
+  - data_supply_chain_and_freight_indicators_containe
+  - data_supply_chain_and_freight_indicators_carloads
+  - data_supply_chain_and_freight_indicators_trailers
+  - data_supply_chain_and_freight_indicators_mph
+  - data_supply_chain_and_freight_indicators_intermod
+  - citydata_financial_services_payroll_run_times
+  - cos_data_paid_parking_occupancy_last_30_days_ne
+  - cos_data_paid_parking_occupancy_last_30_days_nw
+  - cos_data_paid_parking_occupancy_last_30_days_se
+  - data_east_shepard_drone_testing_site_weather_stati
+  - data_cpd_crash_log
+  - data_beach_water_quality_automated_sensors
+  - data_beach_weather_stations_automated_sensors
+  - data_current_surface_water_conditions_in_colorado_boulder
+  - data_correctional_community_program_daily_populati_parole_p
+  - data_correctional_community_program_daily_populati_halfway
+  - data_correctional_community_program_daily_populati_re_entry
+  - data_historical_parkade_openspace_data
+  - data_onestop_hearings
+  - data_code_enforcement_hearings
+  - data_transit_pass_ups
+  - datahub_real_time_road_conditions
+  - datahub_traffic_signal_network_device_status_log_1
+  - datahub_traffic_signal_network_device_status_log_2
+  - hicscdata_expenditures_made_by_hawaii_state_and_co
+  - hicscdata_campaign_contributions_received_by_hawai
+  - hicscdata_expenditures_made_by_hawaii_noncandidate
+  - www_air_quality_monitoring_data
+  - www_registration_data_from_the_act_registry_of_bir
+  - www_engineers_public_register
+  - anglet_opendatapaysbasque_comptage_velo_donnees_compteur_100048
+  - data_dataairplqualiteairangers_bouche
+  - data_comptage_velo_donnees_compteurs_issy
+  - data_ex_vue_personnalisee_comptage_velo_et_pedestre_donn_300015
+  - opendata_fr_229200506_comptages_velos_pas_horaire_100041
+  - opendata_fr_229200506_comptages_velos_pas_journalier_100041
+  - opendata_tableau_sterilisation_chats_2024
+  - opendata_referentiel_parkings_saemes
+  - ressources_qualite_de_lair
+  - spi_digitalwallonia_bornes_de_comptage_cyclistes_et_piet
+  - app_production_quotidienne_consolidee_de_biomethane_sur
+  - data_test_qualite_air_dashboard_gare_s
+  - data_transferts_certificats_d_immatriculation_des_vehicu
+  - data_comptages_des_passages_velos_a_pasteur_vers_a3
+  - data_comptages_des_passages_velos_a_pasteur_vers_la_croi
+  - data_comptages_des_passages_velo_paul_vaillant_couturier
+  - data_dbu_afu_3_118110
+  - data_dbu_afu_6_889004
+  - data_dbu_afu_4_822104
+  - data_comptage_velo_donnees_compteurs_syndicat_des_mobili_100038
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30003175
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004819
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004824
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004825
+  - data_dataairplqualiteairangers_verriere
+  - controllerdata_city_of_los_angeles_economic_data_real_gdp
+  - controllerdata_joint_training_institute_jti_and_jo_jti
+  - data_exemptions
+  - data_olcc_marijuana_market_data_count_of_retailers
+  - data_olcc_marijuana_market_data_monthly_sales_industri
+  - data_olcc_marijuana_market_data_median_retail_pric
+  - data_olcc_marijuana_market_data_sales_quantity_of_polk
+  - data_olcc_marijuana_market_data_sales_quantity_of_harney
+  - data_olcc_marijuana_market_data_sales_quantity_of_lake
+  - data_olcc_marijuana_market_data_sales_quantity_of_coos
+  - data_olcc_marijuana_market_data_sales_quantity_of_malheur
+  - data_olcc_marijuana_market_data_sales_quantity_of_jefferso
+  - data_olcc_marijuana_market_data_sales_quantity_of_grant
+  - data_olcc_marijuana_market_data_sales_quantity_of_lincoln
+  - data_olcc_marijuana_market_data_sales_quantity_of_clatsop
+  - data_olcc_marijuana_market_data_sales_quantity_of_jackson
+  - data_olcc_marijuana_market_data_sales_quantity_of_columbia
+  - data_olcc_marijuana_market_data_sales_quantity_of_curry
+  - data_campaign_finance_filings_received_by_sfec
+  - data_temporary_street_closures
+  - data_temp_street_closure_intersections
+  - open_hs_homeless_persons_served_that_return_to_hom
+  - open_hs_dataset_length_of_time_homeless
+  - open_homeless_youth_who_regain_housing
+  - open_homeless_veterans_who_regain_housing
+  - open_homeless_persons_who_regain_housing
+  - data_medicaid_enrollment
+  - data_weather_data_mesa_airports_sky_harbor
+  - data_medical_incident_counts_abdomina
+  - data_medical_incident_counts_accident
+  - data_medical_incident_counts_allergic
+  - data_medical_incident_counts_animal_a
+  - data_medical_incident_counts_assault
+  - data_medical_incident_counts_back_pai
+  - data_medical_incident_counts_basic_li
+  - data_medical_incident_counts_behavior
+  - opendata_state_of_maryland_payments_data_fy2008_to_departme
+  - opendata_number_of_businesses_in_the_state
+  - data_emergency_communications_center_ecc_calls_311_cs
+  - data_emergency_communications_center_ecc_calls_911_311
+  - data_emergency_communications_center_ecc_calls_classroo
+  - data_emergency_communications_center_ecc_calls_supervis
+  - data_electric_outages
+  - data_bicycle_and_pedestrian_counts_10000942
+  - data_bicycle_and_pedestrian_counts_10001001
+  - data_bicycle_and_pedestrian_counts_10001002
+  - data_bicycle_and_pedestrian_counts_10004702
+  - data_bicycle_and_pedestrian_counts_10005731
+  - data_bicycle_and_pedestrian_counts_10005732
+  - data_bicycle_and_pedestrian_counts_10006289
+  - data_bicycle_and_pedestrian_counts_30002024
+  - data_bicycle_and_pedestrian_counts_30002090
+  - data_bicycle_and_pedestrian_counts_30002400
+  - data_bicycle_and_pedestrian_counts_30002772
+  - data_bicycle_and_pedestrian_counts_30003850
+  - data_police_service_calls_for_mental_health
+  - data_crash_reporting_drivers_data
+  - data_crash_reporting_incidents_data
+  - data_crash_reporting_non_motorists_data
+  - data_mosquito_trap_counts_aedes_at
+  - data_mosquito_trap_counts_aedes_ve
+  - data_mosquito_trap_counts_anophele
+  - data_mosquito_trap_counts_culex_er
+  - data_mosquito_trap_counts_culex_sa
+  - data_mosquito_trap_counts_culiseta
+  - data_mosquito_trap_counts_males
+  - data_mosquito_trap_counts_orthopod
+  - data_mosquito_trap_counts_psoropho
+  - data_mosquito_trap_counts_uranotae
+  - data_blocked_railroad_crossing_incident_reports
+  - data_mta_lirr_delay_verification_beginning_2010
+  - data_mta_subway_schedules_2026_01_0006
+  - data_mta_subway_schedules_2026_01_0007
+  - data_mta_subway_schedules_2026_01_0008
+  - data_mta_subway_schedules_2026_01_0014
+  - data_mta_subway_schedules_2026_01_0017
+  - data_mta_subway_schedules_2026_01_0019
+  - data_mta_subway_schedules_2026_01_0022
+  - data_mta_subway_schedules_2026_01_0023
+  - data_mta_subway_schedules_2026_01_0024
+  - data_mta_subway_schedules_2026_01_0025
+  - data_mta_subway_schedules_2026_01_0026
+  - data_mta_subway_schedules_2026_01_0027
+  - data_mta_subway_hourly_ridership_beginning_2025_tram
+  - data_mta_metro_north_delay_verification_beginning
+  - citydata_weather_data_mesa_airports_sky_harbor
+  - data_current_year_rainfall
+  - data_miovision_daily_pedestrian_counts_binney_s
+  - data_miovision_daily_pedestrian_counts_broadway
+  - data_miovision_daily_pedestrian_counts_cambridg
+  - data_miovision_daily_pedestrian_counts_fawcett
+  - data_miovision_daily_pedestrian_counts_first_st
+  - data_miovision_daily_pedestrian_counts_garden_s
+  - data_miovision_daily_pedestrian_counts_hampshir
+  - data_miovision_daily_pedestrian_counts_homer_av
+  - data_miovision_daily_pedestrian_counts_massachu
+  - data_miovision_daily_pedestrian_counts_mount_au
+  - data_miovision_daily_pedestrian_counts_prospect
+  - data_miovision_daily_pedestrian_counts_third_st
+  - data_current_surface_water_conditions_in_colorado_jefferso
+  - data_weather_data_daily_environment_canada
+  - data_freshwater_swim_beach_data_matthews
+  - data_freshwater_swim_beach_data_enatai
+  - data_freshwater_swim_beach_data_pine_lak
+  - data_freshwater_swim_beach_data_echo_lak
+  - data_freshwater_swim_beach_data_kennydal
+  - data_freshwater_swim_beach_data_pritchar
+  - data_freshwater_swim_beach_data_luther_b
+  - data_freshwater_swim_beach_data_grovelan
+  - data_freshwater_swim_beach_data_angle_la
+  - data_freshwater_swim_beach_data_newcastl
+  - data_freshwater_swim_beach_data_lake_sam
+  - data_freshwater_swim_beach_data_green_la
+  - data_capital_expenditures_04000017
+  - data_capital_expenditures_04000018
+  - data_capital_expenditures_07040001
+  - data_beach_lab_data_humboldt
+  - data_beach_lab_data_hartigan
+  - data_beach_lab_data_margaret
+  - data_beach_lab_data_marion_m
+  - data_food_service_inspection_temperature_observati_02_0_f
+  - data_food_service_inspection_violation_comments_1_2b
+  - data_food_service_inspection_violation_comments_12c
+  - data_food_service_inspection_violation_comments_13a
+  - data_food_service_inspection_violation_comments_14a
+  - data_food_service_inspection_violation_comments_14b
+  - data_food_service_inspection_violation_comments_14c
+  - data_food_service_inspection_violation_comments_15a
+  - data_food_service_inspection_violation_comments_15b
+  - data_food_service_inspection_violation_comments_15c
+  - data_food_service_inspection_violation_comments_16a
+  - data_food_service_inspection_violation_comments_16b
+  - data_food_service_inspection_violation_comments_17a
+  - sharefulton_human_resources_personnel_metrics_by_m_county_c
+  - sharefulton_human_resources_personnel_metrics_by_m_county_m
+  - sharefulton_human_resources_personnel_metrics_by_m_county_o
+  - sharefulton_human_resources_personnel_metrics_by_m_death_se
+  - sharefulton_human_resources_personnel_metrics_by_m_departme
+  - sharefulton_human_resources_personnel_metrics_by_m_district
+  - sharefulton_human_resources_personnel_metrics_by_m_diversit
+  - sharefulton_human_resources_personnel_metrics_by_m_economic
+  - sharefulton_human_resources_personnel_metrics_by_m_emergenc
+  - sharefulton_human_resources_personnel_metrics_by_m_external
+  - sharefulton_human_resources_personnel_metrics_by_m_finance
+  - sharefulton_human_resources_personnel_metrics_by_m_fire
+  - data_correctional_community_program_daily_populati_transiti
+  - data_correctional_community_program_daily_populati_parole_s
+  - data_correctional_community_program_daily_populati_nursing
+  - data_correctional_community_program_daily_populati_parole_t
+  - data_correctional_community_program_daily_populati_supervis
+  - data_correctional_community_program_daily_populati_dui_drug
+  - data_correctional_facility_daily_population_count_bridgepo
+  - data_correctional_facility_daily_population_count_brooklyn
+  - data_correctional_facility_daily_population_count_cheshire
+  - data_correctional_facility_daily_population_count_corrigan
+  - data_correctional_facility_daily_population_count_garner
+  - data_correctional_facility_daily_population_count_hartford
+  - datahub_austin_animal_center_intakes
+  - datahub_austin_animal_center_outcomes
+  - www_vetpop2023_national_data_1l_20_to_24
+  - www_vetpop2023_national_data_1l_30_to_34
+  - www_vetpop2023_national_data_1l_25_to_29
+  - www_vetpop2023_national_data_1l_65_to_69
+  - www_vetpop2023_national_data_1l_85_or_ol
+  - www_vetpop2023_national_data_1l_40_to_44
+  - www_vetpop2023_national_data_1l_50_to_54
+  - www_vetpop2023_national_data_1l_35_to_39
+  - www_vetpop2023_national_data_1l_75_to_79
+  - www_vetpop2023_national_data_1l_55_to_59
+  - www_vetpop2023_national_period_of_service_data_2l_b_wartim
+  - www_vetpop2023_national_period_of_service_data_2l_a_all_ve
+  - data_preliminary_estimates_of_cumulative_covid_19
+  - noaa_upwelling_index_21n_107w_6_hourly
+  - ondeckdata_shelf_research_fleet_1_m_bin_averaged_ct
+  - data_akf_data
+  - data_arbitration_amendments_to_rules_of_procedure
   cron: 10 1 * * *
 - every: P1D
   sources:
