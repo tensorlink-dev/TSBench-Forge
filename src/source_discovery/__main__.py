@@ -40,7 +40,8 @@ import re
 from pathlib import Path
 import sys
 
-from . import audit, bulk, coverage, llm, pool_report, quality, runner, wire
+from . import (audit, bulk, coverage, grind, llm, pool_report, quality, runner,
+               wire)
 
 _DEFAULT_CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "sources.yaml")
 _DEFAULT_DATA = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "data")
@@ -68,6 +69,15 @@ def main(argv: list[str] | None = None) -> int:
                          "register in cron.yaml, and settle the ledger")
     ap.add_argument("--label", default="unlabeled",
                     help="with --wire: batch label written above the appended block")
+    ap.add_argument("--grind", action="store_true",
+                    help="find N new sources steered at the thinnest domains "
+                         "and cadence cells; --apply wires the survivors")
+    ap.add_argument("--grind-target", type=int, default=grind.DEFAULT_TARGET,
+                    help="how many sources to wire this run (default 4)")
+    ap.add_argument("--grind-minutes", type=float, default=grind.DEFAULT_MINUTES,
+                    help="wall-clock budget for the sweep phase (default 45)")
+    ap.add_argument("--grind-domains", type=int, default=3,
+                    help="how many of the thinnest domains to target")
     ap.add_argument("--pool-report", action="store_true",
                     help="composition of the EVAL POOL (what clears "
                          "min_series_length on disk), not of the catalog")
@@ -432,6 +442,30 @@ def main(argv: list[str] | None = None) -> int:
                               apply=args.apply)
         print(json.dumps(rep, indent=2))
         return 0 if rep["counts"]["wire"] or not rep["detail"] else 1
+
+    if args.grind:
+        import datetime as _dt
+        plan = grind.run(args.catalog, target=args.grind_target,
+                         minutes=args.grind_minutes,
+                         n_domains=args.grind_domains,
+                         log=lambda m: print(m, file=sys.stderr))
+        stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%d-%H%M")
+        batch = Path(args.out or ".") / f"grind-{stamp}.json"
+        batch.parent.mkdir(parents=True, exist_ok=True)
+        bulk.write_batch(plan["ranked"], str(batch))
+        report = {k: plan[k] for k in
+                  ("target_domains", "veins_run", "found", "surplus")}
+        report["batch"] = str(batch)
+        report["ranked"] = [b.get("candidate_name") for b in plan["ranked"]]
+        if plan["ranked"] and args.apply:
+            # wire re-verifies every candidate against the real scraper before
+            # anything reaches sources.yaml, so this is the same gate a manual
+            # wave goes through -- not a shortcut around it.
+            rep = wire.wire_batch(str(batch), args.catalog,
+                                  label=f"grind-{stamp}", apply=True)
+            report["wired"] = rep["counts"]
+        print(json.dumps(report, indent=2))
+        return 0 if plan["ranked"] else 1
 
     if args.pool_report:
         report = pool_report.build(args.catalog, args.data_dir)
