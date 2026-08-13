@@ -655,6 +655,11 @@ def _walk(obj: Any, path: str) -> Any:
 _EPOCH_S_RANGE = (10**8, 2 * 10**9)          # 1973-2033 in seconds
 _EPOCH_MS_RANGE = (10**12, 2 * 10**12)       # 2001-2033 in milliseconds
 _DECIMAL_YEAR_RE = re.compile(r"^(\d{4})\.(\d{1,6})$")
+# ISO year-week in ONE field ("2026-W14", "2026W14"). Epidemiological feeds
+# label by week rather than date -- ECDC's respiratory surveillance and most
+# national ILI reporting do. Distinct from schema.compose_year_week, which
+# joins a separate year column to a separate week column.
+_ISO_YEARWEEK_RE = re.compile(r"^(\d{4})[-_]?[Ww](\d{1,2})$")
 
 
 def _looks_like_epoch(n: float) -> bool:
@@ -679,6 +684,16 @@ def _epoch_to_iso(v: Any) -> Optional[str]:
         if s.isdigit():
             n = int(s)
             return _epoch_to_iso(n) if _looks_like_epoch(n) else s
+        # ISO year-week ("2026-W14") → that week's Monday. Resolving to a real
+        # date rather than keeping the label is what lets the freshness audit
+        # tell a weekly feed that stopped in March from one reporting on time.
+        m = _ISO_YEARWEEK_RE.match(s)
+        if m:
+            try:
+                return dt.date.fromisocalendar(
+                    int(m.group(1)), int(m.group(2)), 1).isoformat()
+            except ValueError:
+                return s
         # Decimal years ("2026.042" — NOAA GML trends files) → ISO month start.
         m = _DECIMAL_YEAR_RE.match(s)
         if m and 1900 <= int(m.group(1)) < 2100:

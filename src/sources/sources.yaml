@@ -85759,3 +85759,3648 @@
   audit_slack_days: 3
   notes: USGS NWIS IV service, gauge 09034250 (Colorado River At Windy Gap, Near Granby, Co.), parameter
     code 63680 (Turbidity), 15-minute instantaneous readings over a 10-day window.
+
+# -- wired batch: energy-charts per production type and bidding zone --
+- id: energy_charts_at_load
+  name: energy-charts — AT load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[12].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=at, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 12 of the AT public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_at_solar
+  name: energy-charts — AT solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=at, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 11 of the AT public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_at_wind_onshore
+  name: energy-charts — AT wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=at, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 10 of the AT public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_cz_load
+  name: energy-charts — CZ load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[16].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=cz, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 16 of the CZ public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_cz_solar
+  name: energy-charts — CZ solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=cz, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 15 of the CZ public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_cz_wind_onshore
+  name: energy-charts — CZ wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=cz, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 14 of the CZ public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_de_load
+  name: energy-charts — DE load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[17].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=de, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 17 of the DE public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_de_solar
+  name: energy-charts — DE solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[16].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=de, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 16 of the DE public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_de_wind_onshore
+  name: energy-charts — DE wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=de, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 15 of the DE public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_dk_load
+  name: energy-charts — DK load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=dk, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 8 of the DK public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_dk_solar
+  name: energy-charts — DK solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[7].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=dk, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 7 of the DK public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_dk_wind_onshore
+  name: energy-charts — DK wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[6].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=dk, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 6 of the DK public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ee_load
+  name: energy-charts — EE load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ee, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 11 of the EE public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ee_solar
+  name: energy-charts — EE solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ee, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 10 of the EE public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ee_wind_onshore
+  name: energy-charts — EE wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ee, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 9 of the EE public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_es_load
+  name: energy-charts — ES load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[17].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=es, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 17 of the ES public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_es_solar
+  name: energy-charts — ES solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[16].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=es, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 16 of the ES public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_es_wind_onshore
+  name: energy-charts — ES wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=es, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 15 of the ES public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_fi_load
+  name: energy-charts — FI load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=fi, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 15 of the FI public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_fi_solar
+  name: energy-charts — FI solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=fi, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 14 of the FI public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_fi_wind_onshore
+  name: energy-charts — FI wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[13].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=fi, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 13 of the FI public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_fr_load
+  name: energy-charts — FR load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=fr, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 15 of the FR public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_fr_solar
+  name: energy-charts — FR solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=fr, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 14 of the FR public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_fr_wind_onshore
+  name: energy-charts — FR wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[13].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=fr, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 13 of the FR public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_hr_load
+  name: energy-charts — HR load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=hr, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 14 of the HR public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_hr_solar
+  name: energy-charts — HR solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[13].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=hr, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 13 of the HR public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_hr_wind_onshore
+  name: energy-charts — HR wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[12].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=hr, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 12 of the HR public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_hu_load
+  name: energy-charts — HU load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=hu, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 14 of the HU public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_hu_solar
+  name: energy-charts — HU solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[13].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=hu, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 13 of the HU public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_hu_wind_onshore
+  name: energy-charts — HU wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[12].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=hu, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 12 of the HU public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ie_load
+  name: energy-charts — IE load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ie, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 9 of the IE public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ie_wind_onshore
+  name: energy-charts — IE wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ie, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 8 of the IE public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ie_hydro_run_of_river
+  name: energy-charts — IE hydro run-of-river (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ie, 'Hydro Run-of-River'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Hydro Run-of-River' at payload index 2 of the IE public_power response. The index
+    is position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_it_load
+  name: energy-charts — IT load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[17].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=it, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 17 of the IT public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_it_solar
+  name: energy-charts — IT solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[16].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=it, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 16 of the IT public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_it_wind_onshore
+  name: energy-charts — IT wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=it, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 15 of the IT public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_lt_load
+  name: energy-charts — LT load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[12].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=lt, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 12 of the LT public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_lt_solar
+  name: energy-charts — LT solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=lt, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 11 of the LT public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_lt_wind_onshore
+  name: energy-charts — LT wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=lt, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 10 of the LT public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_lu_load
+  name: energy-charts — LU load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=lu, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 8 of the LU public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_lu_solar
+  name: energy-charts — LU solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[7].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=lu, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 7 of the LU public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_lu_wind_onshore
+  name: energy-charts — LU wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[6].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=lu, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 6 of the LU public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_nl_load
+  name: energy-charts — NL load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=nl, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 10 of the NL public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_nl_solar
+  name: energy-charts — NL solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=nl, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 9 of the NL public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_nl_wind_onshore
+  name: energy-charts — NL wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=nl, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 8 of the NL public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_no_load
+  name: energy-charts — NO load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=no, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 11 of the NO public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_no_solar
+  name: energy-charts — NO solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=no, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 10 of the NO public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_no_wind_onshore
+  name: energy-charts — NO wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=no, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 9 of the NO public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_pl_load
+  name: energy-charts — PL load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[16].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=pl, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 16 of the PL public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_pl_solar
+  name: energy-charts — PL solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=pl, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 15 of the PL public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_pl_wind_onshore
+  name: energy-charts — PL wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=pl, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 14 of the PL public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ro_load
+  name: energy-charts — RO load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ro&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ro, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 11 of the RO public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ro_solar
+  name: energy-charts — RO solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ro&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ro, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 10 of the RO public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_ro_wind_onshore
+  name: energy-charts — RO wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=ro&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=ro, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 9 of the RO public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_se_load
+  name: energy-charts — SE load (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=se&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[7].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=se, 'Load'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Load' at payload index 7 of the SE public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_se_solar
+  name: energy-charts — SE solar (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=se&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[6].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=se, 'Solar'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Solar' at payload index 6 of the SE public_power response. The index is position-stable
+    per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_se_wind_onshore
+  name: energy-charts — SE wind onshore (15-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/public_power?country=se&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - production_types[5].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts public_power, country=se, 'Wind onshore'.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Production type 'Wind onshore' at payload index 5 of the SE public_power response. The index is
+    position-stable per country; the type name is recorded here so a reshuffle is detectable.
+- id: energy_charts_price_de_lu
+  name: energy-charts — DE-LU day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=DE-LU&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone DE-LU.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone DE-LU.
+- id: energy_charts_price_fr
+  name: energy-charts — FR day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=FR&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone FR.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone FR.
+- id: energy_charts_price_es
+  name: energy-charts — ES day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=ES&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone ES.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone ES.
+- id: energy_charts_price_it_north
+  name: energy-charts — IT-North day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=IT-North&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone IT-North.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone IT-North.
+- id: energy_charts_price_it_centre_north
+  name: energy-charts — IT-Centre-North day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=IT-Centre-North&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone IT-Centre-North.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone IT-Centre-North.
+- id: energy_charts_price_it_centre_south
+  name: energy-charts — IT-Centre-South day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=IT-Centre-South&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone IT-Centre-South.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone IT-Centre-South.
+- id: energy_charts_price_it_south
+  name: energy-charts — IT-South day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=IT-South&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone IT-South.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone IT-South.
+- id: energy_charts_price_it_sicily
+  name: energy-charts — IT-Sicily day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=IT-Sicily&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone IT-Sicily.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone IT-Sicily.
+- id: energy_charts_price_it_sardinia
+  name: energy-charts — IT-Sardinia day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=IT-Sardinia&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone IT-Sardinia.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone IT-Sardinia.
+- id: energy_charts_price_nl
+  name: energy-charts — NL day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=NL&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone NL.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone NL.
+- id: energy_charts_price_be
+  name: energy-charts — BE day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=BE&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone BE.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone BE.
+- id: energy_charts_price_at
+  name: energy-charts — AT day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=AT&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone AT.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone AT.
+- id: energy_charts_price_pl
+  name: energy-charts — PL day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=PL&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone PL.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone PL.
+- id: energy_charts_price_cz
+  name: energy-charts — CZ day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=CZ&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone CZ.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone CZ.
+- id: energy_charts_price_dk1
+  name: energy-charts — DK1 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=DK1&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone DK1.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone DK1.
+- id: energy_charts_price_dk2
+  name: energy-charts — DK2 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=DK2&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone DK2.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone DK2.
+- id: energy_charts_price_se1
+  name: energy-charts — SE1 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=SE1&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone SE1.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone SE1.
+- id: energy_charts_price_se2
+  name: energy-charts — SE2 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=SE2&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone SE2.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone SE2.
+- id: energy_charts_price_se3
+  name: energy-charts — SE3 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=SE3&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone SE3.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone SE3.
+- id: energy_charts_price_se4
+  name: energy-charts — SE4 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=SE4&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone SE4.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone SE4.
+- id: energy_charts_price_no1
+  name: energy-charts — NO1 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=NO1&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone NO1.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone NO1.
+- id: energy_charts_price_no2
+  name: energy-charts — NO2 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=NO2&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone NO2.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone NO2.
+- id: energy_charts_price_no3
+  name: energy-charts — NO3 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=NO3&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone NO3.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone NO3.
+- id: energy_charts_price_no4
+  name: energy-charts — NO4 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=NO4&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone NO4.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone NO4.
+- id: energy_charts_price_no5
+  name: energy-charts — NO5 day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=NO5&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone NO5.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone NO5.
+- id: energy_charts_price_fi
+  name: energy-charts — FI day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=FI&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone FI.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone FI.
+- id: energy_charts_price_pt
+  name: energy-charts — PT day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=PT&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone PT.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone PT.
+- id: energy_charts_price_hu
+  name: energy-charts — HU day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=HU&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone HU.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone HU.
+- id: energy_charts_price_ro
+  name: energy-charts — RO day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=RO&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone RO.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone RO.
+- id: energy_charts_price_bg
+  name: energy-charts — BG day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=BG&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone BG.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone BG.
+- id: energy_charts_price_sk
+  name: energy-charts — SK day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=SK&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone SK.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone SK.
+- id: energy_charts_price_si
+  name: energy-charts — SI day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=SI&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone SI.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone SI.
+- id: energy_charts_price_rs
+  name: energy-charts — RS day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=RS&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone RS.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone RS.
+- id: energy_charts_price_ee
+  name: energy-charts — EE day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=EE&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone EE.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone EE.
+- id: energy_charts_price_lv
+  name: energy-charts — LV day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=LV&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone LV.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone LV.
+- id: energy_charts_price_lt
+  name: energy-charts — LT day-ahead price (15-min)
+  domain: energy
+  dgp_class: grid_price
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.energy-charts.info/price?bzn=LT&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: unix_seconds
+    value_field:
+    - price
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Fraunhofer ISE energy-charts day-ahead price, bidding zone LT.
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  audit_slack_days: 4
+  notes: Day-ahead market clearing price for bidding zone LT.
+
+# -- wired batch: ECDC ERVISS weekly consultation rates --
+- id: erviss_ari_belgium
+  name: Primary care acute respiratory infection consultation rate — Belgium (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Belgium
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 215 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Belgium,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_belgium
+  name: Primary care influenza-like illness consultation rate — Belgium (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Belgium
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 215 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Belgium,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_bulgaria
+  name: Primary care acute respiratory infection consultation rate — Bulgaria (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Bulgaria
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 212 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Bulgaria,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_croatia
+  name: Primary care influenza-like illness consultation rate — Croatia (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Croatia
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 184 weeks, to 2026-W30
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Croatia,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 31
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_cyprus
+  name: Primary care acute respiratory infection consultation rate — Cyprus (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Cyprus
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 133 weeks, to 2026-W29
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Cyprus,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 38
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_denmark
+  name: Primary care influenza-like illness consultation rate — Denmark (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Denmark
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 215 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Denmark,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_estonia
+  name: Primary care acute respiratory infection consultation rate — Estonia (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Estonia
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 201 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Estonia,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_estonia
+  name: Primary care influenza-like illness consultation rate — Estonia (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Estonia
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 202 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Estonia,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_germany
+  name: Primary care acute respiratory infection consultation rate — Germany (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Germany
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 215 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Germany,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_greece
+  name: Primary care influenza-like illness consultation rate — Greece (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Greece
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 215 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Greece,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_hungary
+  name: Primary care acute respiratory infection consultation rate — Hungary (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Hungary
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 140 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Hungary,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_hungary
+  name: Primary care influenza-like illness consultation rate — Hungary (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Hungary
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 140 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Hungary,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_iceland
+  name: Primary care acute respiratory infection consultation rate — Iceland (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Iceland
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 61 weeks, to 2026-W30
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Iceland,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 31
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_iceland
+  name: Primary care influenza-like illness consultation rate — Iceland (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Iceland
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 192 weeks, to 2026-W30
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Iceland,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 31
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_ireland
+  name: Primary care acute respiratory infection consultation rate — Ireland (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Ireland
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 96 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Ireland,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_ireland
+  name: Primary care influenza-like illness consultation rate — Ireland (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Ireland
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 214 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Ireland,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_lithuania
+  name: Primary care acute respiratory infection consultation rate — Lithuania (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Lithuania
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 214 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Lithuania,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_lithuania
+  name: Primary care influenza-like illness consultation rate — Lithuania (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Lithuania
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 214 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Lithuania,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_luxembourg
+  name: Primary care acute respiratory infection consultation rate — Luxembourg (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Luxembourg
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 214 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Luxembourg,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_luxembourg
+  name: Primary care influenza-like illness consultation rate — Luxembourg (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Luxembourg
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 199 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Luxembourg,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_malta
+  name: Primary care influenza-like illness consultation rate — Malta (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Malta
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 195 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Malta,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_netherlands
+  name: Primary care acute respiratory infection consultation rate — Netherlands (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Netherlands
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 59 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Netherlands,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_norway
+  name: Primary care influenza-like illness consultation rate — Norway (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Norway
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 158 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Norway,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_romania
+  name: Primary care acute respiratory infection consultation rate — Romania (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Romania
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 198 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Romania,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_romania
+  name: Primary care influenza-like illness consultation rate — Romania (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Romania
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 198 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Romania,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_slovenia
+  name: Primary care acute respiratory infection consultation rate — Slovenia (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Slovenia
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 215 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Slovenia,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_slovenia
+  name: Primary care influenza-like illness consultation rate — Slovenia (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Slovenia
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 215 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Slovenia,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ari_spain
+  name: Primary care acute respiratory infection consultation rate — Spain (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Spain
+      indicator: ARIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 215 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Spain,
+    indicator ARIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+- id: erviss_ili_spain
+  name: Primary care influenza-like illness consultation rate — Spain (ECDC ERVISS)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P7D
+  endpoint:
+    type: rest_csv
+    url: https://raw.githubusercontent.com/EU-ECDC/Respiratory_viruses_weekly_data/main/data/ILIARIRates.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: yearweek
+    value_field:
+    - value
+    panel_field:
+    - countryname
+    - indicator
+    - age
+    where:
+      countryname: Spain
+      indicator: ILIconsultationrate
+      age: total
+    drop_null_values: true
+    variates: 1
+  history_available: 148 weeks, to 2026-W31
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: ECDC European Respiratory Virus Surveillance Summary (ERVISS), ILIARIRates dataset, Spain,
+    indicator ILIconsultationrate, all ages.
+  license: ECDC open data (CC BY 4.0)
+  audit_slack_days: 21
+  notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
+    Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.

@@ -1463,3 +1463,26 @@ def test_series_skip_with_multiple_value_fields_stays_aligned():
          "value_field": ["a", "b"], "series_skip": 1},
     )
     assert [(r["a"], r["b"]) for r in rows] == [(2, 20), (3, 30)]
+
+
+# --------------------------------------------------------------------------- #
+# ISO year-week labels in a single field (ECDC ERVISS and national ILI feeds)
+# --------------------------------------------------------------------------- #
+
+def test_iso_yearweek_resolves_to_the_weeks_monday() -> None:
+    assert scraper._epoch_to_iso("2026-W14") == "2026-03-30"
+    assert scraper._epoch_to_iso("2026W01") == "2025-12-29"
+    assert scraper._epoch_to_iso("2026-w7") == "2026-02-09"
+
+
+def test_iso_yearweek_keeps_week_53_only_where_it_exists() -> None:
+    # 2026 is a 53-week ISO year; 2025 is not. Inventing 2025-W53 would put a
+    # phantom observation a week past the end of the series.
+    assert scraper._epoch_to_iso("2026-W53") == "2026-12-28"
+    assert scraper._epoch_to_iso("2025-W53") == "2025-W53"
+
+
+def test_iso_yearweek_does_not_swallow_other_labels() -> None:
+    for label in ("2026-99", "W14", "2026-08-13", "202614", "2026-W99"):
+        got = scraper._epoch_to_iso(label)
+        assert got == label, f"{label} was rewritten to {got}"
