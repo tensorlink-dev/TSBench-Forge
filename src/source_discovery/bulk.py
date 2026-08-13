@@ -1222,6 +1222,13 @@ def ods_sweep(
             if block is None:
                 skipped.append({"id": tag, "reason": "could not synthesise entry"})
                 continue
+            block, why = preflight_pinned(
+                block, lambda h=host, d=dsid, t=ts: panel_dims(
+                    ods_sample_record(h, d), t),
+                _ods_pin, log=log)
+            if block is None:
+                skipped.append({"id": tag, "reason": why})
+                continue
             taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
             cands.append(block)
             seen_hosts[host] = seen_hosts.get(host, 0) + 1
@@ -2333,6 +2340,10 @@ def ckan_sweep(
                                             fields, probe, taken=taken_ids)
                     if block is None:
                         skipped.append({"id": tag, "reason": "could not synthesise"})
+                        continue
+                    ok, why = preflight(block)
+                    if not ok:
+                        skipped.append({"id": tag, "reason": why})
                         continue
                     taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
                     cands.append(block)
@@ -5693,6 +5704,327 @@ def arcgis_sweep(
                 if target and len(cands) >= target:
                     log(f"target {target} reached")
                     return cands, skipped
+    return cands, skipped
+
+
+def preflight(block: dict) -> tuple[bool, str]:
+    """Fetch a synthesised candidate through the REAL scraper before emitting.
+
+    The sweeps build a URL and a schema out of portal metadata and then never
+    exercise either; ``wire`` is the first code that actually fetches what the
+    sweep invented. A live grind run on 2026-08-13 found three candidates and
+    wired zero, and both failures were visible in a single fetch:
+
+      * a CKAN resource whose value columns were picked without checking they
+        parse as numbers — 1,784 distinct timestamps, ``numeric_rows=0``,
+        because one of the chosen "measures" was the year column
+      * a CKAN record pointing at ERDDAP, emitted as an unconstrained query
+        that streamed past the scraper's 48MB response cap
+
+    Uses ``wire.verify_entry`` rather than a private reimplementation, so a
+    candidate that passes here passes wire for the same reasons. That keeps
+    "found" and "wireable" the same number, which is what lets a grind run
+    promise N wired instead of N attempted.
+
+    Returns ``(ok, reason)``; ``reason`` is empty when ok.
+    """
+    from . import wire  # local: avoids a module-level cycle at import time
+
+    try:
+        entry = yaml.safe_load(block["yaml_block"])[0]
+    except Exception as exc:                                  # noqa: BLE001
+        return False, f"unparseable yaml_block: {type(exc).__name__}"
+    try:
+        res = wire.verify_entry(entry, wire._scraper())
+    except Exception as exc:                                  # noqa: BLE001
+        return False, f"preflight raised: {type(exc).__name__}: {str(exc)[:80]}"
+    if res.ok:
+        return True, ""
+    d = res.as_dict()
+    if d.get("error"):
+        return False, f"preflight: {str(d['error'])[:100]}"
+    return False, (f"preflight: rows={d.get('rows')} ts={d.get('distinct_ts')} "
+                   f"numeric={d.get('numeric_rows')} newest={d.get('newest')}")
+
+
+_TS_NAME_RE = re.compile(
+    r"(datetime|date_?heure|timestamp|^dt$|_utc$|^datum|quarter|interval|"
+    r"^date$|_time$|^time$|periode|^annee$|^year$)", re.I)
+_PANEL_RE = re.compile(r"rows=(\d+) ts=(\d+)")
+# A response is panelled when its distinct timestamps fall well short of its
+# rows. 0.8 rather than 1.0 because a handful of genuine duplicate stamps is
+# normal at the head of a rolling table.
+PANEL_CLEAN = 0.8
+PANEL_MAX_DIMS = 3
+
+
+def looks_panelled(reason: str) -> bool:
+    m = _PANEL_RE.search(reason or "")
+    return bool(m) and int(m.group(2)) < PANEL_CLEAN * int(m.group(1))
+
+
+def panel_dims(record: dict, ts_field: str,
+               max_dims: int = PANEL_MAX_DIMS) -> list[tuple[str, str]]:
+    """Fields from a sample row that plausibly index a panel.
+
+    Short strings that are not the clock: zone, device id, counter id,
+    technology. Long free text is prose, not a dimension.
+    """
+    out = []
+    for k, v in (record or {}).items():
+        if k == ts_field or not isinstance(v, str) or not v or len(v) > 40:
+            continue
+        if _TS_NAME_RE.search(k):
+            continue
+        out.append((k, v))
+        if len(out) >= max_dims:
+            break
+    return out
+
+
+def ods_sample_record(host: str, dsid: str, timeout: int = 30) -> dict:
+    """One full record, for discovering a dataset's panel dimensions.
+
+    ``ods_probe`` selects the timestamp column alone, which is right for a
+    cheap freshness check and useless for finding the field that indexes a
+    panel. Fetched only when a candidate has already failed as panelled.
+    """
+    url = (f"https://{host}/api/explore/v2.1/catalog/datasets/{dsid}/records"
+           f"?limit=1")
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {}
+        res = (r.json() or {}).get("results") or []
+        return res[0] if res else {}
+    except Exception:                                         # noqa: BLE001
+        return {}
+
+
+def _ods_pin(entry: dict, name: str, value: str) -> dict:
+    """Opendatasoft v2.1 filter dialect: ``&where=col="value"``."""
+    entry["endpoint"]["url"] += "&where=" + quote(f'{name}="{value}"')
+    entry["id"] = f"{entry['id'][:56]}_{_slug(value, 6)}"[:64]
+    entry["name"] = f"{entry['name'][:70]} [{value[:18]}]"
+    entry["notes"] = (entry.get("notes", "") +
+                      f" Panel dimension {name} is pinned to {value!r}: without "
+                      f"it the response interleaves several series on the same "
+                      f"timestamps.")
+    return entry
+
+
+def _ckan_pin(entry: dict, name: str, value: str) -> dict:
+    """CKAN datastore_search dialect: ``&filters={"col":"value"}``."""
+    entry["endpoint"]["url"] += "&filters=" + quote(
+        json.dumps({name: value}, separators=(",", ":")))
+    entry["id"] = f"{entry['id'][:56]}_{_slug(value, 6)}"[:64]
+    entry["name"] = f"{entry['name'][:70]} [{value[:18]}]"
+    entry["notes"] = (entry.get("notes", "") +
+                      f" Panel dimension {name} is pinned to {value!r}.")
+    return entry
+
+
+def preflight_pinned(block: dict, dims, apply_filter, log=None
+                     ) -> tuple[Optional[dict], str]:
+    """Pre-flight a candidate, pinning a panel dimension if that is what fails.
+
+    A response of 100 rows carrying 4 distinct timestamps is one series per
+    zone or device interleaved. It clears a naive row count and is still
+    ambiguous — several values at the same instant with nothing to separate
+    them — so the wire gate rejects it. Pinning one dimension turns the same
+    dataset into a clean single series.
+
+    Measured 2026-08-13: this was the single largest skip bucket for the ODS
+    portals, and adding it took a harvest from 2 candidates to 5, unlocking
+    Brussels (device_id) and Paris (id_compteur) which had yielded nothing.
+    The Energinet pass needed the same fix, where pinning PriceArea rescued 5
+    of 13.
+
+    ``apply_filter(entry, name, value)`` returns a NEW entry with the API's own
+    filter syntax applied — ODS spells it ``&where=col="v"``, CKAN spells it
+    ``&filters={...}`` — so the caller owns the dialect.
+
+    Returns ``(block_or_None, reason)``; the block is the pinned one when
+    pinning was needed.
+    """
+    ok, why = preflight(block)
+    if ok:
+        return block, ""
+    if not looks_panelled(why):
+        return None, why
+    # dims may be a thunk: discovering them costs a request, and the happy
+    # path must not pay for it.
+    if callable(dims):
+        try:
+            dims = dims() or []
+        except Exception:                                     # noqa: BLE001
+            return None, f"{why} (panel; sample fetch failed)"
+    for name, value in dims:
+        try:
+            entry = yaml.safe_load(block["yaml_block"])[0]
+            pinned_entry = apply_filter(json.loads(json.dumps(entry)), name, value)
+        except Exception:                                     # noqa: BLE001
+            continue
+        if pinned_entry is None:
+            continue
+        cand = dict(block)
+        cand["yaml_block"] = yaml.dump([pinned_entry], sort_keys=False,
+                                       allow_unicode=True)
+        cand["candidate_name"] = pinned_entry.get("name", cand["candidate_name"])
+        ok2, _ = preflight(cand)
+        if ok2:
+            if log:
+                log(f"    pinned {name}={value[:24]}")
+            return cand, ""
+    return None, f"{why} (panel; no dimension pinned it)"
+
+
+# --------------------------------------------------------------------------- #
+# ODS portal enumeration
+# --------------------------------------------------------------------------- #
+# The keyword sweeps ask "which portal has a dataset about X". This asks the
+# opposite: take a portal already known to work and walk its biggest datasets.
+# Measured 2026-08-13, that is where the supply actually is -- a keyword-driven
+# grind returned zero wireable candidates in 35 minutes across the three
+# thinnest domains, while enumerating six portals produced five in about four,
+# and two of those portals had never yielded anything to a keyword search.
+#
+# (host, publisher, country, domain, dgp_class)
+ODS_ENUM_HOSTS: tuple[tuple[str, str, str, str, str], ...] = (
+    ("opendata.elia.be", "Elia", "Belgium", "energy", "energy_market_activity"),
+    ("opendata.bruxelles.be", "Brussels", "Belgium", "nature", "air_quality"),
+    ("opendata.paris.fr", "Paris", "France", "transport", "urban_mobility"),
+    ("data.stad.gent", "Ghent", "Belgium", "transport", "urban_mobility"),
+    ("data.smartdublin.ie", "Smart Dublin", "Ireland", "transport",
+     "urban_mobility"),
+    ("opendata.lillemetropole.fr", "Lille", "France", "transport",
+     "urban_mobility"),
+    ("data.nantesmetropole.fr", "Nantes", "France", "transport",
+     "urban_mobility"),
+    ("opendata.rennesmetropole.fr", "Rennes", "France", "transport",
+     "urban_mobility"),
+    ("data.toulouse-metropole.fr", "Toulouse", "France", "transport",
+     "urban_mobility"),
+    ("opendata.reseaux-energies.fr", "RTE", "France", "energy",
+     "energy_consumption"),
+    ("data.mobility.brussels", "Brussels Mobility", "Belgium", "transport",
+     "urban_mobility"),
+    ("opendata.aix-marseille.fr", "Aix-Marseille", "France", "transport",
+     "urban_mobility"),
+)
+ODS_ENUM_SCAN = 60          # datasets per portal, biggest first
+ODS_ENUM_LIMIT = 100        # v2.1 caps a records response at 100 regardless
+_ODS_ENUM_SKIP_VAL = re.compile(
+    r"(id$|_id$|code$|zone$|region$|type$|name$|unit$|index$|^year$|^month$|"
+    r"^day$|hour$|minute$|_no$)", re.I)
+
+
+def ods_enum_sweep(
+    catalog_path: str,
+    hosts: Optional[Iterable[tuple[str, str, str, str, str]]] = None,
+    host_cap: int = 2,
+    scan: int = ODS_ENUM_SCAN,
+    target: Optional[int] = None,
+    sleep_s: float = 0.2,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    """Walk known-good Opendatasoft portals for series we have not taken.
+
+    ``host_cap`` defaults to 2 on purpose. An uncapped pass took six datasets
+    from Elia alone, which reads as six new sources and adds nothing to
+    effective coverage -- that metric counts at most five per host and Elia
+    already had ten. Breadth across publishers is the point.
+    """
+    catalog = yaml.safe_load(open(catalog_path)) or []
+    taken_ids = {s["id"] for s in catalog}
+    known = {(s.get("endpoint") or {}).get("url", "") for s in catalog}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for host, office, country, domain, dgp in (hosts or ODS_ENUM_HOSTS):
+        if target and len(cands) >= target:
+            break
+        try:
+            r = requests.get(
+                f"https://{host}/api/explore/v2.1/catalog/datasets",
+                params={"limit": scan, "order_by": "records_count desc"},
+                headers={"User-Agent": UA}, timeout=60)
+            datasets = (r.json() or {}).get("results") or []
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": host, "reason": f"catalog: {type(exc).__name__}"})
+            continue
+        log(f"[ods-enum] {host}: {len(datasets)} datasets")
+        from_host = 0
+        for d in datasets:
+            if from_host >= host_cap or (target and len(cands) >= target):
+                break
+            dsid = d.get("dataset_id") or ""
+            metas = (d.get("metas") or {}).get("default") or {}
+            title = re.sub(r"\s+", " ", (metas.get("title") or dsid)).strip()
+            rec = ods_sample_record(host, dsid)
+            time.sleep(sleep_s)
+            if not rec:
+                skipped.append({"id": dsid, "reason": "no sample record"})
+                continue
+            ts = next((k for k in rec if _TS_NAME_RE.search(k)
+                       and isinstance(rec[k], str)), None)
+            vals = [k for k, v in rec.items()
+                    if k != ts and isinstance(v, (int, float))
+                    and not isinstance(v, bool)
+                    and not _ODS_ENUM_SKIP_VAL.search(k)][:3]
+            if not ts or not vals:
+                skipped.append({"id": dsid, "reason": f"ts={ts} values={len(vals)}"})
+                continue
+            url = (f"https://{host}/api/explore/v2.1/catalog/datasets/{dsid}"
+                   f"/records?limit={ODS_ENUM_LIMIT}"
+                   f"&order_by={quote(ts + ' desc')}")
+            if url in known:
+                skipped.append({"id": dsid, "reason": "already wired"})
+                continue
+            sid = _slug(f"{host.split('.')[0]}_{dsid}", 56)[:64]
+            if sid in taken_ids:
+                sid = f"{sid[:58]}_{_slug(ts, 4)}"[:64]
+            entry = {
+                "id": sid,
+                "name": f"{title[:80]} ({office}, {country})",
+                "domain": domain, "dgp_class": dgp,
+                "archetypes": ["non_stationary_regime", "smooth_periodic"],
+                "frequency": "PT15M",
+                "endpoint": {"type": "rest_json", "url": url, "auth": "none",
+                             "rate_limit": "polite", "timeout": 90},
+                "schema": {"timestamp_field": f"results[].{ts}",
+                           "value_field": [f"results[].{v}" for v in vals],
+                           "drop_null_values": True, "variates": len(vals)},
+                "history_available": f"{ODS_ENUM_LIMIT} newest points per call",
+                "update_cadence_observed": "",
+                "pretraining_novelty": "unknown",
+                "novelty_notes": f"{office} open-data portal, dataset {dsid}.",
+                "license": f"{office} open data",
+                "audit_slack_days": 10,
+                "notes": (f"Opendatasoft v2.1 records endpoint, dataset {dsid}, "
+                          f"ordered newest-first on {ts}; v2.1 caps `limit` at "
+                          f"100. Ordering matters: the default is insertion "
+                          f"order, which on a rolling table returns the oldest "
+                          f"rows and reads as a dead source."),
+            }
+            block = {"candidate_name": entry["name"], "wireable": True,
+                     "cron_cadence": "P1D",
+                     "yaml_block": yaml.dump([entry], sort_keys=False,
+                                             allow_unicode=True),
+                     "reason": f"{office} {dsid}"}
+            block, why = preflight_pinned(
+                block, lambda r=rec, t=ts: panel_dims(r, t), _ods_pin, log=log)
+            if block is None:
+                skipped.append({"id": dsid, "reason": why[:110]})
+                continue
+            final = yaml.safe_load(block["yaml_block"])[0]
+            taken_ids.add(final["id"])
+            known.add(final["endpoint"]["url"])
+            from_host += 1
+            cands.append(block)
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + {block['candidate_name'][:70]}")
     return cands, skipped
 
 

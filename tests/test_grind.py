@@ -12,6 +12,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+import pytest
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -191,6 +192,101 @@ def test_a_failing_vein_does_not_end_the_run(tmp_path, monkeypatch):
     assert [b["candidate_name"] for b in out["ranked"]] == ["ok"]
 
 
+def _vein_yielding(name: str, blocks, calls=None):
+    def sweep(catalog, target=None, log=print, checkpoint_path=None, **kw):
+        if calls is not None:
+            calls.append(name)
+        return list(blocks), []
+    return sweep
+
+
+def test_keeps_sweeping_until_the_target_is_actually_WIRED(tmp_path, monkeypatch):
+    """wire re-verifies against the live scraper, so submitting N never means N
+    wired. A run that wires the ranked batch once and stops silently delivers
+    fewer sources than asked."""
+    calls = []
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("v1", _vein_yielding("v1", [
+            _block("a", "energy", "PT1H", "a.example")], calls), ("energy",)),
+        grind.Vein("v2", _vein_yielding("v2", [
+            _block("b", "energy", "PT5M", "b.example")], calls), ("energy",)),
+        grind.Vein("v3", _vein_yielding("v3", [
+            _block("c", "energy", "PT1M", "c.example")], calls), ("energy",)),
+    ))
+    # Only every other submitted candidate survives verification.
+    seen = {"n": 0}
+
+    def wire_fn(batch):
+        got = 0
+        for _ in batch:
+            seen["n"] += 1
+            got += seen["n"] % 2
+        return got
+
+    out = grind.run(_all_domains_catalog(tmp_path), target=2, minutes=5,
+                    n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    wire_fn=wire_fn, log=lambda m: None)
+    assert out["wired"] >= 2, "must keep going until the target is met"
+    assert out["met_target"] is True
+    assert len(calls) >= 2, "one vein could not have supplied enough"
+
+
+def test_stops_as_soon_as_the_target_is_met(tmp_path, monkeypatch):
+    """The budget is not a quota to spend: hitting the number ends the run."""
+    calls = []
+    monkeypatch.setattr(grind, "_veins", lambda: tuple(
+        grind.Vein(f"v{i}", _vein_yielding(f"v{i}", [
+            _block(f"s{i}", "energy", "PT1H", f"h{i}.example")], calls),
+            ("energy",)) for i in range(5)))
+    out = grind.run(_all_domains_catalog(tmp_path), target=1, minutes=5,
+                    n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    wire_fn=lambda batch: len(batch), log=lambda m: None)
+    assert out["wired"] >= 1 and out["met_target"] is True
+    assert len(calls) == 1, f"should have stopped after one vein, ran {calls}"
+
+
+def test_falls_back_to_other_domains_rather_than_returning_short(tmp_path,
+                                                                 monkeypatch):
+    """Preferring the thin domains is right; returning zero because their veins
+    are mined out is not. A source in a healthy domain beats nothing."""
+    calls = []
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("thin_only", _vein_yielding("thin_only", [], calls),
+                   ("energy",)),
+        grind.Vein("elsewhere", _vein_yielding("elsewhere", [
+            _block("w", "web_cloudops", "PT1H", "w.example")], calls),
+            ("web_cloudops",)),
+    ))
+    out = grind.run(_all_domains_catalog(tmp_path, thinnest="energy"),
+                    target=1, minutes=5, n_domains=1,
+                    checkpoint_dir=tmp_path / "ck",
+                    wire_fn=lambda batch: len(batch), log=lambda m: None)
+    assert "elsewhere" in calls, "fallback pass must run when the thin vein is dry"
+    assert out["wired"] == 1 and out["met_target"] is True
+
+
+def test_shortfall_is_reported_honestly(tmp_path, monkeypatch):
+    """A dry day must not look like a good one — cron reads met_target."""
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("dry", _vein_yielding("dry", []), ("energy",)),))
+    out = grind.run(_all_domains_catalog(tmp_path), target=4, minutes=5,
+                    n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    wire_fn=lambda batch: len(batch), log=lambda m: None)
+    assert out["wired"] == 0 and out["met_target"] is False
+
+
+def test_without_wire_fn_it_only_collects(tmp_path, monkeypatch):
+    """Dry runs must not wire anything."""
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("v", _vein_yielding("v", [
+            _block("a", "energy", "PT1H", "a.example")]), ("energy",)),))
+    out = grind.run(_all_domains_catalog(tmp_path), target=2, minutes=5,
+                    n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    log=lambda m: None)
+    assert out["wired"] is None and out["met_target"] is None
+    assert [b["candidate_name"] for b in out["ranked"]] == ["a"]
+
+
 def test_every_domain_has_at_least_one_vein():
     """A domain no vein serves can never be filled, so the grind would report
     it as thinnest forever and find nothing."""
@@ -215,3 +311,96 @@ def test_exhausted_veins_are_not_scheduled():
     names = {v.name for v in grind._veins()}
     assert not (names & {"erddap", "peertube", "ods_publishers",
                          "socrata_publishers", "socrata"})
+
+
+def test_untried_veins_are_explored_before_known_ones(tmp_path):
+    """An unmeasured vein is the cheapest information available. Sorting it
+    last would mean a vein that never got a turn can never earn one."""
+    stats = {"ckan": {"seconds": 600, "found": 4, "wired": 4, "runs": 2}}
+    order = [v.name for v, _ in grind._plan(list(grind.ALL_DOMAINS), stats)]
+    assert order.index("arcgis") < order.index("ckan"), "untried explores first"
+
+
+def test_ordering_follows_wired_not_found(tmp_path):
+    """arcgis produced candidates that all failed verification while ckan's
+    survived; ranking on `found` would still have put the slow one first."""
+    stats = {
+        "arcgis": {"seconds": 1801, "found": 2, "wired": 0, "runs": 2},
+        "ckan":   {"seconds": 684,  "found": 4, "wired": 3, "runs": 2},
+        "sdmx":   {"seconds": 683,  "found": 2, "wired": 1, "runs": 2},
+    }
+    order = [v.name for v, _ in grind._plan(list(grind.ALL_DOMAINS), stats)]
+    measured = [n for n in order if n in stats]
+    assert measured == ["ckan", "sdmx", "arcgis"]
+
+
+def test_stats_accumulate_across_runs(tmp_path):
+    p = tmp_path / "vein_stats.json"
+    grind.record_stats(p, [{"vein": "ckan", "seconds": 300, "found": 2,
+                            "wired": 1}])
+    grind.record_stats(p, [{"vein": "ckan", "seconds": 200, "found": 1,
+                            "wired": 2}])
+    s = grind.load_stats(p)["ckan"]
+    assert (s["seconds"], s["found"], s["wired"], s["runs"]) == (500, 3, 3, 2)
+    assert grind._yield_rate(grind.load_stats(p), "ckan") == pytest.approx(
+        60 * 3 / 500)
+    assert grind._yield_rate(grind.load_stats(p), "never_run") is None
+
+
+def test_corrupt_stats_file_does_not_stop_a_run(tmp_path):
+    p = tmp_path / "vein_stats.json"
+    p.write_text("{{ not json")
+    assert grind.load_stats(p) == {}
+
+
+def test_wins_are_credited_to_the_vein_that_supplied_them(tmp_path, monkeypatch):
+    """Without attribution the ordering learns nothing: every vein would look
+    equally good regardless of whose candidates survived the gate."""
+    stats_path = tmp_path / "vein_stats.json"
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("dud", _vein_yielding("dud", [
+            _block("bad", "energy", "PT1H", "bad.example")]), ("energy",)),
+        grind.Vein("good", _vein_yielding("good", [
+            _block("ok", "energy", "PT5M", "ok.example")]), ("energy",)),
+    ))
+    # Only the candidate named "ok" survives verification.
+    def wire_fn(batch):
+        return sum(1 for b in batch if b["candidate_name"] == "ok")
+
+    grind.run(_all_domains_catalog(tmp_path), target=1, minutes=5, n_domains=1,
+              checkpoint_dir=tmp_path / "ck", wire_fn=wire_fn,
+              stats_path=stats_path, log=lambda m: None)
+    s = grind.load_stats(stats_path)
+    assert s["good"]["wired"] == 1
+    assert s.get("dud", {}).get("wired", 0) == 0
+
+
+def test_minimum_is_distinct_from_target(tmp_path, monkeypatch):
+    """A 3-of-5 day is short; a 1-of-5 day means the veins stopped producing.
+    Cron needs to tell those apart, so they are separate signals."""
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("v", _vein_yielding("v", [
+            _block(f"s{i}", "energy", "PT1H", f"h{i}.example")
+            for i in range(3)]), ("energy",)),))
+    out = grind.run(_all_domains_catalog(tmp_path), target=5, minimum=2,
+                    minutes=5, n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    wire_fn=lambda b: len(b), log=lambda m: None)
+    assert out["wired"] == 3
+    assert out["met_target"] is False and out["met_minimum"] is True
+
+
+def test_below_the_floor_is_reported_separately(tmp_path, monkeypatch):
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("v", _vein_yielding("v", [
+            _block("only", "energy", "PT1H", "h.example")]), ("energy",)),))
+    out = grind.run(_all_domains_catalog(tmp_path), target=5, minimum=2,
+                    minutes=5, n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    wire_fn=lambda b: len(b), log=lambda m: None)
+    assert out["wired"] == 1
+    assert out["met_target"] is False and out["met_minimum"] is False
+
+
+def test_ods_enum_is_first_in_the_static_order():
+    """It is the only vein measured to deliver: five wired in ~4 minutes where
+    a keyword grind managed zero in 35."""
+    assert grind._veins()[0].name == "ods_enum"

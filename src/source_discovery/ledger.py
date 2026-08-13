@@ -78,18 +78,51 @@ def update(path: str | Path, results, run_date: str) -> int:
             }
         else:
             e["times_proposed"] = int(e.get("times_proposed", 1)) + 1
+            # Keep a few of the OTHER names seen for this host. The key is
+            # domain|host, so every dataset on a host collapses into one entry
+            # and only the first name was ever kept — which is why the prompt
+            # could say "api.fda.gov — FDA MAUDE adverse event reports" while a
+            # model happily proposed "FDA Drug Shortage Reports" 57 times. The
+            # aliases give it the vocabulary to recognise its own idea.
+            name = str(c.get("name", ""))[:80]
+            if name and name != e.get("name"):
+                aka = e.setdefault("also_proposed", [])
+                if name not in aka and len(aka) < 4:
+                    aka.append(name)
             if e.get("status") not in _STICKY and r.verdict == "reject":
                 e["status"] = "rejected"
     save(path, ledger)
     return new
 
 
-def prompt_block(ledger: dict[str, dict], limit: int = 500) -> list[str]:
+def prompt_block(ledger: dict[str, dict], limit: int = 2000) -> list[str]:
     """Compact ALREADY_PROPOSED list for the agent prompt.
 
     One terse string per entry — the block exists to be *checked against*, not
     reasoned about, and a large structured block measurably drowns reasoning
     models in their own deliberation budget.
+
+    Each line carries the host **and** the name, because the key is
+    ``domain|netloc`` and a host alone cannot be matched against what a model
+    actually writes. Measured 2026-08-13: the block said ``api.fda.gov
+    [wired]`` and the model proposed "FDA Drug Shortage Reports" — a different
+    dataset on a listed host — which the vet then rejected as seen 57x. Both
+    models under test spent their entire budget re-proposing such entries.
+
+    The limit is generous for the same reason: the block is ~20kB against a
+    million-token window, so hiding half the ledger to save tokens bought
+    nothing and let the long tail be re-proposed indefinitely.
     """
     entries = sorted(ledger.values(), key=lambda e: -e.get("times_proposed", 1))[:limit]
-    return [f"{e['key'].split('|', 1)[1]} [{e['status']}]" for e in entries]
+    out = []
+    for e in entries:
+        host = e["key"].split("|", 1)[1]
+        names = [n for n in [str(e.get("name") or "").strip(),
+                             *(e.get("also_proposed") or [])] if n and n != host]
+        # "e.g." is load-bearing: the key is domain|host, so the WHOLE HOST is
+        # excluded, not just the dataset named. Rendering a bare name invited
+        # exactly the mistake this block exists to prevent — a second dataset
+        # on a host already listed.
+        label = host if not names else f"{host} — e.g. {'; '.join(names[:3])}"
+        out.append(f"{label} [{e['status']}]")
+    return out

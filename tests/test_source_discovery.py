@@ -265,6 +265,123 @@ def test_request_body_disables_reasoning_explicitly() -> None:
     assert body["temperature"] == 0.4
 
 
+ENGY = "https://api.engy.ai/v1/chat/completions"
+
+
+def test_engy_must_be_sent_the_reasoning_disable() -> None:
+    """Measured against engy.ai on 2026-08-13: glm-5.2 thinks by default there,
+    and without `reasoning: {enabled: false}` it spends the whole budget in
+    reasoning_content and returns content="" with finish_reason="length" — an
+    HTTP 200 that reads as truncation rather than misconfiguration.
+    `enable_thinking` and `thinking.type` are both silently ignored."""
+    cfg = llm.OpenRouterConfig.from_env({
+        "LLM_BASE_URL": ENGY, "LLM_MODEL": "glm-5.2", "ENGY_API_KEY": "k",
+        "LLM_REASONING_ENABLED": "false",
+    })
+    assert cfg.send_reasoning
+    body = llm.build_request_body(_inputs(), cfg, cfg.max_tokens)
+    assert body["reasoning"] == {"enabled": False}
+    assert body["model"] == "glm-5.2"
+    assert body["temperature"] == cfg.temperature
+
+
+def test_unknown_provider_gets_a_plain_openai_body() -> None:
+    """An endpoint not measured to accept `reasoning` gets the standard fields
+    only; an unknown key can be a hard 400."""
+    cfg = llm.OpenRouterConfig.from_env({
+        "LLM_BASE_URL": "https://api.example.com/v1/chat/completions",
+        "LLM_API_KEY": "k", "LLM_REASONING_MAX_TOKENS": "3000",
+    })
+    assert not cfg.send_reasoning
+    body = llm.build_request_body(_inputs(), cfg, cfg.max_tokens)
+    assert set(body) == {"model", "messages", "max_tokens", "temperature"}
+    # The temperature omission exists only for OpenRouter's Anthropic-style
+    # normalisation; elsewhere it would silently drop an operator's setting.
+    assert body["temperature"] == cfg.temperature
+
+
+def test_send_reasoning_follows_the_endpoint() -> None:
+    for env in ({"OPENROUTER_API_KEY": "k"},
+                {"LLM_BASE_URL": ENGY, "LLM_API_KEY": "k"}):
+        assert llm.OpenRouterConfig.from_env(env).send_reasoning
+    unknown = {"LLM_BASE_URL": "https://api.example.com/v1/chat/completions",
+               "LLM_API_KEY": "k"}
+    assert not llm.OpenRouterConfig.from_env(unknown).send_reasoning
+    # ...and either default can be overridden.
+    assert llm.OpenRouterConfig.from_env(
+        {**unknown, "LLM_SEND_REASONING": "true"}).send_reasoning
+    assert not llm.OpenRouterConfig.from_env(
+        {"LLM_BASE_URL": ENGY, "LLM_API_KEY": "k",
+         "LLM_SEND_REASONING": "false"}).send_reasoning
+
+
+def test_openrouter_config_still_works_unchanged() -> None:
+    """The OPENROUTER_* names predate this and are still in .env and CI."""
+    cfg = llm.OpenRouterConfig.from_env({
+        "OPENROUTER_API_KEY": "k", "OPENROUTER_MODEL": "z-ai/glm-5.2",
+        "OPENROUTER_REASONING_ENABLED": "false", "OPENROUTER_MAX_TOKENS": "32000",
+    })
+    assert (cfg.model, cfg.max_tokens) == ("z-ai/glm-5.2", 32000)
+    assert cfg.enabled and cfg.send_reasoning and not cfg.reasoning_enabled
+    body = llm.build_request_body(_inputs(), cfg, cfg.max_tokens)
+    assert body["reasoning"] == {"enabled": False}
+
+
+def test_new_names_win_over_the_legacy_ones() -> None:
+    cfg = llm.OpenRouterConfig.from_env({
+        "OPENROUTER_MODEL": "old", "LLM_MODEL": "glm-5.2",
+        "OPENROUTER_API_KEY": "old-key", "LLM_API_KEY": "new-key",
+    })
+    assert cfg.model == "glm-5.2" and cfg.api_key == "new-key"
+
+
+def test_a_provider_key_is_never_sent_to_another_provider() -> None:
+    """The likely half-finished migration: LLM_BASE_URL is repointed but the
+    old key is still sitting in .env. Falling back to it would hand the
+    OpenRouter credential to whoever runs the new endpoint."""
+    cfg = llm.OpenRouterConfig.from_env({
+        "LLM_BASE_URL": ENGY, "LLM_MODEL": "glm-5.2",
+        "OPENROUTER_API_KEY": "sk-or-secret",
+    })
+    assert cfg.api_key is None, "must not leak the OpenRouter key to engy.ai"
+    assert not cfg.enabled, "and must fail closed rather than send nothing useful"
+
+    # ...and the mirror image.
+    other = llm.OpenRouterConfig.from_env({"ENGY_API_KEY": "engy-secret"})
+    assert other.base_url.startswith("https://openrouter.ai")
+    assert other.api_key is None, "must not leak the engy key to OpenRouter"
+
+
+def test_llm_api_key_is_honoured_for_any_endpoint() -> None:
+    """The deliberate 'I mean this key for this endpoint' spelling."""
+    for base in (ENGY, "https://api.example.com/v1/chat/completions"):
+        cfg = llm.OpenRouterConfig.from_env(
+            {"LLM_BASE_URL": base, "LLM_API_KEY": "k"})
+        assert cfg.api_key == "k" and cfg.enabled
+
+
+def test_provider_key_matches_on_subdomains_not_lookalikes() -> None:
+    ok = llm.OpenRouterConfig.from_env(
+        {"LLM_BASE_URL": "https://eu.api.engy.ai/v1/chat/completions",
+         "ENGY_API_KEY": "k"})
+    assert ok.api_key == "k"
+    # A host merely ENDING in the brand is a different party.
+    evil = llm.OpenRouterConfig.from_env(
+        {"LLM_BASE_URL": "https://engy.ai.attacker.example/v1/chat/completions",
+         "ENGY_API_KEY": "k"})
+    assert evil.api_key is None
+
+
+def test_key_resolution_order_and_blank_handling() -> None:
+    # Blank is absent, not a value: CI substitutes unset vars as "".
+    cfg = llm.OpenRouterConfig.from_env(
+        {"LLM_BASE_URL": ENGY, "LLM_API_KEY": "", "ENGY_API_KEY": "engy"})
+    assert cfg.api_key == "engy", "blank LLM_API_KEY falls through to the host's own"
+    assert llm.OpenRouterConfig.from_env(
+        {"LLM_API_KEY": "", "OPENROUTER_API_KEY": "or"}).api_key == "or"
+    assert not llm.OpenRouterConfig.from_env({}).enabled
+
+
 def _http_error(code: int, body: str) -> urllib.error.HTTPError:
     return urllib.error.HTTPError(
         url="https://openrouter.ai/api/v1/chat/completions",

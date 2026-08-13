@@ -42,10 +42,22 @@ def build_inputs(catalog_path: str | Path) -> dict:
 
     registry = coverage.load_registry(catalog_path)
     led = ledger.load(ledger.ledger_path(catalog_path))
+    # Grouped by HOST, not one line per source. The block's only job is "this
+    # is taken, propose something else", and a host answers that for every
+    # source on it. At 2.3k sources the per-source form was 178kB — 85% of the
+    # whole prompt — to say what 1.5k hosts say in a quarter of the space, and
+    # it crowded out the ALREADY_PROPOSED block that was failing to land.
+    # Coverage reasoning is served by COVERAGE_SUMMARY, which is precomputed.
+    by_host: dict[str, dict] = {}
+    for e in registry:
+        host = urlparse(str(e.get("url_or_endpoint", ""))).netloc or e["id"]
+        slot = by_host.setdefault(host, {"n": 0, "cells": set()})
+        slot["n"] += 1
+        slot["cells"].add(f"{e['domain']}/{e['cadence']}")
     compact = [
-        f"{e['id']} [{e['domain']}/{e['cadence']}] "
-        f"{urlparse(str(e.get('url_or_endpoint', ''))).netloc}"
-        for e in registry
+        f"{host} [{','.join(sorted(v['cells'])[:3])}]"
+        + (f" x{v['n']}" if v["n"] > 1 else "")
+        for host, v in sorted(by_host.items())
     ]
     return {
         "registry": registry,  # kept for vetting; not sent verbatim
