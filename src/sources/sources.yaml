@@ -71246,3 +71246,63 @@
   notes: 'Opendatasoft v2.1 records endpoint, dataset 37-station-meteo-toulouse-universite-paul-sabatier,
     ordered newest-first on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion
     order, which on a rolling table returns the oldest rows and reads as a dead source.'
+
+# -- wired batch: grind-20260813-0710 --
+- id: swiss_weekly_number_of_deaths_in_switzerland_2_c6aaa916
+  name: Weekly number of deaths in Switzerland, 2010-2026 — Decessi per settimana in Svizzera, 2010-2026
+    — Switzerland (opendata.swiss)
+  domain: healthcare
+  dgp_class: mortality_surveillance
+  archetypes:
+  - non_stationary_regime
+  frequency: P1W
+  endpoint:
+    type: rest_csv
+    url: https://dam-api.bfs.admin.ch/hub/api/dam/assets/36793714/master
+    auth: none
+    rate_limit: CKAN anonymous (per-portal)
+  schema:
+    timestamp_field: Fine
+    variates: 3
+    value_field:
+    - Anno
+    - Settimana
+    - NoDec_EP
+  history_available: unknown
+  update_cadence_observed: median gap 10080.0 min over the newest 199 timestamps; newest 2026-08-12T09:36:57+00:00
+  pretraining_novelty: clean
+  novelty_notes: National open-data portal series (Switzerland); novel.
+  license: open data (see portal terms)
+  audit_slack_days: 45
+  notes: 'Bulk-generated from the opendata.swiss CKAN DataStore (query ''overdose deaths''). Package: wochentliche-todesfalle-in-der-schweiz-2010-20261.'
+
+# -- wired batch: grind-20260813-0710 --
+- id: agis_charlestoncounty_charleston_county_calls_yesterday
+  name: Charleston County Calls - Yesterday (911gis.charlestoncounty.org)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://911gis.charlestoncounty.org/server/rest/services/CDC_GIS/Charleston_County_Calls_Yesterday/FeatureServer/0/query?where=Time_Received+IS+NOT+NULL&outFields=Time_Received&orderByFields=Time_Received+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.Time_Received
+    variates: 1
+    value_field: features[].attributes.Time_Received
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 399 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 0.5 min; newest 2026-08-13T04:59:52+00:00 (0.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query '911 calls'), layer https://911gis.charlestoncounty.org/server/rest/services/CDC_GIS/Charleston_County_Calls_Yesterday/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
