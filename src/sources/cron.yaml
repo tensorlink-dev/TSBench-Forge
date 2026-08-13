@@ -243,6 +243,7 @@ schedules:
   - energinet_co2emisprog_dk1
   - energinet_electricityprodex5minrealtime_dk1
   - gbfs_bolt_bolt_technology_ou_brussels
+  - statnett_physical_flow
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -368,6 +369,113 @@ schedules:
   - smartatlantic_halifax_ocean_terminals_pier_31
   - cioosatlantic_halifax_ocean_terminals_pier_31
   - noaa_sfsu_eos_metstation_real_time_data
+  - ea_flood_e80535_level_1_i_15_min_masd
+  - ea_flood_4370th_level_stage_i_15_min_masd
+  - ea_flood_4189_level_stage_i_15_min_masd
+  - ea_flood_e4409_level_stage_i_15_min_maod
+  - ea_flood_4939th_level_stage_i_15_min_masd
+  - ea_flood_50197_level_stage_i_15_min_m
+  - ea_flood_l1389_level_stage_i_15_min_m
+  - ea_flood_l3231_level_stage_i_15_min_masd
+  - ea_flood_4012_level_stage_i_15_min_masd
+  - ea_flood_l2225_level_stage_i_15_min_m
+  - ea_flood_50118_level_stage_i_15_min_m
+  - ea_flood_e65201_level_stage_i_15_min_masd
+  - ea_flood_4770th_level_stage_i_15_min_masd
+  - ea_flood_e1236_level_stage_i_15_min_maod
+  - ea_flood_e1997_level_stage_i_15_min_masd
+  - ea_flood_693023_level_stage_i_15_min_m
+  - ea_flood_2966th_level_stage_i_15_min_masd
+  - ea_flood_e21284_level_stage_i_15_min_masd
+  - ea_flood_5365th_level_stage_i_15_min_masd
+  - ea_flood_e4982_level_stage_i_15_min_maod
+  - ea_flood_l1359_level_stage_i_15_min_m
+  - ea_flood_4040th_level_stage_i_15_min_masd
+  - ea_flood_e1759_level_stage_i_15_min_m
+  - ea_flood_e2105_level_stage_i_15_min_masd
+  - ea_flood_e16543_flow_water_i_15_min_m3_s
+  - ea_flood_e2997_flow_stage_i_15_min_m3_s
+  - ea_flood_432520_flow_water_i_15_min_m3_s
+  - ea_flood_sx75f010_flow_water_i_15_min_m3_s
+  - ea_flood_e22505_flow_stage_i_15_min_m3_s
+  - ea_flood_692726_flow_i_15_min_m3_s
+  - ea_flood_2001_flow_i_15_min_m3_s
+  - ea_flood_e22564_flow_stage_i_15_min_m3_s
+  - ea_flood_44142_flow_1_i_15_min_m3_s
+  - ea_flood_3399th_flow_water_i_15_min_m3_s
+  - ea_flood_e22844_flow_stage_i_15_min_m3_s
+  - ea_flood_4082_flow_i_15_min_m3_s
+  - ea_flood_e2834_flow_stage_i_15_min_ml_d
+  - ea_flood_48198_flow_1_i_15_min_m3_s
+  - ea_flood_028185_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_040752_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_080282_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_924203_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_019271_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_058461_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_013553_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_008632_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_075233_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_083282_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_084532_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_068762_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_000008_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_018777_rainfall_tipping_bucket_raingauge_i_15_min_mm
+  - ea_flood_152206005_temperature_water_i_15_min_deg_c
+  - ea_flood_3901_temperature_dry_bulb_i_15_min_deg_c
+  - ea_flood_151816001_temperature_water_i_15_min_deg_c
+  - ea_flood_46132_wind_direction_i_15_min_deg
+  - hydroquebec_demand
+  - elering_nps_price_ee
+  - elering_nps_price_lv
+  - elering_nps_price_lt
+  - elering_nps_price_fi
+  - elering_system_balance
+  - pse_pdgobpkd
+  - usgs_00060_09246200
+  - usgs_00060_07083710
+  - usgs_00060_383103106594200
+  - usgs_00060_09239500
+  - usgs_00060_07126300
+  - usgs_00060_09352900
+  - usgs_00060_09246500
+  - usgs_00060_07109500
+  - usgs_00060_07126200
+  - usgs_00060_09354500
+  - usgs_00060_06714215
+  - usgs_00060_07106300
+  - usgs_00060_09034900
+  - usgs_00060_09073005
+  - usgs_00060_06730160
+  - usgs_00060_06727410
+  - usgs_00065_09115500
+  - usgs_00065_09113500
+  - usgs_00065_09106800
+  - usgs_00065_06751145
+  - usgs_00065_09073400
+  - usgs_00065_09352800
+  - usgs_00065_09371520
+  - usgs_00065_06718550
+  - usgs_00065_09306242
+  - usgs_00065_07124410
+  - usgs_00065_06713500
+  - usgs_00065_06709530
+  - usgs_00010_09033100
+  - usgs_00010_09046600
+  - usgs_00010_09106485
+  - usgs_00010_09014050
+  - usgs_00010_09066200
+  - usgs_00010_09040500
+  - usgs_00010_09041090
+  - usgs_00010_07099969
+  - usgs_00095_09124500
+  - usgs_00095_09112500
+  - usgs_00095_09064600
+  - usgs_00095_09019500
+  - usgs_63680_07126485
+  - usgs_63680_09060799
+  - usgs_63680_09359020
+  - usgs_63680_09034250
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -428,6 +536,9 @@ schedules:
   - rte_consommation_brute_gaz_elec
   - gcoos_data_for_ioos_station_cbi_127
   - gcoos_data_for_ioos_station_cbi_130
+  - carbonintensity_gb_national
+  - elexon_fuel_outturn
+  - carbonintensity_gb_genmix
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -834,6 +945,45 @@ schedules:
   - noaa_noaa_ship_fairweather_underway_meteorolo_fsunoaashi
   - noaa_noaa_ship_gordon_gunter_underway_meteoro_fsunoaashi
   - ondeckdata_qaqc_flagged_oceanographic_data
+  - ea_flood_su57_153_level_groundwater_i_1_h_maod
+  - ea_flood_su47_138_level_groundwater_i_1_h_maod
+  - ea_flood_3275_temperature_dry_bulb_i_1_h_deg_c
+  - smhi_1_149560
+  - smhi_1_161790
+  - smhi_1_86420
+  - smhi_1_63590
+  - smhi_1_122260
+  - smhi_1_96040
+  - smhi_1_182810
+  - smhi_1_99280
+  - smhi_4_86340
+  - smhi_4_94190
+  - smhi_4_25080
+  - smhi_4_87440
+  - smhi_4_182910
+  - smhi_4_86420
+  - smhi_3_52350
+  - smhi_3_124030
+  - smhi_3_103420
+  - smhi_3_154730
+  - smhi_6_97100
+  - smhi_6_144310
+  - smhi_6_123460
+  - smhi_6_179960
+  - smhi_6_127130
+  - smhi_9_147090
+  - smhi_9_151380
+  - smhi_9_77210
+  - smhi_9_148330
+  - smhi_9_171790
+  - smhi_21_107420
+  - smhi_21_71380
+  - smhi_21_97100
+  - smhi_21_96190
+  - smhi_25_106570
+  - smhi_25_89230
+  - smhi_12_53530
+  - smhi_12_77210
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -2518,6 +2668,62 @@ schedules:
   - ondeckdata_shelf_research_fleet_1_m_bin_averaged_ct
   - data_akf_data
   - data_arbitration_amendments_to_rules_of_procedure
+  - ecb_agr_m_i10_n_agri_x00000_4f0_n_ix
+  - ecb_agr_m_i10_n_agri_xcerea_4f0_n_ix
+  - ecb_agr_m_i10_n_agri_xdair0_4f0_n_ix
+  - ecb_bkn_m_at_cl10_c_alld_as_s_e
+  - ecb_bnt_m_u2_n_2_alld_w1_e
+  - ecb_bnt_m_u2_n_3_alld_w1_e
+  - ecb_bnt_m_u2_n_4_alld_w1_e
+  - ecb_bsi_m_4f_n_n_a20_a_1_u2_0000_z01_e
+  - ecb_bsi_m_4f_n_n_a20_a_1_u2_1000_z01_e
+  - ecb_bsi_m_4f_n_n_a20_a_1_u2_2100_z01_e
+  - ecb_car_m_i10_n_creg_pc0000_4z1_n_pn
+  - ecb_car_m_i10_y_creg_pc0000_4f0_n_pn
+  - ecb_car_m_i9_n_creg_pc0000_4z1_n_pn
+  - ecb_ces_m_at_all_t_c1010_dec_ws
+  - ecb_ces_m_at_all_t_c1010_inc_ws
+  - ecb_ces_m_at_all_t_c1010_nb_ws
+  - ecb_ciss_d_at_z0z_4f_ec_sov_cin_idx
+  - ecb_ciss_d_at_z0z_4f_ec_ss_cin_idx
+  - ecb_ciss_d_be_z0z_4f_ec_sov_cin_idx
+  - ecb_csec_m_n_de_w0_s12m_s1_n_li_f_f3c_t_z_eur_x1_m_v_n_t
+  - ecb_csec_m_n_de_w0_s12m_s1_n_li_f_f3c_t_z_eur_t_f_v_n_t
+  - ecb_csec_m_n_de_w0_s12m_s1_n_li_f_f3c_t_z_eur_t_m_v_n_t
+  - ecb_ewt_m_u2_n_wt_covr_t_4f0_z
+  - ecb_ewt_m_u2_n_wt_inwr_t_4f0_gy
+  - ecb_ewt_m_u2_n_wt_inws_t_4f0_gy
+  - ecb_exr_d_aud_eur_sp00_a
+  - ecb_hicp_m_at_n_000000_4d0_anr
+  - ecb_hicp_m_at_n_000000_4d0_ctr
+  - ecb_hicp_m_at_n_000000_4d0_ctx
+  - ecb_ilm_d_u2_c_a050500_u2_eur
+  - ecb_ilm_d_u2_c_exliq_u2_eur
+  - ecb_irs_m_at_l_l40_ci_0000_eur_n_z
+  - ecb_irs_m_be_l_l40_ci_0000_eur_n_z
+  - ecb_nec_m_i10_n_ecpe_cfood0_4f0_n_ix
+  - ecb_nec_m_i10_n_ecpe_cnfood_4f0_n_ix
+  - ecb_nec_m_i10_n_ecpe_ctotne_4f0_n_ix
+  - ecb_omo_b_u2_t_ltro_z_o_20260037_eur
+  - ecb_omo_b_u2_t_ltro_z_o_20260046_eur
+  - ecb_rai_m_at_ct1dggv_z01_bsi_z
+  - ecb_rai_m_at_grnlhhnfc_eur_mir_z
+  - ecb_rai_m_at_ibl1tl_z01_bsi_z
+  - ecb_stp_b_a1_1000_a_xxxx_o_aa_r1_2_a_z01_e
+  - ecb_stp_b_a1_1000_a_xxxx_o_aa_r2_2_a_z01_e
+  - ecb_stp_b_a1_1000_a_xxxx_o_aa_ra_2_a_z01_e
+  - ecb_tgb_m_4f_e_a094t_u2_eur_a
+  - ecb_tgb_m_4f_e_a094t_u2_eur_e
+  - ecb_tgb_m_at_n_a094t_u2_eur_a
+  - ecb_yc_b_u2_eur_4f_g_n_a_sv_c_ym_beta0
+  - ecb_yc_b_u2_eur_4f_g_n_a_sv_c_ym_beta1
+  - ecb_yc_b_u2_eur_4f_g_n_a_sv_c_ym_beta2
+  - smhi_7_107140
+  - smhi_7_123060
+  - smhi_7_172940
+  - smhi_7_114140
+  - smhi_7_98040
+  - smhi_7_22128057
   cron: 10 1 * * *
 - every: P1D
   sources:
