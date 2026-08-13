@@ -373,3 +373,34 @@ def test_wins_are_credited_to_the_vein_that_supplied_them(tmp_path, monkeypatch)
     s = grind.load_stats(stats_path)
     assert s["good"]["wired"] == 1
     assert s.get("dud", {}).get("wired", 0) == 0
+
+
+def test_minimum_is_distinct_from_target(tmp_path, monkeypatch):
+    """A 3-of-5 day is short; a 1-of-5 day means the veins stopped producing.
+    Cron needs to tell those apart, so they are separate signals."""
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("v", _vein_yielding("v", [
+            _block(f"s{i}", "energy", "PT1H", f"h{i}.example")
+            for i in range(3)]), ("energy",)),))
+    out = grind.run(_all_domains_catalog(tmp_path), target=5, minimum=2,
+                    minutes=5, n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    wire_fn=lambda b: len(b), log=lambda m: None)
+    assert out["wired"] == 3
+    assert out["met_target"] is False and out["met_minimum"] is True
+
+
+def test_below_the_floor_is_reported_separately(tmp_path, monkeypatch):
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("v", _vein_yielding("v", [
+            _block("only", "energy", "PT1H", "h.example")]), ("energy",)),))
+    out = grind.run(_all_domains_catalog(tmp_path), target=5, minimum=2,
+                    minutes=5, n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    wire_fn=lambda b: len(b), log=lambda m: None)
+    assert out["wired"] == 1
+    assert out["met_target"] is False and out["met_minimum"] is False
+
+
+def test_ods_enum_is_first_in_the_static_order():
+    """It is the only vein measured to deliver: five wired in ~4 minutes where
+    a keyword grind managed zero in 35."""
+    assert grind._veins()[0].name == "ods_enum"

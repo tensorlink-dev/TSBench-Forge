@@ -53,7 +53,11 @@ from . import bulk, config, coverage
 OVERCOLLECT = 3
 # No more than this many wired sources from one host in a single run.
 PER_HOST_CAP = 2
-DEFAULT_TARGET = 4
+DEFAULT_TARGET = 5
+# Below this a run is a problem to look at, not a quiet day: the veins have
+# stopped producing, or something upstream changed shape. Kept separate from
+# the target so a 3-of-5 day reads as "short" and a 1-of-5 day reads as "broken".
+DEFAULT_MINIMUM = 2
 DEFAULT_MINUTES = 45
 # A vein that has found nothing in this long is not going to; move on.
 VEIN_MINUTES = 12
@@ -111,8 +115,8 @@ class Vein:
         return domain in self.domains
 
 
-    # Per-vein history, so the order can follow what actually works rather than
-    # what worked when this was written.
+# Per-vein history, so the order can follow what actually works rather than
+# what worked when this was written.
 VEIN_STATS_NAME = "vein_stats.json"
 
 
@@ -175,6 +179,11 @@ def _veins() -> tuple[Vein, ...]:
     the budget before a productive vein got a turn.
     """
     return (
+        # First because it is the only vein measured to actually deliver:
+        # five wired in ~4 minutes where a keyword grind managed zero in 35.
+        # It walks portals already known to work rather than hunting new ones.
+        Vein("ods_enum", bulk.ods_enum_sweep,
+             ("energy", "transport", "nature"), kwargs={"host_cap": 2}),
         Vein("ods", bulk.ods_sweep, ALL_DOMAINS, keyworded=True,
              kwargs={"host_cap": 1, "per_keyword": 100}),
         Vein("ckan", bulk.ckan_sweep, ALL_DOMAINS, keyworded=True,
@@ -298,6 +307,7 @@ def _plan(target_domains: Sequence[str],
 
 def run(catalog_path: str | Path,
         target: int = DEFAULT_TARGET,
+        minimum: int = DEFAULT_MINIMUM,
         minutes: float = DEFAULT_MINUTES,
         n_domains: int = 3,
         checkpoint_dir: Optional[str | Path] = None,
@@ -433,8 +443,10 @@ def run(catalog_path: str | Path,
         "veins_run": ran,
         "found": len(found),
         "target": target,
+        "minimum": minimum,
         "wired": wired if wire_fn else None,
         "met_target": (wired >= target) if wire_fn else None,
+        "met_minimum": (wired >= minimum) if wire_fn else None,
         "wire_attempts": wire_attempts,
         "ranked": ranked[:target],
         "surplus": max(0, len(ranked) - target),

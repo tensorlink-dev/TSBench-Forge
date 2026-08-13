@@ -2550,3 +2550,25 @@ def test_preflight_pinned_dims_are_lazy(monkeypatch):
     monkeypatch.setattr(bulk, "preflight", lambda b: (True, ""))
     out, _ = bulk.preflight_pinned(block, dims, bulk._ods_pin)
     assert out is block and fetched["n"] == 0
+
+
+def test_ods_enum_hosts_are_well_formed():
+    """Each entry drives id/name/domain generation; a wrong arity or an unknown
+    domain would only surface as a wire rejection at 07:10."""
+    from source_discovery import config
+    seen = set()
+    for row in bulk.ODS_ENUM_HOSTS:
+        assert len(row) == 5, row
+        host, office, country, domain, dgp = row
+        assert host and "/" not in host and not host.startswith("http"), host
+        assert domain in config.DOMAINS, f"{host}: bad domain {domain}"
+        assert office and country and dgp
+        assert host not in seen, f"duplicate host {host}"
+        seen.add(host)
+
+
+def test_ods_enum_host_cap_defaults_to_two():
+    """Six datasets from one host reads as six new sources and adds zero
+    effective coverage -- that metric counts at most five per host."""
+    import inspect
+    assert inspect.signature(bulk.ods_enum_sweep).parameters["host_cap"].default == 2

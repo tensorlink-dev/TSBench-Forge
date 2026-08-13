@@ -73,7 +73,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="find N new sources steered at the thinnest domains "
                          "and cadence cells; --apply wires the survivors")
     ap.add_argument("--grind-target", type=int, default=grind.DEFAULT_TARGET,
-                    help="how many sources to wire this run (default 4)")
+                    help="how many sources to wire this run (default 5)")
+    ap.add_argument("--grind-minimum", type=int, default=grind.DEFAULT_MINIMUM,
+                    help="below this the run exits 2 (broken, not just short)")
     ap.add_argument("--grind-minutes", type=float, default=grind.DEFAULT_MINUTES,
                     help="wall-clock budget for the sweep phase (default 45)")
     ap.add_argument("--grind-domains", type=int, default=3,
@@ -468,14 +470,15 @@ def main(argv: list[str] | None = None) -> int:
             return int(rep["counts"].get("wire", 0))
 
         plan = grind.run(args.catalog, target=args.grind_target,
+                         minimum=args.grind_minimum,
                          minutes=args.grind_minutes,
                          n_domains=args.grind_domains,
                          wire_fn=_wire if args.apply else None,
                          stats_path=out_dir / grind.VEIN_STATS_NAME,
                          log=lambda m: print(m, file=sys.stderr))
         report = {k: plan[k] for k in
-                  ("target_domains", "veins_run", "found", "target", "wired",
-                   "met_target", "surplus")}
+                  ("target_domains", "veins_run", "found", "target", "minimum",
+                   "wired", "met_target", "met_minimum", "surplus")}
         if args.apply:
             report["wire_batches"] = wire_reports
             report["wired_names"] = wired_names
@@ -486,8 +489,12 @@ def main(argv: list[str] | None = None) -> int:
             report["ranked"] = [b.get("candidate_name") for b in plan["ranked"]]
         print(json.dumps(report, indent=2))
         if args.apply:
-            # Non-zero on a shortfall so cron can see a bad day in $?.
-            return 0 if plan["met_target"] else 1
+            # Three states, because they need different responses: hit the
+            # target, fell short of it, or dropped under the floor -- which
+            # means the veins stopped producing or something changed shape.
+            if plan["met_target"]:
+                return 0
+            return 1 if plan["met_minimum"] else 2
         return 0 if plan["ranked"] else 1
 
     if args.pool_report:

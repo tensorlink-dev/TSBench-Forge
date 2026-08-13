@@ -5879,6 +5879,155 @@ def preflight_pinned(block: dict, dims, apply_filter, log=None
     return None, f"{why} (panel; no dimension pinned it)"
 
 
+# --------------------------------------------------------------------------- #
+# ODS portal enumeration
+# --------------------------------------------------------------------------- #
+# The keyword sweeps ask "which portal has a dataset about X". This asks the
+# opposite: take a portal already known to work and walk its biggest datasets.
+# Measured 2026-08-13, that is where the supply actually is -- a keyword-driven
+# grind returned zero wireable candidates in 35 minutes across the three
+# thinnest domains, while enumerating six portals produced five in about four,
+# and two of those portals had never yielded anything to a keyword search.
+#
+# (host, publisher, country, domain, dgp_class)
+ODS_ENUM_HOSTS: tuple[tuple[str, str, str, str, str], ...] = (
+    ("opendata.elia.be", "Elia", "Belgium", "energy", "energy_market_activity"),
+    ("opendata.bruxelles.be", "Brussels", "Belgium", "nature", "air_quality"),
+    ("opendata.paris.fr", "Paris", "France", "transport", "urban_mobility"),
+    ("data.stad.gent", "Ghent", "Belgium", "transport", "urban_mobility"),
+    ("data.smartdublin.ie", "Smart Dublin", "Ireland", "transport",
+     "urban_mobility"),
+    ("opendata.lillemetropole.fr", "Lille", "France", "transport",
+     "urban_mobility"),
+    ("data.nantesmetropole.fr", "Nantes", "France", "transport",
+     "urban_mobility"),
+    ("opendata.rennesmetropole.fr", "Rennes", "France", "transport",
+     "urban_mobility"),
+    ("data.toulouse-metropole.fr", "Toulouse", "France", "transport",
+     "urban_mobility"),
+    ("opendata.reseaux-energies.fr", "RTE", "France", "energy",
+     "energy_consumption"),
+    ("data.mobility.brussels", "Brussels Mobility", "Belgium", "transport",
+     "urban_mobility"),
+    ("opendata.aix-marseille.fr", "Aix-Marseille", "France", "transport",
+     "urban_mobility"),
+)
+ODS_ENUM_SCAN = 60          # datasets per portal, biggest first
+ODS_ENUM_LIMIT = 100        # v2.1 caps a records response at 100 regardless
+_ODS_ENUM_SKIP_VAL = re.compile(
+    r"(id$|_id$|code$|zone$|region$|type$|name$|unit$|index$|^year$|^month$|"
+    r"^day$|hour$|minute$|_no$)", re.I)
+
+
+def ods_enum_sweep(
+    catalog_path: str,
+    hosts: Optional[Iterable[tuple[str, str, str, str, str]]] = None,
+    host_cap: int = 2,
+    scan: int = ODS_ENUM_SCAN,
+    target: Optional[int] = None,
+    sleep_s: float = 0.2,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    """Walk known-good Opendatasoft portals for series we have not taken.
+
+    ``host_cap`` defaults to 2 on purpose. An uncapped pass took six datasets
+    from Elia alone, which reads as six new sources and adds nothing to
+    effective coverage -- that metric counts at most five per host and Elia
+    already had ten. Breadth across publishers is the point.
+    """
+    catalog = yaml.safe_load(open(catalog_path)) or []
+    taken_ids = {s["id"] for s in catalog}
+    known = {(s.get("endpoint") or {}).get("url", "") for s in catalog}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for host, office, country, domain, dgp in (hosts or ODS_ENUM_HOSTS):
+        if target and len(cands) >= target:
+            break
+        try:
+            r = requests.get(
+                f"https://{host}/api/explore/v2.1/catalog/datasets",
+                params={"limit": scan, "order_by": "records_count desc"},
+                headers={"User-Agent": UA}, timeout=60)
+            datasets = (r.json() or {}).get("results") or []
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": host, "reason": f"catalog: {type(exc).__name__}"})
+            continue
+        log(f"[ods-enum] {host}: {len(datasets)} datasets")
+        from_host = 0
+        for d in datasets:
+            if from_host >= host_cap or (target and len(cands) >= target):
+                break
+            dsid = d.get("dataset_id") or ""
+            metas = (d.get("metas") or {}).get("default") or {}
+            title = re.sub(r"\s+", " ", (metas.get("title") or dsid)).strip()
+            rec = ods_sample_record(host, dsid)
+            time.sleep(sleep_s)
+            if not rec:
+                skipped.append({"id": dsid, "reason": "no sample record"})
+                continue
+            ts = next((k for k in rec if _TS_NAME_RE.search(k)
+                       and isinstance(rec[k], str)), None)
+            vals = [k for k, v in rec.items()
+                    if k != ts and isinstance(v, (int, float))
+                    and not isinstance(v, bool)
+                    and not _ODS_ENUM_SKIP_VAL.search(k)][:3]
+            if not ts or not vals:
+                skipped.append({"id": dsid, "reason": f"ts={ts} values={len(vals)}"})
+                continue
+            url = (f"https://{host}/api/explore/v2.1/catalog/datasets/{dsid}"
+                   f"/records?limit={ODS_ENUM_LIMIT}"
+                   f"&order_by={quote(ts + ' desc')}")
+            if url in known:
+                skipped.append({"id": dsid, "reason": "already wired"})
+                continue
+            sid = _slug(f"{host.split('.')[0]}_{dsid}", 56)[:64]
+            if sid in taken_ids:
+                sid = f"{sid[:58]}_{_slug(ts, 4)}"[:64]
+            entry = {
+                "id": sid,
+                "name": f"{title[:80]} ({office}, {country})",
+                "domain": domain, "dgp_class": dgp,
+                "archetypes": ["non_stationary_regime", "smooth_periodic"],
+                "frequency": "PT15M",
+                "endpoint": {"type": "rest_json", "url": url, "auth": "none",
+                             "rate_limit": "polite", "timeout": 90},
+                "schema": {"timestamp_field": f"results[].{ts}",
+                           "value_field": [f"results[].{v}" for v in vals],
+                           "drop_null_values": True, "variates": len(vals)},
+                "history_available": f"{ODS_ENUM_LIMIT} newest points per call",
+                "update_cadence_observed": "",
+                "pretraining_novelty": "unknown",
+                "novelty_notes": f"{office} open-data portal, dataset {dsid}.",
+                "license": f"{office} open data",
+                "audit_slack_days": 10,
+                "notes": (f"Opendatasoft v2.1 records endpoint, dataset {dsid}, "
+                          f"ordered newest-first on {ts}; v2.1 caps `limit` at "
+                          f"100. Ordering matters: the default is insertion "
+                          f"order, which on a rolling table returns the oldest "
+                          f"rows and reads as a dead source."),
+            }
+            block = {"candidate_name": entry["name"], "wireable": True,
+                     "cron_cadence": "P1D",
+                     "yaml_block": yaml.dump([entry], sort_keys=False,
+                                             allow_unicode=True),
+                     "reason": f"{office} {dsid}"}
+            block, why = preflight_pinned(
+                block, lambda r=rec, t=ts: panel_dims(r, t), _ods_pin, log=log)
+            if block is None:
+                skipped.append({"id": dsid, "reason": why[:110]})
+                continue
+            final = yaml.safe_load(block["yaml_block"])[0]
+            taken_ids.add(final["id"])
+            known.add(final["endpoint"]["url"])
+            from_host += 1
+            cands.append(block)
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + {block['candidate_name'][:70]}")
+    return cands, skipped
+
+
 def write_batch(candidates: list[dict], out_path: str) -> str:
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(candidates, fh, indent=2)
