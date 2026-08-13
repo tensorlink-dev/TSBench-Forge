@@ -19,6 +19,7 @@ import os
 import re
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -37,6 +38,22 @@ def system_prompt() -> str:
     return _PROMPT_PATH.read_text()
 
 
+# A provider-named key is only ever sent to that provider's own hosts; see
+# from_env. Exact host or subdomain — a name merely *ending* in the brand
+# (engy.ai.somewhere-else.example) is a different party.
+PROVIDER_KEYS: tuple[tuple[str, str], ...] = (
+    ("engy.ai", "ENGY_API_KEY"),
+    ("openrouter.ai", "OPENROUTER_API_KEY"),
+)
+
+# Hosts measured to accept OpenRouter's `reasoning` field. engy.ai is on this
+# list because it must be: its glm-5.2 thinks by default, and only
+# `reasoning: {enabled: false}` turns that off (`enable_thinking` and
+# `thinking.type` are both silently ignored there). Anything not listed gets a
+# plain OpenAI body, since an unknown key can be a hard 400.
+REASONING_HOSTS: tuple[str, ...] = ("openrouter.ai", "engy.ai")
+
+
 @dataclass(frozen=True)
 class OpenRouterConfig:
     api_key: str | None = None
@@ -53,9 +70,28 @@ class OpenRouterConfig:
     # z-ai/GLM ignores the max_tokens cap, so this is the only reliable control
     # for it; verified to zero reasoning tokens where the cap did not.
     reasoning_enabled: bool = True
+    # `reasoning` is OpenRouter's normalisation of a field each upstream spells
+    # differently. A provider that has never heard of it may reject the unknown
+    # key, so it is sent only to hosts measured to accept it (REASONING_HOSTS).
+    #
+    # Getting this wrong is not a loud failure. Measured against engy.ai on
+    # 2026-08-13: without the flag, glm-5.2 spends the whole budget in
+    # `reasoning_content` and returns content="" with finish_reason="length" —
+    # an HTTP 200 that looks like a truncation, not a misconfiguration.
+    send_reasoning: bool = True
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> OpenRouterConfig:
+        """Read config, preferring provider-neutral ``LLM_*`` names.
+
+        The ``OPENROUTER_*`` names came first and still work, so existing
+        deployments and CI keep running untouched. Point ``LLM_BASE_URL`` at any
+        OpenAI-compatible ``/chat/completions`` endpoint — e.g. engy.ai:
+
+            LLM_BASE_URL=https://api.engy.ai/v1/chat/completions
+            LLM_MODEL=glm-5.2
+            ENGY_API_KEY=...        # or LLM_API_KEY
+        """
         e = env if env is not None else os.environ
 
         def _get(key: str, default):
@@ -68,18 +104,58 @@ class OpenRouterConfig:
             v = e.get(key)
             return v if v is not None and v.strip() != "" else default
 
+        def _first(keys: tuple[str, ...], default):
+            """First of ``keys`` that is set and non-blank; new names win."""
+            for k in keys:
+                v = _get(k, None)
+                if v is not None:
+                    return v
+            return default
+
+        def _flag(value, default: bool) -> bool:
+            if value is None:
+                return default
+            return str(value).strip().lower() not in ("false", "0", "off", "no")
+
+        base_url = _first(("LLM_BASE_URL", "OPENROUTER_BASE_URL"), cls.base_url)
+
+        # A provider-named key is only ever sent to THAT provider. Without this
+        # scoping, pointing LLM_BASE_URL at a new host while OPENROUTER_API_KEY
+        # is still in .env would hand the OpenRouter credential to whoever runs
+        # the new endpoint -- a silent cross-provider leak, and the likely
+        # outcome of a half-finished migration. LLM_API_KEY is the deliberate
+        # "I mean this key for this endpoint" spelling and is always honoured.
+        host = urllib.parse.urlparse(str(base_url)).hostname or ""
+
+        def _is(provider_host: str) -> bool:
+            return host == provider_host or host.endswith("." + provider_host)
+
+        key_names = ["LLM_API_KEY"]
+        for provider_host, name in PROVIDER_KEYS:
+            if _is(provider_host):
+                key_names.append(name)
+        api_key = _first(tuple(key_names), None)
         return cls(
-            api_key=_get("OPENROUTER_API_KEY", None),
-            model=_get("OPENROUTER_MODEL", cls.model),
-            base_url=_get("OPENROUTER_BASE_URL", cls.base_url),
-            temperature=float(_get("OPENROUTER_TEMPERATURE", cls.temperature)),
-            max_tokens=int(_get("OPENROUTER_MAX_TOKENS", cls.max_tokens)),
-            timeout=float(_get("OPENROUTER_TIMEOUT", cls.timeout)),
+            api_key=api_key,
+            model=_first(("LLM_MODEL", "OPENROUTER_MODEL"), cls.model),
+            base_url=base_url,
+            temperature=float(
+                _first(("LLM_TEMPERATURE", "OPENROUTER_TEMPERATURE"),
+                       cls.temperature)),
+            max_tokens=int(
+                _first(("LLM_MAX_TOKENS", "OPENROUTER_MAX_TOKENS"),
+                       cls.max_tokens)),
+            timeout=float(
+                _first(("LLM_TIMEOUT", "OPENROUTER_TIMEOUT"), cls.timeout)),
             reasoning_max_tokens=int(
-                _get("OPENROUTER_REASONING_MAX_TOKENS", cls.reasoning_max_tokens)
-            ),
-            reasoning_enabled=_get("OPENROUTER_REASONING_ENABLED", "true").strip().lower()
-            not in ("false", "0", "off", "no"),
+                _first(("LLM_REASONING_MAX_TOKENS",
+                        "OPENROUTER_REASONING_MAX_TOKENS"),
+                       cls.reasoning_max_tokens)),
+            reasoning_enabled=_flag(
+                _first(("LLM_REASONING_ENABLED",
+                        "OPENROUTER_REASONING_ENABLED"), None), True),
+            send_reasoning=_flag(_get("LLM_SEND_REASONING", None),
+                                 any(_is(h) for h in REASONING_HOSTS)),
         )
 
     @property
@@ -107,8 +183,11 @@ def build_user_message(inputs: dict) -> str:
     ]
     if inputs.get("already_proposed"):
         parts.append(block(
-            "ALREADY_PROPOSED (do NOT re-propose these hosts/datasets — "
-            "every one is auto-rejected; find genuinely NEW sources)",
+            "ALREADY_PROPOSED — these HOSTS are used up. Exclusion is by host, "
+            "not by dataset: a different dataset on a host listed here is "
+            "auto-rejected just the same. Dataset names are shown only as "
+            "examples of what is already there. Propose sources on hosts that "
+            "appear in NEITHER this list nor CURRENT_SOURCES",
             inputs["already_proposed"],
         ))
     return "\n\n".join(parts)
@@ -122,17 +201,26 @@ def assemble_messages(inputs: dict) -> list[dict]:
 
 
 def build_request_body(inputs: dict, cfg: OpenRouterConfig, max_tokens: int) -> dict:
-    """Assemble the OpenRouter chat-completions request body.
+    """Assemble the chat-completions request body.
 
     Kept module-level (not buried in ``propose``) so the parameter interplay is
     testable without a network call — in particular the temperature/reasoning
     interaction below, which was a silent source of HTTP 400s.
+
+    With ``send_reasoning`` false the body is plain OpenAI: model, messages,
+    max_tokens, temperature. That is what a non-OpenRouter endpoint such as
+    engy.ai expects, and it means the temperature is always sent there — the
+    omission below exists only to satisfy OpenRouter's Anthropic-style
+    normalisation.
     """
     body: dict = {
         "model": cfg.model,
         "messages": assemble_messages(inputs),
         "max_tokens": max_tokens,
     }
+    if not cfg.send_reasoning:
+        body["temperature"] = cfg.temperature
+        return body
     reasoning_enabled_here = False
     if not cfg.reasoning_enabled:
         body["reasoning"] = {"enabled": False}
@@ -237,9 +325,10 @@ def propose(inputs: dict, cfg: OpenRouterConfig) -> tuple[str, list[dict]]:
     """
     if not cfg.enabled:
         raise RuntimeError(
-            "OPENROUTER_API_KEY not set — discovery needs a model. "
-            "Use `--dry-run` to emit the assembled prompt, or `--vet <file>` to vet "
-            "candidates produced elsewhere."
+            "No API key — discovery needs a model. Set LLM_API_KEY (or "
+            "ENGY_API_KEY / OPENROUTER_API_KEY). Use `--dry-run` to emit the "
+            "assembled prompt, or `--vet <file>` to vet candidates produced "
+            "elsewhere."
         )
     def _call(max_tokens: int) -> dict:
         payload = json.dumps(build_request_body(inputs, cfg, max_tokens)).encode()
