@@ -26,3 +26,9 @@ MAILTO=""
 # fixed-seed sample draw. Runs after the audit; takes the SAME lock as
 # scrape_all so the two heavy parquet readers never overlap on this 4GB box.
 40 6 * * * /usr/bin/flock -n /tmp/tsforge_pool.lock /root/cron/pool_report.sh
+
+# Daily source grind: find new sources steered at the thinnest domains, wire
+# the survivors, commit (never pushes). Target 5, floor 2 — under the floor
+# means the veins stopped producing rather than a quiet day. Refuses to run on
+# a dirty catalog or off GRIND_BRANCH, and stages only sources.yaml+cron.yaml.
+10 7 * * * /usr/bin/flock -n /tmp/tsforge_grind.lock /root/cron/grind_daily.sh
