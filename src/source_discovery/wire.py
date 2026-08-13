@@ -100,12 +100,26 @@ def _url_key(entry: dict) -> str:
     """Duplicate-detection key for an endpoint. POST APIs (GraphQL, StatCan
     WDS, PxWeb) multiplex many series over ONE url — the body is part of the
     identity, else the second source on a host's POST endpoint is falsely
-    deduped."""
+    deduped.
+
+    GET payloads multiplex too. energy-charts answers one `public_power`
+    URL with twenty parallel production-type arrays; a national grid's solar
+    output and its nuclear output are different processes, not one source
+    entered twice. So the selected series — value_field, plus the timestamp
+    path and any panel pin that picks a lane out of the payload — belongs in
+    the identity for the same reason the POST body does. Two entries that
+    agree on url AND selection are still duplicates and still collapse."""
     ep = entry.get("endpoint") or {}
     url = ep.get("url", "")
     body = ep.get("body") or ep.get("body_form") or ep.get("query")
     if body is not None:
         url += "#" + json.dumps(body, sort_keys=True, default=str)
+    sch = entry.get("schema") or {}
+    sel = {k: sch.get(k) for k in ("value_field", "timestamp_field", "panel_field",
+                                   "where", "sheet", "record_path")
+           if sch.get(k) is not None}
+    if sel:
+        url += "@" + json.dumps(sel, sort_keys=True, default=str)
     return url
 
 

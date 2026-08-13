@@ -405,3 +405,43 @@ def test_compact_date_alone_still_parses_by_length() -> None:
     """The 8-digit form must keep going through the length dispatcher — greedy
     strptime would read '20260726' as %Y%m%d%H."""
     assert audit.parse_ts("20260726") == dt.datetime(2026, 7, 26, tzinfo=UTC)
+
+
+# --------------------------------------------------------------------------- #
+# wire._url_key — one URL can carry more than one series
+# --------------------------------------------------------------------------- #
+
+def _multiplexed(sid: str, value_field: str) -> dict:
+    """Two entries on ONE energy-charts URL, reading different lanes."""
+    return {"id": sid, "domain": "energy", "frequency": "PT15M",
+            "endpoint": {"url": "https://api.energy-charts.info/public_power?country=de",
+                         "type": "rest_json"},
+            "schema": {"timestamp_field": "unix_seconds",
+                       "value_field": [value_field]}}
+
+
+def test_url_key_separates_lanes_of_one_payload() -> None:
+    solar = _multiplexed("de_solar", "production_types[16].data")
+    wind = _multiplexed("de_wind", "production_types[15].data")
+    assert wire._url_key(solar) != wire._url_key(wind)
+
+
+def test_url_key_still_collapses_true_duplicates() -> None:
+    a = _multiplexed("de_solar", "production_types[16].data")
+    b = _multiplexed("de_solar_again", "production_types[16].data")
+    assert wire._url_key(a) == wire._url_key(b)
+
+
+def test_url_key_keeps_post_body_in_the_identity() -> None:
+    base = {"endpoint": {"url": "https://px.example/api", "type": "rest_json",
+                         "body": {"query": [{"code": "Region"}]}},
+            "schema": {"timestamp_field": "t", "value_field": "v"}}
+    other = {"endpoint": {"url": "https://px.example/api", "type": "rest_json",
+                          "body": {"query": [{"code": "Year"}]}},
+             "schema": {"timestamp_field": "t", "value_field": "v"}}
+    assert wire._url_key(base) != wire._url_key(other)
+
+
+def test_url_key_ignores_absent_schema() -> None:
+    bare = {"endpoint": {"url": "https://x.example/a"}}
+    assert wire._url_key(bare) == "https://x.example/a"
