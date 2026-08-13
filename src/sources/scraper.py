@@ -814,6 +814,29 @@ def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
 
     Without this the value array has no timestamps to align to and the whole
     payload lands in one snapshot row.
+
+    Some feeds instead run BACKWARDS from now with no timestamp anywhere in the
+    payload -- Misskey's /api/charts/* returns element 0 as today, element 1 as
+    yesterday, and so on. `series_end` is the mirror of `series_start` for that
+    shape::
+
+        schema:
+          series_end: now                    # or a path/literal, as series_start
+          series_step: P1D
+          value_field: [local.inc]
+
+    `now` is floored to the step, so the axis is stable across refetches within
+    the same bucket instead of drifting by however many hours apart two polls
+    happen to land.
+
+    `series_skip: 1` drops that many elements from the head of the array. The
+    head of a newest-first feed is usually the bucket still being filled --
+    Misskey's daily chart reports today, so a poll at 00:00:36 UTC reads a
+    near-zero that climbs all day. Left in, every such series ends in a cliff
+    that is an artefact of poll timing rather than anything the publisher did,
+    and the final point is precisely the one a forecast is scored against. The
+    axis stays anchored to the original array head, so skipping shifts which
+    points are kept, never the timestamps they carry.
     """
     val_path = schema.get("value_field", "")
     paths = val_path if isinstance(val_path, list) else [val_path]
@@ -827,16 +850,9 @@ def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
         return []
     n = min(len(v) for v in seqs.values())
 
-    start_spec = schema.get("series_start", "")
-    start_raw = start_spec
-    if isinstance(start_spec, str) and not _EPOCHISH_RE.match(start_spec.strip()):
-        try:
-            start_raw = _walk(data, start_spec)
-        except Exception:                                     # noqa: BLE001
-            return []
-    start = _parse_epoch_or_iso(start_raw)
-    if start is None:
-        return []
+    # series_end means the array is newest-first and walks backwards from it.
+    backwards = bool(schema.get("series_end")) and not schema.get("series_start")
+    start_spec = schema.get("series_end") if backwards else schema.get("series_start", "")
 
     step_spec = schema.get("series_step")
     step_s = _period_seconds(str(step_spec)) if step_spec else None
@@ -848,9 +864,30 @@ def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
     if not step_s:
         return []
 
+    if isinstance(start_spec, str) and start_spec.strip().lower() == "now":
+        # Floor to the step so two polls in the same bucket agree on the axis.
+        secs = int(dt.datetime.now(UTC).timestamp())
+        start = dt.datetime.fromtimestamp(secs - secs % int(step_s), UTC)
+    else:
+        start_raw = start_spec
+        if isinstance(start_spec, str) and not _EPOCHISH_RE.match(start_spec.strip()):
+            try:
+                start_raw = _walk(data, start_spec)
+            except Exception:                                 # noqa: BLE001
+                return []
+        start = _parse_epoch_or_iso(start_raw)
+    if start is None:
+        return []
+
+    try:
+        skip = max(0, int(schema.get("series_skip") or 0))
+    except (TypeError, ValueError):
+        skip = 0
+
     records = []
-    for i in range(n):
-        ts = start + dt.timedelta(seconds=step_s * i)
+    for i in range(skip, n):
+        ts = (start - dt.timedelta(seconds=step_s * i) if backwards
+              else start + dt.timedelta(seconds=step_s * i))
         row: dict[str, Any] = {"timestamp": ts.isoformat()}
         if len(seqs) == 1:
             row["value"] = next(iter(seqs.values()))[i]

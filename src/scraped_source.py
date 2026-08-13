@@ -69,6 +69,8 @@ class ScrapedLiveSource(LiveSource):
         require_freshness_days: int | None = None,
         enforce_cadence_balance: bool = True,
         tail_frac: float = 0.5,
+        frame_cache_size: int = 8,
+        frame_cache_bytes: int = 512 * 1024 * 1024,
     ) -> None:
         """Args:
             catalog_path: path to ``sources.yaml``.
@@ -85,6 +87,12 @@ class ScrapedLiveSource(LiveSource):
             enforce_cadence_balance: on by default so cadence bands are
                 equal-weighted alongside DGP classes. Disable only if you want an
                 internal ablation.
+            frame_cache_size: how many fully-loaded source frames to retain
+                (LRU). Bounds peak memory during a pull: the largest sources run
+                to millions of rows, so this cannot be unbounded.
+            frame_cache_bytes: byte ceiling on the same cache, measured on the
+                arrow tables the frames came from. This is the bound that does
+                the real work — a count alone still admits eight giants.
         """
         import yaml
         with open(catalog_path) as f:
@@ -96,12 +104,20 @@ class ScrapedLiveSource(LiveSource):
         self.require_freshness_days = require_freshness_days
         self.enforce_cadence_balance = bool(enforce_cadence_balance)
         self.tail_frac = float(tail_frac)
+        self.frame_cache_size = int(frame_cache_size)
+        self.frame_cache_bytes = int(frame_cache_bytes)
 
         # Index the catalog for O(1) per-source metadata lookup.
+        #
+        # Disabled sources are skipped, matching every other consumer of the
+        # catalog (scraper.py, audit.py, coverage.py). They are retired feeds —
+        # audit --apply-disables sets the flag once a source is stale past 3x
+        # its threshold — but their parquet stays on disk, so without this the
+        # eval keeps drawing windows from data the pipeline stopped trusting.
         self._meta_by_source: dict[str, dict] = {}
         for entry in catalog or []:
             sid = entry.get("id")
-            if not sid:
+            if not sid or entry.get("disabled"):
                 continue
             self._meta_by_source[sid] = {
                 "domain": entry.get("domain", "?"),
@@ -126,29 +142,52 @@ class ScrapedLiveSource(LiveSource):
         concatenation is deduped on ``timestamp`` (last write wins). Cached per
         instance by the path tuple; today's still-growing file makes the cache
         run-scoped, which is what the eval wants.
+
+        The cache is an LRU bounded by ``frame_cache_size``. A single frame can
+        be millions of rows (citibike's station panel, zillow's county panel),
+        so an unbounded cache grows without limit across a long pull. Indexing
+        no longer comes through here at all — see :meth:`_series_shape`.
         """
+        from collections import OrderedDict
+
         import pyarrow.parquet as pq
 
-        cache = self.__dict__.setdefault("_frame_cache", {})
+        cache = self.__dict__.setdefault("_frame_cache", OrderedDict())
         key = tuple(str(p) for p in paths)
         if key in cache:
-            return cache[key]
+            cache.move_to_end(key)
+            return cache[key][0]
         import pandas as pd
 
-        frames = []
+        def _store(value, nbytes=0):
+            cache[key] = (value, int(nbytes))
+            # Evict oldest-first until BOTH bounds hold. The byte bound is what
+            # actually protects us: one frame can be millions of rows, so a
+            # count-only cap of N still admits N times too much.
+            while len(cache) > 1 and (
+                len(cache) > max(1, self.frame_cache_size)
+                or sum(n for _, n in cache.values()) > self.frame_cache_bytes
+            ):
+                cache.popitem(last=False)
+            return value
+
+        frames, nbytes = [], 0
         for p in paths:
             try:
-                frames.append(pq.read_table(p).to_pandas())
+                table = pq.read_table(p)
             except Exception:  # noqa: BLE001 — a corrupt daily file must not sink the series
                 continue
+            # Arrow's nbytes counts string payloads properly, unlike pandas'
+            # shallow memory_usage, which reports 8 bytes per object pointer.
+            nbytes += table.nbytes
+            frames.append(table.to_pandas())
+            del table
         if not frames:
-            cache[key] = None
-            return None
+            return _store(None)
         if len(frames) == 1:
             # Single daily file: preserve exact prior behaviour (the scraper
             # already deduped within the file) — no cross-day overlap to resolve.
-            cache[key] = frames[0]
-            return frames[0]
+            return _store(frames[0], nbytes)
         # Multiple daily files: concatenate and dedup on timestamp (rolling-window
         # feeds re-report the same stamps across days; last write wins, matching
         # the scraper's own per-file dedup semantics). Dedup must be per panel
@@ -159,8 +198,82 @@ class ScrapedLiveSource(LiveSource):
         if "timestamp" in df.columns:
             subset = ["timestamp"] + [c for c in df.columns if c.startswith("_panel_")]
             df = df.drop_duplicates(subset=subset, keep="last").reset_index(drop=True)
-        cache[key] = df
-        return df
+        return _store(df, nbytes)
+
+    def _series_shape(self, paths):
+        """Row count and panel inventory for one source, without its values.
+
+        The index needs two facts per source — how many observations exist, and
+        which panel rows they split into. It never reads a measured value, so
+        loading the full frame here cost the whole corpus in RAM: 2.3k sources
+        of concatenated dailies, every one retained by the frame cache. That is
+        what OOM-killed a catalog walk on a 4GB box.
+
+        Parquet carries the row count in its footer, so a source with nothing to
+        dedup and no panel is answered from metadata with no read at all. Panels
+        and multi-file sources need a real read, but only of ``timestamp`` and
+        the ``_panel_*`` keys — two narrow columns against tables that run to
+        12M rows.
+
+        Dedup semantics mirror :meth:`_read_series_frame` exactly: a single file
+        keeps its raw count (the scraper already deduped in-file), several files
+        are deduped on timestamp plus panel keys.
+
+        Returns ``(n_avail, panel_cols, panel_frame)`` where ``panel_frame`` is
+        the narrow frame when panel columns exist, else ``None``.
+        """
+        import pyarrow.parquet as pq
+
+        handles = []
+        for p in paths:
+            try:
+                handles.append(pq.ParquetFile(p))
+            except Exception:  # noqa: BLE001 — a corrupt daily file must not sink the series
+                continue
+        if not handles:
+            return 0, [], None
+
+        # Columns are the union across files in first-appearance order, matching
+        # what pd.concat produced when this read every column. Schemas drift:
+        # citibike ran for 16 days before it gained _panel_station_id, and
+        # keying off only the newest schema silently dropped those days.
+        names: list[str] = []
+        for h in handles:
+            for n in h.schema_arrow.names:
+                if n not in names:
+                    names.append(n)
+        panel_cols = [c for c in names if c.startswith("_panel_")]
+        has_ts = "timestamp" in names
+        would_dedup = len(handles) > 1 and has_ts
+        if not panel_cols and not would_dedup:
+            return sum(h.metadata.num_rows for h in handles), [], None
+
+        import pandas as pd
+
+        cols = (["timestamp"] if has_ts else []) + panel_cols
+        wanted = set(cols)
+        frames = []
+        for h in handles:
+            here = [c for c in h.schema_arrow.names if c in wanted]
+            try:
+                if here:
+                    frames.append(h.read(columns=here).to_pandas())
+                else:
+                    # No clock and no panel key in this file; its rows still
+                    # count toward the total, as they did under a full read.
+                    frames.append(pd.DataFrame(index=range(h.metadata.num_rows)))
+            except Exception:  # noqa: BLE001 — a corrupt daily file must not sink the series
+                continue
+        if not frames:
+            return 0, [], None
+        if len(frames) == 1:
+            df = frames[0]
+        else:
+            df = pd.concat(frames, ignore_index=True)
+            if has_ts:
+                subset = [c for c in cols if c in df.columns]
+                df = df.drop_duplicates(subset=subset, keep="last").reset_index(drop=True)
+        return len(df), panel_cols, (df if panel_cols else None)
 
     def _index_available_series(self) -> list[dict]:
         """Walk ``data_dir`` and enumerate every available panel-expanded series.
@@ -195,18 +308,16 @@ class ScrapedLiveSource(LiveSource):
                 parquets = fresh
                 if not parquets:
                     continue
-            # Concatenate ALL daily parquet files for the source (deduped by
+            # Count across ALL daily parquet files for the source (deduped by
             # timestamp) so accumulated history counts — reading only the latest
             # file would pin every daily/low-cadence series to one day's length
-            # and the eval could never grow as the cron accumulates.
-            df = self._read_series_frame(parquets)
-            if df is None or df.empty:
-                continue
-            cols = list(df.columns)
+            # and the eval could never grow as the cron accumulates. Values are
+            # deliberately not read here; see _series_shape.
             # Panel-expanded series appear as `_panel_<KEY>` columns; if none,
             # the whole file is one series.
-            panel_cols = [c for c in cols if c.startswith("_panel_")]
-            n_avail = len(df)
+            n_avail, panel_cols, panel_df = self._series_shape(parquets)
+            if not n_avail:
+                continue
             if n_avail < self.min_series_length:
                 continue
             if not panel_cols:
@@ -222,7 +333,7 @@ class ScrapedLiveSource(LiveSource):
                 continue
             # Enumerate unique panel-row values across the (possibly multiple)
             # panel keys. Cap per-source series count if requested.
-            panel_group = df.groupby(panel_cols).size().reset_index(name="_n")
+            panel_group = panel_df.groupby(panel_cols).size().reset_index(name="_n")
             panel_group = panel_group[panel_group["_n"] >= self.min_series_length]
             if self.max_series_per_source is not None:
                 panel_group = panel_group.head(self.max_series_per_source)

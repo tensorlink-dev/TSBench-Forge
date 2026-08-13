@@ -22,6 +22,10 @@
     # Freshness audit: newest observation on disk vs declared cadence:
     python -m source_discovery --audit [--audit-json out.json] [--apply-disables]
 
+    # Composition of the EVAL POOL (what clears min_series_length on disk),
+    # which is not the same as the catalog's composition:
+    python -m source_discovery --pool-report [--pool-report-json out.json]
+
     # Bulk-generate candidates from the Socrata federated catalog (no model);
     # writes a batch in --wire's own format, so pipe it straight into --wire:
     python -m source_discovery --bulk-socrata batch.json --bulk-target 60
@@ -36,7 +40,8 @@ import re
 from pathlib import Path
 import sys
 
-from . import audit, bulk, coverage, llm, quality, runner, wire
+from . import (audit, bulk, coverage, grind, llm, pool_report, quality, runner,
+               wire)
 
 _DEFAULT_CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "sources.yaml")
 _DEFAULT_DATA = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "data")
@@ -64,6 +69,20 @@ def main(argv: list[str] | None = None) -> int:
                          "register in cron.yaml, and settle the ledger")
     ap.add_argument("--label", default="unlabeled",
                     help="with --wire: batch label written above the appended block")
+    ap.add_argument("--grind", action="store_true",
+                    help="find N new sources steered at the thinnest domains "
+                         "and cadence cells; --apply wires the survivors")
+    ap.add_argument("--grind-target", type=int, default=grind.DEFAULT_TARGET,
+                    help="how many sources to wire this run (default 4)")
+    ap.add_argument("--grind-minutes", type=float, default=grind.DEFAULT_MINUTES,
+                    help="wall-clock budget for the sweep phase (default 45)")
+    ap.add_argument("--grind-domains", type=int, default=3,
+                    help="how many of the thinnest domains to target")
+    ap.add_argument("--pool-report", action="store_true",
+                    help="composition of the EVAL POOL (what clears "
+                         "min_series_length on disk), not of the catalog")
+    ap.add_argument("--pool-report-json", metavar="FILE",
+                    help="with --pool-report: also write the full report JSON")
     ap.add_argument("--audit", action="store_true",
                     help="freshness audit: newest observation on disk vs cadence")
     ap.add_argument("--audit-json", metavar="FILE",
@@ -79,6 +98,53 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-ckan", metavar="OUT_FILE",
                     help="same, over a curated list of national CKAN portals "
                          "(chosen for geographic spread, not volume)")
+    ap.add_argument("--bulk-erddap", metavar="OUT_FILE",
+                    help="same, over the ERDDAP federation (~60 independently "
+                         "operated ocean/met observing servers)")
+    ap.add_argument("--bulk-ods-publishers", metavar="OUT_FILE",
+                    help="walk the Opendatasoft federation PUBLISHER-first: "
+                         "enumerate every portal, then take the best series "
+                         "each one has. Finds hosts where --bulk-ods, which is "
+                         "keyword-first, keeps re-meeting the same big portals")
+    ap.add_argument("--bulk-socrata-publishers", metavar="OUT_FILE",
+                    help="same inversion over Socrata: enumerate domains from "
+                         "the federated catalog, then take the best series each "
+                         "one has (Socrata has no domains endpoint)")
+    ap.add_argument("--bulk-ixp", metavar="OUT_FILE",
+                    help="sweep IXP Manager traffic graphers listed in the "
+                         "public IXP database (web_cloudops)")
+    ap.add_argument("--bulk-peertube", metavar="OUT_FILE",
+                    help="sweep the PeerTube instance index for per-instance "
+                         "video publication rates (web_cloudops)")
+    ap.add_argument("--bulk-gbfs", metavar="OUT_FILE",
+                    help="sweep the GBFS bikeshare system index for station "
+                         "occupancy series (transport)")
+    ap.add_argument("--bulk-misskey", metavar="OUT_FILE",
+                    help="sweep Misskey/Sharkey instances for hourly note "
+                         "publication rates via /api/charts (web_cloudops)")
+    ap.add_argument("--bulk-misskey-charts", default="notes",
+                    help="comma-separated Misskey charts to take per host "
+                         f"({','.join(bulk.MISSKEY_CHARTS)}); a second chart "
+                         "needs --bulk-host-cap 2 to clear the first pass")
+    ap.add_argument("--bulk-arcgis", metavar="OUT_FILE",
+                    help="sweep ArcGIS Hub for self-hosted local-government "
+                         "feature services (skips the vendor's shared "
+                         "services*.arcgis.com tenancy)")
+    ap.add_argument("--bulk-sdmx", metavar="OUT_FILE",
+                    help="sweep SDMX 2.1 REST endpoints (central banks and "
+                         "international agencies; econ_fin-heavy, SDMX-CSV "
+                         "over the existing rest_csv reader)")
+    ap.add_argument("--bulk-max-flows", type=int, default=400,
+                    help="with --bulk-sdmx: how deep to read each agency's "
+                         "dataflow list (default 400)")
+    ap.add_argument("--bulk-pxweb", metavar="OUT_FILE",
+                    help="walk PX-Web statistics-office subject trees "
+                         "(econ_fin-heavy; json-stat2 over POST)")
+    ap.add_argument("--bulk-per-host", type=int, default=None,
+                    help="with --bulk-erddap: datasets to take per server "
+                         "(default: --bulk-host-cap); with "
+                         "--bulk-ods-publishers: datasets to SCAN per portal "
+                         "(default 25)")
     ap.add_argument("--bulk-per-keyword", type=int, default=None,
                     help="catalog results to page through per keyword "
                          "(default 200 Socrata / 100 ODS)")
@@ -91,6 +157,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bulk-any-host", action="store_true",
                     help="with --bulk-socrata: allow already-wired hosts "
                          "(default is new providers only)")
+    ap.add_argument("--bulk-scan-instances", type=int, default=600,
+                    help="with --bulk-peertube: how deep to read the instance "
+                         "index, which is sorted biggest-first (default 600 "
+                         "of ~1900 listed)")
     ap.add_argument("--bulk-max-age-days", type=float, default=21.0,
                     help="with --bulk-socrata: reject datasets whose newest "
                          "observation is older than this (default 21)")
@@ -98,6 +168,213 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --bulk-socrata: sweep only these keywords "
                          "(default: the full built-in keyword-class list)")
     args = ap.parse_args(argv)
+
+    if args.bulk_arcgis:
+        cands, skipped = bulk.arcgis_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            per_keyword=args.bulk_per_keyword or 300,
+            max_age_days=args.bulk_max_age_days,
+            target=args.bulk_target, checkpoint_path=args.bulk_arcgis,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_arcgis)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_arcgis,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_sdmx:
+        cands, skipped = bulk.sdmx_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            max_flows=args.bulk_max_flows,
+            target=args.bulk_target, checkpoint_path=args.bulk_sdmx,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_sdmx)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_sdmx,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_pxweb:
+        cands, skipped = bulk.pxweb_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            max_age_days=max(args.bulk_max_age_days, 120.0),
+            target=args.bulk_target, checkpoint_path=args.bulk_pxweb,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_pxweb)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_pxweb,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_peertube:
+        cands, skipped = bulk.peertube_sweep(
+            args.catalog, host_cap=1,
+            scan_instances=args.bulk_scan_instances,
+            max_age_days=args.bulk_max_age_days,
+            target=args.bulk_target, checkpoint_path=args.bulk_peertube,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_peertube)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_peertube,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_gbfs:
+        cands, skipped = bulk.gbfs_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            target=args.bulk_target, checkpoint_path=args.bulk_gbfs,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_gbfs)
+        reasons = {}
+        for sk in skipped:
+            key = re.sub(r"\d+", "N", sk.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_gbfs,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_misskey:
+        charts = [c.strip() for c in args.bulk_misskey_charts.split(",")
+                  if c.strip()]
+        unknown = [c for c in charts if c not in bulk.MISSKEY_CHARTS]
+        if unknown:
+            print(f"unknown misskey chart(s): {', '.join(unknown)}; "
+                  f"known: {', '.join(bulk.MISSKEY_CHARTS)}", file=sys.stderr)
+            return 2
+        cands, skipped = bulk.misskey_sweep(
+            args.catalog, host_cap=args.bulk_host_cap or 1, charts=charts,
+            target=args.bulk_target, checkpoint_path=args.bulk_misskey,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_misskey)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_misskey,
+            "skipped": len(skipped),
+            "unexamined": sum(1 for s in skipped
+                              if s.get("reason", "").startswith("unexamined")),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_ixp:
+        cands, skipped = bulk.ixp_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            target=args.bulk_target, checkpoint_path=args.bulk_ixp,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_ixp)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_ixp,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_socrata_publishers:
+        cands, skipped = bulk.socrata_publisher_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            scan_per_host=args.bulk_per_host or 25,
+            max_age_days=args.bulk_max_age_days,
+            target=args.bulk_target,
+            checkpoint_path=args.bulk_socrata_publishers,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_socrata_publishers)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_socrata_publishers,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_ods_publishers:
+        cands, skipped = bulk.ods_publisher_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            scan_per_host=args.bulk_per_host or 25,
+            max_age_days=args.bulk_max_age_days,
+            target=args.bulk_target,
+            checkpoint_path=args.bulk_ods_publishers,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_ods_publishers)
+        reasons = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_ods_publishers,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
+
+    if args.bulk_erddap:
+        cands, skipped = bulk.erddap_sweep(
+            args.catalog, host_cap=args.bulk_host_cap,
+            per_server=args.bulk_per_host,
+            max_age_days=args.bulk_max_age_days,
+            # Always allow wired hosts: an ERDDAP server is a whole regional
+            # observing system, and the three already in the catalog carry one
+            # dataset each. The per-host cap is what bounds concentration.
+            new_hosts_only=False,
+            target=args.bulk_target, checkpoint_path=args.bulk_erddap,
+            log=lambda m: print(m, file=sys.stderr),
+        )
+        bulk.write_batch(cands, args.bulk_erddap)
+        reasons: dict[str, int] = {}
+        for s in skipped:
+            key = re.sub(r"\d+", "N", s.get("reason", "?"))[:80]
+            reasons[key] = reasons.get(key, 0) + 1
+        print(json.dumps({
+            "candidates": len(cands), "out": args.bulk_erddap,
+            "skipped": len(skipped),
+            "skip_reasons": dict(sorted(reasons.items(), key=lambda p: -p[1])[:14]),
+        }, indent=2))
+        return 0 if cands else 1
 
     if args.bulk_ckan:
         cands, skipped = bulk.ckan_sweep(
@@ -165,6 +442,45 @@ def main(argv: list[str] | None = None) -> int:
                               apply=args.apply)
         print(json.dumps(rep, indent=2))
         return 0 if rep["counts"]["wire"] or not rep["detail"] else 1
+
+    if args.grind:
+        import datetime as _dt
+        plan = grind.run(args.catalog, target=args.grind_target,
+                         minutes=args.grind_minutes,
+                         n_domains=args.grind_domains,
+                         log=lambda m: print(m, file=sys.stderr))
+        stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%d-%H%M")
+        batch = Path(args.out or ".") / f"grind-{stamp}.json"
+        batch.parent.mkdir(parents=True, exist_ok=True)
+        bulk.write_batch(plan["ranked"], str(batch))
+        report = {k: plan[k] for k in
+                  ("target_domains", "veins_run", "found", "surplus")}
+        report["batch"] = str(batch)
+        report["ranked"] = [b.get("candidate_name") for b in plan["ranked"]]
+        if plan["ranked"] and args.apply:
+            # wire re-verifies every candidate against the real scraper before
+            # anything reaches sources.yaml, so this is the same gate a manual
+            # wave goes through -- not a shortcut around it.
+            rep = wire.wire_batch(str(batch), args.catalog,
+                                  label=f"grind-{stamp}", apply=True)
+            report["wired"] = rep["counts"]
+        print(json.dumps(report, indent=2))
+        return 0 if plan["ranked"] else 1
+
+    if args.pool_report:
+        report = pool_report.build(args.catalog, args.data_dir)
+        if args.pool_report_json:
+            Path(args.pool_report_json).write_text(
+                json.dumps(report, indent=2) + "\n")
+        print(pool_report.summarize(report))
+        print()
+        print(pool_report.render_table(report))
+        print()
+        print(json.dumps({k: report[k] for k in (
+            "totals", "eligible_sources_by_domain", "eligible_series_by_domain",
+            "ineligible_on_depth_by_domain", "sampled_by_domain",
+            "sampled_by_cadence")}, indent=2))
+        return 0 if not report["sample_error"] else 1
 
     if args.audit:
         findings = audit.audit_catalog(args.catalog, args.data_dir)

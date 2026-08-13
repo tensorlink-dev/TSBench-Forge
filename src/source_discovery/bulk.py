@@ -42,13 +42,14 @@ buys volume without buying coverage.
 from __future__ import annotations
 
 import datetime as dt
+import io
 import json
 import re
 import csv
 import statistics
 import time
 import unicodedata
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable, Optional, Sequence
 from urllib.parse import quote, urlparse
 
 import requests
@@ -463,7 +464,8 @@ def _topic_tokens(text: str) -> list[str]:
 
 
 def resolve_class(
-    query_class: tuple[str, str, str], title: str, description: str = ""
+    query_class: Optional[tuple[str, str, str]], title: str, description: str = "",
+    min_score: int = 1,
 ) -> Optional[tuple[str, str, str]]:
     """Decide a dataset's domain from the dataset ITSELF, not from the query that
     surfaced it.
@@ -475,12 +477,25 @@ def resolve_class(
     mislabelled entry misdirects every later decision about what to go find next.
     Scoring every known class against the dataset's own title keeps the good
     series and files it correctly. Returns None when nothing matches, which is
-    the honest answer for a result the sweep simply should not have surfaced."""
+    the honest answer for a result the sweep simply should not have surfaced.
+
+    `min_score` is how many of a class's tokens the title has to hit. One is
+    right for a keyword sweep, where the query already established the topic and
+    this call is only checking the result did not drift. It is far too loose
+    without that anchor: a publisher-first walk hands this function raw titles,
+    many of them not in English, so token overlap with an English keyword list is
+    near zero and a single incidental hit wins by default. Measured on the ODS
+    federation at min_score=1: French headcount statistics filed as transport,
+    lottery draws as healthcare. Raise it and those become None, which is
+    correct — they are datasets this build has no class for."""
     hay = " ".join(_topic_tokens(f"{title} {description}"))
     if not hay:
         return None
-    best, best_score = None, 0
-    for klass in ((query_class,) + tuple(KEYWORD_CLASSES)
+    best, best_score = None, min_score - 1
+    # A publisher-first sweep has no query to inherit from, so query_class is
+    # None and the dataset's own title has to carry the classification alone.
+    head = (query_class,) if query_class is not None else ()
+    for klass in (head + tuple(KEYWORD_CLASSES)
                   + tuple(ODS_KEYWORD_CLASSES) + EXTRA_CLASSES):
         toks = _topic_tokens(klass[0])
         score = sum(1 for t in toks if t in hay or t.rstrip("s") in hay)
@@ -517,6 +532,13 @@ _GENERIC_LABELS = frozenset({
     "data", "opendata", "open", "datos", "dados", "donnees", "api", "www",
     "portal", "catalog", "gov", "us", "org", "com", "net", "co", "ca", "city",
     "state", "county", "info", "public", "internal", "performance", "insights",
+    # Country-code TLDs. Without these a European host walks in from the right
+    # and stops on the TLD itself: erddap.emodnet-physics.eu -> "eu", which
+    # names a continent rather than a publisher and collides with every other
+    # .eu source.
+    "eu", "uk", "ie", "fr", "de", "es", "it", "nl", "be", "pt", "at", "ch",
+    "no", "se", "fi", "dk", "is", "pl", "cz", "gr", "ro", "hu", "si", "sk",
+    "au", "nz", "jp", "kr", "in", "sg", "za", "br", "mx", "cl", "ar", "il",
 })
 
 
@@ -1016,7 +1038,8 @@ def ods_probe(host: str, dsid: str, ts: str, timeout: int = 30) -> dict:
 
 
 def ods_synthesize(rec: dict, klass: tuple[str, str, str], probe: dict,
-                   taken: Optional[set[str]] = None) -> Optional[dict]:
+                   taken: Optional[set[str]] = None,
+                   origin: Optional[str] = None) -> Optional[dict]:
     kw, dom, dgp = klass
     metas = (rec.get("metas") or {}).get("default") or {}
     host = (metas.get("source_domain_address") or "").strip().lower()
@@ -1035,6 +1058,7 @@ def ods_synthesize(rec: dict, klass: tuple[str, str, str], probe: dict,
     sid = entry_id(host, title)
     if taken and sid in taken:
         sid = f"{sid[:52]}_{_slug(dsid, 10)}"[:64]
+    provenance = origin or f"query '{kw}'"
 
     entry: dict[str, Any] = {
         "id": sid,
@@ -1066,9 +1090,10 @@ def ods_synthesize(rec: dict, klass: tuple[str, str, str], probe: dict,
         "license": metas.get("license") or "open data (see host portal terms)",
         "audit_slack_days": slack,
         "notes": (
-            f"Bulk-generated from the Opendatasoft federated catalog (query "
-            f"'{kw}'). Fields chosen from the portal's declared types; the "
-            f"endpoint points at the publisher's own host, not the aggregator."
+            f"Bulk-generated from the Opendatasoft federated catalog "
+            f"({provenance}). Fields chosen from the portal's declared types; "
+            f"the endpoint points at the publisher's own host, not the "
+            f"aggregator."
         ),
     }
     if vals:
@@ -1202,6 +1227,567 @@ def ods_sweep(
             seen_hosts[host] = seen_hosts.get(host, 0) + 1
             _checkpoint(cands, checkpoint_path)
             log(f"  + {block['candidate_name']}  [{block['cron_cadence']}]")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+
+# --------------------------------------------------------------------------- #
+# ODS, publisher-first
+# --------------------------------------------------------------------------- #
+# `ods_sweep` above picks a keyword and sees which publishers turn up. That is
+# the right shape for finding DATASETS and the wrong shape for finding
+# PUBLISHERS: popular topics are dominated by the same large portals, so you
+# re-meet them keyword after keyword. Measured, on this federation: a breadth
+# run examined 1,680 datasets and produced ONE candidate, with 372 skips reading
+# "host already wired".
+#
+# Inverting it -- enumerate publishers, then ask each one for its best series --
+# turns host count into the thing being maximised rather than a by-product.
+#
+# The enumeration is the awkward part. /catalog/facets caps a facet at 100
+# values and this endpoint rejects the `facet=name(limit:N)` syntax, so the list
+# has to be partitioned. Excluding everything already seen works but grows the
+# `where` clause without bound; partitioning on a name prefix keeps every URL
+# short, and recursing only into prefixes that come back full means the walk
+# costs about one request per 100 publishers found.
+ODS_FACETS = "https://data.opendatasoft.com/api/explore/v2.1/catalog/facets"
+ODS_FACET_CAP = 100                  # /catalog/facets caps a facet at 100 values
+ODS_PREFIX_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789-"
+# 4 truncates on 'data', which is the most common prefix in the federation
+# by a wide margin -- the depth limit is a backstop, the request budget in
+# ods_publishers is what actually bounds the walk.
+ODS_MAX_PREFIX_DEPTH = 8
+
+# A keyword sweep never surfaces these because no keyword class describes them.
+# Walking a portal end-to-end does. Lottery draws are the sharpest case: they
+# have a clean timestamp, a dense numeric column and daily cadence, so every
+# structural check passes -- and they are i.i.d. uniform by construction. A
+# forecasting benchmark that contains them is measuring nothing and paying for
+# the privilege. The rest are portals' own test fixtures.
+_ODS_REJECT_TITLE = re.compile(
+    # Games of chance. "lottery" alone would also take out National Lottery
+    # FUND grant payments, which are a real spending series, so the draw words
+    # need draw context; loto/keno/euromillions carry it on their own.
+    # (euromillion\b would never match "EuroMillions" -- same trap as
+    # climatolog\b not matching "climatology".)
+    r"\b(loto|lotto|keno|euromillions?|powerball|jackpots?|raffles?|sorteos?)\b"
+    r"|\b(lottery|tirage|draw)\b[^,;]{0,24}"
+    r"\b(result|resultat|résultat|number|numero|winning|draw|gagnant)"
+    r"|\b(winning|gagnant)\b[^,;]{0,16}\b(number|numero|combinaison)"
+    # Portals' own test fixtures.
+    r"|\b(dummy|sample[_ ]data|test[_ ]dataset|random[_ ]walk|"
+    r"dedicated[_ -]integers|all[_ ]geometries)\b",
+    re.I,
+)
+
+# Without a query class to anchor on, one token of overlap is noise.
+ODS_PUBLISHER_MIN_CLASS_SCORE = 2
+
+
+
+# Publisher-first has no query to anchor a domain to, and the title cannot carry
+# it alone: `resolve_class` scores an English/French municipal keyword list
+# against raw titles and lets one token win, which on this federation filed
+# French headcount statistics as transport, lottery draws as healthcare, and
+# "Hourly electricity consumption by feeder" as nature (it matched the class
+# "water consumption" on the word consumption). Raising the threshold fixes the
+# wrong answers and loses the right ones.
+#
+# So classification here is CLOSED, the same shape that fixed ERDDAP, keyed on
+# a field the publisher filled in rather than on prose: ODS `theme`. The whole
+# federation uses 116 distinct values, enumerated by prefix walk, and this map
+# covers every one that plausibly carries a time series. Themes absent from the
+# map -- Orthoimagery, Elevation, Land cover, Archaeology, Politics, Census --
+# are skipped rather than guessed. Skipping is the cheap error here: an
+# unclassified dataset costs one candidate, a misclassified one distorts the
+# domain x cadence matrix that steers what the build looks for next.
+ODS_THEME_DOMAIN: dict[str, str] = {
+    # nature
+    "environment": "nature",
+    "environnement": "nature",
+    "environmental monitoring facilities": "nature",
+    "meteorological geographical features": "nature",
+    "hydrography": "nature",
+    "hydrographie": "nature",
+    "climate & sustainability": "nature",
+    "environment, climate": "nature",
+    "territory and environment": "nature",
+    "farming, environment": "nature",
+    "water & agriculture": "nature",
+    "sea regions": "nature",
+    "natural risk zones": "nature",
+    # energy
+    "energy": "energy",
+    "electricity": "energy",
+    "conventional fuels": "energy",
+    "environment & energy": "energy",
+    # transport
+    "transport": "transport",
+    "transportation": "transport",
+    "trasporti": "transport",
+    "transports, déplacements": "transport",
+    "transport, movements": "transport",
+    "transport & mobility": "transport",
+    "mobility": "transport",
+    "mobility and transport": "transport",
+    "mobilité": "transport",
+    "mobiliteit": "transport",
+    "traffic": "transport",
+    "routes / transports": "transport",
+    "07-territories, transport & services": "transport",
+    # healthcare
+    "health": "healthcare",
+    "santé": "healthcare",
+    "santé / social": "healthcare",
+    "chronic deases": "healthcare",          # the federation's own typo
+    "services, social": "healthcare",
+    # "Environmental Health" matches both the nature and healthcare patterns,
+    # so the disagreement guard threw every one of them away. In US municipal
+    # filing it is a public-health department function -- restaurant grades,
+    # lead testing, air-quality complaints -- so the tie is settled here, by
+    # exact category string, rather than by loosening either pattern.
+    "environmental health": "healthcare",
+    # econ_fin
+    "economy": "econ_fin",
+    "economie": "econ_fin",
+    "economy and finance": "econ_fin",
+    "finance": "econ_fin",
+    "employment": "econ_fin",
+    "industry": "econ_fin",
+    "production": "econ_fin",
+    "03-economy, employment": "econ_fin",
+    # sales
+    "housing & properties": "sales",
+    "housing": "sales",
+    "property and planning": "sales",
+    "tourism": "sales",
+    "tourism, culture, sport and leisure": "sales",
+    # web_cloudops
+    "digital and telecommunications": "web_cloudops",
+}
+
+
+# Exact values will not do the job: portals define their own themes, so the
+# federation has far more than the ~116 the global facet shows, in at least six
+# languages ("Solidarité et soutien à l'activité", "Itinerarios y horarios",
+# "Mobiliteit"). Worse, /catalog/facets cannot enumerate them cleanly --
+# startswith is case-sensitive AND returns the CO-OCCURRING themes of matching
+# datasets, so a prefix walk returns neither a filtered nor a complete list.
+#
+# So the closed vocabulary is a pattern list rather than a value list. It stays
+# closed -- a theme matching nothing here is skipped, never guessed -- but it
+# generalises across a portal's own naming. Substring matching is safe on this
+# field in a way it was not on titles: "transport" appearing in a curator's
+# theme label means the theme is about transport, whereas in prose it can be
+# one incidental word in a sentence about something else.
+ODS_THEME_PATTERNS: tuple[tuple[str, str], ...] = (
+    # nature
+    (r"environn?ement|environmental|ambiente|umwelt|milieu", "nature"),
+    # water(?!borne): "domestic waterborne traffic" is a shipping series, and
+    # matching it here made it ambiguous against transport, so the two-domain
+    # guard threw the table away rather than misfiling it. Every other water*
+    # compound (wastewater, watershed, water quality) still matches.
+    (r"hydro|water(?!borne)|\beau\b|\beaux\b|acqua|agua|rivi[eè]re|nappe",
+     "nature"),
+    (r"m[ée]t[ée]o|weather|climat|clima\b|atmosph", "nature"),
+    (r"qualit[ée] de l.air|air quality|luchtkwaliteit|pollution", "nature"),
+    (r"biodiv|habitat|esp[eè]ce|species|faune|flore|for[eê]t|forest", "nature"),
+    (r"agricultur|farming|agricol|agraria|p[eê]che|fisher", "nature"),
+    (r"risque naturel|natural risk|s[ée]isme|seismic|inondation|flood", "nature"),
+    (r"d[ée]chet|waste|recycl", "nature"),
+    (r"\bmer\b|marine|maritim|oc[ée]an|ocean|coastal|littoral", "nature"),
+    # energy
+    (r"[ée]nerg|energy|energia|energie", "energy"),
+    (r"[ée]lectric|electric|elettric|el[ée]ctric|strom", "energy"),
+    (r"chauffage|heating|fuel|carburant|petrol|p[ée]trole", "energy"),
+    # transport
+    (r"transport|trasport|verkehr|vervoer", "transport"),
+    (r"mobilit|d[ée]placement|movement", "transport"),
+    (r"traffic|trafic|traffico|circulation routi", "transport"),
+    (r"stationnement|parking|aparcamiento", "transport"),
+    (r"v[ée]lo|bicycl|\bbike\b|cycl(ing|isme)|fiets", "transport"),
+    (r"\bbus\b|tramway|\btram\b|m[ée]tro\b|rail|train|horaires?\b", "transport"),
+    (r"a[ée]roport|airport|\bport\b|navigation", "transport"),
+    (r"itinerario|horario|fahrplan|timetable|dessertes?\b", "transport"),
+    # healthcare
+    (r"sant[ée]|health|salute|salud|gesundheit|sanitar", "healthcare"),
+    (r"solidarit|social|handicap|autonomie|m[ée]dico|medical", "healthcare"),
+    (r"h[oô]pital|hospital|urgence|emergency care", "healthcare"),
+    (r"petite enfance|childcare|cr[eè]che|enfance et jeunesse", "healthcare"),
+    # econ_fin
+    (r"[ée]conom|economy|wirtschaft", "econ_fin"),
+    (r"financ|budget|fiscal|imp[oô]t|\btax\b|comptes? public", "econ_fin"),
+    (r"emploi|employment|travail|labour|labor market|arbeit|ch[oô]mage", "econ_fin"),
+    (r"industr|manufactur|production", "econ_fin"),
+    (r"entreprise|business|commerce|trade|march[ée] public", "econ_fin"),
+    # sales
+    (r"logement|housing|immobil|real estate|propert|wohnen|vivienda", "sales"),
+    (r"tourism|tourisme|turismo|tourismus|h[oô]tell", "sales"),
+    (r"consommation des m[ée]nages|retail|vente", "sales"),
+    # web_cloudops
+    (r"num[ée]rique|digital|t[ée]l[ée]com|telecom|internet|broadband|"
+     r"informatique", "web_cloudops"),
+    # Statistics offices file far more finely than open-data portals: their
+    # subject areas are "Births", "Causes of death", "Building cost index"
+    # rather than "Health" or "Economy". One PX-Web run skipped 162 tables on
+    # "Population" alone.
+    (r"\bbirths?\b|\bdeaths?\b|mortalit|natalit|cause of death|"
+     r"causes of death|marital status|life expectancy", "healthcare"),
+    (r"cost index|price index|consumer price|producer price|"
+     r"harmonised index|inflation", "econ_fin"),
+    (r"wages?|salar|earnings|turnover|bankrupt|insolven|"
+     r"national accounts|gross domestic", "econ_fin"),
+    (r"greenhouse gas|emission|air pollut|climate gas", "nature"),
+
+    # Nordic and Baltic vocabulary. Every PX-Web office in PXWEB_ROOTS is
+    # Nordic or Baltic and files subject areas in its own language, so the
+    # Romance/German vocabulary above misses them wholesale: Linkoping's real
+    # subjects came back as "Bilinnehav", "Boende", "Hushall" and matched
+    # nothing at all. Terms are taken from the subject areas these offices
+    # actually publish, not from a dictionary.
+    #
+    # SV/NO/DA, FI, ET, LV, IS.
+    (r"milj[oö]\b|ymp[aä]rist|keskkond|\bvide\b|umhverfi", "nature"),
+    (r"\bskog|\bmets[aä]|\bmez|fiske|kalastus|kalandus|zvejniec|"
+     r"jordbruk|lantbruk|maatalous|p[oõ]llumajandus|lauksaimniec", "nature"),
+    (r"v[aä]der|s[aä][aä]tila|ilmastik|laika apst[aā]k|ve[ðd]ur", "nature"),
+    (r"energi|energia|ener[gģ]|elektricitet|s[aä]hk[oö]|elektrienergia|"
+     r"fj[aä]rrv[aä]rme|kaukol[aä]mp[oö]|kaugk[uü]te", "energy"),
+    (r"trafik|liikenne|liiklus|satiksme|umfer[dð]|"
+     r"fordon|bilinnehav|ajoneuvo|s[oõ]iduki|transportl[iī]dzek|"
+     r"sj[oö]fart|merenkulku|laevandus|ku[gģ]niec|waterborne|"
+     r"luftfart|ilmailu|lennundus|avi[aā]cij|"
+     r"j[aä]rnv[aä]g|rautatie|raudtee|dzelzce[lļ]", "transport"),
+    (r"h[aä]lsa|h[aä]lso|helse|sundhed|terveys|tervis|vesel[iī]b|heilbrig[ðd]|"
+     r"sjukhus|sjukv[aå]rd|sairaala|haigla|slimn[iī]c", "healthcare"),
+    (r"bost[aä]d|boende|asunto|eluruum|m[aā]jok|[ií]b[uú][ðd]|"
+     r"detaljhandel|v[aä]hitt[aä]iskaup|jaekaubandus|mazumtirdzniec", "sales"),
+    (r"arbetsmarknad|sysselsattning|syssels[aä]ttning|ty[oö]llisyys|"
+     r"t[oö][oö]h[oõ]ive|nodarbin[aā]t|"
+     r"l[oö]ner|palkat|palgad|darba samaksa|"
+     r"n[aä]ringsliv|f[oö]retag|yritys|ettev[oõ]t|uz[nņ][eē]mumu|"
+     r"nationalr[aä]kenskap|kansantalouden|rahvamajanduse|"
+     # Municipal offices file these headings and the national ones do not:
+     # Linkoping and Orebro lost 32 tables between them to the three below.
+     r"priser|prisindex|f[oö]rv[aä]rvsarbetande|\barbete\b|socioekonom",
+     "econ_fin"),
+    (r"ekologisk produktion|luomutuotanto", "nature"),
+    (r"leva och bo", "sales"),
+
+    # Vital and demographic statistics. Births, deaths and marital status
+    # already route to healthcare above; the bare subject area they sit under
+    # is "Population" (347 tables skipped on that alone in one run) or its
+    # local-language equivalent. Elections are filed under the same heading by
+    # some offices -- Finland's is literally "Population and elections" -- and
+    # an election result is not a health series, so those are excluded rather
+    # than swept in.
+    (r"^(?!.*\belection)(?!.*\bval\b).*"
+     r"(population|demograph|befolkning|v[aä]est[oö]|rahvastik|"
+     r"iedz[iī]vot[aā]j|mannfj[oö]ld|stanovni[sš]tv|popula[tţ]i)", "healthcare"),
+
+    # Croatian and Romanian. Both offices serve their own language's subject
+    # areas even from the /en tree -- Croatia's English database list comes
+    # back as "Cijene", "Energija", "Gradevinarstvo" -- so without these the
+    # walk finds the tables and then discards every one of them as unfiled.
+    # Energija/Industrija/Agricultura already match the Romance stems above;
+    # only the terms that do not are listed here.
+    (r"okoli[sš]|\bvode\b|mediu(l)? [iî]nconjur", "nature"),
+    (r"[sš]umarstv|ribarstv|silvicultur|pescuit", "nature"),
+    (r"\bpromet\b|prijevoz|transporturi", "transport"),
+    (r"zdravstv|s[aă]n[aă]tate", "healthcare"),
+    (r"cijene|pre[tţ]uri|pla[cć]e|zaposlen|trgovin|comer[tţ]|"
+     r"gra[dđ]evinarstv|construc[tţ]ii", "econ_fin"),
+    (r"turiz|turis(m|ti)", "sales"),
+)
+
+_ODS_THEME_RE: tuple[tuple[Any, str], ...] = tuple(
+    (re.compile(pat, re.I), dom) for pat, dom in ODS_THEME_PATTERNS)
+
+# A keyword sweep only ever sees datasets a topic query matched. A publisher
+# walk sees the WHOLE portal, and an open-data portal is mostly registries:
+# address bases, defibrillator locations, charge points, cemetery records. Those
+# pass every structural check, because a registry built incrementally has a
+# per-row "created"/"last updated" column that looks exactly like an observation
+# clock and numeric columns that are coordinates and identifiers. Half of the
+# first publisher-first batch was registries; all of them carried one of these.
+_ODS_RECORD_TS = re.compile(
+    # "maj" also arrives glued: datemajobs, majdate. Anchored to date/obs words
+    # so it cannot fire on major/majoration.
+    r"(^|_)maj(_|$)|date_?maj|maj_?(date|obs)|mise[_ ]?a[_ ]?jour|"
+    r"mise[_ ]en[_ ]service|"
+    r"creat|instal|publi|demande|saisie|enregistr|validation|"
+    r"import|integration|depot|inscription|derniere|revis|last_?update|"
+    r"refresh|amended",
+    re.I,
+)
+# Numeric columns that identify or locate a row rather than measure anything.
+# Checked as a substring, unlike _ODS_VAL_REJECT's token match, because these
+# arrive glued together (uiccountrycode, organisationnumber, c_xy_precis).
+_ODS_ID_VAL = re.compile(
+    r"^[xy]$|(^|_)xy(_|$)|^g?id$|coord|geo|uic|insee|siret|siren|"
+    # Dublin Core metadata fields describe the RECORD, never a measurement.
+    r"^dc_|commune|departement|arrondissement|^wmo$|"
+    r"(id|code|numero|number|num)$|^(id|code|no)_|"
+    # "numbershort" is an identifier, "number_of_passengers" is a measurement.
+    r"^(number|numero|nombre)(?!s?[_ ]?(of|de|d))|"
+    # Socrata exports unnamed spreadsheet columns as column_0, column_1...
+    # They are whatever the publisher left in that cell.
+    r"^column_?\d+$|^unnamed",
+    re.I,
+)
+
+# The theme is the publisher's own filing, and publishers file by DEPARTMENT:
+# a health agency tags its air-quality monitors "Santé". These few phrases name
+# the measured process unambiguously enough to outrank that. Kept deliberately
+# short -- every entry here is a hole in the closed vocabulary.
+ODS_TITLE_OVERRIDE: tuple[tuple[str, str, str], ...] = (
+    (r"qualit[ée] de l.air|air quality|luchtkwaliteit|"
+     r"(^|\W)(pm10|pm2[.,]?5|no2|ozone)(\W|$)", "nature", "air_quality"),
+    (r"prix|tarif|price|precio|preis", "econ_fin", "price_level"),
+    # Same process, two languages, and it was landing in two domains: the
+    # English EPC in nature, the French DPE in sales.
+    (r"energy performance certificate|\bepc\b|"
+     r"diagnostics? de performances? [ée]nerg[ée]tiques?|\bdpe\b",
+     "energy", "building_energy_rating"),
+)
+_ODS_TITLE_OVERRIDE_RE = tuple(
+    (re.compile(p, re.I), d, c) for p, d, c in ODS_TITLE_OVERRIDE)
+
+
+# Used when the theme fixes the domain but no keyword class in that domain
+# matches the title well enough to name the process more precisely.
+ODS_DOMAIN_DEFAULT_CLASS: dict[str, str] = {
+    "nature": "environmental_measurement",
+    "energy": "energy_consumption",
+    "transport": "transport_activity",
+    "healthcare": "public_health_indicator",
+    "econ_fin": "economic_indicator",
+    "sales": "property_market_activity",
+    "web_cloudops": "digital_service_usage",
+}
+
+
+def _best_class(pool: Iterable[tuple[str, str, str]], hay: str,
+                min_score: int) -> Optional[tuple[str, str, str]]:
+    best, best_score = None, min_score - 1
+    for klass in pool:
+        toks = _topic_tokens(klass[0])
+        score = sum(1 for t in toks if t in hay or t.rstrip("s") in hay)
+        if score > best_score:
+            best, best_score = klass, score
+    return best
+
+
+def ods_publisher_class(themes: Any, title: str,
+                        description: str = "") -> Optional[tuple[str, str, str]]:
+    """Domain from the publisher's own `theme`, dgp_class from the title.
+
+    The title is still allowed to name the process, but only from classes that
+    already live in the theme's domain — so a bad title match costs precision
+    inside a domain instead of putting the source in the wrong one.
+    """
+    for rx, dom, dgp in _ODS_TITLE_OVERRIDE_RE:
+        if rx.search(title):
+            return (dgp, dom, dgp)
+    if isinstance(themes, str):
+        themes = [themes]
+    doms = set()
+    for t in (themes or []):
+        if not isinstance(t, str):
+            continue
+        exact = ODS_THEME_DOMAIN.get(t.strip().lower())
+        if exact:
+            doms.add(exact)
+            continue
+        doms.update(dom for rx, dom in _ODS_THEME_RE if rx.search(t))
+    if len(doms) != 1:
+        return None            # unmapped, or two themes that disagree
+    dom = doms.pop()
+    pool = [k for k in (tuple(KEYWORD_CLASSES) + tuple(ODS_KEYWORD_CLASSES)
+                        + EXTRA_CLASSES) if k[1] == dom]
+    hay = " ".join(_topic_tokens(f"{title} {description}"))
+    hit = _best_class(pool, hay, ODS_PUBLISHER_MIN_CLASS_SCORE) if hay else None
+    return hit or (dom, dom, ODS_DOMAIN_DEFAULT_CLASS[dom])
+
+
+def _ods_facet_page(prefix: str, timeout: int) -> Optional[list[str]]:
+    """Publisher names under `prefix`, or None if the call failed."""
+    params = {"facet": "source_domain_address"}
+    if prefix:
+        params["where"] = f'startswith(source_domain_address, "{prefix}")'
+    try:
+        r = requests.get(ODS_FACETS, params=params,
+                         headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return None
+        facets = (r.json().get("facets") or [{}])[0].get("facets") or []
+    except Exception:                                         # noqa: BLE001
+        return None
+    return [f["name"] for f in facets if f.get("name")]
+
+
+def ods_publishers(timeout: int = 60, sleep_s: float = 0.25,
+                   max_requests: int = 1500, log=print) -> list[str]:
+    """Every publisher hostname in the ODS federation, by bounded prefix walk.
+
+    Breadth-first with a hard request budget rather than plain recursion. The
+    fan-out is 37 per level, so a run where most prefixes come back full would
+    cost 37^depth requests — a budget makes the worst case a truncated answer
+    the caller is told about, instead of a sweep that never returns.
+    """
+    found: set[str] = set()
+    queue: list[str] = [""]
+    spent, truncated = 0, []
+    while queue and spent < max_requests:
+        prefix = queue.pop(0)
+        names = _ods_facet_page(prefix, timeout)
+        spent += 1
+        time.sleep(sleep_s)
+        if names is None:
+            continue
+        found.update(names)
+        # A full page means the facet was truncated and there is more behind it.
+        if len(names) < ODS_FACET_CAP:
+            continue
+        if len(prefix) >= ODS_MAX_PREFIX_DEPTH:
+            truncated.append(prefix or "(root)")
+            continue
+        queue.extend(prefix + ch for ch in ODS_PREFIX_ALPHABET)
+    if queue:
+        log(f"  [ods-pub] request budget {max_requests} spent with "
+            f"{len(queue)} prefixes unexplored")
+    if truncated:
+        log(f"  [ods-pub] still full at max depth, publishers below these are "
+            f"unreachable: {', '.join(truncated[:8])}")
+    return sorted(found)
+
+
+def ods_publisher_datasets(host: str, want: int = 25, timeout: int = 45) -> list[dict]:
+    """That publisher's most recently processed datasets, newest first."""
+    r = requests.get(ODS_CATALOG, params={
+        "where": f'source_domain_address="{host}"',
+        "order_by": "data_processed desc",
+        "limit": min(ODS_PAGE, want),
+    }, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    return r.json().get("results", [])
+
+
+def ods_publisher_sweep(
+    catalog_path: str,
+    host_cap: int = 2,
+    scan_per_host: int = 25,
+    max_age_days: float = 21.0,
+    publishers: Optional[Iterable[str]] = None,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    known_hosts = wired_hosts(catalog_path)
+    seen_hosts = host_counts(catalog_path)
+    known_ds = wired_ods_datasets(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    if publishers is None:
+        log("[ods-pub] enumerating the federation...")
+        publishers = ods_publishers(log=log)
+    publishers = [h for h in publishers if h]
+    log(f"[ods-pub] {len(publishers)} publishers; "
+        f"{sum(1 for h in publishers if h in known_hosts)} already wired")
+
+    for host in publishers:
+        if host in known_hosts or seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": host, "reason": "host already wired"})
+            continue
+        try:
+            records = ods_publisher_datasets(host, scan_per_host)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": host, "reason": f"listing failed: {exc}"})
+            continue
+        time.sleep(sleep_s)
+        got = 0
+        for rec in records:
+            if got >= host_cap:
+                break
+            metas = (rec.get("metas") or {}).get("default") or {}
+            dsid = metas.get("source_dataset") or rec.get("dataset_id") or ""
+            title = (metas.get("title") or "").strip()
+            tag = f"{host}/{dsid}"
+            if not dsid or dsid in known_ds or not rec.get("has_records"):
+                continue
+            if (metas.get("records_count") or 0) < 40:
+                continue
+            mod = _parse_iso(metas.get("data_processed") or metas.get("modified"))
+            if mod is None:
+                continue
+            age = (dt.datetime.now(dt.timezone.utc) - mod).total_seconds() / 86400
+            if age > max_age_days:
+                # Sorted newest-first, so the rest of this publisher is older.
+                skipped.append({"id": host,
+                                "reason": f"nothing processed inside {max_age_days:.0f}d "
+                                          f"(newest {age:.0f}d)"})
+                break
+            fields = _ods_fields(rec)
+            ts = ods_pick_timestamp(fields)
+            if not ts:
+                continue
+            if _ODS_RECORD_TS.search(ts):
+                skipped.append({"id": tag,
+                                "reason": f"registry: '{ts}' is a record-keeping "
+                                          f"date, not an observation clock"})
+                continue
+            vals = ods_pick_values(fields, ts)
+            vals = [v for v in vals if not _ODS_ID_VAL.search(v)]
+            if not vals:
+                skipped.append({"id": tag,
+                                "reason": "no numeric field that measures anything"})
+                continue
+            # Publisher-first means no keyword to inherit a class from, so the
+            # title has to carry it alone; an unclassifiable dataset is skipped
+            # rather than guessed into a domain it would then distort.
+            if _ODS_REJECT_TITLE.search(f"{title} {dsid}"):
+                skipped.append({"id": tag,
+                                "reason": f"not a forecastable process: {title[:50]}"})
+                continue
+            use_class = ods_publisher_class(
+                metas.get("theme"), title, metas.get("description") or "")
+            if use_class is None:
+                skipped.append({
+                    "id": tag,
+                    "reason": f"theme not in the map: {metas.get('theme')}"})
+                continue
+            probe = ods_probe(host, dsid, ts)
+            time.sleep(sleep_s)
+            if "error" in probe:
+                skipped.append({"id": tag, "reason": f"probe failed: {probe['error']}"})
+                continue
+            if probe["distinct"] < 20:
+                skipped.append({"id": tag,
+                                "reason": f"only {probe['distinct']} distinct ts"})
+                continue
+            if probe["age_days"] > max_age_days * 3:
+                skipped.append({"id": tag,
+                                "reason": f"newest observation {probe['age_days']:.0f}d old"})
+                continue
+            block = ods_synthesize(rec, use_class, probe, taken=taken_ids,
+                                   origin="publisher walk, theme-classified")
+            if block is None:
+                skipped.append({"id": tag, "reason": "could not synthesise entry"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            known_ds.add(dsid)
+            cands.append(block)
+            got += 1
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + [{use_class[1]}] {block['candidate_name'][:66]}")
             if target and len(cands) >= target:
                 log(f"target {target} reached")
                 return cands, skipped
@@ -1775,6 +2361,3339 @@ def wired_ckan_resources(catalog_path: str) -> set[str]:
         if m:
             out.add(m.group(1))
     return out
+
+
+
+# --------------------------------------------------------------------------- #
+# ERDDAP
+# --------------------------------------------------------------------------- #
+# ERDDAP is the third federated shape, and structurally the best one yet: ~60
+# INDEPENDENTLY OPERATED servers (each a distinct host, which is the axis the
+# catalog is short on) that all speak an identical REST dialect. Every server
+# exposes its own catalog as a queryable table -- `tabledap/allDatasets` --
+# carrying datasetID, title, institution and, decisively, `maxTime`: the newest
+# observation the dataset actually holds. No other platform hands over the
+# freshness of the DATA rather than of the METADATA, which was the single
+# biggest source of wasted probes on Socrata/ODS/CKAN.
+#
+# Two ERDDAP-specific traps, both of which would poison the benchmark rather
+# than merely waste a request:
+#
+# * Many servers publish MODEL OUTPUT next to observations -- forecasts,
+#   hindcasts, climatologies, reanalyses. A forecast grid is not an observed
+#   series; predicting a prediction measures nothing. They also carry maxTime in
+#   the FUTURE, so they read as permanently fresh (`_ERDDAP_REJECT_TITLE`, plus
+#   a hard future-maxTime cut).
+# * Half the variables on a typical mooring are QC flags, coordinates and
+#   instrument ids, all numeric. Wiring those yields a "series" that is a
+#   constant 1 (`_ERDDAP_DROP_VAR`).
+#
+# The URL needs no date token: ERDDAP understands server-relative constraints
+# (`time>=now-3days`), so a generated entry stays fresh forever with no
+# templating.
+ERDDAP_SERVERS: tuple[tuple[str, str], ...] = (
+    ("https://erddap.observations.voiceoftheocean.org/erddap", "VOTO"),
+    ("https://erddap.ogsl.ca/erddap", "SLGO-OGSL"),
+    ("https://coastwatch.pfeg.noaa.gov/erddap", "CSWC"),
+    ("https://apdrc.soest.hawaii.edu/erddap", "APDRC"),
+    ("https://www.ncei.noaa.gov/erddap", "NCEI"),
+    ("https://erddap.bco-dmo.org/erddap", "BCODMO"),
+    ("https://erddap.emodnet.eu/erddap", "EMODnet"),
+    ("https://erddap.emodnet-physics.eu/erddap", "EMODnet Physics"),
+    ("https://erddap.marine.ie/erddap", "MII"),
+    ("https://cwcgom.aoml.noaa.gov/erddap", "CSCGOM"),
+    ("https://erddap.sensors.ioos.us/erddap", "IOOS-Sensors"),
+    ("http://erddap.cencoos.org/erddap", "CeNCOOS ERDDAP"),
+    ("https://data.neracoos.org/erddap", "NERACOOS"),
+    ("https://gliders.ioos.us/erddap", "NGDAC"),
+    ("https://pae-paha.pacioos.hawaii.edu/erddap", "PacIOOS"),
+    ("https://sccoos.org/erddap", "SCCOOS"),
+    ("http://erddap.secoora.org/erddap", "SECOORA"),
+    ("http://osmc.noaa.gov/erddap", "OSMC"),
+    ("http://dap.onc.uvic.ca/erddap", "ONC"),
+    ("http://erddap.oceantrack.org/erddap", "OTN"),
+    ("https://oceanwatch.pifsc.noaa.gov/erddap", "PIFSC"),
+    ("https://erddap.dataexplorer.oceanobservatories.org/erddap", "OOI"),
+    ("https://erddap-goldcopy.dataexplorer.oceanobservatories.org/erddap", "OOI Goldcopy"),
+    ("http://www.myroms.org:8080/erddap", "MYROMS"),
+    ("http://tds.marine.rutgers.edu/erddap", "RUTGERS"),
+    ("https://comet.nefsc.noaa.gov/erddap", "NEFSC"),
+    ("https://opendap.co-ops.nos.noaa.gov/erddap", "COOPS-NOS"),
+    ("https://gcoos5.geos.tamu.edu/erddap", "GCOO5-TAMU"),
+    ("https://gcoos4.tamu.edu/erddap", "GCOO4-TAMU"),
+    ("https://apps.glerl.noaa.gov/erddap", "GLERL"),
+    ("https://spraydata.ucsd.edu/erddap", "UCSD"),
+    ("https://salishsea.eos.ubc.ca/erddap", "UBC"),
+    ("http://bmlsc.ucdavis.edu:8080/erddap", "BMLSC"),
+    ("https://upwell.pfeg.noaa.gov/erddap", "UAF"),
+    ("https://www.ifremer.fr/erddap", "IFREMER"),
+    ("https://data.pmel.noaa.gov/pmel/erddap", "PMEL"),
+    ("https://ferret.pmel.noaa.gov/alamo/erddap", "ALAMO"),
+    ("https://ferret.pmel.noaa.gov/socat/erddap", "SOCAT"),
+    ("https://catalogue.hakai.org/erddap", "Hakai"),
+    ("https://polarwatch.noaa.gov/erddap", "POLARWATCH"),
+    ("https://geoport.usgs.esipfed.org/erddap", "USGS"),
+    ("https://erddap.incois.gov.in/erddap", "INCOIS"),
+    ("https://www.smartatlantic.ca/erddap", "SmartAtlantic"),
+    ("https://erddap.griidc.org/erddap", "GRIIDC"),
+    ("https://atn.ioos.us/erddap", "ATN-IOOS"),
+    ("https://pub-data.diver.orr.noaa.gov/erddap", "DIVER"),
+    ("https://erddap.gcoos.org/erddap", "GCOOS"),
+    ("https://basin.ceoe.udel.edu/erddap", "CEOE"),
+    ("https://cioosatlantic.ca/erddap", "CIOOS Atlantic"),
+    ("https://data.cioospacific.ca/erddap", "CIOOS Pacific"),
+    ("http://erddap.emso.eu/erddap", "EMSO ERIC"),
+    ("https://coastwatch.noaa.gov/erddap", "NCCO"),
+    ("https://canwinerddap.ad.umanitoba.ca/erddap", "CanWIN"),
+    ("https://oceanview.pfeg.noaa.gov/erddap", "NOAA Oceanview"),
+    ("https://erddap.oa.iode.org/erddap", "IOC-IODE-OA"),
+    ("https://linkedsystems.uk/erddap", "NOC-BODC Linked Systems"),
+    ("https://erddap.bio-oracle.org/erddap", "Bio-Oracle"),
+    ("https://erddap.ondeckdata.com/erddap", "CFRF"),
+)
+
+# Variables that are numeric but are not observations: QC flags, coordinates,
+# instrument/deployment bookkeeping. On a typical mooring these OUTNUMBER the
+# real measurements, and a QC flag column is a constant, which is worse than no
+# series at all.
+_ERDDAP_DROP_VAR = re.compile(
+    r"(?:^|_)(?:qc|qa|qartod|flag|flags|test|tests|agg|mask|status|"
+    r"instrument\d*|deployment|profile|trajectory|rowsize|row_size)(?:$|_)"
+    r"|^(?:latitude|longitude|lat|lon|depth|altitude|z|station|station_id|"
+    r"platform|crs|id|time_modified|actual_time|time_created|precise_time|"
+    r"sample_time|obs_time|feature_type_instance)$",
+    re.I,
+)
+_ERDDAP_NUM_TYPES = frozenset({"double", "float", "int", "long", "short"})
+
+# Titles that mean "this is a model, not a measurement". A forecast dataset is
+# both scientifically wrong for the benchmark (forecasting a forecast measures
+# nothing) and operationally poisonous: its newest timestamp is in the FUTURE,
+# so the freshness audit can never see it die.
+_ERDDAP_REJECT_TITLE = re.compile(
+    r"\b(forecast|hindcast|nowcast|prediction|predicted|model|modell?ed|"
+    r"simulation|reanalys[ie]s|climatolog[a-z]*|projection|scenario|"
+    r"particle track|trajectory analysis)\b"
+    # ERDDAP's own placeholder title, left in place by many installs. It names
+    # nothing, so the entry it would generate is unidentifiable in the catalog.
+    r"|^data from a (local|remote) source",
+    re.I,
+)
+
+# A glider/mooring DEPLOYMENT rather than a station: the id carries the launch
+# timestamp ("AsterSEA068-20260804T0908"). These are fresh today and dead in
+# three weeks when the instrument is recovered -- a source that is guaranteed to
+# go stale is worse than no source, because it consumes an audit slot forever.
+_ERDDAP_DEPLOYMENT = re.compile(r"\d{8}T\d{3,6}|[-_]\d{8}$")
+
+# Probe windows, widest-first fallback. A 10-minute mooring fills 20 distinct
+# timestamps in hours; a monthly cruise series needs years. Starting narrow and
+# widening only on failure keeps the common case to a few KB.
+_ERDDAP_WINDOWS: tuple[int, ...] = (2, 14, 120, 1200)
+
+ERDDAP_DEFAULT_CLASS = ("ocean marine buoy mooring water observations",
+                        "nature", "environmental_sensor")
+
+# ERDDAP classification is deliberately CLOSED, unlike the catalog sweeps'.
+# `resolve_class` scores a title against every municipal keyword class there is,
+# which is right for a general-purpose portal and actively harmful here: an
+# ocean federation has exactly one domain, so every cross-domain match it finds
+# is a false one. Left open, it filed "NOAA Ship ... Near Real Time" under sales
+# (the token "real" hitting a real-estate class) and "RADS Altimeter" under
+# econ_fin -- 12 of 50 candidates mislabelled, in the very matrix that steers
+# what the build goes looking for next. So the domain is fixed and only the
+# dgp_class is inferred.
+ERDDAP_CLASSES: tuple[tuple[str, str, str], ...] = (
+    ("wave height swell period directional waves", "nature", "ocean_waves"),
+    ("water temperature salinity conductivity density currents", "nature",
+     "ocean_physics"),
+    ("tide sea level water level surge datum", "nature", "sea_level"),
+    ("meteorological air temperature wind barometric pressure humidity",
+     "nature", "met_station"),
+    ("river discharge streamflow stage hydrology runoff", "nature", "hydrology"),
+    ("chlorophyll oxygen nutrient nitrate ph carbon dioxide pco2", "nature",
+     "biogeochemistry"),
+    ("radiation irradiance solar par light", "nature", "radiation"),
+    ("acoustic detection fish tag telemetry biodiversity", "nature",
+     "biodiversity"),
+    ("glider profiler mooring underway ship transect", "nature",
+     "ocean_physics"),
+)
+
+
+def erddap_class(title: str, institution: str = "") -> tuple[str, str, str]:
+    """Pick a dgp_class from the ocean/met vocabulary; domain is always nature."""
+    hay = " ".join(_topic_tokens(f"{title} {institution}"))
+    best, best_score = ERDDAP_DEFAULT_CLASS, 0
+    for klass in ERDDAP_CLASSES:
+        score = sum(1 for t in _topic_tokens(klass[0])
+                    if t in hay or t.rstrip("s") in hay)
+        if score > best_score:
+            best, best_score = klass, score
+    return best
+
+
+def erddap_platform_key(title: str, dsid: str) -> str:
+    """What PHYSICAL platform a dataset comes from, for within-server spread.
+
+    A server's fresh list is sorted by platform, so taking the first N datasets
+    takes N instruments on ONE buoy -- `A01_met`, `A01_waves`, `A01_ocean_001m`
+    are three depths of the same mooring in the same water, which is volume
+    without information. Station codes lead the title and are the only reliably
+    machine-findable part of them, so a leading token carrying a digit ("A01",
+    "(41024", "W60-G500") keys the platform; titles with no such token are left
+    alone, because there the distinguishing part is prose and over-eager
+    deduping would throw away genuinely separate sites (each EMODnet HF radar
+    station is titled "Near Real Time Surface Ocean ... by HFR-<site>").
+    """
+    first = (title or "").strip().split(" ")[0] if title else ""
+    if first and any(ch.isdigit() for ch in first):
+        return re.sub(r"[^a-z0-9]", "", first.lower())
+    return _slug(title or dsid, 60)
+
+
+# A tabledap query has no LIMIT clause: the window IS the limit. When a
+# dataset's declared maxTime lies, or the probe widens to its 1200-day fallback
+# against a high-rate instrument, the honest answer to the query is hundreds of
+# megabytes -- and parsing that into Python dicts costs an order of magnitude
+# more again. One such response took this 4GB box to 2.6GB RSS and into swap,
+# which slows the production scrape cron sharing the machine. A probe that needs
+# more than a few MB is a probe whose answer is "too big to wire" anyway.
+ERDDAP_PROBE_BYTES = 8_000_000
+ERDDAP_CATALOG_BYTES = 48_000_000        # allDatasets on a 10k-dataset server
+
+
+def erddap_get(url: str, timeout: int = 60,
+               max_bytes: int = ERDDAP_PROBE_BYTES) -> dict:
+    with requests.get(url, headers={"User-Agent": UA}, timeout=timeout,
+                      stream=True) as r:
+        if r.status_code != 200:
+            raise RuntimeError(f"HTTP {r.status_code}")
+        buf = bytearray()
+        for chunk in r.iter_content(65536):
+            buf += chunk
+            if len(buf) > max_bytes:
+                raise RuntimeError(f"response exceeds {max_bytes // 1_000_000}MB")
+        return json.loads(bytes(buf).decode("utf-8", "replace"))
+
+
+def _erddap_rows(payload: dict) -> list[dict]:
+    """ERDDAP's uniform response shape: {"table": {columnNames, rows}}."""
+    table = (payload or {}).get("table") or {}
+    names = table.get("columnNames") or []
+    return [dict(zip(names, row)) for row in table.get("rows") or []]
+
+
+def erddap_datasets(
+    base: str, max_age_days: float = 7.0, horizon_days: float = 0.5,
+    timeout: int = 90,
+) -> list[dict]:
+    """Every tabledap dataset on one server whose newest observation is recent.
+
+    The `maxTime<=` half of the constraint is not symmetry for its own sake: it
+    is what keeps forecast and model-output datasets -- which legitimately carry
+    timestamps months ahead -- out of the candidate pool.
+    """
+    now = dt.datetime.now(dt.timezone.utc)
+    lo = (now - dt.timedelta(days=max_age_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    hi = (now + dt.timedelta(days=horizon_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    cols = "datasetID,title,institution,minTime,maxTime,dataStructure"
+    url = (f"{base}/tabledap/allDatasets.json?{quote(cols, safe=',')}"
+           f"&maxTime%3E={lo}&maxTime%3C={hi}")
+    try:
+        rows = _erddap_rows(erddap_get(url, timeout=timeout,
+                                       max_bytes=ERDDAP_CATALOG_BYTES))
+    except RuntimeError as exc:
+        # ERDDAP answers an empty result set with HTTP 404, not an empty table.
+        # Reported as an error it reads as "server down" and hides the real
+        # finding, which is that the freshness window was simply too tight.
+        if "404" in str(exc):
+            return []
+        raise
+    out = []
+    for r in rows:
+        if r.get("datasetID") == "allDatasets":
+            continue
+        if (r.get("dataStructure") or "table") != "table":
+            continue
+        out.append(r)
+    return out
+
+
+def erddap_variables(base: str, dsid: str, timeout: int = 45) -> list[tuple[str, str]]:
+    rows = _erddap_rows(erddap_get(f"{base}/info/{quote(dsid)}/index.json",
+                                   timeout=timeout))
+    return [
+        (r.get("Variable Name") or "", (r.get("Data Type") or "").lower())
+        for r in rows if r.get("Row Type") == "variable"
+    ]
+
+
+def erddap_pick_values(
+    variables: Iterable[tuple[str, str]], limit: int = 4
+) -> list[str]:
+    """The observation-bearing columns, QC/coordinate/bookkeeping ones removed."""
+    out = []
+    for name, typ in variables:
+        if not name or name == "time":
+            continue
+        if typ not in _ERDDAP_NUM_TYPES:
+            continue
+        if _ERDDAP_DROP_VAR.search(name):
+            continue
+        out.append(name)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def erddap_data_url(base: str, dsid: str, vals: list[str], days: int) -> str:
+    """`time>=now-Nd` is evaluated by the SERVER, so the entry never goes stale
+    and needs no date templating in the scraper."""
+    select = ",".join(["time"] + vals)
+    return (f"{base}/tabledap/{quote(dsid)}.json"
+            f"?{quote(select, safe=',')}&time%3E=now-{days}days")
+
+
+def erddap_probe(
+    base: str, dsid: str, vals: list[str], timeout: int = 60,
+    windows: Iterable[int] = _ERDDAP_WINDOWS,
+) -> dict:
+    """Fetch real rows and measure what the wire gate will measure.
+
+    Returns the window that worked, so the emitted URL asks for the same span --
+    a window tuned to the dataset's own cadence rather than a global guess.
+    """
+    now = dt.datetime.now(dt.timezone.utc)
+    last_err = "no window tried"
+    for days in windows:
+        url = erddap_data_url(base, dsid, vals, days)
+        try:
+            rows = _erddap_rows(erddap_get(url, timeout=timeout))
+        except Exception as exc:                              # noqa: BLE001
+            last_err = f"{type(exc).__name__}: {exc}"[:120]
+            # Widening a window that already blew the size cap only asks for a
+            # bigger version of the same answer.
+            if "exceeds" in str(exc):
+                return {"error": f"{days}d window {exc}"}
+            continue
+        if not rows:
+            last_err = f"no rows in {days}d window"
+            continue
+        all_stamps = [_parse_iso(r.get("time")) for r in rows]
+        all_stamps = [s for s in all_stamps if s is not None]
+        cutoff = now + dt.timedelta(days=1)
+        stamps = sorted({s for s in all_stamps if s <= cutoff}, reverse=True)
+        n_future = len([s for s in all_stamps if s > cutoff])
+        if n_future > max(1, 0.02 * len(all_stamps)):
+            return {"error": f"{n_future}/{len(all_stamps)} timestamps are "
+                             f"future-dated -- model output, not observations"}
+        if len(stamps) < 20:
+            last_err = f"only {len(stamps)} distinct ts in {days}d window"
+            continue
+        # Rows per distinct timestamp: >1 means several stations/depths share a
+        # timestamp, i.e. a PANEL. The gate reads one series per entry, so a
+        # panel silently collapses into whichever row lands last.
+        ratio = len(rows) / len(stamps)
+        if ratio > 1.5:
+            return {"error": f"panel: {len(rows)} rows over {len(stamps)} "
+                             f"distinct timestamps ({ratio:.1f}x)"}
+        kept = []
+        for v in vals:
+            good = sum(1 for r in rows if isinstance(r.get(v), (int, float)))
+            if good >= 0.5 * len(rows):
+                kept.append(v)
+        if not kept:
+            return {"error": f"no value column is >=50% numeric over {len(rows)} rows"}
+        gaps = [(stamps[i] - stamps[i + 1]).total_seconds()
+                for i in range(len(stamps) - 1)]
+        gaps = [g for g in gaps if g > 0]
+        return {
+            "rows": len(rows),
+            "distinct": len(stamps),
+            "window_days": days,
+            "values": kept,
+            "newest": stamps[0].isoformat(),
+            "age_days": (now - stamps[0]).total_seconds() / 86400.0,
+            "median_gap_s": statistics.median(gaps) if gaps else 0.0,
+        }
+    return {"error": last_err}
+
+
+def _erddap_slack(median_gap_s: float, age_days: float) -> int:
+    """Slack proportional to the CADENCE, not one global number.
+
+    The Socrata generator's flat 45-day floor is right for a monthly municipal
+    extract and useless for a 10-minute buoy: a mooring that goes dark stays
+    "fresh" for six weeks. Slack has to be generous enough to absorb ordinary
+    publication slip and tight enough that death is visible.
+    """
+    if median_gap_s <= 7200:                     # sub-daily: hours matter
+        return max(3, int(age_days) + 3)
+    if median_gap_s <= 129600:                   # daily-ish
+        return max(14, int(age_days) + 10)
+    return max(45, int(age_days) + 45)
+
+
+def erddap_synthesize(
+    base: str, label: str, ds: dict, klass: tuple[str, str, str],
+    probe: dict, taken: Optional[set[str]] = None,
+) -> Optional[dict]:
+    host = urlparse(base).netloc.lower()
+    dsid = ds.get("datasetID") or ""
+    title = (ds.get("title") or dsid).strip()
+    inst = (ds.get("institution") or label or "").strip()
+    vals = probe.get("values") or []
+    if not (host and dsid and vals):
+        return None
+    _kw, dom, dgp = klass
+    freq = freq_from_delta(probe["median_gap_s"])
+    sid = entry_id(host, title)
+    if taken and sid in taken:
+        sid = f"{sid[:52]}_{_slug(dsid, 10)}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title} ({inst or host})",
+        "domain": dom,
+        "dgp_class": dgp,
+        "archetypes": ["non_stationary_regime", "seasonal_multi"],
+        "frequency": freq,
+        "endpoint": {
+            "type": "rest_json",
+            "url": erddap_data_url(base, dsid, vals, probe["window_days"]),
+            "auth": "none",
+            "rate_limit": None,
+        },
+        "schema": {
+            # ERDDAP answers with parallel arrays under table.rows, so the
+            # fields are POSITIONAL: column 0 is always the requested `time`.
+            "timestamp_field": "table.rows[][0]",
+            "value_field": [f"table.rows[][{i}]" for i in range(1, len(vals) + 1)],
+            "variates": len(vals),
+        },
+        "history_available": (
+            f"from {(ds.get('minTime') or '?')[:10]} (server retains full series; "
+            f"the entry polls a rolling {probe['window_days']}d window)"
+        ),
+        "update_cadence_observed": (
+            f"median gap {probe['median_gap_s'] / 60:.1f} min over "
+            f"{probe['distinct']} distinct timestamps; newest {probe['newest']}"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Operational ocean/met observing platform served over ERDDAP; the "
+            "live rolling window post-dates every known TSFM pretraining cutoff."
+        ),
+        "license": f"open data -- {inst or label} via ERDDAP",
+        "audit_slack_days": _erddap_slack(probe["median_gap_s"], probe["age_days"]),
+        "notes": (
+            f"Bulk-generated from the {label} ERDDAP server ({host}). Variables "
+            f"chosen mechanically from the dataset's declared types with QC "
+            f"flags, coordinates and instrument ids excluded; verified against "
+            f"the live endpoint by the wire gate. Columns: {', '.join(vals)}."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "cron_cadence": cron_cadence_for(freq, probe["age_days"]),
+        "reason": (
+            f"ERDDAP {label}: {probe['distinct']} distinct ts in a "
+            f"{probe['window_days']}d window, newest {probe['newest']} "
+            f"({probe['age_days']:.2f}d old), median gap "
+            f"{probe['median_gap_s']:.0f}s, values={vals}"
+        ),
+    }
+
+
+def erddap_sweep(
+    catalog_path: str,
+    servers: Iterable[tuple[str, str]] = ERDDAP_SERVERS,
+    host_cap: int = DEFAULT_HOST_CAP,
+    max_age_days: float = 14.0,
+    per_server: Optional[int] = None,
+    new_hosts_only: bool = False,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    """Sweep the ERDDAP federation, at most `host_cap` datasets per server.
+
+    `new_hosts_only` defaults to FALSE here, unlike the catalog sweeps: on
+    Socrata a wired host means the portal is already represented, but an ERDDAP
+    server is an entire regional observing system, and the three already in the
+    catalog carry one dataset each out of hundreds.
+    """
+    seen_hosts = host_counts(catalog_path)
+    known_hosts = wired_hosts(catalog_path)
+    known_ds = wired_erddap_datasets(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    cap = per_server if per_server is not None else host_cap
+
+    for base, label in servers:
+        base = base.rstrip("/")
+        host = urlparse(base).netloc.lower()
+        if new_hosts_only and host in known_hosts:
+            skipped.append({"id": host, "reason": "host already wired"})
+            continue
+        room = cap - seen_hosts.get(host, 0)
+        if room <= 0:
+            skipped.append({"id": host, "reason": f"host cap {cap} reached"})
+            continue
+        try:
+            datasets = erddap_datasets(base, max_age_days=max_age_days)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": host,
+                            "reason": f"catalog unreachable: "
+                                      f"{type(exc).__name__}: {exc}"[:110]})
+            continue
+        log(f"[{label} {host}] {len(datasets)} fresh tabledap datasets, room {room}")
+        got = 0
+        platforms: set[str] = set()
+        for ds in datasets:
+            if got >= room:
+                break
+            dsid = ds.get("datasetID") or ""
+            title = (ds.get("title") or "").strip()
+            tag = f"{host}/{dsid}"
+            pkey = erddap_platform_key(title, dsid)
+            if pkey in platforms:
+                skipped.append({"id": tag,
+                                "reason": f"same platform '{pkey}' as an "
+                                          f"earlier pick on this server"})
+                continue
+            if f"{host}|{dsid}" in known_ds:
+                skipped.append({"id": tag, "reason": "dataset already in catalog"})
+                continue
+            if _ERDDAP_REJECT_TITLE.search(f"{title} {dsid}"):
+                skipped.append({"id": tag, "reason": f"model output: {title[:50]}"})
+                continue
+            if _ERDDAP_DEPLOYMENT.search(dsid) or _ERDDAP_DEPLOYMENT.search(title):
+                skipped.append({"id": tag,
+                                "reason": f"one-off deployment: {dsid[:40]}"})
+                continue
+            try:
+                variables = erddap_variables(base, dsid)
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": tag,
+                                "reason": f"info failed: {type(exc).__name__}"})
+                continue
+            time.sleep(sleep_s)
+            if not any(n == "time" for n, _ in variables):
+                skipped.append({"id": tag, "reason": "no time variable"})
+                continue
+            vals = erddap_pick_values(variables)
+            if not vals:
+                skipped.append({"id": tag,
+                                "reason": "no non-QC numeric variable"})
+                continue
+            probe = erddap_probe(base, dsid, vals)
+            time.sleep(sleep_s)
+            if "error" in probe:
+                skipped.append({"id": tag, "reason": probe["error"]})
+                continue
+            use_class = erddap_class(title, ds.get("institution") or "")
+            block = erddap_synthesize(base, label, ds, use_class, probe,
+                                      taken=taken_ids)
+            if block is None:
+                skipped.append({"id": tag, "reason": "could not synthesise"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            cands.append(block)
+            got += 1
+            platforms.add(pkey)
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + {block['candidate_name'][:72]}  [{block['cron_cadence']}]")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+def wired_erddap_datasets(catalog_path: str) -> set[str]:
+    """`host|datasetID` for every ERDDAP entry already wired."""
+    reg = yaml.safe_load(open(catalog_path)) or []
+    out = set()
+    for src in reg:
+        url = (src.get("endpoint") or {}).get("url", "")
+        m = re.search(r"^(https?://[^/]+).*/(?:tabledap|griddap)/([^/?.]+)", url)
+        if m:
+            out.add(f"{urlparse(m.group(1)).netloc.lower()}|{m.group(2)}")
+    return out
+
+
+
+# --------------------------------------------------------------------------- #
+# GBFS
+# --------------------------------------------------------------------------- #
+# The bike/scooter-share standard, with an official registry of every system
+# that speaks it. It is the largest single list of live feeds available -- and
+# the clearest illustration of why SOURCE count and HOST count are different
+# numbers: 1,536 registered systems resolve to only ~134 distinct hostnames,
+# because operators like nextbike, urbansharing and Lyft serve dozens of cities
+# each from one endpoint. Wiring all 1,536 would multiply the source count by a
+# factor the coverage metric would refuse to credit, and would hand one operator
+# a hundred entries. So the cap here is per HOST, not per system, and it is
+# tight.
+#
+# Station status is a genuine panel -- one series per dock -- which the gate
+# admits (>=20 entities x >=20 numeric rows) and which the eval pool caps at 25
+# series per feed downstream. Free-floating vehicle feeds are deliberately NOT
+# used: their panel ids are individual bikes that appear and vanish, so the
+# "series" churns its own identity between polls.
+GBFS_SYSTEMS_CSV = ("https://raw.githubusercontent.com/MobilityData/gbfs/"
+                    "master/systems.csv")
+
+# GBFS 3.0 renamed the availability field; both spellings are live in the wild.
+_GBFS_COUNT_FIELDS = ("num_bikes_available", "num_vehicles_available")
+_GBFS_DOCK_FIELDS = ("num_docks_available", "num_docks_disabled")
+
+
+def gbfs_systems(timeout: int = 60) -> list[dict]:
+    r = requests.get(GBFS_SYSTEMS_CSV, headers={"User-Agent": UA}, timeout=timeout)
+    r.raise_for_status()
+    return list(csv.DictReader(r.text.splitlines()))
+
+
+def gbfs_feeds(discovery_url: str, timeout: int = 30) -> dict[str, str]:
+    """feed name -> url, across both GBFS layouts.
+
+    Pre-3.0 keys the feed list by language (`data.en.feeds`); 3.0 drops the
+    language level (`data.feeds`). Assuming either one silently loses half the
+    registry.
+    """
+    r = requests.get(discovery_url, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    data = (r.json() or {}).get("data") or {}
+    feeds: list[dict] = []
+    if isinstance(data.get("feeds"), list):
+        feeds = data["feeds"]
+    else:
+        for lang in ("en", "fr", "de", "es", "nl", "no", "fi", "pl", "it"):
+            if isinstance(data.get(lang), dict) and data[lang].get("feeds"):
+                feeds = data[lang]["feeds"]
+                break
+        else:
+            for val in data.values():
+                if isinstance(val, dict) and isinstance(val.get("feeds"), list):
+                    feeds = val["feeds"]
+                    break
+    return {f.get("name", ""): f.get("url", "") for f in feeds if f.get("url")}
+
+
+def gbfs_probe(url: str, timeout: int = 30) -> dict:
+    """Measure the panel: how many stations, and do they carry a usable clock?"""
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}"}
+        payload = r.json()
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:120]}
+    stations = ((payload or {}).get("data") or {}).get("stations")
+    if not isinstance(stations, list) or not stations:
+        return {"error": "no data.stations array"}
+    if len(stations) < 20:
+        return {"error": f"only {len(stations)} stations (gate needs 20 entities)"}
+    field = next((f for f in _GBFS_COUNT_FIELDS
+                  if sum(1 for s in stations if isinstance(s.get(f), (int, float)))
+                  >= 0.5 * len(stations)), None)
+    if not field:
+        return {"error": "no availability count on >=50% of stations"}
+    if not any(isinstance(s.get("station_id"), (str, int)) for s in stations):
+        return {"error": "stations carry no station_id to key the panel on"}
+    reported = [s.get("last_reported") for s in stations]
+    has_clock = sum(1 for v in reported if isinstance(v, (int, float, str)) and v)
+    if has_clock < 0.5 * len(stations):
+        return {"error": "no last_reported on >=50% of stations"}
+    docks = [f for f in _GBFS_DOCK_FIELDS
+             if sum(1 for s in stations if isinstance(s.get(f), (int, float)))
+             >= 0.5 * len(stations)]
+    ttl = payload.get("ttl")
+    return {
+        "stations": len(stations),
+        "value_fields": [field] + docks[:1],
+        "ttl": ttl if isinstance(ttl, (int, float)) and ttl > 0 else None,
+    }
+
+
+def gbfs_synthesize(system: dict, url: str, probe: dict,
+                    taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = urlparse(url).netloc.lower()
+    name = (system.get("Name") or "").strip()
+    location = (system.get("Location") or "").strip()
+    country = (system.get("Country Code") or "").strip()
+    if not (host and name):
+        return None
+    label = f"{name} ({location})" if location else name
+    # Dedupe on the id that actually ships. This generator is the only one that
+    # prefixes, so comparing the bare sid against a set of wired ids would never
+    # match and a collision would overwrite a source instead of adding one.
+    sid = f"gbfs_{entry_id(host, f'{name} {location}')}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:52]}_{_slug(system.get('System ID') or '', 10)}"[:64]
+    vals = probe["value_fields"]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{label} — per-station availability (GBFS panel)",
+        "domain": "transport",
+        "dgp_class": "micromobility_availability",
+        "archetypes": ["count_discrete", "bounded", "smooth_periodic",
+                       "hierarchical"],
+        # The SERIES moves per minute, but polling ~100 systems that often costs
+        # more sweep budget than dock occupancy at 1-minute resolution is worth.
+        "frequency": "PT5M",
+        "endpoint": {
+            "type": "rest_json",
+            "url": url,
+            "auth": "none",
+            "rate_limit": None,
+        },
+        "schema": {
+            "timestamp_field": "data.stations[].last_reported",
+            "value_field": [f"data.stations[].{v}" for v in vals],
+            "panel_field": "data.stations[].station_id",
+            "variates": len(vals),
+        },
+        "history_available": "P0D — live snapshot, history accrues from wiring",
+        "update_cadence_observed": (
+            f"{probe['stations']} stations; ttl "
+            f"{probe['ttl'] if probe['ttl'] is not None else 'unset'}s"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Live dock occupancy; the snapshot series begins at wiring time and "
+            "so post-dates every known TSFM pretraining cutoff."
+        ),
+        "license": "GBFS open data (see operator terms)",
+        "audit_slack_days": 3,
+        "notes": (
+            f"Bulk-generated from the MobilityData GBFS registry "
+            f"({country or '??'}, system id {system.get('System ID') or '?'}). "
+            f"Station panel keyed on station_id; free-floating vehicle feeds are "
+            f"excluded because their panel ids churn between polls."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "cron_cadence": "PT5M",
+        "reason": (f"GBFS registry: {probe['stations']} stations, fields "
+                   f"{vals}, host {host}"),
+    }
+
+
+def gbfs_sweep(
+    catalog_path: str,
+    host_cap: int = 2,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    known_urls = {(s.get("endpoint") or {}).get("url", "")
+                  for s in (yaml.safe_load(open(catalog_path)) or [])}
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    try:
+        systems = gbfs_systems()
+    except Exception as exc:                                  # noqa: BLE001
+        return [], [{"id": "registry", "reason": f"registry unreachable: {exc}"}]
+    log(f"[GBFS] {len(systems)} registered systems")
+
+    for system in systems:
+        disc = (system.get("Auto-Discovery URL") or "").strip()
+        name = (system.get("Name") or "").strip()
+        if not disc.startswith("http"):
+            continue
+        if (system.get("Authentication Type") or "").strip() not in ("", "None"):
+            skipped.append({"id": name, "reason": "feed requires authentication"})
+            continue
+        dhost = urlparse(disc).netloc.lower()
+        if seen_hosts.get(dhost, 0) >= host_cap:
+            skipped.append({"id": name, "reason": f"host cap {host_cap} reached"})
+            continue
+        try:
+            feeds = gbfs_feeds(disc)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": name,
+                            "reason": f"discovery failed: {type(exc).__name__}"})
+            continue
+        time.sleep(sleep_s)
+        url = feeds.get("station_status") or ""
+        if not url:
+            skipped.append({"id": name, "reason": "no station_status feed "
+                                                  "(free-floating system)"})
+            continue
+        if url in known_urls:
+            skipped.append({"id": name, "reason": "feed already in catalog"})
+            continue
+        host = urlparse(url).netloc.lower()
+        if seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": name, "reason": f"host cap {host_cap} reached"})
+            continue
+        probe = gbfs_probe(url)
+        time.sleep(sleep_s)
+        if "error" in probe:
+            skipped.append({"id": name, "reason": probe["error"]})
+            continue
+        block = gbfs_synthesize(system, url, probe, taken=taken_ids)
+        if block is None:
+            skipped.append({"id": name, "reason": "could not synthesise"})
+            continue
+        taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+        cands.append(block)
+        known_urls.add(url)
+        seen_hosts[host] = seen_hosts.get(host, 0) + 1
+        seen_hosts[dhost] = seen_hosts.get(dhost, 0) + 1
+        _checkpoint(cands, checkpoint_path)
+        log(f"  + {block['candidate_name'][:70]}  [{probe['stations']} stations]")
+        if target and len(cands) >= target:
+            log(f"target {target} reached")
+            return cands, skipped
+    return cands, skipped
+
+
+
+# --------------------------------------------------------------------------- #
+# Socrata, publisher-first
+# --------------------------------------------------------------------------- #
+# Same inversion as ods_publisher_sweep, and the same two hazards: no query to
+# anchor a class to, and a portal walk that returns the whole portal rather than
+# datasets about a topic. Both are handled the same way -- classify off the
+# publisher's own filing (`classification.domain_category`, Socrata's analogue
+# of ODS `theme`) and reject registry timestamps and identifier columns.
+#
+# Enumerating the domains is the part that differs. Socrata has no domains
+# endpoint (/api/catalog/v1/domains is a 404 on both the US and EU catalogs), so
+# the list comes from scrolling the federated catalog and collecting
+# metadata.domain. That surfaces a lot of abandoned Socrata-hosted portals:
+# of 249 domains found, 164 were unwired and production, and only 58 had
+# anything updated in the last three weeks. Measure liveness before sweeping --
+# it is one request per domain and skips two thirds of the work.
+SOCRATA_NONPROD = ("demo", "qa", "beta", "test", "staging", "sandbox",
+                   "training", "internal")
+
+
+def socrata_is_production(domain: str) -> bool:
+    """Token-wise, not substring: these markers turn up in any position and with
+    either separator (budget-QA-reporting.data.socrata.com), while a substring
+    test would also reject legitimate names containing them."""
+    parts = set(re.split(r"[.\-_]+", domain.lower()))
+    return not (parts & set(SOCRATA_NONPROD))
+
+
+def socrata_domains(scroll_pages: int = 400, timeout: int = 60,
+                    sleep_s: float = 0.15, log=print) -> list[str]:
+    """Every domain the federated catalog will admit to, by scroll paging."""
+    doms: set[str] = set()
+    scroll, pages = None, 0
+    while pages < scroll_pages:
+        params: dict[str, Any] = {"only": "dataset", "limit": 100}
+        if scroll:
+            params["scroll_id"] = scroll
+        try:
+            r = requests.get(CATALOG_API, params=params,
+                             headers={"User-Agent": UA}, timeout=timeout)
+            res = r.json().get("results", []) if r.status_code == 200 else []
+        except Exception:                                     # noqa: BLE001
+            break
+        if not res:
+            break
+        for x in res:
+            d = (x.get("metadata") or {}).get("domain")
+            if d:
+                doms.add(d.lower())
+        scroll = res[-1]["resource"]["id"]
+        pages += 1
+        time.sleep(sleep_s)
+    log(f"  [socrata-pub] {pages * 100} datasets scanned, {len(doms)} domains")
+    return sorted(doms)
+
+
+def socrata_domain_datasets(domain: str, want: int = 25,
+                            timeout: int = 45) -> list[dict]:
+    """That domain's most recently updated datasets, newest first.
+
+    Both `domains` and `search_context` are required: with `domains` alone the
+    big portals answer 0 (data.austintexas.gov reports 0 vs 705 with context).
+    """
+    r = requests.get(CATALOG_API, params={
+        "domains": domain, "search_context": domain,
+        "only": "dataset", "order": "updatedAt DESC",
+        "limit": min(CATALOG_PAGE, want),
+    }, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    return r.json().get("results", [])
+
+
+def socrata_publisher_sweep(
+    catalog_path: str,
+    host_cap: int = 2,
+    scan_per_host: int = 25,
+    max_age_days: float = 21.0,
+    domains: Optional[Iterable[str]] = None,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    known_hosts = wired_hosts(catalog_path)
+    seen_hosts = host_counts(catalog_path)
+    known_ids = wired_resource_ids(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    if domains is None:
+        log("[socrata-pub] enumerating domains...")
+        domains = socrata_domains(log=log)
+    domains = [d for d in domains if d and socrata_is_production(d)]
+    log(f"[socrata-pub] {len(domains)} production domains; "
+        f"{sum(1 for d in domains if d in known_hosts)} already wired")
+
+    for domain in domains:
+        if domain in known_hosts or seen_hosts.get(domain, 0) >= host_cap:
+            skipped.append({"id": domain, "reason": "host already wired"})
+            continue
+        try:
+            records = socrata_domain_datasets(domain, scan_per_host)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": domain, "reason": f"listing failed: {exc}"})
+            continue
+        time.sleep(sleep_s)
+        got = 0
+        for res in records:
+            if got >= host_cap:
+                break
+            resource = res.get("resource") or {}
+            rid = resource.get("id") or ""
+            title = (resource.get("name") or "").strip()
+            tag = f"{domain}/{rid}"
+            if not rid or rid in known_ids:
+                continue
+            updated = _parse_iso(resource.get("updatedAt"))
+            if updated is None:
+                continue
+            age = (dt.datetime.now(dt.timezone.utc) - updated).total_seconds() / 86400
+            if age > max_age_days:
+                # Sorted newest-first, so the rest of this portal is older.
+                skipped.append({"id": domain,
+                                "reason": f"nothing updated inside "
+                                          f"{max_age_days:.0f}d (newest {age:.0f}d)"})
+                break
+            if _ODS_REJECT_TITLE.search(title):
+                skipped.append({"id": tag,
+                                "reason": f"not a forecastable process: {title[:50]}"})
+                continue
+            category = (res.get("classification") or {}).get("domain_category", "")
+            use_class = ods_publisher_class([category] if category else [], title,
+                                            resource.get("description") or "")
+            if use_class is None:
+                skipped.append({"id": tag,
+                                "reason": f"category not in the map: {category!r}"})
+                continue
+            cols = _cols(resource)
+            ts = pick_timestamp_column(cols)
+            if not ts:
+                skipped.append({"id": tag, "reason": "no date/timestamp column"})
+                continue
+            if _ODS_RECORD_TS.search(ts):
+                skipped.append({"id": tag,
+                                "reason": f"registry: '{ts}' is a record-keeping "
+                                          f"date, not an observation clock"})
+                continue
+            vals = [v for v in pick_value_columns(cols, ts)
+                    if not _ODS_ID_VAL.search(v)]
+            if not vals:
+                skipped.append({"id": tag,
+                                "reason": "no numeric field that measures anything"})
+                continue
+
+            probe = probe_series(domain, rid, ts)
+            time.sleep(sleep_s)
+            if probe is None or "error" in probe:
+                skipped.append({"id": tag,
+                                "reason": f"probe failed: {(probe or {}).get('error')}"})
+                continue
+            if probe["distinct"] < 20:
+                skipped.append({"id": tag,
+                                "reason": f"only {probe['distinct']} distinct ts"})
+                continue
+            if probe["age_days"] > max_age_days * 3:
+                skipped.append({"id": tag,
+                                "reason": f"newest observation {probe['age_days']:.0f}d old"})
+                continue
+            block = synthesize(res, use_class, probe, taken=taken_ids)
+            if block is None:
+                skipped.append({"id": tag, "reason": "could not synthesise entry"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            known_ids.add(rid)
+            cands.append(block)
+            got += 1
+            seen_hosts[domain] = seen_hosts.get(domain, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + [{use_class[1]}] {block['candidate_name'][:66]}")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+
+
+# --------------------------------------------------------------------------- #
+# IXP Manager traffic
+# --------------------------------------------------------------------------- #
+# Internet exchange points, from the public IXP database at api.ixpdb.net. Two
+# things make this the best-shaped vein for web_cloudops, which is the catalog's
+# thinnest domain: the registry already records each IXP's traffic API in a
+# machine-readable `apis.traffic` field, and almost all of them are the same
+# software (IXP Manager), so one URL shape covers the lot.
+#
+# The series is aggregate exchange throughput -- strongly diurnal, strongly
+# weekly, occasionally step-changing when a big member joins. Nothing about it
+# is derived from a model.
+#
+# `&format=json` turns the grapher into [epoch, in, out, in_max, out_max] rows.
+# At period=day the max columns are identical to the mean columns (the sample IS
+# the maximum over a 5-minute bucket), so only in/out are taken -- two constant
+# duplicate columns would be two dead variates.
+IXPDB_PROVIDERS = "https://api.ixpdb.net/v1/provider/list"
+IXP_PERIOD = "day"                   # ~33h of 5-minute samples per request
+IXP_MIN_ROWS = 100
+IXP_MAX_BYTES = 4_000_000
+
+
+def _bits(bps: float) -> str:
+    """Small island exchanges run at single-digit Mbit/s; reporting them as
+    "0.0 Gbit/s" writes a misleading number into the catalog."""
+    for unit, scale in (("Tbit/s", 1e12), ("Gbit/s", 1e9), ("Mbit/s", 1e6),
+                        ("kbit/s", 1e3)):
+        if bps >= scale:
+            return f"{bps / scale:.1f} {unit}"
+    return f"{bps:.0f} bit/s"
+
+
+def ixp_providers(timeout: int = 60) -> list[dict]:
+    r = requests.get(IXPDB_PROVIDERS, headers={"User-Agent": UA}, timeout=timeout)
+    r.raise_for_status()
+    return [p for p in r.json() if (p.get("apis") or {}).get("traffic")]
+
+
+PEERINGDB_IX = "https://www.peeringdb.com/api/ix?limit=3000"
+
+
+def peeringdb_ixp_candidates(timeout: int = 90, log=print) -> list[dict]:
+    """Exchanges whose IXP Manager grapher can be DERIVED from their stats page.
+
+    ixpdb's `apis.traffic` is the registry of exchanges that declare a traffic
+    API, and it is not the same set as the exchanges that have one. PeeringDB
+    records a human `url_stats` for 767 exchanges on 437 hosts; deriving the
+    grapher path from it finds a further ~33 that ixpdb never listed. Emitted
+    in ixpdb's provider shape so both feed one sweep.
+    """
+    try:
+        r = requests.get(PEERINGDB_IX, headers={"User-Agent": UA}, timeout=timeout)
+    except Exception as exc:                                  # noqa: BLE001
+        log(f"  [ixp] PeeringDB unreachable: {exc}")
+        return []
+    if r.status_code != 200:
+        # PeeringDB throttles hard (429 with a "try again in N minutes" body).
+        # Swallowing that into an empty list logs "0 hosts", which reads as
+        # "this vein is dry" -- the exact wrong conclusion, and one already made
+        # once here from a half-finished probe.
+        log(f"  [ixp] PeeringDB returned HTTP {r.status_code}: "
+            f"{r.text[:120]} -- SKIPPING the derived set, not concluding it is "
+            f"empty")
+        return []
+    data = (r.json() or {}).get("data") or []
+    out, seen = [], set()
+    for x in data:
+        u = (x.get("url_stats") or "").strip()
+        if not u.startswith("http"):
+            continue
+        p = urlparse(u)
+        if not p.netloc or p.netloc.lower() in seen:
+            continue
+        seen.add(p.netloc.lower())
+        segs = [seg for seg in p.path.split("/") if seg]
+        for base in ([f"{p.scheme}://{p.netloc}"]
+                     + ([f"{p.scheme}://{p.netloc}/{segs[0]}"] if segs else [])):
+            out.append({
+                "name": x.get("name") or p.netloc,
+                "city": x.get("city") or "", "country": x.get("country") or "",
+                "id": f"pdb-{x.get('id')}",
+                "apis": {"traffic": f"{base}/grapher/infrastructure"
+                                    f"?id=1&type=log&period=day"},
+            })
+    log(f"  [ixp] {len(seen)} PeeringDB hosts with a stats URL "
+        f"=> {len(out)} derived grapher paths to try")
+    return out
+
+
+def ixp_traffic_url(traffic_api: str) -> str:
+    sep = "&" if "?" in traffic_api else "?"
+    url = re.sub(r"([?&])period=[^&]*", r"\1period=" + IXP_PERIOD, traffic_api)
+    if "period=" not in url:
+        url += f"{sep}period={IXP_PERIOD}"
+    return url + ("&" if "?" in url else "?") + "format=json"
+
+
+def ixp_probe(url: str, timeout: int = 30, max_age_days: float = 2.0) -> dict:
+    try:
+        with requests.get(url, headers={"User-Agent": UA}, timeout=timeout,
+                          stream=True) as r:
+            if r.status_code != 200:
+                return {"error": f"HTTP {r.status_code}"}
+            buf = bytearray()
+            for chunk in r.iter_content(65536):
+                buf += chunk
+                if len(buf) > IXP_MAX_BYTES:
+                    return {"error": "response exceeds the byte cap"}
+            rows = json.loads(bytes(buf).decode("utf-8", "replace"))
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:120]}
+    if not isinstance(rows, list) or len(rows) < IXP_MIN_ROWS:
+        return {"error": f"only {len(rows) if isinstance(rows, list) else 0} rows"}
+    good = [r for r in rows
+            if isinstance(r, list) and len(r) >= 3
+            and isinstance(r[0], (int, float))
+            and all(isinstance(v, (int, float)) for v in r[1:3])]
+    if len(good) < IXP_MIN_ROWS:
+        return {"error": f"only {len(good)} well-formed rows"}
+    now = dt.datetime.now(dt.timezone.utc)
+    stamps = sorted({r[0] for r in good})
+    newest = dt.datetime.fromtimestamp(stamps[-1], dt.timezone.utc)
+    age = (now - newest).total_seconds() / 86400
+    if age > max_age_days:
+        return {"error": f"newest sample {age:.0f}d old"}
+    if newest > now + dt.timedelta(days=1):
+        return {"error": "newest sample is future-dated"}
+    # An infrastructure that is provisioned but carries nothing reports a clean,
+    # dense, perfectly fresh series of zeros. It passes every other check.
+    if not any(r[1] or r[2] for r in good):
+        return {"error": "all-zero traffic (infrastructure carries nothing)"}
+    gaps = [b - a for a, b in zip(stamps, stamps[1:]) if b > a]
+    return {
+        "rows": len(good),
+        "distinct": len(stamps),
+        "newest": newest.isoformat(),
+        "age_days": age,
+        "median_gap_s": statistics.median(gaps) if gaps else 300.0,
+        "peak_bps": max(max(r[1], r[2]) for r in good),
+    }
+
+
+def ixp_synthesize(provider: dict, url: str, probe: dict,
+                   taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = urlparse(url).netloc.lower()
+    name = (provider.get("name") or "").strip()
+    if not host or not name:
+        return None
+    country = (provider.get("country") or "").strip()
+    city = (provider.get("city") or "").strip()
+    where = ", ".join(x for x in (city, country) if x)
+    infra = re.search(r"[?&]id=(\d+)", url)
+    sid = f"ixp_{entry_id(host, name)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:56]}_{infra.group(1) if infra else '0'}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{name} — exchange traffic{f' ({where})' if where else ''}",
+        "domain": "web_cloudops",
+        "dgp_class": "ixp_traffic",
+        "archetypes": ["smooth_periodic", "positive_continuous", "multi_seasonal"],
+        "frequency": freq_from_delta(probe["median_gap_s"]),
+        "endpoint": {
+            "type": "rest_json",
+            "url": url,
+            "auth": "none",
+            "rate_limit": None,
+        },
+        "schema": {
+            # Positional: the grapher emits bare arrays, not objects.
+            "timestamp_field": "[][0]",
+            "value_field": ["[][1]", "[][2]"],
+            "variates": 2,
+        },
+        "history_available": (
+            f"~33h rolling window per request at "
+            f"{freq_from_delta(probe['median_gap_s'])}"
+        ),
+        "update_cadence_observed": (
+            f"{probe['distinct']} samples, median gap "
+            f"{probe['median_gap_s'] / 60:.0f} min; peak "
+            f"{_bits(probe['peak_bps'])}; newest {probe['newest']}"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Live IXP throughput read from the exchange's own grapher; the "
+            "rolling window means the stored series starts at wiring time."
+        ),
+        "license": "public IXP statistics (see exchange terms)",
+        "audit_slack_days": 2,
+        "notes": (
+            f"Bulk-generated from the IXP database ({IXPDB_PROVIDERS}); "
+            f"apis.traffic for provider {provider.get('id')}. Columns are "
+            f"[epoch, in, out]; the grapher's in_max/out_max are dropped "
+            f"because at period=day they duplicate in/out exactly."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        # The window is 33h wide, so hourly polling loses nothing and costs
+        # a twelfth of what matching the 5-minute sample rate would.
+        "cron_cadence": "PT1H",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"IXP Manager grapher: {probe['distinct']} samples, peak "
+                   f"{_bits(probe['peak_bps'])}, host {host}"),
+    }
+
+
+def ixp_sweep(
+    catalog_path: str,
+    host_cap: int = 2,
+    max_age_days: float = 2.0,
+    include_peeringdb: bool = True,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    known_urls = {(s.get("endpoint") or {}).get("url", "")
+                  for s in (yaml.safe_load(open(catalog_path)) or [])}
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    try:
+        providers = ixp_providers()
+    except Exception as exc:                                  # noqa: BLE001
+        return [], [{"id": "ixpdb", "reason": f"registry unreachable: {exc}"}]
+    log(f"[IXP] {len(providers)} providers publish a traffic API")
+    if include_peeringdb:
+        providers = providers + peeringdb_ixp_candidates(log=log)
+
+    for prov in providers:
+        name = (prov.get("name") or "").strip()
+        url = ixp_traffic_url(prov["apis"]["traffic"].strip())
+        host = urlparse(url).netloc.lower()
+        if not host:
+            continue
+        if seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": name, "reason": f"host cap {host_cap} reached"})
+            continue
+        if url in known_urls:
+            skipped.append({"id": name, "reason": "endpoint already in catalog"})
+            continue
+        probe = ixp_probe(url, max_age_days=max_age_days)
+        time.sleep(sleep_s)
+        if "error" in probe:
+            skipped.append({"id": name, "reason": probe["error"]})
+            continue
+        block = ixp_synthesize(prov, url, probe, taken=taken_ids)
+        if block is None:
+            skipped.append({"id": name, "reason": "could not synthesise"})
+            continue
+        taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+        known_urls.add(url)
+        cands.append(block)
+        seen_hosts[host] = seen_hosts.get(host, 0) + 1
+        _checkpoint(cands, checkpoint_path)
+        log(f"  + {block['candidate_name'][:64]}  "
+            f"[{probe['peak_bps'] / 1e9:.1f} Gbit/s peak]")
+        if target and len(cands) >= target:
+            log(f"target {target} reached")
+            return cands, skipped
+    return cands, skipped
+
+
+
+
+# --------------------------------------------------------------------------- #
+# PeerTube
+# --------------------------------------------------------------------------- #
+# Federated software is the largest remaining supply of independently operated
+# hosts running one API: the public index lists ~1,800 PeerTube instances, and
+# there are comparable registries for Misskey (~900), Lemmy (~500) and Mastodon
+# (~340). PeerTube is taken first because it is the only one of the four whose
+# history is usable WITHOUT a scraper change -- its videos carry real
+# publishedAt timestamps, so `aggregate: count` bins them into a publication
+# rate. Misskey's charts endpoint hands back 90 daily points but as a bare
+# newest-first array with no start timestamp, which series_start/series_step
+# cannot express today.
+#
+# `totalVideos` in the index counts FEDERATED videos -- what the instance has
+# mirrored from its peers, which on a small instance is most of the network and
+# says nothing about local activity. `totalLocalVideos` is the one that matters,
+# and the sweep reads publication rate off the instance's own local feed.
+PEERTUBE_INDEX = "https://instances.joinpeertube.org/api/v1/instances"
+PEERTUBE_PAGE = 100
+PEERTUBE_VIDEOS = 100
+PEERTUBE_MIN_VIDEOS = 40
+PEERTUBE_MIN_BINS = 24            # the gate wants 20 distinct stamps; leave slack
+
+
+def peertube_instances(want: int = 600, timeout: int = 45,
+                       sleep_s: float = 0.2, log=print) -> list[dict]:
+    out: list[dict] = []
+    while len(out) < want:
+        r = requests.get(PEERTUBE_INDEX, params={
+            "count": min(PEERTUBE_PAGE, want - len(out)),
+            "start": len(out), "sort": "-totalLocalVideos",
+        }, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            break
+        page = r.json().get("data") or []
+        if not page:
+            break
+        out.extend(page)
+        time.sleep(sleep_s)
+    log(f"  [peertube] {len(out)} instances from the index")
+    return out
+
+
+def peertube_probe(host: str, timeout: int = 25,
+                   max_age_days: float = 21.0) -> dict:
+    """Bin the newest local videos into a publication rate."""
+    url = (f"https://{host}/api/v1/videos?sort=-publishedAt"
+           f"&count={PEERTUBE_VIDEOS}&isLocal=true&nsfw=false")
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}"}
+        data = (r.json() or {}).get("data")
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:110]}
+    if not isinstance(data, list) or len(data) < PEERTUBE_MIN_VIDEOS:
+        return {"error": f"only {len(data) if isinstance(data, list) else 0} "
+                         f"local videos"}
+    now = dt.datetime.now(dt.timezone.utc)
+    stamps = sorted(d for d in (_parse_iso(v.get("publishedAt")) for v in data
+                                if isinstance(v, dict)) if d is not None)
+    stamps = [s for s in stamps if s <= now + dt.timedelta(days=1)]
+    if len(stamps) < PEERTUBE_MIN_VIDEOS:
+        return {"error": f"only {len(stamps)} usable publishedAt values"}
+    age = (now - stamps[-1]).total_seconds() / 86400
+    if age > max_age_days:
+        return {"error": f"newest video {age:.0f}d old"}
+    span_days = (stamps[-1] - stamps[0]).total_seconds() / 86400
+    # Pick the coarsest bin that still clears the gate, so the series is a rate
+    # rather than a string of ones. Count POPULATED bins, not span/width: a
+    # hundred videos posted in one afternoon span five days but occupy three
+    # hourly bins, and it is the populated ones the gate counts.
+    epoch = dt.datetime(1970, 1, 1, tzinfo=dt.timezone.utc)
+    for bin_iso, bin_s in (("P1D", 86400), ("PT6H", 21600), ("PT1H", 3600)):
+        bins = {int((t - epoch).total_seconds()) // bin_s for t in stamps}
+        if len(bins) >= PEERTUBE_MIN_BINS:
+            return {"videos": len(stamps), "span_days": span_days,
+                    "bin": bin_iso, "bins": len(bins),
+                    "newest": stamps[-1].isoformat(), "age_days": age}
+    return {"error": f"{len(stamps)} videos over {span_days:.1f}d fill too few "
+                     f"bins at any resolution"}
+
+
+def peertube_synthesize(inst: dict, probe: dict,
+                        taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = (inst.get("host") or "").strip().lower()
+    name = (inst.get("name") or host).strip()
+    if not host:
+        return None
+    country = (inst.get("country") or "").strip()
+    sid = f"peertube_{entry_id(host, name)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:58]}_{_slug(host, 6)}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{name} — local video publication rate (PeerTube)",
+        "domain": "web_cloudops",
+        "dgp_class": "media_publishing_rate",
+        "archetypes": ["count_discrete", "intermittent", "smooth_periodic"],
+        "frequency": probe["bin"],
+        "endpoint": {
+            "type": "rest_json",
+            "url": (f"https://{host}/api/v1/videos?sort=-publishedAt"
+                    f"&count={PEERTUBE_VIDEOS}&isLocal=true&nsfw=false"),
+            "auth": "none",
+            "rate_limit": "polite",
+        },
+        "schema": {
+            "timestamp_field": "data[].publishedAt",
+            "value_field": "data[].name",
+            "variates": 1,
+            "aggregate": {"op": "count", "bin": probe["bin"]},
+        },
+        "history_available": (
+            f"{probe['videos']} newest local videos, spanning "
+            f"{probe['span_days']:.0f} days"
+        ),
+        "update_cadence_observed": (
+            f"{probe['videos']} videos over {probe['span_days']:.0f}d "
+            f"=> {probe['bins']} bins of {probe['bin']}; "
+            f"newest {probe['newest']}"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Publication rate on one federated instance; no aggregator "
+            "publishes this series, so it cannot be in a pretraining mix."
+        ),
+        "license": "public PeerTube API (see instance terms)",
+        "audit_slack_days": max(7, int(probe["age_days"]) + 7),
+        "notes": (
+            f"Bulk-generated from the PeerTube instance index "
+            f"({PEERTUBE_INDEX}){f', {country}' if country else ''}. "
+            f"isLocal=true because the index's totalVideos counts FEDERATED "
+            f"videos mirrored from peers, which measures the network rather "
+            f"than this instance."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "cron_cadence": "PT6H" if probe["bin"] == "P1D" else "PT1H",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"PeerTube: {probe['videos']} local videos over "
+                   f"{probe['span_days']:.0f}d, {probe['bins']} bins of "
+                   f"{probe['bin']}, host {host}"),
+    }
+
+
+def peertube_sweep(
+    catalog_path: str,
+    host_cap: int = 1,
+    scan_instances: int = 600,
+    max_age_days: float = 21.0,
+    target: Optional[int] = None,
+    sleep_s: float = 0.25,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    try:
+        instances = peertube_instances(scan_instances, log=log)
+    except Exception as exc:                                  # noqa: BLE001
+        return [], [{"id": "index", "reason": f"index unreachable: {exc}"}]
+
+    for inst in instances:
+        host = (inst.get("host") or "").strip().lower()
+        if not host or seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": host, "reason": f"host cap {host_cap} reached"})
+            continue
+        if (inst.get("health") or 0) < 80:
+            skipped.append({"id": host,
+                            "reason": f"index health {inst.get('health')}"})
+            continue
+        if (inst.get("totalLocalVideos") or 0) < PEERTUBE_MIN_VIDEOS:
+            skipped.append({"id": host,
+                            "reason": f"only {inst.get('totalLocalVideos')} "
+                                      f"local videos"})
+            continue
+        probe = peertube_probe(host, max_age_days=max_age_days)
+        time.sleep(sleep_s)
+        if "error" in probe:
+            skipped.append({"id": host, "reason": probe["error"]})
+            continue
+        block = peertube_synthesize(inst, probe, taken=taken_ids)
+        if block is None:
+            skipped.append({"id": host, "reason": "could not synthesise"})
+            continue
+        taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+        cands.append(block)
+        seen_hosts[host] = seen_hosts.get(host, 0) + 1
+        _checkpoint(cands, checkpoint_path)
+        log(f"  + {block['candidate_name'][:62]}  [{probe['bins']} x {probe['bin']}]")
+        if target and len(cands) >= target:
+            log(f"target {target} reached")
+            return cands, skipped
+    return cands, skipped
+
+
+
+
+# --------------------------------------------------------------------------- #
+# Misskey family (Misskey, Sharkey)
+# --------------------------------------------------------------------------- #
+# The largest remaining host vein. Misskey ships an unauthenticated
+# /api/charts/notes that answers with 500 hourly buckets in one POST -- a real
+# time series rather than a page of items that has to be binned into one, which
+# is what PeerTube and the Mastodon family force. Sharkey forks Misskey and
+# keeps the endpoint. Iceshrimp.NET forks it too but answers 501, so it is
+# deliberately NOT in this list: it is an absent feature, not a broken host.
+#
+# The charts arrays are newest-first with no timestamps anywhere in the payload,
+# which is what schema.series_end exists for, and element 0 is the bucket still
+# being filled -- a poll at 00:00:36 reads a near-zero that climbs all hour --
+# which is what schema.series_skip exists for.
+#
+# Two fields in the observer index look like filters and are not. `status` is 1
+# for all 1123 Misskey nodes, and `total_users` does not predict activity in
+# either direction: a 13,939-user instance measured 70 populated hours out of
+# 499 while a 24-user instance measured 499. Both were checked before being
+# rejected as pre-filters. Only the probe decides, which costs one request per
+# host and is the whole reason this sweep is slow.
+FEDIVERSE_OBSERVER = "https://api.fediverse.observer/"
+# Misskey and the forks that kept its /api/charts endpoint. Iceshrimp and
+# CherryPick both serve it unchanged, so they cost nothing but a longer node
+# list. Firefish and Calckey are NOT here: six of their largest instances were
+# probed and every one answered 404 or 500 to /api/charts/notes, so the
+# endpoint is gone from that branch rather than merely quiet. (Six of the
+# largest is a biased sample and only ever justifies excluding a fork, never a
+# projection of how many will pass.)
+MISSKEY_SOFTWARE: tuple[str, ...] = ("misskey", "sharkey", "iceshrimp",
+                                     "cherrypick")
+MISSKEY_SPAN = "hour"
+MISSKEY_LIMIT = 500
+MISSKEY_MIN_NONZERO = 250     # of 499 kept buckets: at least half the hours live
+MISSKEY_MIN_DISTINCT = 15     # below this it is a flicker between a few levels
+MISSKEY_MIN_RECENT = 6        # populated hours in the newest completed 24
+
+# Charts worth a series, and the reason the rest are not here.
+#
+# Both of these measure THIS instance's own community: how much it posts, and
+# how many of its people are awake. Two different processes on one host, so a
+# host carrying both carries two series rather than one series twice.
+#
+# The drive charts are excluded despite being the densest thing on offer
+# (remote.incSize measured 499/499 populated hours with 499 distinct values on
+# every instance sampled). They count media arriving from the rest of the
+# network, so every instance is a viewport onto the same global firehose, and
+# 300 hosts would contribute 300 correlated copies of one signal. Dense is not
+# the same as informative. Anything under `remote.` has this problem; anything
+# under `local.` does not.
+MISSKEY_CHARTS: dict[str, dict[str, Any]] = {
+    "notes": {
+        "value": "local.inc",
+        "dgp_class": "social_posting_rate",
+        "label": "local note publication rate",
+        "archetypes": ["count_discrete", "smooth_periodic",
+                       "non_stationary_regime"],
+        "measures": "notes created per hour by this instance's own users",
+    },
+    "active-users": {
+        "value": "readWrite",
+        "dgp_class": "active_user_count",
+        "label": "active local users",
+        "archetypes": ["count_discrete", "smooth_periodic", "bounded"],
+        "measures": "distinct local users who read or wrote in the hour",
+    },
+}
+
+
+def observer_nodes(software: str, timeout: int = 60,
+                   log=print) -> list[dict]:
+    """Domains running one fediverse software, from fediverse.observer."""
+    query = ('{nodes(softwarename:"%s"){domain,total_users,'
+             'active_users_monthly,status}}' % software)
+    r = requests.post(FEDIVERSE_OBSERVER, json={"query": query},
+                      headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"observer HTTP {r.status_code}")
+    nodes = ((r.json() or {}).get("data") or {}).get("nodes")
+    if not isinstance(nodes, list):
+        raise RuntimeError("observer returned no node list")
+    out = [n for n in nodes if isinstance(n, dict) and n.get("domain")]
+    log(f"  [misskey] {len(out)} {software} nodes from the observer")
+    return out
+
+
+def misskey_probe(host: str, chart: str = "notes", timeout: int = 20) -> dict:
+    """Measure the chart series the scraper would actually collect."""
+    spec = MISSKEY_CHARTS[chart]
+    try:
+        # Split connect from read. A large share of any fediverse index is
+        # domains that no longer resolve or no longer listen, and they are the
+        # slowest thing in the sweep if they get the full read budget to fail
+        # in -- 1123 nodes at a flat 20s spent most of the wall clock waiting
+        # on hosts that were never going to answer. A live instance answers
+        # this endpoint in well under 5s to connect; a dead one never connects.
+        r = requests.post(f"https://{host}/api/charts/{chart}",
+                          json={"span": MISSKEY_SPAN, "limit": MISSKEY_LIMIT},
+                          headers={"User-Agent": UA}, timeout=(5, timeout))
+    except Exception as exc:                                  # noqa: BLE001
+        # Unreachable now is not the same as having no data, and the caller
+        # records it as unexamined rather than folding it in with the rejects.
+        return {"error": f"{type(exc).__name__}", "transient": True}
+    if r.status_code == 501:
+        return {"error": "HTTP 501 (no charts API on this fork)"}
+    if r.status_code != 200:
+        return {"error": f"HTTP {r.status_code}",
+                "transient": r.status_code in (403, 429, 502, 503, 504)}
+    try:
+        node: Any = r.json() or {}
+        for part in spec["value"].split("."):
+            node = (node or {}).get(part)
+        inc = node
+    except Exception:                                         # noqa: BLE001
+        return {"error": "response was not JSON", "transient": True}
+    if not isinstance(inc, list) or len(inc) < MISSKEY_LIMIT // 2:
+        return {"error": f"chart returned {len(inc) if isinstance(inc, list) else 0} "
+                         f"buckets"}
+
+    # Judge the slice the scraper KEEPS, not the one the API returned. Element
+    # 0 is the partial current hour and series_skip drops it; scoring it here
+    # would be the probe validating a window that never reaches the catalog.
+    body = [v for v in inc[1:] if isinstance(v, (int, float))]
+    if len(body) < MISSKEY_LIMIT // 2:
+        return {"error": f"only {len(body)} numeric buckets"}
+    nonzero = sum(1 for v in body if v)
+    distinct = len(set(body))
+    recent = sum(1 for v in body[:24] if v)
+    if recent < MISSKEY_MIN_RECENT:
+        return {"error": f"only {recent} populated hours in the newest 24"}
+    if nonzero < MISSKEY_MIN_NONZERO:
+        return {"error": f"only {nonzero}/{len(body)} populated hours"}
+    if distinct < MISSKEY_MIN_DISTINCT:
+        return {"error": f"only {distinct} distinct values over {len(body)} hours"}
+    return {"buckets": len(body), "nonzero": nonzero, "distinct": distinct,
+            "recent": recent, "peak": max(body), "chart": chart}
+
+
+def misskey_synthesize(node: dict, probe: dict, software: str,
+                       chart: str = "notes",
+                       taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = (node.get("domain") or "").strip().lower()
+    if not host:
+        return None
+    spec = MISSKEY_CHARTS[chart]
+    sid = f"misskey_{entry_id(host, chart)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:57]}_{_slug(host, 6)}"[:64]
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{host} — {spec['label']} ({software.title()})",
+        "domain": "web_cloudops",
+        "dgp_class": spec["dgp_class"],
+        "archetypes": list(spec["archetypes"]),
+        "frequency": "PT1H",
+        "endpoint": {
+            "type": "rest_json",
+            "url": f"https://{host}/api/charts/{chart}",
+            "method": "POST",
+            "body": {"span": MISSKEY_SPAN, "limit": MISSKEY_LIMIT},
+            "auth": "none",
+            "rate_limit": "polite",
+        },
+        "schema": {
+            "series_end": "now",
+            "series_step": "PT1H",
+            "series_skip": 1,
+            "value_field": [spec["value"]],
+            "variates": 1,
+        },
+        "history_available": (
+            f"{probe['buckets']} hourly buckets (~{probe['buckets'] // 24}d) "
+            f"in every response"
+        ),
+        "update_cadence_observed": (
+            f"{probe['nonzero']}/{probe['buckets']} populated hours, "
+            f"{probe['distinct']} distinct levels, peak {probe['peak']}/h; "
+            f"{probe['recent']}/24 newest hours populated"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Per-instance activity on one federated server. No aggregator "
+            "republishes these counts, and the instance itself only serves a "
+            "rolling ~21-day window, so no long history exists to have been "
+            "scraped into a pretraining mix."
+        ),
+        "license": "public Misskey charts API (see instance terms)",
+        "audit_slack_days": 3,
+        "notes": (
+            f"Bulk-generated from fediverse.observer ({software}). Measures "
+            f"{spec['measures']}. The chart array is newest-first with no "
+            f"timestamps in the payload, hence series_end/series_step; "
+            f"series_skip drops element 0 because it is the hour still being "
+            f"filled and would otherwise put a false cliff at the end of "
+            f"every series. The value is a local counter -- the `remote.*` "
+            f"series on this API count what the instance mirrored from its "
+            f"peers, which is the same global firehose seen from every host."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        # Hourly RESOLUTION, daily POLL. Every response carries ~21 days of
+        # hourly buckets, so one poll a day captures all 24 of the previous
+        # day's hours with nothing lost, and only a 21-day outage could cost
+        # data. Polling hourly instead would be 24x the requests against
+        # volunteer-run instances for exactly the same series. (PT6H, the
+        # first thing declared here, is not one of wire's cadence tiers and
+        # was silently falling back to the entry's PT1H frequency.)
+        "cron_cadence": "P1D",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"{software} {chart}: {probe['nonzero']}/{probe['buckets']} "
+                   f"populated hours, {probe['distinct']} distinct levels, "
+                   f"host {host}"),
+    }
+
+
+def misskey_sweep(
+    catalog_path: str,
+    host_cap: int = 1,
+    software: Sequence[str] = MISSKEY_SOFTWARE,
+    charts: Sequence[str] = ("notes",),
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    timeout: int = 20,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    catalog = yaml.safe_load(open(catalog_path)) or []
+    taken_ids = {s["id"] for s in catalog}
+    # The host cap alone is not enough to avoid re-proposing work already done.
+    # A host wired for `notes` only has one source, so a cap of 2 lets it
+    # through, and the chart loop then re-probes `notes` first: one run spent
+    # 186 probes to produce 186 candidates the wire step threw out as
+    # duplicates. The cap is about publisher concentration; this is about not
+    # measuring the same series twice.
+    known_urls = {(s.get("endpoint") or {}).get("url", "") for s in catalog}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+    transient = 0
+
+    for sw in software:
+        try:
+            nodes = observer_nodes(sw, log=log)
+        except Exception as exc:                              # noqa: BLE001
+            # One software family failing to enumerate says nothing about the
+            # others, and nothing about the hosts inside it.
+            skipped.append({"id": sw, "reason": f"observer unreachable: {exc}"})
+            log(f"  [misskey] could not enumerate {sw}: {exc}")
+            continue
+        for node in nodes:
+            host = (node.get("domain") or "").strip().lower()
+            if not host or seen_hosts.get(host, 0) >= host_cap:
+                continue
+            for chart in charts:
+                if f"https://{host}/api/charts/{chart}" in known_urls:
+                    continue
+                probe = misskey_probe(host, chart, timeout=timeout)
+                time.sleep(sleep_s)
+                if "error" in probe:
+                    if probe.get("transient"):
+                        transient += 1
+                    skipped.append({
+                        "id": f"{host}/{chart}",
+                        "reason": ("unexamined: " if probe.get("transient")
+                                   else "") + probe["error"],
+                    })
+                    continue
+                block = misskey_synthesize(node, probe, sw, chart,
+                                           taken=taken_ids)
+                if block is None:
+                    skipped.append({"id": f"{host}/{chart}",
+                                    "reason": "could not synthesise"})
+                    continue
+                taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+                cands.append(block)
+                _checkpoint(cands, checkpoint_path)
+                log(f"  + {host[:40]:40} {chart:13} "
+                    f"[{probe['nonzero']}/{probe['buckets']} hrs, "
+                    f"{probe['distinct']} lv]")
+                if target and len(cands) >= target:
+                    log(f"target {target} reached")
+                    return cands, skipped
+            # Count the host once, however many of its charts qualified: the
+            # cap is about not leaning on one publisher, not about series.
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+    if transient:
+        # Say this out loud. A host that timed out or rate-limited is a host
+        # this sweep did not measure, and rerunning later will find some of
+        # them alive -- it is not part of the vein's exhausted remainder.
+        log(f"  [misskey] {transient} hosts left UNEXAMINED (timeout/403/429); "
+            f"they are recoverable on a rerun, not rejects")
+    return cands, skipped
+
+
+# --------------------------------------------------------------------------- #
+# PX-Web
+# --------------------------------------------------------------------------- #
+# The statistics-office vein, and the one that moves econ_fin. PX-Web is the
+# software most national and regional statistics offices publish through, and
+# it speaks one dialect: a tree of list/table nodes under /api/v1/<lang>/, a
+# metadata document per table, and a POST that returns json-stat2 -- which the
+# scraper already decodes (see _records_from_jsonstat2), so nothing new is
+# needed downstream.
+#
+# There is no registry of installations, so the roots are curated. Guessing
+# from the shape `<host>/<app>/api/v1/<lang>/<db>` hit 13 of 28 tries, which is
+# a good enough rate that the list is worth extending by hand over time.
+#
+# Classification reuses the ODS theme patterns, applied to the SUBJECT AREA the
+# table sits under in the tree ("Economy", "Environment", "Transport and
+# tourism"). Same principle as everywhere else here: the publisher's own filing,
+# matched against a closed vocabulary, never the title.
+PXWEB_ROOTS: tuple[tuple[str, str], ...] = (
+    ("https://statfin.stat.fi/PXWeb/api/v1/en/StatFin", "Statistics Finland"),
+    ("https://pxdata.stat.fi/PXWeb/api/v1/en/StatFin", "Statistics Finland"),
+    ("https://px.hagstofa.is/pxen/api/v1/en", "Statistics Iceland"),
+    ("https://andmed.stat.ee/api/v1/en/stat", "Statistics Estonia"),
+    ("https://data.stat.gov.lv/api/v1/en/OSP_PUB", "Statistics Latvia"),
+    ("https://pxweb.asub.ax/PXWeb/api/v1/en", "Statistics Aland"),
+    ("https://statbank.hagstova.fo/api/v1/en/H2", "Statistics Faroe Islands"),
+    ("https://bank.stat.gl/api/v1/en/Greenland", "Statistics Greenland"),
+    ("https://pxweb.stat.si/SiStatData/api/v1/en", "Statistics Slovenia"),
+    ("https://statistik.linkoping.se/PXWeb/api/v1/sv", "Linkoping"),
+    ("https://statistik.sjv.se/PXWeb/api/v1/sv", "Swedish Board of Agriculture"),
+    # Sector agencies. Each is its own host AND files under its own subject, so
+    # unlike another national office these land outside econ_fin -- which is
+    # where the catalog is thin once you count hosts rather than sources.
+    ("https://pxexternal.energimyndigheten.se/api/v1/en", "Swedish Energy Agency"),
+    ("https://pxweb.skogsstyrelsen.se/api/v1/sv", "Swedish Forest Agency"),
+    ("https://statdb.luke.fi/PXWeb/api/v1/en", "Natural Resources Institute Finland"),
+    ("https://statistik.tillvaxtanalys.se/PXWeb/api/v1/sv", "Growth Analysis Sweden"),
+    ("https://vero2.stat.fi/PXWeb/api/v1/en", "Finnish Tax Administration"),
+    # City installations, which are separate from their national office.
+    ("https://stat.hel.fi/api/v1/en", "City of Helsinki"),
+    ("https://statistik.orebro.se/api/v1/sv", "Orebro"),
+    # National offices outside the Nordics. Croatia and Moldova serve their own
+    # language's subject names even under /en, so the theme vocabulary has to
+    # carry HR and RO to classify them.
+    ("https://web.dzs.hr/pxweb/api/v1/en", "Statistics Croatia"),
+    ("https://makstat.stat.gov.mk/PXWeb/api/v1/en/MakStat", "Statistics North Macedonia"),
+    ("https://statbank.statistica.md/PxWeb/api/v1/en", "Statistics Moldova"),
+    ("https://pc-axis.geostat.ge/PXWeb/api/v1/en", "Statistics Georgia"),
+    ("https://pxweb.statistics.gov.rw/api/v1/en", "Statistics Rwanda"),
+)
+PXWEB_TOP_PERIODS = 60        # newest N periods; the gate wants 20 distinct
+PXWEB_MIN_PERIODS = 24
+PXWEB_MAX_NODES = 150         # tree-walk budget per root
+
+
+_SAFE_ENTITIES = (("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"),
+                  ("&quot;", '"'), ("&#39;", "'"), ("&#x27;", "'"),
+                  ("&nbsp;", " "))
+
+
+def _safe_unescape(text: str) -> str:
+    """Decode only the entities we expect. html.unescape would also turn things
+    like &copy; and numeric escapes into characters that then need re-escaping
+    on the way into YAML."""
+    for ent, ch in _SAFE_ENTITIES:
+        text = text.replace(ent, ch)
+    return text
+
+
+class PxWebThrottled(RuntimeError):
+    """The office is rate-limiting. Distinct from 404 because the caller must
+    back off rather than conclude the table is missing."""
+
+
+def pxweb_get(url: str, timeout: int = 30) -> Any:
+    r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code in (429, 503):
+        raise PxWebThrottled(f"HTTP {r.status_code}")
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    return r.json()
+
+
+def pxweb_tables(root: str, max_nodes: int = PXWEB_MAX_NODES,
+                 max_age_days: float = 120.0, sleep_s: float = 0.25,
+                 log=print) -> list[dict]:
+    """Breadth-first over the subject tree, returning fresh table nodes.
+
+    Each table node carries its own `updated` stamp, so staleness is settled
+    from the tree without opening the table.
+
+    The walk is one request per node and the budget is in the hundreds, so it
+    paces itself: these are national statistics offices, not a CDN, and getting
+    blocked would cost the whole vein.
+    """
+    now = dt.datetime.now(dt.timezone.utc)
+    out: list[dict] = []
+    # (path, subject area, database name used as a fallback subject)
+    queue: list[tuple[str, str, str]] = [("", "", "")]
+    spent = 0
+    while queue and spent < max_nodes:
+        path, subject, db = queue.pop(0)
+        try:
+            nodes = pxweb_get(f"{root}/{path}" if path else root)
+        except Exception:                                     # noqa: BLE001
+            continue
+        spent += 1
+        time.sleep(sleep_s)
+        if not isinstance(nodes, list):
+            continue
+        for n in nodes:
+            if not isinstance(n, dict):
+                continue
+            # Roots pointed at the LANGUAGE level list databases as
+            # {"dbid": ..., "text": ...} with no id and no type, which a
+            # strict id/type walker skips -- reporting "0 tables" for a whole
+            # statistics office that is in fact fully populated.
+            nid = n.get("id") or n.get("dbid")
+            if not nid:
+                continue
+            ntype = n.get("type") or ("l" if n.get("dbid") else "")
+            child = f"{path}/{nid}" if path else nid
+            if ntype == "l":
+                # The FIRST list level is the subject area; deeper levels are
+                # sub-topics that say less about the domain.
+                #
+                # A DATABASE node is different. Roots aimed at the language
+                # level list databases, and the text is the database's own
+                # name: "Data" and "PxWin" (Slovenia), "Basomraden"
+                # (Linkoping), "Atvinnuvegir" (Iceland). The real subject
+                # areas -- "Tourism", "Industry", "Arbetsmarknad" -- sit one
+                # level below, so taking the database name as the subject sent
+                # 1446 tables to "subject not in the map" in a single run.
+                #
+                # But some offices hang tables straight off the database with
+                # no subject level at all, and there the database name is the
+                # only filing on offer. So it is carried as a FALLBACK: a real
+                # subject level always wins, and the database name is used
+                # only when nothing better appears above the table.
+                if bool(n.get("dbid")) and not n.get("id"):
+                    queue.append((child, subject, db or (n.get("text") or "")))
+                else:
+                    queue.append((child, subject or (n.get("text") or ""), db))
+            elif ntype == "t":
+                upd = _parse_iso(n.get("updated"))
+                if upd is None:
+                    continue
+                age = (now - upd).total_seconds() / 86400
+                if age > max_age_days:
+                    continue
+                out.append({"path": child, "subject": subject or db,
+                            "text": n.get("text") or n["id"],
+                            "updated": upd.isoformat(), "age_days": age})
+    if queue:
+        log(f"  [pxweb] node budget {max_nodes} spent, {len(queue)} branches "
+            f"unexplored under {root}")
+    return out
+
+
+def pxweb_table_url(root: str, path: str) -> Optional[str]:
+    """The addressable URL for a table found at `path` in the tree.
+
+    Installations disagree about whether a table is addressed by its full tree
+    path or by its id directly under the database. Statistics Finland accepts
+    both at depth 2 and answers 400 for deeper nestings -- 185 of one run's 722
+    skips were that. Try the path, fall back to the bare id.
+    """
+    for cand in (f"{root}/{path}", f"{root}/{path.rsplit('/', 1)[-1]}"):
+        try:
+            pxweb_get(cand)
+            return cand
+        except PxWebThrottled:
+            raise            # let the sweep abandon this office, not this table
+        except Exception:                                     # noqa: BLE001
+            continue
+    return None
+
+
+def pxweb_query(meta: dict) -> Optional[tuple[dict, str, int]]:
+    """Build the POST body: newest N periods, one measure, one slice.
+
+    Dimensions marked `elimination` are omitted, which asks PX-Web for the
+    aggregate over them rather than every combination. The rest are pinned to a
+    single value -- without that the response is the full cross-product, which
+    is both enormous and not a series.
+    """
+    variables = meta.get("variables") or []
+    tvar = next((v for v in variables if v.get("time")), None)
+    if tvar is None:
+        tvar = next((v for v in variables
+                     if re.search(r"time|tid|aika|ar$|year|month|period",
+                                  v.get("code", ""), re.I)), None)
+    if tvar is None or len(tvar.get("values") or []) < PXWEB_MIN_PERIODS:
+        return None
+    # Annual tables clear the gate on 20+ distinct stamps and are still not
+    # worth wiring: the WHOLE series is a few dozen points, so it can never
+    # form an evaluation window, and headline annual statistics are the most
+    # widely republished data there is. The period labels give the frequency
+    # away before the POST, so this costs nothing to check.
+    if _pxweb_freq(str((tvar.get("values") or [""])[-1])) == "P1Y":
+        return None
+    # NOT filter:"top" -- PX-Web's "top" is the top of the value LIST, and most
+    # tables list periods oldest-first, so it selects the 1960s. The wire gate
+    # caught this ("newest observation 2004-12-01 ... likely an oldest-first
+    # page"); the probe could not, because it only ever saw the window it had
+    # asked for. Period labels within one variable share a format, so sorting
+    # them lexicographically orders them chronologically.
+    periods = sorted(str(v) for v in (tvar.get("values") or []))
+    query = [{"code": tvar["code"],
+              "selection": {"filter": "item",
+                            "values": periods[-PXWEB_TOP_PERIODS:]}}]
+    measure = ""
+    for v in variables:
+        if v is tvar:
+            continue
+        vals = v.get("values") or []
+        if not vals:
+            return None
+        code = (v.get("code") or "").lower()
+        if code == "contentscode":
+            measure = vals[0]
+            query.append({"code": v["code"],
+                          "selection": {"filter": "item", "values": [vals[0]]}})
+        elif v.get("elimination"):
+            continue                       # ask for the aggregate
+        else:
+            query.append({"code": v["code"],
+                          "selection": {"filter": "item", "values": [vals[0]]}})
+    return ({"query": query, "response": {"format": "json-stat2"}},
+            measure, len(tvar.get("values") or []))
+
+
+def _pxweb_period_age_days(period: str) -> Optional[float]:
+    """Age of a PX-Web period label, or None if it is not a shape we know.
+
+    The probe used to trust whatever window it asked for, which is how a
+    selection bug shipped a table whose newest point was 2004.
+    """
+    p = str(period).strip()
+    now = dt.datetime.now(dt.timezone.utc)
+    m = re.fullmatch(r"(\d{4})M(\d{2})", p) or re.fullmatch(r"(\d{4})-(\d{2})", p)
+    if m:
+        y, mo = int(m.group(1)), int(m.group(2))
+        return (now - dt.datetime(y, mo, 1, tzinfo=dt.timezone.utc)).days
+    m = re.fullmatch(r"(\d{4})[QK](\d)", p)
+    if m:
+        y, q = int(m.group(1)), int(m.group(2))
+        return (now - dt.datetime(y, 1 + 3 * (q - 1), 1,
+                                  tzinfo=dt.timezone.utc)).days
+    m = re.fullmatch(r"(\d{4})[HS](\d)", p)
+    if m:
+        y, h = int(m.group(1)), int(m.group(2))
+        return (now - dt.datetime(y, 1 + 6 * (h - 1), 1,
+                                  tzinfo=dt.timezone.utc)).days
+    if re.fullmatch(r"\d{4}", p):
+        return (now - dt.datetime(int(p), 1, 1, tzinfo=dt.timezone.utc)).days
+    return None
+
+
+def pxweb_probe(url: str, body: dict, timeout: int = 45,
+                max_age_days: float = 200.0) -> dict:
+    try:
+        r = requests.post(url, json=body, headers={"User-Agent": UA},
+                          timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}: {r.text[:90]}"}
+        js = r.json()
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {exc}"[:110]}
+    if (js or {}).get("class") != "dataset":
+        return {"error": "not a json-stat2 dataset"}
+    values = js.get("value") or []
+    nums = [v for v in values if isinstance(v, (int, float))]
+    if len(nums) < PXWEB_MIN_PERIODS:
+        return {"error": f"only {len(nums)} numeric values"}
+    role_time = ((js.get("role") or {}).get("time") or [None])[0]
+    dim = (js.get("dimension") or {})
+    tdim = dim.get(role_time) or {}
+    idx = ((tdim.get("category") or {}).get("index")) or {}
+    periods = sorted(idx) if isinstance(idx, dict) else list(idx or [])
+    if len(periods) < PXWEB_MIN_PERIODS:
+        return {"error": f"only {len(periods)} periods in the response"}
+    newest = periods[-1]
+    age = _pxweb_period_age_days(newest)
+    if age is None:
+        # Some offices label periods with bare indices (Greenland's CPI runs
+        # "1", "2", ... "99"). The scraper cannot build a timestamp from that,
+        # so the wire gate rejects it as "no parsable timestamps" -- catch it
+        # here instead of spending a wire run on it.
+        return {"error": f"period label {newest!r} is not a date"}
+    if age > max_age_days:
+        return {"error": f"newest period {newest} is {age:.0f}d old"}
+    return {"periods": len(periods), "numeric": len(nums),
+            "newest_period": newest, "age_days": age or 0.0,
+            "time_dim": role_time, "label": js.get("label") or ""}
+
+
+def pxweb_synthesize(root: str, office: str, table: dict, body: dict,
+                     probe: dict, klass: tuple[str, str, str],
+                     taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = urlparse(root).netloc.lower()
+    url = f"{root}/{table['path']}"
+    # Some offices put markup in the table label (<em>[PREPRISF]</em>).
+    title = re.sub(r"<[^>]+>", "", table["text"])
+    title = re.sub(r"\s+", " ", _safe_unescape(title)).strip()
+    sid = f"pxweb_{entry_id(host, title)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:56]}_{_slug(table['path'], 6)}"[:64]
+    freq = _pxweb_freq(probe["newest_period"])
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title[:80]} ({office})",
+        "domain": klass[1],
+        "dgp_class": klass[2],
+        "archetypes": ["trend", "smooth_periodic", "positive_continuous"],
+        "frequency": freq,
+        "endpoint": {
+            "type": "rest_json",
+            "method": "POST",
+            "url": url,
+            "auth": "none",
+            "rate_limit": "polite",
+            "body": body,
+        },
+        # json-stat2 carries its own axis; the scraper reads role.time.
+        "schema": {"timestamp_field": "", "value_field": "", "variates": 1},
+        "history_available": f"{probe['periods']} periods, newest "
+                             f"{probe['newest_period']}",
+        "update_cadence_observed": (
+            f"table updated {table['updated']} "
+            f"({table['age_days']:.0f}d ago); {probe['periods']} periods"
+        ),
+        "pretraining_novelty": "unknown",
+        "novelty_notes": (
+            "National statistics are widely republished, so headline series "
+            "here may appear in pretraining mixes; the municipal and sectoral "
+            "tables are far less likely to."
+        ),
+        "license": "open data (see statistics office terms)",
+        # Slack has to cover the office's OWN publication lag, not just the
+        # nominal period. Several of these publish a monthly series five months
+        # in arrears; a flat 75-day limit flags that as stale every single day
+        # when nothing is wrong. Same shape as the ERDDAP slack rule.
+        "audit_slack_days": max(_pxweb_slack(freq),
+                                int(probe.get("age_days") or 0) + 45),
+        "notes": (
+            f"Bulk-generated by walking the PX-Web subject tree at {root}. "
+            f"Domain from the subject area {table['subject']!r}. Dimensions "
+            f"marked elimination are omitted so the response is the aggregate "
+            f"rather than the full cross-product."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "cron_cadence": "P1D",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"PX-Web: {probe['periods']} periods of {freq}, newest "
+                   f"{probe['newest_period']}, host {host}"),
+    }
+
+
+def _pxweb_freq(period: str) -> str:
+    p = str(period)
+    if re.fullmatch(r"\d{4}", p):
+        return "P1Y"
+    if re.search(r"M\d{2}$", p) or re.fullmatch(r"\d{4}-\d{2}", p):
+        return "P1M"
+    if re.search(r"[QK]\d$", p):
+        return "P3M"
+    if re.search(r"[HS]\d$", p):          # Greenland's CPI is 1971H1-2026H1
+        return "P6M"
+    if re.search(r"W\d{2}$", p):
+        return "P1W"
+    return "P1M"
+
+
+def _pxweb_slack(freq: str) -> int:
+    return {"P1Y": 500, "P6M": 300, "P3M": 180, "P1M": 75,
+            "P1W": 30}.get(freq, 90)
+
+
+def pxweb_sweep(
+    catalog_path: str,
+    roots: Optional[Iterable[tuple[str, str]]] = None,
+    host_cap: int = 2,
+    max_age_days: float = 120.0,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    taken_ids = {s["id"] for s in (yaml.safe_load(open(catalog_path)) or [])}
+    known_urls = {(s.get("endpoint") or {}).get("url", "")
+                  for s in (yaml.safe_load(open(catalog_path)) or [])}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for root, office in (roots if roots is not None else PXWEB_ROOTS):
+        host = urlparse(root).netloc.lower()
+        if seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": host, "reason": f"host cap {host_cap} reached"})
+            continue
+        try:
+            tables = pxweb_tables(root, max_age_days=max_age_days, log=log)
+        except PxWebThrottled:
+            skipped.append({"id": host, "reason": "office is rate-limiting "
+                                                  "during the tree walk"})
+            log(f"  [pxweb] {office} is rate-limiting during the walk -- skipped")
+            continue
+        log(f"[pxweb] {office}: {len(tables)} tables updated inside "
+            f"{max_age_days:.0f}d")
+        got = 0
+        for table in tables:
+            if got >= host_cap or seen_hosts.get(host, 0) >= host_cap:
+                break
+            url = f"{root}/{table['path']}"
+            if url in known_urls:
+                continue
+            try:
+                resolved = pxweb_table_url(root, table["path"])
+            except PxWebThrottled as exc:
+                # Reporting this per-table would read as "479 tables do not
+                # exist" when the truth is "this office asked me to slow down".
+                skipped.append({"id": host,
+                                "reason": f"office is rate-limiting ({exc}); "
+                                          f"abandoned with {len(tables)} tables "
+                                          f"unexamined"})
+                log(f"  [pxweb] {office} is rate-limiting -- backing off")
+                break
+            if resolved is None:
+                skipped.append({"id": table["path"],
+                                "reason": "table not addressable by path or id"})
+                continue
+            url = resolved
+            if url in known_urls:
+                continue
+            klass = ods_publisher_class([table["subject"]], table["text"])
+            if klass is None:
+                skipped.append({"id": table["path"],
+                                "reason": f"subject not in the map: "
+                                          f"{table['subject']!r}"})
+                continue
+            try:
+                meta = pxweb_get(url)
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": table["path"], "reason": f"meta: {exc}"})
+                continue
+            time.sleep(sleep_s)
+            built = pxweb_query(meta)
+            if built is None:
+                skipped.append({"id": table["path"],
+                                "reason": "no time variable with enough periods"})
+                continue
+            body, _measure, _n = built
+            probe = pxweb_probe(url, body)
+            time.sleep(sleep_s)
+            if "error" in probe:
+                skipped.append({"id": table["path"],
+                                "reason": f"probe: {probe['error']}"})
+                continue
+            block = pxweb_synthesize(root, office, table, body, probe, klass,
+                                     taken=taken_ids)
+            if block is None:
+                skipped.append({"id": table["path"], "reason": "synthesise failed"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            known_urls.add(url)
+            cands.append(block)
+            got += 1
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + [{klass[1]}] {block['candidate_name'][:64]}")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+
+# --------------------------------------------------------------------------- #
+# The SDMX vein: central banks, national offices and international agencies.
+# Same shape as PX-Web -- many independently operated hosts speaking one
+# dialect -- and it reaches publishers PX-Web does not, which is what econ_fin
+# needs. Counting sources, econ_fin looks healthy; counting HOSTS it does not,
+# because a handful of statistics offices carry most of it.
+#
+# Only endpoints meeting two conditions are listed. Their structure API must
+# answer JSON, so flows can be enumerated without an XML parser, and their data
+# API must answer SDMX-CSV, so the scraper's existing rest_csv path reads the
+# result with no new decoding. ECB, INSEE and the Bundesbank are alive and
+# deliberately absent: they serve structure as XML only, which is a different
+# piece of work rather than something to half-support here.
+#
+# Domain comes from the FLOW ID -- a publisher-assigned identifier filed in the
+# agency's own scheme, the direct analogue of the PX-Web subject area. The flow
+# NAME is free text and is used only to pick the dgp_class once the domain is
+# already settled.
+# --------------------------------------------------------------------------- #
+
+# Servers disagree about the exact structure media type, and they are strict:
+# the same header that returns 200 from UNICEF returns 406 from ABS. Rather
+# than curate a header per host, try them in order and keep the first that
+# answers -- one extra request on the first flow listing, none afterwards.
+SDMX_STRUCT_ACCEPTS: tuple[str, ...] = (
+    "application/vnd.sdmx.structure+json;version=1.0,application/json",
+    "application/vnd.sdmx.structure+json;version=1.0.0",
+    "application/vnd.sdmx.structure+json",
+)
+SDMX_DATA_ACCEPT = "application/vnd.sdmx.data+csv,text/csv"
+SDMX_HEAD_BYTES = 262_144     # a flow-wide response can be hundreds of MB
+SDMX_DATA_BYTES = 4_000_000
+SDMX_MIN_PERIODS = 20         # the wire gate's distinct-timestamp floor
+SDMX_START_PERIOD = "1990-01-01"
+
+# (base, office, dataflow path, agency-wide domain or None).
+#
+# ABS files every flow under its own agency and returns an empty list for
+# all/all, so it needs the agency spelled out.
+#
+# The fourth field is a whole-agency domain, set only for bodies whose remit IS
+# one domain: the ILO publishes labour statistics and nothing else, and a
+# central bank publishes financial statistics and nothing else. That is the
+# publisher's own filing at the coarsest level, and it is a stronger statement
+# than any token inside an identifier -- the first ILO run classified 116 of
+# 120 flows as unfilable because IDs like DF_CLD_2POP_SEX_AGE_NB spell nothing
+# out. Agencies with a genuinely mixed remit (OECD, the UN, national offices)
+# get None and are classified flow by flow, because for them a blanket domain
+# would be a guess.
+SDMX_ENDPOINTS: tuple[tuple[str, str, str, Optional[str]], ...] = (
+    ("https://sdmx.oecd.org/public/rest", "OECD",
+     "dataflow/all/all/latest", None),
+    ("https://sdmx.ilo.org/rest", "ILO",
+     "dataflow/all/all/latest", "econ_fin"),
+    ("https://stats-nsi-stable.pacificdata.org/rest", "Pacific Data Hub",
+     "dataflow/all/all/latest", None),
+    ("https://data.un.org/ws/rest", "UN Statistics Division",
+     "dataflow/all/all/latest", None),
+    ("https://esploradati.istat.it/SDMXWS/rest", "Istat",
+     "dataflow/all/all/latest", None),
+    ("https://sdmx.data.unicef.org/ws/public/sdmxapi/rest", "UNICEF",
+     "dataflow/all/all/latest", None),
+    ("https://stats.bis.org/api/v1", "Bank for International Settlements",
+     "dataflow/all/all/latest", "econ_fin"),
+    ("https://data.norges-bank.no/api", "Norges Bank",
+     "dataflow/all/all/latest", "econ_fin"),
+    # IMF is deliberately absent. sdmxcentral serves its STRUCTURE API
+    # happily -- 215 dataflows -- and answers HTTP 501 to every data query,
+    # because the Fund publishes data from a different service. Listing it
+    # would spend two requests per flow to rediscover that each run.
+    ("https://data.api.abs.gov.au/rest", "Australian Bureau of Statistics",
+     "dataflow/ABS/all/latest", None),
+)
+
+# Flow IDs whose content is not an observed process. Projections and scenarios
+# are the important ones: OECD publishes SSP585 climate runs through the same
+# API as its measurements, and a model trace dressed as a series is exactly the
+# contamination the ERDDAP sweep already learned to reject.
+_SDMX_REJECT_ID = re.compile(
+    r"(?:^|_)(?:PROJ|PROJECTION|FORECAST|SCENARIO|SSP\d+|OUTLOOK|TARGET|"
+    r"CAL|CALENDAR|TEST|METADATA|CODELIST|DUMMY)(?:_|$)", re.I)
+
+# Whole-token abbreviations agencies use inside flow IDs, matched exactly and
+# never as substrings. Nothing shorter than three characters: two-letter codes
+# like NA (national accounts) and IR (interest rates) collide with too much
+# else to be safe, and a wrong domain is worse than a skipped flow.
+SDMX_ID_TOKENS: dict[str, str] = {
+    # econ_fin
+    "emp": "econ_fin", "empl": "econ_fin", "unem": "econ_fin",
+    "unemp": "econ_fin", "lfs": "econ_fin", "wage": "econ_fin",
+    "wages": "econ_fin", "earn": "econ_fin", "gdp": "econ_fin",
+    "cpi": "econ_fin", "hicp": "econ_fin", "ppi": "econ_fin",
+    "infl": "econ_fin", "bop": "econ_fin", "fdi": "econ_fin",
+    "exr": "econ_fin", "cbpol": "econ_fin", "debt": "econ_fin",
+    "credit": "econ_fin", "nasec": "econ_fin", "govt": "econ_fin",
+    "labour": "econ_fin", "labor": "econ_fin",
+    # healthcare
+    "mort": "healthcare", "mortality": "healthcare", "nutrition": "healthcare",
+    "immunisation": "healthcare", "immunization": "healthcare",
+    "hiv": "healthcare", "malaria": "healthcare", "maternal": "healthcare",
+    "births": "healthcare", "fert": "healthcare",
+    # energy
+    "energy": "energy", "elec": "energy", "electricity": "energy",
+    # nature
+    "ghg": "nature", "emissions": "nature", "seea": "nature",
+    "biodiversity": "nature", "forest": "nature", "fisheries": "nature",
+    # transport
+    "transport": "transport", "aviation": "transport", "shipping": "transport",
+    # sales
+    "tourism": "sales", "retail": "sales",
+}
+
+
+def _sdmx_words(flow_id: str) -> list[str]:
+    """Flow IDs are underscore/at/dot-separated publisher identifiers."""
+    return [w for w in re.split(r"[^A-Za-z0-9]+", str(flow_id or "")) if w]
+
+
+def _sdmx_class_in(dom: str, name: str) -> tuple[str, str, str]:
+    """Name the process inside an already-decided domain."""
+    pool = [k for k in (tuple(KEYWORD_CLASSES) + tuple(ODS_KEYWORD_CLASSES)
+                        + EXTRA_CLASSES) if k[1] == dom]
+    hay = " ".join(_topic_tokens(name))
+    hit = _best_class(pool, hay, ODS_PUBLISHER_MIN_CLASS_SCORE) if hay else None
+    return hit or (dom, dom, ODS_DOMAIN_DEFAULT_CLASS[dom])
+
+
+def sdmx_class(flow_id: str, name: str = "",
+               agency_domain: Optional[str] = None
+               ) -> Optional[tuple[str, str, str]]:
+    """Domain from the flow ID, dgp_class from the flow name.
+
+    A whole-agency domain, where the endpoint declares one, short-circuits
+    everything: a body with a single remit has already filed every flow it
+    publishes, and no token inside an identifier can overrule that.
+
+    Otherwise the exact-token map runs first, because it is the more specific
+    statement: an agency that writes GDP or CBPOL into an identifier has filed
+    the flow more definitively than any prose match on the same string. Two
+    tokens that disagree means the ID spans domains, and the flow is skipped
+    rather than guessed at -- same rule as two disagreeing ODS themes.
+    """
+    if agency_domain:
+        return _sdmx_class_in(agency_domain, name)
+    words = [w.lower() for w in _sdmx_words(flow_id)]
+    doms = {SDMX_ID_TOKENS[w] for w in words if w in SDMX_ID_TOKENS}
+    if len(doms) > 1:
+        return None
+    if len(doms) == 1:
+        return _sdmx_class_in(doms.pop(), name)
+    # No abbreviation matched; fall back to the shared theme vocabulary over
+    # the ID's words. Flows spelled out in full (DF_AGRICULTURAL_PRODUCTION)
+    # are classified here.
+    return ods_publisher_class([" ".join(words)], name)
+
+
+def sdmx_fetch(url: str, accept: str, cap: int,
+               timeout: int = 60) -> tuple[str, bool]:
+    """GET with a byte ceiling. Returns (text, truncated).
+
+    A flow-wide SDMX query is unbounded -- OECD will happily stream hundreds of
+    megabytes for `all` -- so the response is read in chunks and abandoned once
+    the ceiling is hit. The truncation flag matters downstream: the final line
+    of a cut-off response is half a row and must not be parsed as data.
+    """
+    r = requests.get(url, headers={"User-Agent": UA, "Accept": accept},
+                     timeout=timeout, stream=True)
+    try:
+        if r.status_code != 200:
+            raise RuntimeError(f"HTTP {r.status_code}")
+        buf, truncated = b"", False
+        for chunk in r.iter_content(65_536):
+            buf += chunk
+            if len(buf) >= cap:
+                truncated = True
+                break
+    finally:
+        r.close()
+    return buf.decode("utf-8", "replace"), truncated
+
+
+def sdmx_dataflows(base: str, path: str = "dataflow/all/all/latest",
+                   timeout: int = 60) -> list[dict]:
+    last: Optional[Exception] = None
+    for accept in SDMX_STRUCT_ACCEPTS:
+        try:
+            text, _ = sdmx_fetch(f"{base}/{path}", accept, 32_000_000, timeout)
+            # Some servers (World Bank WITS) prefix a UTF-8 BOM, which
+            # json.loads rejects outright -- indistinguishable from "this host
+            # has no SDMX" unless the error text is read.
+            doc = json.loads(text.lstrip("﻿"))
+        except Exception as exc:                              # noqa: BLE001
+            last = exc
+            continue
+        out = []
+        for f in (doc.get("data") or {}).get("dataflows") or []:
+            nm = f.get("name")
+            if isinstance(nm, dict):
+                nm = nm.get("en") or next(iter(nm.values()), "")
+            out.append({"id": f.get("id") or "", "agency": f.get("agencyID") or "",
+                        "version": f.get("version") or "latest",
+                        "name": str(nm or "")})
+        if out:
+            return out
+        last = RuntimeError("empty dataflow list")
+    raise RuntimeError(str(last)[:120] if last else "no accept header worked")
+
+
+def sdmx_ref(flow: dict) -> str:
+    return f"{flow['agency']},{flow['id']},{flow['version']}"
+
+
+# Preference order when picking which series of a flow to wire. Monthly and
+# daily first: they carry more observations per year of history, clear the
+# 20-distinct-timestamp gate on a shorter window, and get a tighter staleness
+# limit, so a dead one is caught in months instead of years.
+SDMX_FREQ_ORDER: tuple[str, ...] = ("M", "D", "Q", "A")
+SDMX_PICK_OBS = 40            # observations per series in the selection head
+SDMX_FREQ_TO_ISO: dict[str, str] = {"D": "P1D", "W": "P1W", "M": "P1M",
+                                    "Q": "P3M", "S": "P6M", "A": "P1Y"}
+
+
+def sdmx_pick_series(base: str, ref: str,
+                     timeout: int = 60) -> Optional[tuple[str, str]]:
+    """(series key, FREQ code) for one fully-pinned series of a flow.
+
+    In SDMX-CSV the columns between DATAFLOW and TIME_PERIOD are the flow's
+    dimensions in DSD order, so a single series key can be read straight off
+    the response -- no separate datastructure fetch.
+
+    The frequency filter is applied by reading FREQ out of the rows rather than
+    by querying `.../M`, because FREQ is not reliably the first dimension: the
+    ILO puts REF_AREA first and answers 422 to every key-prefix query, which
+    read as "no series at any frequency" for all 60 flows of the first run.
+
+    The head is requested with lastNObservations=SDMX_PICK_OBS rather than 1 so
+    that each series arrives with its recent history attached. Series LENGTH is
+    otherwise invisible until after a series has been pinned and downloaded,
+    and picking blind means picking short: the ILO's first flows hold 12 annual
+    observations against a 20-period gate, so every one of them cost a full
+    fetch to reject.
+    """
+    try:
+        text, trunc = sdmx_fetch(
+            f"{base}/data/{ref}/all?lastNObservations={SDMX_PICK_OBS}",
+            SDMX_DATA_ACCEPT, SDMX_HEAD_BYTES, timeout)
+    except Exception:                                         # noqa: BLE001
+        return None
+    rows = list(csv.reader(io.StringIO(text)))
+    if len(rows) < 2:
+        return None
+    header = _sdmx_header(rows[0])
+    if "TIME_PERIOD" not in header or "OBS_VALUE" not in header:
+        return None
+    ti, vi = header.index("TIME_PERIOD"), header.index("OBS_VALUE")
+    start = _sdmx_first_dim(header)
+    fi = header.index("FREQ") if "FREQ" in header else None
+    # A truncated response ends mid-row, and that half-row is not data.
+    body = rows[1:-1] if trunc else rows[1:]
+    seen: dict[str, tuple[str, set[str]]] = {}
+    for row in body:
+        if len(row) <= max(ti, vi):
+            continue
+        vals = [v.strip() for v in row[start:ti]]
+        if not vals or any(v == "" for v in vals) or not row[vi].strip():
+            continue
+        try:
+            float(row[vi])
+        except ValueError:
+            continue
+        key = ".".join(vals)
+        code = row[fi].strip().upper() if fi is not None and fi < len(row) else ""
+        entry = seen.setdefault(key, (code or "A", set()))
+        entry[1].add(row[ti].strip())
+    # Long enough FIRST, then best frequency, then longest history. Ranking
+    # before filtering would let a short monthly series beat a long annual one
+    # and then fail the gate, discarding a flow that had a usable series in it.
+    # The last series in a truncated response is undercounted, which can only
+    # lose a candidate, never admit a short one.
+    usable = {k: v for k, v in seen.items() if len(v[1]) >= SDMX_MIN_PERIODS}
+    if not usable:
+        return None
+
+    def rank(item: tuple[str, tuple[str, set[str]]]) -> tuple[int, int]:
+        _key, (code, periods) = item
+        f = (SDMX_FREQ_ORDER.index(code) if code in SDMX_FREQ_ORDER
+             else len(SDMX_FREQ_ORDER))
+        return (f, -len(periods))
+
+    key, (code, _periods) = min(usable.items(), key=rank)
+    return key, code
+
+
+# Leading identification columns, which are NOT dimensions. SDMX-CSV 1.0 opens
+# with DATAFLOW; version 2.0 opens with STRUCTURE, STRUCTURE_ID, ACTION. The
+# BIS serves 2.0, and reading its first three columns as dimensions produced
+# keys like "dataflow.BIS:WS_CBPOL(1.0).I.M.BR" -- which the server rejects, so
+# every BIS, IMF and Norges Bank flow came back as a probe error and the whole
+# central-bank half of the vein read as empty.
+_SDMX_CSV_META = ("DATAFLOW", "STRUCTURE", "STRUCTURE_ID", "ACTION")
+
+
+def _sdmx_header(row: list[str]) -> list[str]:
+    """Column IDs, with any human label stripped.
+
+    With labels turned on a column arrives as "TIME_PERIOD:Announcement date".
+    Norges Bank serves that by default, so an exact match on TIME_PERIOD found
+    nothing and all 23 of its flows reported as having no usable series.
+    """
+    return [h.strip().split(":", 1)[0].strip() for h in row]
+
+
+def _sdmx_first_dim(header: list[str]) -> int:
+    i = 0
+    while i < len(header) and header[i].strip().upper() in _SDMX_CSV_META:
+        i += 1
+    return i
+
+
+_SDMX_PERIOD = re.compile(
+    r"^(\d{4})(?:-?(?:(Q[1-4])|(S[12])|(W\d{2})|(\d{2})(?:-(\d{2}))?))?$")
+
+
+def sdmx_period_end(period: str) -> Optional[dt.datetime]:
+    """Last instant of an SDMX TIME_PERIOD, as UTC.
+
+    Periods are labelled by their START ("2024" means all of 2024), so ageing
+    them from the label makes a series published on time look a year stale.
+    Everything is aged from the period's END instead.
+    """
+    m = _SDMX_PERIOD.match(str(period or "").strip())
+    if not m:
+        return None
+    year = int(m.group(1))
+    if m.group(2):                                   # quarter
+        month = int(m.group(2)[1]) * 3
+    elif m.group(3):                                 # semester
+        month = int(m.group(3)[1]) * 6
+    elif m.group(4):                                 # ISO week
+        try:
+            d = dt.date.fromisocalendar(year, int(m.group(4)[1:]), 7)
+        except ValueError:
+            return None
+        return dt.datetime(d.year, d.month, d.day, tzinfo=dt.timezone.utc)
+    elif m.group(5):
+        month = int(m.group(5))
+        if m.group(6):                               # full date
+            try:
+                return dt.datetime(year, month, int(m.group(6)),
+                                   tzinfo=dt.timezone.utc)
+            except ValueError:
+                return None
+    else:
+        month = 12
+    if not 1 <= month <= 12:
+        return None
+    nxt = dt.datetime(year + (month == 12), (month % 12) + 1, 1,
+                      tzinfo=dt.timezone.utc)
+    return nxt - dt.timedelta(days=1)
+
+
+def sdmx_probe(base: str, ref: str, key: str, timeout: int = 90) -> dict:
+    url = (f"{base}/data/{ref}/{key}?startPeriod={SDMX_START_PERIOD}"
+           f"&dimensionAtObservation=AllDimensions")
+    try:
+        text, trunc = sdmx_fetch(url, SDMX_DATA_ACCEPT, SDMX_DATA_BYTES, timeout)
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {str(exc)[:70]}"}
+    rows = list(csv.reader(io.StringIO(text)))
+    if len(rows) < 2:
+        return {"error": "no rows"}
+    header = _sdmx_header(rows[0])
+    if "TIME_PERIOD" not in header or "OBS_VALUE" not in header:
+        return {"error": f"unexpected header {header[:5]}"}
+    ti, vi = header.index("TIME_PERIOD"), header.index("OBS_VALUE")
+    periods: dict[str, dt.datetime] = {}
+    numeric = 0
+    for row in (rows[1:-1] if trunc else rows[1:]):
+        if len(row) <= max(ti, vi):
+            continue
+        end = sdmx_period_end(row[ti])
+        if end is None:
+            continue
+        try:
+            float(row[vi])
+        except (TypeError, ValueError):
+            continue
+        numeric += 1
+        periods[row[ti].strip()] = end
+    if len(periods) < SDMX_MIN_PERIODS:
+        return {"error": f"only {len(periods)} usable periods "
+                         f"({numeric} numeric rows)"}
+    newest_label = max(periods, key=lambda p: periods[p])
+    newest = periods[newest_label]
+    age = (dt.datetime.now(dt.timezone.utc) - newest).total_seconds() / 86400
+    if age < -1:
+        return {"error": f"newest period {newest_label} is in the future"}
+    return {"url": url, "periods": len(periods), "numeric": numeric,
+            "newest_period": newest_label, "age_days": age}
+
+
+# How old the newest observation may be before a flow is not worth wiring.
+# Without this the slack rule below -- which stretches to cover the agency's
+# publication lag -- stretches to cover ANY lag, and an Istat series whose
+# newest point is 2018-06 gets 2,900 days of slack and sails through the
+# freshness gate. The gate is only as good as the age it is handed.
+SDMX_MAX_AGE_DAYS: dict[str, int] = {
+    "P1D": 21, "P1W": 60, "P1M": 200, "P3M": 400, "P6M": 550, "P1Y": 800,
+}
+
+
+# Days spanned by one period. Needed because the freshness check downstream
+# ages a series from its TIME_PERIOD *label*, and the label is the period's
+# START: an annual point published on time reads as up to a year old the
+# moment it lands. Ageing here is done from the period end, so the difference
+# has to be added back before the two numbers can be compared.
+_SDMX_PERIOD_DAYS: dict[str, int] = {"P1D": 1, "P1W": 7, "P1M": 31, "P3M": 92,
+                                     "P6M": 184, "P1Y": 366}
+
+
+def _sdmx_slack(freq_iso: str, age_days: float) -> int:
+    """Staleness allowance: the nominal period plus the agency's own lag.
+
+    International agencies publish a year in arrears as a matter of course, so
+    a limit derived from the period alone would flag half of them as dead on
+    the day they are wired -- five of the first nine SDMX candidates failed
+    exactly that way, at 584 days against a 500-day limit.
+    """
+    base = {"P1D": 10, "P1W": 30, "P1M": 75, "P3M": 200,
+            "P6M": 320, "P1Y": 500}.get(freq_iso, 120)
+    label_age = int(age_days) + _SDMX_PERIOD_DAYS.get(freq_iso, 92)
+    return max(base, label_age + 45)
+
+
+def sdmx_synthesize(base: str, office: str, flow: dict, key: str,
+                    freq_code: str, probe: dict, klass: tuple[str, str, str],
+                    taken: Optional[set[str]] = None) -> Optional[dict]:
+    host = urlparse(base).netloc.lower()
+    title = re.sub(r"\s+", " ", _safe_unescape(flow.get("name") or flow["id"]))
+    title = title.strip() or flow["id"]
+    sid = f"sdmx_{entry_id(host, title)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:56]}_{_slug(flow['id'], 6)}"[:64]
+    freq_iso = SDMX_FREQ_TO_ISO.get(freq_code, "P1Y")
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title[:80]} ({office})",
+        "domain": klass[1],
+        "dgp_class": klass[2],
+        "archetypes": ["trend", "non_stationary_regime", "positive_continuous"],
+        "frequency": freq_iso,
+        "endpoint": {
+            "type": "rest_csv",
+            "url": probe["url"],
+            "auth": "none",
+            "rate_limit": "polite",
+            # SDMX-CSV is served by content negotiation, not by a file
+            # extension: without this header the same URL returns XML.
+            "headers": {"Accept": SDMX_DATA_ACCEPT},
+        },
+        "schema": {
+            "timestamp_field": "TIME_PERIOD",
+            "value_field": ["OBS_VALUE"],
+            "drop_null_values": True,
+        },
+        "history_available": f"{probe['periods']} periods from "
+                             f"{SDMX_START_PERIOD[:4]}, newest "
+                             f"{probe['newest_period']}",
+        "update_cadence_observed": (
+            f"{freq_iso} periods; newest {probe['newest_period']} "
+            f"({probe['age_days']:.0f}d old at wire time)"
+        ),
+        "pretraining_novelty": "unknown",
+        "novelty_notes": (
+            "International-agency series are widely republished, so headline "
+            "aggregates may appear in pretraining mixes. The pinned key here "
+            "is one cell of a large cube rather than a headline aggregate."
+        ),
+        "license": "open data (see agency terms)",
+        "audit_slack_days": _sdmx_slack(freq_iso, probe.get("age_days") or 0),
+        "notes": (
+            f"SDMX 2.1 REST at {base}, dataflow {sdmx_ref(flow)}, series key "
+            f"{key}. Domain from the flow ID, which is the agency's own "
+            f"identifier; the key pins every dimension so the response is a "
+            f"single series rather than a cube. TIME_PERIOD is a period LABEL "
+            f"({probe['newest_period']}) and denotes the start of the period."
+        ),
+    }
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "cron_cadence": "P1D",
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "reason": (f"SDMX: {probe['periods']} {freq_iso} periods, newest "
+                   f"{probe['newest_period']}, host {host}"),
+    }
+
+
+def sdmx_sweep(
+    catalog_path: str,
+    endpoints: Optional[Iterable[tuple[str, str, str, Optional[str]]]] = None,
+    host_cap: int = 4,
+    max_flows: int = 400,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    catalog = yaml.safe_load(open(catalog_path)) or []
+    taken_ids = {s["id"] for s in catalog}
+    known_urls = {(s.get("endpoint") or {}).get("url", "") for s in catalog}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for base, office, path, agency_domain in (endpoints if endpoints is not None
+                                              else SDMX_ENDPOINTS):
+        host = urlparse(base).netloc.lower()
+        if seen_hosts.get(host, 0) >= host_cap:
+            skipped.append({"id": host, "reason": f"host cap {host_cap} reached"})
+            continue
+        try:
+            flows = sdmx_dataflows(base, path)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": host, "reason": f"dataflow list: {exc}"})
+            log(f"[sdmx] {office}: dataflow list failed -- {exc}")
+            continue
+        log(f"[sdmx] {office}: {len(flows)} dataflows")
+        got = 0
+        for flow in flows[:max_flows]:
+            if got >= host_cap:
+                break
+            if not flow["id"] or _SDMX_REJECT_ID.search(flow["id"]):
+                skipped.append({"id": flow["id"],
+                                "reason": "not an observed process "
+                                          "(projection/scenario/registry)"})
+                continue
+            klass = sdmx_class(flow["id"], flow["name"], agency_domain)
+            if klass is None:
+                skipped.append({"id": flow["id"],
+                                "reason": "flow id not in the map"})
+                continue
+            try:
+                picked = sdmx_pick_series(base, sdmx_ref(flow))
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": flow["id"], "reason": f"pick: {exc}"})
+                continue
+            time.sleep(sleep_s)
+            if picked is None:
+                skipped.append({"id": flow["id"],
+                                "reason": "no complete series in the response "
+                                          "head at any frequency"})
+                continue
+            key, freq_code = picked
+            probe = sdmx_probe(base, sdmx_ref(flow), key)
+            time.sleep(sleep_s)
+            if "error" in probe:
+                skipped.append({"id": flow["id"],
+                                "reason": f"probe: {probe['error']}"})
+                continue
+            if probe["url"] in known_urls:
+                skipped.append({"id": flow["id"], "reason": "url already wired"})
+                continue
+            freq_iso = SDMX_FREQ_TO_ISO.get(freq_code, "P1Y")
+            ceiling = SDMX_MAX_AGE_DAYS.get(freq_iso, 400)
+            if probe["age_days"] > ceiling:
+                skipped.append({"id": flow["id"],
+                                "reason": f"abandoned: newest {freq_iso} period "
+                                          f"{probe['newest_period']} is "
+                                          f"{probe['age_days']:.0f}d old "
+                                          f"(limit {ceiling}d)"})
+                continue
+            block = sdmx_synthesize(base, office, flow, key, freq_code, probe,
+                                    klass, taken=taken_ids)
+            if block is None:
+                skipped.append({"id": flow["id"], "reason": "synthesise failed"})
+                continue
+            taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+            known_urls.add(probe["url"])
+            cands.append(block)
+            got += 1
+            seen_hosts[host] = seen_hosts.get(host, 0) + 1
+            _checkpoint(cands, checkpoint_path)
+            log(f"  + [{klass[1]}] {block['candidate_name'][:64]}")
+            if target and len(cands) >= target:
+                log(f"target {target} reached")
+                return cands, skipped
+    return cands, skipped
+
+
+# --------------------------------------------------------------------------- #
+# The ArcGIS vein. Thousands of governments publish through ArcGIS Hub, and
+# unlike Socrata or Opendatasoft a large minority of them run the server
+# THEMSELVES -- gis.cityof<x>.gov, maps.<county>.us -- rather than on the
+# vendor's domain. That is the whole point of sweeping it: 500 Hub records for
+# one query resolved to 54 hostnames, of which 45 were self-hosted. Everything
+# on services{N}.arcgis.com is the vendor's own tenancy and is skipped, because
+# nine hostnames shared by thousands of publishers is the aggregator trap.
+#
+# Classification is keyword-first, reusing KEYWORD_CLASSES: Hub items carry
+# free-text tags and an org-defined `categories` list that is usually empty, so
+# there is no publisher-filed theme to read. The keyword we searched for IS the
+# closed vocabulary, exactly as in the original Socrata sweep.
+# --------------------------------------------------------------------------- #
+ARCGIS_HUB = "https://hub.arcgis.com/api/search/v1/collections/dataset/items"
+ARCGIS_PAGE = 100
+# startindex is 1-based and rejects 0 outright, which is worth writing down
+# because every other paged API in this file is 0-based.
+ARCGIS_FIRST_INDEX = 1
+ARCGIS_PROBE_ROWS = 400
+ARCGIS_MIN_DISTINCT = 20      # the wire gate's floor, checked before wiring
+
+# The vendor's multi-tenant hosts. A source on one of these is credited to a
+# hostname shared with thousands of unrelated publishers.
+_ARCGIS_SHARED_HOST = re.compile(
+    r"^(?:services\d*|tiles\d*|services\d*\.arcgis|utility|geocode)"
+    r"\.arcgis\.com$|\.arcgis\.com$", re.I)
+
+_ESRI_TS_TYPES = frozenset({"esriFieldTypeDate", "esriFieldTypeTimestampOffset"})
+_ESRI_NUM_TYPES = frozenset({
+    "esriFieldTypeDouble", "esriFieldTypeSingle", "esriFieldTypeInteger",
+    "esriFieldTypeSmallInteger", "esriFieldTypeBigInteger",
+})
+# A layer URL ends in /FeatureServer/<n> or /MapServer/<n>. Without the layer
+# index there is nothing to query.
+_ARCGIS_LAYER = re.compile(r"/(?:Feature|Map)Server/\d+/?$", re.I)
+
+
+def arcgis_search(keyword: str, want: int, timeout: int = 60,
+                  sleep_s: float = 0.25) -> list[dict]:
+    out: list[dict] = []
+    start = ARCGIS_FIRST_INDEX
+    while len(out) < want:
+        r = requests.get(ARCGIS_HUB, params={
+            "q": keyword, "limit": min(ARCGIS_PAGE, want - len(out)),
+            "startindex": start,
+            # Without this the results are dominated by file downloads, web
+            # maps and dashboards: of the first 120 unfiltered records, 97 had
+            # no queryable service URL at all.
+            "type": "Feature Service",
+        }, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            break
+        feats = (r.json().get("features") or [])
+        if not feats:
+            break
+        for f in feats:
+            p = f.get("properties") or {}
+            out.append({"title": (p.get("title") or "").strip(),
+                        "url": (p.get("url") or "").strip(),
+                        "owner": p.get("owner") or "",
+                        "org": (p.get("orgName") or p.get("source") or ""),
+                        "description": p.get("description") or "",
+                        "modified": p.get("modified")})
+        start += len(feats)
+        time.sleep(sleep_s)
+    return out
+
+
+def arcgis_is_self_hosted(url: str) -> bool:
+    host = urlparse(url).netloc.lower()
+    return bool(host) and not _ARCGIS_SHARED_HOST.search(host)
+
+
+# Extra keyword classes for this vein only. KEYWORD_CLASSES was written for
+# the Socrata catalogue and its 98 entries surface the same few hundred
+# organisations here; a keyword is the only thing that moves the Hub search
+# onto a different slice of publishers, so more keywords is the only lever
+# that adds HOSTS. Same rules as KEYWORD_CLASSES: the keyword carries the
+# domain, and nothing on the contamination denylist ("traffic", "electricity",
+# "weather") appears.
+ARCGIS_EXTRA_KEYWORDS: tuple[tuple[str, str, str], ...] = (
+    ("calls for service", "healthcare", "emergency_dispatch"),
+    ("crash reports", "transport", "collision_stream"),
+    ("crime incidents", "healthcare", "incident_stream"),
+    ("development applications", "sales", "permit_issuance"),
+    ("planning applications", "sales", "permit_issuance"),
+    ("zoning cases", "sales", "permit_issuance"),
+    ("demolition permits", "sales", "permit_issuance"),
+    ("electrical permits", "sales", "permit_issuance"),
+    ("plumbing permits", "sales", "permit_issuance"),
+    ("sign permits", "sales", "permit_issuance"),
+    ("right of way permits", "transport", "permit_issuance"),
+    ("street closures", "transport", "transport_activity"),
+    ("work orders", "web_cloudops", "ticket_stream"),
+    ("service requests", "web_cloudops", "ticket_stream"),
+    ("sidewalk repairs", "transport", "maintenance_stream"),
+    ("graffiti removal", "sales", "maintenance_stream"),
+    ("illegal dumping", "nature", "environmental_complaint"),
+    ("water quality samples", "nature", "environmental_measurement"),
+    ("well levels", "nature", "environmental_measurement"),
+    ("rainfall gauges", "nature", "environmental_measurement"),
+    ("stream flow", "nature", "environmental_measurement"),
+    ("snow removal", "transport", "maintenance_stream"),
+    ("hydrant flushing", "nature", "maintenance_stream"),
+    ("sewer overflow", "nature", "environmental_complaint"),
+    ("tree removal requests", "nature", "environmental_complaint"),
+    ("brush collection", "nature", "waste_collection"),
+    ("bulk waste pickup", "nature", "waste_collection"),
+    ("landfill tonnage", "nature", "waste_collection"),
+    ("parks reservations", "sales", "booking_stream"),
+    ("facility bookings", "sales", "booking_stream"),
+    ("marriage licenses", "sales", "registration_stream"),
+    ("dog licenses", "sales", "registration_stream"),
+    ("voter registrations", "sales", "registration_stream"),
+    ("property assessments", "sales", "property_market_activity"),
+    ("tax delinquency", "econ_fin", "economic_indicator"),
+    ("housing starts", "sales", "permit_issuance"),
+    ("vacancy inspections", "sales", "inspection_stream"),
+    ("rental inspections", "sales", "inspection_stream"),
+    ("fire inspections", "healthcare", "inspection_stream"),
+    ("ems incidents", "healthcare", "emergency_dispatch"),
+    ("hazmat incidents", "healthcare", "incident_stream"),
+    ("bike share trips", "transport", "transport_activity"),
+    ("trail counters", "transport", "transport_activity"),
+    ("pedestrian counts", "transport", "transport_activity"),
+    ("transit stops boardings", "transport", "transport_activity"),
+    ("fleet fuel usage", "energy", "energy_consumption"),
+    ("solar permits", "energy", "permit_issuance"),
+    ("streetlight repairs", "energy", "maintenance_stream"),
+    ("water usage billing", "nature", "resource_consumption"),
+    # Second batch. The first 49 out-produced a deeper re-run of the
+    # Socrata-derived list by roughly half again on the same wall clock, which
+    # settles the question of what the binding constraint is here: it is the
+    # breadth of the keyword list, not how deep each query is paged.
+    ("abandoned vehicles", "transport", "incident_stream"),
+    ("parking occupancy", "transport", "transport_activity"),
+    ("speed studies", "transport", "transport_activity"),
+    ("bridge inspections", "transport", "inspection_stream"),
+    ("culvert inspections", "transport", "inspection_stream"),
+    ("pavement condition", "transport", "maintenance_stream"),
+    ("transit vehicle locations", "transport", "transport_activity"),
+    ("airport operations", "transport", "transport_activity"),
+    ("boat launch usage", "transport", "transport_activity"),
+    ("road salt usage", "transport", "resource_consumption"),
+    ("fire hydrants inspections", "healthcare", "inspection_stream"),
+    ("rabies cases", "healthcare", "disease_surveillance"),
+    ("septic permits", "healthcare", "permit_issuance"),
+    ("child care facilities inspections", "healthcare", "inspection_stream"),
+    ("nursing home inspections", "healthcare", "inspection_stream"),
+    ("opioid response", "healthcare", "incident_stream"),
+    ("blood drives", "healthcare", "health_utilisation"),
+    ("burn permits", "nature", "permit_issuance"),
+    ("wildfire perimeters", "nature", "incident_stream"),
+    ("soil moisture", "nature", "environmental_measurement"),
+    ("snow depth", "nature", "environmental_measurement"),
+    ("reservoir levels", "nature", "environmental_measurement"),
+    ("lake levels", "nature", "environmental_measurement"),
+    ("wetland monitoring", "nature", "environmental_measurement"),
+    ("invasive species reports", "nature", "environmental_complaint"),
+    ("fish counts", "nature", "environmental_measurement"),
+    ("shellfish closures", "nature", "environmental_complaint"),
+    ("compost collection", "nature", "waste_collection"),
+    ("hazardous waste dropoff", "nature", "waste_collection"),
+    ("erosion monitoring", "nature", "environmental_measurement"),
+    ("well permits", "nature", "permit_issuance"),
+    ("energy audits", "energy", "energy_consumption"),
+    ("ev charging sessions", "energy", "energy_consumption"),
+    ("gas leak reports", "energy", "incident_stream"),
+    ("utility outages", "energy", "incident_stream"),
+    ("solar installations", "energy", "permit_issuance"),
+    ("business openings", "sales", "registration_stream"),
+    ("vacant properties", "sales", "property_market_activity"),
+    ("foreclosures", "sales", "property_market_activity"),
+    ("home sales", "sales", "property_market_activity"),
+    ("food truck permits", "sales", "permit_issuance"),
+    ("special event permits", "sales", "permit_issuance"),
+    ("film permits", "sales", "permit_issuance"),
+    ("hotel occupancy", "sales", "booking_stream"),
+    ("campground reservations", "sales", "booking_stream"),
+    ("building valuations", "econ_fin", "economic_indicator"),
+    ("grant awards", "econ_fin", "economic_indicator"),
+    ("capital projects spending", "econ_fin", "economic_indicator"),
+    ("permit fees collected", "econ_fin", "economic_indicator"),
+    ("broadband availability", "web_cloudops", "digital_service_usage"),
+    ("wifi hotspot usage", "web_cloudops", "digital_service_usage"),
+    ("gis service requests", "web_cloudops", "ticket_stream"),
+)
+
+ARCGIS_LAYERS_PER_SERVICE = 2
+
+
+def arcgis_layer_urls(url: str, timeout: int = 45) -> list[str]:
+    """Layer URLs for a Hub record.
+
+    Most records point at the SERVICE (.../FeatureServer), not a layer, and a
+    service cannot be queried -- 41 of 50 records in one sample. The service
+    document lists its layers, so one extra request turns those from skips
+    into candidates. Only the first few are taken: a service with 30 layers is
+    one publisher, and the host cap would drop the rest anyway.
+    """
+    url = url.rstrip("/")
+    if _ARCGIS_LAYER.search(url):
+        return [url]
+    if not re.search(r"/(?:Feature|Map)Server$", url, re.I):
+        return []
+    r = requests.get(url, params={"f": "json"},
+                     headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    doc = r.json()
+    if doc.get("error"):
+        raise RuntimeError(str(doc["error"])[:80])
+    out = []
+    for lyr in (doc.get("layers") or []):
+        if lyr.get("id") is None:
+            continue
+        # Sublayers of a group layer are queried directly; the group is not.
+        if lyr.get("type") == "Group Layer":
+            continue
+        out.append(f"{url}/{lyr['id']}")
+        if len(out) >= ARCGIS_LAYERS_PER_SERVICE:
+            break
+    return out
+
+
+def arcgis_fields(layer_url: str, timeout: int = 45) -> list[tuple[str, str, str]]:
+    """(alias, name, type) triples, in the shape the shared column pickers take.
+
+    Esri type names are mapped onto the Socrata vocabulary rather than the
+    pickers being generalised: the two agree on what a date and a number are,
+    and one mapping is easier to audit than two sets of type constants.
+    """
+    r = requests.get(layer_url, params={"f": "json"},
+                     headers={"User-Agent": UA}, timeout=timeout)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
+    doc = r.json()
+    if doc.get("error"):
+        raise RuntimeError(str(doc["error"])[:80])
+    out = []
+    for f in (doc.get("fields") or []):
+        etype = str(f.get("type") or "")
+        if etype in _ESRI_TS_TYPES:
+            mapped = "calendar date"
+        elif etype in _ESRI_NUM_TYPES:
+            mapped = "number"
+        else:
+            mapped = "text"
+        out.append((str(f.get("alias") or f.get("name") or ""),
+                    str(f.get("name") or ""), mapped))
+    return out
+
+
+def arcgis_query_url(layer_url: str, ts: str, vals: list[str],
+                     rows: int = 2000) -> str:
+    fields = ",".join([ts] + vals)
+    return (f"{layer_url.rstrip('/')}/query?where={quote(ts)}+IS+NOT+NULL"
+            f"&outFields={quote(fields)}&orderByFields={quote(ts)}+DESC"
+            f"&resultRecordCount={rows}&returnGeometry=false&f=json")
+
+
+def arcgis_probe(layer_url: str, ts: str, vals: list[str],
+                 timeout: int = 60) -> dict:
+    url = arcgis_query_url(layer_url, ts, vals, ARCGIS_PROBE_ROWS)
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {"error": f"HTTP {r.status_code}"}
+        doc = r.json()
+    except Exception as exc:                                  # noqa: BLE001
+        return {"error": f"{type(exc).__name__}: {str(exc)[:70]}"}
+    if doc.get("error"):
+        return {"error": f"service: {str(doc['error'])[:70]}"}
+    feats = doc.get("features") or []
+    if not feats:
+        return {"error": "no features"}
+    now = dt.datetime.now(dt.timezone.utc)
+    cutoff = now + dt.timedelta(days=1)
+    stamps, n_future = [], 0
+    for f in feats:
+        raw = (f.get("attributes") or {}).get(ts)
+        if raw is None:
+            continue
+        # Esri dates are epoch MILLISECONDS. Reading them as seconds puts every
+        # observation in 1970, which parses fine and is silently wrong.
+        try:
+            when = dt.datetime.fromtimestamp(float(raw) / 1000.0, dt.timezone.utc)
+        except (TypeError, ValueError, OSError, OverflowError):
+            continue
+        if when > cutoff:
+            n_future += 1
+            continue
+        stamps.append(when)
+    stamps = sorted(set(stamps), reverse=True)
+    if len(stamps) < ARCGIS_MIN_DISTINCT:
+        return {"error": f"only {len(stamps)} distinct timestamps "
+                         f"({n_future} future-dated) in {len(feats)} features"}
+    if n_future > max(1, 0.02 * (len(stamps) + n_future)):
+        return {"error": f"{n_future} future-dated timestamps — the freshness "
+                         f"audit would read this as permanently alive"}
+    gaps = [(stamps[i] - stamps[i + 1]).total_seconds()
+            for i in range(len(stamps) - 1)]
+    gaps = [g for g in gaps if g > 0]
+    return {"rows": len(feats), "distinct": len(stamps),
+            "future": n_future, "newest": stamps[0].isoformat(),
+            "age_days": (now - stamps[0]).total_seconds() / 86400.0,
+            "median_gap_s": statistics.median(gaps) if gaps else 0.0}
+
+
+def arcgis_synthesize(rec: dict, klass: tuple[str, str, str], ts: str,
+                      vals: list[str], probe: dict,
+                      taken: Optional[set[str]] = None) -> Optional[dict]:
+    _kw, dom, dgp = klass
+    layer = rec["url"].rstrip("/")
+    host = urlparse(layer).netloc.lower()
+    title = re.sub(r"\s+", " ", _safe_unescape(rec["title"])).strip()
+    if not (host and title):
+        return None
+    sid = f"agis_{entry_id(host, title)}"[:64]
+    if taken and sid in taken:
+        sid = f"{sid[:56]}_{_slug(layer.rsplit('/', 2)[-2], 6)}"[:64]
+    freq = freq_from_delta(probe["median_gap_s"])
+
+    entry: dict[str, Any] = {
+        "id": sid,
+        "name": f"{title[:80]} ({host})",
+        "domain": dom,
+        "dgp_class": dgp,
+        "archetypes": (["count_discrete"] if not vals
+                       else ["non_stationary_regime", "positive_continuous"]),
+        "frequency": freq,
+        "endpoint": {
+            "type": "rest_json",
+            "url": arcgis_query_url(layer, ts, vals),
+            "auth": "none",
+            "rate_limit": "polite",
+        },
+        "schema": {
+            "timestamp_field": f"features[].attributes.{ts}",
+            "variates": max(1, len(vals)),
+        },
+        "history_available": f"{probe['distinct']} distinct timestamps in the "
+                             f"newest {probe['rows']} features",
+        "update_cadence_observed": (
+            f"median gap {probe['median_gap_s'] / 60:.1f} min; newest "
+            f"{probe['newest']} ({probe['age_days']:.1f}d old)"
+        ),
+        "pretraining_novelty": "clean",
+        "novelty_notes": (
+            "Local-government ArcGIS feature service. Published as a map layer "
+            "rather than a tabular download, so it is unlikely to appear in "
+            "pretraining mixes assembled from open-data CSV dumps."
+        ),
+        "license": "open data (see publisher terms)",
+        "audit_slack_days": max(45, int(probe["age_days"]) + 45),
+        "notes": (
+            f"Bulk-generated from ArcGIS Hub (query '{_kw}'), layer {layer}. "
+            f"Columns chosen from the layer's declared field types. Esri "
+            f"serves dates as epoch MILLISECONDS. Self-hosted server, not the "
+            f"vendor's shared services*.arcgis.com tenancy."
+        ),
+    }
+    if vals:
+        entry["schema"]["value_field"] = [
+            f"features[].attributes.{v}" for v in vals]
+    else:
+        entry["schema"]["value_field"] = f"features[].attributes.{ts}"
+        entry["schema"]["aggregate"] = {
+            "op": "count",
+            "bin": "P1D" if freq in ("P1D", "P1W", "P1M", "P1Q", "P1Y") else "PT1H",
+        }
+        if entry["schema"]["aggregate"]["bin"] == "PT1H":
+            entry["frequency"] = freq = "PT1H"
+
+    return {
+        "candidate_name": entry["name"],
+        "wireable": True,
+        "yaml_block": yaml.dump([entry], sort_keys=False, allow_unicode=True),
+        "cron_cadence": cron_cadence_for(freq, probe["age_days"]),
+        "reason": (f"ArcGIS: {probe['distinct']} distinct ts, newest "
+                   f"{probe['newest']} ({probe['age_days']:.1f}d), "
+                   f"values={vals or 'binned count'}, host {host}"),
+    }
+
+
+def arcgis_sweep(
+    catalog_path: str,
+    keywords: Optional[Iterable[tuple[str, str, str]]] = None,
+    host_cap: int = 2,
+    per_keyword: int = 300,
+    max_age_days: float = 30.0,
+    target: Optional[int] = None,
+    sleep_s: float = 0.3,
+    checkpoint_path: Optional[str] = None,
+    log=print,
+) -> tuple[list[dict], list[dict]]:
+    seen_hosts = host_counts(catalog_path)
+    catalog = yaml.safe_load(open(catalog_path)) or []
+    taken_ids = {s["id"] for s in catalog}
+    known_urls = {(s.get("endpoint") or {}).get("url", "") for s in catalog}
+    known_layers = {u.split("/query?")[0] for u in known_urls if "/query?" in u}
+    cands: list[dict] = []
+    skipped: list[dict] = []
+
+    for klass in (keywords if keywords is not None else KEYWORD_CLASSES):
+        keyword = klass[0]
+        try:
+            records = arcgis_search(keyword, per_keyword)
+        except Exception as exc:                              # noqa: BLE001
+            skipped.append({"id": keyword, "reason": f"search failed: {exc}"})
+            continue
+        log(f"[arcgis] '{keyword}': {len(records)} hub records")
+        for rec in records:
+            url = rec["url"]
+            if not url:
+                skipped.append({"id": rec["title"][:40],
+                                "reason": "record has no service URL"})
+                continue
+            # Cheap checks BEFORE the layer-listing request, so a capped host
+            # or an off-topic title costs nothing.
+            if not arcgis_is_self_hosted(url):
+                skipped.append({"id": urlparse(url).netloc,
+                                "reason": "vendor-hosted tenancy "
+                                          "(services*.arcgis.com)"})
+                continue
+            host = urlparse(url).netloc.lower()
+            if seen_hosts.get(host, 0) >= host_cap:
+                skipped.append({"id": host,
+                                "reason": f"host cap {host_cap} reached"})
+                continue
+            if not is_relevant(keyword, rec["title"], rec["description"]):
+                skipped.append({"id": rec["title"][:40],
+                                "reason": f"title unrelated to '{keyword}'"})
+                continue
+            if _ODS_REJECT_TITLE.search(rec["title"]):
+                skipped.append({"id": rec["title"][:40],
+                                "reason": "not a forecastable process"})
+                continue
+            try:
+                layers = arcgis_layer_urls(url)
+            except Exception as exc:                          # noqa: BLE001
+                skipped.append({"id": host, "reason": f"layers: {exc}"})
+                continue
+            time.sleep(sleep_s)
+            if not layers:
+                skipped.append({"id": host,
+                                "reason": "not a queryable layer URL"})
+                continue
+            for layer in layers:
+                if seen_hosts.get(host, 0) >= host_cap:
+                    break
+                if layer in known_layers:
+                    skipped.append({"id": layer,
+                                    "reason": "layer already wired"})
+                    continue
+                try:
+                    cols = arcgis_fields(layer)
+                except Exception as exc:                      # noqa: BLE001
+                    skipped.append({"id": host, "reason": f"fields: {exc}"})
+                    continue
+                time.sleep(sleep_s)
+                ts = pick_timestamp_column(cols)
+                if not ts:
+                    skipped.append({"id": rec["title"][:40],
+                                    "reason": "no date field"})
+                    continue
+                vals = pick_value_columns(cols, ts)
+                probe = arcgis_probe(layer, ts, vals)
+                time.sleep(sleep_s)
+                if "error" in probe:
+                    skipped.append({"id": host,
+                                    "reason": f"probe: {probe['error']}"})
+                    continue
+                if probe["age_days"] > max_age_days:
+                    skipped.append({"id": host,
+                                    "reason": f"newest observation "
+                                              f"{probe['age_days']:.0f}d old"})
+                    continue
+                block = arcgis_synthesize({**rec, "url": layer}, klass, ts,
+                                          vals, probe, taken=taken_ids)
+                if block is None:
+                    skipped.append({"id": host, "reason": "synthesise failed"})
+                    continue
+                taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
+                known_layers.add(layer)
+                cands.append(block)
+                seen_hosts[host] = seen_hosts.get(host, 0) + 1
+                _checkpoint(cands, checkpoint_path)
+                log(f"  + [{klass[1]}] {block['candidate_name'][:64]}")
+                if target and len(cands) >= target:
+                    log(f"target {target} reached")
+                    return cands, skipped
+    return cands, skipped
 
 
 def write_batch(candidates: list[dict], out_path: str) -> str:
