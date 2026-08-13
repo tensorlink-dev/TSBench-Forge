@@ -1222,6 +1222,13 @@ def ods_sweep(
             if block is None:
                 skipped.append({"id": tag, "reason": "could not synthesise entry"})
                 continue
+            block, why = preflight_pinned(
+                block, lambda h=host, d=dsid, t=ts: panel_dims(
+                    ods_sample_record(h, d), t),
+                _ods_pin, log=log)
+            if block is None:
+                skipped.append({"id": tag, "reason": why})
+                continue
             taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
             cands.append(block)
             seen_hosts[host] = seen_hosts.get(host, 0) + 1
@@ -2333,6 +2340,10 @@ def ckan_sweep(
                                             fields, probe, taken=taken_ids)
                     if block is None:
                         skipped.append({"id": tag, "reason": "could not synthesise"})
+                        continue
+                    ok, why = preflight(block)
+                    if not ok:
+                        skipped.append({"id": tag, "reason": why})
                         continue
                     taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
                     cands.append(block)
@@ -5694,6 +5705,178 @@ def arcgis_sweep(
                     log(f"target {target} reached")
                     return cands, skipped
     return cands, skipped
+
+
+def preflight(block: dict) -> tuple[bool, str]:
+    """Fetch a synthesised candidate through the REAL scraper before emitting.
+
+    The sweeps build a URL and a schema out of portal metadata and then never
+    exercise either; ``wire`` is the first code that actually fetches what the
+    sweep invented. A live grind run on 2026-08-13 found three candidates and
+    wired zero, and both failures were visible in a single fetch:
+
+      * a CKAN resource whose value columns were picked without checking they
+        parse as numbers — 1,784 distinct timestamps, ``numeric_rows=0``,
+        because one of the chosen "measures" was the year column
+      * a CKAN record pointing at ERDDAP, emitted as an unconstrained query
+        that streamed past the scraper's 48MB response cap
+
+    Uses ``wire.verify_entry`` rather than a private reimplementation, so a
+    candidate that passes here passes wire for the same reasons. That keeps
+    "found" and "wireable" the same number, which is what lets a grind run
+    promise N wired instead of N attempted.
+
+    Returns ``(ok, reason)``; ``reason`` is empty when ok.
+    """
+    from . import wire  # local: avoids a module-level cycle at import time
+
+    try:
+        entry = yaml.safe_load(block["yaml_block"])[0]
+    except Exception as exc:                                  # noqa: BLE001
+        return False, f"unparseable yaml_block: {type(exc).__name__}"
+    try:
+        res = wire.verify_entry(entry, wire._scraper())
+    except Exception as exc:                                  # noqa: BLE001
+        return False, f"preflight raised: {type(exc).__name__}: {str(exc)[:80]}"
+    if res.ok:
+        return True, ""
+    d = res.as_dict()
+    if d.get("error"):
+        return False, f"preflight: {str(d['error'])[:100]}"
+    return False, (f"preflight: rows={d.get('rows')} ts={d.get('distinct_ts')} "
+                   f"numeric={d.get('numeric_rows')} newest={d.get('newest')}")
+
+
+_TS_NAME_RE = re.compile(
+    r"(datetime|date_?heure|timestamp|^dt$|_utc$|^datum|quarter|interval|"
+    r"^date$|_time$|^time$|periode|^annee$|^year$)", re.I)
+_PANEL_RE = re.compile(r"rows=(\d+) ts=(\d+)")
+# A response is panelled when its distinct timestamps fall well short of its
+# rows. 0.8 rather than 1.0 because a handful of genuine duplicate stamps is
+# normal at the head of a rolling table.
+PANEL_CLEAN = 0.8
+PANEL_MAX_DIMS = 3
+
+
+def looks_panelled(reason: str) -> bool:
+    m = _PANEL_RE.search(reason or "")
+    return bool(m) and int(m.group(2)) < PANEL_CLEAN * int(m.group(1))
+
+
+def panel_dims(record: dict, ts_field: str,
+               max_dims: int = PANEL_MAX_DIMS) -> list[tuple[str, str]]:
+    """Fields from a sample row that plausibly index a panel.
+
+    Short strings that are not the clock: zone, device id, counter id,
+    technology. Long free text is prose, not a dimension.
+    """
+    out = []
+    for k, v in (record or {}).items():
+        if k == ts_field or not isinstance(v, str) or not v or len(v) > 40:
+            continue
+        if _TS_NAME_RE.search(k):
+            continue
+        out.append((k, v))
+        if len(out) >= max_dims:
+            break
+    return out
+
+
+def ods_sample_record(host: str, dsid: str, timeout: int = 30) -> dict:
+    """One full record, for discovering a dataset's panel dimensions.
+
+    ``ods_probe`` selects the timestamp column alone, which is right for a
+    cheap freshness check and useless for finding the field that indexes a
+    panel. Fetched only when a candidate has already failed as panelled.
+    """
+    url = (f"https://{host}/api/explore/v2.1/catalog/datasets/{dsid}/records"
+           f"?limit=1")
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+        if r.status_code != 200:
+            return {}
+        res = (r.json() or {}).get("results") or []
+        return res[0] if res else {}
+    except Exception:                                         # noqa: BLE001
+        return {}
+
+
+def _ods_pin(entry: dict, name: str, value: str) -> dict:
+    """Opendatasoft v2.1 filter dialect: ``&where=col="value"``."""
+    entry["endpoint"]["url"] += "&where=" + quote(f'{name}="{value}"')
+    entry["id"] = f"{entry['id'][:56]}_{_slug(value, 6)}"[:64]
+    entry["name"] = f"{entry['name'][:70]} [{value[:18]}]"
+    entry["notes"] = (entry.get("notes", "") +
+                      f" Panel dimension {name} is pinned to {value!r}: without "
+                      f"it the response interleaves several series on the same "
+                      f"timestamps.")
+    return entry
+
+
+def _ckan_pin(entry: dict, name: str, value: str) -> dict:
+    """CKAN datastore_search dialect: ``&filters={"col":"value"}``."""
+    entry["endpoint"]["url"] += "&filters=" + quote(
+        json.dumps({name: value}, separators=(",", ":")))
+    entry["id"] = f"{entry['id'][:56]}_{_slug(value, 6)}"[:64]
+    entry["name"] = f"{entry['name'][:70]} [{value[:18]}]"
+    entry["notes"] = (entry.get("notes", "") +
+                      f" Panel dimension {name} is pinned to {value!r}.")
+    return entry
+
+
+def preflight_pinned(block: dict, dims, apply_filter, log=None
+                     ) -> tuple[Optional[dict], str]:
+    """Pre-flight a candidate, pinning a panel dimension if that is what fails.
+
+    A response of 100 rows carrying 4 distinct timestamps is one series per
+    zone or device interleaved. It clears a naive row count and is still
+    ambiguous — several values at the same instant with nothing to separate
+    them — so the wire gate rejects it. Pinning one dimension turns the same
+    dataset into a clean single series.
+
+    Measured 2026-08-13: this was the single largest skip bucket for the ODS
+    portals, and adding it took a harvest from 2 candidates to 5, unlocking
+    Brussels (device_id) and Paris (id_compteur) which had yielded nothing.
+    The Energinet pass needed the same fix, where pinning PriceArea rescued 5
+    of 13.
+
+    ``apply_filter(entry, name, value)`` returns a NEW entry with the API's own
+    filter syntax applied — ODS spells it ``&where=col="v"``, CKAN spells it
+    ``&filters={...}`` — so the caller owns the dialect.
+
+    Returns ``(block_or_None, reason)``; the block is the pinned one when
+    pinning was needed.
+    """
+    ok, why = preflight(block)
+    if ok:
+        return block, ""
+    if not looks_panelled(why):
+        return None, why
+    # dims may be a thunk: discovering them costs a request, and the happy
+    # path must not pay for it.
+    if callable(dims):
+        try:
+            dims = dims() or []
+        except Exception:                                     # noqa: BLE001
+            return None, f"{why} (panel; sample fetch failed)"
+    for name, value in dims:
+        try:
+            entry = yaml.safe_load(block["yaml_block"])[0]
+            pinned_entry = apply_filter(json.loads(json.dumps(entry)), name, value)
+        except Exception:                                     # noqa: BLE001
+            continue
+        if pinned_entry is None:
+            continue
+        cand = dict(block)
+        cand["yaml_block"] = yaml.dump([pinned_entry], sort_keys=False,
+                                       allow_unicode=True)
+        cand["candidate_name"] = pinned_entry.get("name", cand["candidate_name"])
+        ok2, _ = preflight(cand)
+        if ok2:
+            if log:
+                log(f"    pinned {name}={value[:24]}")
+            return cand, ""
+    return None, f"{why} (panel; no dimension pinned it)"
 
 
 def write_batch(candidates: list[dict], out_path: str) -> str:

@@ -2402,3 +2402,151 @@ def test_arcgis_extra_keywords_are_well_formed():
         assert dgp and dgp.islower()
         # the contamination denylist the Socrata list also respects
         assert not any(t in kw for t in ("traffic", "electricit", "weather")), kw
+
+
+def test_preflight_rejects_what_wire_would_reject(monkeypatch):
+    """The sweeps invent a URL and a schema and never fetch either; wire is the
+    first code that does. A live grind run found 3 candidates and wired 0 --
+    a year column chosen as a measure (numeric=0 over 1784 timestamps) and an
+    unconstrained ERDDAP query past the response cap. Both were one fetch away
+    from being visible at sweep time."""
+    import types
+    from source_discovery import wire
+
+    block = {"candidate_name": "x", "yaml_block": yaml.safe_dump([{
+        "id": "x", "domain": "nature", "frequency": "PT1H",
+        "endpoint": {"type": "rest_json", "url": "https://e.example/x"},
+        "schema": {"timestamp_field": "t", "value_field": ["v"]},
+    }])}
+
+    calls = {"n": 0}
+
+    def fake_verify(entry, sc):
+        calls["n"] += 1
+        return wire.VerifyResult(ok=False, rows=1785, distinct_ts=1784,
+                                 numeric_rows=0)
+
+    monkeypatch.setattr(wire, "verify_entry", fake_verify)
+    monkeypatch.setattr(wire, "_scraper", lambda: types.SimpleNamespace())
+    ok, why = bulk.preflight(block)
+    assert not ok and calls["n"] == 1
+    assert "numeric=0" in why and "ts=1784" in why
+
+
+def test_preflight_passes_a_good_candidate(monkeypatch):
+    import types
+    from source_discovery import wire
+
+    block = {"candidate_name": "x", "yaml_block": yaml.safe_dump([{
+        "id": "x", "domain": "nature", "frequency": "PT1H",
+        "endpoint": {"type": "rest_json", "url": "https://e.example/x"},
+        "schema": {"timestamp_field": "t", "value_field": ["v"]},
+    }])}
+    monkeypatch.setattr(wire, "verify_entry",
+                        lambda e, s: wire.VerifyResult(ok=True, rows=50,
+                                                       distinct_ts=50,
+                                                       numeric_rows=50))
+    monkeypatch.setattr(wire, "_scraper", lambda: types.SimpleNamespace())
+    assert bulk.preflight(block) == (True, "")
+
+
+def test_preflight_survives_a_raising_scraper(monkeypatch):
+    """A fetch that blows up must skip the candidate, not kill the sweep."""
+    import types
+    from source_discovery import wire
+
+    block = {"candidate_name": "x", "yaml_block": yaml.safe_dump([{
+        "id": "x", "endpoint": {"url": "https://e.example/x"}, "schema": {}}])}
+
+    def boom(entry, sc):
+        raise RuntimeError("response exceeded 50331648 byte cap")
+
+    monkeypatch.setattr(wire, "verify_entry", boom)
+    monkeypatch.setattr(wire, "_scraper", lambda: types.SimpleNamespace())
+    ok, why = bulk.preflight(block)
+    assert not ok and "byte cap" in why
+
+
+def test_preflight_handles_a_malformed_block():
+    ok, why = bulk.preflight({"yaml_block": "{{not yaml"})
+    assert not ok and "unparseable" in why
+
+
+def test_looks_panelled_detects_the_shape():
+    """100 rows over 4 timestamps is one series per zone interleaved."""
+    assert bulk.looks_panelled("preflight: rows=100 ts=4 numeric=100")
+    assert bulk.looks_panelled("preflight: rows=100 ts=15 numeric=100")
+    # A few duplicate stamps at the head of a rolling table is not a panel.
+    assert not bulk.looks_panelled("preflight: rows=100 ts=99 numeric=100")
+    assert not bulk.looks_panelled("preflight: stale at wire time")
+    assert not bulk.looks_panelled("")
+
+
+def test_panel_dims_picks_dimensions_not_prose_or_clocks():
+    rec = {"datetime": "2026-08-13T00:00:00Z", "device_id": "7186",
+           "zone": "north", "value": 12.5,
+           "description": "x" * 80, "timestamp": "2026-08-13"}
+    dims = bulk.panel_dims(rec, "datetime")
+    names = [n for n, _ in dims]
+    assert "device_id" in names and "zone" in names
+    assert "description" not in names, "long free text is prose, not a dimension"
+    assert "timestamp" not in names, "clock-shaped names are not dimensions"
+    assert "value" not in names, "numbers are measures"
+
+
+def test_preflight_pinned_rescues_a_panelled_candidate(monkeypatch):
+    """Measured 2026-08-13: this was the largest skip bucket for the ODS
+    portals, and adding it took a harvest from 2 candidates to 5."""
+    entry = {"id": "x", "name": "X", "domain": "energy", "frequency": "PT15M",
+             "endpoint": {"url": "https://h.example/records?limit=100"},
+             "schema": {}, "notes": ""}
+    block = {"candidate_name": "X", "yaml_block": yaml.safe_dump([entry])}
+    seen = []
+
+    def fake_preflight(b):
+        url = yaml.safe_load(b["yaml_block"])[0]["endpoint"]["url"]
+        seen.append(url)
+        if "where=" in url:
+            return True, ""
+        return False, "preflight: rows=100 ts=4 numeric=100"
+
+    monkeypatch.setattr(bulk, "preflight", fake_preflight)
+    out, why = bulk.preflight_pinned(block, [("zone", "north")], bulk._ods_pin)
+    assert out is not None and why == ""
+    assert 'where=zone%3D%22north%22' in seen[-1]
+    pinned = yaml.safe_load(out["yaml_block"])[0]
+    assert pinned["id"].endswith("north") and "[north]" in pinned["name"]
+
+
+def test_preflight_pinned_leaves_non_panel_failures_alone(monkeypatch):
+    """A stale or empty source is not rescued by pinning; retrying would just
+    spend requests to fail again."""
+    block = {"candidate_name": "X", "yaml_block": yaml.safe_dump([
+        {"id": "x", "name": "X", "endpoint": {"url": "https://h/x"},
+         "schema": {}}])}
+    calls = {"n": 0}
+
+    def fake_preflight(b):
+        calls["n"] += 1
+        return False, "preflight: stale at wire time: newest 2024-05-21"
+
+    monkeypatch.setattr(bulk, "preflight", fake_preflight)
+    out, why = bulk.preflight_pinned(block, [("zone", "north")], bulk._ods_pin)
+    assert out is None and "stale" in why
+    assert calls["n"] == 1, "must not retry a failure pinning cannot fix"
+
+
+def test_preflight_pinned_dims_are_lazy(monkeypatch):
+    """Discovering dimensions costs a request; the happy path must not pay."""
+    block = {"candidate_name": "X", "yaml_block": yaml.safe_dump([
+        {"id": "x", "name": "X", "endpoint": {"url": "https://h/x"},
+         "schema": {}}])}
+    fetched = {"n": 0}
+
+    def dims():
+        fetched["n"] += 1
+        return [("zone", "north")]
+
+    monkeypatch.setattr(bulk, "preflight", lambda b: (True, ""))
+    out, _ = bulk.preflight_pinned(block, dims, bulk._ods_pin)
+    assert out is block and fetched["n"] == 0
