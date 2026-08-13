@@ -445,26 +445,49 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.grind:
         import datetime as _dt
+        stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%d-%H%M")
+        out_dir = Path(args.out or ".")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        wired_names: list[str] = []
+        wire_reports: list[dict] = []
+
+        def _wire(blocks: list[dict]) -> int:
+            """Wire one batch; returns how many actually landed.
+
+            Feeding the count back is what lets the sweep keep going until the
+            run's target is genuinely met — wire re-verifies against the live
+            scraper, so submitting N never means N wired.
+            """
+            part = out_dir / f"grind-{stamp}-{len(wire_reports) + 1}.json"
+            bulk.write_batch(blocks, str(part))
+            rep = wire.wire_batch(str(part), args.catalog,
+                                  label=f"grind-{stamp}", apply=True)
+            wire_reports.append({"batch": str(part), **rep["counts"]})
+            wired_names.extend(d.get("name") for d in rep.get("detail", [])
+                               if d.get("verdict") == "wire")
+            return int(rep["counts"].get("wire", 0))
+
         plan = grind.run(args.catalog, target=args.grind_target,
                          minutes=args.grind_minutes,
                          n_domains=args.grind_domains,
+                         wire_fn=_wire if args.apply else None,
+                         stats_path=out_dir / grind.VEIN_STATS_NAME,
                          log=lambda m: print(m, file=sys.stderr))
-        stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%d-%H%M")
-        batch = Path(args.out or ".") / f"grind-{stamp}.json"
-        batch.parent.mkdir(parents=True, exist_ok=True)
-        bulk.write_batch(plan["ranked"], str(batch))
         report = {k: plan[k] for k in
-                  ("target_domains", "veins_run", "found", "surplus")}
-        report["batch"] = str(batch)
-        report["ranked"] = [b.get("candidate_name") for b in plan["ranked"]]
-        if plan["ranked"] and args.apply:
-            # wire re-verifies every candidate against the real scraper before
-            # anything reaches sources.yaml, so this is the same gate a manual
-            # wave goes through -- not a shortcut around it.
-            rep = wire.wire_batch(str(batch), args.catalog,
-                                  label=f"grind-{stamp}", apply=True)
-            report["wired"] = rep["counts"]
+                  ("target_domains", "veins_run", "found", "target", "wired",
+                   "met_target", "surplus")}
+        if args.apply:
+            report["wire_batches"] = wire_reports
+            report["wired_names"] = wired_names
+        else:
+            batch = out_dir / f"grind-{stamp}.json"
+            bulk.write_batch(plan["ranked"], str(batch))
+            report["batch"] = str(batch)
+            report["ranked"] = [b.get("candidate_name") for b in plan["ranked"]]
         print(json.dumps(report, indent=2))
+        if args.apply:
+            # Non-zero on a shortfall so cron can see a bad day in $?.
+            return 0 if plan["met_target"] else 1
         return 0 if plan["ranked"] else 1
 
     if args.pool_report:
