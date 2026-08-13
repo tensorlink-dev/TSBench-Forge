@@ -1,0 +1,28 @@
+# ── tsbench-forge → Hippius scrape host ──
+# This host ONLY scrapes and pushes raw data to the Hippius bucket. The cascade
+# eval-pool publish (cascade-pool publish) runs on the subnet-owner's cascade
+# infra, pulling FROM this bucket — see publish-pool.yml in the cascade repo.
+# Times are UTC. flock -n skips a run if the previous one is still going.
+MAILTO=""
+
+# Fast band: poll the every-minute live-snapshot feeds (unrecoverable if missed)
+# and append locally. No upload here. Id list comes from cron.yaml, so it tracks
+# the catalog automatically.
+* * * * * /usr/bin/flock -n /tmp/tsforge_scrape_fast.lock /root/cron/scrape_fast.sh
+
+# Full sweep every 15 min: scrape every source (rolling-window feeds backfill via
+# dedup) then mirror data/ + sources.yaml to Hippius S3.
+*/15 * * * * /usr/bin/flock -n /tmp/tsforge_scrape_all.lock /root/cron/scrape_all.sh
+
+# Daily freshness audit (report-only): newest observation vs declared cadence.
+20 6 * * * /usr/bin/flock -n /tmp/tsforge_audit.lock /root/cron/audit_daily.sh
+
+# Hourly log rotation: the scrape logs are append-only and unbounded (they had
+# reached 315MB combined); a full disk would look like a total upstream outage.
+7 * * * * /usr/bin/flock -n /tmp/tsforge_rotate.lock /root/cron/rotate_logs.sh
+
+# Daily eval-pool composition (report-only): eligible sources/series per domain,
+# the domain x cadence grid, the backlog still short of min_series_length, and a
+# fixed-seed sample draw. Runs after the audit; takes the SAME lock as
+# scrape_all so the two heavy parquet readers never overlap on this 4GB box.
+40 6 * * * /usr/bin/flock -n /tmp/tsforge_pool.lock /root/cron/pool_report.sh
