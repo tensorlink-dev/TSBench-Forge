@@ -163,6 +163,27 @@ Each run rewrites two derived files beside the round files:
   charts read: at hundreds of rounds, one ~100 KB fetch instead of one request
   per round. The per-round files stay the detailed record.
 
+### Live rounds via paracast (`src/paracast_client.py`)
+
+The scheduled path (DEC-TB-0001): instead of renting a GPU pod, a round fetches
+its forecasts from the [paracast](https://github.com/TensorLink-AI/paracast)
+serving endpoint — one HTTP panel over the open-weights TSFMs, plus its
+`ensemble` and `route` modes competing as the first-class rows
+`paracast-ensemble` / `paracast-router` — and scores everything **client-side**
+with the exact arithmetic above, so paracast rounds and pod rounds concatenate
+honestly on the shared challenge seed:
+
+```bash
+PARACAST_URL=https://<chute-url> python scripts/run_paracast_round.py \
+    --data-dir src/sources/data --publish --feedback all
+```
+
+`.github/workflows/paracast-round.yml` runs this twice daily after each scrape
+sweep and commits `docs/data/`, which is what makes the public leaderboard
+live. `--feedback` posts the realized truths back to paracast's `/feedback`,
+so its EWMA ensemble weights and router log learn from every benchmark round —
+the benchmark measures the ensemble while feeding it.
+
 ## 3. The source-discovery agent (`src/source_discovery/`)
 
 An autosearch-style LLM curation tool that keeps the catalog diverse and
