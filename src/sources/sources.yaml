@@ -89404,3 +89404,221 @@
   audit_slack_days: 21
   notes: One country-indicator lane of the shared ERVISS rates CSV, pinned with schema.where on countryname/indicator/age.
     Weeks are ISO year-week labels ('2026-W31'), resolved to the week's Monday.
+
+# -- wired batch: grind-20260814-0710 --
+- id: opendata_ods156_105
+  name: Individual incremental balancing energy bids (Historical data as of 22 [105]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%22105%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''105'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_12
+  name: Individual decremental balancing energy bids (Historical data as of 22 [12]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2212%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''12'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_prod_def_reg_jour_biom_reseau_grtgrd_auverg
+  name: Production Quotidienne Définitive et Régionalisée de Biométhane sur le [Auvergne-Rhône-Alp]
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/prod-def-reg-jour-biom-reseau-grtgrd/records?limit=100&order_by=date%20desc&where=nom_region%3D%22Auvergne-Rh%C3%B4ne-Alpes%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].production_biomethane
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: RTE open-data portal, dataset prod-def-reg-jour-biom-reseau-grtgrd.
+  license: RTE open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset prod-def-reg-jour-biom-reseau-grtgrd, ordered newest-first
+    on date; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a rolling
+    table returns the oldest rows and reads as a dead source. Panel dimension nom_region is pinned to ''Auvergne-Rhône-Alpes'':
+    without it the response interleaves several series on the same timestamps.'
+- id: data_42_station_meteo_toulouse_parc_compans_cafarelli
+  name: 42 Station météo Toulouse parc Compans Cafarelli (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/42-station-meteo-toulouse-parc-compans-cafarelli/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 42-station-meteo-toulouse-parc-compans-cafarelli.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 42-station-meteo-toulouse-parc-compans-cafarelli,
+    ordered newest-first on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion
+    order, which on a rolling table returns the oldest rows and reads as a dead source.'
+- id: data_53_station_meteo_toulouse_ponsan
+  name: 53 Station météo Toulouse Ponsan (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/53-station-meteo-toulouse-ponsan/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 53-station-meteo-toulouse-ponsan.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 53-station-meteo-toulouse-ponsan, ordered newest-first
+    on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source.'
+- id: opendata_real_time_air_quality_nitrogen_dioxide_no2_6551
+  name: Concentration moyenne horaire de dioxyde d’azote NO2 (qualité de l'air [6551]
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-nitrogen-dioxide-no2/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226551%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].timestamp
+    value_field:
+    - results[].value
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Brussels open-data portal, dataset real-time-air-quality-nitrogen-dioxide-no2.
+  license: Brussels open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset real-time-air-quality-nitrogen-dioxide-no2, ordered
+    newest-first on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order,
+    which on a rolling table returns the oldest rows and reads as a dead source. Panel dimension device_id
+    is pinned to ''6551'': without it the response interleaves several series on the same timestamps.'
+- id: opendata_real_time_air_quality_ozone_o3_6577
+  name: Concentration moyenne horaire d’ozone O3 (qualité de l'air en Région d [6577]
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-ozone-o3/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226577%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].timestamp
+    value_field:
+    - results[].value
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Brussels open-data portal, dataset real-time-air-quality-ozone-o3.
+  license: Brussels open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset real-time-air-quality-ozone-o3, ordered newest-first
+    on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source. Panel dimension device_id is pinned
+    to ''6577'': without it the response interleaves several series on the same timestamps.'
