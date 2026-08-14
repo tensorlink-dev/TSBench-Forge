@@ -2245,7 +2245,7 @@ def run_one(sid: str, dry_run: bool = False) -> int:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--id", help="single source id from sources.yaml")
+    ap.add_argument("--id", help="source id, or a comma-separated list, from sources.yaml")
     ap.add_argument("--all", action="store_true", help="run every source")
     ap.add_argument("--domain", help="only run sources in this domain")
     ap.add_argument("--dry-run", action="store_true",
@@ -2274,7 +2274,15 @@ def main() -> int:
 
     targets: Iterable[str]
     if args.id:
-        targets = [args.id]
+        # Comma-separated, so a caller with a fixed id list can poll it in ONE
+        # process. The fast band used to shell out once per id: ~18s of that
+        # 19s is importing pyarrow and httpx, so 69 sources serialised into a
+        # ~13 min pass against a 1-minute cron, and `flock -n` dropped twelve
+        # ticks in thirteen. The sources in that band are exactly the ones that
+        # return a single "now" instant, where a missed minute cannot be
+        # backfilled — so the band was defeating its own reason to exist.
+        # One id (no comma) behaves exactly as before.
+        targets = [t.strip() for t in args.id.split(",") if t.strip()]
     elif args.all:
         # Skip slow feeds already refreshed recently — see is_due().
         due = sources if args.force else [s for s in sources if is_due(s)]

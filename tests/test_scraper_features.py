@@ -1486,3 +1486,54 @@ def test_iso_yearweek_does_not_swallow_other_labels() -> None:
     for label in ("2026-99", "W14", "2026-08-13", "202614", "2026-W99"):
         got = scraper._epoch_to_iso(label)
         assert got == label, f"{label} was rewritten to {got}"
+
+
+# --------------------------------------------------------------------------- #
+# --id accepts a list
+# --------------------------------------------------------------------------- #
+
+def test_main_id_accepts_a_comma_separated_list(monkeypatch):
+    """One process for a whole fixed id list.
+
+    The fast band used to shell out once per id, and ~18s of each 19s run was
+    importing pyarrow and httpx, so 69 every-minute sources took ~13.5 min per
+    pass — on precisely the feeds whose missed minutes cannot be backfilled.
+    """
+    catalog = _fake_catalog(5)
+    monkeypatch.setattr(scraper, "load_sources", lambda *a, **k: catalog)
+    monkeypatch.setattr(scraper, "get_source",
+                        lambda sid: next(s for s in catalog if s["id"] == sid))
+    started = []
+    monkeypatch.setattr(scraper, "run_one",
+                        lambda sid, dry_run=False: started.append(sid))
+    monkeypatch.setattr(sys, "argv", ["scraper.py", "--id", "s0,s2,s4"])
+    assert scraper.main() == 0
+    assert started == ["s0", "s2", "s4"]
+
+
+def test_main_id_still_takes_a_single_id(monkeypatch):
+    catalog = _fake_catalog(3)
+    monkeypatch.setattr(scraper, "load_sources", lambda *a, **k: catalog)
+    monkeypatch.setattr(scraper, "get_source",
+                        lambda sid: next(s for s in catalog if s["id"] == sid))
+    started = []
+    monkeypatch.setattr(scraper, "run_one",
+                        lambda sid, dry_run=False: started.append(sid))
+    monkeypatch.setattr(sys, "argv", ["scraper.py", "--id", "s1"])
+    assert scraper.main() == 0
+    assert started == ["s1"]
+
+
+def test_main_id_list_tolerates_spacing_and_trailing_commas(monkeypatch):
+    # The list is assembled by a shell heredoc; a stray comma must not become
+    # an empty id that fails lookup and takes the whole band's run with it.
+    catalog = _fake_catalog(3)
+    monkeypatch.setattr(scraper, "load_sources", lambda *a, **k: catalog)
+    monkeypatch.setattr(scraper, "get_source",
+                        lambda sid: next(s for s in catalog if s["id"] == sid))
+    started = []
+    monkeypatch.setattr(scraper, "run_one",
+                        lambda sid, dry_run=False: started.append(sid))
+    monkeypatch.setattr(sys, "argv", ["scraper.py", "--id", " s0 , s1 ,"])
+    assert scraper.main() == 0
+    assert started == ["s0", "s1"]

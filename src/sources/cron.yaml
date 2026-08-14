@@ -70,6 +70,15 @@ schedules:
   - noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1045_hur
   - noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1069_hur
   - cioosatlantic_diamond_jubilee_cruise_ship_terminal_met
+  - mempool_unconfirmed_count
+  - tfl_line_status
+  - ttc_vehicle_speeds_snapshot
+  - bvg_alexanderplatz_departure_delays
+  - cnd_panama_generation_units
+  - irishrail_current_train_positions
+  - lichess_realtime_api
+  - steam_concurrent_players
+  - wsdot_ferry_locations
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -78,12 +87,10 @@ schedules:
   - nashville_fire_active_incidents
   - dallas_police_active_calls_volume
   - portland_911_dispatch_volume
-  - ttc_vehicle_speeds_snapshot
   cron: '*/3 * * * *'
 - every: PT5M
   sources:
   - opensky_states_local
-  - wsdot_ferry_locations
   - aemo_nem_5min
   - caiso_oasis_lmp_5min
   - nyiso_realtime_lmp_zonal
@@ -92,9 +99,7 @@ schedules:
   - polymarket_btc_history
   - nasdaq_trader_halts
   - caiso_grid_conditions
-  - lichess_realtime_api
   - ercot_supply_demand
-  - steam_concurrent_players
   - nyiso_realtime_zonal_load
   - nyiso_realtime_lbmp_zonal
   - nyiso_fuel_mix_5min
@@ -117,12 +122,10 @@ schedules:
   - gbfs_bluebikes_boston_station_status
   - digitraffic_finland_tms_traffic_5min
   - digitraffic_finland_ais_vessel_speeds
-  - bvg_alexanderplatz_departure_delays
   - gbfs_biketown_portland_station_status
   - gbfs_metro_bike_la_station_status
   - gbfs_wienmobil_vienna_station_status
   - gbfs_madison_bcycle_station_status
-  - irishrail_current_train_positions
   - eccc_hydrometric_realtime_water_level
   - taipower_generation_by_unit_10min
   - steam_top_games_concurrent_players
@@ -133,7 +136,6 @@ schedules:
   - longbeach_go_long_beach_service_requests
   - okiden_jp_demand_5min
   - hk_carpark_vacancy
-  - cnd_panama_generation_units
   - inex_ixp_traffic
   - lonap_ixp_traffic
   - grix_ixp_traffic
