@@ -5695,6 +5695,14 @@ def arcgis_sweep(
                 if block is None:
                     skipped.append({"id": host, "reason": "synthesise failed"})
                     continue
+                # The ArcGIS probe counts rows off its own query; it never
+                # exercises the URL and schema that get written. A live grind
+                # emitted a Charleston County calls layer on that basis and
+                # wire rejected it at 17 rows.
+                ok, why = preflight(block)
+                if not ok:
+                    skipped.append({"id": host, "reason": why[:110]})
+                    continue
                 taken_ids.add(yaml.safe_load(block["yaml_block"])[0]["id"])
                 known_layers.add(layer)
                 cands.append(block)
