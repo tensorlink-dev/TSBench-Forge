@@ -26,6 +26,11 @@
     # which is not the same as the catalog's composition:
     python -m source_discovery --pool-report [--pool-report-json out.json]
 
+    # Is the pipeline RUNNING (cron heartbeats, sweep outcomes, per-host
+    # failures, sources writing nothing)? Seconds, not minutes — unlike --audit
+    # it never opens a parquet:
+    python -m source_discovery --monitor [--monitor-json out.json] [--quiet]
+
     # Bulk-generate candidates from the Socrata federated catalog (no model);
     # writes a batch in --wire's own format, so pipe it straight into --wire:
     python -m source_discovery --bulk-socrata batch.json --bulk-target 60
@@ -40,11 +45,16 @@ import re
 from pathlib import Path
 import sys
 
-from . import (audit, bulk, coverage, grind, llm, pool_report, quality, runner,
-               wire)
+from . import (audit, bulk, coverage, grind, llm, monitor, pool_report, quality,
+               runner, wire)
 
 _DEFAULT_CATALOG = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "sources.yaml")
 _DEFAULT_DATA = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "data")
+_DEFAULT_CRON = os.path.join(os.path.dirname(__file__), os.pardir, "sources", "cron.yaml")
+# The audit/pool/grind logs live outside the repo, on the scrape host only.
+# --monitor skips those heartbeats where the directory is absent rather than
+# reporting three missing jobs on every developer machine.
+_DEFAULT_OPS_LOGS = os.environ.get("TSFORGE_OPS_LOGS", "/root/cron/logs")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -85,6 +95,17 @@ def main(argv: list[str] | None = None) -> int:
                          "min_series_length on disk), not of the catalog")
     ap.add_argument("--pool-report-json", metavar="FILE",
                     help="with --pool-report: also write the full report JSON")
+    ap.add_argument("--monitor", action="store_true",
+                    help="pipeline health: cron heartbeats, sweeps, failures, silence")
+    ap.add_argument("--monitor-json", metavar="FILE",
+                    help="with --monitor: also write the full report JSON")
+    ap.add_argument("--monitor-window-hours", type=float,
+                    default=monitor.DEFAULT_WINDOW_HOURS,
+                    help="with --monitor: failure-rollup window (default 24)")
+    ap.add_argument("--ops-log-dir", default=_DEFAULT_OPS_LOGS,
+                    help="with --monitor: dir holding audit/pool/grind logs")
+    ap.add_argument("--quiet", action="store_true",
+                    help="with --monitor: print only when there are findings")
     ap.add_argument("--audit", action="store_true",
                     help="freshness audit: newest observation on disk vs cadence")
     ap.add_argument("--audit-json", metavar="FILE",
@@ -511,6 +532,25 @@ def main(argv: list[str] | None = None) -> int:
             "ineligible_on_depth_by_domain", "sampled_by_domain",
             "sampled_by_cadence")}, indent=2))
         return 0 if not report["sample_error"] else 1
+
+    if args.monitor:
+        ops = args.ops_log_dir if os.path.isdir(args.ops_log_dir or "") else None
+        cron = _DEFAULT_CRON if os.path.exists(_DEFAULT_CRON) else None
+        report = monitor.build(args.catalog, args.data_dir, cron_path=cron,
+                               ops_log_dir=ops,
+                               window_hours=args.monitor_window_hours)
+        if args.monitor_json:
+            Path(args.monitor_json).write_text(json.dumps(report, indent=2) + "\n")
+        if args.quiet:
+            # Cron-friendly: silence on a healthy pipeline, one line otherwise,
+            # so a mailed run means something went wrong.
+            if report["findings"]:
+                print(monitor.summarize(report))
+                for f in report["findings"]:
+                    print(f"  [{f['severity']}] {f['check']}: {f['detail']}")
+        else:
+            print(monitor.render(report))
+        return {"ok": 0, "warn": 1, "critical": 2}[report["status"]]
 
     if args.audit:
         findings = audit.audit_catalog(args.catalog, args.data_dir)
