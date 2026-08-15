@@ -89622,3 +89622,161 @@
     on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
     rolling table returns the oldest rows and reads as a dead source. Panel dimension device_id is pinned
     to ''6577'': without it the response interleaves several series on the same timestamps.'
+
+# -- wired batch: grind-20260815-0710 --
+- id: opendata_ods156_3
+  name: Individual incremental balancing energy bids (Historical data as of 22 [3]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%223%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''3'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_54
+  name: Individual decremental balancing energy bids (Historical data as of 22 [54]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2254%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''54'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_prod_def_reg_jour_biom_reseau_grtgrd_norman
+  name: Production Quotidienne Définitive et Régionalisée de Biométhane sur le [Normandie]
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/prod-def-reg-jour-biom-reseau-grtgrd/records?limit=100&order_by=date%20desc&where=nom_region%3D%22Normandie%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].production_biomethane
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: RTE open-data portal, dataset prod-def-reg-jour-biom-reseau-grtgrd.
+  license: RTE open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset prod-def-reg-jour-biom-reseau-grtgrd, ordered newest-first
+    on date; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a rolling
+    table returns the oldest rows and reads as a dead source. Panel dimension nom_region is pinned to ''Normandie'':
+    without it the response interleaves several series on the same timestamps.'
+- id: data_12_station_meteo_toulouse_montaudran
+  name: 12 Station météo Toulouse Montaudran (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/12-station-meteo-toulouse-montaudran/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 12-station-meteo-toulouse-montaudran.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 12-station-meteo-toulouse-montaudran, ordered newest-first
+    on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source.'
+- id: data_02_station_meteo_toulouse_marengo
+  name: 02 Station météo Toulouse Marengo (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/02-station-meteo-toulouse-marengo/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 02-station-meteo-toulouse-marengo.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 02-station-meteo-toulouse-marengo, ordered newest-first
+    on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source.'
