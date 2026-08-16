@@ -325,6 +325,11 @@ _ENV_PLACEHOLDER_RE = re.compile(r"\{([A-Z][A-Z0-9_]+)\}")
 # refuse anything past the cap rather than materialising it.
 MAX_RESPONSE_BYTES = 48 * 1024 * 1024
 
+# Panel groups kept per poll, sorted-key order — see `_cap_panel_groups`. The
+# eval consumer takes 25; this keeps 2x as headroom against that cap moving.
+# Per-source override: `schema.max_panel_groups` (0 disables the cap).
+MAX_PANEL_GROUPS = int(os.environ.get("SCRAPER_MAX_PANEL_GROUPS") or 50)
+
 # Headers describing the *encoded* transfer must not be carried onto the
 # reconstructed response — the body we attach is already decoded.
 _TRANSFER_HEADERS = {"content-encoding", "content-length", "transfer-encoding"}
@@ -1480,14 +1485,19 @@ _DECIMAL_COMMA_RE = re.compile(r"^-?\d{1,3}(\.\d{3})*,\d+$")
 def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     """Parse a payload into records, then apply optional aggregation.
 
-    `schema.aggregate: {op: count|sum, bin: PT1H}` turns an irregular event
+    `schema.aggregate: {op: count|sum|mean, bin: PT1H}` turns an irregular event
     stream (per-event rows) into a regular per-bin series — count of events (or
-    sum of the value) in each time bin, preserving `_panel_*` grouping.
+    sum/mean of the value) in each time bin, preserving `_panel_*` grouping.
+    Use `mean` for intensive quantities (a delay, a temperature) where `sum`
+    would conflate the level with how many events happened to land in the bin.
 
     `schema.drop_null_values: true` drops records whose every value field is
     null/empty — for feeds that null-pad future periods to the end of the
     current year/day (SMARD weekly files): kept, those pad rows make the max
-    written timestamp always sit in the future, blinding the freshness audit."""
+    written timestamp always sit in the future, blinding the freshness audit.
+
+    `schema.max_panel_groups` caps how many panel groups a poll keeps; see
+    `_cap_panel_groups` for why the default is not "all of them"."""
     recs = _dispatch_parse(src, blob, content_type)
     schema = src.get("schema", {})
     if schema.get("snapshot_now"):
@@ -1595,7 +1605,51 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
         keep = re.compile(pattern)
         recs = [r for r in recs if keep.match(str(r.get("timestamp", "")))]
     agg = schema.get("aggregate")
-    return _aggregate_records(recs, agg) if agg else recs
+    recs = _aggregate_records(recs, agg) if agg else recs
+    return _cap_panel_groups(src.get("id", "?"), recs,
+                             schema.get("max_panel_groups", MAX_PANEL_GROUPS))
+
+
+def _cap_panel_groups(sid: str, records: list[dict], cap: int) -> list[dict]:
+    """Keep only the first `cap` panel groups per poll, in sorted key order.
+
+    The consumer takes `groupby(panel_cols, sort=True)` and keeps the first 25
+    of them, so scraping a 14,000-station panel delivers exactly 25 series and
+    discards the rest. Measured 2026-08-15: 200 sources held 187,934 series that
+    could never be reached — 95.5% of every row scraped, parsed and written on
+    every pass to be thrown away by the reader.
+
+    This does NOT measurably shorten the sweep: 710s before the cap and 710s
+    after, because the sweep is bound by fetch latency, not by parse or write
+    cost. The win is disk, memory and bucket bytes, and a reader that is no
+    longer choosing 25 series out of thousands by an ordering accident. If you
+    came here looking for the cause of sweeps running every 30 minutes against
+    a 15-minute cron, it was the S3 upload sharing the sweep's flock — fixed
+    2026-08-16 by moving it to its own cron job.
+
+    Sorted-key order is not arbitrary: matching the consumer's own ordering
+    means the groups kept here are exactly the ones it will select, so they go
+    on accumulating instead of churning against a different subset. The default
+    keeps 2x its cap as headroom. Groups already written stay on disk — this
+    only stops them growing.
+    """
+    if cap <= 0 or not records:
+        return records
+    panel_cols = sorted({c for r in records for c in r if c.startswith("_panel_")})
+    if not panel_cols:
+        return records
+
+    def _key(r: dict) -> tuple:
+        return tuple(str(r.get(c, "")) for c in panel_cols)
+
+    keys = {_key(r) for r in records}
+    if len(keys) <= cap:
+        return records
+    keep = set(sorted(keys)[:cap])
+    out = [r for r in records if _key(r) in keep]
+    log.info("%s: panel capped to %d of %d groups (%d of %d rows kept)",
+             sid, cap, len(keys), len(out), len(records))
+    return out
 
 
 def _aggregate_records(records: list[dict], agg: dict) -> list[dict]:
@@ -1625,8 +1679,14 @@ def _aggregate_records(records: list[dict], agg: dict) -> list[dict]:
     for key, sub in df.groupby(["_bin"] + panel_cols, sort=True):
         key = key if isinstance(key, tuple) else (key,)
         row = {"timestamp": pd.Timestamp(key[0]).isoformat()}
-        if op == "sum" and val_cols:
-            row["value"] = float(pd.to_numeric(sub[val_cols[0]], errors="coerce").sum())
+        if op in ("sum", "mean") and val_cols:
+            vals = pd.to_numeric(sub[val_cols[0]], errors="coerce").dropna()
+            if vals.empty:
+                # A bin whose every value failed to parse is absence of data,
+                # not a zero — emitting 0.0 would forge a level the feed never
+                # reported and drag the MASE denominator down with it.
+                continue
+            row["value"] = float(vals.sum() if op == "sum" else vals.mean())
         else:
             row["value"] = int(len(sub))
         for pc, kv in zip(panel_cols, key[1:]):
