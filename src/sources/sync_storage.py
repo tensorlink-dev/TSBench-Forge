@@ -44,6 +44,7 @@ import argparse
 import datetime as dt
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 # The forge dir holds ``sources.yaml`` and ``data/``; the mirror is rooted here
@@ -53,6 +54,16 @@ DATA_DIR = FORGE_DIR / "data"
 CATALOG_NAME = "sources.yaml"
 DEFAULT_ENDPOINT = "https://s3.hippius.com"
 DEFAULT_BUCKET = "tsbench-forge-sources"
+
+# Uploads run concurrently because this step is round-trip latency, not CPU or
+# bandwidth. Measured serial on 2026-08-16: 337s for ~600 files (~50 MB) at 4.5%
+# CPU — ~0.3s per file spent waiting on the endpoint. That mattered beyond the
+# wasted wall-clock: sync shared one flock with the 709s sweep, so the pair ran
+# 17.4 min against a 15-minute cron and `flock -n` dropped every intervening
+# tick. The whole catalog was being sampled at half its configured cadence.
+# boto3 *clients* are thread-safe (resources are not), so the shared client
+# below is the documented-correct thing to hand a pool.
+SYNC_UPLOAD_WORKERS = int(os.environ.get("SYNC_UPLOAD_WORKERS") or 8)
 
 
 def _endpoint() -> str:
@@ -125,6 +136,7 @@ def _upload(s3, bucket: str, forge_dir: Path, dry_run: bool) -> int:
     # Parquet is append-only (skip on size match); the catalog is rewritten in
     # place each scrape, so always re-upload it — its size can be unchanged
     # while contents differ (e.g. a disabled flag flip).
+    pending: list[tuple[str, Path, int]] = []
     for p in local:
         key = str(p.relative_to(forge_dir))
         size = p.stat().st_size
@@ -137,17 +149,49 @@ def _upload(s3, bucket: str, forge_dir: Path, dry_run: bool) -> int:
             uploaded += 1
             up_bytes += size
             continue
+        pending.append((key, p, size))
+
+    def _put(item: tuple[str, Path, int]):
+        key, p, size = item
         try:
             s3.upload_file(str(p), bucket, key)
-            uploaded += 1
-            up_bytes += size
+            return key, size, None
         except Exception as e:  # noqa: BLE001 — keep syncing the rest
-            print(f"FAILED {key}: {e}", file=sys.stderr)
-            failed += 1
+            return key, size, e
 
+    def _drain(items: list, workers: int) -> None:
+        nonlocal uploaded, failed, up_bytes
+        if not items:
+            return
+        if workers > 1 and len(items) > 1:
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                results = list(pool.map(_put, items))
+        else:
+            results = [_put(it) for it in items]
+        for key, size, err in results:
+            if err is None:
+                uploaded += 1
+                up_bytes += size
+            else:
+                print(f"FAILED {key}: {err}", file=sys.stderr)
+                failed += 1
+
+    # The catalog goes first and by itself. `local` is ordered to put it at the
+    # head so a consumer listing the bucket finds the file that interprets the
+    # data; a pool would not honour that, so it gets its own serial pass.
+    t0 = dt.datetime.now(dt.timezone.utc)
+    _drain([it for it in pending if it[0] == CATALOG_NAME], 1)
+    _drain([it for it in pending if it[0] != CATALOG_NAME], SYNC_UPLOAD_WORKERS)
+    took = (dt.datetime.now(dt.timezone.utc) - t0).total_seconds()
+
+    # Stamp the line with wall-clock and duration. The log used to carry neither,
+    # which is how a 337s serial upload sat inside the sweep's flock for weeks
+    # without anyone being able to see it from the log alone — the tell was only
+    # visible by diffing sweep-completion times in a different file.
     verb = "would upload" if dry_run else "uploaded"
-    print(f"{verb} {uploaded} files ({up_bytes/1e6:.1f} MB), "
-          f"{skipped} unchanged, {failed} failed -> {_endpoint()}/{bucket}")
+    print(f"{t0:%Y-%m-%d %H:%M:%S} {verb} {uploaded} files ({up_bytes/1e6:.1f} MB) "
+          f"in {took:.0f}s, {skipped} unchanged, {failed} failed "
+          f"-> {_endpoint()}/{bucket}", flush=True)
     return 1 if failed else 0
 
 
