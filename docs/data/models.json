@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "note": "Display metadata for leaderboard model ids. class: tsfm = time-series foundation model, classical = classical baseline panel.",
+  "note": "Display metadata for leaderboard model ids. class: tsfm = time-series foundation model, classical = classical baseline panel, ensemble = a paracast-served combination/routing row rather than a single model.",
   "models": {
     "toto2": { "name": "Toto-2", "class": "tsfm" },
     "tabpfn-ts": { "name": "TabPFN-TS", "class": "tsfm" },
@@ -13,6 +13,14 @@
     "sundial": { "name": "Sundial", "class": "tsfm" },
     "timesfm": { "name": "TimesFM-1", "class": "tsfm" },
     "chronos": { "name": "Chronos", "class": "tsfm" },
+    "toto2-313m": { "name": "Toto-2 313M", "class": "tsfm" },
+    "toto2-2.5b": { "name": "Toto-2 2.5B", "class": "tsfm" },
+    "tirex2": { "name": "TiRex-2", "class": "tsfm" },
+    "patchtst-fm-r1": { "name": "PatchTST-FM", "class": "tsfm" },
+    "flowstate-r1": { "name": "FlowState-R1", "class": "tsfm" },
+    "yinglong-300m": { "name": "YingLong 300M", "class": "tsfm" },
+    "paracast-ensemble": { "name": "Paracast ensemble", "class": "ensemble" },
+    "paracast-router": { "name": "Paracast router", "class": "ensemble" },
     "strong": { "name": "Strong baseline", "class": "classical" },
     "ewma": { "name": "EWMA", "class": "classical" },
     "drift": { "name": "Drift", "class": "classical" },
