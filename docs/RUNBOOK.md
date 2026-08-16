@@ -7,14 +7,14 @@ had no backup that was not on the same disk.
 
 ## What runs
 
-Seven scheduled jobs, all defined in [`ops/cron/crontab`](../ops/cron/crontab).
+Eight scheduled jobs, all defined in [`ops/cron/crontab`](../ops/cron/crontab).
 `flock -n` means a tick is skipped if the previous run is still going, so a
 slow run never stacks — but see **Tick dropping** below, because that same
 behaviour is how the schedule silently broke once already.
 
 | when | job | what it does | writes |
 |---|---|---|---|
-| every minute | `scrape_fast.sh` | polls only the `* * * * *` sources from `cron.yaml` — feeds that return a single "now" instant, where a skipped minute is unrecoverable. One scraper process for the whole band, not one per id | parquet |
+| every minute | `scrape_band.sh '* * * * *'` | the `* * * * *` group — feeds returning a single "now" instant, where a skipped minute is unrecoverable. 78 sources, 46–52s | parquet |
 | every 15 min | `scrape_all.sh` | sweeps every due source (8 workers, 12-minute start deadline). ~709s, so it occupies `:00`–`:12` of each quarter. **Scrape only** | parquet |
 | `:13,:28,:43,:58` | `sync_hippius.sh` | mirrors `data/` + `sources.yaml` to the Hippius bucket, ~62s | S3 |
 | 06:20 daily | `audit_daily.sh` | freshness audit: newest observation vs declared cadence | `logs/audit-<date>.json` |
@@ -26,6 +26,52 @@ behaviour is how the schedule silently broke once already.
 uncommitted changes**, so leaving the catalog dirty overnight silently costs a
 day of grind. It also pins `GRIND_BRANCH=main` and will refuse off that branch —
 worth knowing before leaving a feature branch checked out on this host.
+
+### Poll bands, and why `frequency` alone does nothing
+
+A band is the **only** way to poll faster than the 15-minute sweep. `--all`
+gates on `is_due()`, which returns True for anything hourly-or-faster, so a
+`PT5M` source and a `PT1M` source both get fetched every 15 minutes when the
+sweep is all that touches them. Declaring a fast cadence in `sources.yaml` buys
+nothing on its own.
+
+`cron.yaml` has described several bands for a long time, but until 2026-08-16
+only `* * * * *` was ever executed — every other group fell through to the
+sweep. That was invisible because it is not an error: the sources are polled,
+just not at the rate they claim. Measured before the fix: of 93 GBFS feeds
+declaring `PT5M`, exactly **one** was observing `PT5M`.
+
+Adding a band is two steps, and doing one without the other is the trap:
+
+1. put the ids in a `cron.yaml` group with that `cron:` expression, **and**
+2. add a crontab line running `scrape_band.sh '<expr>' <log-tag> <deadline>`.
+
+Groups slower than 15 minutes deliberately have no band — the sweep already
+polls them more often than they need.
+
+**Membership must be measured, not declared.** A source belongs in a band only
+if *we* are the bottleneck: its observed cadence equals our poll rate. A feed
+whose API returns timestamped history is publisher-limited — the sweep already
+backfills every point via dedup, and polling it faster buys literally nothing.
+When the `*/5` group was first examined it held 159 sources, of which **111 were
+publisher-limited**. It now holds the 48 that measure as poll-bound.
+
+### The minute tick has no headroom
+
+The every-minute band does 46–52s of fetching plus a ~18s interpreter import,
+against a 60s tick. It therefore sits *on* the cliff: baseline median gap 62s,
+almost exactly one tick, and **~20% of ticks are dropped even at rest**. This is
+a standing defect, not a recent one — it was 40% before the sweep/upload split
+on 2026-08-16, which halved it.
+
+The cliff is why the `*/5` band is checked in but **not scheduled**. Enabling it,
+even narrowed to 48 sources and 9s of work, took the minute band from 20% to
+82% dropped — and those are the feeds whose missed minutes cannot be recovered,
+so they outrank a 3× gain elsewhere.
+
+Buy headroom before scheduling anything else per-minute. The obvious target is
+the ~18s import paid on *every* invocation — 30% of the tick spent loading
+pyarrow and httpx — which a resident worker would pay once.
 
 ### Tick dropping
 

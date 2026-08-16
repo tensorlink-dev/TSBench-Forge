@@ -6097,7 +6097,14 @@ def ods_enum_sweep(
                           f"rows and reads as a dead source."),
             }
             block = {"candidate_name": entry["name"], "wireable": True,
-                     "cron_cadence": "P1D",
+                     # Was hardcoded "P1D" -- the same fabricated-cadence bug as
+                     # the frequency literal, one dict down. wire.py prefers
+                     # cron_cadence over frequency when placing the id, so a
+                     # constant here pinned every ODS source to the daily poller
+                     # no matter what it measured. cron_cadence_for() weighs the
+                     # measured cadence against publication lag: a 15-minute
+                     # series published in a nightly batch wants a nightly poll.
+                     "cron_cadence": cron_cadence_for(freq, age_days),
                      "yaml_block": yaml.dump([entry], sort_keys=False,
                                              allow_unicode=True),
                      "reason": f"{office} {dsid}"}
