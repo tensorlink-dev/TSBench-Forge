@@ -246,6 +246,7 @@ schedules:
   - energinet_electricityprodex5minrealtime_dk1
   - gbfs_bolt_bolt_technology_ou_brussels
   - statnett_physical_flow
+  - opendatasoft_fire_incidents_queensland
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -288,7 +289,6 @@ schedules:
   - elia_offshore_wind_15min
   - usgs_florida_dissolved_oxygen_15min
   - waterlevel_ie_opw_hydrometric_15min
-  - opendatasoft_fire_incidents_queensland
   - maryland_power_outages_by_county
   - tohoku_jp_demand_5min
   - rikuden_jp_demand_5min
@@ -490,6 +490,7 @@ schedules:
   - carbonintensity_gb_national
   - elexon_fuel_outturn
   - carbonintensity_gb_genmix
+  - opendata_referentiel_parkings_saemes
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -934,6 +935,31 @@ schedules:
   - smhi_25_89230
   - smhi_12_53530
   - smhi_12_77210
+  - opendata_real_time_air_quality_nitrogen_dioxide_no2_7186
+  - opendata_real_time_air_quality_pm25_fine_particulate_mat_6553
+  - opendata_comptage_velo_donnees_compteurs_100047
+  - opendata_part_enr_intensite_ges_conso_tr
+  - opendata_real_time_air_quality_pm10_fine_particulate_mat_6552
+  - anglet_opendatapaysbasque_comptage_velo_donnees_compteur_100048
+  - data_comptage_velo_donnees_compteurs_issy
+  - data_ex_vue_personnalisee_comptage_velo_et_pedestre_donn_300015
+  - opendata_fr_229200506_comptages_velos_pas_horaire_100041
+  - opendata_fr_229200506_comptages_velos_pas_journalier_100041
+  - ressources_qualite_de_lair
+  - spi_digitalwallonia_bornes_de_comptage_cyclistes_et_piet
+  - data_test_qualite_air_dashboard_gare_s
+  - data_transferts_certificats_d_immatriculation_des_vehicu
+  - data_dbu_afu_3_118110
+  - data_dbu_afu_6_889004
+  - data_dbu_afu_4_822104
+  - data_comptage_velo_donnees_compteurs_syndicat_des_mobili_100038
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30003175
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004819
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004824
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004825
+  - data_53_station_meteo_toulouse_ponsan
+  - opendata_real_time_air_quality_nitrogen_dioxide_no2_6551
+  - opendata_real_time_air_quality_ozone_o3_6577
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -2340,13 +2366,8 @@ schedules:
   - rte_eco2mix_national_cons_def
   - opendata_ods156_102
   - opendata_ods157_101
-  - opendata_real_time_air_quality_nitrogen_dioxide_no2_7186
-  - opendata_real_time_air_quality_pm25_fine_particulate_mat_6553
-  - opendata_comptage_velo_donnees_compteurs_100047
   - opendata_ods157_10
   - opendata_injections_regionales_quotidiennes_provisoires_76
-  - opendata_part_enr_intensite_ges_conso_tr
-  - opendata_real_time_air_quality_pm10_fine_particulate_mat_6552
   - data_62_station_meteo_toulouse_parc_maourine
   - data_37_station_meteo_toulouse_universite_paul_sabatier
   - data_food_service_inspection_temperature_observati_00_0_f
@@ -2417,30 +2438,12 @@ schedules:
   - www_air_quality_monitoring_data
   - www_registration_data_from_the_act_registry_of_bir
   - www_engineers_public_register
-  - anglet_opendatapaysbasque_comptage_velo_donnees_compteur_100048
   - data_dataairplqualiteairangers_bouche
-  - data_comptage_velo_donnees_compteurs_issy
-  - data_ex_vue_personnalisee_comptage_velo_et_pedestre_donn_300015
-  - opendata_fr_229200506_comptages_velos_pas_horaire_100041
-  - opendata_fr_229200506_comptages_velos_pas_journalier_100041
   - opendata_tableau_sterilisation_chats_2024
-  - opendata_referentiel_parkings_saemes
-  - ressources_qualite_de_lair
-  - spi_digitalwallonia_bornes_de_comptage_cyclistes_et_piet
   - app_production_quotidienne_consolidee_de_biomethane_sur
-  - data_test_qualite_air_dashboard_gare_s
-  - data_transferts_certificats_d_immatriculation_des_vehicu
   - data_comptages_des_passages_velos_a_pasteur_vers_a3
   - data_comptages_des_passages_velos_a_pasteur_vers_la_croi
   - data_comptages_des_passages_velo_paul_vaillant_couturier
-  - data_dbu_afu_3_118110
-  - data_dbu_afu_6_889004
-  - data_dbu_afu_4_822104
-  - data_comptage_velo_donnees_compteurs_syndicat_des_mobili_100038
-  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30003175
-  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004819
-  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004824
-  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004825
   - data_dataairplqualiteairangers_verriere
   - controllerdata_city_of_los_angeles_economic_data_real_gdp
   - controllerdata_joint_training_institute_jti_and_jo_jti
@@ -2707,9 +2710,6 @@ schedules:
   - opendata_ods157_12
   - opendata_prod_def_reg_jour_biom_reseau_grtgrd_auverg
   - data_42_station_meteo_toulouse_parc_compans_cafarelli
-  - data_53_station_meteo_toulouse_ponsan
-  - opendata_real_time_air_quality_nitrogen_dioxide_no2_6551
-  - opendata_real_time_air_quality_ozone_o3_6577
   - opendata_ods156_3
   - opendata_ods157_54
   - opendata_prod_def_reg_jour_biom_reseau_grtgrd_norman
