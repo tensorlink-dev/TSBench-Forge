@@ -89809,3 +89809,131 @@
   endpoint:
     url: https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&f=json
     type: rest_json
+
+# -- wired batch: grind-20260816-0713 --
+- id: opendata_ods156_32
+  name: Individual incremental balancing energy bids (Historical data as of 22 [32]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%2232%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''32'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_41
+  name: Individual decremental balancing energy bids (Historical data as of 22 [41]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2241%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''41'': without it the response
+    interleaves several series on the same timestamps.'
+- id: data_23_station_meteo_pibrac_bouconne_centre_equestre
+  name: 23 Station météo Pibrac Bouconne centre équestre (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/23-station-meteo-pibrac-bouconne-centre-equestre/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 23-station-meteo-pibrac-bouconne-centre-equestre.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 23-station-meteo-pibrac-bouconne-centre-equestre,
+    ordered newest-first on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion
+    order, which on a rolling table returns the oldest rows and reads as a dead source.'
+- id: data_13_station_meteo_toulouse_pech_david
+  name: 13 Station météo Toulouse Pech David (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/13-station-meteo-toulouse-pech-david/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 13-station-meteo-toulouse-pech-david.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 13-station-meteo-toulouse-pech-david, ordered newest-first
+    on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source.'
