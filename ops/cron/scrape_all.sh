@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# Cron A (full sweep): scrape every source once, then mirror to Hippius S3.
-# Rolling-window feeds (binance klines, event feeds, hourly/daily files) are
-# fully backfilled by dedup on each poll, so a 15-min cadence loses nothing for
-# them; the live-snapshot feeds are also swept here (their per-minute appends
-# from scrape_fast.sh get uploaded). Upload is size-diff based and append-only
-# (see sync_storage.py), so re-running is idempotent.
+# Cron A (full sweep): scrape every source once. Rolling-window feeds (binance
+# klines, event feeds, hourly/daily files) are fully backfilled by dedup on each
+# poll, so a 15-min cadence loses nothing for them; the live-snapshot feeds are
+# also swept here, on top of their per-minute appends from scrape_fast.sh.
+#
+# The Hippius mirror used to run here, inline. It is now Cron C
+# (sync_hippius.sh) on its own lock: the 337s serial upload plus this 709s sweep
+# came to 17.4 min against a 15-minute cron, so `flock -n` dropped every other
+# tick and the entire catalog was sampled at half its configured cadence. Keep
+# this script scrape-only -- anything added below eats the same headroom.
 set -uo pipefail
 
 REPO=/root/TSBench-Forge
@@ -29,10 +33,9 @@ source "$REPO/.venv/bin/activate"
 # If sweeps approach the deadline again, raise --deadline-minutes or split the
 # cadence tiers rather than adding workers.
 # --deadline-minutes: stop STARTING sources at 12 min so the run always exits
-# before the next tick with time left for the upload; cadence tracking means
-# anything skipped is simply due again next sweep.
+# before the next tick; cadence tracking means anything skipped is simply due
+# again next sweep. Moving the upload out (2026-08-16) freed ~5 min of tick, so
+# there is now room to raise this and cut the 20-60 sources left unstarted each
+# pass -- measure a few cycles at 15-min cadence before spending that headroom.
 python src/sources/scraper.py --all --workers 8 --deadline-minutes 12 \
     >> "$REPO/src/sources/data/_cron_all.log" 2>&1
-
-# Mirror data/ + sources.yaml to the Hippius bucket (tsbench-forge-sources).
-python src/sources/sync_storage.py >> "$REPO/src/sources/data/_cron_sync.log" 2>&1

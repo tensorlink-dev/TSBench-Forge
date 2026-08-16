@@ -7,32 +7,64 @@ had no backup that was not on the same disk.
 
 ## What runs
 
-Five scheduled jobs, all defined in [`ops/cron/crontab`](../ops/cron/crontab).
+Seven scheduled jobs, all defined in [`ops/cron/crontab`](../ops/cron/crontab).
 `flock -n` means a tick is skipped if the previous run is still going, so a
-slow run never stacks.
+slow run never stacks — but see **Tick dropping** below, because that same
+behaviour is how the schedule silently broke once already.
 
 | when | job | what it does | writes |
 |---|---|---|---|
-| every minute | `scrape_fast.sh` | polls only the `* * * * *` sources from `cron.yaml` — feeds that return a single "now" instant, where a skipped minute is unrecoverable | parquet |
-| every 15 min | `scrape_all.sh` | sweeps every due source (8 workers, 12-minute start deadline), then mirrors `data/` + `sources.yaml` to the Hippius bucket | parquet, S3 |
+| every minute | `scrape_fast.sh` | polls only the `* * * * *` sources from `cron.yaml` — feeds that return a single "now" instant, where a skipped minute is unrecoverable. One scraper process for the whole band, not one per id | parquet |
+| every 15 min | `scrape_all.sh` | sweeps every due source (8 workers, 12-minute start deadline). ~709s, so it occupies `:00`–`:12` of each quarter. **Scrape only** | parquet |
+| `:13,:28,:43,:58` | `sync_hippius.sh` | mirrors `data/` + `sources.yaml` to the Hippius bucket, ~62s | S3 |
 | 06:20 daily | `audit_daily.sh` | freshness audit: newest observation vs declared cadence | `logs/audit-<date>.json` |
-| 06:40 daily | `pool_report.sh` | eval-pool composition: eligible sources/series per domain, domain × cadence grid, depth backlog | `logs/pool-<date>.json` |
+| 06:43 daily | `pool_report.sh` | eval-pool composition: eligible sources/series per domain, domain × cadence grid, depth backlog | `logs/pool-<date>.json` |
+| 07:13 daily | `grind_daily.sh` | finds and wires new sources, commits (never pushes) | `sources.yaml`, `cron.yaml` |
 | hourly :07 | `rotate_logs.sh` | the scrape logs are append-only and unbounded; they once reached 315MB, and a full disk looks exactly like a total upstream outage | — |
 
-`grind_daily.sh` is checked in but **not scheduled** — it writes to the catalog
-and commits, so enabling it is a deliberate act. Add its line to
-`ops/cron/crontab` when you want it.
+`grind_daily.sh` **refuses to run when `sources.yaml` or `cron.yaml` have
+uncommitted changes**, so leaving the catalog dirty overnight silently costs a
+day of grind. It also pins `GRIND_BRANCH=main` and will refuse off that branch —
+worth knowing before leaving a feature branch checked out on this host.
+
+### Tick dropping
+
+`flock -n` skipping a tick is the intended behaviour for one slow run. It is a
+disaster when a job *routinely* overruns its interval, because nothing reports
+it: the job keeps succeeding, its own duration looks healthy, and only the gap
+between consecutive runs reveals that half of them never happened.
+
+This has now happened twice, both times halving the sampling rate of feeds whose
+missed observations cannot be backfilled:
+
+- **2026-08-14, the fast band.** `scrape_fast.sh` shelled out once per id at 19s
+  of import cost each, so a pass took ~13.5 min and twelve ticks in thirteen were
+  dropped. Fixed by passing the whole id list to one process.
+- **2026-08-16, the full sweep.** The Hippius upload ran inside `scrape_all.sh`
+  under the sweep's own lock: 709s sweep + 337s serial upload = 17.4 min against
+  a 15-minute cron. Every sweep completion for fifteen hours sat at `:27` or
+  `:57`. Fixed by parallelizing the upload (337s → 62s) *and* moving it to its
+  own job and its own lock, so a slow mirror can never delay a scrape again.
+
+**Diagnose this by diffing consecutive completion times, not durations.** Both
+times the durations looked perfectly healthy throughout. Keep `scrape_all.sh`
+scrape-only; anything added to it comes out of the same 15-minute budget.
 
 ### Lock discipline
 
-`pool_report.sh` takes **`scrape_all`'s** lock rather than its own, because
-indexing every parquet costs ~200s and ~1.1GB and must not run alongside eight
-scrape workers on a 4GB box. It waits up to 15 minutes and then skips the day:
-a missed report beats an OOM that also stops the scraper.
+Every job has its **own** lock. An earlier version of this runbook claimed
+`pool_report.sh` took `scrape_all`'s lock and waited up to 15 minutes for it;
+neither was true — it has always had `/tmp/tsforge_pool.lock`, and `flock -n`
+does not wait. What actually keeps the two heavy parquet readers apart is the
+**clock**, which makes their scheduled minutes load-bearing:
 
-`grind_daily.sh` deliberately does *not* take that lock — its sweeps are
-network-bound and hold only a candidate list, so blocking would waste the
-budget for no memory benefit.
+Since the sweep now runs every 15 minutes rather than every 30, it occupies 48
+minutes of every hour instead of 24. The only gaps are `:12`–`:15`, `:27`–`:30`,
+`:42`–`:45` and `:57`–`:00`, and `pool_report.sh` (`:43`) and `grind_daily.sh`
+(`:13`) are placed to start inside them. **Moving either without checking the
+sweep windows will overlap them with eight scrape workers**, and this box has an
+OOM history — 8 kills, most recently 2026-08-09 at 2.85GB, against 3.9GB total.
+Both are `nice -n 10`, which helps with CPU and does nothing for memory.
 
 ## Restoring on a fresh box
 
@@ -57,7 +89,7 @@ Nothing else is needed — the venv, the logs and the parquet tree all rebuild.
 
 | | where | survives disk loss |
 |---|---|---|
-| scraped parquet, `sources.yaml` | Hippius bucket, mirrored every 15 min | **yes** |
+| scraped parquet, `sources.yaml` | Hippius bucket, mirrored 4×/hour | **yes** |
 | code, cron scripts, crontab | this repo | **yes, once pushed** |
 | `.env` (~98 API keys) | the scrape host only | **no** |
 | `logs/`, `src/sources/discovered/` | the scrape host only | no — audit trail, not critical |
@@ -87,14 +119,28 @@ in `.env.example` as the recovery inventory and expect to re-issue.
 ## Health checks
 
 ```bash
-crontab -l                                    # the five jobs
+crontab -l                                    # the seven jobs
+diff <(crontab -l) ops/cron/crontab           # installed == checked in?
 tail -3 src/sources/data/_cron_all.log        # "sweep finished: N ok, 0 failed"
+tail -2 src/sources/data/_cron_sync.log       # timestamped, with upload duration
 tail -2 /root/cron/logs/audit.log             # ok / stale / unparsed counts
 tail -1 /root/cron/logs/pool.log              # eligible sources and series
 find src/sources/data -name "$(date -u +%F).parquet" | wc -l   # files written today
+
+# Is the schedule actually being honoured? Gaps must be 15 min, not 30.
+grep -a "sweep finished" src/sources/data/_cron_all.log | tail -5
 ```
 
 A healthy sweep line reads `N ok, 0 failed, 0 skipped` and finishes inside its
 15-minute window. "0 failed" counts sources that wrote a file, and retries mask
 transient upstream errors — the audit is the honest measure of whether a source
 is actually alive.
+
+The last check is the one that catches tick dropping, and it is worth running
+after any change to a scheduled job: a sweep can report a perfect `709s` on
+every line while half its ticks are being silently discarded.
+
+Drift between `/root/cron` and `ops/cron` is its own failure mode — twice a fix
+has been made to the deployed copy and not the checked-in one, leaving
+`install.sh` able to revert it on the next restore. The `diff` above is the
+cheap guard; run it before trusting the repo as the source of truth.
