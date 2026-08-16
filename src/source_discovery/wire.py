@@ -47,10 +47,15 @@ from typing import Any, Optional
 import yaml
 
 from . import config
+from .duration import period_seconds
 from .ledger import ledger_path as _ledger_path
 
 # Cadences that have their own cron group; anything slower rides the daily one.
 CRON_CADENCES = ("PT1M", "PT2M30S", "PT5M", "PT15M", "PT30M", "PT1H", "P1D")
+
+# Slowest cadence a new source may be wired at — see `_too_slow`. Override on a
+# single entry with `admit_slow: <reason>`; env var moves the bar globally.
+MAX_ADMISSION_PERIOD_S = int(os.environ.get("FORGE_MAX_ADMISSION_PERIOD_S") or 3600)
 
 # A non-wireable reason mentioning any of these ⇒ key-gated, not rejected.
 KEY_MARKERS = (
@@ -145,14 +150,45 @@ class VerifyResult:
         return dataclasses.asdict(self)
 
 
+def _too_slow(entry: dict) -> Optional[str]:
+    """Reject cadences that cannot reach the eval floor in reasonable time.
+
+    A window needs 320 observations before it is eligible at all, and 4160 to
+    afford full context. That is a count, not a duration, so cadence sets the
+    clock: a 5-minute feed qualifies in ~1 day and saturates in ~15, an hourly
+    feed qualifies in ~13 days, and a DAILY feed needs ~11 months to qualify
+    and 11 years to saturate. Same scraping cost, wildly different payoff.
+
+    Measured 2026-08-15: 1,409 of 2,982 live sources (47.3%) were daily or
+    slower — the single largest block in the catalog — and the wave added on
+    2026-08-13 was 40.6% daily. Sweep capacity is the scarce resource, so
+    spending it on a source that pays out next July is the wrong trade.
+
+    Set ``admit_slow: <reason>`` on an entry to override deliberately.
+    """
+    if entry.get("admit_slow"):
+        return None
+    freq = entry.get("frequency") or ""
+    period = period_seconds(freq)
+    if period is None or period <= MAX_ADMISSION_PERIOD_S:
+        return None
+    days_to_floor = 320 * period / 86_400
+    return (f"cadence {freq} is slower than the {MAX_ADMISSION_PERIOD_S // 3600}h "
+            f"admission bar: {days_to_floor:.0f} days to reach the 320-observation "
+            f"eval floor. Set admit_slow with a reason to override.")
+
+
 def verify_entry(entry: dict, scraper_mod=None) -> VerifyResult:
     """Replay one catalog entry through the real scraper and apply the gate.
 
-    The gate checks volume (rows / distinct timestamps / numeric) AND
-    freshness: the newest parsed observation must be inside the audit's
-    cadence-scaled staleness limit. Without the freshness leg, sources that
-    page oldest-first pass verification while fetching a frozen historical
+    The gate checks cadence, then volume (rows / distinct timestamps /
+    numeric), then freshness: the newest parsed observation must be inside the
+    audit's cadence-scaled staleness limit. Without the freshness leg, sources
+    that page oldest-first pass verification while fetching a frozen historical
     window — six such landed in the catalog before this check existed."""
+    slow = _too_slow(entry)
+    if slow:
+        return VerifyResult(ok=False, error=slow)
     sc = scraper_mod or _scraper()
     try:
         panel = entry.get("panel")

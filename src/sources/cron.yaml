@@ -73,7 +73,7 @@ schedules:
   - mempool_unconfirmed_count
   - tfl_line_status
   - ttc_vehicle_speeds_snapshot
-  - bvg_alexanderplatz_departure_delays
+  - bvg_alexanderplatz_line_delays
   - cnd_panama_generation_units
   - irishrail_current_train_positions
   - lichess_realtime_api
@@ -2710,6 +2710,11 @@ schedules:
   - data_53_station_meteo_toulouse_ponsan
   - opendata_real_time_air_quality_nitrogen_dioxide_no2_6551
   - opendata_real_time_air_quality_ozone_o3_6577
+  - opendata_ods156_3
+  - opendata_ods157_54
+  - opendata_prod_def_reg_jour_biom_reseau_grtgrd_norman
+  - data_12_station_meteo_toulouse_montaudran
+  - data_02_station_meteo_toulouse_marengo
   cron: 10 1 * * *
 - every: P1D
   sources:
@@ -2802,9 +2807,8 @@ schedules:
   - cneos_fireball_events
   - dol_ui_initial_claims_state
   - fdic_bank_failures_deposits
-  - gvp_holocene_eruptions
   - modrinth_fabric_api_version_downloads
-  - nifc_wildfire_incidents_current
+  - nifc_wildfire_discoveries_daily
   - noaa_crw_sst_daily_point
   - oecd_mei_composite_leading_indicators
   - ons_cpi_d7g7_monthly

@@ -508,6 +508,7 @@
     sample_freshness_hours: 0.5
   notes: Daily CSV file URL pattern with date. 11 zones per timestamp (CAPITL, CENTRL, etc.) — naturally hierarchical.
 - id: elia_solar_15min
+  notes: 'Panelled on region. ods032 returns all 14 Elia regions per timestamp, so an unpanelled limit=100 poll covers only ~8 distinct timestamps and dedupe on the whole row then collapses regions that happen to share a value - 288 observations accrued in 35 days. Panelled, each region is its own series at the full 96/day.'
   name: Belgian Elia per-region solar production (15-min)
   domain: energy
   dgp_class: generation_mix
@@ -524,6 +525,7 @@
   schema:
     timestamp_field: results[].datetime
     value_field: results[].measured
+    panel_field: results[].region
     variates: 1
   history_available: P5Y
   update_cadence_observed: 15 minutes
@@ -6427,6 +6429,8 @@
   license: public (autosearch-wired)
   notes: 'Autosearch grind wire. Polish GIOS air-quality getData. Screen''s sensor 92 returns 20 rows all-null (dead sensor); switched to active sensor 400 (Olawa PM10, ug/m3). Scraper extracted 20 distinct hourly '
 - id: gvp_holocene_eruptions
+  disabled: '2026-08-15'
+  disabled_reason: '2026-08-15: not a time series. 226 volcanoes x ~3 Holocene eruptions each, keyed on Volcano_Name over an irregular multi-century index; 35% of keys occur exactly once and none reach the 320-observation eval floor. Annual counts over the 1000-row sorted window would give ~60 points, still short forever.'
   audit_slack_days: 300
   name: Smithsonian Global Volcanism Program — volcanic eruption events
   domain: nature
@@ -6550,10 +6554,10 @@
   pretraining_novelty: clean
   license: public (autosearch-wired)
   notes: 'Autosearch grind wire. wireable: switched from the /project endpoint (single snapshot row, distinct=1) to /project/{id}/version, which returns 1165 versions each with date_published + numeric downloads. '
-- id: nifc_wildfire_incidents_current
+- id: nifc_wildfire_discoveries_daily
   name: nifc_fire_incidents
   domain: nature
-  dgp_class: wildfire_incident
+  dgp_class: wildfire_incident_rate
   archetypes:
   - non_stationary_regime
   frequency: P1D
@@ -6566,8 +6570,9 @@
     timestamp_field: features[].attributes.FireDiscoveryDateTime
     value_field: features[].attributes.IncidentSize
     variates: 1
-    panel_field:
-    - features[].attributes.UniqueFireIdentifier
+    aggregate:
+      op: count
+      bin: P1D
   pretraining_novelty: clean
   license: public (autosearch-wired)
   notes: 'Autosearch grind wire. FIXED value_field: guessed DailyAcres (and CalculatedAcres) are 100% null; IncidentSize has 565 numeric values across 650 features. FireDiscoveryDateTime is epoch-ms -> 618 distinc'
@@ -17209,19 +17214,25 @@
     - vehicle[].secsSinceReport
     panel_field: vehicle[].id
     snapshot_now: true
-- id: bvg_alexanderplatz_departure_delays
+- id: bvg_alexanderplatz_line_delays
   name: Berlin BVG — live departure delays at Alexanderplatz (transport.rest)
   domain: transport
   frequency: PT1M
   license: Keyless community REST API (v6.bvg.transport.rest) over VBB open data (CC-BY)
-  notes: Realtime delay (seconds) per upcoming departure at S+U Alexanderplatz, panel by tripId; snapshot_now stamps fetch time. drop_null_values removes schedule-only departures without a realtime prognosis.
+  notes: 'Realtime mean delay (seconds) per line at S+U Alexanderplatz, binned to PT1M. Panelled by line.name, NOT tripId - a tripId identifies one upcoming departure, so 70% of the 53,034 keys it produced were seen exactly once and none ever reached the eval floor. snapshot_now stamps fetch time. drop_null_values removes schedule-only departures without a realtime prognosis.'
   endpoint:
     url: https://v6.bvg.transport.rest/stops/900100003/departures?results=100&duration=120
     type: rest_json
   schema:
     value_field:
     - departures[].delay
-    panel_field: departures[].tripId
+    panel_field: departures[].line.name
+    aggregate:
+      op: mean
+      bin: PT1M   # must match the poll rate: this source is in the every-minute
+                  # band, and a bin wider than the poll interval puts several polls
+                  # (each with a different mean) in one bin, which dedupe keeps as
+                  # duplicate timestamps rather than folding.
     snapshot_now: true
     drop_null_values: true
 - id: ea_england_rainfall_15min
@@ -17529,7 +17540,7 @@
     url: https://gbfs.biketownpdx.com/gbfs/en/station_status.json
     type: rest_json
   schema:
-    timestamp_field: data.stations[].last_reported
+    timestamp_field: last_updated
     value_field:
     - data.stations[].num_bikes_available
     - data.stations[].num_docks_available
@@ -27031,7 +27042,7 @@
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: data.stations[].last_reported
+    timestamp_field: last_updated
     value_field:
     - data.stations[].num_bikes_available
     panel_field: data.stations[].station_id
@@ -57686,7 +57697,7 @@
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: data.stations[].last_reported
+    timestamp_field: last_updated
     value_field:
     - data.stations[].num_bikes_available
     panel_field: data.stations[].station_id
@@ -79058,7 +79069,7 @@
     auth: none
     rate_limit: null
   schema:
-    timestamp_field: data.stations[].last_reported
+    timestamp_field: last_updated
     value_field:
     - data.stations[].num_vehicles_available
     panel_field: data.stations[].station_id
@@ -89622,3 +89633,179 @@
     on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
     rolling table returns the oldest rows and reads as a dead source. Panel dimension device_id is pinned
     to ''6577'': without it the response interleaves several series on the same timestamps.'
+
+# -- wired batch: grind-20260815-0710 --
+- id: opendata_ods156_3
+  name: Individual incremental balancing energy bids (Historical data as of 22 [3]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%223%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''3'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_54
+  name: Individual decremental balancing energy bids (Historical data as of 22 [54]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2254%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''54'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_prod_def_reg_jour_biom_reseau_grtgrd_norman
+  name: Production Quotidienne Définitive et Régionalisée de Biométhane sur le [Normandie]
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/prod-def-reg-jour-biom-reseau-grtgrd/records?limit=100&order_by=date%20desc&where=nom_region%3D%22Normandie%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].production_biomethane
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: RTE open-data portal, dataset prod-def-reg-jour-biom-reseau-grtgrd.
+  license: RTE open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset prod-def-reg-jour-biom-reseau-grtgrd, ordered newest-first
+    on date; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a rolling
+    table returns the oldest rows and reads as a dead source. Panel dimension nom_region is pinned to ''Normandie'':
+    without it the response interleaves several series on the same timestamps.'
+- id: data_12_station_meteo_toulouse_montaudran
+  name: 12 Station météo Toulouse Montaudran (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/12-station-meteo-toulouse-montaudran/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 12-station-meteo-toulouse-montaudran.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 12-station-meteo-toulouse-montaudran, ordered newest-first
+    on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source.'
+- id: data_02_station_meteo_toulouse_marengo
+  name: 02 Station météo Toulouse Marengo (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/02-station-meteo-toulouse-marengo/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: ''
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 02-station-meteo-toulouse-marengo.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 02-station-meteo-toulouse-marengo, ordered newest-first
+    on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source.'
+- id: bvg_alexanderplatz_departure_delays
+  disabled: '2026-08-15'
+  disabled_reason: '2026-08-15: retired, superseded by bvg_alexanderplatz_line_delays. The panel key was an event id (departures[].tripId), so keys never repeated and no series ever formed. The replacement changes the panel column, and the bucket sync is append-only - the old rows cannot be retracted, and a file mixing both panel columns makes the reader''s groupby(dropna=True) drop every row. Hence a new id rather than an in-place fix.'
+  name: bvg_alexanderplatz_departure_delays (retired)
+  domain: transport
+  frequency: PT1M
+  endpoint:
+    url: https://v6.bvg.transport.rest/stops/900100003/departures?results=100&duration=120
+    type: rest_json
+- id: nifc_wildfire_incidents_current
+  disabled: '2026-08-15'
+  disabled_reason: '2026-08-15: retired, superseded by nifc_wildfire_discoveries_daily. The panel key was an event id (features[].attributes.UniqueFireIdentifier), so keys never repeated and no series ever formed. The replacement changes the panel column, and the bucket sync is append-only - the old rows cannot be retracted, and a file mixing both panel columns makes the reader''s groupby(dropna=True) drop every row. Hence a new id rather than an in-place fix.'
+  name: nifc_wildfire_incidents_current (retired)
+  domain: nature
+  frequency: P1D
+  endpoint:
+    url: https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&f=json
+    type: rest_json

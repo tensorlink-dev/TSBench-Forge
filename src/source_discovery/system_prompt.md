@@ -47,7 +47,13 @@ Build a coverage matrix from `CURRENT_SOURCES` across these axes:
   health/epidemiology, retail/demand, web/infra telemetry, IoT/sensor,
   economics, agriculture, etc.)
 - **Frequency** (sub-minute, minute, hourly, daily, weekly, monthly, quarterly,
-  irregular/event-driven)
+  irregular/event-driven). **Propose nothing slower than hourly.** Eligibility
+  is counted in observations, not elapsed time: a window needs 320 of them, so
+  a 5-minute feed qualifies in about a day and an hourly one in under two
+  weeks, while a daily feed needs eleven months and a weekly feed six years.
+  The wire step rejects anything slower than `PT1H` outright. If a slow source
+  is genuinely worth it, say so in `reason` — the override is deliberate and
+  needs a justification, not a default.
 - **Horizon suitability** (does the source support short, medium, and long
   forecast horizons given its length?)
 - **Seasonality structure** (multi-seasonal, single, none, regime-switching)

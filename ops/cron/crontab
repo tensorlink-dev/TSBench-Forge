@@ -11,8 +11,16 @@ MAILTO=""
 * * * * * /usr/bin/flock -n /tmp/tsforge_scrape_fast.lock /root/cron/scrape_fast.sh
 
 # Full sweep every 15 min: scrape every source (rolling-window feeds backfill via
-# dedup) then mirror data/ + sources.yaml to Hippius S3.
+# dedup). Runs ~709s. Scrape only — the upload is a separate job below, because
+# sharing this lock with it put the pair at 17.4 min against a 15-minute tick and
+# flock -n silently dropped every other run, halving the catalog's sample rate.
 */15 * * * * /usr/bin/flock -n /tmp/tsforge_scrape_all.lock /root/cron/scrape_all.sh
+
+# Mirror data/ + sources.yaml to Hippius S3, on its own lock so a slow upload
+# can never delay a scrape. Offset ~1 min past each sweep's finish. Safe to
+# overlap a sweep: parquet writes are atomic and the sync is size-diff
+# idempotent, so a file caught mid-growth just re-sends next pass.
+13,28,43,58 * * * * /usr/bin/flock -n /tmp/tsforge_sync.lock /root/cron/sync_hippius.sh
 
 # Daily freshness audit (report-only): newest observation vs declared cadence.
 20 6 * * * /usr/bin/flock -n /tmp/tsforge_audit.lock /root/cron/audit_daily.sh
@@ -23,12 +31,22 @@ MAILTO=""
 
 # Daily eval-pool composition (report-only): eligible sources/series per domain,
 # the domain x cadence grid, the backlog still short of min_series_length, and a
-# fixed-seed sample draw. Runs after the audit; takes the SAME lock as
-# scrape_all so the two heavy parquet readers never overlap on this 4GB box.
-40 6 * * * /usr/bin/flock -n /tmp/tsforge_pool.lock /root/cron/pool_report.sh
+# fixed-seed sample draw. Runs after the audit.
+#
+# NB the old comment here claimed this took the same lock as scrape_all "so the
+# two heavy parquet readers never overlap on this 4GB box" — it never did, it
+# has always had its own lock. What actually kept them apart was the clock: at
+# :40 it sat in the gap between sweeps ending :27 and starting :45. Splitting
+# the upload out (2026-08-16) moved sweeps to :00/:15/:30/:45, which would have
+# put a sweep across :30-:42 straight through this job's start, so it moves to
+# :43 to sit in the new gap. This box has an OOM history (8 kills, last
+# 2026-08-09 at 2.85GB) and a sweep peaks near 700MB — keep them off each other.
+43 6 * * * /usr/bin/flock -n /tmp/tsforge_pool.lock /root/cron/pool_report.sh
 
 # Daily source grind: find new sources steered at the thinnest domains, wire
 # the survivors, commit (never pushes). Target 5, floor 2 — under the floor
 # means the veins stopped producing rather than a quiet day. Refuses to run on
 # a dirty catalog or off GRIND_BRANCH, and stages only sources.yaml+cron.yaml.
-10 7 * * * /usr/bin/flock -n /tmp/tsforge_grind.lock /root/cron/grind_daily.sh
+# Moved :10 -> :13 with pool_report above, for the same reason: sweeps now run
+# :00-:12 and this used to start in the clear.
+13 7 * * * /usr/bin/flock -n /tmp/tsforge_grind.lock /root/cron/grind_daily.sh
