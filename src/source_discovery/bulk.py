@@ -5809,6 +5809,75 @@ def ods_sample_record(host: str, dsid: str, timeout: int = 30) -> dict:
         return {}
 
 
+_ODS_CADENCE_PROBE = 24     # newest N records — enough for a stable median gap
+
+
+def ods_cadence(host: str, dsid: str, ts_field: str, timeout: int = 30
+                ) -> tuple[Optional[str], Optional[float], Optional[float]]:
+    """Observed cadence of a dataset, from its newest records.
+
+    Returns ``(frequency, median_gap_seconds, age_days)``, or three ``None`` if
+    the dataset will not yield two parseable timestamps.
+
+    This exists because the vein below used to stamp a hardcoded ``"PT15M"`` on
+    every entry it emitted. Measured 2026-08-16: three of the twenty sources the
+    daily grind had wired were daily feeds carrying that label, and their titles
+    said so outright -- "Production Quotidienne", "injections regionales
+    quotidiennes". Their real median gap is 1440 minutes.
+
+    A fabricated cadence is not a cosmetic error. ``frequency`` picks the poll
+    group (so a daily feed gets fetched 96x a day for one new point), fills the
+    coverage matrix's cadence cells, is consumed downstream by the eval
+    consumer, and is what the wire step's slower-than-hourly admission bar
+    reads -- so a wrong label walks straight through the gate. Measure it, or
+    decline to claim it: callers should skip a candidate this cannot measure
+    rather than fall back to a guess, which is the bug it replaces.
+
+    Costs one request per surviving candidate. ``ods_sample_record`` cannot be
+    reused for it: that one fetches ``limit=1`` in insertion order, which on a
+    rolling table is the oldest row.
+
+    The query groups by the timestamp column so the response is N *distinct*
+    instants. Asking for plain records instead would measure panel width, not
+    cadence: Elia's ods156 carries ~54 ranks per instant, so its newest 24 rows
+    are all one timestamp and the gap would be unmeasurable on a feed that is
+    perfectly healthy at 15 minutes. Portals that reject ``group_by`` fall back
+    to de-duplicating rows client-side, which is only wrong for panels wider
+    than the record cap.
+    """
+    base = f"https://{host}/api/explore/v2.1/catalog/datasets/{dsid}/records"
+    order = quote(ts_field + " desc")
+    attempts = (
+        f"{base}?select={quote(ts_field)}&group_by={quote(ts_field)}"
+        f"&order_by={order}&limit={_ODS_CADENCE_PROBE}",
+        f"{base}?limit={ODS_ENUM_LIMIT}&order_by={order}",
+    )
+    stamps: list[dt.datetime] = []
+    for url in attempts:
+        try:
+            r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout)
+            if r.status_code != 200:
+                continue
+            rows = (r.json() or {}).get("results") or []
+        except Exception:                                     # noqa: BLE001
+            continue
+        stamps = sorted({t for t in (_parse_iso(row.get(ts_field))
+                                     for row in rows) if t is not None},
+                        reverse=True)
+        if len(stamps) >= 2:
+            break
+    if len(stamps) < 2:
+        return None, None, None
+    gaps = [(stamps[i] - stamps[i + 1]).total_seconds()
+            for i in range(len(stamps) - 1)]
+    median = float(statistics.median(gaps))
+    if median <= 0:
+        return None, None, None
+    age_days = ((dt.datetime.now(dt.timezone.utc) - stamps[0]).total_seconds()
+                / 86400.0)
+    return freq_from_delta(median), median, age_days
+
+
 def _ods_pin(entry: dict, name: str, value: str) -> dict:
     """Opendatasoft v2.1 filter dialect: ``&where=col="value"``."""
     entry["endpoint"]["url"] += "&where=" + quote(f'{name}="{value}"')
@@ -5990,6 +6059,14 @@ def ods_enum_sweep(
             if url in known:
                 skipped.append({"id": dsid, "reason": "already wired"})
                 continue
+            # Measure the cadence rather than assert one -- see ods_cadence.
+            # A candidate whose cadence cannot be measured is skipped, not
+            # guessed at: guessing is precisely the bug this replaces.
+            freq, median_gap, age_days = ods_cadence(host, dsid, ts)
+            time.sleep(sleep_s)
+            if not freq:
+                skipped.append({"id": dsid, "reason": "cadence unmeasurable"})
+                continue
             sid = _slug(f"{host.split('.')[0]}_{dsid}", 56)[:64]
             if sid in taken_ids:
                 sid = f"{sid[:58]}_{_slug(ts, 4)}"[:64]
@@ -5998,14 +6075,17 @@ def ods_enum_sweep(
                 "name": f"{title[:80]} ({office}, {country})",
                 "domain": domain, "dgp_class": dgp,
                 "archetypes": ["non_stationary_regime", "smooth_periodic"],
-                "frequency": "PT15M",
+                "frequency": freq,
                 "endpoint": {"type": "rest_json", "url": url, "auth": "none",
                              "rate_limit": "polite", "timeout": 90},
                 "schema": {"timestamp_field": f"results[].{ts}",
                            "value_field": [f"results[].{v}" for v in vals],
                            "drop_null_values": True, "variates": len(vals)},
                 "history_available": f"{ODS_ENUM_LIMIT} newest points per call",
-                "update_cadence_observed": "",
+                "update_cadence_observed": (
+                    f"median gap {median_gap / 60:.0f} min over "
+                    f"{_ODS_CADENCE_PROBE} newest records, newest "
+                    f"{age_days:.1f}d old (probed at wire time)"),
                 "pretraining_novelty": "unknown",
                 "novelty_notes": f"{office} open-data portal, dataset {dsid}.",
                 "license": f"{office} open data",
@@ -6017,7 +6097,14 @@ def ods_enum_sweep(
                           f"rows and reads as a dead source."),
             }
             block = {"candidate_name": entry["name"], "wireable": True,
-                     "cron_cadence": "P1D",
+                     # Was hardcoded "P1D" -- the same fabricated-cadence bug as
+                     # the frequency literal, one dict down. wire.py prefers
+                     # cron_cadence over frequency when placing the id, so a
+                     # constant here pinned every ODS source to the daily poller
+                     # no matter what it measured. cron_cadence_for() weighs the
+                     # measured cadence against publication lag: a 15-minute
+                     # series published in a nightly batch wants a nightly poll.
+                     "cron_cadence": cron_cadence_for(freq, age_days),
                      "yaml_block": yaml.dump([entry], sort_keys=False,
                                              allow_unicode=True),
                      "reason": f"{office} {dsid}"}

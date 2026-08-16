@@ -2572,3 +2572,121 @@ def test_ods_enum_host_cap_defaults_to_two():
     effective coverage -- that metric counts at most five per host."""
     import inspect
     assert inspect.signature(bulk.ods_enum_sweep).parameters["host_cap"].default == 2
+
+
+# --------------------------------------------------------------------------- #
+# ods_enum cadence — the vein must MEASURE frequency, never assert one
+# --------------------------------------------------------------------------- #
+class _Resp:
+    def __init__(self, payload, status=200):
+        self._p, self.status_code = payload, status
+
+    def json(self):
+        return self._p
+
+
+def _stub_ods_catalog(monkeypatch, calls=None):
+    """One dataset on one host, so the sweep reaches the entry-building code."""
+    def fake_get(url, **kw):
+        if calls is not None:
+            calls.append(url)
+        if "/catalog/datasets?" in url or url.endswith("/catalog/datasets"):
+            return _Resp({"results": [{"dataset_id": "ds1",
+                                       "metas": {"default": {"title": "DS One"}}}]})
+        return _Resp({"results": []})
+    monkeypatch.setattr(bulk.requests, "get", fake_get)
+
+
+@pytest.mark.parametrize("median_s, expected", [
+    (60, "PT1M"),
+    (300, "PT5M"),
+    (900, "PT15M"),
+    (3600, "PT1H"),
+])
+def test_ods_enum_frequency_follows_the_measurement(tmp_path, monkeypatch,
+                                                    median_s, expected):
+    """The emitted frequency must track the observed gap, not a constant.
+
+    The vein used to hardcode "PT15M" on every entry. Of the 69 sources that
+    shipped with that label, 36 were something else -- 22 hourly, 8 daily, one
+    weekly, and 4 that were actually FASTER and so were being under-polled.
+    `frequency` picks the poll group, fills the coverage matrix's cadence cells,
+    is read downstream by the eval publisher, and is what the wire step's
+    slower-than-hourly admission bar checks -- so a fabricated label walks
+    straight through that gate. Parametrised because a single case would still
+    pass against a constant.
+    """
+    cat = tmp_path / "sources.yaml"
+    cat.write_text("[]\n")
+    _stub_ods_catalog(monkeypatch)
+    monkeypatch.setattr(bulk, "ods_sample_record",
+                        lambda host, dsid, timeout=30: {"datetime": "2026-08-16T00:00:00+00:00",
+                                                        "value": 1.0})
+    monkeypatch.setattr(bulk, "ods_cadence",
+                        lambda host, dsid, ts, timeout=30:
+                        (bulk.freq_from_delta(median_s), float(median_s), 0.1))
+    # The vein preflights every candidate against the live endpoint, and
+    # preflight now also enforces the hourly admission bar. Neither is what this
+    # test is about, so it is stubbed and the cases stay at or under that bar.
+    monkeypatch.setattr(bulk, "preflight", lambda block: (True, "ok"))
+
+    cands, _ = bulk.ods_enum_sweep(
+        str(cat), hosts=[("h.example", "Office", "XX", "energy", "generation_mix")],
+        host_cap=1, scan=1, sleep_s=0)
+    assert len(cands) == 1, cands
+    entry = yaml.safe_load(cands[0]["yaml_block"])[0]
+    assert entry["frequency"] == expected
+    assert "median" in entry["update_cadence_observed"]
+    # cron_cadence was hardcoded "P1D" alongside the frequency literal, which
+    # pinned every ODS source to the daily poller whatever it measured.
+    assert cands[0]["cron_cadence"] == bulk.cron_cadence_for(expected, 0.1)
+
+
+def test_ods_enum_skips_a_candidate_whose_cadence_cannot_be_measured(tmp_path,
+                                                                     monkeypatch):
+    """Unmeasurable must mean skipped, not guessed.
+
+    Falling back to a default is exactly the bug this replaces: a guess is
+    indistinguishable downstream from a measurement, and nothing in the
+    pipeline ever contradicts it.
+    """
+    cat = tmp_path / "sources.yaml"
+    cat.write_text("[]\n")
+    _stub_ods_catalog(monkeypatch)
+    monkeypatch.setattr(bulk, "ods_sample_record",
+                        lambda host, dsid, timeout=30: {"datetime": "2026-08-16T00:00:00+00:00",
+                                                        "value": 1.0})
+    monkeypatch.setattr(bulk, "ods_cadence",
+                        lambda host, dsid, ts, timeout=30: (None, None, None))
+    monkeypatch.setattr(bulk, "preflight", lambda block: (True, "ok"))
+
+    cands, skipped = bulk.ods_enum_sweep(
+        str(cat), hosts=[("h.example", "Office", "XX", "energy", "generation_mix")],
+        host_cap=1, scan=1, sleep_s=0)
+    assert cands == []
+    assert any("cadence" in s["reason"] for s in skipped), skipped
+
+
+def test_ods_cadence_asks_for_distinct_timestamps_first(monkeypatch):
+    """The probe must group by the timestamp column.
+
+    Plain records measure PANEL WIDTH, not cadence: Elia's ods156 carries ~54
+    ranks per instant, so its newest 24 rows are all one timestamp and a
+    perfectly healthy 15-minute feed reads as unmeasurable.
+    """
+    seen: list[str] = []
+
+    def fake_get(url, **kw):
+        seen.append(url)
+        return _Resp({"results": [
+            {"datetime": "2026-08-16T00:30:00+00:00"},
+            {"datetime": "2026-08-16T00:15:00+00:00"},
+            {"datetime": "2026-08-16T00:00:00+00:00"},
+        ]})
+    monkeypatch.setattr(bulk.requests, "get", fake_get)
+
+    freq, median, age = bulk.ods_cadence("h.example", "ds1", "datetime")
+    assert freq == "PT15M"
+    assert median == 900.0
+    assert age is not None
+    assert "group_by" in seen[0], seen[0]

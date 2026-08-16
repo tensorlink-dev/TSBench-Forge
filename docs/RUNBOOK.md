@@ -7,14 +7,15 @@ had no backup that was not on the same disk.
 
 ## What runs
 
-Seven scheduled jobs, all defined in [`ops/cron/crontab`](../ops/cron/crontab).
+Eight scheduled jobs, all defined in [`ops/cron/crontab`](../ops/cron/crontab).
 `flock -n` means a tick is skipped if the previous run is still going, so a
 slow run never stacks — but see **Tick dropping** below, because that same
 behaviour is how the schedule silently broke once already.
 
 | when | job | what it does | writes |
 |---|---|---|---|
-| every minute | `scrape_fast.sh` | polls only the `* * * * *` sources from `cron.yaml` — feeds that return a single "now" instant, where a skipped minute is unrecoverable. One scraper process for the whole band, not one per id | parquet |
+| every minute | `scrape_band.sh '* * * * *'` | the `* * * * *` group — feeds returning a single "now" instant, where a skipped minute is unrecoverable. 78 sources, 46–52s | parquet |
+| every 5 min | `scrape_band.sh '*/5 * * * *'` | the `*/5 * * * *` group — sources whose observed cadence equals our poll rate, so we are the bottleneck. 48 sources, ~11s | parquet |
 | every 15 min | `scrape_all.sh` | sweeps every due source (8 workers, 12-minute start deadline). ~709s, so it occupies `:00`–`:12` of each quarter. **Scrape only** | parquet |
 | `:13,:28,:43,:58` | `sync_hippius.sh` | mirrors `data/` + `sources.yaml` to the Hippius bucket, ~62s | S3 |
 | 06:20 daily | `audit_daily.sh` | freshness audit: newest observation vs declared cadence | `logs/audit-<date>.json` |
@@ -26,6 +27,61 @@ behaviour is how the schedule silently broke once already.
 uncommitted changes**, so leaving the catalog dirty overnight silently costs a
 day of grind. It also pins `GRIND_BRANCH=main` and will refuse off that branch —
 worth knowing before leaving a feature branch checked out on this host.
+
+### Poll bands, and why `frequency` alone does nothing
+
+A band is the **only** way to poll faster than the 15-minute sweep. `--all`
+gates on `is_due()`, which returns True for anything hourly-or-faster, so a
+`PT5M` source and a `PT1M` source both get fetched every 15 minutes when the
+sweep is all that touches them. Declaring a fast cadence in `sources.yaml` buys
+nothing on its own.
+
+`cron.yaml` has described several bands for a long time, but until 2026-08-16
+only `* * * * *` was ever executed — every other group fell through to the
+sweep. That was invisible because it is not an error: the sources are polled,
+just not at the rate they claim. Measured before the fix: of 93 GBFS feeds
+declaring `PT5M`, exactly **one** was observing `PT5M`.
+
+Adding a band is two steps, and doing one without the other is the trap:
+
+1. put the ids in a `cron.yaml` group with that `cron:` expression, **and**
+2. add a crontab line running `scrape_band.sh '<expr>' <log-tag> <deadline>`.
+
+Groups slower than 15 minutes deliberately have no band — the sweep already
+polls them more often than they need.
+
+**Membership must be measured, not declared.** A source belongs in a band only
+if *we* are the bottleneck: its observed cadence equals our poll rate. A feed
+whose API returns timestamped history is publisher-limited — the sweep already
+backfills every point via dedup, and polling it faster buys literally nothing.
+When the `*/5` group was first examined it held 159 sources, of which **111 were
+publisher-limited**. It now holds the 48 that measure as poll-bound.
+
+### The minute tick, and the YAML loader that nearly ate it
+
+The every-minute band does 46–52s of fetching against a 60s tick, so its setup
+cost decides whether it fits. For a long time it did not: `scraper.py` parsed
+the 3.7MB catalog with `yaml.safe_load`, the pure-Python loader, on every
+invocation. Measured 2026-08-16 — **24.5s with `safe_load`, 4.3s with
+`CSafeLoader`, identical parse**. The band was spending 40% of its tick on YAML
+before issuing a request, and dropped ~20% of its ticks as a result.
+
+Two false trails are worth recording, because both looked convincing:
+
+- *"The sweep fix caused it."* No — the drop rate was **40%** before the
+  sweep/upload split and **20%** after. That change halved it while also
+  doubling sweep coverage.
+- *"It's the interpreter import; we need a resident worker."* No — imports are
+  **1.1s**. That figure came from an old comment rather than a measurement, and
+  it pointed at an architectural rewrite when the fix was one line.
+
+With libyaml the band runs ~53s of a 60s tick and drops **0%**. That headroom is
+what makes a second band affordable at all — the `*/5` band had to be enabled,
+measured, and reverted once before the loader was found, because on the old
+loader it pushed the minute band from 20% to 82% dropped.
+
+The tick has perhaps 7s of slack now. Measure before adding anything to it, and
+measure the *gap between completions*, not the reported duration.
 
 ### Tick dropping
 

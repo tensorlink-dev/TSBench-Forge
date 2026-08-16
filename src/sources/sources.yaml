@@ -20686,7 +20686,7 @@
   dgp_class: emergency_dispatch
   archetypes:
   - non_stationary_regime
-  frequency: PT15M
+  frequency: PT5M
   endpoint:
     type: rest_json
     url: https://queensland.opendatasoft.com/api/explore/v2.1/catalog/datasets/fire-incidents-queensland/exports/json?limit=2000&order_by=fmetimestamp%20desc&select=fmetimestamp,vehiclesassigned,vehiclesonroute,vehiclesonscene
@@ -21400,7 +21400,7 @@
   dgp_class: air_quality
   archetypes:
   - non_stationary_regime
-  frequency: PT15M
+  frequency: PT5M
   endpoint:
     type: rest_json
     url: https://www.odwb.be/api/explore/v2.1/catalog/datasets/issep_airquality_last30d_camions/exports/json?limit=2000&order_by=premiere_mesure%20desc&select=premiere_mesure,valeur_agregee,indice_belaqi,nombre_mesures
@@ -21478,7 +21478,7 @@
   dgp_class: price_series
   archetypes:
   - non_stationary_regime
-  frequency: PT15M
+  frequency: PT5M
   endpoint:
     type: rest_json
     url: https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/mod-prix-des-carburants-j-7/exports/json?limit=2000&order_by=mise_a_jour%20desc&select=mise_a_jour,prix_gazole,prix_sp95,prix_sp98
@@ -70986,7 +70986,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-nitrogen-dioxide-no2/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%227186%22
@@ -71016,7 +71016,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-pm25-fine-particulate-matter/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226553%22
@@ -71046,7 +71046,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs/records?limit=100&order_by=date%20desc&where=id_compteur%3D%22100047533-101047533%22
@@ -71110,7 +71110,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1D
   endpoint:
     type: rest_json
     url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/injections-regionales-quotidiennes-provisoires-rpt/records?limit=100&order_by=date%20desc&where=code_insee_region%3D%2276%22
@@ -71142,7 +71142,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/part-enr-intensite-ges-conso-tr/records?limit=100&order_by=date_heure_utc%20desc
@@ -71172,7 +71172,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-pm10-fine-particulate-matter/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226552%22
@@ -73318,7 +73318,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://anglet-opendatapaysbasque.opendatasoft.com/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs-2026/records?limit=100&order_by=date%20desc&where=id%3D%22100048901%22
@@ -73348,7 +73348,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1D
   endpoint:
     type: rest_json
     url: https://data.angers.fr/api/explore/v2.1/catalog/datasets/dataairplqualiteairangers/records?limit=100&order_by=date%20desc&where=commune_nom%3D%22Bouchemaine%22
@@ -73380,7 +73380,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://data.issy.com/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs-issy/records?limit=100&order_by=date%20desc
@@ -73408,7 +73408,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://data.saintnazaireagglo.fr/api/explore/v2.1/catalog/datasets/ex-vue-personnalisee-comptage-velo-et-pedestre-donnees-compteurs/records?limit=100&order_by=date%20desc&where=id%3D%22300015141%22
@@ -73438,7 +73438,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://opendata.hauts-de-seine.fr/api/explore/v2.1/catalog/datasets/fr-229200506-comptages-velos-pas-horaire/records?limit=100&order_by=date%20desc&where=id%3D%22100041889%22
@@ -73468,7 +73468,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1D
   endpoint:
     type: rest_json
     url: https://opendata.hauts-de-seine.fr/api/explore/v2.1/catalog/datasets/fr-229200506-comptages-velos-pas-journalier/records?limit=100&order_by=date%20desc&where=id%3D%22100041662%22
@@ -73498,7 +73498,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1W
   endpoint:
     type: rest_json
     url: https://opendata.mons.be/api/explore/v2.1/catalog/datasets/tableau-sterilisation-chats-2024/records?limit=100&order_by=date%20desc
@@ -73527,7 +73527,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT30M
   endpoint:
     type: rest_json
     url: https://opendata.saemes.fr/api/explore/v2.1/catalog/datasets/referentiel-parkings-saemes/records?limit=100&order_by=abo_vl_abonnement_trimestriel_place_reservee_quarterly_season_ticket_allocated_space_standard_reserv%20desc
@@ -73557,7 +73557,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://ressources.data.sncf.com/api/explore/v2.1/catalog/datasets/qualite-de-lair/records?limit=100&order_by=date_heure%20desc
@@ -73586,7 +73586,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://spi-digitalwallonia.opendatasoft.com/api/explore/v2.1/catalog/datasets/bornes-de-comptage-cyclistes-et-pietons-chiffres/records?limit=100&order_by=start_datetime%20desc
@@ -73616,7 +73616,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1D
   endpoint:
     type: rest_json
     url: https://app.datajoule.fr/api/explore/v2.1/catalog/datasets/production-quotidienne-consolidee-de-biomethane-sur-le-reseau-de-transport-et-de/records?limit=100&order_by=date%20desc
@@ -73645,7 +73645,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://data.bep.be/api/explore/v2.1/catalog/datasets/test_qualite_air_dashboard/records?limit=100&order_by=dateheure%20desc&where=nom%3D%22Gare%20SNCB%22
@@ -73676,7 +73676,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT5M
   endpoint:
     type: rest_json
     url: https://data.gouv.nc/api/explore/v2.1/catalog/datasets/transferts-certificats-d-immatriculation-des-vehicules-d-occasion-nc/records?limit=100&order_by=timestamp_transaction%20desc
@@ -73794,7 +73794,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://data.tg.ch/api/explore/v2.1/catalog/datasets/dbu-afu-3/records?limit=100&order_by=timestamp%20desc&where=obj_id%3D%2211811042%22
@@ -73823,7 +73823,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://data.tg.ch/api/explore/v2.1/catalog/datasets/dbu-afu-6/records?limit=100&order_by=timestamp%20desc&where=obj_id%3D%228890042%22
@@ -73852,7 +73852,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://data.tg.ch/api/explore/v2.1/catalog/datasets/dbu-afu-4/records?limit=100&order_by=timestamp%20desc&where=obj_id%3D%228221042%22
@@ -73881,7 +73881,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1D
   endpoint:
     type: rest_json
     url: https://data.tours-metropole.fr/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs-syndicat-des-mobilites-de-touraine/records?limit=100&order_by=date%20desc&where=id%3D%22100038389%22
@@ -73912,7 +73912,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://anglet-opendatapaysbasque.opendatasoft.com/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs-2026/records?limit=100&order_by=date%20desc&where=id%3D%22300031754%22
@@ -73940,7 +73940,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://anglet-opendatapaysbasque.opendatasoft.com/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs-2026/records?limit=100&order_by=date%20desc&where=id%3D%22300048194%22
@@ -73968,7 +73968,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://anglet-opendatapaysbasque.opendatasoft.com/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs-2026/records?limit=100&order_by=date%20desc&where=id%3D%22300048248%22
@@ -73996,7 +73996,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://anglet-opendatapaysbasque.opendatasoft.com/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs-2026/records?limit=100&order_by=date%20desc&where=id%3D%22300048251%22
@@ -74024,7 +74024,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1D
   endpoint:
     type: rest_json
     url: https://data.angers.fr/api/explore/v2.1/catalog/datasets/dataairplqualiteairangers/records?limit=100&order_by=date%20desc&where=commune_nom%3D%22Verri%C3%A8res-en-Anjou%22
@@ -89488,7 +89488,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1D
   endpoint:
     type: rest_json
     url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/prod-def-reg-jour-biom-reseau-grtgrd/records?limit=100&order_by=date%20desc&where=nom_region%3D%22Auvergne-Rh%C3%B4ne-Alpes%22
@@ -89549,7 +89549,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/53-station-meteo-toulouse-ponsan/records?limit=100&order_by=heure_utc%20desc
@@ -89580,7 +89580,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-nitrogen-dioxide-no2/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226551%22
@@ -89610,7 +89610,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: PT1H
   endpoint:
     type: rest_json
     url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-ozone-o3/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226577%22
@@ -89706,7 +89706,7 @@
   archetypes:
   - non_stationary_regime
   - smooth_periodic
-  frequency: PT15M
+  frequency: P1D
   endpoint:
     type: rest_json
     url: https://opendata.reseaux-energies.fr/api/explore/v2.1/catalog/datasets/prod-def-reg-jour-biom-reseau-grtgrd/records?limit=100&order_by=date%20desc&where=nom_region%3D%22Normandie%22
@@ -89809,3 +89809,131 @@
   endpoint:
     url: https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&f=json
     type: rest_json
+
+# -- wired batch: grind-20260816-0713 --
+- id: opendata_ods156_32
+  name: Individual incremental balancing energy bids (Historical data as of 22 [32]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%2232%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''32'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_41
+  name: Individual decremental balancing energy bids (Historical data as of 22 [41]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2241%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''41'': without it the response
+    interleaves several series on the same timestamps.'
+- id: data_23_station_meteo_pibrac_bouconne_centre_equestre
+  name: 23 Station météo Pibrac Bouconne centre équestre (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/23-station-meteo-pibrac-bouconne-centre-equestre/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 23-station-meteo-pibrac-bouconne-centre-equestre.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 23-station-meteo-pibrac-bouconne-centre-equestre,
+    ordered newest-first on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion
+    order, which on a rolling table returns the oldest rows and reads as a dead source.'
+- id: data_13_station_meteo_toulouse_pech_david
+  name: 13 Station météo Toulouse Pech David (Toulouse, France)
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://data.toulouse-metropole.fr/api/explore/v2.1/catalog/datasets/13-station-meteo-toulouse-pech-david/records?limit=100&order_by=heure_utc%20desc
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].heure_utc
+    value_field:
+    - results[].humidite
+    - results[].direction_du_vecteur_de_vent_max
+    - results[].pluie_intensite_max
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Toulouse open-data portal, dataset 13-station-meteo-toulouse-pech-david.
+  license: Toulouse open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset 13-station-meteo-toulouse-pech-david, ordered newest-first
+    on heure_utc; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source.'

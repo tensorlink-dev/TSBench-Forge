@@ -5,10 +5,42 @@
 # Times are UTC. flock -n skips a run if the previous one is still going.
 MAILTO=""
 
-# Fast band: poll the every-minute live-snapshot feeds (unrecoverable if missed)
-# and append locally. No upload here. Id list comes from cron.yaml, so it tracks
-# the catalog automatically.
-* * * * * /usr/bin/flock -n /tmp/tsforge_scrape_fast.lock /root/cron/scrape_fast.sh
+# Poll bands. Each runs ONE cron.yaml group whose cadence is finer than the
+# 15-minute sweep; anything slower is left to the sweep, which is already faster
+# than it needs. Id lists come from cron.yaml, so they track the catalog.
+#
+# Bands are the ONLY way to poll faster than the sweep: scraper.py --all gates on
+# is_due(), which returns True for everything hourly-or-faster, so a PT5M source
+# and a PT1M source in the sweep are both polled every 15 minutes.
+#
+# Fast band -- feeds returning a single "now" instant, where a missed minute is
+# unrecoverable. 78 sources, ~15s a pass.
+* * * * * /usr/bin/flock -n /tmp/tsforge_scrape_fast.lock /root/cron/scrape_band.sh '* * * * *' fast 4
+
+# 5-minute band. cron.yaml declared this group for a long time and nothing ran
+# it, so its members were declared at five minutes and delivered at fifteen: of
+# 93 GBFS feeds declaring PT5M, exactly one was observing PT5M.
+#
+# 48 sources, ~9s a pass. It was 159 for one afternoon and that was wrong twice
+# over: 111 of them are PUBLISHER-limited (their API returns timestamped history,
+# so the 15-min sweep already backfills every point and a faster poll buys
+# nothing), and the resulting 33s pass contended with the every-minute band hard
+# enough to push it past its own tick -- gaps of 93-144s against 60s, on exactly
+# the feeds whose missed minutes cannot be recovered. Membership is now measured:
+# a source belongs here only if its OBSERVED cadence equals our poll rate, i.e.
+# we are the bottleneck rather than the publisher.
+# 48 sources, ~11s a pass. Membership is MEASURED, not declared: a source
+# belongs here only if its observed cadence equals our poll rate, i.e. we are
+# the bottleneck rather than the publisher. 111 of the group's original 159
+# members were publisher-limited (their APIs return timestamped history, which
+# the sweep already backfills via dedup) and were moved out.
+#
+# This was enabled, measured, and reverted once on 2026-08-16: it took the
+# every-minute band from a 20% tick-drop rate to 82%. The cause was not this
+# band -- it was scraper.py parsing the 3.7MB catalog with the pure-Python YAML
+# loader on every invocation, 24.5s of a 60s tick. With libyaml that is 4.3s,
+# the minute band went to 0% dropped, and this band fits alongside it.
+*/5 * * * * /usr/bin/flock -n /tmp/tsforge_scrape_5min.lock /root/cron/scrape_band.sh '*/5 * * * *' 5min 3
 
 # Full sweep every 15 min: scrape every source (rolling-window feeds backfill via
 # dedup). Runs ~709s. Scrape only — the upload is a separate job below, because

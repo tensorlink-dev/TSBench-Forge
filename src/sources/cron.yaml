@@ -91,78 +91,21 @@ schedules:
 - every: PT5M
   sources:
   - opensky_states_local
-  - aemo_nem_5min
-  - caiso_oasis_lmp_5min
-  - nyiso_realtime_lmp_zonal
-  - coinbase_btc_5min
-  - aws_health_rss
-  - polymarket_btc_history
-  - nasdaq_trader_halts
-  - caiso_grid_conditions
-  - ercot_supply_demand
-  - nyiso_realtime_zonal_load
-  - nyiso_realtime_lbmp_zonal
-  - nyiso_fuel_mix_5min
-  - nyiso_interface_flows
-  - nyc_traffic_link_speeds
-  - coinbase_sol_usd_5m
-  - kraken_eth_eur_5m
-  - bitstamp_btc_eur_5m
-  - citybikes_docomo_cycle_tokyo_station_status
-  - citybikes_seoul_bike_station_status
-  - citybikes_youbike_taipei_station_status
-  - citybikes_bicing_station_status
-  - citybikes_bikemi_station_status
-  - citybikes_velo_antwerpen_station_status
-  - bandcamp_sales_feed
-  - swissgrid_grid_frequency
-  - nmdb_oulu_neutron_1min
-  - tepco_demand_5min
-  - gbfs_baywheels_sf_station_status
-  - gbfs_bluebikes_boston_station_status
-  - digitraffic_finland_tms_traffic_5min
-  - digitraffic_finland_ais_vessel_speeds
   - gbfs_biketown_portland_station_status
   - gbfs_metro_bike_la_station_status
   - gbfs_wienmobil_vienna_station_status
   - gbfs_madison_bcycle_station_status
-  - eccc_hydrometric_realtime_water_level
-  - taipower_generation_by_unit_10min
   - steam_top_games_concurrent_players
-  - cammesa_ar_demand_5min
-  - chuden_jp_demand_5min
-  - kyuden_jp_demand_5min
-  - johnscreekga_incidentcad
-  - longbeach_go_long_beach_service_requests
-  - okiden_jp_demand_5min
-  - hk_carpark_vacancy
-  - inex_ixp_traffic
-  - lonap_ixp_traffic
-  - grix_ixp_traffic
-  - qix_ixp_traffic
-  - inxza_ixp_traffic
-  - kixp_ixp_traffic
-  - marine_ie_tide_gauges
-  - rws_nl_water_levels
-  - ixdenver_ixp_traffic
-  - pitix_ixp_traffic
-  - gbfs_publicbikesystem_careem_bike_dubai
   - gbfs_ridedott_dott_abu_dhabi_abu_dhabi
-  - gbfs_gob_mibicitubici_rosario
   - gbfs_delijn_blue_bike_antwerp
-  - gbfs_bike_donkey_republic_antwerp_antwerp
-  - gbfs_cyclocity_li_bia_velo_namur
-  - gbfs_smartbike_velo_antwerpen_antwerp
   - gbfs_io_voi_antwerp_antwerp
   - gbfs_bird_bird_halifax_halifax
   - gbfs_bike_lime_vancouver_vancouver
   - gbfs_fifteen_mobi_bike_share_vancouver
   - gbfs_socialbicycles_sobi_hamilton_hamilton
   - gbfs_auto_share_birrer_switzerland
-  - gbfs_publicbikesystem_bogota_bogota
   - gbfs_jetzt_car_ship_constance
   - gbfs_fifteen_swabi_augsburg_augsburg
-  - gbfs_publicbikesystem_bicimad_madrid
   - gbfs_cat_ganxeta_reus
   - gbfs_fifteen_city_bikes_helsinki_helsinki
   - gbfs_mobi_altervelo_libre_service_saint_pierre_l_e
@@ -172,78 +115,27 @@ schedules:
   - gbfs_fifteen_levelo_marseille_marseille
   - gbfs_optymo_optymo_belfort_belfort
   - gbfs_gouv_pony_angers_angers
-  - gbfs_ilevia_v_lille_lille
   - gbfs_transdev_vel_in_calais
   - gbfs_saint_velivert_saint_etienne
   - gbfs_app_beryl_bcp_bournemouth_christchurch_poole
   - gbfs_odpt_docomo_bike_share_service_japan
-  - gbfs_publicbikesystem_mibici_guadalajara_guadalajara
   - gbfs_goabout_goabout_netherlands
   - gbfs_openov_ns_ov_fiets_netherlands
   - gbfs_io_hertz_bildeling_bildeling
   - gbfs_rideflamingo_flamingo_auckland_auckland
-  - gbfs_primelayer_bora_viseu_dao_lafoes
   - gbfs_linkalock_aar_bike_konya
-  - gbfs_lyft_lyft_bike_san_francisco_ca
-  - gbfs_publicbikesystem_biki_honolulu_hi
   - gbfs_peacehealthrides_peacehealth_rides_eugene_or
   - gbfs_socialbicycles_reddy_bikeshare_buffalo_ny
-  - ornl_odin_real_time_outages_county
-  - geelongdataexchange_weather_together_temperature_and_humidit
-  - geelongdataexchange_temperature_and_humidity_for_bats_monito
   - gbfs_ridedott_dott_dubai_dubai
-  - gbfs_publicbikesystem_bike_nordelta_buenos_aires
-  - gbfs_publicbikesystem_ecobici_buenos_aires
-  - gbfs_bike_donkey_republic_ghent_ghent
-  - gbfs_cyclocity_villo_brussels
-  - gbfs_publicbikesystem_bike_brasilia_brasilia
-  - gbfs_publicbikesystem_bike_estacio_curitiba
-  - gbfs_publicbikesystem_bike_itau_pernambuco_recife
-  - gbfs_publicbikesystem_bike_itau_rio_rio_de_janeiro
-  - gbfs_publicbikesystem_bike_itau_salvador_salvador
-  - gbfs_publicbikesystem_bike_itau_sampa_sao_paulo
-  - gbfs_publicbikesystem_bike_porto_alegre_porto_alegre
-  - gbfs_publicbikesystem_acces_velo_saguenay
-  - gbfs_publicbikesystem_avelo_ville_de_quebec
-  - gbfs_publicbikesystem_bike_share_toronto_toronto
   - gbfs_bird_bird_ottawa_ottawa
-  - gbfs_velobixi_bixi_montreal_montreal
-  - gbfs_sharedmobility_sharedmobility_ch_switzerland
-  - gbfs_publicbikesystem_bike_itau_santiago_santiago
-  - gbfs_publicbikesystem_bicicoruna_a_coruna
-  - gbfs_publicbikesystem_bicing_barcelona
-  - gbfs_publicbikesystem_bicinrivas_rivas_vaciamadrid
-  - gbfs_publicbikesystem_bilbao_bizi_bilbao
-  - gbfs_publicbikesystem_bizi_zaragoza
-  - gbfs_publicbikesystem_dbizi_donostia
-  - gbfs_publicbikesystem_valladolid_valladolid
   - gbfs_fifteen_auxr_m_le_velo_auxerre
-  - gbfs_publicbikesystem_c_velo_clermont_ferrand
   - gbfs_mobi_calivelo_libourne
-  - gbfs_publicbikesystem_libelo_valence
   - gbfs_optymo_optymo_belfort_auto_libre_service_belfor
   - gbfs_gouv_pony_basque_country_basque_country
   - gbfs_fifteen_velomagg_montpellier
-  - gbfs_io_voi_grand_paris_seine_et_oise_grand_pari
   - gbfs_app_beryl_bradford_bradford
   - gbfs_odpt_hello_cycling_japan
-  - gbfs_publicbikesystem_monabike_monaco
   - gbfs_rideflamingo_flamingo_christchurch_christchurch
-  - gbfs_publicbikesystem_sibiu_bikecity_sibiu
-  - gbfs_publicbikesystem_bike_chattanooga_chattanooga_tn
-  - gbfs_publicbikesystem_capmetro_austin_tx
-  - gbfs_publicbikesystem_hibike_kona_hi
-  - gbfs_publicbikesystem_mogo_detroit_detroit_mi
-  - gbfs_publicbikesystem_nike_biketown_beaverton_or
-  - gbfs_publicbikesystem_pogoh_pittsburgh_pa
-  - gbfs_publicbikesystem_trinity_metro_bikes_fort_worth_tx
-  - gbfs_publicbikesystem_tugo_tucson_az
-  - gbfs_publicbikesystem_we_cycle_aspen_co
-  - agis_houstontx_hec_active_incidents_feature_layer
-  - agis_govt_rainfall_monitoring_sites
-  - energinet_co2emis_dk1
-  - energinet_co2emisprog_dk1
-  - energinet_electricityprodex5minrealtime_dk1
   - gbfs_bolt_bolt_technology_ou_brussels
   - statnett_physical_flow
   cron: '*/5 * * * *'
@@ -288,7 +180,6 @@ schedules:
   - elia_offshore_wind_15min
   - usgs_florida_dissolved_oxygen_15min
   - waterlevel_ie_opw_hydrometric_15min
-  - opendatasoft_fire_incidents_queensland
   - maryland_power_outages_by_county
   - tohoku_jp_demand_5min
   - rikuden_jp_demand_5min
@@ -427,6 +318,117 @@ schedules:
   - usgs_63680_09060799
   - usgs_63680_09359020
   - usgs_63680_09034250
+  - aemo_nem_5min
+  - caiso_oasis_lmp_5min
+  - nyiso_realtime_lmp_zonal
+  - coinbase_btc_5min
+  - aws_health_rss
+  - polymarket_btc_history
+  - nasdaq_trader_halts
+  - caiso_grid_conditions
+  - ercot_supply_demand
+  - nyiso_realtime_zonal_load
+  - nyiso_realtime_lbmp_zonal
+  - nyiso_fuel_mix_5min
+  - nyiso_interface_flows
+  - nyc_traffic_link_speeds
+  - coinbase_sol_usd_5m
+  - kraken_eth_eur_5m
+  - bitstamp_btc_eur_5m
+  - citybikes_docomo_cycle_tokyo_station_status
+  - citybikes_seoul_bike_station_status
+  - citybikes_youbike_taipei_station_status
+  - citybikes_bicing_station_status
+  - citybikes_bikemi_station_status
+  - citybikes_velo_antwerpen_station_status
+  - bandcamp_sales_feed
+  - swissgrid_grid_frequency
+  - nmdb_oulu_neutron_1min
+  - tepco_demand_5min
+  - gbfs_baywheels_sf_station_status
+  - gbfs_bluebikes_boston_station_status
+  - digitraffic_finland_tms_traffic_5min
+  - digitraffic_finland_ais_vessel_speeds
+  - eccc_hydrometric_realtime_water_level
+  - taipower_generation_by_unit_10min
+  - cammesa_ar_demand_5min
+  - chuden_jp_demand_5min
+  - kyuden_jp_demand_5min
+  - johnscreekga_incidentcad
+  - longbeach_go_long_beach_service_requests
+  - okiden_jp_demand_5min
+  - hk_carpark_vacancy
+  - inex_ixp_traffic
+  - lonap_ixp_traffic
+  - grix_ixp_traffic
+  - qix_ixp_traffic
+  - inxza_ixp_traffic
+  - kixp_ixp_traffic
+  - marine_ie_tide_gauges
+  - rws_nl_water_levels
+  - ixdenver_ixp_traffic
+  - pitix_ixp_traffic
+  - gbfs_publicbikesystem_careem_bike_dubai
+  - gbfs_gob_mibicitubici_rosario
+  - gbfs_bike_donkey_republic_antwerp_antwerp
+  - gbfs_cyclocity_li_bia_velo_namur
+  - gbfs_smartbike_velo_antwerpen_antwerp
+  - gbfs_publicbikesystem_bogota_bogota
+  - gbfs_publicbikesystem_bicimad_madrid
+  - gbfs_ilevia_v_lille_lille
+  - gbfs_publicbikesystem_mibici_guadalajara_guadalajara
+  - gbfs_primelayer_bora_viseu_dao_lafoes
+  - gbfs_lyft_lyft_bike_san_francisco_ca
+  - gbfs_publicbikesystem_biki_honolulu_hi
+  - ornl_odin_real_time_outages_county
+  - geelongdataexchange_weather_together_temperature_and_humidit
+  - geelongdataexchange_temperature_and_humidity_for_bats_monito
+  - gbfs_publicbikesystem_bike_nordelta_buenos_aires
+  - gbfs_publicbikesystem_ecobici_buenos_aires
+  - gbfs_bike_donkey_republic_ghent_ghent
+  - gbfs_cyclocity_villo_brussels
+  - gbfs_publicbikesystem_bike_brasilia_brasilia
+  - gbfs_publicbikesystem_bike_estacio_curitiba
+  - gbfs_publicbikesystem_bike_itau_pernambuco_recife
+  - gbfs_publicbikesystem_bike_itau_rio_rio_de_janeiro
+  - gbfs_publicbikesystem_bike_itau_salvador_salvador
+  - gbfs_publicbikesystem_bike_itau_sampa_sao_paulo
+  - gbfs_publicbikesystem_bike_porto_alegre_porto_alegre
+  - gbfs_publicbikesystem_acces_velo_saguenay
+  - gbfs_publicbikesystem_avelo_ville_de_quebec
+  - gbfs_publicbikesystem_bike_share_toronto_toronto
+  - gbfs_velobixi_bixi_montreal_montreal
+  - gbfs_sharedmobility_sharedmobility_ch_switzerland
+  - gbfs_publicbikesystem_bike_itau_santiago_santiago
+  - gbfs_publicbikesystem_bicicoruna_a_coruna
+  - gbfs_publicbikesystem_bicing_barcelona
+  - gbfs_publicbikesystem_bicinrivas_rivas_vaciamadrid
+  - gbfs_publicbikesystem_bilbao_bizi_bilbao
+  - gbfs_publicbikesystem_bizi_zaragoza
+  - gbfs_publicbikesystem_dbizi_donostia
+  - gbfs_publicbikesystem_valladolid_valladolid
+  - gbfs_publicbikesystem_c_velo_clermont_ferrand
+  - gbfs_publicbikesystem_libelo_valence
+  - gbfs_io_voi_grand_paris_seine_et_oise_grand_pari
+  - gbfs_publicbikesystem_monabike_monaco
+  - gbfs_publicbikesystem_sibiu_bikecity_sibiu
+  - gbfs_publicbikesystem_bike_chattanooga_chattanooga_tn
+  - gbfs_publicbikesystem_capmetro_austin_tx
+  - gbfs_publicbikesystem_hibike_kona_hi
+  - gbfs_publicbikesystem_mogo_detroit_detroit_mi
+  - gbfs_publicbikesystem_nike_biketown_beaverton_or
+  - gbfs_publicbikesystem_pogoh_pittsburgh_pa
+  - gbfs_publicbikesystem_trinity_metro_bikes_fort_worth_tx
+  - gbfs_publicbikesystem_tugo_tucson_az
+  - gbfs_publicbikesystem_we_cycle_aspen_co
+  - agis_houstontx_hec_active_incidents_feature_layer
+  - agis_govt_rainfall_monitoring_sites
+  - energinet_co2emis_dk1
+  - energinet_co2emisprog_dk1
+  - energinet_electricityprodex5minrealtime_dk1
+  - opendatasoft_fire_incidents_queensland
+  - deribit_btc_perp_trades
+  - energinet_dk_co2_intensity_5min
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -490,6 +492,7 @@ schedules:
   - carbonintensity_gb_national
   - elexon_fuel_outturn
   - carbonintensity_gb_genmix
+  - opendata_referentiel_parkings_saemes
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -934,6 +937,31 @@ schedules:
   - smhi_25_89230
   - smhi_12_53530
   - smhi_12_77210
+  - opendata_real_time_air_quality_nitrogen_dioxide_no2_7186
+  - opendata_real_time_air_quality_pm25_fine_particulate_mat_6553
+  - opendata_comptage_velo_donnees_compteurs_100047
+  - opendata_part_enr_intensite_ges_conso_tr
+  - opendata_real_time_air_quality_pm10_fine_particulate_mat_6552
+  - anglet_opendatapaysbasque_comptage_velo_donnees_compteur_100048
+  - data_comptage_velo_donnees_compteurs_issy
+  - data_ex_vue_personnalisee_comptage_velo_et_pedestre_donn_300015
+  - opendata_fr_229200506_comptages_velos_pas_horaire_100041
+  - opendata_fr_229200506_comptages_velos_pas_journalier_100041
+  - ressources_qualite_de_lair
+  - spi_digitalwallonia_bornes_de_comptage_cyclistes_et_piet
+  - data_test_qualite_air_dashboard_gare_s
+  - data_transferts_certificats_d_immatriculation_des_vehicu
+  - data_dbu_afu_3_118110
+  - data_dbu_afu_6_889004
+  - data_dbu_afu_4_822104
+  - data_comptage_velo_donnees_compteurs_syndicat_des_mobili_100038
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30003175
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004819
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004824
+  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004825
+  - data_53_station_meteo_toulouse_ponsan
+  - opendata_real_time_air_quality_nitrogen_dioxide_no2_6551
+  - opendata_real_time_air_quality_ozone_o3_6577
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -2340,13 +2368,8 @@ schedules:
   - rte_eco2mix_national_cons_def
   - opendata_ods156_102
   - opendata_ods157_101
-  - opendata_real_time_air_quality_nitrogen_dioxide_no2_7186
-  - opendata_real_time_air_quality_pm25_fine_particulate_mat_6553
-  - opendata_comptage_velo_donnees_compteurs_100047
   - opendata_ods157_10
   - opendata_injections_regionales_quotidiennes_provisoires_76
-  - opendata_part_enr_intensite_ges_conso_tr
-  - opendata_real_time_air_quality_pm10_fine_particulate_mat_6552
   - data_62_station_meteo_toulouse_parc_maourine
   - data_37_station_meteo_toulouse_universite_paul_sabatier
   - data_food_service_inspection_temperature_observati_00_0_f
@@ -2417,30 +2440,12 @@ schedules:
   - www_air_quality_monitoring_data
   - www_registration_data_from_the_act_registry_of_bir
   - www_engineers_public_register
-  - anglet_opendatapaysbasque_comptage_velo_donnees_compteur_100048
   - data_dataairplqualiteairangers_bouche
-  - data_comptage_velo_donnees_compteurs_issy
-  - data_ex_vue_personnalisee_comptage_velo_et_pedestre_donn_300015
-  - opendata_fr_229200506_comptages_velos_pas_horaire_100041
-  - opendata_fr_229200506_comptages_velos_pas_journalier_100041
   - opendata_tableau_sterilisation_chats_2024
-  - opendata_referentiel_parkings_saemes
-  - ressources_qualite_de_lair
-  - spi_digitalwallonia_bornes_de_comptage_cyclistes_et_piet
   - app_production_quotidienne_consolidee_de_biomethane_sur
-  - data_test_qualite_air_dashboard_gare_s
-  - data_transferts_certificats_d_immatriculation_des_vehicu
   - data_comptages_des_passages_velos_a_pasteur_vers_a3
   - data_comptages_des_passages_velos_a_pasteur_vers_la_croi
   - data_comptages_des_passages_velo_paul_vaillant_couturier
-  - data_dbu_afu_3_118110
-  - data_dbu_afu_6_889004
-  - data_dbu_afu_4_822104
-  - data_comptage_velo_donnees_compteurs_syndicat_des_mobili_100038
-  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30003175
-  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004819
-  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004824
-  - anglet_opendatapaysbasque_comptage_velo_donnees_co_30004825
   - data_dataairplqualiteairangers_verriere
   - controllerdata_city_of_los_angeles_economic_data_real_gdp
   - controllerdata_joint_training_institute_jti_and_jo_jti
@@ -2707,14 +2712,15 @@ schedules:
   - opendata_ods157_12
   - opendata_prod_def_reg_jour_biom_reseau_grtgrd_auverg
   - data_42_station_meteo_toulouse_parc_compans_cafarelli
-  - data_53_station_meteo_toulouse_ponsan
-  - opendata_real_time_air_quality_nitrogen_dioxide_no2_6551
-  - opendata_real_time_air_quality_ozone_o3_6577
   - opendata_ods156_3
   - opendata_ods157_54
   - opendata_prod_def_reg_jour_biom_reseau_grtgrd_norman
   - data_12_station_meteo_toulouse_montaudran
   - data_02_station_meteo_toulouse_marengo
+  - opendata_ods156_32
+  - opendata_ods157_41
+  - data_23_station_meteo_pibrac_bouconne_centre_equestre
+  - data_13_station_meteo_toulouse_pech_david
   cron: 10 1 * * *
 - every: P1D
   sources:
@@ -2818,8 +2824,7 @@ schedules:
   - treasury_auction_results
   cron: 25 3 * * *
 - every: PT5M
-  sources:
-  - deribit_btc_perp_trades
+  sources: []
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -2841,8 +2846,7 @@ schedules:
   - wqp_delaware_water_temperature
   cron: 35 3 * * *
 - every: PT5M
-  sources:
-  - energinet_dk_co2_intensity_5min
+  sources: []
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
