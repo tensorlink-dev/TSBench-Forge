@@ -15,6 +15,7 @@ behaviour is how the schedule silently broke once already.
 | when | job | what it does | writes |
 |---|---|---|---|
 | every minute | `scrape_band.sh '* * * * *'` | the `* * * * *` group — feeds returning a single "now" instant, where a skipped minute is unrecoverable. 78 sources, 46–52s | parquet |
+| every 5 min | `scrape_band.sh '*/5 * * * *'` | the `*/5 * * * *` group — sources whose observed cadence equals our poll rate, so we are the bottleneck. 48 sources, ~11s | parquet |
 | every 15 min | `scrape_all.sh` | sweeps every due source (8 workers, 12-minute start deadline). ~709s, so it occupies `:00`–`:12` of each quarter. **Scrape only** | parquet |
 | `:13,:28,:43,:58` | `sync_hippius.sh` | mirrors `data/` + `sources.yaml` to the Hippius bucket, ~62s | S3 |
 | 06:20 daily | `audit_daily.sh` | freshness audit: newest observation vs declared cadence | `logs/audit-<date>.json` |
@@ -56,22 +57,31 @@ backfills every point via dedup, and polling it faster buys literally nothing.
 When the `*/5` group was first examined it held 159 sources, of which **111 were
 publisher-limited**. It now holds the 48 that measure as poll-bound.
 
-### The minute tick has no headroom
+### The minute tick, and the YAML loader that nearly ate it
 
-The every-minute band does 46–52s of fetching plus a ~18s interpreter import,
-against a 60s tick. It therefore sits *on* the cliff: baseline median gap 62s,
-almost exactly one tick, and **~20% of ticks are dropped even at rest**. This is
-a standing defect, not a recent one — it was 40% before the sweep/upload split
-on 2026-08-16, which halved it.
+The every-minute band does 46–52s of fetching against a 60s tick, so its setup
+cost decides whether it fits. For a long time it did not: `scraper.py` parsed
+the 3.7MB catalog with `yaml.safe_load`, the pure-Python loader, on every
+invocation. Measured 2026-08-16 — **24.5s with `safe_load`, 4.3s with
+`CSafeLoader`, identical parse**. The band was spending 40% of its tick on YAML
+before issuing a request, and dropped ~20% of its ticks as a result.
 
-The cliff is why the `*/5` band is checked in but **not scheduled**. Enabling it,
-even narrowed to 48 sources and 9s of work, took the minute band from 20% to
-82% dropped — and those are the feeds whose missed minutes cannot be recovered,
-so they outrank a 3× gain elsewhere.
+Two false trails are worth recording, because both looked convincing:
 
-Buy headroom before scheduling anything else per-minute. The obvious target is
-the ~18s import paid on *every* invocation — 30% of the tick spent loading
-pyarrow and httpx — which a resident worker would pay once.
+- *"The sweep fix caused it."* No — the drop rate was **40%** before the
+  sweep/upload split and **20%** after. That change halved it while also
+  doubling sweep coverage.
+- *"It's the interpreter import; we need a resident worker."* No — imports are
+  **1.1s**. That figure came from an old comment rather than a measurement, and
+  it pointed at an architectural rewrite when the fix was one line.
+
+With libyaml the band runs ~53s of a 60s tick and drops **0%**. That headroom is
+what makes a second band affordable at all — the `*/5` band had to be enabled,
+measured, and reverted once before the loader was found, because on the old
+loader it pushed the minute band from 20% to 82% dropped.
+
+The tick has perhaps 7s of slack now. Measure before adding anything to it, and
+measure the *gap between completions*, not the reported duration.
 
 ### Tick dropping
 

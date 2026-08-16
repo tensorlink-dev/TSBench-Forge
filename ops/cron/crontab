@@ -29,18 +29,18 @@ MAILTO=""
 # the feeds whose missed minutes cannot be recovered. Membership is now measured:
 # a source belongs here only if its OBSERVED cadence equals our poll rate, i.e.
 # we are the bottleneck rather than the publisher.
-# NOT SCHEDULED. Measured 2026-08-16: enabling it, even narrowed to 48 sources
-# and 9s of work, pushed the every-minute band from a 20% tick-drop rate to 80%.
-# The every-minute band does 46-52s of fetching plus a ~18s interpreter import
-# against a 60s tick, so it sits ON the cliff edge -- baseline median gap 62s,
-# almost exactly one tick -- and any extra load on these two cores tips it from
-# "just makes it" to "drops every other one". Those feeds exist precisely
-# because a missed minute cannot be recovered, so they outrank a 3x gain on 48.
+# 48 sources, ~11s a pass. Membership is MEASURED, not declared: a source
+# belongs here only if its observed cadence equals our poll rate, i.e. we are
+# the bottleneck rather than the publisher. 111 of the group's original 159
+# members were publisher-limited (their APIs return timestamped history, which
+# the sweep already backfills via dedup) and were moved out.
 #
-# To afford this band, first buy headroom in the minute tick. The obvious target
-# is the ~18s import paid on EVERY invocation -- 30% of the tick spent importing
-# pyarrow and httpx -- which a resident worker would pay once.
-# */5 * * * * /usr/bin/flock -n /tmp/tsforge_scrape_5min.lock /root/cron/scrape_band.sh '*/5 * * * *' 5min 3
+# This was enabled, measured, and reverted once on 2026-08-16: it took the
+# every-minute band from a 20% tick-drop rate to 82%. The cause was not this
+# band -- it was scraper.py parsing the 3.7MB catalog with the pure-Python YAML
+# loader on every invocation, 24.5s of a 60s tick. With libyaml that is 4.3s,
+# the minute band went to 0% dropped, and this band fits alongside it.
+*/5 * * * * /usr/bin/flock -n /tmp/tsforge_scrape_5min.lock /root/cron/scrape_band.sh '*/5 * * * *' 5min 3
 
 # Full sweep every 15 min: scrape every source (rolling-window feeds backfill via
 # dedup). Runs ~709s. Scrape only — the upload is a separate job below, because

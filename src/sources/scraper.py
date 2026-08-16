@@ -91,22 +91,31 @@ UTC = dt.timezone.utc
 _SOURCES_CACHE: Optional[list[dict]] = None
 _SOURCE_INDEX: dict[str, dict] = {}
 _SOURCES_LOCK = threading.Lock()
+# libyaml where present — see load_sources() for the measured difference.
+_YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 
 
 def load_sources(refresh: bool = False) -> list[dict]:
-    """Parse sources.yaml once per process.
+    """Parse sources.yaml once per process, with libyaml.
 
-    The catalog is ~1k entries / 20k lines and costs ~1.5s to parse. run_one()
-    resolves its source by id, so re-parsing per source added ~30 minutes of
-    pure YAML to a `--all` sweep — most of what pushed the scheduled run past
-    its job timeout before any network time was spent. Pass `refresh=True`
-    after editing the file in-process.
+    The catalog is 3k entries / 90k lines / 3.7MB. run_one() resolves its source
+    by id, so re-parsing per source added ~30 minutes of pure YAML to a `--all`
+    sweep — most of what pushed the scheduled run past its job timeout before
+    any network time was spent. Pass `refresh=True` after editing in-process.
+
+    The loader matters as much as the caching. Measured 2026-08-16 on this
+    catalog: yaml.safe_load (pure Python) 24.5s, CSafeLoader (libyaml) 4.3s, for
+    an identical parse. The cache makes that once per PROCESS, but every cron
+    tick is a new process, so the every-minute band was spending 24.5s of its
+    60s tick parsing YAML before issuing a single request — which is most of why
+    it dropped ~20% of its ticks. Falls back to the Python loader where libyaml
+    is unavailable; nothing breaks, it just costs the 20s again.
     """
     global _SOURCES_CACHE, _SOURCE_INDEX
     with _SOURCES_LOCK:
         if _SOURCES_CACHE is None or refresh:
             with open(SOURCES_YAML) as f:
-                sources = yaml.safe_load(f)
+                sources = yaml.load(f, Loader=_YAML_LOADER)
             if not isinstance(sources, list):
                 raise ValueError("sources.yaml must be a YAML list")
             # Rebind rather than mutate in place: --workers reads the index
