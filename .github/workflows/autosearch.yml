@@ -78,7 +78,10 @@ jobs:
       # (catalog) and numpy (quality.py is imported by the CLI entrypoint).
       # Nothing on the --coverage path may import scraper.py — that pulls in
       # httpx + pyarrow, which this job deliberately does not install (see
-      # source_discovery/duration.py).
+      # source_discovery/duration.py). Same rule for `requests`: only the bulk
+      # sweeps call out over HTTP and none of them run here, so bulk.py binds
+      # it lazily rather than at import (it once broke this very step) — do not
+      # "fix" a future ModuleNotFoundError by installing the library here.
       - name: Install deps
         run: pip install pyyaml numpy
 
