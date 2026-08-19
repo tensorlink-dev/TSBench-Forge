@@ -20,13 +20,61 @@ behaviour is how the schedule silently broke once already.
 | `:13,:28,:43,:58` | `sync_hippius.sh` | mirrors `data/` + `sources.yaml` to the Hippius bucket, ~62s | S3 |
 | 06:20 daily | `audit_daily.sh` | freshness audit: newest observation vs declared cadence | `logs/audit-<date>.json` |
 | 06:43 daily | `pool_report.sh` | eval-pool composition: eligible sources/series per domain, domain × cadence grid, depth backlog | `logs/pool-<date>.json` |
-| 07:13 daily | `grind_daily.sh` | finds and wires new sources, commits (never pushes) | `sources.yaml`, `cron.yaml` |
+| 07:13 daily | `grind_daily.sh` | finds and wires new sources, commits (never pushes). 40-min budget, now actually enforced | `sources.yaml`, `cron.yaml` |
 | hourly :07 | `rotate_logs.sh` | the scrape logs are append-only and unbounded; they once reached 315MB, and a full disk looks exactly like a total upstream outage | — |
 
 `grind_daily.sh` **refuses to run when `sources.yaml` or `cron.yaml` have
 uncommitted changes**, so leaving the catalog dirty overnight silently costs a
 day of grind. It also pins `GRIND_BRANCH=main` and will refuse off that branch —
 worth knowing before leaving a feature branch checked out on this host.
+
+### The grind's budget, and the veins that were eating it
+
+Two things about the daily grind were true until 2026-08-18 and are worth
+knowing, because both looked healthy from the outside — it committed every day
+and cleared its floor every day.
+
+**Its budgets were advisory.** `GRIND_MINUTES=40` and the 12-minute per-vein cap
+were enforced from a callback the *sweep* had to choose to call, so a vein that
+went quiet inside one slow request ran straight through both. Measured on the
+2026-08-17 run:
+
+| vein | budget | actual | |
+|---|---|---|---|
+| ckan | 720s | **2047s** | 2.8× over |
+| pxweb | 720s | 910s | 1.3× over |
+| whole run | 2400s | **3233s** | 54 min against a 40-minute budget |
+
+That is why a job placed at `:13` to start in the gap between sweeps was running
+until 08:08, across four sweep windows, on a box with an OOM history. The cap is
+now also armed as a `SIGALRM`, which interrupts the blocking syscall itself.
+
+**Ordering demoted bad veins but never removed them.** The back of the queue is
+still a turn once the productive vein is mined out for the day, so the leftover
+budget drained into veins measured not to pay:
+
+```
+ods_enum   24 wired / 1767s  =    74 s per wired source
+arcgis      1 wired / 1259s  =  1259 s
+ckan        1 wired / 4518s  =  4518 s   <- 75 minutes per source
+```
+
+A vein now gets benched once it has had `VEIN_TRIAL_SECONDS` (30 min cumulative)
+and still cannot wire a source per `VEIN_BENCH_SECONDS_PER_WIRED` (30 min). The
+bench is printed at the top of every run and reported in the JSON. It is
+**reversible by deleting that vein's row from
+`src/sources/discovered/grind/vein_stats.json`**, which puts it back on trial
+from scratch — there is no automatic probation, by design. The board is never
+emptied: if every vein would bench, the bench is dropped and logged.
+
+Expect `pxweb` and `sdmx` to bench themselves within a few days on current form.
+That is the mechanism working, not a fault — but when it happens, **the grind is
+out of productive veins** and the fix is new ones, not a wider budget.
+
+The honest read of the current state: `ods_enum` is the only vein paying, and
+its own yield is falling (found 9 → 9 → 7 → 5; wired 7 → 5 → 4 → 2, with 3 of
+yesterday's 5 finds duplicates). Benching buys back wasted minutes; it does not
+add sources.
 
 ### Poll bands, and why `frequency` alone does nothing
 

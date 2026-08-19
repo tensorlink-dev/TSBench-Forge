@@ -30,15 +30,29 @@ almost everywhere at 2.3k, so it reports nothing useful. Balance here is
 relative — how thin a cell is against its domain's own spread — not a fixed
 floor.
 
+A fourth decision sits underneath those three: **whether a vein gets a turn at
+all**. Ordering by measured yield (see ``_plan``) demotes a bad vein but never
+removes it, and the back of the queue is still a turn once everything ahead is
+mined out for the day. Measured 2026-08-17, that cost 46 of 54 minutes: ckan
+alone took 2047s to wire nothing, for the third day running. So a vein that has
+had a fair trial and cannot pay for its budget is benched — see
+``benched_veins``.
+
 Everything is bounded: a wall-clock deadline, a per-vein deadline, and a cap on
 how many finds may come from one host, because five sources from one API is the
-opposite of what this is for.
+opposite of what this is for. Those deadlines are enforced two ways, and the
+second one exists because the first was quietly insufficient: a cooperative
+check inside the sweep's ``log`` callback, and a SIGALRM that fires whether or
+not the sweep ever logs. See ``_hard_deadline``.
 """
 
 from __future__ import annotations
 
+import contextlib
 import json
+import signal
 import tempfile
+import threading
 import time
 from collections import Counter
 from pathlib import Path
@@ -61,12 +75,37 @@ DEFAULT_MINIMUM = 2
 DEFAULT_MINUTES = 45
 # A vein that has found nothing in this long is not going to; move on.
 VEIN_MINUTES = 12
+# A vein earns its turn by delivering. After TRIAL seconds of cumulative budget
+# it must have wired at least one source per BENCH seconds, or it stops being
+# offered one. Measured 2026-08-18 from a real vein_stats.json, which is where
+# these numbers come from rather than taste:
+#
+#     ods_enum   24 wired / 1767s =    74 s/wired   keep
+#     arcgis      1 wired / 1259s =  1259 s/wired   keep
+#     ckan        1 wired / 4518s =  4518 s/wired   BENCH
+#     pxweb       0 wired /  910s =        inf      keep, still under trial
+#
+# ckan had been costing 34 minutes of every daily run for nothing, because the
+# ordering in _plan demotes a bad vein but never removes it -- so once the one
+# productive vein was mined out for the day, the rest of the budget drained
+# into veins measured not to pay. Demotion is not enough; something has to
+# leave. Reversible: delete a vein's row from vein_stats.json and it is back on
+# trial from scratch.
+VEIN_TRIAL_SECONDS = 1800.0
+VEIN_BENCH_SECONDS_PER_WIRED = 1800.0
 
 ALL_DOMAINS = tuple(config.DOMAINS)
 
 
-class _DeadlineReached(Exception):
-    """Raised out of a sweep's log callback to stop it at its budget."""
+class _DeadlineReached(BaseException):
+    """Raised to stop a sweep at its budget.
+
+    Derived from BaseException rather than Exception on purpose: ``bulk.py``
+    wraps per-host work in 47 separate blanket ``except Exception`` handlers so
+    that one dead portal cannot end a pass, and every one of them would
+    otherwise swallow a deadline raised from the alarm handler below and let
+    the sweep carry on into the next host.
+    """
 
 
 def _deadline_log(deadline: float):
@@ -84,6 +123,49 @@ def _deadline_log(deadline: float):
             raise _DeadlineReached()
 
     return _log
+
+
+def _can_arm_alarm() -> bool:
+    """Whether SIGALRM is usable here. POSIX-only, main-thread-only."""
+    return (hasattr(signal, "SIGALRM")
+            and threading.current_thread() is threading.main_thread())
+
+
+@contextlib.contextmanager
+def _hard_deadline(seconds: float):
+    """Interrupt the body after ``seconds`` even if it never calls ``log``.
+
+    The log callback above is *cooperative*: it can only fire when the sweep
+    chooses to log, so a vein that goes quiet inside one slow request runs
+    straight through its budget. That is not hypothetical — measured
+    2026-08-17, against a 720s per-vein budget:
+
+        ckan    2047s   2.8x over
+        pxweb    910s   1.3x over
+
+    which pushed a 40-minute run to 54 minutes, through four sweep windows on a
+    box with an OOM history. The budget was advisory and read as a guarantee.
+
+    SIGALRM interrupts the blocking syscall itself, so it holds whether or not
+    the sweep is talking. Where it cannot be armed this degrades to the
+    cooperative check rather than pretending to a guarantee it cannot keep;
+    ``yield`` reports which of the two the caller actually got.
+    """
+    if seconds <= 0 or not _can_arm_alarm():
+        yield False
+        return
+
+    def _fire(_signum, _frame):
+        raise _DeadlineReached()
+
+    previous = signal.signal(signal.SIGALRM, _fire)
+    signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield True
+    finally:
+        # Disarm before restoring, so a handler cannot fire into the old one.
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
 
 
 def _resume_checkpoint(path: Path) -> list[dict]:
@@ -274,6 +356,37 @@ def rank_candidates(blocks: list[dict], counts: Counter,
     return picked
 
 
+def benched_veins(stats: dict) -> dict[str, str]:
+    """Veins that have had a fair trial and are not paying for their budget.
+
+    Returns ``{name: reason}``, empty when nothing qualifies.
+
+    Separate from :func:`_plan` because ordering and eligibility are different
+    questions and conflating them made the bug: ``_plan`` correctly sorted ckan
+    to the back, and the back is still a turn once everything ahead of it is
+    exhausted.
+
+    A vein is only judged once it has had ``VEIN_TRIAL_SECONDS`` of cumulative
+    budget, so a slow start cannot bench something that would have paid — and
+    an untried vein, which ``_plan`` deliberately explores first, is never
+    benched at all.
+    """
+    out: dict[str, str] = {}
+    for name, s in (stats or {}).items():
+        if not isinstance(s, dict):
+            continue
+        seconds = float(s.get("seconds") or 0.0)
+        if seconds < VEIN_TRIAL_SECONDS:
+            continue
+        wired = int(s.get("wired") or 0)
+        if not wired:
+            out[name] = f"0 wired in {seconds / 60:.0f} min"
+        elif seconds / wired > VEIN_BENCH_SECONDS_PER_WIRED:
+            out[name] = (f"{seconds / wired / 60:.0f} min per wired source "
+                         f"({wired} in {seconds / 60:.0f} min)")
+    return out
+
+
 def _plan(target_domains: Sequence[str],
           stats: Optional[dict] = None) -> list[tuple["Vein", list[str]]]:
     """Veins to try: thin domains first, best-performing first within that.
@@ -289,6 +402,11 @@ def _plan(target_domains: Sequence[str],
     has been paying. Veins never tried sort FIRST rather than last — an
     unmeasured vein is the cheapest information available, and sorting it last
     would mean a vein that never got a turn can never earn one.
+
+    This orders; it does not exclude. Removing a vein from the board is
+    ``benched_veins``, applied by ``run``, because ordering and eligibility are
+    different questions and conflating them is what let a measured-dead vein
+    keep drawing budget from the back of the queue.
     """
     stats = stats or {}
 
@@ -373,7 +491,22 @@ def run(catalog_path: str | Path,
         pool = [b for b in pool if id(b) not in sent]
 
     stats = load_stats(stats_path)
-    for vein, serving in _plan(target_domains, stats):
+    benched = benched_veins(stats)
+    plan = _plan(target_domains, stats)
+    if benched:
+        kept = [(v, ds) for v, ds in plan if v.name not in benched]
+        if kept:
+            plan = kept
+            log("[grind] benched: " + "; ".join(
+                f"{n} ({r})" for n, r in sorted(benched.items())))
+        else:
+            # Never bench the whole board. A run with no veins is worse than a
+            # run with a bad one, and it would also freeze the stats that are
+            # the only way back off the bench.
+            benched = {}
+            log("[grind] every vein would be benched; running the board anyway")
+
+    for vein, serving in plan:
         if wired >= target:
             break
         if not wire_fn and len(found) >= want:
@@ -407,9 +540,13 @@ def run(catalog_path: str | Path,
         kwargs["checkpoint_path"] = str(ckpt)
         stopped = False
         try:
-            cands, _skipped = vein.fn(
-                str(catalog_path), target=want - len(found),
-                log=_deadline_log(vein_deadline), **kwargs)
+            # Two enforcement paths on purpose: the cooperative one stops a
+            # chatty sweep cleanly at a keyword boundary, the alarm stops a
+            # quiet one that would otherwise never look at the clock.
+            with _hard_deadline(budget):
+                cands, _skipped = vein.fn(
+                    str(catalog_path), target=want - len(found),
+                    log=_deadline_log(vein_deadline), **kwargs)
         except _DeadlineReached:
             stopped = True
             cands = _resume_checkpoint(ckpt)
@@ -440,6 +577,7 @@ def run(catalog_path: str | Path,
     return {
         "target_domains": target_domains,
         "weakest": weak,
+        "benched": benched,
         "veins_run": ran,
         "found": len(found),
         "target": target,

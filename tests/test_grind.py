@@ -404,3 +404,192 @@ def test_ods_enum_is_first_in_the_static_order():
     """It is the only vein measured to deliver: five wired in ~4 minutes where
     a keyword grind managed zero in 35."""
     assert grind._veins()[0].name == "ods_enum"
+
+
+# --- benching: demotion is not enough, something has to leave ---------------
+#
+# _plan sorts a bad vein to the back, and the back is still a turn once
+# everything ahead of it is mined out for the day. Measured 2026-08-17: ckan
+# took 2047s of a 2400s run to wire nothing, three days running.
+
+def test_a_vein_that_cannot_pay_for_its_budget_is_benched():
+    """The real vein_stats.json numbers that motivated this."""
+    benched = grind.benched_veins({
+        "ods_enum": {"seconds": 1767, "found": 39, "wired": 24, "runs": 5},
+        "arcgis":   {"seconds": 1259, "found": 1,  "wired": 1,  "runs": 2},
+        "ckan":     {"seconds": 4518, "found": 1,  "wired": 1,  "runs": 3},
+    })
+    assert set(benched) == {"ckan"}, (
+        "ckan cost 75 min per wired source; arcgis cost 21 and still pays")
+    assert "min per wired source" in benched["ckan"]
+
+
+def test_a_vein_still_under_trial_is_not_benched():
+    """A slow start must not bench something that would have paid. pxweb had
+    910s and nothing to show for it, which is not yet evidence."""
+    assert grind.benched_veins(
+        {"pxweb": {"seconds": 910, "found": 0, "wired": 0, "runs": 1}}) == {}
+
+
+def test_a_vein_that_never_wires_is_benched_once_tried_enough():
+    got = grind.benched_veins(
+        {"pxweb": {"seconds": grind.VEIN_TRIAL_SECONDS + 1,
+                   "found": 3, "wired": 0, "runs": 4}})
+    assert "pxweb" in got and "0 wired" in got["pxweb"], (
+        "found-but-never-wired is the worse case: it spends the budget twice")
+
+
+def test_an_untried_vein_is_never_benched():
+    """_plan explores the untried first; benching them would close that door
+    before it opened."""
+    assert grind.benched_veins({}) == {}
+    assert grind.benched_veins({"gbfs": {"seconds": 0, "wired": 0}}) == {}
+
+
+def test_a_benched_vein_does_not_get_a_turn(tmp_path, monkeypatch):
+    calls = {"dead": 0, "live": 0}
+
+    def dead(catalog, target=None, log=print, checkpoint_path=None, **kw):
+        calls["dead"] += 1
+        return [], []
+
+    def live(catalog, target=None, log=print, checkpoint_path=None, **kw):
+        calls["live"] += 1
+        return [_block("kept", "energy", "PT1H", "live.example")], []
+
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("dead", dead, ("energy",)),
+        grind.Vein("live", live, ("energy",)),
+    ))
+    stats = tmp_path / "vein_stats.json"
+    stats.write_text(__import__("json").dumps({
+        "dead": {"seconds": 4518, "found": 1, "wired": 0, "runs": 3},
+        "live": {"seconds": 100, "found": 5, "wired": 5, "runs": 1},
+    }))
+
+    out = grind.run(_all_domains_catalog(tmp_path), target=2, minutes=5,
+                    n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    stats_path=stats, log=lambda m: None)
+
+    assert calls == {"dead": 0, "live": 1}
+    assert "dead" in out["benched"], "and it is reported, not silently dropped"
+
+
+def test_benching_never_empties_the_board(tmp_path, monkeypatch):
+    """A run with no veins is worse than a run with a bad one — and it would
+    freeze the stats that are the only way back off the bench."""
+    calls = {"n": 0}
+
+    def only(catalog, target=None, log=print, checkpoint_path=None, **kw):
+        calls["n"] += 1
+        return [], []
+
+    monkeypatch.setattr(grind, "_veins",
+                        lambda: (grind.Vein("only", only, ("energy",)),))
+    stats = tmp_path / "vein_stats.json"
+    stats.write_text(__import__("json").dumps(
+        {"only": {"seconds": 9999, "found": 0, "wired": 0, "runs": 9}}))
+
+    out = grind.run(_all_domains_catalog(tmp_path), target=2, minutes=5,
+                    n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    stats_path=stats, log=lambda m: None)
+
+    assert calls["n"] == 1
+    assert out["benched"] == {}, "the bench is dropped, and says so"
+
+
+# --- the budget was advisory, and read as a guarantee -----------------------
+
+def test_a_vein_that_never_logs_is_still_stopped_at_its_budget(
+        tmp_path, monkeypatch):
+    """The cooperative check can only fire when the sweep chooses to log.
+    Measured 2026-08-17: ckan ran 2047s against a 720s budget and pushed a
+    40-minute run to 54, straight through four sweep windows."""
+    import json as _json
+    import time as _time
+
+    if not grind._can_arm_alarm():                    # pragma: no cover
+        pytest.skip("SIGALRM unavailable here")
+
+    def silent(catalog, target=None, log=print, checkpoint_path=None, **kw):
+        Path(checkpoint_path).write_text(_json.dumps(
+            [_block("banked", "energy", "PT1H", "silent.example")]))
+        _time.sleep(30)                # never logs, so nothing checks the clock
+        raise AssertionError("the alarm never fired")   # pragma: no cover
+
+    def after(catalog, target=None, log=print, checkpoint_path=None, **kw):
+        return [_block("quick", "energy", "PT5M", "after.example")], []
+
+    monkeypatch.setattr(grind, "_veins", lambda: (
+        grind.Vein("silent", silent, ("energy",)),
+        grind.Vein("after", after, ("energy",)),
+    ))
+    monkeypatch.setattr(grind, "VEIN_MINUTES", 1.0 / 60.0)      # 1 second
+
+    began = _time.monotonic()
+    out = grind.run(_all_domains_catalog(tmp_path), target=2, minutes=5,
+                    n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    log=lambda m: None)
+    elapsed = _time.monotonic() - began
+
+    assert elapsed < 10, f"ran {elapsed:.0f}s against a 1s budget"
+    row = next(r for r in out["veins_run"] if r["vein"] == "silent")
+    assert row["stopped_at_budget"] is True
+    assert row["found"] == 1, "checkpointed finds survive the hard stop too"
+    assert {b["candidate_name"] for b in out["ranked"]} == {"banked", "quick"}
+
+
+def test_the_alarm_is_disarmed_after_a_vein_finishes(tmp_path, monkeypatch):
+    """A timer left armed would fire into whatever ran next — including the
+    wire step, which writes sources.yaml."""
+    import signal as _signal
+    import time as _time
+
+    if not grind._can_arm_alarm():                    # pragma: no cover
+        pytest.skip("SIGALRM unavailable here")
+
+    def quick(catalog, target=None, log=print, checkpoint_path=None, **kw):
+        return [_block("q", "energy", "PT1H", "q.example")], []
+
+    monkeypatch.setattr(grind, "_veins",
+                        lambda: (grind.Vein("quick", quick, ("energy",)),))
+    monkeypatch.setattr(grind, "VEIN_MINUTES", 1.0 / 60.0)
+
+    before = _signal.getsignal(_signal.SIGALRM)
+    grind.run(_all_domains_catalog(tmp_path), target=1, minutes=5,
+              n_domains=1, checkpoint_dir=tmp_path / "ck", log=lambda m: None)
+
+    assert _signal.getsignal(_signal.SIGALRM) is before, "handler restored"
+    assert _signal.getitimer(_signal.ITIMER_REAL) == (0.0, 0.0), "disarmed"
+    _time.sleep(1.5)          # would raise here if the timer were still live
+
+
+def test_the_deadline_survives_a_sweep_that_swallows_exceptions(
+        tmp_path, monkeypatch):
+    """bulk.py has 47 blanket `except Exception` handlers so one dead host
+    cannot end a pass. A deadline derived from Exception would be eaten by
+    every one of them."""
+    import time as _time
+
+    if not grind._can_arm_alarm():                    # pragma: no cover
+        pytest.skip("SIGALRM unavailable here")
+
+    def swallower(catalog, target=None, log=print, checkpoint_path=None, **kw):
+        for _ in range(60):
+            try:
+                _time.sleep(0.5)
+            except Exception:            # noqa: BLE001 — the pattern under test
+                pass
+        raise AssertionError("the deadline was swallowed")   # pragma: no cover
+
+    monkeypatch.setattr(grind, "_veins",
+                        lambda: (grind.Vein("swallower", swallower,
+                                            ("energy",)),))
+    monkeypatch.setattr(grind, "VEIN_MINUTES", 1.0 / 60.0)
+
+    began = _time.monotonic()
+    out = grind.run(_all_domains_catalog(tmp_path), target=1, minutes=5,
+                    n_domains=1, checkpoint_dir=tmp_path / "ck",
+                    log=lambda m: None)
+    assert _time.monotonic() - began < 10
+    assert out["veins_run"][0]["stopped_at_budget"] is True
