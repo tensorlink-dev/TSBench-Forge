@@ -719,37 +719,26 @@
   frequency: PT1H
   endpoint:
     type: rest_csv
-    url: https://www.ndbc.noaa.gov/data/realtime2/{BUOY}.txt
+    url: https://coastwatch.pfeg.noaa.gov/erddap/tabledap/cwwcNDBCMet.csv?station%2Ctime%2Cwspd%2Cwvht%2Cbar%2Catmp%2Cwtmp&station=~%22(41008%7C41001%7C41002%7C41010%7C41040%7C42001%7C42002%7C42040%7C41048%7C44027%7C44008%7C44011%7C44013%7C44025%7C46001%7C46002%7C46006%7C46026%7C51001)%22&time%3E={YYYY-MM-DD-2d}
     auth: none
     rate_limit: null
-  panel:
-  - BUOY: '41008'
-  - BUOY: '41001'
-  - BUOY: '41002'
-  - BUOY: '41010'
-  - BUOY: '41040'
-  - BUOY: '42001'
-  - BUOY: '42002'
-  - BUOY: '42040'
-  - BUOY: '41048'
-  - BUOY: '44027'
-  - BUOY: '44008'
-  - BUOY: '44011'
-  - BUOY: '44013'
-  - BUOY: '44025'
-  - BUOY: '46001'
-  - BUOY: '46002'
-  - BUOY: '46006'
-  - BUOY: '46026'
-  - BUOY: '51001'
+    timeout: 90
   schema:
-    timestamp_field: YY MM DD hh mm
+    timestamp_field: time
     value_field:
-    - WSPD
-    - WVHT
-    - PRES
-    - ATMP
-    - WTMP
+    - wspd
+    - wvht
+    - bar
+    - atmp
+    - wtmp
+    panel_field: station
+    rename:
+      wspd: WSPD
+      wvht: WVHT
+      bar: PRES
+      atmp: ATMP
+      wtmp: WTMP
+      _panel_station: _panel_BUOY
     variates: 5
   history_available: P30Y
   update_cadence_observed: hourly
@@ -761,7 +750,13 @@
     last_verified: 2026-05-11 01:25:00+00:00
     sample_rows: 100
     sample_freshness_hours: 1.0
-  notes: Buoy id list at https://www.ndbc.noaa.gov/wstat.shtml. 'MM' = missing.
+  notes: 'Rewired 2026-08-19: www.ndbc.noaa.gov started 403ing this host (IP
+    block, ~2026-07-30), so the same NDBC data now comes from the CoastWatch
+    ERDDAP mirror (dataset cwwcNDBCMet) — one regex-constrained request for
+    the whole 19-buoy panel instead of a request per buoy. schema.rename maps
+    ERDDAP column names back to the realtime2 ones so the series keep their
+    accumulated history. Units unchanged (m/s, m, hPa, degC). Buoy id list at
+    https://www.ndbc.noaa.gov/wstat.shtml.'
 - id: swpc_planetary_k
   name: NOAA SWPC planetary K-index (1-min estimated)
   domain: nature
@@ -770,6 +765,7 @@
   - bounded
   - chaotic_nonlinear
   frequency: PT1M
+  poll: PT1H  # services.swpc.noaa.gov 403s this host; resume-probe only
   endpoint:
     type: rest_json
     url: https://services.swpc.noaa.gov/json/planetary_k_index_1m.json
@@ -796,6 +792,7 @@
   archetypes:
   - chaotic_nonlinear
   frequency: PT1M
+  poll: PT30M  # blocked host; 1h-window feed, PT30M loses nothing once unblocked
   endpoint:
     type: rest_json
     url: https://services.swpc.noaa.gov/products/geospace/propagated-solar-wind-1-hour.json
@@ -1696,6 +1693,7 @@
   - hierarchical
   - smooth_periodic
   frequency: PT1M
+  poll: PT1H  # SE anon quota is ~300 req/day per IP; 10 sources at hourly = 240
   endpoint:
     type: rest_json
     url: https://api.stackexchange.com/2.3/questions?order=desc&sort=creation&site=stackoverflow&pagesize=100
@@ -2080,6 +2078,7 @@
   - chaotic_nonlinear
   - zero_inflated_sparse
   frequency: PT1M
+  poll: PT1H  # services.swpc.noaa.gov 403s this host; resume-probe only
   endpoint:
     type: rest_json
     url: https://services.swpc.noaa.gov/json/goes/primary/xrays-1-day.json
@@ -7241,6 +7240,7 @@
   - bounded
   - chaotic_nonlinear
   frequency: PT30M
+  poll: PT6H  # www.ndbc.noaa.gov 403s this host, no mirror carries spectral density; resume-probe only
   endpoint:
     type: rest_csv
     url: https://www.ndbc.noaa.gov/data/realtime2/41013.data_spec
@@ -7264,6 +7264,7 @@
   - bursty
   - chaotic_nonlinear
   frequency: PT1H
+  poll: PT1H  # services.swpc.noaa.gov 403s this host; resume-probe only
   endpoint:
     type: rest_json
     url: https://services.swpc.noaa.gov/json/edited_events.json
@@ -7347,6 +7348,7 @@
   - chaotic_nonlinear
   - count_discrete
   frequency: PT1M
+  poll: PT1H  # services.swpc.noaa.gov 403s this host; resume-probe only
   endpoint:
     type: rest_json
     url: https://services.swpc.noaa.gov/json/goes/primary/xray-flares-7-day.json
@@ -8596,22 +8598,35 @@
   frequency: PT30M
   endpoint:
     type: rest_csv
-    url: https://www.ndbc.noaa.gov/data/latest_obs/latest_obs.txt
+    url: https://coastwatch.pfeg.noaa.gov/erddap/tabledap/cwwcNDBCMet.csv?station%2Ctime%2Cbar%2Catmp%2Cwtmp%2Cwspd&time%3E={YYYY-MM-DD-1d}
     auth: none
     rate_limit: null
+    timeout: 120
   schema:
-    timestamp_field: YYYY MM DD hh mm
+    timestamp_field: time
     value_field:
-    - PRES
-    - ATMP
-    - WTMP
-    - WSPD
-    panel_field: STN
+    - bar
+    - atmp
+    - wtmp
+    - wspd
+    panel_field: station
+    rename:
+      bar: PRES
+      atmp: ATMP
+      wtmp: WTMP
+      wspd: WSPD
+      _panel_station: _panel_STN
     variates: 4
   pretraining_novelty: partial
-  novelty_notes: 'All-station latest-obs snapshot (~900 stations/poll), distinct from the per-buoy realtime2 feed (ndbc_buoy_realtime): a wide station panel of current sea-level pressure, air/water temp and wind. ''MM'' = missing.'
+  novelty_notes: 'All-station observation panel (~900 stations/poll), distinct from the per-buoy realtime2 feed (ndbc_buoy_realtime): a wide station panel of sea-level pressure, air/water temp and wind.'
   license: Public domain (NOAA)
-  notes: 'Feature: paneled snapshot (schema.panel_field: STN) + composite whitespace-delimited timestamp (YYYY MM DD hh mm) over a wide fixed-width text feed. Verified via scraper._records_from_csv: 898 rows, 898 distinct STN entities, PRES numeric for 636 stations / ATMP 622 (>=20 numeric entities). Snapshot: one obs per station per poll.'
+  notes: 'Rewired 2026-08-19: www.ndbc.noaa.gov started 403ing this host (IP
+    block, ~2026-07-30), so the all-station snapshot now reads the CoastWatch
+    ERDDAP mirror (cwwcNDBCMet) over a rolling 1-day window — same network,
+    real per-observation timestamps instead of a latest-obs snapshot, dedup
+    absorbs the overlap. schema.rename maps ERDDAP columns back to the
+    latest_obs names (bar->PRES etc.) and _panel_station back to _panel_STN
+    so every station series keeps its history. Units unchanged.'
 - id: nyc_restaurant_inspections_daily
   name: NYC restaurant inspection violations — daily count
   domain: sales
@@ -9553,6 +9568,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     url: https://api.stackexchange.com/2.3/questions?site=stackoverflow&pagesize=100&order=desc&sort=creation
@@ -11892,6 +11908,7 @@
   - zero_inflated_sparse
   - smooth_periodic
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     url: https://api.stackexchange.com/2.3/questions?site=serverfault&pagesize=100&order=desc&sort=creation
@@ -11918,6 +11935,7 @@
   - zero_inflated_sparse
   - smooth_periodic
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     url: https://api.stackexchange.com/2.3/questions?site=superuser&pagesize=100&order=desc&sort=creation
@@ -12430,6 +12448,7 @@
   - zero_inflated_sparse
   - smooth_periodic
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     auth: none
@@ -12456,6 +12475,7 @@
   - zero_inflated_sparse
   - smooth_periodic
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     auth: none
@@ -12482,6 +12502,7 @@
   - zero_inflated_sparse
   - smooth_periodic
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     auth: none
@@ -13690,6 +13711,7 @@
   - zero_inflated_sparse
   - smooth_periodic
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     auth: none
@@ -13716,6 +13738,7 @@
   - zero_inflated_sparse
   - smooth_periodic
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     auth: none
@@ -13742,6 +13765,7 @@
   - zero_inflated_sparse
   - smooth_periodic
   frequency: PT1H
+  poll: PT1H  # shares the SE anon IP quota
   endpoint:
     type: rest_json
     auth: none
@@ -90349,3 +90373,102 @@
     series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
     cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
     count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: gfz_hp30_nowcast
+  name: GFZ Potsdam Hp30 half-hourly geomagnetic index (nowcast)
+  domain: nature
+  dgp_class: space_weather
+  archetypes:
+  - bounded
+  - chaotic_nonlinear
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://kp.gfz.de/app/json/?start={YYYY-MM-DD-3d}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A00Z&index=Hp30
+    auth: none
+    rate_limit: null
+    timeout: 60
+  schema:
+    timestamp_field: datetime
+    value_field:
+    - Hp30
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: half-hourly
+  pretraining_novelty: clean
+  novelty_notes: Hp30 is the half-hourly open-ended sibling of Kp; not in major TSFM corpora.
+  license: CC BY 4.0 (GFZ German Research Centre for Geosciences)
+  notes: 'Wired 2026-08-19 to keep geomagnetic-index coverage while
+    services.swpc.noaa.gov 403s this host (swpc_planetary_k is parked on a
+    slow resume-probe poll). GFZ is the institution that *produces* Kp; Hp30
+    is its half-hourly index on the same 0-9ish scale, columnar JSON
+    ({"Hp30": [...], "datetime": [...]}) zipped by index. Rolling 3-day
+    window backfills, so the hourly backfill-window poll gate applies.'
+- id: silso_sunspot_monthly
+  name: SILSO monthly mean total sunspot number (Royal Observatory of Belgium)
+  domain: nature
+  dgp_class: space_weather
+  archetypes:
+  - smooth_periodic
+  - bounded
+  frequency: P1M
+  endpoint:
+    type: rest_csv
+    url: https://www.sidc.be/SILSO/DATA/SN_m_tot_V2.0.csv
+    auth: none
+    rate_limit: null
+    timeout: 60
+  schema:
+    timestamp_field: year month
+    csv_delimiter: ';'
+    csv_columns:
+    - year
+    - month
+    - decimal_year
+    - sunspot_number
+    - sn_stdev
+    - n_obs
+    - provisional
+    value_field:
+    - sunspot_number
+    variates: 1
+  history_available: P275Y
+  update_cadence_observed: monthly (1st of month)
+  pretraining_novelty: partial
+  novelty_notes: The canonical sunspot series; monthly V2.0 from the producing observatory.
+  license: CC BY-NC 4.0 (SILSO, Royal Observatory of Belgium)
+  notes: 'Wired 2026-08-19: SILSO is the upstream producer of the sunspot
+    number that swpc_solar_cycle_sunspot_monthly (blocked host) repackages —
+    same quantity from the source of record. Headerless semicolon CSV
+    (csv_columns), composite year+month timestamp, series starts 1749.'
+- id: nasa_donki_solar_flares
+  name: NASA DONKI solar flare events — daily count
+  domain: nature
+  dgp_class: space_weather
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  frequency: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.nasa.gov/DONKI/FLR?startDate={YYYY-MM-DD-30d}&endDate={YYYY-MM-DD}&api_key=DEMO_KEY
+    auth: none
+    rate_limit: DEMO_KEY is 30 req/h / 50 req/day per IP; P1D poll uses ~4/day
+    timeout: 60
+  schema:
+    timestamp_field: '[].beginTime'
+    value_field: ''
+    variates: 1
+    aggregate:
+      op: count
+      bin: P1D
+  history_available: P15Y
+  update_cadence_observed: event-driven, hours-scale latency
+  pretraining_novelty: clean
+  novelty_notes: Flare event-count series; DONKI is not in TSFM corpora.
+  license: Public domain (NASA)
+  notes: 'Wired 2026-08-19 to keep solar-flare coverage while
+    services.swpc.noaa.gov 403s this host (swpc_solar_flare_events /
+    _event_counts are parked on slow resume-probe polls). DONKI catalogs GOES
+    flares with begin/peak/end times; counted per day over a rolling 30-day
+    window. Quiet-sun days simply have no events — gaps are real. DEMO_KEY
+    quota is per-IP and far above the ~4 fetches/day a P1D source gets.'

@@ -1183,28 +1183,47 @@ def test_coerce_utc(raw, ok):
 
 
 def test_load_sources_parses_the_catalog_once(monkeypatch):
-    """get_source() used to re-parse ~20k lines of YAML per source, which alone
-    put a full sweep over the CI job timeout."""
+    """get_source() used to re-parse ~90k lines of YAML per source, which alone
+    put a full sweep over the CI job timeout.
+
+    Hooks ``yaml.load``, not ``yaml.safe_load``. The catalog moved to
+    ``yaml.load(..., Loader=CSafeLoader)`` on 2026-08-16 and both cache tests
+    kept hooking a function the code no longer calls — so this one passed
+    vacuously (it would have passed with the cache deleted) and its sibling
+    below failed on main. Hook what the code actually calls.
+    """
     scraper.load_sources(refresh=True)
     parses = []
-    real = yaml_safe_load = __import__("yaml").safe_load
-    monkeypatch.setattr(scraper.yaml, "safe_load",
+    real = __import__("yaml").load
+    monkeypatch.setattr(scraper.yaml, "load",
                         lambda *a, **k: (parses.append(1), real(*a, **k))[1])
     ids = [s["id"] for s in scraper.load_sources()[:20]]
     for sid in ids:
         assert scraper.get_source(sid)["id"] == sid
-    assert parses == []
-    assert yaml_safe_load is real
+    assert parses == [], "the catalog was re-parsed per source"
 
 
 def test_load_sources_refresh_rereads(monkeypatch):
     scraper.load_sources(refresh=True)
     parses = []
-    real = __import__("yaml").safe_load
-    monkeypatch.setattr(scraper.yaml, "safe_load",
+    real = __import__("yaml").load
+    monkeypatch.setattr(scraper.yaml, "load",
                         lambda *a, **k: (parses.append(1), real(*a, **k))[1])
     scraper.load_sources(refresh=True)
     assert len(parses) == 1
+
+
+def test_the_catalog_uses_libyaml_when_it_is_available():
+    """Measured 2026-08-16 on the 3.7MB catalog: ``safe_load`` 24.5s,
+    ``CSafeLoader`` 4.3s. The every-minute band has ~7s of slack in a 60s tick,
+    so quietly falling back to the pure-Python loader costs ~20% of its ticks —
+    which is exactly how this was found."""
+    import yaml as _yaml
+    assert scraper._YAML_LOADER is getattr(_yaml, "CSafeLoader",
+                                           _yaml.SafeLoader)
+    if not hasattr(_yaml, "CSafeLoader"):        # pragma: no cover
+        pytest.skip("pyyaml built without libyaml; the minute band will drop "
+                    "ticks on this host")
 
 
 def test_deadline_helpers(monkeypatch):
@@ -1537,3 +1556,69 @@ def test_main_id_list_tolerates_spacing_and_trailing_commas(monkeypatch):
     monkeypatch.setattr(sys, "argv", ["scraper.py", "--id", " s0 , s1 ,"])
     assert scraper.main() == 0
     assert started == ["s0", "s1"]
+
+
+def test_is_due_poll_override_beats_the_frequency_gate(monkeypatch):
+    """`poll:` sets an explicit fetch period, whatever the data cadence says.
+
+    StackExchange's data is near-realtime but its anonymous quota is ~300
+    requests/day; 10 sources fetched every sweep is 960 and earns an IP ban.
+    """
+    src = {"id": "x", "frequency": "PT1M", "poll": "PT1H"}
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 600.0)
+    assert scraper.is_due(src) is False
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 3700.0)
+    assert scraper.is_due(src) is True
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: None)
+    assert scraper.is_due(src) is True
+
+
+def test_is_due_backfilling_fast_feed_is_fetched_hourly(monkeypatch):
+    """A fast-declared feed whose URL re-serves a 14-day window loses nothing
+    to an hourly fetch — every point comes back via dedup anyway."""
+    src = {"id": "x", "frequency": "PT15M",
+           "endpoint": {"url": "https://h/price?start={YYYY-MM-DD-14d}"}}
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 600.0)
+    assert scraper.is_due(src) is False
+    # past the largest possible stagger phase it is always due
+    monkeypatch.setattr(scraper, "_last_scraped_age",
+                        lambda sid: scraper._MIN_REFRESH_SECONDS + 3 * 900 + 1.0)
+    assert scraper.is_due(src) is True
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: None)
+    assert scraper.is_due(src) is True
+
+
+def test_is_due_windowless_fast_feed_still_runs_every_sweep(monkeypatch):
+    """A "now"-snapshot feed has no window token and keeps its per-sweep poll."""
+    monkeypatch.setattr(scraper, "_last_scraped_age", lambda sid: 600.0)
+    src = {"id": "x", "frequency": "PT1M",
+           "endpoint": {"url": "https://h/latest.json"}}
+    assert scraper.is_due(src) is True
+
+
+def test_backfill_stagger_spreads_a_publishers_catalog():
+    """The per-id phase must actually split one host's sources across sweeps,
+    or the hourly wave re-creates the serialized burst the rule exists to
+    prevent."""
+    phases = {scraper._staggered_refresh_seconds(f"src_{i}") for i in range(60)}
+    assert len(phases) == 4
+    assert min(phases) >= scraper._MIN_REFRESH_SECONDS
+
+
+def test_is_due_poll_gates_on_attempts_not_just_writes(tmp_path, monkeypatch):
+    """A poll-limited source that keeps FAILING must still respect its poll
+    period — quotas count requests, not successes, so a banned feed that came
+    due every sweep would keep renewing the very ban it is failing under."""
+    monkeypatch.setattr(scraper, "DATA_DIR", tmp_path)
+    src = {"id": "banned", "frequency": "PT1M", "poll": "PT1H"}
+    # never contacted at all -> due
+    assert scraper.is_due(src) is True
+    # attempted just now (fetch failed, nothing written) -> not due again
+    scraper._mark_attempt("banned")
+    assert scraper.is_due(src) is False
+    # attempt marker aged past the poll period -> due again
+    import os
+    marker = tmp_path / "banned" / ".last_attempt"
+    old = _time.time() - 3700
+    os.utime(marker, (old, old))
+    assert scraper.is_due(src) is True

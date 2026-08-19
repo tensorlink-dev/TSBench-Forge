@@ -248,3 +248,35 @@ Drift between `/root/cron` and `ops/cron` is its own failure mode — twice a fi
 has been made to the deployed copy and not the checked-in one, leaving
 `install.sh` able to revert it on the next restore. The `diff` above is the
 cheap guard; run it before trusting the repo as the source of truth.
+
+## Polling politeness: `poll:` and the backfill-window gate
+
+Two rules added 2026-08-19, after the audit showed three publishers pushing
+back on our request rate — the day the catalog crossed ~3,000 sources:
+
+- **`poll: <ISO duration>` on a source** overrides every cadence rule and sets
+  an explicit contact rate. It gates on *attempts* (a `.last_attempt` marker in
+  the source's data dir), not on successful writes — quotas count requests, and
+  a source failing under an IP ban would otherwise come due on every sweep and
+  keep renewing its own ban. Used for StackExchange (anonymous quota ~300
+  req/day per IP; 10 sources at hourly = 240) and as a cheap "resume probe" on
+  sources whose publisher currently 403s this host.
+- **Backfill-window gate in `is_due()`**: a fast-declared feed whose URL
+  re-serves a multi-day rolling window (`{YYYY-MM-DD-14d}`) backfills every
+  point via dedup, so sub-hourly fetches buy nothing but load. Such feeds are
+  refreshed roughly hourly on a stable per-id stagger (4 phases, 15 min apart)
+  so one publisher's whole catalog does not come due on the same sweep.
+  Measured before the rule: api.energy-charts.info took ~580 req/hour from 145
+  such sources and answered ~200/hour with HTTP 429, each retry stalling a
+  sweep worker 12s — which is where the sweep's 12-min deadline was going.
+
+When a publisher blocks us outright (NOAA's www.ndbc.noaa.gov and
+services.swpc.noaa.gov 403 this host's IP as of ~2026-07-30; browser headers
+change nothing): rewire to a mirror rather than dropping the source.
+`schema.rename: {api_name: stored_name}` exists for exactly this — it maps the
+mirror's column names (and `_panel_*` keys) back to the original ones so the
+series keep their accumulated history. See ndbc_buoy_realtime (CoastWatch
+ERDDAP `cwwcNDBCMet`) for the pattern; gfz_hp30_nowcast / silso_sunspot_monthly
+/ nasa_donki_solar_flares carry the coverage of the still-blocked SWPC feeds,
+which sit on slow `poll:` resume-probes and come back by themselves if the
+block lifts.

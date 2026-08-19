@@ -34,8 +34,13 @@ source "$REPO/.venv/bin/activate"
 # cadence tiers rather than adding workers.
 # --deadline-minutes: stop STARTING sources at 12 min so the run always exits
 # before the next tick; cadence tracking means anything skipped is simply due
-# again next sweep. Moving the upload out (2026-08-16) freed ~5 min of tick, so
-# there is now room to raise this and cut the 20-60 sources left unstarted each
-# pass -- measure a few cycles at 15-min cadence before spending that headroom.
+# again next sweep. 2026-08-19: the catalog's +625 sources (08-13/14) had the
+# sweep hitting this deadline on every pass with ~34 sources unstarted.
+# Considered raising to 14 and DIDN'T: the daily jobs at :43/:13 sit in gaps
+# that assume sweeps end at :12, and this box OOMs when heavy readers overlap.
+# Instead the backfill-window gate in is_due() (same date) took ~160 fetches
+# and the energy-charts 429 retry stalls out of each pass. If the monitor
+# still reports deadline-hit after that, raise this to 14 AND move
+# pool_report/grind_daily out of the :30-:44 / :00-:14 windows together.
 python src/sources/scraper.py --all --workers 8 --deadline-minutes 12 \
     >> "$REPO/src/sources/data/_cron_all.log" 2>&1

@@ -49,6 +49,7 @@ import sys
 import threading
 import time
 import zipfile
+import zlib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Iterable, Optional
@@ -1506,9 +1507,19 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     written timestamp always sit in the future, blinding the freshness audit.
 
     `schema.max_panel_groups` caps how many panel groups a poll keeps; see
-    `_cap_panel_groups` for why the default is not "all of them"."""
+    `_cap_panel_groups` for why the default is not "all of them".
+
+    `schema.rename: {api_name: stored_name}` renames record keys after
+    parsing. Its job is series continuity across an endpoint swap: when a
+    publisher blocks or dies and the same data is rewired from a mirror whose
+    column names differ (NDBC realtime2's PRES is ERDDAP's `bar`), renaming
+    back to the original keys keeps years of accumulated history on one
+    series instead of restarting every variate from zero."""
     recs = _dispatch_parse(src, blob, content_type)
     schema = src.get("schema", {})
+    ren = schema.get("rename")
+    if ren:
+        recs = [{ren.get(k, k): v for k, v in r.items()} for r in recs]
     if schema.get("snapshot_now"):
         # Live-snapshot APIs with no per-record timestamp (SEPTA TrainView,
         # TTC vehicle positions): stamp fetch time. Without a timestamp list
@@ -2194,6 +2205,50 @@ def _last_scraped_age(sid: str) -> Optional[float]:
     return time.time() - max(mtimes)
 
 
+def _mark_attempt(sid: str) -> None:
+    """Record that a fetch was attempted, successful or not."""
+    d = DATA_DIR / sid
+    try:
+        d.mkdir(parents=True, exist_ok=True)
+        (d / ".last_attempt").touch()
+    except OSError:
+        pass
+
+
+def _last_attempt_age(sid: str) -> Optional[float]:
+    """Seconds since a fetch was last *attempted*, write or no write.
+
+    ``poll:`` promises the publisher a contact rate, and quotas count
+    requests, not successes — so its gate must run off attempts. Gated on
+    writes alone, a source failing under an IP ban stays "never refreshed",
+    comes due every sweep, and hammers the quota it is banned for.
+    """
+    marker = DATA_DIR / sid / ".last_attempt"
+    try:
+        return time.time() - marker.stat().st_mtime
+    except OSError:
+        return None
+
+
+def _backfill_window_days(src: dict) -> int:
+    """Days of history the endpoint re-serves on every fetch, judged by its
+    rolling-window date tokens ({YYYY-MM-DD-14d} and friends). 0 if the URL
+    carries no such window — i.e. the feed only answers with "now"."""
+    ep = src.get("endpoint") or {}
+    blob = " ".join(str(ep.get(k, "")) for k in ("url", "body", "query",
+                                                 "variables"))
+    return max((int(d) for d in _OFFSET_DATE_RE.findall(blob)), default=0)
+
+
+def _staggered_refresh_seconds(sid: str) -> int:
+    """Refresh threshold for backfilling feeds: roughly hourly, offset by a
+    stable per-id phase so a publisher's whole catalog does not come due on
+    the same sweep. energy-charts wires 145 series behind one host; with a
+    single shared threshold they all crossed it together and the resulting
+    serialized burst was what drew the 429s."""
+    return _MIN_REFRESH_SECONDS + (zlib.crc32(sid.encode()) % 4) * 900
+
+
 def is_due(src: dict) -> bool:
     """Should this source be fetched on the current sweep?
 
@@ -2203,9 +2258,32 @@ def is_due(src: dict) -> bool:
     so refetching a large monthly panel that often is the dominant cost of a
     sweep. Those are refreshed at most every 6 hours, which still gives several
     chances a day to pick up revisions.
+
+    Two refinements on top of the frequency gate:
+
+    - ``poll:`` on a source overrides everything — an explicit polling
+      period for feeds whose *data* cadence is fine but whose publisher
+      cannot take a fetch per sweep (StackExchange allows ~300 anonymous
+      requests a day; 10 sources at 96 sweeps was 960, and the API answered
+      with a day-long IP ban).
+    - A fast-declared feed whose URL re-serves a multi-day rolling window
+      (``{YYYY-MM-DD-14d}``) backfills every point via dedup, exactly like
+      the slow feeds above — so sub-hourly fetches buy nothing but load.
+      Those are refreshed roughly hourly on a per-id stagger. Measured
+      before the rule: api.energy-charts.info alone took ~580 requests/hour
+      from 145 such sources and returned ~200 of them HTTP 429, each retry
+      stalling a sweep worker for 12s.
     """
+    poll = _period_seconds(src.get("poll"))
+    if poll:
+        ages = [a for a in (_last_scraped_age(src["id"]),
+                            _last_attempt_age(src["id"])) if a is not None]
+        return not ages or min(ages) >= poll
     period = _period_seconds(src.get("frequency"))
     if period is None or period <= _MIN_REFRESH_SECONDS:
+        if _backfill_window_days(src) >= 1:
+            age = _last_scraped_age(src["id"])
+            return age is None or age >= _staggered_refresh_seconds(src["id"])
         return True
     age = _last_scraped_age(src["id"])
     if age is None:
@@ -2282,6 +2360,8 @@ def run_one(sid: str, dry_run: bool = False) -> int:
         log.info("skip %s (disabled: %s)", sid, src.get("disabled_reason", "no reason given"))
         return 0
     log.info("fetch %s -> %s", sid, src["endpoint"]["url"][:120])
+    if src.get("poll") and not dry_run:
+        _mark_attempt(sid)
 
     panel = src.get("panel") or [None]   # list of dicts or [None] for single-poll
     lock = _host_lock(src["endpoint"]["url"])
