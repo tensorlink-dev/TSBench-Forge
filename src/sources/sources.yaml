@@ -90099,3 +90099,253 @@
     on date; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a rolling
     table returns the oldest rows and reads as a dead source. Panel dimension id_compteur is pinned to ''100041488-101041488'':
     without it the response interleaves several series on the same timestamps.'
+
+# -- wired batch: grind-20260819-0713 --
+- id: opendata_ods156_33
+  name: Individual incremental balancing energy bids (Historical data as of 22 [33]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%2233%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''33'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_49
+  name: Individual decremental balancing energy bids (Historical data as of 22 [49]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2249%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''49'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_comptage_velo_donnees_compteurs_100056
+  name: Comptage vélo - Données compteurs (Paris, France) [100056331-10305633]
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs/records?limit=100&order_by=date%20desc&where=id_compteur%3D%22100056331-103056331%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].sum_counts
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 60 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Paris open-data portal, dataset comptage-velo-donnees-compteurs.
+  license: Paris open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset comptage-velo-donnees-compteurs, ordered newest-first
+    on date; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a rolling
+    table returns the oldest rows and reads as a dead source. Panel dimension id_compteur is pinned to ''100056331-103056331'':
+    without it the response interleaves several series on the same timestamps.'
+
+# -- wired batch: grind-20260819-0713 --
+- id: misskey_work_notes_ingen
+  name: ingen.work — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://ingen.work/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 291/499 populated hours, 15 distinct levels, peak 28/h; 7/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_virtualkemomimi_notes
+  name: virtualkemomimi.net — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://virtualkemomimi.net/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 266/499 populated hours, 29 distinct levels, peak 31/h; 21/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_sayaka_notes
+  name: sayaka-mikey.com — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://sayaka-mikey.com/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 260/499 populated hours, 47 distinct levels, peak 87/h; 11/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_xsns_notes_pomess
+  name: pomesskey.xsns.jp — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://pomesskey.xsns.jp/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 253/499 populated hours, 35 distinct levels, peak 42/h; 10/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
