@@ -275,17 +275,21 @@ class FreshBuffer:
         for _ in range(k):
             m = self._pool_meta[int(rng.integers(0, len(self._pool_meta)))]
             series = m.motif
-            # Tail-anchor bias mirrors ScrapedLiveSource: half the sub-windows
-            # pin to the motif's fresh end so pooled post-cutoff steps survive
-            # the second slice instead of being cut off by a uniform start.
+            # A pooled motif may be SHORTER than the requested sub-window: since
+            # DEC-TB-0002 the source serves the longest real contiguous window
+            # rather than padding one out to a fixed size, so the pool is
+            # ragged. Take the whole motif in that case — it is already the most
+            # this series honestly has. Without this the uniform-start draw
+            # below computes integers(0, <=0) and raises.
+            take = min(int(length), len(series))
             if float(rng.random()) < self.tail_frac:
-                start = len(series) - length
+                start = len(series) - take
             else:
-                start = int(rng.integers(0, len(series) - length + 1))
-            window = np.asarray(series[start : start + length], dtype=float)
+                start = int(rng.integers(0, len(series) - take + 1))
+            window = np.asarray(series[start : start + take], dtype=float)
             ts_win = None
             if m.ts is not None and len(m.ts) == len(series):
-                ts_win = m.ts[start : start + length]
+                ts_win = m.ts[start : start + take]
             out.append(
                 MotifMeta(
                     motif=window,

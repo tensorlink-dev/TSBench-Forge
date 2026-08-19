@@ -24,7 +24,8 @@ adapter is decoupled through the on-disk parquet contract.
 """
 from __future__ import annotations
 
-from collections import defaultdict
+import warnings
+from collections import Counter, defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -41,6 +42,42 @@ FREQ_BAND: dict[str, str] = {
     "PT1H": "hourly", "PT8H": "hourly",
     "P1D": "daily", "P1W": "weekly", "P1M": "monthly", "P1Q": "quarterly", "P1Y": "yearly",
 }
+
+
+# The shortest window worth serving. Below it a series is refused outright;
+# between it and the requested length the window is served SHORT rather than
+# padded out to look longer than the data is.
+#
+# Measured 2026-08-18 across 3,518 eligible series, by longest CONTIGUOUS
+# segment (the quantity the extractor actually consumes):
+#
+#     >=320   2991   85.0%     <- gets the full requested window
+#     192-319  298    8.5%
+#     128-191  117    3.3%
+#      64-127   88    2.5%
+#        <64    24    0.7%
+#
+# 128 keeps 96.8% of series overall and 94% of sales+econ_fin. Those two
+# domains are the reason the floor is not simply 320: they are 90% monthly, and
+# monthly series cluster at a median segment of 306 points -- roughly 25 years
+# of history, missing the full window by about a dozen observations. Refusing
+# them would drop sales from 236 series to 9 while the equal-weight sampler
+# kept handing it a seventh of every draw.
+MIN_MOTIF_LENGTH = 128
+
+# How many times pull_meta will redraw around refused series before giving up
+# and returning short. Bounded so a pool that has genuinely run dry surfaces as
+# a short return rather than an infinite loop.
+MAX_RESAMPLE_ROUNDS = 6
+
+
+class _SeriesUnusable(Exception):
+    """This series cannot supply an honest window; drop it and draw another.
+
+    Raised out of :meth:`_extract_motif` rather than returned, because every
+    caller of that method wants a real window and none of them has anything
+    sensible to do with a fabricated one.
+    """
 
 
 class ScrapedLiveSource(LiveSource):
@@ -363,7 +400,11 @@ class ScrapedLiveSource(LiveSource):
         """Pick ``n`` series with equal weight per (domain × dgp_class) — and
         optional per-cadence equal weighting.
         """
-        cat = self._catalog()
+        cat = [c for c in self._catalog()
+               if self._series_key(c) not in self._rejected]
+        # Cells are built from `cat` below, so a cell whose every series has
+        # been rejected simply never appears and cannot reach _pick's
+        # empty-pool guard. The domain split then runs over what survives.
         if not cat:
             raise RuntimeError(
                 f"ScrapedLiveSource: no series available under {self.data_dir}; "
@@ -409,7 +450,9 @@ class ScrapedLiveSource(LiveSource):
         """
         df = self._read_series_frame(series_spec["paths"])
         if df is None:
-            return np.zeros(length), None
+            # Used to return zeros(length): a constant series, indistinguishable
+            # downstream from a real flat feed and trivially forecastable.
+            raise _SeriesUnusable("no readable frame")
         panel_row = series_spec.get("panel_row")
         if panel_row:
             for k, v in panel_row.items():
@@ -437,25 +480,6 @@ class ScrapedLiveSource(LiveSource):
                     df = df.iloc[order]
                     ts = ts.iloc[order]
                 ts_arr = ts.dt.tz_localize(None).to_numpy()
-        if len(df) < length:
-            # Repeat-pad short series so the pull doesn't crash; the pool won't
-            # commonly hit this because we filtered by min_series_length.
-            if len(df):
-                col = df.iloc[:, 1]
-                try:
-                    values = col.astype(float).to_numpy()
-                except (TypeError, ValueError):
-                    # Categorical feed (e.g. advisory severity): rank-encode,
-                    # mirroring the fallback in the full-length path below.
-                    values = col.astype("category").cat.codes.to_numpy().astype(float)
-            else:
-                values = np.zeros(length)
-            reps = int(np.ceil(length / max(1, len(values))))
-            values = np.tile(values, reps)[:length]
-            if not np.all(np.isfinite(values)):
-                med = float(np.nanmedian(values)) if np.isfinite(np.nanmedian(values)) else 0.0
-                values = np.where(np.isfinite(values), values, med)
-            return values, None  # tiled timestamps would be fictitious
         # Choose the value column with the most finite (non-NaN) numeric values,
         # not merely the first: some feeds carry several value fields where the
         # leading one is sparse/mostly-NaN for a given panel, which would yield a
@@ -494,16 +518,27 @@ class ScrapedLiveSource(LiveSource):
                 seg_lo, seg_hi = max(
                     zip(bounds[:-1], bounds[1:]), key=lambda p: p[1] - p[0]
                 )
-        if seg_hi - seg_lo < length:
-            # No contiguous stretch long enough: tile-pad the longest segment
-            # (mirrors the short-series path; timestamps would be fictitious).
-            seg = values[seg_lo:seg_hi]
-            reps = int(np.ceil(length / max(1, len(seg))))
-            motif = np.asarray(np.tile(seg, reps)[:length], dtype=float)
-            if not np.all(np.isfinite(motif)):
-                med_v = float(np.nanmedian(motif)) if np.isfinite(np.nanmedian(motif)) else 0.0
-                motif = np.where(np.isfinite(motif), motif, med_v)
-            return motif, None
+        # Serve a SHORTER REAL window rather than a padded one. This used to
+        # tile-pad — repeat the longest segment until it filled `length` — on
+        # two separate paths, and measured 2026-08-18 that fired for 15.8% of
+        # draws, one of them 16 real points repeated 20 times. A tiled window is
+        # perfectly periodic, so any model that finds the period scores
+        # perfectly on data that never happened; the code knew, and returned
+        # `None` for the timestamps because they would have been fictitious.
+        #
+        # Below MIN_MOTIF_LENGTH there is no honest window to serve, so the
+        # series is refused and the sampler draws a replacement.
+        avail = seg_hi - seg_lo
+        # The floor guards against serving a stub in place of the window that
+        # was asked for; it cannot sensibly exceed the request itself, or a
+        # caller wanting 32 points would be refused a 50-point series.
+        floor = min(int(length), MIN_MOTIF_LENGTH)
+        if avail < floor:
+            raise _SeriesUnusable(
+                f"longest contiguous segment is {avail} points, under the "
+                f"{floor}-point floor"
+            )
+        window = min(int(length), int(avail))
         # Tail-anchor bias: with probability ``tail_frac`` pin the window to the
         # fresh end of the (longest contiguous) segment, so a healthy share of
         # the pool carries post-cutoff (pretraining-unseen) truth even when deep
@@ -511,15 +546,16 @@ class ScrapedLiveSource(LiveSource):
         # starts and keep the first whose finite fraction clears half, so an
         # occasional NaN patch doesn't dominate a motif when denser windows exist.
         if float(rng.random()) < self.tail_frac:
-            start = seg_hi - length
+            start = seg_hi - window
         else:
-            start = seg_lo + int(rng.integers(0, seg_hi - seg_lo - length + 1))
+            start = seg_lo + int(rng.integers(0, seg_hi - seg_lo - window + 1))
             for _ in range(6):
-                cand = seg_lo + int(rng.integers(0, seg_hi - seg_lo - length + 1))
-                window = values[cand : cand + length]
-                if np.isfinite(window).mean() >= 0.5:
+                cand = seg_lo + int(rng.integers(0, seg_hi - seg_lo - window + 1))
+                cand_win = values[cand : cand + window]
+                if np.isfinite(cand_win).mean() >= 0.5:
                     start = cand
                     break
+        length = window
         motif = np.asarray(values[start : start + length], dtype=float)
         # Replace any NaN/inf with the running median so downstream numeric ops
         # don't explode; the scraper's clean step usually handles this, but
@@ -542,23 +578,116 @@ class ScrapedLiveSource(LiveSource):
     ) -> list[tuple[np.ndarray, str]]:
         return [(m.motif, m.domain) for m in self.pull_meta(n, length, rng)]
 
+    @staticmethod
+    def _series_key(spec: dict) -> tuple:
+        """Stable identity for one panel-expanded series."""
+        pr = spec.get("panel_row")
+        return (spec["source_id"],
+                tuple(sorted((str(k), str(v)) for k, v in pr.items())) if pr else None)
+
+    @property
+    def _rejected(self) -> dict[tuple, str]:
+        """Series found unusable during this run, and why.
+
+        Run-scoped rather than persisted: whether a series can serve a window
+        changes as the cron accumulates, so a rejection is a fact about now.
+        """
+        return self.__dict__.setdefault("_rejected_series", {})
+
+    def _reject(self, spec: dict, reason: str) -> None:
+        self._rejected[self._series_key(spec)] = reason
+
+    def rejection_summary(self) -> dict[str, int]:
+        """Reasons series were dropped this run, most common first.
+
+        Worth logging from any long-lived caller: a pool quietly shrinking is
+        the same failure this whole path was built to stop being silent about.
+        """
+        counts: Counter[str] = Counter()
+        for reason in self._rejected.values():
+            counts[reason.split("(")[0].strip()] += 1
+        return dict(counts.most_common())
+
+    @staticmethod
+    def _degenerate(motif: np.ndarray) -> str | None:
+        """Why this window is unusable as a forecasting target, or None.
+
+        Only the unambiguous case is rejected: a window with no variance at all
+        is a free win for a predict-the-last-value baseline and tells you
+        nothing about a model. Measured 2026-08-18, 2.5% of draws.
+
+        Deliberately NOT rejected here: windows sitting on one value for >=95%
+        of their length (a further 2.1%). A mostly-flat step function is real
+        data about a real process, and separating it from a stuck sensor needs
+        the fuller battery in ``source_discovery.quality`` -- spectral flatness,
+        SNR, flatline runs, spike dominance. That belongs in an offline pass
+        over the catalog, not in the draw path, which runs per motif and should
+        stay one cheap arithmetic check with no cross-package import.
+        """
+        fin = motif[np.isfinite(motif)]
+        if fin.size == 0:
+            return "all non-finite"
+        std = float(np.std(fin))
+        mean = float(np.mean(fin))
+        if std <= 1e-6 * (abs(mean) + 1e-12):
+            return f"constant (std {std:.3g}, mean {mean:.3g})"
+        return None
+
     def pull_meta(
         self, n: int, length: int, rng: np.random.Generator
     ) -> list[MotifMeta]:
-        picks = self._sample_indices_equal_weight(n, rng)
+        """Draw ``n`` motifs, redrawing around series that cannot supply one.
+
+        Rejection is why this is a loop and not a comprehension. A series that
+        cannot serve an honest window used to be padded into one; now it is
+        dropped and replaced, so the returned pool is the same size but every
+        window in it is real. Bounded by MAX_RESAMPLE_ROUNDS: if the pool has
+        genuinely run dry this returns SHORT and warns, which is a condition a
+        caller can see, unlike the fabrication it replaces.
+        """
         out: list[MotifMeta] = []
-        for spec in picks:
-            motif, ts = self._extract_motif(spec, length, rng)
-            out.append(
-                MotifMeta(
-                    motif=motif,
-                    domain=spec["domain"],
-                    dgp_class=spec["dgp_class"],
-                    cadence=spec["cadence"],
-                    source_id=spec["source_id"],
-                    freq=spec.get("freq"),
-                    ts=ts,
+        for _ in range(MAX_RESAMPLE_ROUNDS):
+            if len(out) >= n:
+                break
+            try:
+                picks = self._sample_indices_equal_weight(n - len(out), rng)
+            except RuntimeError:
+                if not self._catalog():
+                    # No data at all is a setup error -- wrong data_dir, scraper
+                    # never run -- and must stay loud. Only a pool emptied by
+                    # THIS run's rejections degrades to a short return.
+                    raise
+                break
+            if not picks:
+                break
+            for spec in picks:
+                if len(out) >= n:
+                    break
+                try:
+                    motif, ts = self._extract_motif(spec, length, rng)
+                except _SeriesUnusable as exc:
+                    self._reject(spec, str(exc))
+                    continue
+                bad = self._degenerate(motif)
+                if bad:
+                    self._reject(spec, bad)
+                    continue
+                out.append(
+                    MotifMeta(
+                        motif=motif,
+                        domain=spec["domain"],
+                        dgp_class=spec["dgp_class"],
+                        cadence=spec["cadence"],
+                        source_id=spec["source_id"],
+                        freq=spec.get("freq"),
+                        ts=ts,
+                    )
                 )
+        if len(out) < n:
+            warnings.warn(
+                f"ScrapedLiveSource: asked for {n} motifs of {length}, served "
+                f"{len(out)}. Rejections: {self.rejection_summary()}",
+                RuntimeWarning, stacklevel=2,
             )
         return out
 

@@ -16,3 +16,11 @@ namespaced targets, e.g. `ME:EV-0021`.
   published on a cron, making the public leaderboard live. Truths are POSTed
   back to `/feedback` so paracast's ensemble weights and router learn from
   every round. (`decisions/DEC-TB-0001-paracast-scored-rounds.md`)
+
+- **DEC-TB-0002** — Eval windows are real or refused, never padded. The sampler
+  serves the longest contiguous window up to the requested length, refuses
+  below `MIN_MOTIF_LENGTH` (128) and redraws, so motif length is now
+  **variable**. Replaces tile-padding, which was fabricating 15.8% of drawn
+  windows. Self-contained: cascade reads the published parquet through its own
+  pool builder and needs no change.
+  (`decisions/DEC-TB-0002-honest-eval-windows.md`)

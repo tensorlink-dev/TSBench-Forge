@@ -143,6 +143,11 @@ _AUGMENTATIONS = {
 }
 
 
+# How many times build_live_challenges will redraw around a flat context
+# before keeping what it has. See the loop in build_live_challenges.
+_FLAT_REDRAW_LIMIT = 8
+
+
 def _normalize_by_context(series: np.ndarray, ctx_len: int = CONTEXT_LEN) -> np.ndarray:
     """Z-score a full ``context+horizon`` series by its **context** statistics.
 
@@ -254,17 +259,31 @@ def build_live_challenges(
         # band; when the pool's motifs are shorter than a profile asks for
         # (e.g. fixture data), the context shrinks to fit — the horizon is the
         # task definition and never silently changes.
-        m = buffer.sample_meta(1, buffer.motif_len, child)[0]
-        motif = np.asarray(m.motif, dtype=float)
-        ctx_len, horizon = PROFILES.get(m.cadence or "", (CONTEXT_LEN, HORIZON))
-        ctx_len = min(ctx_len, len(motif) - horizon)
-        want = ctx_len + horizon
-        series = motif[-want:]
-        ts = m.ts[-want:] if m.ts is not None and len(m.ts) == len(motif) else None
-        series = _normalize_by_context(series, ctx_len)
-        if augment:
-            series = _apply_light_augmentation(series, aug_severity, child, ctx_len)
-        context, truth = series[:ctx_len], series[ctx_len:]
+        # Redraw past a flat context. The source already refuses a series whose
+        # whole motif is constant, but the profile cut takes only the fresh
+        # ctx_len+horizon tail of it, and that tail can be flat where the motif
+        # was not — measured 2026-08-18 at 4 of 64 challenges, three of which
+        # had a constant truth as well. A model can do nothing with a constant
+        # context: predict the level and either score perfectly or be graded on
+        # an unpredictable-by-construction task. Neither discriminates.
+        #
+        # Bounded, and drawn from THIS challenge's own child stream, so the set
+        # stays byte-reproducible for cross-validator consensus. If a cadence's
+        # whole pool is flat the last draw is kept: n_challenges is a contract.
+        for _attempt in range(_FLAT_REDRAW_LIMIT):
+            m = buffer.sample_meta(1, buffer.motif_len, child)[0]
+            motif = np.asarray(m.motif, dtype=float)
+            ctx_len, horizon = PROFILES.get(m.cadence or "", (CONTEXT_LEN, HORIZON))
+            ctx_len = min(ctx_len, len(motif) - horizon)
+            want = ctx_len + horizon
+            series = motif[-want:]
+            ts = m.ts[-want:] if m.ts is not None and len(m.ts) == len(motif) else None
+            series = _normalize_by_context(series, ctx_len)
+            if augment:
+                series = _apply_light_augmentation(series, aug_severity, child, ctx_len)
+            context, truth = series[:ctx_len], series[ctx_len:]
+            if float(np.std(context)) > _EPS:
+                break
         challenges.append(
             Challenge(
                 context=np.asarray(context, dtype=float),

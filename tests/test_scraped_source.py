@@ -311,3 +311,167 @@ def test_no_data_raises_clearly(tmp_path):
     src = ScrapedLiveSource(tmp_path / "sources.yaml", tmp_path / "data")
     with pytest.raises(RuntimeError, match="no series available"):
         src.pull_meta(n=4, length=32, rng=np.random.default_rng(0))
+
+
+# ── honest windows: never pad a short series into a long one ────────────────
+#
+# _extract_motif used to tile-pad — repeat the longest contiguous segment until
+# it filled the requested length — on two separate paths. Measured 2026-08-18
+# that fired for 15.8% of draws, in one case repeating 16 real points 20 times.
+# A tiled window is exactly periodic, so any model that finds the period scores
+# perfectly on data that never happened.
+
+
+def _one_source(tmp_path: Path, values, *, sid="s", domain="nature",
+                freq="PT1H", gap_after=None, periods=None) -> tuple[Path, Path]:
+    """A catalog of one source whose single series is ``values``.
+
+    ``gap_after`` inserts a jump far larger than the sampling interval at that
+    index, so the 8x-median segmentation splits there.
+    """
+    n = len(values)
+    ts = list(pd.date_range("2026-01-01", periods=n, freq="h"))
+    if gap_after is not None:
+        shift = pd.Timedelta(days=30)
+        ts = ts[:gap_after] + [t + shift for t in ts[gap_after:]]
+    (tmp_path / "sources.yaml").write_text(yaml.safe_dump([
+        {"id": sid, "domain": domain, "dgp_class": "x", "frequency": freq},
+    ]))
+    d = tmp_path / "data" / sid
+    d.mkdir(parents=True)
+    pq.write_table(
+        pa.Table.from_pandas(pd.DataFrame({"timestamp": ts, "value": values})),
+        d / "2026-07-01.parquet")
+    return tmp_path / "sources.yaml", tmp_path / "data"
+
+
+def _period(a: np.ndarray) -> int | None:
+    """Smallest exact repeating period, or None. Detects tile-padding."""
+    for p in range(1, len(a) // 2 + 1):
+        if np.array_equal(a[p:], a[:-p]):
+            return p
+    return None
+
+
+def test_a_short_segment_is_served_short_rather_than_padded(tmp_path):
+    rng = np.random.default_rng(0)
+    vals = rng.normal(size=200).cumsum()
+    src = ScrapedLiveSource(*_one_source(tmp_path, vals))
+    metas = src.pull_meta(3, 320, np.random.default_rng(1))
+
+    assert len(metas) == 3, "the pool is still filled"
+    for m in metas:
+        assert len(m.motif) == 200, "served the real segment, not 320 padded"
+        assert _period(m.motif) is None, "no repetition"
+        assert m.ts is not None, "a real window carries real timestamps"
+
+
+def test_no_motif_is_ever_tile_padded(tmp_path):
+    """The regression in one line: 16 real points must never become 320."""
+    src = ScrapedLiveSource(*_one_source(
+        tmp_path, np.random.default_rng(2).normal(size=140).cumsum()))
+    for m in src.pull_meta(5, 320, np.random.default_rng(3)):
+        assert len(m.motif) == 140
+        assert _period(m.motif) is None
+
+
+def test_the_segment_is_measured_after_gap_splitting(tmp_path):
+    """300 rows but a month-long hole at 150: the honest window is 150, not 300
+    and certainly not 320. Straddling the gap is a fake level shift."""
+    vals = np.random.default_rng(4).normal(size=300).cumsum()
+    src = ScrapedLiveSource(*_one_source(tmp_path, vals, gap_after=150))
+    m = src.pull_meta(1, 320, np.random.default_rng(5))[0]
+    assert len(m.motif) == 150
+
+
+def test_a_fragmented_series_is_refused_and_replaced(tmp_path):
+    """The case the floor exists for, and it is NOT "too few rows".
+
+    Eligibility counts total observations; extraction needs CONTIGUOUS ones. A
+    series with 300 rows broken into 60-point chunks sails past
+    min_series_length and then has no honest 128-point window -- which is how
+    tile-padding got reached in production. It must leave the pool, and the
+    sampler must replace it so the pool size is unchanged.
+    """
+    (tmp_path / "sources.yaml").write_text(yaml.safe_dump([
+        {"id": "gappy", "domain": "nature", "dgp_class": "x", "frequency": "PT1H"},
+        {"id": "good",  "domain": "nature", "dgp_class": "x", "frequency": "PT1H"},
+    ]))
+    # 300 rows, a month-long hole every 60 -> longest contiguous run is 60.
+    ts = [pd.Timestamp("2026-01-01") + pd.Timedelta(hours=i)
+          + pd.Timedelta(days=30 * (i // 60)) for i in range(300)]
+    for sid, stamps, n in (("gappy", ts, 300),
+                           ("good", list(pd.date_range("2026-01-01", periods=400,
+                                                       freq="h")), 400)):
+        d = tmp_path / "data" / sid
+        d.mkdir(parents=True)
+        pq.write_table(pa.Table.from_pandas(pd.DataFrame({
+            "timestamp": stamps,
+            "value": np.random.default_rng(6).normal(size=n).cumsum(),
+        })), d / "2026-07-01.parquet")
+
+    src = ScrapedLiveSource(tmp_path / "sources.yaml", tmp_path / "data")
+    assert {c["source_id"] for c in src._catalog()} == {"gappy", "good"}, (
+        "both pass the row-count index -- that is the whole problem")
+
+    metas = src.pull_meta(8, 320, np.random.default_rng(7))
+    assert len(metas) == 8, "refusals are replaced, not silently dropped"
+    assert {m.source_id for m in metas} == {"good"}
+    assert any("floor" in r for r in src._rejected.values())
+
+
+def test_the_floor_never_exceeds_what_was_asked_for(tmp_path):
+    """A caller wanting 32 points must not be refused a 50-point series just
+    because 50 is under the 128 floor -- the floor guards against serving a
+    stub in place of the request, and here it IS the request."""
+    cat, data = _one_source(
+        tmp_path, np.random.default_rng(8).normal(size=50).cumsum())
+    src = ScrapedLiveSource(cat, data, min_series_length=32)
+    metas = src.pull_meta(2, 32, np.random.default_rng(9))
+    assert len(metas) == 2 and all(len(m.motif) == 32 for m in metas)
+
+
+def test_a_constant_window_is_rejected(tmp_path):
+    """Zero variance is a free win for predict-the-last-value. Measured
+    2026-08-18: 2.5% of draws."""
+    (tmp_path / "sources.yaml").write_text(yaml.safe_dump([
+        {"id": "flat", "domain": "nature", "dgp_class": "x", "frequency": "PT1H"},
+        {"id": "live", "domain": "nature", "dgp_class": "x", "frequency": "PT1H"},
+    ]))
+    for sid, vals in (("flat", np.full(400, 7.0)),
+                      ("live", np.random.default_rng(10).normal(size=400).cumsum())):
+        d = tmp_path / "data" / sid
+        d.mkdir(parents=True)
+        pq.write_table(pa.Table.from_pandas(pd.DataFrame({
+            "timestamp": pd.date_range("2026-01-01", periods=400, freq="h"),
+            "value": vals,
+        })), d / "2026-07-01.parquet")
+
+    src = ScrapedLiveSource(tmp_path / "sources.yaml", tmp_path / "data")
+    metas = src.pull_meta(6, 320, np.random.default_rng(11))
+    assert {m.source_id for m in metas} == {"live"}
+    assert any("constant" in r for r in src._rejected.values())
+    assert "constant" in " ".join(src.rejection_summary())
+
+
+def test_a_mostly_flat_window_is_kept(tmp_path):
+    """A step function sitting on one value 95% of the time is real data about
+    a real process. Rejecting it needs the fuller battery in quality.py, not
+    this path -- so it must survive here."""
+    # The step sits at 200 so that EVERY 320-window out of 400 contains it;
+    # putting it at 380 would leave most windows flat and the test would be
+    # asserting on where the sampler happened to land.
+    vals = np.full(400, 3.0)
+    vals[200:] = 9.0
+    src = ScrapedLiveSource(*_one_source(tmp_path, vals))
+    assert len(src.pull_meta(2, 320, np.random.default_rng(12))) == 2
+
+
+def test_a_pool_that_runs_dry_returns_short_and_says_so(tmp_path):
+    """Bounded redraw: an all-unusable pool must surface as a short return the
+    caller can see, not an infinite loop and not a fabricated window."""
+    src = ScrapedLiveSource(*_one_source(tmp_path, np.full(400, 1.0)))
+    with pytest.warns(RuntimeWarning, match="served 0"):
+        metas = src.pull_meta(4, 320, np.random.default_rng(13))
+    assert metas == []
+    assert src.rejection_summary()

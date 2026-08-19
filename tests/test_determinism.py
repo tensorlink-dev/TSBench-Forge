@@ -55,3 +55,65 @@ def test_different_beacons_yield_different_challenges() -> None:
         not np.array_equal(a.context, b.context) for a, b in zip(ch1, ch2, strict=True)
     )
     assert differs
+
+
+# ── flat contexts are redrawn, and the redraw stays deterministic ───────────
+
+
+def _flat_and_live_buffer(n_flat: int, n_live: int, motif_len: int = 96):
+    """A FreshBuffer whose pool is part constant, part real.
+
+    Built directly rather than through ScrapedLiveSource: the point here is what
+    build_live_challenges does with a flat window that reaches it, not how one
+    gets into the pool.
+    """
+    from ingest import FreshBuffer, MotifMeta
+
+    rng = np.random.default_rng(0)
+    pool = [MotifMeta(motif=np.full(motif_len, 5.0), domain="nature",
+                      dgp_class="x", cadence="hourly", source_id="flat")
+            for _ in range(n_flat)]
+    pool += [MotifMeta(motif=rng.normal(size=motif_len).cumsum(), domain="nature",
+                       dgp_class="x", cadence="hourly", source_id="live")
+             for _ in range(n_live)]
+
+    class _Pool:
+        def __init__(self, p): self._p = p
+        def ensure(self, rng): pass
+        def refresh(self, rng): pass
+        @property
+        def motif_len(self): return motif_len
+        def sample_meta(self, k, length, rng):
+            return [self._p[int(rng.integers(0, len(self._p)))] for _ in range(k)]
+    return _Pool(pool)
+
+
+def test_a_flat_context_is_redrawn() -> None:
+    """The source refuses a wholly-constant motif, but the profile cut takes
+    only the fresh tail and that tail can be flat where the motif was not.
+    Measured 2026-08-18: 4 of 64 challenges, three with a constant truth too."""
+    buf = _flat_and_live_buffer(n_flat=8, n_live=8)
+    ch = build_live_challenges(buf, np.random.default_rng(1), 40, augment=False)
+    flat = [c for c in ch if float(np.std(c.context)) == 0.0]
+    assert not flat, f"{len(flat)}/{len(ch)} challenges have a constant context"
+    assert {c.meta["source_id"] for c in ch} == {"live"}
+
+
+def test_the_redraw_is_still_byte_reproducible() -> None:
+    """Redrawing consumes more of the child stream, but it is the SAME child
+    stream — so replay from the revealed seed still matches, which is the
+    property every validator depends on."""
+    a = build_live_challenges(_flat_and_live_buffer(6, 6),
+                              np.random.default_rng(9), 24, augment=False)
+    b = build_live_challenges(_flat_and_live_buffer(6, 6),
+                              np.random.default_rng(9), 24, augment=False)
+    assert all(np.array_equal(x.context, y.context)
+               and np.array_equal(x.truth, y.truth) for x, y in zip(a, b))
+
+
+def test_an_all_flat_pool_still_returns_the_requested_count() -> None:
+    """n_challenges is a contract. If every candidate is flat the bound is hit
+    and the last draw is kept, rather than returning short or looping."""
+    ch = build_live_challenges(_flat_and_live_buffer(8, 0),
+                               np.random.default_rng(3), 12, augment=False)
+    assert len(ch) == 12
