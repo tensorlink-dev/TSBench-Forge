@@ -39,7 +39,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from config import CONTEXT_LEN, HORIZON, PROFILES
+from config import CONTEXT_LEN, HORIZON, K_DRAWS, PROFILES
 from ingest import FreshBuffer
 
 SERIES_LEN = CONTEXT_LEN + HORIZON
@@ -306,10 +306,49 @@ def build_live_challenges(
     return challenges
 
 
+def build_round_draws(
+    buffer: FreshBuffer,
+    rng: np.random.Generator,
+    n: int,
+    *,
+    k_draws: int = K_DRAWS,
+    augment: bool = True,
+    aug_severity: float = 0.3,
+    cutoff: np.datetime64 | None = None,
+) -> list[list[Challenge]]:
+    """``k_draws`` independently jittered challenge sets from one beacon seed.
+
+    DEC-TB-0003 makes any single draw's composition unpredictable, which by
+    design raises the variance of a single-draw verdict. The round verdict is
+    therefore aggregated over ``k_draws`` cheap evals of one model — build the
+    sets here, score each challenge once, and pool everything into one
+    bootstrap via ``evaluate.evaluate_pooled``. Averaging K draws shrinks the
+    seed-error margin ~sqrt(K); the jitter keeps each draw untunable.
+
+    Each draw refreshes the pool through its own child stream, so draws differ
+    in *both* composition (the per-round jitter lives in the pool draw) and
+    windows. ``cutoff`` is resolved once so all draws share the same as-of
+    day. Fully deterministic per ``(pool, seed)`` — the K-set structure is
+    byte-reproducible across validators, same as a single set.
+    """
+    if cutoff is None:
+        cutoff = default_cutoff()
+    sets: list[list[Challenge]] = []
+    for child in rng.spawn(k_draws):
+        r_pool, r_chal = child.spawn(2)
+        buffer.refresh(r_pool)
+        sets.append(build_live_challenges(
+            buffer, r_chal, n,
+            augment=augment, aug_severity=aug_severity, cutoff=cutoff,
+        ))
+    return sets
+
+
 __all__ = [
     "Challenge",
     "SERIES_LEN",
     "build_live_challenges",
+    "build_round_draws",
     "jitter",
     "magnitude_warp",
     "time_warp",

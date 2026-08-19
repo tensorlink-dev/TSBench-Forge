@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from challenges import Challenge, build_live_challenges
+from challenges import Challenge, build_live_challenges, build_round_draws
 from conftest import RandomWalkSource, live_buffer
 from ingest import FreshBuffer, MixtureLiveSource
 from score import (
@@ -118,8 +118,14 @@ def test_panel_fitness_reports_coverage() -> None:
 
 
 def test_live_feed_is_broad() -> None:
-    chs = build_live_challenges(live_buffer(pool_size=64), rng_for("brd", 1, "m"), 64)
-    eff = float(domain_coverage(chs)["effective_domains"])
+    """A ROUND is broad. Since DEC-TB-0003 a single draw's mix is jittered on
+    purpose (on the small test fixture it can dip below the old floor); the
+    round verdict pools K draws, and it is the pooled set whose breadth is the
+    contract."""
+    sets = build_round_draws(
+        live_buffer(pool_size=64), rng_for("brd", 1, "m"), 64, k_draws=4)
+    pooled = [ch for s in sets for ch in s]
+    eff = float(domain_coverage(pooled)["effective_domains"])
     assert eff >= 3.0  # many effective DGP domains per evaluation
 
 

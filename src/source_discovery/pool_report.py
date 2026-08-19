@@ -60,7 +60,11 @@ def build(catalog_path: str | Path, data_dir: str | Path,
     live = [s for s in catalog if not s.get("disabled")]
     live_by_id = {s["id"]: s for s in live}
 
-    src = ScrapedLiveSource(catalog_path, data_dir)
+    # Neutral mix knobs: the report answers "what does the eval draw from ON
+    # AVERAGE", so it shows the expected (equal-weight) mix, not one round's
+    # deliberately jittered realisation (DEC-TB-0003).
+    src = ScrapedLiveSource(catalog_path, data_dir, mix_jitter_alpha=None,
+                            series_bag_frac=1.0, class_keep_frac=1.0)
     series = src._catalog()
 
     eligible_ids = {s["source_id"] for s in series}

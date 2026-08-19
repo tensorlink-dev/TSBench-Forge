@@ -95,7 +95,14 @@ def main(argv: list[str]) -> int:
                     help="challenge seed — keep the default so paracast rounds pair "
                          "with pod rounds on identical challenge sets")
     ap.add_argument("--motif-len", type=int, default=304)
-    ap.add_argument("--n-challenges", type=int, default=256)
+    ap.add_argument("--n-challenges", type=int, default=256,
+                    help="challenges PER DRAW; the round scores k-draws × this many")
+    ap.add_argument("--k-draws", type=int, default=None,
+                    help="independent jittered draws pooled into the round verdict "
+                         "(default: config.K_DRAWS). DEC-TB-0003 jitters each "
+                         "draw's mix; pooling K draws is what keeps the verdict's "
+                         "seed-error margin tight. Evals here are cheap HTTP "
+                         "against paracast's already-loaded panel.")
     ap.add_argument("--models", default=None,
                     help="comma-separated subset of the panel (default: all enabled+healthy)")
     ap.add_argument("--no-ensemble", action="store_true",
@@ -129,10 +136,12 @@ def main(argv: list[str]) -> int:
     print(f"paracast {args.base_url}: {health.get('status')} "
           f"({len(health.get('healthy', []))} healthy workers)")
 
-    print("building challenges…")
+    from config import K_DRAWS
+    k_draws = args.k_draws if args.k_draws is not None else K_DRAWS
+    print(f"building challenges ({k_draws} jittered draws)…")
     challenges = tsfm_comparison.build_challenges(
         args.data_dir, catalog=args.catalog, motif_len=args.motif_len,
-        n_challenges=args.n_challenges, seed=args.seed,
+        n_challenges=args.n_challenges, seed=args.seed, k_draws=k_draws,
     )
     n_series = len({str((getattr(ch, "meta", None) or {}).get("source_id"))
                     for ch in challenges})
@@ -185,6 +194,7 @@ def main(argv: list[str]) -> int:
             "data_dir": str(args.data_dir),
             "motif_len": args.motif_len,
             "n_challenges": len(challenges),
+            "k_draws": k_draws,
             "seed": args.seed,
             "roster": [s.model_id for s in specs],
             "endpoint": "paracast",

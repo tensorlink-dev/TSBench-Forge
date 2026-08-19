@@ -220,59 +220,80 @@ def evaluate_forecaster(
     Challenge sets without the tag weigh uniformly, so results are unchanged
     for legacy/synthetic sets.
     """
-    from config import UNSEEN_WEIGHT_FLOOR
+    acc = _new_acc()
+    for ch in challenges:
+        _accumulate(acc, forecaster, ch, seasonality)
+    return _finalize(acc)
 
+
+def _new_acc() -> _Accum:
     acc = _Accum()
     acc.cov_hits = {q: 0.0 for q in DEFAULT_QUANTILES}
-    for ch in challenges:
-        truth = np.asarray(ch.truth, dtype=float)
-        meta = getattr(ch, "meta", None)
-        fc = forecaster(ch.context, meta)
-        mean = np.asarray(fc.mean, dtype=float)
+    return acc
 
-        unseen = float(meta.get("unseen_frac", 0.0)) if isinstance(meta, dict) else 0.0
-        w = UNSEEN_WEIGHT_FLOOR + (1.0 - UNSEEN_WEIGHT_FLOOR) * unseen
-        acc.wsum += w
-        acc.unseen_sum += unseen
 
-        if seasonality is None:
-            freq = meta.get("freq") if isinstance(meta, dict) else None
-            m = season_length(freq, len(ch.context))
-        else:
-            m = seasonality
-        acc.abs_err += w * float(np.mean(np.abs(truth - mean)))
-        acc.scaled_n += w * float(np.mean(np.abs(truth - mean))) / _naive_scale(ch.context, m)
+def _accumulate(
+    acc: _Accum, forecaster: Forecaster, ch, seasonality: int | None
+) -> None:
+    """Fold one challenge's contribution into ``acc``.
 
-        denom = float(np.sum(np.abs(truth)))
-        acc.wql_den += w * denom
-        for q in DEFAULT_QUANTILES:
-            acc.wql_num += w * 2.0 * float(np.sum(_pinball(truth, fc.quantiles[q], q)))
-            # Calibration bookkeeping: how often the truth falls at/below level q.
-            acc.cov_hits[q] += w * float(np.sum(truth <= fc.quantiles[q]))
-        acc.cov_total += w * truth.size
+    Split out of :func:`evaluate_forecaster` so :func:`evaluate_pooled` can
+    keep one ``_Accum`` per challenge and bootstrap over them without calling
+    the forecaster more than once per challenge.
+    """
+    from config import UNSEEN_WEIGHT_FLOOR
 
-        # Interval coverage of the nominal-80% band and the Weighted Interval Score.
-        lo10, hi90 = fc.quantiles[0.1], fc.quantiles[0.9]
-        acc.cov80_sum += w * float(np.mean((truth >= lo10) & (truth <= hi90)))
-        wis = 0.5 * np.abs(truth - fc.quantiles[0.5])
-        for (lo_q, hi_q), alpha in zip(_WIS_PAIRS, _WIS_ALPHAS, strict=True):
-            wis = wis + (alpha / 2.0) * _interval_score(
-                truth, fc.quantiles[lo_q], fc.quantiles[hi_q], alpha
-            )
-        acc.wis_sum += w * float(np.mean(wis / (len(_WIS_PAIRS) + 0.5)))
+    truth = np.asarray(ch.truth, dtype=float)
+    meta = getattr(ch, "meta", None)
+    fc = forecaster(ch.context, meta)
+    mean = np.asarray(fc.mean, dtype=float)
 
-        # CRPS ~ 2 * mean pinball over a dense quantile grid. The model only emits
-        # a coarse decile grid, so we interpolate ITS quantiles onto the dense grid
-        # (per horizon step) -- using the model's real distribution, not a
-        # synthesized band, so a perfectly-calibrated model scores ~0.
-        levels = sorted(fc.quantiles)
-        q_stack = np.stack([np.asarray(fc.quantiles[lv], dtype=float) for lv in levels])
-        for q in _CRPS_QUANTILES:
-            pq = np.array([np.interp(q, levels, q_stack[:, h]) for h in range(q_stack.shape[1])])
-            acc.crps_sum += w * 2.0 * float(np.mean(_pinball(truth, pq, q)))
-            acc.crps_n += w
-        acc.n += 1
+    unseen = float(meta.get("unseen_frac", 0.0)) if isinstance(meta, dict) else 0.0
+    w = UNSEEN_WEIGHT_FLOOR + (1.0 - UNSEEN_WEIGHT_FLOOR) * unseen
+    acc.wsum += w
+    acc.unseen_sum += unseen
 
+    if seasonality is None:
+        freq = meta.get("freq") if isinstance(meta, dict) else None
+        m = season_length(freq, len(ch.context))
+    else:
+        m = seasonality
+    acc.abs_err += w * float(np.mean(np.abs(truth - mean)))
+    acc.scaled_n += w * float(np.mean(np.abs(truth - mean))) / _naive_scale(ch.context, m)
+
+    denom = float(np.sum(np.abs(truth)))
+    acc.wql_den += w * denom
+    for q in DEFAULT_QUANTILES:
+        acc.wql_num += w * 2.0 * float(np.sum(_pinball(truth, fc.quantiles[q], q)))
+        # Calibration bookkeeping: how often the truth falls at/below level q.
+        acc.cov_hits[q] += w * float(np.sum(truth <= fc.quantiles[q]))
+    acc.cov_total += w * truth.size
+
+    # Interval coverage of the nominal-80% band and the Weighted Interval Score.
+    lo10, hi90 = fc.quantiles[0.1], fc.quantiles[0.9]
+    acc.cov80_sum += w * float(np.mean((truth >= lo10) & (truth <= hi90)))
+    wis = 0.5 * np.abs(truth - fc.quantiles[0.5])
+    for (lo_q, hi_q), alpha in zip(_WIS_PAIRS, _WIS_ALPHAS, strict=True):
+        wis = wis + (alpha / 2.0) * _interval_score(
+            truth, fc.quantiles[lo_q], fc.quantiles[hi_q], alpha
+        )
+    acc.wis_sum += w * float(np.mean(wis / (len(_WIS_PAIRS) + 0.5)))
+
+    # CRPS ~ 2 * mean pinball over a dense quantile grid. The model only emits
+    # a coarse decile grid, so we interpolate ITS quantiles onto the dense grid
+    # (per horizon step) -- using the model's real distribution, not a
+    # synthesized band, so a perfectly-calibrated model scores ~0.
+    levels = sorted(fc.quantiles)
+    q_stack = np.stack([np.asarray(fc.quantiles[lv], dtype=float) for lv in levels])
+    for q in _CRPS_QUANTILES:
+        pq = np.array([np.interp(q, levels, q_stack[:, h]) for h in range(q_stack.shape[1])])
+        acc.crps_sum += w * 2.0 * float(np.mean(_pinball(truth, pq, q)))
+        acc.crps_n += w
+    acc.n += 1
+
+
+def _finalize(acc: _Accum) -> dict[str, float]:
+    """Turn summed contributions into the reported metric dict."""
     n = max(acc.wsum, _EPS)
     # Probabilistic Calibration Error: mean over quantile levels of the gap
     # between nominal level q and the empirically observed coverage at q. CRPS/WQL
@@ -293,6 +314,8 @@ def evaluate_forecaster(
         "n": float(acc.n),
         "unseen_frac": acc.unseen_sum / max(acc.n, 1),
     }
+
+
 
 
 # --------------------------------------------------------------------------- #
@@ -608,6 +631,82 @@ def evaluate_multiseed(
         k: {"mean": float(np.mean(v)), "std": float(np.std(v)), "values": v}
         for k, v in per_metric.items()
     }
+
+
+_BOOT_FIELDS = ("abs_err", "scaled_n", "wql_num", "wql_den", "crps_sum",
+                "crps_n", "wis_sum", "cov80_sum", "cov_total", "n", "wsum",
+                "unseen_sum")
+
+
+def evaluate_pooled(
+    forecaster: Forecaster,
+    challenge_sets: list[list],
+    *,
+    seasonality: int | None = None,
+    n_boot: int = 500,
+    seed: int = 0,
+) -> dict[str, object]:
+    """One verdict over K jittered draws: pool every challenge, bootstrap once.
+
+    The DEC-TB-0003 mix jitter makes any single draw's composition
+    unpredictable — by design — which raises single-draw variance. This is the
+    matching aggregation: score the model once per challenge across *all* of
+    ``challenge_sets`` (built by ``challenges.build_round_draws``; K cheap
+    evals of one model), then treat the K×n per-challenge contributions as one
+    pooled sample and bootstrap the headline metrics over it. Pooling averages
+    the composition noise (~sqrt(K) tighter than one draw) and the bootstrap
+    CI states the seed-error margin that remains, so two models' scores can be
+    compared against it instead of against round-to-round mix luck.
+
+    Returns the pooled point metrics (same keys as
+    :func:`evaluate_forecaster`) plus ``{metric}_ci95`` / ``{metric}_boot_std``
+    for mase / wql / crps, and ``n_draws`` / ``n_boot``. Deterministic given
+    ``seed`` (pass something beacon-derived on the consensus path); the
+    forecaster runs exactly once per challenge — the bootstrap resamples
+    stored contributions, never re-forecasts.
+    """
+    rows: list[_Accum] = []
+    for chs in challenge_sets:
+        for ch in chs:
+            acc = _new_acc()
+            _accumulate(acc, forecaster, ch, seasonality)
+            rows.append(acc)
+    if not rows:
+        raise ValueError("evaluate_pooled: no challenges in challenge_sets")
+
+    point = _finalize(_merge_accs(rows))
+
+    mat = np.array([[getattr(r, f) for f in _BOOT_FIELDS] for r in rows])
+    hits = np.array([[r.cov_hits[q] for q in DEFAULT_QUANTILES] for r in rows])
+    rng = np.random.default_rng(seed)
+    boot: dict[str, list[float]] = {"mase": [], "wql": [], "crps": []}
+    for _ in range(int(n_boot)):
+        idx = rng.integers(0, len(rows), size=len(rows))
+        sums = mat[idx].sum(axis=0)
+        acc = _Accum(**{f: float(s) for f, s in zip(_BOOT_FIELDS, sums)})
+        acc.cov_hits = dict(zip(DEFAULT_QUANTILES, hits[idx].sum(axis=0)))
+        m = _finalize(acc)
+        for k in boot:
+            boot[k].append(float(m[k]))
+
+    out: dict[str, object] = dict(point)
+    for k, v in boot.items():
+        lo, hi = np.percentile(v, [2.5, 97.5])
+        out[f"{k}_ci95"] = (float(lo), float(hi))
+        out[f"{k}_boot_std"] = float(np.std(v))
+    out["n_draws"] = float(len(challenge_sets))
+    out["n_boot"] = float(n_boot)
+    return out
+
+
+def _merge_accs(rows: list[_Accum]) -> _Accum:
+    tot = _new_acc()
+    for r in rows:
+        for f in _BOOT_FIELDS:
+            setattr(tot, f, getattr(tot, f) + getattr(r, f))
+        for q in DEFAULT_QUANTILES:
+            tot.cov_hits[q] += r.cov_hits[q]
+    return tot
 
 
 def friedman_test(score_matrix: list[list[float]] | np.ndarray) -> dict[str, float]:

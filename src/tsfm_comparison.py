@@ -29,7 +29,7 @@ from pathlib import Path
 import numpy as np
 
 import model_comparison as mc
-from challenges import build_live_challenges
+from challenges import build_live_challenges, build_round_draws
 from evaluate import leaderboard, probabilistic_panel
 from ingest import FreshBuffer
 from scraped_source import ScrapedLiveSource
@@ -69,10 +69,24 @@ def build_challenges(
     n_challenges: int = 256,
     pool_size: int = 96,
     seed: str = "tsfm-significance-v1",
+    k_draws: int = 1,
 ) -> list:
-    """Deterministic challenge set from the scraped live catalog."""
+    """Deterministic challenge set from the scraped live catalog.
+
+    ``k_draws > 1`` builds that many independently jittered draws of
+    ``n_challenges`` each (DEC-TB-0003) and returns them flattened, so every
+    downstream per-challenge statistic — paired tests, Friedman, the relative
+    gmeans — automatically aggregates over the draws. The live paracast round
+    uses ``k_draws=config.K_DRAWS`` (evals there are cheap HTTP against an
+    already-loaded panel); the default 1 keeps the GPU-pod path, where each
+    forecast costs real money, at its historical size.
+    """
     source = ScrapedLiveSource(catalog, data_dir, min_series_length=motif_len)
     buffer = FreshBuffer(source, pool_size=pool_size, motif_len=motif_len)
+    if k_draws > 1:
+        sets = build_round_draws(
+            buffer, _rng(seed, "reveal"), n_challenges, k_draws=k_draws)
+        return [ch for s in sets for ch in s]
     return build_live_challenges(buffer, _rng(seed, "reveal"), n_challenges)
 
 

@@ -67,6 +67,13 @@ FREQ_SEASONALITY: dict[str, int] = {
 N_CHALLENGES: int = 64
 """Default number of challenges assembled per epoch / evaluation."""
 
+K_DRAWS: int = 5
+"""Independent jittered draws pooled into one round verdict. DEC-TB-0003
+deliberately jitters each draw's domain mix, which raises single-draw variance;
+the verdict is therefore aggregated over K cheap evals of one model
+(``challenges.build_round_draws`` + ``evaluate.evaluate_pooled``), which shrinks
+the seed-error margin by ~sqrt(K) while keeping any one draw unpredictable."""
+
 # Seasonal periods the panel models search over when estimating seasonality on a
 # context. They are deliberately co-prime-ish and not equal to HORIZON so that
 # ``seasonal_naive`` cannot win by the horizon happening to align with a period.

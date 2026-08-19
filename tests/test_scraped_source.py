@@ -77,9 +77,15 @@ def test_pull_meta_returns_labeled_motifs(catalog_tree):
 def test_equal_weight_prevents_source_count_domination(catalog_tree):
     """With 2 nature sources : 1 healthcare source, a source-count-weighted
     sampler would give nature ~2× the share. Equal-weight per DGP class per
-    domain must give both domains equal share."""
+    domain must give both domains equal share.
+
+    Neutral mix knobs: this asserts the sampler's EXPECTED mix. A single
+    round's realised mix is deliberately jittered around it since DEC-TB-0003
+    — that behaviour has its own tests in test_mix_jitter.py."""
     catalog_path, data_dir = catalog_tree
-    src = ScrapedLiveSource(catalog_path, data_dir, min_series_length=128)
+    src = ScrapedLiveSource(catalog_path, data_dir, min_series_length=128,
+                            mix_jitter_alpha=None, series_bag_frac=1.0,
+                            class_keep_frac=1.0)
     metas = src.pull_meta(n=200, length=64, rng=np.random.default_rng(42))
     domain_counts = Counter(m.domain for m in metas)
     # Not source-count-weighted (which would be ~133/67); equal-weight gives ~100/100.

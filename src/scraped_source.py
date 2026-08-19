@@ -25,6 +25,7 @@ adapter is decoupled through the on-disk parquet contract.
 from __future__ import annotations
 
 import warnings
+import zlib
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -70,6 +71,13 @@ MIN_MOTIF_LENGTH = 128
 # a short return rather than an infinite loop.
 MAX_RESAMPLE_ROUNDS = 6
 
+# The dgp-class breadth gate in score.py hard-vetoes any class whose share of
+# the served pool falls below 2%: on the default 128-motif pool that means 3
+# entries (2.34%) clear it and 2 (1.56%) do not. Round-mix allocation therefore
+# happens in blocks of this many slots — a class is either absent from a round
+# (share 0, which the gate permits) or present with a gate-clearing share.
+MIN_CLASS_SLOTS = 3
+
 
 class _SeriesUnusable(Exception):
     """This series cannot supply an honest window; drop it and draw another.
@@ -88,10 +96,15 @@ class ScrapedLiveSource(LiveSource):
     ``data_dir/<source_id>/*.parquet`` at each ``pull``/``pull_meta`` to grab
     contiguous motif windows.
 
-    Sampling enforces **equal-weight-per-DGP-class-per-domain** (and optionally
-    per-cadence) via :meth:`_sample_indices_equal_weight` — the property that
-    prevents source-count-heavy domains (nature) from drowning out light ones
-    (healthcare) in the buffer, so the served pool spans the catalog evenly.
+    Sampling is **equal-weight-per-DGP-class-per-domain in expectation** (and
+    optionally per-cadence) via :meth:`_sample_indices_equal_weight` — the
+    property that prevents source-count-heavy domains (nature) from drowning
+    out light ones (healthcare) in the buffer. Since DEC-TB-0003 any *single*
+    round's realised mix is deliberately jittered around that expectation
+    (Dirichlet domain weights, per-round class rotation, a per-round series
+    bag), so the exact composition of a round cannot be predicted even with
+    the full published pool in hand — the anti-overfitting layer for miners
+    tuning against a fixed benchmark mix.
     """
 
     domain = "scraped_live"  # coarse fallback; per-motif domain overrides
@@ -108,6 +121,9 @@ class ScrapedLiveSource(LiveSource):
         tail_frac: float = 0.5,
         frame_cache_size: int = 8,
         frame_cache_bytes: int = 512 * 1024 * 1024,
+        mix_jitter_alpha: float | None = 4.0,
+        series_bag_frac: float = 0.7,
+        class_keep_frac: float = 0.7,
     ) -> None:
         """Args:
             catalog_path: path to ``sources.yaml``.
@@ -130,6 +146,21 @@ class ScrapedLiveSource(LiveSource):
             frame_cache_bytes: byte ceiling on the same cache, measured on the
                 arrow tables the frames came from. This is the bound that does
                 the real work — a count alone still admits eight giants.
+            mix_jitter_alpha: Dirichlet concentration for the per-round domain
+                mix (DEC-TB-0003). ``None`` restores the exactly-uniform split.
+                4.0 swings a domain between roughly 5% and 33% of a 128-slot
+                round while the coverage gate (target 4.0 effective domains)
+                stays clear with margin — simulated P(effective < 4) = 0 over
+                20k rounds.
+            series_bag_frac: per-round eligible-series bag. Each series is in
+                or out of a given round by a salted hash of its key, so which
+                series can appear *at all* rotates round to round. 1.0
+                disables.
+            class_keep_frac: per-round DGP-class rotation. Each domain
+                activates a seeded subset of its classes per round; inactive
+                classes sit the round out entirely (which the breadth gate
+                permits — token presence is what it vetoes) and return in
+                later rounds. 1.0 disables.
         """
         import yaml
         with open(catalog_path) as f:
@@ -140,6 +171,9 @@ class ScrapedLiveSource(LiveSource):
         self.max_series_per_source = max_series_per_source
         self.require_freshness_days = require_freshness_days
         self.enforce_cadence_balance = bool(enforce_cadence_balance)
+        self.mix_jitter_alpha = mix_jitter_alpha
+        self.series_bag_frac = float(series_bag_frac)
+        self.class_keep_frac = float(class_keep_frac)
         self.tail_frac = float(tail_frac)
         self.frame_cache_size = int(frame_cache_size)
         self.frame_cache_bytes = int(frame_cache_bytes)
@@ -397,8 +431,30 @@ class ScrapedLiveSource(LiveSource):
     def _sample_indices_equal_weight(
         self, n: int, rng: np.random.Generator
     ) -> list[dict]:
-        """Pick ``n`` series with equal weight per (domain × dgp_class) — and
-        optional per-cadence equal weighting.
+        """Pick ``n`` series, stratified per (domain × dgp_class), with the
+        realised mix jittered per round (DEC-TB-0003).
+
+        The long-run *expected* mix is equal-weight per domain and per class —
+        the property that stops source-count-heavy domains drowning out light
+        ones — but any single round's mix is drawn through the passed
+        (beacon-derived) rng, so the exact composition of a round cannot be
+        tuned against even with the full published pool in hand:
+
+        * ``series_bag_frac`` — a per-round bag decides which series are
+          eligible at all this round (salted hash of the series key, so
+          membership is independent of catalog enumeration order);
+        * ``mix_jitter_alpha`` — the domain split is Dirichlet-jittered
+          around uniform instead of exactly uniform;
+        * ``class_keep_frac`` — each domain activates a seeded subset of its
+          classes per round; a tiny cell has no guaranteed daily quota (the
+          most memorisable fixture the old fixed split served: a 2-series
+          class re-served its 2 series every single round, forever).
+
+        Allocation happens in blocks of ``MIN_CLASS_SLOTS`` so any class that
+        appears at all clears the dgp-breadth gate's minimum share — the gate
+        permits absence but vetoes token presence. All draws flow through
+        ``rng`` over sorted keys, so a given (catalog, seed) yields
+        byte-identical picks on every validator.
         """
         cat = [c for c in self._catalog()
                if self._series_key(c) not in self._rejected]
@@ -411,17 +467,59 @@ class ScrapedLiveSource(LiveSource):
                 "run the scraper first, or check freshness / min_series_length."
             )
 
+        if self.series_bag_frac < 1.0:
+            salt = int(rng.integers(0, 2**32))
+            bagged = [c for c in cat
+                      if _bag_keep(salt, self._series_key(c), self.series_bag_frac)]
+            # An unlucky bag that empties the catalog (tiny fixture pools)
+            # falls back to the full pool rather than failing the round.
+            if bagged:
+                cat = bagged
+
         # Group per (domain, dgp_class, cadence).
         by_cell: dict[tuple[str, str, str], list[dict]] = defaultdict(list)
         for s in cat:
             by_cell[(s["domain"], s["dgp_class"], s["cadence"])].append(s)
 
-        # Equal weight per domain first — split n across surviving domains.
+        # Equal weight per domain in expectation — split n across surviving
+        # domains, jittered per round when mix_jitter_alpha is set.
         domains = sorted({d for d, _, _ in by_cell.keys()})
-        per_domain = _split(n, len(domains))
+        if self.mix_jitter_alpha:
+            per_domain = _jittered_split(
+                n, len(domains), float(self.mix_jitter_alpha), rng)
+        else:
+            per_domain = _split(n, len(domains))
+        jittered = bool(self.mix_jitter_alpha) or self.class_keep_frac < 1.0
         picks: list[dict] = []
         for dom, n_dom in zip(domains, per_domain):
+            if n_dom == 0:
+                continue
             classes = sorted({c for d, c, _ in by_cell.keys() if d == dom})
+            if jittered and len(classes) > 1:
+                if self.class_keep_frac < 1.0:
+                    mask = rng.random(len(classes)) < self.class_keep_frac
+                    kept = [c for c, keep in zip(classes, mask) if keep]
+                    # A domain must field at least one class every round it
+                    # has slots, or its Dirichlet share would silently vanish.
+                    classes = kept or [classes[int(rng.integers(0, len(classes)))]]
+                # Never activate more classes than can each clear
+                # MIN_CLASS_SLOTS — the gate-safety invariant. Weight the
+                # draw by how many real series a class can field (capped at
+                # one block): a 1-series class still gets rounds, but 3×
+                # less often than any class that can fill its block without
+                # duplicate picks. Measured on the 2026-08-19 pool this cut
+                # duplicate slots per 128-round from ~35 to ~20.
+                cap = max(1, n_dom // MIN_CLASS_SLOTS)
+                if len(classes) > cap:
+                    sizes: Counter[str] = Counter()
+                    for (d2, c2, _b), members in by_cell.items():
+                        if d2 == dom:
+                            sizes[c2] += len(members)
+                    w = np.array([min(sizes[c], MIN_CLASS_SLOTS)
+                                  for c in classes], dtype=float)
+                    sel = rng.choice(len(classes), size=cap, replace=False,
+                                     p=w / w.sum())
+                    classes = [classes[int(i)] for i in sorted(int(j) for j in sel)]
             per_class = _split(n_dom, len(classes))
             for cls, n_cls in zip(classes, per_class):
                 if self.enforce_cadence_balance:
@@ -703,13 +801,74 @@ def _split(total: int, k: int) -> list[int]:
     return [base + (1 if i < extra else 0) for i in range(k)]
 
 
+def _jittered_split(
+    total: int, k: int, alpha: float, rng: np.random.Generator,
+    block: int = MIN_CLASS_SLOTS,
+) -> list[int]:
+    """Dirichlet-jittered largest-remainder split of ``total`` into ``k``
+    groups, allocated in ``block``-slot units with a one-block floor per group.
+
+    The Dirichlet is symmetric, so the *expected* allocation is uniform —
+    breadth incentives are unchanged over many rounds — while any single
+    round's allocation varies. ``alpha`` sets how much: at 4.0 with 7 groups
+    and 128 slots a group swings between roughly 5% and 33% of the round, and
+    the effective-domain count (the coverage gate's Hill number, target 4.0)
+    never dropped below 5.9 in 20k simulated rounds.
+    """
+    if k == 0:
+        return []
+    nblocks = total // block
+    if nblocks < k:
+        # Too small to give every group a block — rejection top-ups from
+        # pull_meta land here. Concentrate on a seeded subset of groups
+        # instead of spraying token 1-slot counts across all of them.
+        m = max(1, nblocks)
+        counts = [0] * k
+        chosen = sorted(int(i) for i in rng.choice(k, size=m, replace=False))
+        for g, c in zip(chosen, _split(total, m)):
+            counts[g] = c
+        return counts
+    w = rng.dirichlet(np.full(k, float(alpha)))
+    avail = nblocks - k  # a one-block floor keeps every domain in every round
+    raw = w * avail
+    base = np.floor(raw).astype(int)
+    rem = int(avail - base.sum())
+    order = np.argsort(-(raw - base), kind="stable")
+    base[order[:rem]] += 1
+    counts = (base + 1) * block
+    # Slots that don't fill a whole block go to the round's biggest group,
+    # never opening a new sub-block cell.
+    counts[int(np.argmax(counts))] += total - nblocks * block
+    return [int(c) for c in counts]
+
+
+def _bag_keep(salt: int, key: tuple, frac: float) -> bool:
+    """Per-round bag membership: salted hash of the series key.
+
+    A hash, not a positional rng draw, so membership is independent of the
+    order the catalog happened to be enumerated in — only the rng-drawn salt
+    varies per round, and it is consensus-safe by construction.
+    """
+    h = zlib.crc32(f"{salt}:{key}".encode())
+    return (h % 10_000) < int(frac * 10_000)
+
+
 def _pick(pool: list[dict], n: int, rng: np.random.Generator) -> list[dict]:
     if n == 0:
         return []
     if not pool:
         raise RuntimeError("empty leaf pool during equal-weight sampling")
-    idx = rng.integers(0, len(pool), size=n)
-    return [pool[i] for i in idx]
+    if n <= len(pool):
+        # Without replacement (DEC-TB-0003): a round never fills a cell's
+        # quota with duplicates while distinct series remain.
+        idx = rng.choice(len(pool), size=n, replace=False)
+    else:
+        # Quota exceeds the cell: every series once, dupes for the rest — a
+        # tiny class that IS active this round must still clear the
+        # dgp-gate's minimum share.
+        idx = np.concatenate([np.arange(len(pool)),
+                              rng.integers(0, len(pool), size=n - len(pool))])
+    return [pool[int(i)] for i in idx]
 
 
 __all__ = ["ScrapedLiveSource", "FREQ_BAND"]
