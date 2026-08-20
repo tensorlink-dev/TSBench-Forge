@@ -98,6 +98,30 @@ jobs:
           # rebase-retry once rather than failing the whole round on a race.
           git push || (git pull --rebase && git push)
 
+      - name: Mirror round manifest to Hugging Face
+        # Optional: publishes each round JSON (leaderboard + the DEC-TB-0003
+        # composition manifest) plus the index to a public HF dataset, so the
+        # per-round domain mix is inspectable off-GitHub too. No-op until the
+        # HF_TOKEN secret (a write token for the tensorlink-dev org) is set.
+        if: ${{ secrets.HF_TOKEN != '' }}
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install --quiet huggingface_hub
+          python - <<'EOF'
+          from huggingface_hub import HfApi
+          api = HfApi()
+          repo = "tensorlink-dev/tsbench-forge-rounds"
+          api.create_repo(repo, repo_type="dataset", exist_ok=True)
+          api.upload_folder(
+              folder_path="docs/data/rounds",
+              path_in_repo="rounds",
+              repo_id=repo, repo_type="dataset",
+              commit_message="round: mirror published rounds",
+          )
+          print(f"mirrored docs/data/rounds -> hf://datasets/{repo}/rounds")
+          EOF
+
       - name: Upload run artifacts
         if: always()
         uses: actions/upload-artifact@v7

@@ -56,6 +56,40 @@ from paracast_client import (  # noqa: E402
 )
 
 
+def round_composition(challenges: list, k_draws: int) -> dict:
+    """The realised domain mix of one round — the DEC-TB-0003 manifest.
+
+    Computed from the challenge metas actually served (pooled and per draw),
+    so the published feed carries proof that the jitter rotates the mix and
+    that the pooled round stays broad. Post-hoc by construction: each round's
+    Dirichlet draw is independent, so this predicts nothing about tomorrow.
+    """
+    from collections import Counter
+
+    import numpy as np
+
+    def _counts(chs: list, key: str) -> dict:
+        return dict(sorted(Counter(
+            str((getattr(ch, "meta", None) or {}).get(key)) for ch in chs
+        ).items()))
+
+    pooled = _counts(challenges, "domain")
+    total = sum(pooled.values())
+    p = np.array([v / total for v in pooled.values() if v], dtype=float)
+    eff = float(np.exp(-(p * np.log(p)).sum())) if p.size else 0.0
+    per_draw = max(1, len(challenges) // max(k_draws, 1))
+    draws = [challenges[i:i + per_draw]
+             for i in range(0, len(challenges), per_draw)]
+    return {
+        "domains": pooled,
+        "domains_per_draw": [_counts(d, "domain") for d in draws],
+        "effective_domains": round(eff, 2),
+        "cadences": _counts(challenges, "cadence"),
+        "n_dgp_classes": len({(getattr(ch, "meta", None) or {}).get("dgp_class")
+                              for ch in challenges}),
+    }
+
+
 def _load_publish_round():
     spec = importlib.util.spec_from_file_location(
         "publish_round", REPO / "scripts/publish_round.py"
@@ -145,7 +179,9 @@ def main(argv: list[str]) -> int:
     )
     n_series = len({str((getattr(ch, "meta", None) or {}).get("source_id"))
                     for ch in challenges})
-    print(f"  {len(challenges)} challenges from {n_series} source series")
+    composition = round_composition(challenges, k_draws)
+    print(f"  {len(challenges)} challenges from {n_series} source series, "
+          f"effective domains {composition['effective_domains']}")
 
     specs = build_specs(client, args)
     if not specs:
@@ -199,6 +235,7 @@ def main(argv: list[str]) -> int:
             "roster": [s.model_id for s in specs],
             "endpoint": "paracast",
         },
+        "composition": composition,
         "load_report": load_report,
         "note": note_breadth,
         "leaderboard": board,
@@ -234,6 +271,7 @@ def main(argv: list[str]) -> int:
     merged = {
         "models": list(scores),
         "leaderboard": board,
+        "composition": composition,
         "friedman_crps": results["by_metric"]["crps"]["friedman"],
         "vs_baseline_crps": results["by_metric"]["crps"]["vs_baseline"],
         "pairwise_crps": {
@@ -251,7 +289,8 @@ def main(argv: list[str]) -> int:
         rounds_dir = Path(args.docs_data) / "rounds"
         rounds_dir.mkdir(parents=True, exist_ok=True)
         config = {"seed": args.seed, "motif_len": args.motif_len,
-                  "n_challenges": len(challenges), "n_series": n_series}
+                  "n_challenges": len(challenges), "n_series": n_series,
+                  "k_draws": k_draws}
         doc = publish_round.build_round(merged, args.round_id, config=config, note=args.note)
         dest = rounds_dir / f"{args.round_id}.json"
         dest.write_text(json.dumps(doc, indent=2) + "\n")

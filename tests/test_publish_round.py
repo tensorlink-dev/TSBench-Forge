@@ -141,3 +141,46 @@ def test_cli_publish_and_index(tmp_path):
     assert doc["config"] == {"n_series": 43}
     index = json.loads((docs_data / "rounds/index.json").read_text())
     assert [e["round_id"] for e in index["rounds"]] == ["2026-08-03"]
+
+
+def test_composition_manifest_flows_into_round_and_index():
+    """DEC-TB-0003: the realised per-round domain mix is published with the
+    round and summarised in the index."""
+    merged = dict(MERGED)
+    merged["composition"] = {
+        "domains": {"energy": 24, "nature": 40},
+        "domains_per_draw": [{"energy": 12, "nature": 20},
+                             {"energy": 12, "nature": 20}],
+        "effective_domains": 1.94,
+        "cadences": {"hourly": 64},
+        "n_dgp_classes": 7,
+    }
+    doc = publish_round.build_round(
+        merged, "2026-08-20",
+        config={"seed": "s1", "n_challenges": 64, "k_draws": 2})
+    assert doc["composition"]["domains"] == {"energy": 24, "nature": 40}
+    summary = publish_round.round_summary(doc)
+    assert summary["effective_domains"] == 1.94
+    assert summary["config"]["k_draws"] == 2
+
+
+def test_round_composition_reports_pooled_and_per_draw_mix():
+    from types import SimpleNamespace
+
+    _spec2 = importlib.util.spec_from_file_location(
+        "run_paracast_round", REPO / "scripts/run_paracast_round.py")
+    rpr = importlib.util.module_from_spec(_spec2)
+    _spec2.loader.exec_module(rpr)
+
+    def ch(dom):
+        return SimpleNamespace(meta={"domain": dom, "cadence": "hourly",
+                                     "dgp_class": f"{dom}_c"})
+
+    # two draws of 4: draw 1 is 3 nature / 1 energy, draw 2 is 1 / 3
+    chs = [ch("nature")] * 3 + [ch("energy")] + [ch("nature")] + [ch("energy")] * 3
+    comp = rpr.round_composition(chs, k_draws=2)
+    assert comp["domains"] == {"energy": 4, "nature": 4}
+    assert comp["domains_per_draw"] == [{"energy": 1, "nature": 3},
+                                        {"energy": 3, "nature": 1}]
+    assert abs(comp["effective_domains"] - 2.0) < 1e-6  # pooled mix is even
+    assert comp["n_dgp_classes"] == 2

@@ -55,6 +55,12 @@ def build_round(merged: dict, round_id: str, config: dict | None = None,
     }
     if note:
         out["note"] = note
+    if "composition" in merged:
+        # DEC-TB-0003 transparency: the realised domain mix of THIS round —
+        # pooled and per draw — so anyone can verify the jitter rotates and
+        # averages back to equal-weight. Post-hoc only: it reveals nothing
+        # about the next round's draw.
+        out["composition"] = merged["composition"]
     if "friedman_crps" in merged:
         out["friedman_crps"] = merged["friedman_crps"]
     if "vs_baseline_crps" in merged:
@@ -77,9 +83,13 @@ def round_summary(round_doc: dict) -> dict:
         "has_metrics": any(r.get("crps_rel") is not None for r in board),
     }
     cfg = round_doc.get("config") or {}
-    picked = {k: cfg[k] for k in ("seed", "n_challenges", "n_series") if k in cfg}
+    picked = {k: cfg[k] for k in ("seed", "n_challenges", "n_series", "k_draws")
+              if k in cfg}
     if picked:
         out["config"] = picked
+    eff = (round_doc.get("composition") or {}).get("effective_domains")
+    if eff is not None:
+        out["effective_domains"] = eff
     if round_doc.get("note"):
         out["note"] = round_doc["note"]
     return out
