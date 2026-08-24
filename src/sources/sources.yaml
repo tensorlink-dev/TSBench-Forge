@@ -91042,3 +91042,97 @@
     series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
     cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
     count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+
+# -- wired batch: grind-20260824-0713 --
+- id: opendata_ods156_68
+  name: Individual incremental balancing energy bids (Historical data as of 22 [68]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%2268%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''68'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_comptage_velo_donnees_compteurs_100057
+  name: Comptage vélo - Données compteurs (Paris, France) [100057380-10405738]
+  domain: transport
+  dgp_class: urban_mobility
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs/records?limit=100&order_by=date%20desc&where=id_compteur%3D%22100057380-104057380%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].date
+    value_field:
+    - results[].sum_counts
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 60 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Paris open-data portal, dataset comptage-velo-donnees-compteurs.
+  license: Paris open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset comptage-velo-donnees-compteurs, ordered newest-first
+    on date; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a rolling
+    table returns the oldest rows and reads as a dead source. Panel dimension id_compteur is pinned to ''100057380-104057380'':
+    without it the response interleaves several series on the same timestamps.'
+- id: opendata_real_time_air_quality_ozone_o3_6530
+  name: Concentration moyenne horaire d’ozone O3 (qualité de l'air en Région d [6530]
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-ozone-o3/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226530%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].timestamp
+    value_field:
+    - results[].value
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 60 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Brussels open-data portal, dataset real-time-air-quality-ozone-o3.
+  license: Brussels open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset real-time-air-quality-ozone-o3, ordered newest-first
+    on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
+    rolling table returns the oldest rows and reads as a dead source. Panel dimension device_id is pinned
+    to ''6530'': without it the response interleaves several series on the same timestamps.'
