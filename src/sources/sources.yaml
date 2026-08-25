@@ -91714,7 +91714,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Choice%20Cuts?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Choice%20Cuts?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91739,7 +91739,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Select%20Cuts?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Select%20Cuts?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91764,7 +91764,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Ground%20Beef?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Ground%20Beef?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91789,7 +91789,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Composite%20Primal%20Values?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Composite%20Primal%20Values?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91814,7 +91814,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Loin%20Cuts?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Loin%20Cuts?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91824,7 +91824,7 @@
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Loin Cuts' (panel_field Item_Description, value weighted_average).
-    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_ham_cuts_daily_panel
   name: USDA AMS daily — pork ham cuts, FOB plant negotiated weighted-average price (~50 items)
@@ -91839,7 +91839,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Ham%20Cuts?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Ham%20Cuts?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91849,7 +91849,7 @@
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Ham Cuts' (panel_field Item_Description, value weighted_average).
-    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_belly_cuts_daily_panel
   name: USDA AMS daily — pork belly cuts, FOB plant negotiated weighted-average price (~29 items)
@@ -91864,7 +91864,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Belly%20Cuts?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Belly%20Cuts?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91874,7 +91874,7 @@
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Belly Cuts' (panel_field Item_Description, value weighted_average).
-    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_butt_cuts_daily_panel
   name: USDA AMS daily — pork butt cuts, FOB plant negotiated weighted-average price (~31 items)
@@ -91889,7 +91889,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Butt%20Cuts?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Butt%20Cuts?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91899,7 +91899,7 @@
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Butt Cuts' (panel_field Item_Description, value weighted_average).
-    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_beef_trimmings_national_daily_panel
   name: USDA AMS daily — boneless processing beef / trimmings, national average price by item (18 items)
@@ -91914,7 +91914,7 @@
     fetch
   endpoint:
     type: rest_json
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2451/National?q=report_date=06/01/2025:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2451/National?q=report_date=01/01/2025:12/31/2035
     timeout: 120
   schema:
     timestamp_field: results[].report_date
@@ -91924,7 +91924,7 @@
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2451 section 'National' (panel_field item_desc, value price_range_avg).
-    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: chicago_building_permits_daily_by_type
   name: Chicago building permits issued per day, by permit type (panel)
