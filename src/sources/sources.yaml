@@ -91671,3 +91671,55 @@
     daily rows). audit_slack_days=21 mirrors cdc_nssp_ed_respiratory_daily (weekly publication of daily
     rows). Scraper caps panel_field groups at 50, so 50 of the 52 geographies are kept.'
   audit_slack_days: 21
+
+# -- wired batch: daily-wave-2026-08-25 --
+- id: bis_nominal_eer_daily_panel_a
+  name: BIS nominal effective exchange rates, broad basket — daily panel A (32 economies)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - random_walk
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily EER index; the startPeriod window re-serves >320 business days per economy on every
+    fetch
+  endpoint:
+    type: rest_csv
+    url: https://stats.bis.org/api/v2/data/dataflow/BIS/WS_EER/1.0/D.N.B.AE+AR+AT+AU+BA+BE+BG+BR+CA+CH+CL+CN+CO+CY+CZ+DE+DK+DZ+EE+ES+FI+FR+GB+GR+HK+HR+HU+ID+IE+IL+IN+IS?format=csv&startPeriod={YYYY-MM-DD-540d}
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    panel_field: REF_AREA
+    variates: 1
+  history_available: P30Y
+  license: BIS — free reuse with attribution
+  notes: Daily nominal broad EER (WS_EER D.N.B) panel over REF_AREA, split in two halves of 32 so each stays
+    under the scraper's 50-group panel cap. All 64 economies had >=320 fresh rows on 2026-08-25. Sibling
+    of the monthly bis_eer_nominal_broad_panel (20 economies).
+- id: bis_nominal_eer_daily_panel_b
+  name: BIS nominal effective exchange rates, broad basket — daily panel B (32 economies)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - random_walk
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily EER index; the startPeriod window re-serves >320 business days per economy on every
+    fetch
+  endpoint:
+    type: rest_csv
+    url: https://stats.bis.org/api/v2/data/dataflow/BIS/WS_EER/1.0/D.N.B.IT+JP+KR+LT+LU+LV+MA+MK+MT+MX+MY+NL+NO+NZ+PE+PH+PL+PT+RO+RS+RU+SA+SE+SG+SI+SK+TH+TR+TW+US+XM+ZA?format=csv&startPeriod={YYYY-MM-DD-540d}
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    panel_field: REF_AREA
+    variates: 1
+  history_available: P30Y
+  license: BIS — free reuse with attribution
+  notes: Daily nominal broad EER (WS_EER D.N.B) panel over REF_AREA, split in two halves of 32 so each stays
+    under the scraper's 50-group panel cap. All 64 economies had >=320 fresh rows on 2026-08-25. Sibling
+    of the monthly bis_eer_nominal_broad_panel (20 economies).
