@@ -427,6 +427,7 @@ schedules:
   - opendatasoft_fire_incidents_queensland
   - deribit_btc_perp_trades
   - energinet_dk_co2_intensity_5min
+  - coinbase_spot_15m_panel_1
   cron: '*/15 * * * *'
 - every: PT30M
   sources:
@@ -2755,6 +2756,14 @@ schedules:
   - misskey_hobymour_notes
   - misskey_matcha1919_notes
   - misskey_life_notes_omunch
+  - ecb_reference_rates_daily_panel
+  - ecb_euro_area_yield_curve_daily_panel
+  - bis_policy_rates_daily_panel_a
+  - bis_policy_rates_daily_panel_b
+  - cdc_nssp_ed_covid19_daily_by_state
+  - cdc_nssp_ed_influenza_daily_by_state
+  - cdc_nssp_ed_rsv_daily_by_state
+  - cdc_nssp_ed_ari_daily_by_state
   cron: 10 1 * * *
 - every: P1D
   sources:

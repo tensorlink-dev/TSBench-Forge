@@ -1182,6 +1182,86 @@
   - ARTICLE: Cybersecurity
   - ARTICLE: Cryptocurrency
   - ARTICLE: Blockchain
+  - ARTICLE: Taylor_Swift
+  - ARTICLE: Netflix
+  - ARTICLE: Amazon_(company)
+  - ARTICLE: Microsoft
+  - ARTICLE: Google
+  - ARTICLE: Meta_Platforms
+  - ARTICLE: Nike
+  - ARTICLE: The_Coca-Cola_Company
+  - ARTICLE: Starbucks
+  - ARTICLE: Walmart
+  - ARTICLE: The_Walt_Disney_Company
+  - ARTICLE: PlayStation_5
+  - ARTICLE: Nintendo_Switch
+  - ARTICLE: Xbox_Series_X_and_Series_S
+  - ARTICLE: IPhone
+  - ARTICLE: Samsung_Electronics
+  - ARTICLE: Toyota
+  - ARTICLE: Ford_Motor_Company
+  - ARTICLE: BMW
+  - ARTICLE: Boeing
+  - ARTICLE: Airbus
+  - ARTICLE: Lego
+  - ARTICLE: Barbie
+  - ARTICLE: Marvel_Cinematic_Universe
+  - ARTICLE: Star_Wars
+  - ARTICLE: Harry_Potter
+  - ARTICLE: Minecraft
+  - ARTICLE: Fortnite
+  - ARTICLE: Roblox
+  - ARTICLE: Grand_Theft_Auto_VI
+  - ARTICLE: Call_of_Duty
+  - ARTICLE: FIFA_World_Cup
+  - ARTICLE: National_Basketball_Association
+  - ARTICLE: National_Football_League
+  - ARTICLE: Premier_League
+  - ARTICLE: Formula_One
+  - ARTICLE: Wimbledon_Championships
+  - ARTICLE: Tour_de_France
+  - ARTICLE: UEFA_Champions_League
+  - ARTICLE: Cristiano_Ronaldo
+  - ARTICLE: Lionel_Messi
+  - ARTICLE: LeBron_James
+  - ARTICLE: Drake_(musician)
+  - ARTICLE: BTS
+  - ARTICLE: Spotify
+  - ARTICLE: YouTube
+  - ARTICLE: TikTok
+  - ARTICLE: Instagram
+  - ARTICLE: Reddit
+  - ARTICLE: Uber
+  - ARTICLE: Airbnb
+  - ARTICLE: Costco
+  - ARTICLE: Target_Corporation
+  - ARTICLE: IKEA
+  - ARTICLE: Zara_(retailer)
+  - ARTICLE: Shein
+  - ARTICLE: Temu
+  - ARTICLE: Black_Friday_(shopping)
+  - ARTICLE: Christmas
+  - ARTICLE: Halloween
+  - ARTICLE: Thanksgiving
+  - ARTICLE: Amazon_Prime
+  - ARTICLE: Stranger_Things
+  - ARTICLE: Game_of_Thrones
+  - ARTICLE: The_Simpsons
+  - ARTICLE: Pok%C3%A9mon
+  - ARTICLE: Academy_Awards
+  - ARTICLE: Grammy_Awards
+  - ARTICLE: Met_Gala
+  - ARTICLE: Coachella
+  - ARTICLE: Ticketmaster
+  - ARTICLE: Peloton_Interactive
+  - ARTICLE: Dyson_(company)
+  - ARTICLE: Tesla_Model_Y
+  - ARTICLE: Ozempic
+  - ARTICLE: Stanley_(brand)
+  - ARTICLE: Crocs
+  - ARTICLE: Nintendo
+  - ARTICLE: Steam_(service)
+  - ARTICLE: Twitch_(service)
   schema:
     timestamp_field: items[].timestamp
     value_field: items[].views
@@ -1272,6 +1352,106 @@
   - PACKAGE: socket.io
   - PACKAGE: graphql
   - PACKAGE: bun
+  - PACKAGE: '@angular/core'
+  - PACKAGE: moment
+  - PACKAGE: dayjs
+  - PACKAGE: uuid
+  - PACKAGE: commander
+  - PACKAGE: debug
+  - PACKAGE: glob
+  - PACKAGE: minimist
+  - PACKAGE: async
+  - PACKAGE: bluebird
+  - PACKAGE: underscore
+  - PACKAGE: redux
+  - PACKAGE: react-router
+  - PACKAGE: react-router-dom
+  - PACKAGE: '@reduxjs/toolkit'
+  - PACKAGE: styled-components
+  - PACKAGE: '@emotion/react'
+  - PACKAGE: '@mui/material'
+  - PACKAGE: antd
+  - PACKAGE: bootstrap
+  - PACKAGE: jquery
+  - PACKAGE: three
+  - PACKAGE: d3
+  - PACKAGE: chart.js
+  - PACKAGE: leaflet
+  - PACKAGE: mongoose
+  - PACKAGE: mongodb
+  - PACKAGE: pg
+  - PACKAGE: mysql2
+  - PACKAGE: sequelize
+  - PACKAGE: prisma
+  - PACKAGE: '@prisma/client'
+  - PACKAGE: knex
+  - PACKAGE: redis
+  - PACKAGE: ioredis
+  - PACKAGE: kafkajs
+  - PACKAGE: amqplib
+  - PACKAGE: ws
+  - PACKAGE: cors
+  - PACKAGE: body-parser
+  - PACKAGE: helmet
+  - PACKAGE: passport
+  - PACKAGE: jsonwebtoken
+  - PACKAGE: bcrypt
+  - PACKAGE: bcryptjs
+  - PACKAGE: nodemailer
+  - PACKAGE: multer
+  - PACKAGE: sharp
+  - PACKAGE: puppeteer
+  - PACKAGE: playwright
+  - PACKAGE: cheerio
+  - PACKAGE: node-fetch
+  - PACKAGE: got
+  - PACKAGE: superagent
+  - PACKAGE: form-data
+  - PACKAGE: fs-extra
+  - PACKAGE: rimraf
+  - PACKAGE: mkdirp
+  - PACKAGE: cross-env
+  - PACKAGE: nodemon
+  - PACKAGE: ts-node
+  - PACKAGE: tsx
+  - PACKAGE: babel-loader
+  - PACKAGE: css-loader
+  - PACKAGE: style-loader
+  - PACKAGE: sass-loader
+  - PACKAGE: html-webpack-plugin
+  - PACKAGE: mini-css-extract-plugin
+  - PACKAGE: terser
+  - PACKAGE: uglify-js
+  - PACKAGE: '@vitejs/plugin-react'
+  - PACKAGE: vitest
+  - PACKAGE: mocha
+  - PACKAGE: chai
+  - PACKAGE: sinon
+  - PACKAGE: cypress
+  - PACKAGE: '@testing-library/react'
+  - PACKAGE: storybook
+  - PACKAGE: eslint-plugin-react
+  - PACKAGE: '@typescript-eslint/parser'
+  - PACKAGE: husky
+  - PACKAGE: lint-staged
+  - PACKAGE: semver
+  - PACKAGE: yaml
+  - PACKAGE: js-yaml
+  - PACKAGE: xml2js
+  - PACKAGE: csv-parse
+  - PACKAGE: papaparse
+  - PACKAGE: xlsx
+  - PACKAGE: pdfkit
+  - PACKAGE: jspdf
+  - PACKAGE: marked
+  - PACKAGE: highlight.js
+  - PACKAGE: prismjs
+  - PACKAGE: dompurify
+  - PACKAGE: immer
+  - PACKAGE: zustand
+  - PACKAGE: '@tanstack/react-query'
+  - PACKAGE: swr
+  - PACKAGE: '@apollo/client'
   schema:
     timestamp_field: downloads[].day
     value_field: downloads[].downloads
@@ -4309,7 +4489,7 @@
   frequency: P1D
   endpoint:
     type: rest_json
-    url: https://api.fda.gov/drug/event.json?search=receiptdate:%5B20260101+TO+20261231%5D&count=receiptdate
+    url: https://api.fda.gov/drug/event.json?search=receiptdate:%5B20240101+TO+20291231%5D&count=receiptdate
     auth: none
     rate_limit: 240 req/min, 1000/day per IP without key; higher with free key
   schema:
@@ -16432,7 +16612,7 @@
   license: Public domain (USDA)
   notes: Daily Choice and Select 600-900 lb boxed beef cutout values (USD/cwt) from USDA Livestock Mandatory Reporting via the keyless MPR Datamart JSON API (slug 2453, section Current Cutout Values). Business days only. Distinct from the wired weekly-average slug 2461.
   endpoint:
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Current%20Cutout%20Values?q=report_date=01/01/2026:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Current%20Cutout%20Values?q=report_date=01/01/2024:12/31/2035
     type: rest_json
     timeout: 90
   schema:
@@ -17282,7 +17462,7 @@
   license: Public domain (US Government)
   notes: Daily prior-day hog base price (USD/cwt carcass) by purchase type (negotiated, formula, market-formula...), panel by purchase_type; new slug 3458 on already-wired mpr.datamart host (distinct commodity/report from wired beef-cutout and butter slugs). head_count field has thousands commas, so only base_price is taken.
   endpoint:
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/3458/Barrows%20&%20Gilts%20(carcass%20basis)?q=report_date=01/01/2026:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/3458/Barrows%20&%20Gilts%20(carcass%20basis)?q=report_date=01/01/2024:12/31/2035
     type: rest_json
     timeout: 90
   schema:
@@ -17389,7 +17569,7 @@
   license: Public domain (USDA)
   notes: Daily negotiated national pork carcass cutout plus loin/butt/belly primal values (USD/cwt) and total loads from USDA Livestock Mandatory Reporting via the keyless MPR Datamart JSON API (slug 2498, section 'Cutout and Primal Values'). Business days only. New report slug on the already-wired mpr.datamart host; distinct commodity from the wired beef (2453/2461), hog (3458) and dairy (2993) slugs.
   endpoint:
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Cutout%20and%20Primal%20Values?q=report_date=01/01/2026:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Cutout%20and%20Primal%20Values?q=report_date=01/01/2024:12/31/2035
     type: rest_json
     timeout: 90
   schema:
@@ -17408,7 +17588,7 @@
   license: Public domain (USDA)
   notes: Daily national estimated lamb carcass cutout — gross carcass value (USD/cwt), day-over-day change and carcass weight — from USDA Livestock Mandatory Reporting via the keyless MPR Datamart JSON API (slug 2649, section 'GROSS CARCASS VALUE'). Business days only. New report slug/commodity on the already-wired mpr.datamart host.
   endpoint:
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2649/GROSS%20CARCASS%20VALUE?q=report_date=01/01/2026:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2649/GROSS%20CARCASS%20VALUE?q=report_date=01/01/2024:12/31/2035
     type: rest_json
     timeout: 90
   schema:
@@ -17425,7 +17605,7 @@
   license: Public domain (USDA)
   notes: 'Daily 5-Area (TX/OK/NM, KS, NE, CO, IA/MN) weighted average price for negotiated live-basis slaughter cattle, weekly-accumulated period, panel by class (Steer/Heifer). Keyless MPR Datamart JSON API, slug 2466 section History. Gotcha: the History section also carries SAME PERIOD LAST WEEK/YEAR rows and a Dressed selling basis, so the q filter pins current_period=WEEKLY ACCUMULATED and selling_basis_desc=Live to keep one row per date per class.'
   endpoint:
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2466/History?q=report_date=01/01/2026:12/31/2035;current_period=WEEKLY ACCUMULATED;selling_basis_desc=Live
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2466/History?q=report_date=01/01/2024:12/31/2035;current_period=WEEKLY ACCUMULATED;selling_basis_desc=Live
     type: rest_json
     timeout: 90
   schema:
@@ -17891,7 +18071,7 @@
   license: Public domain (USDA)
   notes: Daily national weighted average prices (USD/cwt) for boneless processing beef and beef trimmings by chemical-lean item, MPR Datamart slug 2451 section National; panel by item_desc; distinct commodity cut from wired 2453/2461 boxed-beef cutout slugs
   endpoint:
-    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2451/National?q=report_date=01/01/2026:12/31/2035
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2451/National?q=report_date=01/01/2024:12/31/2035
     type: rest_json
     timeout: 90
   schema:
@@ -91136,3 +91316,357 @@
     on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a
     rolling table returns the oldest rows and reads as a dead source. Panel dimension device_id is pinned
     to ''6530'': without it the response interleaves several series on the same timestamps.'
+
+# -- wired batch: daily-wave-2026-08-25 --
+- id: ecb_reference_rates_daily_panel
+  name: ECB euro reference exchange rates — 30 live currencies (daily panel)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - random_walk
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily FX fixings; lastNObservations=400 re-serves >320 business days per currency on every
+    fetch
+  endpoint:
+    type: rest_csv
+    url: https://data-api.ecb.europa.eu/service/data/EXR/D.USD+JPY+BGN+CZK+DKK+GBP+HUF+PLN+RON+SEK+CHF+ISK+NOK+TRY+AUD+BRL+CAD+CNY+HKD+IDR+ILS+INR+KRW+MXN+MYR+NZD+PHP+SGD+THB+ZAR.EUR.SP00.A?format=csvdata&lastNObservations=400
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    panel_field: CURRENCY
+    variates: 1
+  history_available: P25Y
+  license: ECB Data Portal — free reuse with attribution
+  notes: Panel over CURRENCY of the EXR dataflow. Only currencies the ECB still publishes are keyed (discontinued
+    legacy euro-adopters like CYP/EEK/LTL are excluded so no dead series enters the pool). USD duplicates
+    ecb_eur_usd_reference_rate and is content-deduped downstream.
+- id: ecb_euro_area_yield_curve_daily_panel
+  name: ECB euro area AAA spot yield curve — 12 tenors (daily panel)
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - random_walk
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily yield curve; lastNObservations=400 re-serves >320 business days per tenor on every fetch
+  endpoint:
+    type: rest_csv
+    url: https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_3M+SR_6M+SR_1Y+SR_2Y+SR_3Y+SR_5Y+SR_7Y+SR_10Y+SR_15Y+SR_20Y+SR_25Y+SR_30Y?format=csvdata&lastNObservations=400
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    panel_field: DATA_TYPE_FM
+    variates: 1
+  history_available: P20Y
+  license: ECB Data Portal — free reuse with attribution
+  notes: Svensson-fitted AAA euro area spot rates, panel over tenor (DATA_TYPE_FM). 10Y duplicates ecb_euro_area_10y_yield
+    and is content-deduped downstream.
+- id: bis_policy_rates_daily_panel_a
+  name: BIS central bank policy rates — daily panel A (16 economies)
+  domain: econ_fin
+  dgp_class: policy_interest_rate
+  archetypes:
+  - non_stationary_regime
+  - bounded
+  frequency: P1D
+  admit_slow: daily policy-rate series; startPeriod window re-serves >320 business days per economy on every
+    fetch
+  endpoint:
+    type: rest_csv
+    url: https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CBPOL/1.0/D.US+GB+JP+XM+CH+CA+AU+SE+NO+NZ+DK+CZ+HU+PL+IL+KR?format=csv&startPeriod={YYYY-MM-DD-540d}
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    panel_field: REF_AREA
+    variates: 1
+  history_available: P30Y
+  license: BIS — free reuse with attribution
+  notes: 'Daily WS_CBPOL panel over REF_AREA, split in two so each response stays under the 10,000-row cap.
+    Argentina omitted (last obs 2025-07). Step-function series: several economies hold the rate flat for
+    months, so a 320-day window can be near-constant.'
+- id: bis_policy_rates_daily_panel_b
+  name: BIS central bank policy rates — daily panel B (20 economies)
+  domain: econ_fin
+  dgp_class: policy_interest_rate
+  archetypes:
+  - non_stationary_regime
+  - bounded
+  frequency: P1D
+  admit_slow: daily policy-rate series; startPeriod window re-serves >320 business days per economy on every
+    fetch
+  endpoint:
+    type: rest_csv
+    url: https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CBPOL/1.0/D.BR+IN+MX+ZA+TR+ID+CL+CO+CN+PE+PH+TH+MY+SA+RU+HK+HR+IS+MK+RS?format=csv&startPeriod={YYYY-MM-DD-540d}
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    panel_field: REF_AREA
+    variates: 1
+  history_available: P30Y
+  license: BIS — free reuse with attribution
+  notes: 'Daily WS_CBPOL panel over REF_AREA, split in two so each response stays under the 10,000-row cap.
+    Argentina omitted (last obs 2025-07). Step-function series: several economies hold the rate flat for
+    months, so a 320-day window can be near-constant.'
+- id: coinbase_spot_15m_panel_1
+  name: Coinbase Exchange 15-minute close — next 100 USD products by 30-day volume (panel)
+  domain: econ_fin
+  dgp_class: market_price
+  archetypes:
+  - non_stationary_regime
+  - chaotic_nonlinear
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://api.exchange.coinbase.com/products/{PRODUCT}/candles?granularity=900
+    auth: none
+    rate_limit: 10 req/s
+  panel:
+  - PRODUCT: PEPE-USD
+  - PRODUCT: MOG-USD
+  - PRODUCT: BONK-USD
+  - PRODUCT: SHIB-USD
+  - PRODUCT: NEX-USD
+  - PRODUCT: NOICE-USD
+  - PRODUCT: FLOKI-USD
+  - PRODUCT: PUMP-USD
+  - PRODUCT: TOSHI-USD
+  - PRODUCT: BNKR-USD
+  - PRODUCT: DOGINME-USD
+  - PRODUCT: SPELL-USD
+  - PRODUCT: PENGU-USD
+  - PRODUCT: AMP-USD
+  - PRODUCT: ACS-USD
+  - PRODUCT: B3-USD
+  - PRODUCT: KEYCAT-USD
+  - PRODUCT: IMU-USD
+  - PRODUCT: HFT-USD
+  - PRODUCT: XCN-USD
+  - PRODUCT: COTI-USD
+  - PRODUCT: TURBO-USD
+  - PRODUCT: JASMY-USD
+  - PRODUCT: RSR-USD
+  - PRODUCT: HOME-USD
+  - PRODUCT: SWELL-USD
+  - PRODUCT: DRB-USD
+  - PRODUCT: DEGEN-USD
+  - PRODUCT: ACH-USD
+  - PRODUCT: HONEY-USD
+  - PRODUCT: BLAST-USD
+  - PRODUCT: BICO-USD
+  - PRODUCT: NOM-USD
+  - PRODUCT: ZORA-USD
+  - PRODUCT: MON-USD
+  - PRODUCT: VTHO-USD
+  - PRODUCT: GIGA-USD
+  - PRODUCT: TOWNS-USD
+  - PRODUCT: REZ-USD
+  - PRODUCT: FLR-USD
+  - PRODUCT: XLM-USD
+  - PRODUCT: HBAR-USD
+  - PRODUCT: SHPING-USD
+  - PRODUCT: ENA-USD
+  - PRODUCT: BOBBOB-USD
+  - PRODUCT: TRIA-USD
+  - PRODUCT: PRCL-USD
+  - PRODUCT: VARA-USD
+  - PRODUCT: VET-USD
+  - PRODUCT: DOOD-USD
+  - PRODUCT: QI-USD
+  - PRODUCT: CAP-USD
+  - PRODUCT: GST-USD
+  - PRODUCT: FAI-USD
+  - PRODUCT: ATH-USD
+  - PRODUCT: BILL-USD
+  - PRODUCT: COOKIE-USD
+  - PRODUCT: XAN-USD
+  - PRODUCT: PLUME-USD
+  - PRODUCT: POND-USD
+  - PRODUCT: GWEI-USD
+  - PRODUCT: RLS-USD
+  - PRODUCT: SKR-USD
+  - PRODUCT: MDT-USD
+  - PRODUCT: ROBO-USD
+  - PRODUCT: AERGO-USD
+  - PRODUCT: USELESS-USD
+  - PRODUCT: XYO-USD
+  - PRODUCT: SWFTC-USD
+  - PRODUCT: NKN-USD
+  - PRODUCT: FET-USD
+  - PRODUCT: SKL-USD
+  - PRODUCT: SPK-USD
+  - PRODUCT: ALGO-USD
+  - PRODUCT: CHIP-USD
+  - PRODUCT: KARRAT-USD
+  - PRODUCT: ROSE-USD
+  - PRODUCT: OXT-USD
+  - PRODUCT: FARTCOIN-USD
+  - PRODUCT: SPA-USD
+  - PRODUCT: FIGHT-USD
+  - PRODUCT: GRT-USD
+  - PRODUCT: BLZ-USD
+  - PRODUCT: ONDO-USD
+  - PRODUCT: ANKR-USD
+  - PRODUCT: CELR-USD
+  - PRODUCT: GROVE-USD
+  - PRODUCT: SEI-USD
+  - PRODUCT: L3-USD
+  - PRODUCT: WLFI-USD
+  - PRODUCT: CTR-USD
+  - PRODUCT: STRK-USD
+  - PRODUCT: INX-USD
+  - PRODUCT: SUI-USD
+  - PRODUCT: ALIGN-USD
+  - PRODUCT: VOXEL-USD
+  - PRODUCT: XPL-USD
+  - PRODUCT: CRO-USD
+  - PRODUCT: LCX-USD
+  - PRODUCT: LINEA-USD
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P5Y
+  license: Coinbase market data ToS — research use ok
+  notes: Extends coinbase_spot_15m (10 majors) with the next 100 USD products ranked by 30-day spot volume
+    (volume-summary endpoint, 2026-08-25), excluding the wired majors and USDT. 350 candles per request,
+    so every product clears a 320-point window on first fetch. Candle order is [time, low, high, open, close,
+    volume]; close only.
+
+# -- wired batch: daily-wave-2026-08-25 --
+- id: cdc_nssp_ed_covid19_daily_by_state
+  name: CDC NSSP daily ED visit share — COVID, all 52 geographies (panel)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - count_discrete
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily syndromic surveillance; endpoint re-serves ~480 days per fetch so history is deep from
+    day one
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/vjzj-u7u8.json?pathogen=COVID&$select=geography,date,percent_visits&$order=date
+      DESC&$limit=25000
+    auth: none
+    rate_limit: 1000 req/h anonymous; higher with app token
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].percent_visits'
+    panel_field: '[].geography'
+    variates: 1
+  history_available: P4Y
+  license: US Government public domain (CDC open data)
+  notes: 'Sibling of cdc_nssp_ed_respiratory_daily (US aggregate only): the same dataset carries every state
+    + DC + US as a geography column, ~1,421 daily points each since 2022-09. One request, panel_field on
+    geography; $limit=25000 covers ~480 days x 52 geographies. Publisher lag ~1 week (weekly release of
+    daily rows). audit_slack_days=21 mirrors cdc_nssp_ed_respiratory_daily (weekly publication of daily
+    rows). Scraper caps panel_field groups at 50, so 50 of the 52 geographies are kept.'
+  audit_slack_days: 21
+- id: cdc_nssp_ed_influenza_daily_by_state
+  name: CDC NSSP daily ED visit share — Influenza, all 52 geographies (panel)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - count_discrete
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily syndromic surveillance; endpoint re-serves ~480 days per fetch so history is deep from
+    day one
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/vjzj-u7u8.json?pathogen=Influenza&$select=geography,date,percent_visits&$order=date
+      DESC&$limit=25000
+    auth: none
+    rate_limit: 1000 req/h anonymous; higher with app token
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].percent_visits'
+    panel_field: '[].geography'
+    variates: 1
+  history_available: P4Y
+  license: US Government public domain (CDC open data)
+  notes: 'Sibling of cdc_nssp_ed_respiratory_daily (US aggregate only): the same dataset carries every state
+    + DC + US as a geography column, ~1,421 daily points each since 2022-09. One request, panel_field on
+    geography; $limit=25000 covers ~480 days x 52 geographies. Publisher lag ~1 week (weekly release of
+    daily rows). audit_slack_days=21 mirrors cdc_nssp_ed_respiratory_daily (weekly publication of daily
+    rows). Scraper caps panel_field groups at 50, so 50 of the 52 geographies are kept.'
+  audit_slack_days: 21
+- id: cdc_nssp_ed_rsv_daily_by_state
+  name: CDC NSSP daily ED visit share — RSV, all 52 geographies (panel)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - count_discrete
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily syndromic surveillance; endpoint re-serves ~480 days per fetch so history is deep from
+    day one
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/vjzj-u7u8.json?pathogen=RSV&$select=geography,date,percent_visits&$order=date
+      DESC&$limit=25000
+    auth: none
+    rate_limit: 1000 req/h anonymous; higher with app token
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].percent_visits'
+    panel_field: '[].geography'
+    variates: 1
+  history_available: P4Y
+  license: US Government public domain (CDC open data)
+  notes: 'Sibling of cdc_nssp_ed_respiratory_daily (US aggregate only): the same dataset carries every state
+    + DC + US as a geography column, ~1,421 daily points each since 2022-09. One request, panel_field on
+    geography; $limit=25000 covers ~480 days x 52 geographies. Publisher lag ~1 week (weekly release of
+    daily rows). audit_slack_days=21 mirrors cdc_nssp_ed_respiratory_daily (weekly publication of daily
+    rows). Scraper caps panel_field groups at 50, so 50 of the 52 geographies are kept.'
+  audit_slack_days: 21
+- id: cdc_nssp_ed_ari_daily_by_state
+  name: CDC NSSP daily ED visit share — ARI, all 52 geographies (panel)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - count_discrete
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily syndromic surveillance; endpoint re-serves ~480 days per fetch so history is deep from
+    day one
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/vjzj-u7u8.json?pathogen=ARI&$select=geography,date,percent_visits&$order=date
+      DESC&$limit=25000
+    auth: none
+    rate_limit: 1000 req/h anonymous; higher with app token
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].percent_visits'
+    panel_field: '[].geography'
+    variates: 1
+  history_available: P4Y
+  license: US Government public domain (CDC open data)
+  notes: 'Sibling of cdc_nssp_ed_respiratory_daily (US aggregate only): the same dataset carries every state
+    + DC + US as a geography column, ~1,421 daily points each since 2022-09. One request, panel_field on
+    geography; $limit=25000 covers ~480 days x 52 geographies. Publisher lag ~1 week (weekly release of
+    daily rows). audit_slack_days=21 mirrors cdc_nssp_ed_respiratory_daily (weekly publication of daily
+    rows). Scraper caps panel_field groups at 50, so 50 of the 52 geographies are kept.'
+  audit_slack_days: 21
