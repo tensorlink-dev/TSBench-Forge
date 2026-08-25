@@ -91699,3 +91699,396 @@
     on date; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order, which on a rolling
     table returns the oldest rows and reads as a dead source. Panel dimension id_compteur is pinned to ''100050876-104050876'':
     without it the response interleaves several series on the same timestamps.'
+
+# -- wired batch: commerce-wave-2026-08-25 --
+- id: usda_mpr_boxed_beef_choice_cuts_daily_panel
+  name: USDA AMS daily — boxed beef Choice cuts, negotiated weighted-average price by cut (~42 cuts)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Choice%20Cuts?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].weighted_average
+    panel_field: results[].item_description
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2453 section 'Choice Cuts' (panel_field item_description, value
+    weighted_average). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every
+    fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
+- id: usda_mpr_boxed_beef_select_cuts_daily_panel
+  name: USDA AMS daily — boxed beef Select cuts, negotiated weighted-average price by cut (~42 cuts)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Select%20Cuts?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].weighted_average
+    panel_field: results[].item_description
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2453 section 'Select Cuts' (panel_field item_description, value
+    weighted_average). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every
+    fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
+- id: usda_mpr_ground_beef_daily_panel
+  name: USDA AMS daily — ground beef weighted-average price by lean-point (9 products)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Ground%20Beef?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].weighted_average
+    panel_field: results[].trim_description
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2453 section 'Ground Beef' (panel_field trim_description, value
+    weighted_average). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every
+    fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
+- id: usda_mpr_beef_composite_primals_daily_panel
+  name: USDA AMS daily — boxed beef composite primal values, Choice 600-900 lb (7 primals)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Composite%20Primal%20Values?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].choice_600_900
+    panel_field: results[].primal_desc
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2453 section 'Composite Primal Values' (panel_field primal_desc,
+    value choice_600_900). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps
+    every fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
+- id: usda_mpr_pork_loin_cuts_daily_panel
+  name: USDA AMS daily — pork loin cuts, FOB plant negotiated weighted-average price (~43 items)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Loin%20Cuts?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].weighted_average
+    panel_field: results[].Item_Description
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2498 section 'Loin Cuts' (panel_field Item_Description, value weighted_average).
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sibling of the single-series usda_mpr_* cutout sources.
+- id: usda_mpr_pork_ham_cuts_daily_panel
+  name: USDA AMS daily — pork ham cuts, FOB plant negotiated weighted-average price (~50 items)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Ham%20Cuts?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].weighted_average
+    panel_field: results[].Item_Description
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2498 section 'Ham Cuts' (panel_field Item_Description, value weighted_average).
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sibling of the single-series usda_mpr_* cutout sources.
+- id: usda_mpr_pork_belly_cuts_daily_panel
+  name: USDA AMS daily — pork belly cuts, FOB plant negotiated weighted-average price (~29 items)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Belly%20Cuts?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].weighted_average
+    panel_field: results[].Item_Description
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2498 section 'Belly Cuts' (panel_field Item_Description, value weighted_average).
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sibling of the single-series usda_mpr_* cutout sources.
+- id: usda_mpr_pork_butt_cuts_daily_panel
+  name: USDA AMS daily — pork butt cuts, FOB plant negotiated weighted-average price (~31 items)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2498/Butt%20Cuts?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].weighted_average
+    panel_field: results[].Item_Description
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2498 section 'Butt Cuts' (panel_field Item_Description, value weighted_average).
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sibling of the single-series usda_mpr_* cutout sources.
+- id: usda_mpr_beef_trimmings_national_daily_panel
+  name: USDA AMS daily — boneless processing beef / trimmings, national average price by item (18 items)
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
+    fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2451/National?q=report_date=06/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field: results[].price_range_avg
+    panel_field: results[].item_desc
+    variates: 1
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: Item-level panel of LMR report 2451 section 'National' (panel_field item_desc, value price_range_avg).
+    Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every fetch ~2-14 MB.
+    Sibling of the single-series usda_mpr_* cutout sources.
+- id: chicago_building_permits_daily_by_type
+  name: Chicago building permits issued per day, by permit type (panel)
+  domain: sales
+  dgp_class: permit_activity
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
+    >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.cityofchicago.org/resource/ydr8-5enu.json?$select=date_trunc_ymd(issue_date)%20as%20d,permit_type%20as%20g,count(1)%20as%20n&$where=issue_date%20%3E=%20'2024-01-01T00:00:00'&$group=d,g&$order=d%20DESC&$limit=20000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 90
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (city portal terms)
+  notes: Commerce-activity count from an incident-level Socrata dataset, aggregated per day server-side
+    so the raw table is never downloaded. Future-dated rows (licences pre-registered ahead) are excluded
+    by the upper date bound where the dataset has them.
+- id: nyc_dob_now_permits_daily_by_borough
+  name: NYC DOB NOW permits issued per day, by borough (panel)
+  domain: sales
+  dgp_class: permit_activity
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
+    >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.cityofnewyork.us/resource/rbx6-tga4.json?$select=date_trunc_ymd(issued_date)%20as%20d,upper(borough)%20as%20g,count(1)%20as%20n&$where=issued_date%20%3E=%20'2024-01-01T00:00:00'&$group=d,g&$order=d%20DESC&$limit=20000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 90
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (city portal terms)
+  notes: Commerce-activity count from an incident-level Socrata dataset, aggregated per day server-side
+    so the raw table is never downloaded. Future-dated rows (licences pre-registered ahead) are excluded
+    by the upper date bound where the dataset has them.
+- id: austin_construction_permits_daily_by_type
+  name: Austin construction permits issued per day, by permit type (panel)
+  domain: sales
+  dgp_class: permit_activity
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
+    >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.austintexas.gov/resource/3syk-w9eu.json?$select=date_trunc_ymd(issue_date)%20as%20d,permit_type_desc%20as%20g,count(1)%20as%20n&$where=issue_date%20%3E=%20'2024-01-01T00:00:00'&$group=d,g&$order=d%20DESC&$limit=20000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 90
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (city portal terms)
+  notes: Commerce-activity count from an incident-level Socrata dataset, aggregated per day server-side
+    so the raw table is never downloaded. Future-dated rows (licences pre-registered ahead) are excluded
+    by the upper date bound where the dataset has them.
+- id: chicago_business_licenses_daily_by_type
+  name: Chicago business licences starting per day, by licence type (panel)
+  domain: sales
+  dgp_class: permit_activity
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
+    >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.cityofchicago.org/resource/r5kz-chrr.json?$select=date_trunc_ymd(license_start_date)%20as%20d,license_description%20as%20g,count(1)%20as%20n&$where=license_start_date%20%3E=%20'2024-01-01T00:00:00'%20AND%20license_start_date%20%3C%20'{YYYY-MM-DD}T23:59:59'&$group=d,g&$order=d%20DESC&$limit=40000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 90
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (city portal terms)
+  notes: Commerce-activity count from an incident-level Socrata dataset, aggregated per day server-side
+    so the raw table is never downloaded. Future-dated rows (licences pre-registered ahead) are excluded
+    by the upper date bound where the dataset has them.
+- id: sf_building_permits_issued_daily
+  name: San Francisco building permits issued per day
+  domain: sales
+  dgp_class: permit_activity
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
+    >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.sfgov.org/resource/i98e-djp9.json?$select=date_trunc_ymd(issued_date)%20as%20d,count(1)%20as%20n&$where=issued_date%20%3E=%20'2024-01-01T00:00:00'&$group=d&$order=d%20DESC&$limit=2000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 90
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (city portal terms)
+  notes: Commerce-activity count from an incident-level Socrata dataset, aggregated per day server-side
+    so the raw table is never downloaded. Future-dated rows (licences pre-registered ahead) are excluded
+    by the upper date bound where the dataset has them.
+- id: sf_registered_businesses_started_daily
+  name: San Francisco registered businesses starting per day (DBA start date)
+  domain: sales
+  dgp_class: permit_activity
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
+    >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.sfgov.org/resource/g8m3-pdis.json?$select=date_trunc_ymd(dba_start_date)%20as%20d,count(1)%20as%20n&$where=dba_start_date%20%3E=%20'2024-01-01T00:00:00'%20AND%20dba_start_date%20%3C%20'{YYYY-MM-DD}T23:59:59'&$group=d&$order=d%20DESC&$limit=2000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 90
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (city portal terms)
+  notes: Commerce-activity count from an incident-level Socrata dataset, aggregated per day server-side
+    so the raw table is never downloaded. Future-dated rows (licences pre-registered ahead) are excluded
+    by the upper date bound where the dataset has them.
