@@ -92092,3 +92092,259 @@
   notes: Commerce-activity count from an incident-level Socrata dataset, aggregated per day server-side
     so the raw table is never downloaded. Future-dated rows (licences pre-registered ahead) are excluded
     by the upper date bound where the dataset has them.
+
+# -- wired batch: realestate-wave-2026-08-25 --
+- id: cook_county_parcel_sales_daily_count_by_class
+  name: Cook County (Chicago) parcel sales per day, by property class (23 classes, panel)
+  domain: sales
+  dgp_class: real_estate_transactions
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://datacatalog.cookcountyil.gov/resource/wvhk-k5uv.json?$select=date_trunc_ymd(sale_date)%20as%20d,class%20as%20g,count(1)%20as%20n&$where=sale_date%20>=%20'2024-01-01T00:00:00'%20AND%20sale_price%20>%2010000%20AND%20class%20in%20('299','234','203','204','205','211','278','100','295','EX','202','212','593','206','207','210','209','201','241','315','208','517','590')&$group=d,g&$order=d%20DESC&$limit=30000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 120
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 60
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download). Assessor's parcel sales feed; arm's-length
+    filter sale_price > 10000. Publication lags ~6 weeks.
+- id: cook_county_parcel_sales_daily_avg_price_by_class
+  name: Cook County (Chicago) parcel sales — mean sale price per day, by property class (23 classes, panel)
+  domain: sales
+  dgp_class: real_estate_price
+  archetypes:
+  - non_stationary_regime
+  - noisy_clean_pair
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://datacatalog.cookcountyil.gov/resource/wvhk-k5uv.json?$select=date_trunc_ymd(sale_date)%20as%20d,class%20as%20g,avg(sale_price)%20as%20p&$where=sale_date%20>=%20'2024-01-01T00:00:00'%20AND%20sale_price%20>%2010000%20AND%20class%20in%20('299','234','203','204','205','211','278','100','295','EX','202','212','593','206','207','210','209','201','241','315','208','517','590')&$group=d,g&$order=d%20DESC&$limit=30000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 120
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].p'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 60
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download). Mean price of the day's sales per class —
+    a noisy daily price signal. Publication lags ~6 weeks.
+- id: nyc_rolling_property_sales_daily_count_by_borough
+  name: NYC rolling property sales per day, by borough (panel)
+  domain: sales
+  dgp_class: real_estate_transactions
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.cityofnewyork.us/resource/usep-8jbt.json?$select=date_trunc_ymd(sale_date)%20as%20d,borough%20as%20g,count(1)%20as%20n&$where=sale_date%20>=%20'2023-01-01T00:00:00'%20AND%20sale_price%20>%2010000&$group=d,g&$order=d%20DESC&$limit=30000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 120
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 90
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download). DOF rolling calendar sales; monthly publication
+    with ~2 month lag, so the window starts 2023-01 to keep >320 days per borough.
+- id: nyc_rolling_property_sales_daily_avg_price_by_borough
+  name: NYC rolling property sales — mean sale price per day, by borough (panel)
+  domain: sales
+  dgp_class: real_estate_price
+  archetypes:
+  - non_stationary_regime
+  - noisy_clean_pair
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.cityofnewyork.us/resource/usep-8jbt.json?$select=date_trunc_ymd(sale_date)%20as%20d,borough%20as%20g,avg(sale_price)%20as%20p&$where=sale_date%20>=%20'2023-01-01T00:00:00'%20AND%20sale_price%20>%2010000&$group=d,g&$order=d%20DESC&$limit=30000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 120
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].p'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 90
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download). Monthly publication with ~2 month lag.
+- id: philadelphia_property_transfers_daily_by_doc_type
+  name: Philadelphia real-estate transfer documents recorded per day, by document type (12 types, panel)
+  domain: sales
+  dgp_class: real_estate_transactions
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://phl.carto.com/api/v2/sql?q=SELECT%20date_trunc('day',%20recording_date)::date%20AS%20d,%20document_type%20AS%20g,%20count(*)%20AS%20n%20FROM%20rtt_summary%20WHERE%20recording_date%20>=%20'2024-01-01'%20AND%20document_type%20IN%20('DEED','MORTGAGE','SATISFACTION%20OF%20MORTGAGE','MISCELLANEOUS%20DEED','ASSIGNMENT%20OF%20MORTGAGE','POWER%20OF%20ATTORNEY','ORIGINAL%20FINANCING%20STATEMENT','NOTARY%20COMMISSION','TERMINATION','RELEASE%20OF%20MORTGAGE','CONTINUATION','SHERIFF''S%20DEED')%20GROUP%20BY%20d,%20g%20ORDER%20BY%20d%20DESC%20LIMIT%2020000
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: rows[].d
+    value_field: rows[].n
+    variates: 1
+    panel_field: rows[].g
+  audit_slack_days: 75
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download). Department of Records RTT summary via the
+    city's Carto SQL API. Recording lags ~7 weeks.
+- id: philadelphia_deed_median_price_daily
+  name: Philadelphia deeds — median cash consideration per recording day
+  domain: sales
+  dgp_class: real_estate_price
+  archetypes:
+  - non_stationary_regime
+  - noisy_clean_pair
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://phl.carto.com/api/v2/sql?q=SELECT%20date_trunc('day',%20recording_date)::date%20AS%20d,%20count(*)%20AS%20n,%20percentile_cont(0.5)%20WITHIN%20GROUP%20(ORDER%20BY%20cash_consideration)%20AS%20p%20FROM%20rtt_summary%20WHERE%20recording_date%20>=%20'2024-01-01'%20AND%20document_type%20=%20'DEED'%20AND%20cash_consideration%20>%2010000%20GROUP%20BY%20d%20ORDER%20BY%20d%20DESC%20LIMIT%202000
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: rows[].d
+    value_field: rows[].p
+    variates: 1
+  audit_slack_days: 75
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download). Arm's-length filter cash_consideration > 10000.
+    Recording lags ~7 weeks.
+
+# -- wired batch: realestate-wave-2026-08-25 --
+- id: nyc_acris_recordings_daily_by_doc_type
+  name: NYC ACRIS property documents recorded per day, by document type (35 types, panel)
+  domain: sales
+  dgp_class: real_estate_transactions
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.cityofnewyork.us/resource/bnx9-e6tj.json?$select=date_trunc_ymd(recorded_datetime)%20as%20d,doc_type%20as%20g,count(1)%20as%20n&$where=recorded_datetime%20>=%20'2024-06-01T00:00:00'%20AND%20recorded_datetime%20<%20'{YYYY-MM-DD}T23:59:59'%20AND%20doc_type%20in%20('AALR','ADEC','AGMT','AL%26R','ASST','CDEC','CERT','CORRM','CTOR','DECL','DEED','DEED,%20LE','DEED,%20TS','DTL','EASE','LOCC','MAPS','M%26CON','MLEA','MTGE','PAT','PREL','REL','RPTT','RPTT%26RET','SAGE','SAT','SMIS','SUBM','TL%26R','TODD','TOLCC','ZONE','CORRD','TERA')&$group=d,g&$order=d%20DESC&$limit=30000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 120
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 45
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download). Deeds, mortgages, satisfactions, transfer-tax
+    returns etc. recorded citywide; the 35 document types with >=320 active days since 2024-06. Recording
+    lags ~3-4 weeks.
+- id: colorado_business_formations_daily_by_entity_type
+  name: Colorado new business entity formations per day, by entity type (10 types, panel)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.colorado.gov/resource/4ykn-tg5h.json?$select=date_trunc_ymd(entityformdate)%20as%20d,entitytype%20as%20g,count(1)%20as%20n&$where=entityformdate%20>=%20'2024-01-01T00:00:00'%20AND%20entityformdate%20<%20'{YYYY-MM-DD}T23:59:59'%20AND%20entitytype%20in%20('DLLC','DNC','DPC','FLLC','FPC','DLLP','DLP','DPC-PBC','FNC','FO')&$group=d,g&$order=d%20DESC&$limit=30000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 120
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+    panel_field: '[].g'
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download). Secretary of State business entity filings
+    (DLLC = domestic LLC etc.).
+- id: connecticut_business_registrations_daily
+  name: Connecticut business registrations per day
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.ct.gov/resource/n7gp-d28j.json?$select=date_trunc_ymd(date_registration)%20as%20d,count(1)%20as%20n&$where=date_registration%20>=%20'2024-01-01T00:00:00'%20AND%20date_registration%20<%20'{YYYY-MM-DD}T23:59:59'&$group=d&$order=d%20DESC&$limit=2000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 120
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download).
+- id: nyc_dca_business_licenses_created_daily
+  name: NYC DCWP business licences created per day
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
+  endpoint:
+    type: rest_json
+    url: https://data.cityofnewyork.us/resource/w7w3-xahh.json?$select=date_trunc_ymd(license_creation_date)%20as%20d,count(1)%20as%20n&$where=license_creation_date%20>=%20'2024-01-01T00:00:00'%20AND%20license_creation_date%20<%20'{YYYY-MM-DD}T23:59:59'&$group=d&$order=d%20DESC&$limit=2000
+    auth: none
+    rate_limit: 1000 req/h anonymous
+    timeout: 120
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  audit_slack_days: 21
+  history_available: P10Y
+  license: Open data (portal terms)
+  notes: Server-side daily aggregate (no raw table download).

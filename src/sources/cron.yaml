@@ -2784,6 +2784,16 @@ schedules:
   - chicago_business_licenses_daily_by_type
   - sf_building_permits_issued_daily
   - sf_registered_businesses_started_daily
+  - cook_county_parcel_sales_daily_count_by_class
+  - cook_county_parcel_sales_daily_avg_price_by_class
+  - nyc_rolling_property_sales_daily_count_by_borough
+  - nyc_rolling_property_sales_daily_avg_price_by_borough
+  - philadelphia_property_transfers_daily_by_doc_type
+  - philadelphia_deed_median_price_daily
+  - nyc_acris_recordings_daily_by_doc_type
+  - colorado_business_formations_daily_by_entity_type
+  - connecticut_business_registrations_daily
+  - nyc_dca_business_licenses_created_daily
   cron: 10 1 * * *
 - every: P1D
   sources:
