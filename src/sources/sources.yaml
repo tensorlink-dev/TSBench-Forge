@@ -1257,7 +1257,7 @@
   - ARTICLE: Dyson_(company)
   - ARTICLE: Tesla_Model_Y
   - ARTICLE: Ozempic
-  - ARTICLE: Stanley_(brand)
+  - ARTICLE: Lululemon_Athletica
   - ARTICLE: Crocs
   - ARTICLE: Nintendo
   - ARTICLE: Steam_(service)
@@ -1321,6 +1321,7 @@
     url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-540d}:{YYYY-MM-DD}/{PACKAGE}
     auth: none
     rate_limit: 5 req/s soft
+    panel_interval_s: 1.5  # 130-row panel; npm's soft 5 req/s limit 429s an unpaced burst
   panel:
   - PACKAGE: react
   - PACKAGE: lodash

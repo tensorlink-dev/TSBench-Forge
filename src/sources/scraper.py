@@ -2365,8 +2365,17 @@ def run_one(sid: str, dry_run: bool = False) -> int:
 
     panel = src.get("panel") or [None]   # list of dicts or [None] for single-poll
     lock = _host_lock(src["endpoint"]["url"])
+    # `endpoint.panel_interval_s`: pause between panel rows. A 100+-row panel
+    # fires its requests back-to-back (the host lock serialises but never
+    # paces), and publishers with a soft per-second limit answer the tail with
+    # 429s — npm dropped 65 of 130 packages that way on 2026-08-25. The 429
+    # retry in fetch_payload only survives short throttles; pacing the burst
+    # is what keeps a large panel inside the publisher's budget.
+    pause = float(src["endpoint"].get("panel_interval_s") or 0.0)
     total_written = 0
-    for panel_row in panel:
+    for i, panel_row in enumerate(panel):
+        if pause and i and not dry_run:
+            time.sleep(pause)
         try:
             with lock:
                 blob, ct = fetch_payload(src, panel_row=panel_row)
