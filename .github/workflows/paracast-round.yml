@@ -53,6 +53,9 @@ jobs:
       HIPPIUS_S3_SECRET_KEY: ${{ secrets.HIPPIUS_S3_SECRET_KEY }}
       HIPPIUS_S3_ENDPOINT: ${{ secrets.HIPPIUS_S3_ENDPOINT }}
       HIPPIUS_S3_BUCKET: ${{ secrets.HIPPIUS_S3_BUCKET }}
+      # Job-level so the mirror step can gate on it: the `secrets` context
+      # is not available in a step `if`, but `env` is.
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
     steps:
       - uses: actions/checkout@v5
 
@@ -76,6 +79,59 @@ jobs:
         # (304) points of history per series, which spans many dated files.
         # The bucket is append-only, so this is the round's data snapshot.
         run: python src/sources/sync_storage.py --download
+
+      - name: Wake paracast and wait for the panel
+        # The chute scales to zero when idle, so it is normally DOWN when this
+        # workflow fires. The first request is what triggers the cold start --
+        # seven worker processes each loading a checkpoint -- so poll rather
+        # than fail on the first 503. run_paracast_round.py calls /health once
+        # and exits(1), which is right for interactive use but would abort the
+        # round here.
+        #
+        # Nothing shuts it down afterwards: Chutes has no stop API. The chute
+        # idles itself down after its own shutdown_after_seconds, which is why
+        # this workflow no longer needs the endpoint kept up permanently.
+        run: |
+          set -uo pipefail
+          auth=()
+          if [ -n "${PARACAST_API_KEY:-}" ]; then
+            auth=(-H "Authorization: Bearer ${PARACAST_API_KEY}")
+          fi
+          # ${arr[@]+...} so an empty auth array is not an unbound-variable
+          # error under `set -u`.
+          probe() { curl -sf -m 30 ${auth[@]+"${auth[@]}"} "${PARACAST_URL}/health" 2>/dev/null; }
+          field() { printf '%s' "$1" | python -c "import json,sys;d=json.load(sys.stdin);print($2)" 2>/dev/null; }
+
+          up_wait="${PARACAST_UP_TIMEOUT:-1800}"   # 30 min to answer at all
+          ok_wait="${PARACAST_OK_TIMEOUT:-300}"    # then 5 more for every worker
+          up_deadline=$(( $(date +%s) + up_wait ))
+
+          echo "waking ${PARACAST_URL} ..."
+          until body=$(probe); do
+            if [ "$(date +%s)" -ge "${up_deadline}" ]; then
+              echo "::error::paracast did not answer /health within ${up_wait}s"
+              exit 1
+            fi
+            echo "  cold, still starting ..."
+            sleep 20
+          done
+
+          # A 200 only means the router is up; workers load independently and
+          # the panel is allowed to serve degraded. Scoring a public
+          # leaderboard against half a panel would quietly change what the
+          # numbers mean, so give the stragglers a little longer first.
+          ok_deadline=$(( $(date +%s) + ok_wait ))
+          while [ "$(field "${body}" 'd.get("status","")')" != "ok" ]; do
+            if [ "$(date +%s)" -ge "${ok_deadline}" ]; then
+              echo "::warning::proceeding with a degraded panel; unhealthy: $(field "${body}" '",".join(d.get("unhealthy",[])) or "?"')"
+              break
+            fi
+            echo "  panel $(field "${body}" 'd.get("status","?")'), waiting for all workers ..."
+            sleep 15
+            body=$(probe) || true
+          done
+
+          echo "panel $(field "${body}" 'd.get("status")') -- $(field "${body}" 'len(d.get("healthy",[]))') healthy workers"
 
       - name: Run the round
         run: |
@@ -103,9 +159,7 @@ jobs:
         # composition manifest) plus the index to a public HF dataset, so the
         # per-round domain mix is inspectable off-GitHub too. No-op until the
         # HF_TOKEN secret (a write token for the tensorlink-dev org) is set.
-        if: ${{ secrets.HF_TOKEN != '' }}
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        if: env.HF_TOKEN != ''
         run: |
           pip install --quiet huggingface_hub
           python - <<'EOF'
