@@ -988,6 +988,8 @@ schedules:
   - opendata_comptage_velo_donnees_compteurs_100050
   - opendata_ods156_28
   - opendata_ods157_28
+  - opendata_ods156_71
+  - opendata_ods157_14
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -2796,6 +2798,7 @@ schedules:
   - colorado_business_formations_daily_by_entity_type
   - connecticut_business_registrations_daily
   - nyc_dca_business_licenses_created_daily
+  - misskey_ahoaho_notes
   cron: 10 1 * * *
 - every: P1D
   sources:
