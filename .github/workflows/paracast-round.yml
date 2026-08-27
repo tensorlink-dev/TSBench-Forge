@@ -45,7 +45,9 @@ permissions:
 jobs:
   round:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    # The first run after a cache miss still pays the full mirror pull, which
+    # is what exhausted the old 120-minute budget before the round even began.
+    timeout-minutes: 240
     env:
       PARACAST_URL: ${{ secrets.PARACAST_URL }}
       PARACAST_API_KEY: ${{ secrets.PARACAST_API_KEY }}
@@ -74,11 +76,33 @@ jobs:
           echo "PARACAST_URL and the HIPPIUS_S3_* secrets are required to run a round."
           exit 1
 
+      - name: Cache the scraped mirror
+        # sync_storage.py --download already skips any file whose size matches
+        # (the bucket is append-only), so the pull is incremental — but only if
+        # the directory survives. On a fresh runner it does not, so every run
+        # re-pulled the whole mirror. That took longer than the job's entire
+        # timeout: run 33066481350 spent all 120 minutes here and was cancelled
+        # before it ever reached the round.
+        #
+        # run_id in the key means this never hits exactly and always saves a
+        # fresh cache; restore-keys pulls the most recent previous one. That is
+        # the rolling-cache pattern for a monotonically growing dataset.
+        uses: actions/cache@v4
+        with:
+          path: src/sources/data
+          key: hippius-mirror-${{ github.run_id }}
+          restore-keys: |
+            hippius-mirror-
+
       - name: Pull scraped data from Hippius
         # Full mirror, not --today: challenge construction needs motif_len
         # (304) points of history per series, which spans many dated files.
         # The bucket is append-only, so this is the round's data snapshot.
-        run: python src/sources/sync_storage.py --download
+        run: |
+          before=$(du -sm src/sources/data 2>/dev/null | cut -f1 || echo 0)
+          start=$(date +%s)
+          python src/sources/sync_storage.py --download
+          echo "mirror pull: $(( $(date +%s) - start ))s, ${before} MB cached -> $(du -sm src/sources/data | cut -f1) MB"
 
       - name: Wake paracast and wait for the panel
         # The chute scales to zero when idle, so it is normally DOWN when this
