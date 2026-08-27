@@ -11,6 +11,8 @@ from __future__ import annotations
 import io
 import json
 import os
+import subprocess
+import sys
 import urllib.error
 
 import pytest
@@ -589,6 +591,61 @@ def test_coverage_needs_no_scraper_dependencies(monkeypatch) -> None:
     assert coverage.band_for("PT10S") == "sub-min"   # not in config.FREQ_BAND
     assert coverage.band_for("P3M") == "quarterly"
     assert audit.staleness_threshold("PT5M").total_seconds() > 0
+
+
+def test_cli_entrypoint_imports_without_requests(tmp_path) -> None:
+    """`python -m source_discovery --coverage` must run in a pyyaml+numpy job.
+
+    The CLI imports bulk.py unconditionally (grind.py does too), so bulk's
+    module-level ``import requests`` made an HTTP library a hard dependency of
+    the deterministic, network-free subcommands. The autosearch workflow died
+    on ``ModuleNotFoundError: No module named 'requests'`` before printing any
+    JSON. Run the real command in a subprocess — the in-process test session
+    has requests installed and ``source_discovery`` already imported, so only a
+    fresh interpreter can see the regression.
+    """
+    (tmp_path / "sitecustomize.py").write_text(
+        "import sys\n"
+        "from importlib.abc import MetaPathFinder\n"
+        "BLOCKED = {'requests', 'httpx', 'pyarrow', 'scraper'}\n"
+        "class _Blocker(MetaPathFinder):\n"
+        "    def find_spec(self, name, path=None, target=None):\n"
+        "        if name.split('.')[0] in BLOCKED:\n"
+        "            raise ModuleNotFoundError(f'No module named {name!r}')\n"
+        "        return None\n"
+        "sys.meta_path.insert(0, _Blocker())\n"
+    )
+    src = os.path.join(os.path.dirname(__file__), os.pardir, "src")
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join([src, str(tmp_path)]))
+    proc = subprocess.run(
+        [sys.executable, "-m", "source_discovery", "--coverage", "--catalog", CATALOG],
+        capture_output=True, text=True, env=env,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "gap_cells" in json.loads(proc.stdout)
+
+
+def test_bulk_reports_a_missing_requests_at_call_time(monkeypatch) -> None:
+    """Deferring the import must not silently degrade a sweep into a no-op.
+
+    A sweep with no HTTP library available has to fail loudly, and say which
+    library and which paths still work.
+    """
+    import builtins
+
+    from source_discovery import bulk
+
+    monkeypatch.setattr(bulk._LazyRequests, "_module", None)
+    real_import = builtins.__import__
+
+    def blocked(name, *a, **kw):
+        if name == "requests":
+            raise ModuleNotFoundError("No module named 'requests'")
+        return real_import(name, *a, **kw)
+
+    monkeypatch.setattr(builtins, "__import__", blocked)
+    with pytest.raises(ModuleNotFoundError, match="pip install requests"):
+        bulk.requests.get("https://example.invalid")
 
 
 @pytest.mark.parametrize("freq", [
