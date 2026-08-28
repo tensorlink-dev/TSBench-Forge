@@ -95,16 +95,38 @@ jobs:
             hippius-mirror-
 
       - name: Pull scraped data from Hippius
-        # Full mirror, not --today: challenge construction needs motif_len
-        # (304) points of history per series, which spans many dated files.
-        # The bucket is append-only, so this is the round's data snapshot.
+        id: pull
+        env:
+          # Well inside the job timeout, so the job always reaches the cache's
+          # post-step. Run 33113805897 spent the full 240 minutes here and was
+          # cancelled, which SKIPS "Post Cache the scraped mirror" — so nothing
+          # was saved and the next run started cold again. Unbounded, this
+          # never converges. Bounded, each run banks whatever it fetched.
+          PULL_BUDGET_S: "9000"
         run: |
           before=$(du -sm src/sources/data 2>/dev/null | cut -f1 || echo 0)
           start=$(date +%s)
-          python src/sources/sync_storage.py --download
-          echo "mirror pull: $(( $(date +%s) - start ))s, ${before} MB cached -> $(du -sm src/sources/data | cut -f1) MB"
+          set +e
+          timeout "${PULL_BUDGET_S}" python src/sources/sync_storage.py --download
+          rc=$?
+          set -e
+          after=$(du -sm src/sources/data 2>/dev/null | cut -f1 || echo 0)
+          echo "pull: $(( $(date +%s) - start ))s, ${before} MB -> ${after} MB (rc=${rc})"
+          if [ "${rc}" -eq 0 ]; then
+            echo "complete=true" >> "$GITHUB_OUTPUT"
+          elif [ "${rc}" -eq 124 ]; then
+            # Partial is progress: the download skips objects whose size already
+            # matches, on an append-only bucket, so the next run resumes from
+            # the cached directory rather than restarting.
+            echo "complete=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::mirror still priming (${before} -> ${after} MB); \
+            skipping the round so the cache saves and the next run resumes"
+          else
+            exit "${rc}"
+          fi
 
       - name: Wake paracast and wait for the panel
+        if: steps.pull.outputs.complete == 'true'
         # The chute scales to zero when idle, so it is normally DOWN when this
         # workflow fires. The first request is what triggers the cold start --
         # seven worker processes each loading a checkpoint -- so poll rather
@@ -158,6 +180,7 @@ jobs:
           echo "panel $(field "${body}" 'd.get("status")') -- $(field "${body}" 'len(d.get("healthy",[]))') healthy workers"
 
       - name: Run the round
+        if: steps.pull.outputs.complete == 'true'
         run: |
           python scripts/run_paracast_round.py \
             --data-dir src/sources/data \
@@ -165,6 +188,7 @@ jobs:
             ${{ github.event.inputs.runner_args }}
 
       - name: Commit the published round
+        if: steps.pull.outputs.complete == 'true'
         run: |
           git config user.name "tsbench-forge-bot"
           git config user.email "actions@users.noreply.github.com"
@@ -183,7 +207,7 @@ jobs:
         # composition manifest) plus the index to a public HF dataset, so the
         # per-round domain mix is inspectable off-GitHub too. No-op until the
         # HF_TOKEN secret (a write token for the tensorlink-dev org) is set.
-        if: env.HF_TOKEN != ''
+        if: steps.pull.outputs.complete == 'true' && env.HF_TOKEN != ''
         run: |
           pip install --quiet huggingface_hub
           python - <<'EOF'
