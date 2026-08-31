@@ -92836,3 +92836,139 @@
     series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
     cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
     count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+
+# -- wired batch: grind-20260831-0713 --
+- id: opendata_ods156_45
+  name: Individual incremental balancing energy bids (Historical data as of 22 [45]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%2245%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''45'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_46
+  name: Individual decremental balancing energy bids (Historical data as of 22 [46]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2246%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''46'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_real_time_air_quality_nitrogen_dioxide_no2_6508
+  name: Concentration moyenne horaire de dioxyde d’azote NO2 (qualité de l'air [6508]
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-nitrogen-dioxide-no2/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226508%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].timestamp
+    value_field:
+    - results[].value
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 60 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Brussels open-data portal, dataset real-time-air-quality-nitrogen-dioxide-no2.
+  license: Brussels open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset real-time-air-quality-nitrogen-dioxide-no2, ordered
+    newest-first on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order,
+    which on a rolling table returns the oldest rows and reads as a dead source. Panel dimension device_id
+    is pinned to ''6508'': without it the response interleaves several series on the same timestamps.'
+
+# -- wired batch: grind-20260831-0713 --
+- id: misskey_monster_notes_mogeko
+  name: mogeko.monster — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mogeko.monster/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 250/499 populated hours, 17 distinct levels, peak 68/h; 12/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
