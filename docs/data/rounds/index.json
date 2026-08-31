@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-08-10T03:23:18+00:00",
+  "updated_at": "2026-08-31T12:02:14+00:00",
   "rounds": [
     {
       "round_id": "2026-07-09",
@@ -37,6 +37,26 @@
         "n_series": 43
       },
       "note": "GPU run 2026-07-11 on the expanded post-autoresearch pool (28/256 challenges from newly added sources). Backfilled from notebooks/tsfm_significance_result.md."
+    },
+    {
+      "round_id": "2026-08-31",
+      "generated_at": "2026-08-31T12:02:14+00:00",
+      "n_models": 14,
+      "n_tsfms": 8,
+      "top": [
+        "paracast-ensemble",
+        "toto2-313m",
+        "paracast-router"
+      ],
+      "has_metrics": true,
+      "config": {
+        "seed": "tsfm-significance-v1",
+        "n_challenges": 1280,
+        "n_series": 248,
+        "k_draws": 5
+      },
+      "effective_domains": 6.84,
+      "note": "scored via paracast"
     }
   ]
 }
