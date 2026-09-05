@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-04T19:06:31+00:00",
+  "updated_at": "2026-09-05T08:36:11+00:00",
   "rounds": [
     {
       "round_id": "2026-07-09",
@@ -136,6 +136,26 @@
         "k_draws": 5
       },
       "effective_domains": 6.86,
+      "note": "scored via paracast"
+    },
+    {
+      "round_id": "2026-09-05",
+      "generated_at": "2026-09-05T08:36:11+00:00",
+      "n_models": 14,
+      "n_tsfms": 8,
+      "top": [
+        "paracast-ensemble",
+        "paracast-router",
+        "toto2-313m"
+      ],
+      "has_metrics": true,
+      "config": {
+        "seed": "tsfm-significance-v1",
+        "n_challenges": 1280,
+        "n_series": 266,
+        "k_draws": 5
+      },
+      "effective_domains": 6.83,
       "note": "scored via paracast"
     }
   ]
