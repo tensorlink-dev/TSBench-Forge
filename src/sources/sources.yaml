@@ -16486,6 +16486,7 @@
     value_field:
     - datapoints[].price_value_dollar
 - id: usda_mpr_boxed_beef_cutout_daily
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS — national daily boxed beef cutout values, PM report (LM_XB403)
   domain: sales
   frequency: P1D
@@ -17336,6 +17337,7 @@
     - items[].value
     panel_field: items[].measure
 - id: usda_mpr_prior_day_hogs_daily
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   audit_slack_days: 7
   name: USDA AMS MPR — Daily Direct Prior Day Hog Report, barrows & gilts base price
   domain: sales
@@ -17443,6 +17445,7 @@
     - '{*}measuredValue/{*}measuredValue/{*}basicData/{*}averageVehicleSpeed/{*}speed'
     panel_field: '{*}measurementSiteReference/@id'
 - id: usda_mpr_pork_cutout_daily
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS — national daily pork cutout and primal values (LM_PK602)
   domain: sales
   frequency: P1D
@@ -17462,6 +17465,7 @@
     - results[].pork_belly
     - results[].total_loads_date_1
 - id: usda_mpr_lamb_carcass_cutout_daily
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS — national estimated lamb carcass cutout, gross carcass value (LM_XL502)
   domain: sales
   frequency: P1D
@@ -17479,6 +17483,7 @@
     - results[].gross_carcass_change
     - results[].gross_carcass_weight
 - id: usda_mpr_5area_cattle_price_daily
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS — 5-Area daily weighted average negotiated slaughter cattle price (LM_CT100)
   domain: sales
   frequency: P1D
@@ -17928,6 +17933,7 @@
     value_field:
     - '[].object.vectorDataPoint[].value'
 - id: usda_mpr_boxed_lamb_cuts_daily
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS — national 5-day rolling average boxed lamb cuts (LM_XL500)
   domain: sales
   frequency: P1D
@@ -17945,6 +17951,7 @@
     panel_field: results[].item_desc
     drop_null_values: true
 - id: usda_mpr_boneless_beef_trimmings_daily
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS — national daily boneless processing beef / beef trimmings PM (LM_XB401)
   domain: sales
   frequency: P1D
@@ -91702,6 +91709,7 @@
 
 # -- wired batch: commerce-wave-2026-08-25 --
 - id: usda_mpr_boxed_beef_choice_cuts_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — boxed beef Choice cuts, negotiated weighted-average price by cut (~42 cuts)
   domain: sales
   dgp_class: agricultural_price
@@ -91727,6 +91735,7 @@
     weighted_average). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every
     fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_boxed_beef_select_cuts_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — boxed beef Select cuts, negotiated weighted-average price by cut (~42 cuts)
   domain: sales
   dgp_class: agricultural_price
@@ -91752,6 +91761,7 @@
     weighted_average). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every
     fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_ground_beef_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — ground beef weighted-average price by lean-point (9 products)
   domain: sales
   dgp_class: agricultural_price
@@ -91777,6 +91787,7 @@
     weighted_average). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every
     fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_beef_composite_primals_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — boxed beef composite primal values, Choice 600-900 lb (7 primals)
   domain: sales
   dgp_class: agricultural_price
@@ -91802,6 +91813,7 @@
     value choice_600_900). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps
     every fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_loin_cuts_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — pork loin cuts, FOB plant negotiated weighted-average price (~43 items)
   domain: sales
   dgp_class: agricultural_price
@@ -91827,6 +91839,7 @@
     Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_ham_cuts_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — pork ham cuts, FOB plant negotiated weighted-average price (~50 items)
   domain: sales
   dgp_class: agricultural_price
@@ -91852,6 +91865,7 @@
     Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_belly_cuts_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — pork belly cuts, FOB plant negotiated weighted-average price (~29 items)
   domain: sales
   dgp_class: agricultural_price
@@ -91877,6 +91891,7 @@
     Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_butt_cuts_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — pork butt cuts, FOB plant negotiated weighted-average price (~31 items)
   domain: sales
   dgp_class: agricultural_price
@@ -91902,6 +91917,7 @@
     Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_beef_trimmings_national_daily_panel
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — boneless processing beef / trimmings, national average price by item (18 items)
   domain: sales
   dgp_class: agricultural_price
