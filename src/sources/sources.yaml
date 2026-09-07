@@ -79644,6 +79644,7 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: airPressure, airTemperature, conductivity, relativeHumidity.'
 - id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1045_hur
+  poll: P7D  # saildrone went 404 2026-09-05 (hurricane mission ended); weekly resume-probe instead of a 404 per minute
   name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1045 (NOAA Atlantic Oceanographic and Meteorological
     Laboratory, NOAA PMEL)
   domain: nature
@@ -79677,6 +79678,7 @@
     against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered,
     air_temperature_rms.'
 - id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1069_hur
+  poll: P7D  # saildrone went 404 2026-09-05 (hurricane mission ended); weekly resume-probe instead of a 404 per minute
   name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1069 (NOAA Atlantic Oceanographic and Meteorological
     Laboratory, NOAA PMEL)
   domain: nature
