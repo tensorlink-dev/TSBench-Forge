@@ -93711,3 +93711,129 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''30'': without it the response
     interleaves several series on the same timestamps.'
+
+# -- wired batch: grind-20260909-0713 --
+- id: opendata_ods156_101
+  name: Individual incremental balancing energy bids (Historical data as of 22 [101]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%22101%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''101'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_18
+  name: Individual decremental balancing energy bids (Historical data as of 22 [18]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2218%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''18'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_real_time_air_quality_nitrogen_dioxide_no2_6516
+  name: Concentration moyenne horaire de dioxyde d’azote NO2 (qualité de l'air [6516]
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-nitrogen-dioxide-no2/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226516%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].timestamp
+    value_field:
+    - results[].value
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 60 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Brussels open-data portal, dataset real-time-air-quality-nitrogen-dioxide-no2.
+  license: Brussels open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset real-time-air-quality-nitrogen-dioxide-no2, ordered
+    newest-first on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion order,
+    which on a rolling table returns the oldest rows and reads as a dead source. Panel dimension device_id
+    is pinned to ''6516'': without it the response interleaves several series on the same timestamps.'
+- id: opendata_real_time_air_quality_pm10_fine_particulate_mat_6626
+  name: Concentration moyenne horaire de particules fines PM10 (qualité de l'a [6626]
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-pm10-fine-particulate-matter/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%226626%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].timestamp
+    value_field:
+    - results[].value
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 60 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Brussels open-data portal, dataset real-time-air-quality-pm10-fine-particulate-matter.
+  license: Brussels open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset real-time-air-quality-pm10-fine-particulate-matter,
+    ordered newest-first on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion
+    order, which on a rolling table returns the oldest rows and reads as a dead source. Panel dimension
+    device_id is pinned to ''6626'': without it the response interleaves several series on the same timestamps.'
