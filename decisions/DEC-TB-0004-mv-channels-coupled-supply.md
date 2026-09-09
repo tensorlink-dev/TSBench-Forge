@@ -79,3 +79,37 @@ series slot, one forecast call, source-level clusters. Forge's own benchmark
 (Track B, future decision node) will instead expand a group into C linked
 per-variate challenges with group-level bootstrap and an MV_FRAC round-mix
 knob targeting GIFT-Eval's ~35% multivariate share. Same tag, two readers.
+
+---
+
+## Addendum (2026-09-09, `feat/mv-arming`): aligned with cascade PR #250
+
+Cascade's activation is real and open as their PR #250 (DEC-CA-0041 +
+`mv_score_from_block=9064800`, builder `MAX_MV_CHANNELS=8`). Facts that
+re-shaped the forge plan:
+
+- **Channel order is load-bearing pre-arming.** Their unarmed builder projects
+  a tagged source to `mv_channels[0]` (not the densest column). `mv_order.py`
+  reorders every tag so channel 0 IS the densest column — the projection
+  becomes a no-op at merge. 189/202 already matched; 11 reordered; 2 flips
+  unavoidable (densest column curated out for cause).
+- **The scored pool is ~2,800 series, not our 10–22k eligible estimates** —
+  the publisher samples with an even domain mix (~400/domain, DEC-CA-0032).
+  Consequences: the 10k catalog-order harvest cutoff is not the binding
+  constraint; adding series to a domain beyond its allocation buys nothing;
+  the arming metric is **within-domain MV proportion**, not raw counts.
+- **Their bar:** a group must show ≥3% measured joint-vs-marginal lift, and
+  `gain × MV-share ≳ 1%` — hence the ~30% share target.
+- **NSSP pivot direction confirmed** by DEC-CA-0041 (by state, across
+  conditions; C=4). Wired here as `cdc_nssp_ed_pathogen_mix_daily_by_state`
+  (SoQL `sum(case())`, 50 geographies × ~480 d, verified live); the forge
+  audit admits it at **+0.342 adjusted gain** — strongest healthcare coupling
+  in the catalog. Pathogen siblings stay wired until mv_score arms.
+
+Cascade-ruler share (320-pt, fresh ≤4 d, this box's approximation,
+2026-09-09): overall 16.9%; per-domain MV share — nature 33.6%, transport
+18.6%, econ_fin 5.2%, energy 4.9%, web_cloudops 3.4%, healthcare 0.4% (→ ~7%
+once the pivot has mainnet data), sales 0.2%. The remaining harvest is
+**within-domain**: energy (tagged sources are young singles — they ripen on
+their own), sales (USDA MPR price+volume columns), healthcare (the pivot +
+respiratory panels), web (a few more IXPs). Transport/nature need nothing.
