@@ -7910,7 +7910,7 @@
   novelty_notes: All-island (ROI+NI) transmission system demand at 15-min resolution; live grid telemetry unlikely in TSFM pretraining mixes.
   notes: 'rest_json GET. Uses relative-date URL tokens {YYYY-MM-DD-1d} and {YYYY-MM-DD}; API requires ISO datefrom/dateto (DD-MMM also accepted but only ISO is scraper-templatable). Rolling 2-day window (~192 rows, 15-min). Trailing rows for future slots are null until measured. region=ALL; also ROI/NI. Other areas: generationactual, windactual, co2intensity, interconnection, frequency.'
 - id: defra_aurn_marylebone_road_hourly
-  mv_channels: ["Carbon monoxide", "PM<sub>10</sub> particulate matter (Hourly measured)", "Nitric oxide", "Nitrogen dioxide", "Nitrogen oxides as nitrogen dioxide", "Ozone", "PM<sub>2.5</sub> particulate matter (Hourly measured)", "Sulphur dioxide"]
+  mv_channels: ["Ozone", "Carbon monoxide", "PM<sub>10</sub> particulate matter (Hourly measured)", "Nitric oxide", "Nitrogen dioxide", "Nitrogen oxides as nitrogen dioxide", "PM<sub>2.5</sub> particulate matter (Hourly measured)", "Sulphur dioxide"]
   name: DEFRA UK-AIR AURN — London Marylebone Road hourly air quality (multivariate)
   domain: healthcare
   dgp_class: air_quality
@@ -8665,7 +8665,7 @@
   license: Public (Oklahoma Climatological Survey / OU-OSU); keyless MDF archive.
   notes: 'Feature: paneled snapshot (schema.panel_field: STID) + URL date/hour tokens ({YYYY}/{MM}/{DD}/{YYYYMMDD}{HH}00.mdf) over a wide whitespace-delimited text feed. Verified via scraper._records_from_csv on a top-of-hour MDF: 120 rows = 120 distinct STID entities, TAIR/PRES/RELH numeric for all 120 (>=20 numeric entities). Top-of-hour file lags a few minutes, so run cron mid-hour (e.g. minute 20); intra-hour 5-min files exist but the minute is not templatable with supported tokens.'
 - id: ndbc_latest_obs_all_stations
-  mv_channels: ["PRES", "ATMP", "WTMP", "WSPD"]
+  mv_channels: ["ATMP", "PRES", "WTMP", "WSPD"]
   name: NDBC latest observations - all-station meteorological snapshot panel
   domain: nature
   dgp_class: weather_field
@@ -18853,7 +18853,7 @@
       op: count
       bin: PT1H
 - id: aeso_alberta_pool_price_ail_hourly
-  mv_channels: ["Actual Posted Pool Price", "Forecast Pool Price"]
+  mv_channels: ["Forecast Pool Price", "Actual Posted Pool Price"]
   name: AESO Alberta — hourly pool price and internal load (actual vs forecast)
   domain: energy
   frequency: PT1H
@@ -20424,7 +20424,7 @@
   audit_slack_days: 102
   notes: Bulk-generated from the Socrata federated catalog (query 'library circulation'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: wa_wdfw_creel_summary_counts
-  mv_channels: ["wild_released", "wild_harvest", "anglers"]
+  mv_channels: ["anglers", "wild_released", "wild_harvest"]
   name: WDFW - Creel Summary Counts (data.wa.gov)
   domain: nature
   dgp_class: biodiversity
@@ -21262,7 +21262,7 @@
     - Resultados[].Valores[].pz_per
     - Resultados[].Valores[].pz_cng
 - id: act_air_quality_hourly
-  mv_channels: ["no2", "o3_1hr", "co", "pm10", "pm2_5"]
+  mv_channels: ["pm2_5", "no2", "o3_1hr", "co", "pm10"]
   audit_slack_days: 7
   name: ACT (Canberra) air quality monitoring (hourly)
   domain: nature
@@ -21886,7 +21886,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Luftqualität Messwerte'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: ch_luftqualitat_station_basel_binningen
-  mv_channels: ["o3_ug_m3", "no2_ug_m3", "pm10_ug_m3"]
+  mv_channels: ["pm10_ug_m3", "o3_ug_m3", "no2_ug_m3"]
   name: Luftqualität Station Basel-Binningen (data.bs.ch)
   domain: nature
   dgp_class: air_quality
@@ -22694,7 +22694,7 @@
   audit_slack_days: 60
   notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: calgary_monthly_economic_indicators
-  mv_channels: ["calgary_cer_unemployment_rate", "calgary_cma_total_housing_starts_units", "calgary_cer_retail_sales_billions"]
+  mv_channels: ["calgary_cma_total_housing_starts_units", "calgary_cer_unemployment_rate", "calgary_cer_retail_sales_billions"]
   name: Monthly Economic Indicators (data.calgary.ca)
   domain: sales
   dgp_class: registration_stream
@@ -22849,7 +22849,7 @@
   audit_slack_days: 51
   notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: ct_environmental_monitoring_results_for_rad
-  mv_channels: ["state_iodine", "state_beta", "state_err_iodine"]
+  mv_channels: ["state_beta", "state_iodine", "state_err_iodine"]
   name: 'Environmental Monitoring Results for Radioactivity: Air Samples (data.ct.gov)'
   domain: nature
   dgp_class: air_quality
@@ -22900,7 +22900,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Socrata federated catalog (query 'air quality monitoring'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: in_blucher_elec_daily
-  mv_channels: ["kwh", "mg"]
+  mv_channels: ["mg", "kwh"]
   name: Blucher Elec Daily (data.bloomington.in.gov)
   domain: nature
   dgp_class: water_demand
@@ -23771,7 +23771,7 @@
   audit_slack_days: 133
   notes: Bulk-generated from the Socrata federated catalog (query 'transit ridership'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: bts_transportation_services_index_and_season
-  mv_channels: ["tsi_passenger", "tsi_freight_c", "vmt_d11"]
+  mv_channels: ["vmt_d11", "tsi_passenger", "tsi_freight_c"]
   name: Transportation Services Index and Seasonally-Adjusted Transportation Data (data.bts.gov)
   domain: transport
   dgp_class: ridership
@@ -73481,7 +73481,7 @@
   notes: Socrata SODA resource riiu-7d4b, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: www_air_quality_monitoring_data
-  mv_channels: ["no2", "o3_1hr"]
+  mv_channels: ["o3_1hr", "no2"]
   name: Air Quality Monitoring Data (www.data.act.gov.au)
   domain: nature
   dgp_class: air_quality
@@ -91752,6 +91752,46 @@
   audit_slack_days: 21
 
 # -- wired batch: daily-wave-2026-08-25 --
+- id: cdc_nssp_ed_pathogen_mix_daily_by_state
+  name: CDC NSSP daily ED visit share — COVID/influenza/RSV/ARI as coupled channels per state (CASE-pivot panel)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - count_discrete
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily syndromic surveillance; the CASE-pivot re-serves ~480 days x 52 geographies per fetch
+    so history is deep from day one
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/vjzj-u7u8.json?$select=geography,date,sum(case(pathogen='COVID',percent_visits))
+      as covid,sum(case(pathogen='Influenza',percent_visits)) as influenza,sum(case(pathogen='RSV',percent_visits))
+      as rsv,sum(case(pathogen='ARI',percent_visits)) as ari&$group=geography,date&$order=date DESC&$limit=25000
+    auth: none
+    rate_limit: 1000 req/h anonymous; higher with app token
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field:
+    - '[].covid'
+    - '[].influenza'
+    - '[].rsv'
+    - '[].ari'
+    panel_field: '[].geography'
+    variates: 4
+  mv_channels: ["covid", "influenza", "rsv", "ari"]
+  history_available: P4Y
+  license: US Government public domain (CDC open data)
+  notes: 'The DEC-TB-0004 / DEC-CA-0041 NSSP CASE-pivot: the four sibling per-pathogen panels
+    (cdc_nssp_ed_{covid19,influenza,rsv,ari}_daily_by_state) re-wired as four columns of ONE
+    (source, geography) row so they are groupable under the mv_channels contract — cross-source
+    siblings can never be joined by the consumer. SoQL sum(case()) pivot, one request; grouped
+    rows = 52 geographies/day so $limit=25000 covers ~480 days. Publisher lag ~1 week, hence
+    audit_slack_days=21 as the siblings. The siblings stay wired (their univariate series serve
+    today''s pool); retire them only after cascade arms mv_score and this source''s tag is live.'
+  audit_slack_days: 21
 - id: bis_nominal_eer_daily_panel_a
   name: BIS nominal effective exchange rates, broad basket — daily panel A (32 economies)
   domain: econ_fin
