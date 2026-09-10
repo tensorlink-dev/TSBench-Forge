@@ -8527,6 +8527,7 @@
   license: Eurostat open data (CC-BY 4.0)
   notes: 'Plain rest_csv GET against the SDMX 2.1 REST endpoint with a fully-specified series key and format=SDMX-CSV (comma CSV: TIME_PERIOD, OBS_VALUE) — the scraper only decodes SDMX-JSON (dataSets+structure), not Eurostat''s JSON-stat value{} map, so SDMX-CSV is used. Verified: 184 monthly rows, 184 distinct timestamps, numeric. Swap nrg_bal / siec / geo dims for other energy indicators.'
 - id: sensor_community_pm25_global_panel
+  mv_channels: ["sensordatavalues_1_value", "sensordatavalues_0_value"]
   name: sensor.community global PM2.5 dust-sensor snapshot panel (~9.7k sensors)
   domain: healthcare
   dgp_class: air_quality
@@ -8543,9 +8544,12 @@
     rate_limit: null
   schema:
     timestamp_field: '[].timestamp'
-    value_field: '[].sensordatavalues[1].value'
+    value_field:
+    - '[].sensordatavalues[0].value'
+    - '[].sensordatavalues[1].value'
     panel_field: '[].sensor.id'
-    variates: 1
+    variates: 2
+    max_panel_groups: 200
   panel: null
   history_available: P0D
   update_cadence_observed: rolling ~2.5-min snapshot of the last-5-min readings from every active sensor
@@ -91959,9 +91963,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].item_description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2453 section 'Choice Cuts' (panel_field item_description, value
@@ -91985,15 +91992,19 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].item_description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2453 section 'Select Cuts' (panel_field item_description, value
     weighted_average). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every
     fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_ground_beef_daily_panel
+  mv_channels: ["weighted_average", "total_pounds"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — ground beef weighted-average price by lean-point (9 products)
   domain: sales
@@ -92011,9 +92022,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].trim_description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2453 section 'Ground Beef' (panel_field trim_description, value
@@ -92037,9 +92051,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].choice_600_900
+    value_field:
+    - results[].choice_600_900
+    - results[].select_600_900
     panel_field: results[].primal_desc
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2453 section 'Composite Primal Values' (panel_field primal_desc,
@@ -92063,9 +92080,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].Item_Description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Loin Cuts' (panel_field Item_Description, value weighted_average).
@@ -92089,9 +92109,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].Item_Description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Ham Cuts' (panel_field Item_Description, value weighted_average).
@@ -92115,9 +92138,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].Item_Description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Belly Cuts' (panel_field Item_Description, value weighted_average).
@@ -92141,15 +92167,19 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].Item_Description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Butt Cuts' (panel_field Item_Description, value weighted_average).
     Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_beef_trimmings_national_daily_panel
+  mv_channels: ["price_range_avg", "total_pounds"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — boneless processing beef / trimmings, national average price by item (18 items)
   domain: sales
@@ -92167,9 +92197,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].price_range_avg
+    value_field:
+    - results[].price_range_avg
+    - results[].total_pounds
     panel_field: results[].item_desc
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2451 section 'National' (panel_field item_desc, value price_range_avg).
