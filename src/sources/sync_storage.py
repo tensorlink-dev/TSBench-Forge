@@ -44,6 +44,7 @@ import argparse
 import datetime as dt
 import os
 import sys
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -71,6 +72,11 @@ def _endpoint() -> str:
     return os.environ.get("HIPPIUS_S3_ENDPOINT") or DEFAULT_ENDPOINT
 
 
+# Wall-clock here is per-request latency, not bandwidth. Overridable because
+# the right width depends on the endpoint, not on us.
+DOWNLOAD_WORKERS = int(os.environ.get("HIPPIUS_DOWNLOAD_WORKERS", "24"))
+
+
 def _client():
     import boto3
 
@@ -79,12 +85,19 @@ def _client():
     if not access or not secret:
         sys.exit("HIPPIUS_S3_ACCESS_KEY / HIPPIUS_S3_SECRET_KEY not set — "
                  "load .env first (set -a; source .env; set +a)")
+    from botocore.config import Config
+
+    # The connection pool has to be at least as wide as the download thread
+    # pool; botocore's default of 10 would serialise the extra threads on
+    # connection checkout and the parallelism would be imaginary.
     return boto3.client(
         "s3",
         endpoint_url=_endpoint(),
         region_name=os.environ.get("HIPPIUS_S3_REGION") or "decentralized",
         aws_access_key_id=access,
         aws_secret_access_key=secret,
+        config=Config(max_pool_connections=max(10, DOWNLOAD_WORKERS + 4),
+                      retries={"max_attempts": 3, "mode": "standard"}),
     )
 
 
@@ -210,28 +223,56 @@ def _download(s3, bucket: str, forge_dir: Path, dry_run: bool, only_date: str | 
     suffix = f"/{only_date}.parquet" if only_date else None
     downloaded = skipped = failed = 0
     dl_bytes = 0
+
+    todo: list[tuple[str, int]] = []
     for key, size in sorted(remote.items()):
         if not key.endswith(".parquet"):
             continue
         if suffix and not key.endswith(suffix):
             continue
         dest = forge_dir / key
+        # Append-only bucket, so a size match means the local copy is current.
         if dest.exists() and dest.stat().st_size == size:
             skipped += 1
             continue
-        if dry_run:
+        todo.append((key, size))
+
+    if dry_run:
+        for key, size in todo:
             print(f"would download {key} ({size:,} B)")
-            downloaded += 1
-            dl_bytes += size
-            continue
-        try:
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            s3.download_file(bucket, key, str(dest))
-            downloaded += 1
-            dl_bytes += size
-        except Exception as e:  # noqa: BLE001 — keep pulling the rest
-            print(f"FAILED {key}: {e}", file=sys.stderr)
-            failed += 1
+        downloaded = len(todo)
+        dl_bytes = sum(s for _, s in todo)
+    elif todo:
+        # The mirror is thousands of small dated parquets, so wall-clock is
+        # dominated by per-request latency rather than bandwidth: a serial
+        # pull measured ~928 MB in 2.5 hours, about 100 KB/s, which was more
+        # than a CI job's whole budget. Fan out. boto3 low-level clients are
+        # thread-safe, so one client is shared.
+        lock = threading.Lock()
+
+        def fetch(item: tuple[str, int]) -> tuple[str, int] | None:
+            key, size = item
+            dest = forge_dir / key
+            try:
+                with lock:
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                s3.download_file(bucket, key, str(dest))
+                return key, size
+            except Exception as e:  # noqa: BLE001 — one bad object must not stop the pull
+                print(f"FAILED {key}: {e}", file=sys.stderr)
+                return None
+
+        print(f"downloading {len(todo)} files with {DOWNLOAD_WORKERS} workers "
+              f"({skipped} already current)", flush=True)
+        with ThreadPoolExecutor(max_workers=DOWNLOAD_WORKERS) as pool:
+            for i, res in enumerate(pool.map(fetch, todo), 1):
+                if res is None:
+                    failed += 1
+                else:
+                    downloaded += 1
+                    dl_bytes += res[1]
+                if i % 500 == 0:
+                    print(f"  {i}/{len(todo)} ({dl_bytes/1e6:.0f} MB)", flush=True)
 
     verb = "would download" if dry_run else "downloaded"
     scope = f" ({only_date} only)" if only_date else ""
