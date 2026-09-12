@@ -8527,7 +8527,6 @@
   license: Eurostat open data (CC-BY 4.0)
   notes: 'Plain rest_csv GET against the SDMX 2.1 REST endpoint with a fully-specified series key and format=SDMX-CSV (comma CSV: TIME_PERIOD, OBS_VALUE) — the scraper only decodes SDMX-JSON (dataSets+structure), not Eurostat''s JSON-stat value{} map, so SDMX-CSV is used. Verified: 184 monthly rows, 184 distinct timestamps, numeric. Swap nrg_bal / siec / geo dims for other energy indicators.'
 - id: sensor_community_pm25_global_panel
-  mv_channels: ["sensordatavalues_1_value", "sensordatavalues_0_value"]
   name: sensor.community global PM2.5 dust-sensor snapshot panel (~9.7k sensors)
   domain: healthcare
   dgp_class: air_quality
