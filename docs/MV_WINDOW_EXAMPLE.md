@@ -55,3 +55,25 @@ share epidemic and reporting dynamics — that is *why* the group is tagged).
 - Tags are admitted on measured cross-predictiveness (a sibling's *lags* must
   improve a held-out forecast beyond own-lags, placebo-adjusted), never on
   correlation — see `decisions/DEC-TB-0004-mv-channels-coupled-supply.md`.
+
+
+---
+
+## The same conversion on the ACTUAL scored pool (full data)
+
+`docs/mv_prior_eval_block8989200.{json,npy}` is not synthetic and not our
+scrape: it is the four California pathogen series exactly as validators
+scored them in the mainnet reveal
+(`Tensor-Link/cascade-eval-pool snapshots/2026-09-04-block-8989200`,
+POOL_SHA256-verified upstream), stacked into the record the `--mv-pack`
+build will emit:
+
+    series_id : tsforge__cdc_nssp_ed_pathogen_mix_daily_by_state__geography_California
+    values    : float32 (4, 495)  — rows in mv_channels order [covid, influenza, rsv, ari]
+    eval split: context (4, 431) + horizon truth (4, 64)   (horizon 64 per pool provenance)
+
+That snapshot's provenance shows today's builder ran `max_channels: 1` —
+these four rows were four separate univariate series there, four forecast
+calls, four slots. After the gate they are ONE window and one call. The
+`.npy` is byte-identical data in pool format; the `.json` carries every
+value plus provenance for human reading.
