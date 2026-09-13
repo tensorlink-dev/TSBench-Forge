@@ -745,6 +745,27 @@ def _leaf_name(path: str) -> str:
     return name
 
 
+def _value_col_names(paths: list) -> list:
+    """Column names for a value_field list — leaf names, disambiguated.
+
+    Positional paths into the same array share a leaf ('sensordatavalues[0]
+    .value' and '[1].value' both end in 'value'); a plain leaf-name dict
+    silently collapsed them to one column. Colliding entries take their last
+    TWO segments flattened instead ('sensordatavalues_0_value'), so every
+    declared path gets its own parquet column. Non-colliding lists keep the
+    exact names they always had.
+    """
+    leaves = [_leaf_name(p) for p in paths]
+    out = []
+    for p, leaf in zip(paths, leaves):
+        if leaves.count(leaf) > 1:
+            tail = ".".join(p.split(".")[-2:])
+            out.append(re.sub(r"[^0-9A-Za-z]+", "_", tail).strip("_"))
+        else:
+            out.append(leaf)
+    return out
+
+
 def _value_names(paths: list[str]) -> list[str]:
     """Column name per value path: the leaf segment, disambiguated by its parent
     when leaves collide (jsDelivr's `hits.dates` and `bandwidth.dates` would
@@ -989,7 +1010,7 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
 
     if isinstance(val_path, list):
         try:
-            val_seqs = {_leaf_name(p): _walk(data, p) for p in val_path}
+            val_seqs = {n: _walk(data, p) for n, p in zip(_value_col_names(val_path), val_path)}
         except Exception:
             return [{"timestamp": now_iso, "value": json.dumps(data)[:200000]}]
     else:
@@ -1490,6 +1511,9 @@ def log_error(sid: str, msg: str) -> None:
 
 
 _DECIMAL_COMMA_RE = re.compile(r"^-?\d{1,3}(\.\d{3})*,\d+$")
+# US thousands separators ("11,095" / "1,313.64") -> plain numbers; comma is
+# strictly a group mark here (3-digit groups, optional dot decimals).
+_THOUSANDS_COMMA_RE = re.compile(r"^-?\d{1,3}(,\d{3})+(\.\d+)?$")
 
 
 def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
@@ -1553,6 +1577,14 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
                 if (k != "timestamp" and not k.startswith("_panel_")
                         and isinstance(v, str) and _DECIMAL_COMMA_RE.match(v)):
                     r[k] = v.replace(".", "").replace(",", ".")
+    if schema.get("thousands_comma"):
+        # US thousands commas (USDA MPR "total_pounds": "11,095") -> plain
+        # numbers, so the numeric gate and downstream casts see real values.
+        for r in recs:
+            for k, v in r.items():
+                if (k != "timestamp" and not k.startswith("_panel_")
+                        and isinstance(v, str) and _THOUSANDS_COMMA_RE.match(v)):
+                    r[k] = v.replace(",", "")
     if schema.get("drop_null_values"):
         recs = [r for r in recs
                 if any(v not in (None, "")

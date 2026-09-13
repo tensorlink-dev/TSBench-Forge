@@ -173,6 +173,7 @@
     sample_freshness_hours: 0.05
   notes: Use ?endTime= for historical paging. Klines limit cap = 1000 bars.
 - id: coinbase_btc_5min
+  mv_channels: ["1", "2", "3", "4", "5"]
   name: Coinbase Exchange BTC-USD 5-minute candles
   domain: econ_fin
   dgp_class: market_price
@@ -412,6 +413,7 @@
     sample_freshness_hours: 0.5
   notes: 'Region letters A-P. Product code rolls (next: AGILE-25-XX-XX); pull product list dynamically.'
 - id: aemo_nem_5min
+  mv_channels: ["TOTALDEMAND", "RRP"]
   name: AEMO NEM 5-minute price & demand (5-region panel)
   domain: energy
   dgp_class: grid_demand
@@ -710,6 +712,7 @@
     sample_freshness_hours: 0.5
   notes: Station list at /api/prod/stations.json. Smooth_periodic exemplar.
 - id: ndbc_buoy_realtime
+  mv_channels: ["WSPD", "WVHT", "PRES", "WTMP"]
   name: NDBC buoy realtime metereological (20-buoy panel)
   domain: nature
   dgp_class: weather_field
@@ -786,6 +789,7 @@
     sample_rows: 100
     sample_freshness_hours: 0.05
 - id: swpc_solar_wind_plasma
+  mv_channels: ["1", "2", "3"]
   name: NOAA SWPC ACE/DSCOVR solar wind plasma (1-min)
   domain: nature
   dgp_class: space_weather
@@ -816,6 +820,7 @@
     sample_rows: 100
     sample_freshness_hours: 0.05
 - id: open_meteo_forecast
+  mv_channels: ["temperature_2m", "precipitation", "wind_speed_10m"]
   name: Open-Meteo NWP forecast (hourly)
   domain: nature
   dgp_class: weather_field
@@ -2249,6 +2254,7 @@
     sample_freshness_hours: 0.05
   notes: Snapshot per call — must poll. is_disrupted = (statusSeverity != 10) gives binary; statusSeverityDescription is categorical.
 - id: bpa_balancing_load_wind
+  mv_channels: ["Load", "VER", "Hydro", "Fossil/Biomass", "Nuclear"]
   name: BPA Balancing Authority load + generation mix (5-min)
   domain: energy
   dgp_class: grid_demand
@@ -2639,6 +2645,7 @@
     sample_freshness_hours: 0.05
   notes: Bin per minute for arrival count; edit type (edit/new/log) is categorical.
 - id: metar_us_airports
+  mv_channels: ["temp", "dewp", "wspd", "altim"]
   name: METAR aviation weather (50-station US-airport panel, ~5-min cadence)
   domain: nature
   dgp_class: weather_field
@@ -2945,6 +2952,7 @@
 
     '
 - id: treasury_daily_debt_to_penny
+  mv_channels: ["tot_pub_debt_out_amt", "intragov_hold_amt"]
   name: US Treasury — daily debt to the penny (total public debt outstanding)
   domain: econ_fin
   dgp_class: macro_economic_indicator
@@ -3745,6 +3753,7 @@
     sample_rows: null
     sample_freshness_hours: null
 - id: energinet_dk_power_system
+  mv_channels: ["CO2Emission", "SolarPower", "OffshoreWindPower", "OnshoreWindPower"]
   name: Energinet — Danish power system right now (1-min, multivariate)
   domain: energy
   dgp_class: grid_demand
@@ -5602,6 +5611,7 @@
     sample_freshness_hours: 0.03
   notes: GeoJSON FeatureCollection with exactly one feature; geometry.coordinates lists every available taxi (len == taxi_count, 1685 at verification). Keyless. Distinct from lta_singapore_traffic_speeds (LTA DataMall, per-segment speeds, AccountKey required).
 - id: gemini_btcusd_trades
+  mv_channels: ["price", "amount"]
   name: Gemini BTC/USD public trades — irregular trade-event stream
   domain: econ_fin
   dgp_class: market_orderbook
@@ -5904,6 +5914,7 @@
 
     '
 - id: coinbase_spot_1m
+  mv_channels: ["1", "2", "3", "4", "5"]
   name: Coinbase Exchange 1-minute candles (10-symbol panel)
   domain: econ_fin
   dgp_class: market_price
@@ -5949,6 +5960,7 @@
     sample_freshness_hours: 0.05
   notes: Candle order is [time, low, high, open, close, volume] — NOT OHLCV. All 10 products probed live 2026-07-11 (BNB-USD is listed on Coinbase despite being Binance's token). Use ?start=&end= (ISO) for paging, 350-candle cap.
 - id: coinbase_spot_15m
+  mv_channels: ["1", "2", "3", "4", "5"]
   name: Coinbase Exchange 15-minute candles (10-symbol panel)
   domain: econ_fin
   dgp_class: market_price
@@ -6118,6 +6130,7 @@
     sample_freshness_hours: 24
   notes: Unlocked by the field-paneling scraper feature (splits the single all-regions payload into 9 series via _panel_omrType/_panel_omrnr).
 - id: ercot_supply_demand
+  mv_channels: ["demand", "capacity"]
   name: ERCOT Texas grid demand & capacity (real-time dashboard)
   domain: energy
   dgp_class: grid_demand
@@ -7897,6 +7910,7 @@
   novelty_notes: All-island (ROI+NI) transmission system demand at 15-min resolution; live grid telemetry unlikely in TSFM pretraining mixes.
   notes: 'rest_json GET. Uses relative-date URL tokens {YYYY-MM-DD-1d} and {YYYY-MM-DD}; API requires ISO datefrom/dateto (DD-MMM also accepted but only ISO is scraper-templatable). Rolling 2-day window (~192 rows, 15-min). Trailing rows for future slots are null until measured. region=ALL; also ROI/NI. Other areas: generationactual, windactual, co2intensity, interconnection, frequency.'
 - id: defra_aurn_marylebone_road_hourly
+  mv_channels: ["Ozone", "Carbon monoxide", "PM<sub>10</sub> particulate matter (Hourly measured)", "Nitric oxide", "Nitrogen dioxide", "Nitrogen oxides as nitrogen dioxide", "PM<sub>2.5</sub> particulate matter (Hourly measured)", "Sulphur dioxide"]
   name: DEFRA UK-AIR AURN — London Marylebone Road hourly air quality (multivariate)
   domain: healthcare
   dgp_class: air_quality
@@ -8035,6 +8049,7 @@
 
     '
 - id: phenocam_harvard_gcc_3day
+  mv_channels: ["gcc_mean", "gcc_90", "rcc_mean"]
   name: PhenoCam Network — Harvard Forest vegetation phenology (GCC 3-day summary)
   domain: nature
   dgp_class: vegetation_phenology
@@ -8528,9 +8543,12 @@
     rate_limit: null
   schema:
     timestamp_field: '[].timestamp'
-    value_field: '[].sensordatavalues[1].value'
+    value_field:
+    - '[].sensordatavalues[0].value'
+    - '[].sensordatavalues[1].value'
     panel_field: '[].sensor.id'
-    variates: 1
+    variates: 2
+    max_panel_groups: 200
   panel: null
   history_available: P0D
   update_cadence_observed: rolling ~2.5-min snapshot of the last-5-min readings from every active sensor
@@ -8650,6 +8668,7 @@
   license: Public (Oklahoma Climatological Survey / OU-OSU); keyless MDF archive.
   notes: 'Feature: paneled snapshot (schema.panel_field: STID) + URL date/hour tokens ({YYYY}/{MM}/{DD}/{YYYYMMDD}{HH}00.mdf) over a wide whitespace-delimited text feed. Verified via scraper._records_from_csv on a top-of-hour MDF: 120 rows = 120 distinct STID entities, TAIR/PRES/RELH numeric for all 120 (>=20 numeric entities). Top-of-hour file lags a few minutes, so run cron mid-hour (e.g. minute 20); intra-hour 5-min files exist but the minute is not templatable with supported tokens.'
 - id: ndbc_latest_obs_all_stations
+  mv_channels: ["ATMP", "PRES", "WTMP", "WSPD"]
   name: NDBC latest observations - all-station meteorological snapshot panel
   domain: nature
   dgp_class: weather_field
@@ -8985,6 +9004,7 @@
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
   notes: France — nuclear-dominated mix, different seasonal shape to Germany.
 - id: aemo_nem_price_demand_nsw
+  mv_channels: ["TOTALDEMAND", "RRP"]
   name: AEMO NEM — NSW regional demand and spot price (30-min)
   domain: energy
   dgp_class: grid_demand
@@ -9010,6 +9030,7 @@
   license: AEMO public data (CC BY 4.0)
   notes: Australian National Electricity Market. RRP spikes to the market price cap are extreme outliers.
 - id: aemo_nem_price_demand_sa
+  mv_channels: ["TOTALDEMAND", "RRP"]
   name: AEMO NEM — South Australia demand and spot price (30-min)
   domain: energy
   dgp_class: electricity_price
@@ -9035,6 +9056,7 @@
   license: AEMO public data (CC BY 4.0)
   notes: Highest renewable penetration in the NEM — most volatile price series, frequent negative prices.
 - id: elering_estonia_system_balance
+  mv_channels: ["consumption", "production", "production_renewable"]
   name: Elering Estonia — system production, consumption and frequency (15-min)
   domain: energy
   dgp_class: grid_demand
@@ -9108,6 +9130,7 @@
   license: Hydro-Québec données ouvertes
   notes: Electric-heating-dominated winter-peaking system — inverse seasonal shape to most US ISOs.
 - id: uk_carbon_intensity_national
+  mv_channels: ["forecast", "actual"]
   name: UK National Grid — carbon intensity, forecast vs actual (30-min)
   domain: energy
   dgp_class: emissions_intensity
@@ -9187,6 +9210,7 @@
   license: BIXI Montréal open data
   notes: Seasonal system (winter shutdown) — hard structural break other bikeshare feeds lack.
 - id: gbfs_oslo_bysykkel_station_status
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Oslo Bysykkel — per-station bike availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -9723,6 +9747,7 @@
   license: Bitstamp public API
   notes: XRP — a distinct, event-driven (litigation/listing) price process versus BTC/ETH.
 - id: okx_sol_usdt_1m
+  mv_channels: ["data_4", "data_5"]
   name: OKX — SOL-USDT 1-minute candles
   domain: econ_fin
   dgp_class: crypto_spot_price
@@ -10039,6 +10064,7 @@
   license: NYISO public market data
   notes: Fuel-category shares sum to system load — a natural hierarchical/coherency test.
 - id: nyiso_zonal_load_forecast
+  mv_channels: ["NYISO", "N.Y.C.", "Longil", "Capitl"]
   name: NYISO — day-ahead zonal load forecast (11 zones + system, hourly)
   domain: energy
   dgp_class: grid_demand
@@ -10178,6 +10204,7 @@
   license: Elering open data
   notes: Baltic bidding-zone price — thin market with frequent extreme spikes.
 - id: aemo_nem_price_demand_qld
+  mv_channels: ["TOTALDEMAND", "RRP"]
   name: AEMO NEM — Queensland demand and spot price (30-min)
   domain: energy
   dgp_class: grid_demand
@@ -10203,6 +10230,7 @@
   license: AEMO public data (CC BY 4.0)
   notes: Subtropical, air-conditioning-driven summer peaks.
 - id: aemo_nem_price_demand_tas
+  mv_channels: ["TOTALDEMAND", "RRP"]
   name: AEMO NEM — Tasmania demand and spot price (30-min)
   domain: energy
   dgp_class: grid_demand
@@ -10254,6 +10282,7 @@
   license: NYC Open Data (public domain)
   notes: Congestion collapse and recovery — sharp nonlinear transitions around capacity.
 - id: seattle_fremont_bridge_bike_counts
+  mv_channels: ["fremont_bridge", "fremont_bridge_nb", "fremont_bridge_sb"]
   audit_slack_days: 90
   name: Seattle — Fremont Bridge hourly bicycle counts (directional)
   domain: transport
@@ -11173,6 +11202,7 @@
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
   notes: A second, independent carbon-intensity series to pair against the UK one — different grid, different method, same physical quantity.
 - id: aemo_nem_price_demand_vic
+  mv_channels: ["TOTALDEMAND", "RRP"]
   name: AEMO NEM — Victoria demand and spot price (30-min)
   domain: energy
   dgp_class: grid_demand
@@ -11414,6 +11444,7 @@
   license: Coinbase public market data API
   notes: Same asset as the OKX 1-minute entry but a regulated USD venue at 5-minute bars — the pair supports cross-venue basis and sampling-frequency studies.
 - id: kraken_eth_eur_5m
+  mv_channels: ["XETHZEUR_4", "XETHZEUR_6"]
   name: Kraken — ETH/EUR 5-minute OHLC
   domain: econ_fin
   dgp_class: crypto_spot_price
@@ -11490,6 +11521,7 @@
   license: Rennes Métropole open data (ODbL)
   notes: European counterpart to the Seattle bridge counter — same physical quantity, different climate and commute culture, so the pair isolates weather versus behaviour effects.
 - id: gbfs_bergen_station_status
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Bergen Bysykkel — per-station bike availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -12823,6 +12855,7 @@
   license: RIPE NCC — open
   notes: Anycast CDN that announces the same prefixes worldwide — a very different announcement pattern to a conventional network.
 - id: citybikes_docomo_cycle_tokyo_station_status
+  mv_channels: ["free_bikes", "empty_slots"]
   name: CityBikes — Tokyo Docomo per-station availability (panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -12879,6 +12912,7 @@
   disabled: true
   disabled_reason: '2026-07-26: the CityBikes aggregator froze this network at 2026-07-23 while its other networks update live. Upstream aggregation problem, not a scraper one.'
 - id: citybikes_youbike_taipei_station_status
+  mv_channels: ["free_bikes", "empty_slots"]
   name: CityBikes — Taipei YouBike (CityBikes view) per-station availability (panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -13872,6 +13906,7 @@
   license: CityBikes — CC BY
   notes: A second independently-normalised view of a system also polled natively — divergence between the two measures aggregator lag directly.
 - id: citybikes_bikemi_station_status
+  mv_channels: ["free_bikes", "empty_slots"]
   name: CityBikes — BikeMi Milan (CityBikes view) per-station availability (panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -15292,6 +15327,7 @@
     value_field:
     - '[].value'
 - id: cboe_vix_intraday
+  mv_channels: ["close", "total_options_volume"]
   name: Cboe VIX index intraday (1-min bars, delayed)
   domain: econ_fin
   frequency: PT1M
@@ -15565,6 +15601,7 @@
     - results[].choice_600_900_simple_avg
     - results[].select_600_900_simple_avg
 - id: statcounter_browser_share_monthly
+  mv_channels: ["Chrome", "Edge", "Safari", "Firefox", "Opera"]
   name: StatCounter GlobalStats — desktop browser market share worldwide, monthly
   domain: web_cloudops
   frequency: P1M
@@ -16184,6 +16221,7 @@
     csv_delimiter: ;
     compose_hour_of_day: true
 - id: cms_medicare_monthly_enrollment
+  mv_channels: ["TOT_BENES", "ORGNL_MDCR_BENES", "MA_AND_OTH_BENES"]
   name: CMS Medicare Monthly Enrollment (national totals)
   domain: healthcare
   frequency: P1M
@@ -16348,6 +16386,7 @@
     - noncomm_positions_long_all
     - noncomm_positions_short_all
 - id: nyfed_soma_holdings_weekly
+  mv_channels: ["total", "notesbonds", "bills", "mbs", "tips"]
   name: NY Fed SOMA portfolio holdings summary (weekly)
   domain: econ_fin
   frequency: P1W
@@ -16486,6 +16525,7 @@
     value_field:
     - datapoints[].price_value_dollar
 - id: usda_mpr_boxed_beef_cutout_daily
+  mv_channels: ["choice_600_900_current", "select_600_900_current"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS — national daily boxed beef cutout values, PM report (LM_XB403)
   domain: sales
@@ -16558,6 +16598,7 @@
     - value[].SPEC_PROCESSED_NB
     panel_field: value[].COUNTRY_CODE
 - id: nyc_ems_incident_dispatch_daily
+  mv_channels: ["n", "avg_response_s"]
   name: NYC FDNY EMS — daily incident dispatch count and mean response time
   domain: healthcare
   frequency: P1D
@@ -16688,6 +16729,7 @@
     - features[].properties.cog
     panel_field: features[].mmsi
 - id: cta_chicago_daily_boardings
+  mv_channels: ["bus", "rail_boardings", "total_rides"]
   name: CTA Chicago — daily bus and rail boardings, system totals
   domain: transport
   frequency: P1D
@@ -16932,6 +16974,7 @@
     - '[].estimate'
     panel_field: '[].surveillance_network'
 - id: cdc_nchs_pic_deaths_weekly
+  mv_channels: ["covid_19_deaths", "pneumonia_deaths", "influenza_deaths", "total_deaths"]
   name: CDC NCHS - weekly provisional pneumonia/influenza/COVID-19 deaths, United States
   domain: healthcare
   frequency: P1W
@@ -16992,6 +17035,7 @@
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field: value.timeSeries[0].values[0].value[].value
 - id: cftc_cot_disaggregated_gold_weekly
+  mv_channels: ["open_interest_all", "m_money_positions_long_all", "m_money_positions_short_all"]
   name: CFTC COT disaggregated futures-only - GOLD (COMEX) managed money positions
   domain: econ_fin
   frequency: P1W
@@ -17009,6 +17053,7 @@
     - '[].m_money_positions_long_all'
     - '[].m_money_positions_short_all'
 - id: cftc_tff_emini_sp500_weekly
+  mv_channels: ["open_interest_all", "dealer_positions_long_all", "dealer_positions_short_all"]
   name: CFTC Traders in Financial Futures - E-mini S&P 500 dealer/leveraged positions
   domain: econ_fin
   frequency: P1W
@@ -17138,6 +17183,7 @@
     - results[].taux_hospit_bronchite_sau
     - results[].taux_actes_bronchite_sos
 - id: rki_amelag_wastewater_viral_load_weekly
+  mv_channels: ["viruslast", "n"]
   audit_slack_days: 60
   name: RKI AMELAG wastewater viral load Germany (weekly, panel by pathogen)
   domain: healthcare
@@ -17269,6 +17315,7 @@
     panel_field: BRANCHEDB25UDVALG
     csv_delimiter: ;
 - id: elia_total_load_15min
+  mv_channels: ["totalload", "mostrecentforecast", "dayaheadforecast"]
   audit_slack_days: 5
   name: Elia Belgium measured total grid load (15-min)
   domain: energy
@@ -17445,6 +17492,7 @@
     - '{*}measuredValue/{*}measuredValue/{*}basicData/{*}averageVehicleSpeed/{*}speed'
     panel_field: '{*}measurementSiteReference/@id'
 - id: usda_mpr_pork_cutout_daily
+  mv_channels: ["pork_carcass", "pork_loin", "pork_butt", "pork_belly", "total_loads_date_1"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS — national daily pork cutout and primal values (LM_PK602)
   domain: sales
@@ -17636,6 +17684,7 @@
     - data.stations[].num_docks_available
     panel_field: data.stations[].station_id
 - id: gbfs_metro_bike_la_station_status
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Metro Bike Share Los Angeles — per-station bike availability (GBFS panel)
   domain: transport
   frequency: PT1M
@@ -17668,6 +17717,7 @@
     - data.stations[].num_docks_available
     panel_field: data.stations[].station_id
 - id: gbfs_madison_bcycle_station_status
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Madison BCycle — per-station bike availability (GBFS panel)
   domain: transport
   frequency: PT1M
@@ -18754,6 +18804,7 @@
     panel_field: value[].COUNTRY_CODE
     drop_null_values: true
 - id: gistemp_global_monthly_anomaly
+  mv_channels: ["Land+Ocean", "Land_Only", "Open_Ocean"]
   name: NASA GISTEMP v4 — global monthly mean surface temperature anomaly
   domain: nature
   frequency: P1M
@@ -18805,6 +18856,7 @@
       op: count
       bin: PT1H
 - id: aeso_alberta_pool_price_ail_hourly
+  mv_channels: ["Forecast Pool Price", "Actual Posted Pool Price"]
   name: AESO Alberta — hourly pool price and internal load (actual vs forecast)
   domain: energy
   frequency: PT1H
@@ -19091,6 +19143,7 @@
   audit_slack_days: 67
   notes: Bulk-generated from the Socrata federated catalog (query '911 calls'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: richmondgov_inbound_911_calls_2021_and_forward
+  mv_channels: ["ring_secs", "release_secs", "queue_secs"]
   name: Inbound 911 Calls (2021 and forward) (data.richmondgov.com)
   domain: healthcare
   dgp_class: emergency_dispatch
@@ -19422,6 +19475,7 @@
   audit_slack_days: 101
   notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: au_on_time_running_by_week_first_stop_only
+  mv_channels: ["total_late", "total_early", "total_on_time"]
   name: On Time Running By Week - First Stop Only (www.data.act.gov.au)
   domain: transport
   dgp_class: service_reliability
@@ -19448,6 +19502,7 @@
   audit_slack_days: 73
   notes: Bulk-generated from the Socrata federated catalog (query 'bus on time performance'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: au_on_time_running_by_week_first_stop_only_diwxp2be
+  mv_channels: ["total_late", "total_on_time", "total_early"]
   name: On Time Running By Week - First Stop Only (www.data.act.gov.au)
   domain: transport
   dgp_class: service_reliability
@@ -19474,6 +19529,7 @@
   audit_slack_days: 73
   notes: Bulk-generated from the Socrata federated catalog (query 'bus on time performance'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: mesaaz_falcon_field_airport_operations
+  mv_channels: ["civil_local", "total_operations", "military_local"]
   name: Falcon Field Airport Operations (citydata.mesaaz.gov)
   domain: transport
   dgp_class: throughput
@@ -19656,6 +19712,7 @@
   audit_slack_days: 101
   notes: Bulk-generated from the Socrata federated catalog (query 'unemployment claims'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: mo_missouri_monthly_unemployment_claims_by_xm426a8n
+  mv_channels: ["ina", "hispanic_or_latino", "not_hispanic_or_latino"]
   name: Missouri Monthly Unemployment Claims By Ethnicity (data.mo.gov)
   domain: econ_fin
   dgp_class: labour_market
@@ -19708,6 +19765,7 @@
   audit_slack_days: 82
   notes: Bulk-generated from the Socrata federated catalog (query 'unemployment claims'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: mo_missouri_monthly_unemployment_claims_by_cq577qrb
+  mv_channels: ["ina", "white", "asian"]
   name: Missouri Monthly Unemployment Claims By Race (data.mo.gov)
   domain: econ_fin
   dgp_class: labour_market
@@ -19760,6 +19818,7 @@
   audit_slack_days: 64
   notes: Bulk-generated from the Socrata federated catalog (query 'median home price'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: ct_public_assets_on_data_ct_gov
+  mv_channels: ["visits", "downloads"]
   name: Public assets on data.ct.gov (data.ct.gov)
   domain: web_cloudops
   dgp_class: web_traffic
@@ -19965,6 +20024,7 @@
   audit_slack_days: 55
   notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: piercecountywa_number_of_new_housing_starts
+  mv_channels: ["new_home_starts_single_family", "square_feet", "total_valuation"]
   name: Number of New Housing Starts (internal.open.piercecountywa.gov)
   domain: econ_fin
   dgp_class: housing_market
@@ -20367,6 +20427,7 @@
   audit_slack_days: 102
   notes: Bulk-generated from the Socrata federated catalog (query 'library circulation'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: wa_wdfw_creel_summary_counts
+  mv_channels: ["anglers", "wild_released", "wild_harvest"]
   name: WDFW - Creel Summary Counts (data.wa.gov)
   domain: nature
   dgp_class: biodiversity
@@ -20620,6 +20681,7 @@
   audit_slack_days: 72
   notes: Bulk-generated from the Socrata federated catalog (query 'call center wait times'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: socrata_snb_teleservices_wait_times_temps_d_atte
+  mv_channels: ["daily_average_speed_of_answer_1", "total_amount_of_calls_received"]
   name: SNB TeleServices Wait Times / Temps d'attente des TéléServices de SNB (gnb.socrata.com)
   domain: web_cloudops
   dgp_class: service_latency
@@ -20978,6 +21040,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (query '311 service requests'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: hydroquebec_sources_of_electricity_generated_in_qu_b
+  mv_channels: ["valeurs_total", "valeurs_hydraulique", "valeurs_eolien"]
   name: Sources of electricity generated in Québec (donnees.hydroquebec.com)
   domain: nature
   dgp_class: air_quality
@@ -21168,6 +21231,7 @@
     - customers
     panel_field: area
 - id: michigan_payroll_jobs_monthly
+  mv_channels: ["payroll_jobs_mi", "payroll_jobs_us"]
   audit_slack_days: 110
   name: Michigan payroll jobs vs US (monthly)
   domain: econ_fin
@@ -21201,6 +21265,7 @@
     - Resultados[].Valores[].pz_per
     - Resultados[].Valores[].pz_cng
 - id: act_air_quality_hourly
+  mv_channels: ["pm2_5", "no2", "o3_1hr", "co", "pm10"]
   audit_slack_days: 7
   name: ACT (Canberra) air quality monitoring (hourly)
   domain: nature
@@ -21286,6 +21351,7 @@
   audit_slack_days: 49
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'comptage vélo'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: be_bornes_de_comptage_cyclistes_et_pietons
+  mv_channels: ["bikes", "people"]
   name: Bornes de comptage cyclistes et piétons - Chiffres (www.odwb.be)
   domain: transport
   dgp_class: vehicle_counts
@@ -21743,6 +21809,7 @@
   audit_slack_days: 73
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'bus on time performance'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: ch_luftqualitat_station_a2_hard_halbstundli
+  mv_channels: ["pm10", "pm2_5", "no2"]
   name: Luftqualität Station A2 Hard (halbstündliche Messdaten seit Januar 2020) (data.bl.ch)
   domain: nature
   dgp_class: air_quality
@@ -21795,6 +21862,7 @@
   audit_slack_days: 47
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Luftqualität Messwerte'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: ch_luftqualitat_station_sissach_butzenen_ha
+  mv_channels: ["pm10", "pm2_5", "no2"]
   name: Luftqualität Station Sissach-Bützenen (halbstündliche Messdaten seit Januar 2020) (data.bl.ch)
   domain: nature
   dgp_class: air_quality
@@ -21821,6 +21889,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Luftqualität Messwerte'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: ch_luftqualitat_station_basel_binningen
+  mv_channels: ["pm10_ug_m3", "o3_ug_m3", "no2_ug_m3"]
   name: Luftqualität Station Basel-Binningen (data.bs.ch)
   domain: nature
   dgp_class: air_quality
@@ -21873,6 +21942,7 @@
   audit_slack_days: 46
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'bus on time performance'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: ch_kantonaler_stromverbrauch
+  mv_channels: ["stromverbrauch_kwh", "grundversorgte_kunden_kwh", "freie_kunden_kwh"]
   name: Kantonaler Stromverbrauch (data.bs.ch)
   domain: energy
   dgp_class: grid_demand
@@ -22028,6 +22098,7 @@
     - 太陽光発電実績(5分間値)(万kW)
     drop_null_values: true
 - id: hepco_jp_demand_5min
+  mv_channels: ["当日実績(５分間隔値)(万kW)", "太陽光発電実績(５分間隔値)(万kW)"]
   name: Hokkaido Electric Power Network 5-minute electricity demand (Japan)
   domain: energy
   frequency: PT5M
@@ -22103,6 +22174,7 @@
   schema:
     value_field: []
 - id: jepx_jp_spot_prices
+  mv_channels: ["システムプライス(円/kWh)", "約定総量(kWh)", "エリアプライス東京(円/kWh)", "エリアプライス関西(円/kWh)"]
   name: JEPX Japan day-ahead spot electricity prices (48 half-hour delivery slots)
   domain: energy
   frequency: P1D
@@ -22140,6 +22212,7 @@
     - '[].漲跌百分比'
     panel_field: '[].指數'
 - id: energia_jp_area_balance_30min
+  mv_channels: ["エリア需要", "火力(LNG)", "水力", "太陽光発電実績", "風力発電実績", "連系線"]
   name: Chugoku area supply-demand and generation mix (half-hourly, Japan)
   domain: energy
   frequency: PT30M
@@ -22163,6 +22236,7 @@
     skip_rows: 1
     drop_null_values: true
 - id: rikuden_jp_area_balance_30min
+  mv_channels: ["エリア需要", "火力(LNG)", "水力", "太陽光発電実績", "風力発電実績", "連系線"]
   name: Hokuriku area supply-demand and generation mix (half-hourly, Japan)
   domain: energy
   frequency: PT30M
@@ -22243,6 +22317,7 @@
     skip_rows: 2
     drop_null_values: true
 - id: yonden_jp_area_balance_30min
+  mv_channels: ["エリア総需要量", "エリア総発電量", "エリア風力・太陽光発電量"]
   name: Shikoku area supply-demand half-hourly actuals (Japan)
   domain: energy
   frequency: PT30M
@@ -22622,6 +22697,7 @@
   audit_slack_days: 60
   notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: calgary_monthly_economic_indicators
+  mv_channels: ["calgary_cma_total_housing_starts_units", "calgary_cer_unemployment_rate", "calgary_cer_retail_sales_billions"]
   name: Monthly Economic Indicators (data.calgary.ca)
   domain: sales
   dgp_class: registration_stream
@@ -22776,6 +22852,7 @@
   audit_slack_days: 51
   notes: Bulk-generated from the Socrata federated catalog (query 'building permits'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: ct_environmental_monitoring_results_for_rad
+  mv_channels: ["state_beta", "state_iodine", "state_err_iodine"]
   name: 'Environmental Monitoring Results for Radioactivity: Air Samples (data.ct.gov)'
   domain: nature
   dgp_class: air_quality
@@ -22826,6 +22903,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Socrata federated catalog (query 'air quality monitoring'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: in_blucher_elec_daily
+  mv_channels: ["mg", "kwh"]
   name: Blucher Elec Daily (data.bloomington.in.gov)
   domain: nature
   dgp_class: water_demand
@@ -23309,6 +23387,7 @@
   audit_slack_days: 70
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'qualité des eaux'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: opendatasoft_pic_journalier_de_la_consommation_brute
+  mv_channels: ["pic_journalier_consommation", "temperature_moyenne", "temperature_reference"]
   name: Pic journalier de la consommation brute d'électricité (odre.opendatasoft.com)
   domain: energy
   dgp_class: grid_demand
@@ -23361,6 +23440,7 @@
   audit_slack_days: 106
   notes: Bulk-generated from the Socrata federated catalog (query 'water main breaks'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: mesaaz_fire_911_calls_answered
+  mv_channels: ["_911_calls_answered", "percent_answered_in_15_seconds"]
   name: Fire 911 Calls Answered (citydata.mesaaz.gov)
   domain: healthcare
   dgp_class: emergency_dispatch
@@ -23694,6 +23774,7 @@
   audit_slack_days: 133
   notes: Bulk-generated from the Socrata federated catalog (query 'transit ridership'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: bts_transportation_services_index_and_season
+  mv_channels: ["vmt_d11", "tsi_passenger", "tsi_freight_c"]
   name: Transportation Services Index and Seasonally-Adjusted Transportation Data (data.bts.gov)
   domain: transport
   dgp_class: ridership
@@ -23720,6 +23801,7 @@
   audit_slack_days: 133
   notes: Bulk-generated from the Socrata federated catalog (query 'fréquentation transport'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: seattle_spokane_st_bridge_combined_bicycle_and_s
+  mv_channels: ["east", "west", "spokane_st_bridge_total"]
   name: Spokane St. Bridge - Combined Bicycle and Scooter Counter (cos-data.seattle.gov)
   domain: transport
   dgp_class: vehicle_counts
@@ -23820,6 +23902,7 @@
   audit_slack_days: 163
   notes: Bulk-generated from the Socrata federated catalog (query 'water consumption'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: mo_missouri_monthly_unemployment_claims_by_4v5t4kqk
+  mv_channels: ["male", "female", "ina"]
   name: Missouri Monthly Unemployment Claims By Sex (data.mo.gov)
   domain: econ_fin
   dgp_class: labour_market
@@ -24435,6 +24518,7 @@
   audit_slack_days: 80
   notes: Bulk-generated from the Socrata federated catalog (query 'crime offense arrests police incidents stops'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: au_daily_public_transport_passenger_journey
+  mv_channels: ["rapid_route", "peak_service", "local_route"]
   name: Daily Public Transport Passenger Journeys by Service Type (www.data.act.gov.au)
   domain: transport
   dgp_class: throughput
@@ -24690,6 +24774,7 @@
   audit_slack_days: 46
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: fr_prix_des_carburants_j_1_avec_historique
+  mv_channels: ["price_gazole", "price_sp98"]
   name: Prix des carburants - J-1 - avec historique à Noisy-le-Grand (opendata.noisylegrand.fr)
   domain: econ_fin
   dgp_class: price_series
@@ -24716,6 +24801,7 @@
   audit_slack_days: 47
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'prix carburants'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: ch_tagliche_klimadaten_der_nbcn_station_bas
+  mv_channels: ["gre000d0", "hto000d0", "nto000d0"]
   name: Tägliche Klimadaten der NBCN-Station Basel-Binningen (data.bs.ch)
   domain: nature
   dgp_class: hydrology
@@ -24742,6 +24828,7 @@
   audit_slack_days: 46
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: de_wetterstation_zu_rheinstra_e
+  mv_channels: ["temperatur_maximum", "temperatur_durchschnitt", "temperatur_minimum"]
   name: Wetterstation - Zu Rheinstraße (opendata.wuerzburg.de)
   domain: nature
   dgp_class: hydrology
@@ -24768,6 +24855,7 @@
   audit_slack_days: 220
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: de_wetterstation_paradeplatz
+  mv_channels: ["temperatur_maximum", "temperatur_durchschnitt", "temperatur_minimum"]
   name: Wetterstation - Paradeplatz (opendata.wuerzburg.de)
   domain: nature
   dgp_class: hydrology
@@ -24794,6 +24882,7 @@
   audit_slack_days: 220
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: de_wetterstation_rottendorf
+  mv_channels: ["temperatur_maximum", "temperatur_durchschnitt", "temperatur_minimum"]
   name: Wetterstation - Rottendorf (opendata.wuerzburg.de)
   domain: nature
   dgp_class: hydrology
@@ -24820,6 +24909,7 @@
   audit_slack_days: 220
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: de_wetterstation_gerbrunn
+  mv_channels: ["temperatur_maximum", "temperatur_durchschnitt", "temperatur_minimum"]
   name: Wetterstation - Gerbrunn (opendata.wuerzburg.de)
   domain: nature
   dgp_class: hydrology
@@ -24846,6 +24936,7 @@
   audit_slack_days: 220
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Niederschlag Messwerte'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: de_wetterstation_ludwigkai
+  mv_channels: ["temperatur_maximum", "temperatur_durchschnitt", "temperatur_minimum"]
   name: Wetterstation - Ludwigkai (opendata.wuerzburg.de)
   domain: nature
   dgp_class: hydrology
@@ -24950,6 +25041,7 @@
   audit_slack_days: 373
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'business licenses issued'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: au_bikeway_counts
+  mv_channels: ["a001_cyclist", "a001_pedestrian"]
   name: Bikeway counts (data.brisbane.qld.gov.au)
   domain: nature
   dgp_class: air_quality
@@ -24976,6 +25068,7 @@
   audit_slack_days: 254
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'air quality monitoring'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: se_air_quality_measurements_vastra_esplanad
+  mv_channels: ["no2_ppb", "pm10"]
   name: Air Quality Measurements Västra Esplanaden from 2025 (opendata.umea.se)
   domain: nature
   dgp_class: air_quality
@@ -25341,6 +25434,7 @@
     - '[][1]'
     - '[][2]'
 - id: lonap_ixp_traffic
+  mv_channels: ["1", "2"]
   name: LONAP London IXP aggregate traffic (5-minute)
   domain: web_cloudops
   frequency: PT5M
@@ -25356,6 +25450,7 @@
     - '[][1]'
     - '[][2]'
 - id: grix_ixp_traffic
+  mv_channels: ["1", "2"]
   name: GR-IX Athens IXP aggregate traffic (5-minute)
   domain: web_cloudops
   frequency: PT5M
@@ -25494,6 +25589,7 @@
     - t
     - v
 - id: marine_ie_wave_buoys
+  mv_channels: ["AtmosphericPressure", "WindSpeed", "SeaTemperature"]
   name: Irish Marine Institute weather buoy network (hourly)
   domain: nature
   frequency: PT1H
@@ -25616,6 +25712,7 @@
     - features[].properties.value
     panel_field: features[].properties.name
 - id: ipma_pt_surface_observations
+  mv_channels: ["temperatura", "humidade", "intensidadeVento", "precAcumulada"]
   name: IPMA Portugal surface weather station observations (hourly)
   domain: nature
   frequency: PT1H
@@ -25635,6 +25732,7 @@
     - features[].properties.precAcumulada
     panel_field: features[].properties.localEstacao
 - id: axiom_cormp_ilm2_buoy
+  mv_channels: ["air_pressure_at_mean_sea_level", "relative_humidity", "sea_water_practical_salinity", "air_temperature", "sea_water_temperature", "wind_speed", "wind_speed_of_gust"]
   name: CORMP Wrightsville Beach nearshore buoy (ILM2) met/ocean observations
   domain: nature
   frequency: PT1H
@@ -25701,6 +25799,7 @@
     - '[][1]'
     - '[][2]'
 - id: arso_si_river_gauges
+  mv_channels: ["vodostaj", "pretok", "temp_vode"]
   name: ARSO Slovenia river gauging stations (half-hourly)
   domain: nature
   frequency: PT30M
@@ -26045,6 +26144,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the NERACOOS ERDDAP server (data.neracoos.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: significant_wave_height, dominant_wave_period, mean_wave_direction.'
 - id: neracoos_b01_directional_waves
+  mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: B01 Directional Waves (Physical Oceanography Group, School of Marine Sciences, University of Maine)
   domain: nature
   dgp_class: ocean_waves
@@ -26205,6 +26305,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the OTN ERDDAP server (erddap.oceantrack.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: row.'
 - id: oceanobservatories_coastal_endurance_oregon_offshore_cabled
+  mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: 'Coastal Endurance: Oregon Offshore Cabled Benthic Experiment Package: Low-Power JBox (LJ01C): 3-D Single Point Velocity Meter (Ocean Observatories Initiative (OOI))'
   domain: nature
   dgp_class: environmental_sensor
@@ -26284,6 +26385,7 @@
   audit_slack_days: 4
   notes: 'Bulk-generated from the OOI ERDDAP server (erddap.dataexplorer.oceanobservatories.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: partial_pressure_of_carbon_dioxide_in_sea_water.'
 - id: edu_rads_altimeter_along_track_data
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: RADS Altimeter Along-Track Data (Rutgers University)
   domain: nature
   dgp_class: environmental_sensor
@@ -26442,6 +26544,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the GLERL ERDDAP server (apps.glerl.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: size.'
 - id: ubc_onc_strait_of_georgia_bc_ferries_tsawwas
+  mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: ONC, Strait of Georgia, BC Ferries, Tsawwassen - Duke Point, 1min, v18-01 (UBC EOAS)
   domain: nature
   dgp_class: environmental_sensor
@@ -26469,6 +26572,7 @@
   audit_slack_days: 4
   notes: 'Bulk-generated from the UBC ERDDAP server (salishsea.eos.ubc.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: nemo_grid_j, nemo_grid_i, crossing_number.'
 - id: ubc_onc_strait_of_georgia_central_node_salin
+  mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: ONC, Strait of Georgia, Central Node, Salinity and Temperature, 15min, v1 (UBC EOAS)
   domain: nature
   dgp_class: ocean_physics
@@ -26553,6 +26657,7 @@
   audit_slack_days: 14
   notes: 'Bulk-generated from the UAF ERDDAP server (upwell.pfeg.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: blueshark, bluesharkTRK, sealions, leatherbacks.'
 - id: noaa_nino_region_weekly_sst_oisst_v2_ncepninoss
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: Nino Region Weekly SST OISST.v2 (NCEP)
   domain: nature
   dgp_class: environmental_sensor
@@ -26608,6 +26713,7 @@
   audit_slack_days: 4
   notes: 'Bulk-generated from the UAF ERDDAP server (upwell.pfeg.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: airPressure, airTemperature, relativeHumidity.'
 - id: noaa_engineering_data_for_pmel_bgc_navis_floa
+  mv_channels: ["rows_1", "rows_3"]
   name: Engineering data for PMEL BGC Navis floats (NOAA-PMEL)
   domain: nature
   dgp_class: environmental_sensor
@@ -26663,6 +26769,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the PMEL ERDDAP server (data.pmel.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered, air_temperature_rms.'
 - id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1040_hur
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1040 (NOAA Atlantic Oceanographic and Meteorological Laboratory, NOAA PMEL)
   domain: nature
   dgp_class: met_station
@@ -26691,6 +26798,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the PMEL ERDDAP server (data.pmel.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered, air_temperature_rms.'
 - id: smartatlantic_cove_weather_station_idartm1
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: COVE Weather Station, IDARTM1 (COVE)
   domain: nature
   dgp_class: environmental_sensor
@@ -26746,6 +26854,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the SmartAtlantic ERDDAP server (www.smartatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: wind_dir_avg, wind_spd_avg, wind_spd_max.'
 - id: smartatlantic_halifax_herring_cove_buoy
+  mv_channels: ["rows_1", "rows_2"]
   name: Halifax (Herring Cove) Buoy (COVE)
   domain: nature
   dgp_class: environmental_sensor
@@ -26847,6 +26956,7 @@
   audit_slack_days: 12
   notes: 'Bulk-generated from the GCOOS ERDDAP server (erddap.gcoos.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: sea_surface_temperature_1.'
 - id: cioosatlantic_force_meteorological_tower
+  mv_channels: ["rows_2", "rows_3", "rows_4"]
   name: FORCE Meteorological Tower (FORCE)
   domain: nature
   dgp_class: met_station
@@ -26875,6 +26985,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CIOOS Atlantic ERDDAP server (cioosatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: StationID, battery_voltage, air_temperature, solar_irradiance.'
 - id: cioosatlantic_halifax_herring_cove_buoy
+  mv_channels: ["rows_1", "rows_2"]
   name: Halifax (Herring Cove) Buoy (COVE)
   domain: nature
   dgp_class: environmental_sensor
@@ -26901,6 +27012,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CIOOS Atlantic ERDDAP server (cioosatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_spd_max.'
 - id: cioosatlantic_halifax_ocean_terminals_fairview
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: 'Halifax Ocean Terminals: Fairview (COVE)'
   domain: nature
   dgp_class: met_station
@@ -27035,6 +27147,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CFRF ERDDAP server (erddap.ondeckdata.com). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: tow_id, segment_type, temperature.'
 - id: ondeckdata_fixed_gear_oceanographic_data
+  mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: Fixed Gear Oceanographic Data (CFRF)
   domain: nature
   dgp_class: environmental_sensor
@@ -27062,6 +27175,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CFRF ERDDAP server (erddap.ondeckdata.com). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: temperature, sensor_sn, stat_area.'
 - id: ondeckdata_mobile_gear_oceanographic_data
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: Mobile Gear Oceanographic Data (CFRF)
   domain: nature
   dgp_class: environmental_sensor
@@ -27147,6 +27261,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (AE, system id dott-abu-dhabi). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_gob_mibicitubici_rosario
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: MiBiciTuBici (Rosario) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -27176,6 +27291,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (AR, system id biketobike). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_delijn_blue_bike_antwerp
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Blue-bike (Antwerp) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -27320,6 +27436,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (BE, system id voi_Antwerp). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_bird_bird_halifax_halifax
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Bird Halifax (Halifax) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -27349,6 +27466,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (CA, system id bird-halifax). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_bike_lime_vancouver_vancouver
+  mv_channels: ["num_vehicles_available", "num_docks_available"]
   name: Lime Vancouver (Vancouver) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -27407,6 +27525,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (CA, system id Mobibikes_CA_Vancouver). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_socialbicycles_sobi_hamilton_hamilton
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Sobi Hamilton (Hamilton) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -27552,6 +27671,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (DE, system id swabi). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_publicbikesystem_bicimad_madrid
+  mv_channels: ["num_vehicles_available", "num_docks_available"]
   name: bicimad (Madrid) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -27726,6 +27846,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (FR, system id velo-tbm-bordeaux). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_opendatasoft_le_velo_star_rennes
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: LE vélo STAR (Rennes) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -28188,6 +28309,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (TR, system id linka_aar_bike). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_lyft_lyft_bike_san_francisco_ca
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Lyft Bike (San Francisco, CA) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -28246,6 +28368,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (US, system id go_biki). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_peacehealthrides_peacehealth_rides_eugene_or
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: PeaceHealth Rides (Eugene, OR) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -28358,6 +28481,7 @@
   license: City of Toronto Open Data
   notes: Cold-winter system with year-round operation.
 - id: gbfs_buenos_aires_station_status
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Ecobici Buenos Aires — per-station bike availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -28586,6 +28710,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: nsw_solar_energy_generation_hawkesbury_city
+  mv_channels: ["energyselfconsumption", "energyconsumptiontotal", "production"]
   name: Solar Energy Generation (Hawkesbury City Council) (data.hawkesbury.nsw.gov.au)
   domain: nature
   dgp_class: environmental_measurement
@@ -28915,6 +29040,7 @@
   audit_slack_days: 47
   notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: opendatasoft_total_national_produced_energy
+  mv_channels: ["dgm", "pre", "total"]
   name: Total National Produced Energy (e-redes.opendatasoft.com)
   domain: energy
   dgp_class: building_load
@@ -29067,6 +29193,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: bologna_temperature_bologna
+  mv_channels: ["avg", "max", "min"]
   name: Temperature Bologna (opendata.comune.bologna.it)
   domain: nature
   dgp_class: meteorology
@@ -29093,6 +29220,7 @@
   audit_slack_days: 46
   notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: opendata_fr_ch_mesures_de_vents_schwyberg
+  mv_channels: ["ff_top_sonic_avg", "ff_top_sonic_max", "ff_150_lidar_avg"]
   name: Mesures de vents - Schwyberg (opendata.fr.ch)
   domain: energy
   dgp_class: generation
@@ -29145,6 +29273,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: grdf_quantites_journalieres_definitives_injec
+  mv_channels: ["quantite_injectee", "nombre_de_sites_comptabilises"]
   name: Quantités journalières définitives injectées de biométhane, agrégées à la maille France, toute unité confondue (opendata.grdf.fr)
   domain: econ_fin
   dgp_class: economic_indicator
@@ -29271,6 +29400,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: potsdam_wetterstation_steubenplatz
+  mv_channels: ["air_temperature", "uv_index", "wind_speed"]
   name: Wetterstation Steubenplatz (opendata.potsdam.de)
   domain: nature
   dgp_class: environmental_measurement
@@ -29424,6 +29554,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: geelongdataexchange_temperature_and_humidity_for_bats_monito
+  mv_channels: ["payload_fields_hum", "payload_fields_temp"]
   name: Temperature and Humidity for Bats monitoring (www.geelongdataexchange.com.au)
   domain: nature
   dgp_class: environmental_measurement
@@ -29552,6 +29683,7 @@
   audit_slack_days: 47
   notes: Bulk-generated from the Socrata federated catalog (query 'transport'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: ixp_id_area31_datacenter_alien_internet_exchang
+  mv_channels: ["1", "2"]
   name: Area31 Datacenter (Alien Internet Exchange) — exchange traffic (Jakarta, ID)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -29579,6 +29711,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 1405. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_th_bangkok_neutral_internet_exchange_bknix
+  mv_channels: ["1", "2"]
   name: Bangkok Neutral Internet Exchange (BKNIX) — exchange traffic (Bangkok, TH)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -29822,6 +29955,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 1339. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_do_do_ix_lan_dortmund_internet_exchange
+  mv_channels: ["1", "2"]
   name: DO-IX LAN (DOrtmund Internet eXchange) — exchange traffic (Dortmund, DE)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -29903,6 +30037,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 807. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_gnm_gnm_internet_exchange_gnm_internet_excha
+  mv_channels: ["1", "2"]
   name: GNM Internet Exchange (GNM Internet Exchange) — exchange traffic (Amsterdam, NL)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -29930,6 +30065,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 522. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_ix_gr_ix_athens_greek_internet_exchange
+  mv_channels: ["1", "2"]
   name: GR-IX::Athens (Greek Internet Exchange) — exchange traffic (Athens, GR)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30119,6 +30255,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 1394. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_py_ixpy_lan_1_punto_de_intercambio_de_inter
+  mv_channels: ["1", "2"]
   name: IXPY LAN 1 (Punto de Intercambio de Internet del Paraguay) — exchange traffic (San Lorenzo, PY)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30227,6 +30364,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 927. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_lonap_lonap_network_lonap_ltd
+  mv_channels: ["1", "2"]
   name: LONAP Network (LONAP Ltd) — exchange traffic (London, GB)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30254,6 +30392,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 18. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_minap_minap_milan_neutral_access_point
+  mv_channels: ["1", "2"]
   name: MINAP (Milan Neutral Access Point) — exchange traffic (Milano, IT)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30416,6 +30555,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 648. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_africa_napafrica_ix_durban_napafrica
+  mv_channels: ["1", "2"]
   name: NAPAfrica IX Durban (NAPAfrica) — exchange traffic (Durban, ZA)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30578,6 +30718,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 1412. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_tr_regional_peering_exchange_regional_peeri
+  mv_channels: ["1", "2"]
   name: Regional Peering Exchange (Regional Peering Exchange) — exchange traffic (ANKARA, TR)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30632,6 +30773,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 1241. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_sbh_sbh_ix_sbh_ix
+  mv_channels: ["1", "2"]
   name: SBH-IX (SBH-IX) — exchange traffic (Saint Barthélemy, FR)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30794,6 +30936,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 1145. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_vu_vanuatu_internet_exchange_vanuatu_intern
+  mv_channels: ["1", "2"]
   name: Vanuatu Internet Exchange (Vanuatu Internet Exchange) — exchange traffic (Port Vila, VU)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -33449,6 +33592,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-portal.lskix.net.zm. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_slix_slix_salt_lake_city_intern
+  mv_channels: ["1", "2"]
   name: SLIX - Salt Lake City Intern — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -33557,6 +33701,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-my.lsix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_communityix_cix_atl
+  mv_channels: ["1", "2"]
   name: CIX-ATL — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -33611,6 +33756,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-ixpmanager.mm-ix.net:9654. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_jktix_jkt_ix
+  mv_channels: ["1", "2"]
   name: JKT-IX — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -33665,6 +33811,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-ixp.onenet.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_th_jtix_thailand
+  mv_channels: ["1", "2"]
   name: JTIX (Thailand) — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -33773,6 +33920,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-portal.douala-ix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_sumix_sumix
+  mv_channels: ["1", "2"]
   name: sumIX — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -33800,6 +33948,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-member.sumix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_edgeix_edgeix_auckland
+  mv_channels: ["1", "2"]
   name: EdgeIX - Auckland — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -33827,6 +33976,7 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-ixp.edgeix.net.au. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_studio_datasphere_internet_exchange
+  mv_channels: ["1", "2"]
   name: DataSphere Internet Exchange — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -57918,6 +58068,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (BE, system id bruxelles). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_publicbikesystem_bike_brasilia_brasilia
+  mv_channels: ["num_vehicles_available", "num_docks_available"]
   name: Bike Brasilia (Brasilia) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -58208,6 +58359,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (CA, system id bike_share_toronto). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_bird_bird_ottawa_ottawa
+  mv_channels: ["num_bikes_available", "num_docks_available"]
   name: Bird Ottawa (Ottawa) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -58958,6 +59110,7 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (US, system id austin). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_publicbikesystem_hibike_kona_hi
+  mv_channels: ["num_vehicles_available", "num_docks_available"]
   name: HIBike (Kona, HI) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -61582,6 +61735,7 @@
   audit_slack_days: 14
   notes: 'Bulk-generated from the CSWC ERDDAP server (coastwatch.pfeg.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: blueshark, bluesharkTRK, sealions, leatherbacks.'
 - id: emodnet_a_summary_of_oceanographic_data_from_fis
+  mv_channels: ["rows_1", "rows_2"]
   name: A summary of oceanographic data from fishing vessels and gears (Ocean Data Network)
   domain: nature
   dgp_class: biodiversity
@@ -61609,6 +61763,7 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the EMODnet Physics ERDDAP server (erddap.emodnet-physics.eu). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: max_depth, mean_temperature, vessel_id.'
 - id: tepco_jp_area_balance_30min
+  mv_channels: ["エリア需要", "火力(LNG)", "水力", "太陽光発電実績", "風力発電実績", "連系線"]
   name: Tokyo area supply-demand and generation mix (half-hourly, Japan)
   domain: energy
   dgp_class: generation_mix
@@ -61640,6 +61795,7 @@
   audit_slack_days: 47
   notes: 'Japanese balancing area 03. 30-minute average area demand and generation mix in MW, with a single units line above the header (skip_rows). Future slots are blank, so drop_null_values is required. Timestamps are JST with no offset. CAVEAT: the file is keyed on the UTC month, so in the first ~2 hours of the 1st of a month the JST day has produced fewer than 20 filled rows. Tohoku, Kyushu and Okinawa 404 at the equivalent path and are not included.'
 - id: chubu_jp_area_balance_30min
+  mv_channels: ["エリア需要", "火力(LNG)", "水力", "太陽光発電実績", "風力発電実績", "連系線"]
   name: Chubu area supply-demand and generation mix (half-hourly, Japan)
   domain: energy
   dgp_class: generation_mix
@@ -70351,6 +70507,7 @@
     _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
     is normally in the future.'
 - id: svk_mfrr_capacity_se4
+  mv_channels: ["price", "volume"]
   name: mFRR upward capacity price and volume, SE4 (Svenska kraftnat)
   domain: energy
   dgp_class: grid_balancing
@@ -70738,6 +70895,7 @@
     carries only the observation clock and its measures. The UTC clock is preferred over the Danish local
     one, which is ambiguous across the October fold.
 - id: energinet_ffrdemanddk2
+  mv_channels: ["ffrupdemandd0", "ffrupdemandd1", "ffrupdemandd2", "ffrupdemandd3"]
   name: FFR, Fast Frequency Reserve, Demand DK2 (Energinet, Denmark)
   domain: energy
   dgp_class: energy_market_activity
@@ -70772,6 +70930,7 @@
     the response carries only the observation clock and its measures. The UTC clock is preferred over the
     Danish local one, which is ambiguous across the October fold.
 - id: energinet_ffrdk2
+  mv_channels: ["FFR_DemandMW", "FFR_PurchasedMW", "FFR_PriceEUR"]
   name: FFR, Fast Frequency Reserve, DK2 (Energinet, Denmark)
   domain: energy
   dgp_class: energy_market_activity
@@ -70907,6 +71066,7 @@
     `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which returns
     the oldest rows of a rolling table.'
 - id: elia_ods133_imbalance_price_per_minute_historical_d
+  mv_channels: ["ace", "systemimbalance", "alpha"]
   name: Imbalance price per minute (Historical data as of 22/05/2024) (Elia, Belgium)
   domain: energy
   dgp_class: energy_market_activity
@@ -70940,6 +71100,7 @@
     `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which returns
     the oldest rows of a rolling table.'
 - id: elia_ods128_balancing_energy_volume_components_per
+  mv_channels: ["systemimbalance", "ace", "igccvolumeup", "afrrvolumeup"]
   name: Balancing energy volume components per minute (Historical data as of 22/05/2024) (Elia, Belgium)
   domain: energy
   dgp_class: energy_market_activity
@@ -70973,6 +71134,7 @@
     `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which returns
     the oldest rows of a rolling table.'
 - id: elia_ods165_balancing_energy_prices_components_per
+  mv_channels: ["systemimbalance", "ace", "marginalincrementalprice", "floorprice"]
   name: Balancing energy prices components per minutes (Historical as of 22/05/2024) (Elia, Belgium)
   domain: energy
   dgp_class: energy_market_activity
@@ -71164,6 +71326,7 @@
 
 # -- wired batch: grind-20260813-0504 --
 - id: opendata_ods157_10
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [10]
   domain: energy
   dgp_class: energy_market_activity
@@ -71288,6 +71451,7 @@
     order, which on a rolling table returns the oldest rows and reads as a dead source. Panel dimension
     device_id is pinned to ''6552'': without it the response interleaves several series on the same timestamps.'
 - id: data_62_station_meteo_toulouse_parc_maourine
+  mv_channels: ["humidite", "pluie_intensite_max"]
   name: 62 Station météo Toulouse parc Maourine (Toulouse, France)
   domain: transport
   dgp_class: urban_mobility
@@ -71650,6 +71814,7 @@
   notes: Socrata SODA resource e6pq-g5di, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: data_fin_ap_vendor_emails
+  mv_channels: ["start_unread_emails", "emails_that_came_in", "end_unread_emails"]
   name: FIN - AP Vendor Emails (data.modestogov.com)
   domain: econ_fin
   dgp_class: economic_indicator
@@ -72849,6 +73014,7 @@
   notes: Socrata SODA resource h6fp-bp8s, newest-first on datetime. Domain from the publisher's own category/tags,
     not the title.
 - id: data_beach_water_quality_automated_sensors
+  mv_channels: ["water_temperature", "turbidity"]
   name: Beach Water Quality - Automated Sensors (data.cityofchicago.org)
   domain: nature
   dgp_class: water_quality
@@ -73318,6 +73484,7 @@
   notes: Socrata SODA resource riiu-7d4b, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: www_air_quality_monitoring_data
+  mv_channels: ["o3_1hr", "no2"]
   name: Air Quality Monitoring Data (www.data.act.gov.au)
   domain: nature
   dgp_class: air_quality
@@ -78365,6 +78532,7 @@
   notes: Socrata SODA resource bx9e-srw3, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension dept_name pinned to 'FIRE'.
 - id: data_correctional_community_program_daily_populati_transiti
+  mv_channels: ["male_count", "female_count", "total_count"]
   name: Correctional Community Program Daily Population Count By Commu [TRANSITIONAL PLACE] (data.ct.gov)
   domain: healthcare
   dgp_class: public_health_indicator
@@ -78515,6 +78683,7 @@
   notes: Socrata SODA resource 5d7h-at3x, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension community_program pinned to 'SUPERVISED HOME RELEASE'.
 - id: data_correctional_community_program_daily_populati_dui_drug
+  mv_channels: ["male_count", "female_count", "total_count"]
   name: Correctional Community Program Daily Population Count By Commu [DUI/DRUG HOME CONF] (data.ct.gov)
   domain: healthcare
   dgp_class: public_health_indicator
@@ -78545,6 +78714,7 @@
   notes: Socrata SODA resource 5d7h-at3x, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension community_program pinned to 'DUI/DRUG HOME CONFINEMENT'.
 - id: data_correctional_facility_daily_population_count_bridgepo
+  mv_channels: ["accused_other_status_count", "sentenced_status_count", "total_facility_population_count"]
   name: Correctional Facility Daily Population Count By Facility [BRIDGEPORT CC] (data.ct.gov)
   domain: healthcare
   dgp_class: public_health_indicator
@@ -78575,6 +78745,7 @@
   notes: Socrata SODA resource n8x6-s299, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension facility_name pinned to 'BRIDGEPORT CC'.
 - id: data_correctional_facility_daily_population_count_brooklyn
+  mv_channels: ["accused_other_status_count", "sentenced_status_count"]
   name: Correctional Facility Daily Population Count By Facility [BROOKLYN CI] (data.ct.gov)
   domain: healthcare
   dgp_class: public_health_indicator
@@ -78605,6 +78776,7 @@
   notes: Socrata SODA resource n8x6-s299, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension facility_name pinned to 'BROOKLYN CI'.
 - id: data_correctional_facility_daily_population_count_cheshire
+  mv_channels: ["accused_other_status_count", "sentenced_status_count", "total_facility_population_count"]
   name: Correctional Facility Daily Population Count By Facility [CHESHIRE CI] (data.ct.gov)
   domain: healthcare
   dgp_class: public_health_indicator
@@ -78635,6 +78807,7 @@
   notes: Socrata SODA resource n8x6-s299, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension facility_name pinned to 'CHESHIRE CI'.
 - id: data_correctional_facility_daily_population_count_corrigan
+  mv_channels: ["accused_other_status_count", "sentenced_status_count", "total_facility_population_count"]
   name: Correctional Facility Daily Population Count By Facility [CORRIGAN CI] (data.ct.gov)
   domain: healthcare
   dgp_class: public_health_indicator
@@ -78665,6 +78838,7 @@
   notes: Socrata SODA resource n8x6-s299, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension facility_name pinned to 'CORRIGAN CI'.
 - id: data_correctional_facility_daily_population_count_garner
+  mv_channels: ["accused_other_status_count", "sentenced_status_count", "total_facility_population_count"]
   name: Correctional Facility Daily Population Count By Facility [GARNER] (data.ct.gov)
   domain: healthcare
   dgp_class: public_health_indicator
@@ -79208,6 +79382,7 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: airPressure, conductivity.'
 - id: noaa_noaa_ship_gordon_gunter_underway_meteoro
+  mv_channels: ["rows_1", "rows_2", "rows_4"]
   name: NOAA Ship Gordon Gunter Underway Meteorological Data, Near Real Time (FSU)
   domain: nature
   dgp_class: ocean_physics
@@ -79269,6 +79444,7 @@
     mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
     verified against the live endpoint by the wire gate. Columns: tow_id, temperature, vessel_id.'
 - id: ioos_41037_ilm3_wrightsville_beach_offshore_n
+  mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: (41037 / ILM3) Wrightsville Beach Offshore, NC (UNCW - Coastal Ocean Research and Monitoring Program
     (CORMP))
   domain: nature
@@ -79301,6 +79477,7 @@
     verified against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity,
     air_temperature.'
 - id: ioos_41038_ilm2_wrightsville_beach_nearshore
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: (41038 / ILM2) Wrightsville Beach Nearshore, NC (UNCW - Coastal Ocean Research and Monitoring Program
     (CORMP))
   domain: nature
@@ -79398,6 +79575,7 @@
     against the live endpoint by the wire gate. Columns: sea_water_temperature, sea_surface_wave_mean_period,
     sea_surface_wave_period_at_variance_spectral_density_maximum, sea_surface_wave_significant_height.'
 - id: neracoos_a01_met_meteorology
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: A01 Met - Meteorology (Physical Oceanography Group, School of Marine Sciences, University of Maine)
   domain: nature
   dgp_class: environmental_sensor
@@ -79462,6 +79640,7 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: wind_speed, wind_gust, wind_direction, air_temperature.'
 - id: secoora_41037_ilm3_wrightsville_beach_offshore_n
+  mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: (41037 / ILM3) Wrightsville Beach Offshore, NC (UNCW - Coastal Ocean Research and Monitoring Program
     (CORMP))
   domain: nature
@@ -79494,6 +79673,7 @@
     against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity,
     air_temperature.'
 - id: secoora_41038_ilm2_wrightsville_beach_nearshore
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: (41038 / ILM2) Wrightsville Beach Nearshore, NC (UNCW - Coastal Ocean Research and Monitoring Program
     (CORMP))
   domain: nature
@@ -79613,6 +79793,7 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: airPressure, conductivity.'
 - id: noaa_noaa_ship_gordon_gunter_underway_meteoro_fsunoaashi
+  mv_channels: ["rows_1", "rows_2", "rows_4"]
   name: NOAA Ship Gordon Gunter Underway Meteorological Data, Near Real Time (FSU)
   domain: nature
   dgp_class: ocean_physics
@@ -79678,6 +79859,7 @@
     against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered,
     air_temperature_rms.'
 - id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1069_hur
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   poll: P7D  # saildrone went 404 2026-09-05 (hurricane mission ended); weekly resume-probe instead of a 404 per minute
   name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1069 (NOAA Atlantic Oceanographic and Meteorological
     Laboratory, NOAA PMEL)
@@ -79712,6 +79894,7 @@
     against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered,
     air_temperature_rms.'
 - id: smartatlantic_halifax_ocean_terminals_fairview
+  mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: 'Halifax Ocean Terminals: Fairview (COVE)'
   domain: nature
   dgp_class: met_station
@@ -79743,6 +79926,7 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_dir_avg, wind_spd_max, air_temp_avg.'
 - id: smartatlantic_halifax_ocean_terminals_pier_31
+  mv_channels: ["rows_1", "rows_2"]
   name: 'Halifax Ocean Terminals: Pier 31 (COVE)'
   domain: nature
   dgp_class: environmental_sensor
@@ -79859,6 +80043,7 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: wind_dir_avg, wind_spd_avg, wind_spd_max.'
 - id: cioosatlantic_halifax_ocean_terminals_pier_31
+  mv_channels: ["rows_1", "rows_2"]
   name: 'Halifax Ocean Terminals: Pier 31 (COVE)'
   domain: nature
   dgp_class: environmental_sensor
@@ -79948,6 +80133,7 @@
     mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
     verified against the live endpoint by the wire gate. Columns: upwelling_index.'
 - id: ondeckdata_qaqc_flagged_oceanographic_data
+  mv_channels: ["rows_1", "rows_2", "rows_4"]
   name: QAQC Flagged Oceanographic Data (CFRF)
   domain: nature
   dgp_class: environmental_sensor
@@ -79979,6 +80165,7 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: sensor_sn, stat_area, fishing_segment, temperature.'
 - id: ondeckdata_shelf_research_fleet_1_m_bin_averaged_ct
+  mv_channels: ["rows_1", "rows_2"]
   name: Shelf Research Fleet | 1-m Bin Averaged CTD (CFRF | WHOI)
   domain: nature
   dgp_class: sea_level
@@ -83452,6 +83639,7 @@
   audit_slack_days: 4
   notes: 'Elering system balance: realised production, consumption and losses.'
 - id: pse_pdgobpkd
+  mv_channels: ["gen_fv", "gen_wi"]
   name: Polish grid generation by unit type (PSE)
   domain: energy
   dgp_class: grid_generation
@@ -89544,6 +89732,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''105'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_12
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [12]
   domain: energy
   dgp_class: energy_market_activity
@@ -89938,6 +90127,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''32'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_41
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [41]
   domain: energy
   dgp_class: energy_market_activity
@@ -90034,6 +90224,7 @@
 
 # -- wired batch: grind-20260817-0713 --
 - id: opendata_ods156_58
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [58]
   domain: energy
   dgp_class: energy_market_activity
@@ -90066,6 +90257,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''58'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_38
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [38]
   domain: energy
   dgp_class: energy_market_activity
@@ -91115,6 +91307,7 @@
 
 # -- wired batch: grind-20260824-0713 --
 - id: opendata_ods156_68
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [68]
   domain: energy
   dgp_class: energy_market_activity
@@ -91562,6 +91755,46 @@
   audit_slack_days: 21
 
 # -- wired batch: daily-wave-2026-08-25 --
+- id: cdc_nssp_ed_pathogen_mix_daily_by_state
+  name: CDC NSSP daily ED visit share — COVID/influenza/RSV/ARI as coupled channels per state (CASE-pivot panel)
+  domain: healthcare
+  dgp_class: syndromic_surveillance
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - count_discrete
+  - hierarchical
+  frequency: P1D
+  admit_slow: daily syndromic surveillance; the CASE-pivot re-serves ~480 days x 52 geographies per fetch
+    so history is deep from day one
+  endpoint:
+    type: rest_json
+    url: https://data.cdc.gov/resource/vjzj-u7u8.json?$select=geography,date,sum(case(pathogen='COVID',percent_visits))
+      as covid,sum(case(pathogen='Influenza',percent_visits)) as influenza,sum(case(pathogen='RSV',percent_visits))
+      as rsv,sum(case(pathogen='ARI',percent_visits)) as ari&$group=geography,date&$order=date DESC&$limit=25000
+    auth: none
+    rate_limit: 1000 req/h anonymous; higher with app token
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field:
+    - '[].covid'
+    - '[].influenza'
+    - '[].rsv'
+    - '[].ari'
+    panel_field: '[].geography'
+    variates: 4
+  mv_channels: ["covid", "influenza", "rsv", "ari"]
+  history_available: P4Y
+  license: US Government public domain (CDC open data)
+  notes: 'The DEC-TB-0004 / DEC-CA-0041 NSSP CASE-pivot: the four sibling per-pathogen panels
+    (cdc_nssp_ed_{covid19,influenza,rsv,ari}_daily_by_state) re-wired as four columns of ONE
+    (source, geography) row so they are groupable under the mv_channels contract — cross-source
+    siblings can never be joined by the consumer. SoQL sum(case()) pivot, one request; grouped
+    rows = 52 geographies/day so $limit=25000 covers ~480 days. Publisher lag ~1 week, hence
+    audit_slack_days=21 as the siblings. The siblings stay wired (their univariate series serve
+    today''s pool); retire them only after cascade arms mv_score and this source''s tag is live.'
+  audit_slack_days: 21
 - id: bis_nominal_eer_daily_panel_a
   name: BIS nominal effective exchange rates, broad basket — daily panel A (32 economies)
   domain: econ_fin
@@ -91615,6 +91848,7 @@
 
 # -- wired batch: grind-20260825-0713 --
 - id: opendata_ods156_56
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [56]
   domain: energy
   dgp_class: energy_market_activity
@@ -91728,9 +91962,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].item_description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2453 section 'Choice Cuts' (panel_field item_description, value
@@ -91754,15 +91991,19 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].item_description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2453 section 'Select Cuts' (panel_field item_description, value
     weighted_average). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps every
     fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_ground_beef_daily_panel
+  mv_channels: ["weighted_average", "total_pounds"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — ground beef weighted-average price by lean-point (9 products)
   domain: sales
@@ -91780,9 +92021,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].trim_description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2453 section 'Ground Beef' (panel_field trim_description, value
@@ -91806,9 +92050,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].choice_600_900
+    value_field:
+    - results[].choice_600_900
+    - results[].select_600_900
     panel_field: results[].primal_desc
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2453 section 'Composite Primal Values' (panel_field primal_desc,
@@ -91832,9 +92079,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].Item_Description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Loin Cuts' (panel_field Item_Description, value weighted_average).
@@ -91858,9 +92108,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].Item_Description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Ham Cuts' (panel_field Item_Description, value weighted_average).
@@ -91884,9 +92137,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].Item_Description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Belly Cuts' (panel_field Item_Description, value weighted_average).
@@ -91910,15 +92166,19 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].weighted_average
+    value_field:
+    - results[].weighted_average
+    - results[].total_pounds
     panel_field: results[].Item_Description
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2498 section 'Butt Cuts' (panel_field Item_Description, value weighted_average).
     Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_beef_trimmings_national_daily_panel
+  mv_channels: ["price_range_avg", "total_pounds"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — boneless processing beef / trimmings, national average price by item (18 items)
   domain: sales
@@ -91936,9 +92196,12 @@
     timeout: 120
   schema:
     timestamp_field: results[].report_date
-    value_field: results[].price_range_avg
+    value_field:
+    - results[].price_range_avg
+    - results[].total_pounds
     panel_field: results[].item_desc
-    variates: 1
+    variates: 2
+    thousands_comma: true
   history_available: P10Y
   license: Public domain (USDA)
   notes: Item-level panel of LMR report 2451 section 'National' (panel_field item_desc, value price_range_avg).
@@ -92369,6 +92632,7 @@
 
 # -- wired batch: grind-20260826-0713 --
 - id: opendata_ods156_28
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [28]
   domain: energy
   dgp_class: energy_market_activity
@@ -92435,6 +92699,7 @@
 
 # -- wired batch: grind-20260827-0713 --
 - id: opendata_ods156_71
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [71]
   domain: energy
   dgp_class: energy_market_activity
@@ -92467,6 +92732,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''71'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_14
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [14]
   domain: energy
   dgp_class: energy_market_activity
@@ -92573,6 +92839,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''16'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_22
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [22]
   domain: energy
   dgp_class: energy_market_activity
@@ -92647,6 +92914,7 @@
 
 # -- wired batch: grind-20260829-0713 --
 - id: opendata_ods156_18
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [18]
   domain: energy
   dgp_class: energy_market_activity
@@ -92679,6 +92947,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''18'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_51
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [51]
   domain: energy
   dgp_class: energy_market_activity
@@ -92993,6 +93262,7 @@
 
 # -- wired batch: grind-20260901-0713 --
 - id: opendata_ods156_30
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [30]
   domain: energy
   dgp_class: energy_market_activity
@@ -93059,6 +93329,7 @@
 
 # -- wired batch: grind-20260902-0713 --
 - id: opendata_ods156_38
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [38]
   domain: energy
   dgp_class: energy_market_activity
@@ -93091,6 +93362,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''38'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_34
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [34]
   domain: energy
   dgp_class: energy_market_activity
@@ -93366,6 +93638,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''19'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_19
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [19]
   domain: energy
   dgp_class: energy_market_activity
@@ -93470,6 +93743,7 @@
 
 # -- wired batch: grind-20260906-0713 --
 - id: opendata_ods156_72
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [72]
   domain: energy
   dgp_class: energy_market_activity
