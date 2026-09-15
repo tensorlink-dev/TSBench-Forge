@@ -311,6 +311,7 @@
     sample_freshness_hours: 70.0
   notes: Calibration baseline for econ_fin daily.
 - id: uk_carbon_intensity_actual
+  mv_channels: ["actual", "forecast"]
   name: UK National Grid carbon intensity (actual + forecast)
   domain: energy
   dgp_class: generation_mix
@@ -526,9 +527,12 @@
     rate_limit: 5000 req/day, anonymous
   schema:
     timestamp_field: results[].datetime
-    value_field: results[].measured
+    value_field:
+    - results[].measured
+    - results[].mostrecentforecast
+    - results[].dayaheadforecast
     panel_field: results[].region
-    variates: 1
+    variates: 3
   history_available: P5Y
   update_cadence_observed: 15 minutes
   pretraining_novelty: clean
@@ -6232,6 +6236,7 @@
     sample_freshness_hours: 0.1
   notes: Wired from autosearch backlog; real host data.elexon.co.uk (hint api.bmrs.com stale).
 - id: ree_spain_grid_demand
+  mv_channels: ["value", "values_value", "attributes_values_value"]
   name: REE Spain electricity demand (real-time)
   domain: energy
   dgp_class: grid_demand
@@ -6247,7 +6252,11 @@
     rate_limit: null
   schema:
     timestamp_field: included[0].attributes.values[].datetime
-    value_field: included[0].attributes.values[].value
+    value_field:
+    - included[0].attributes.values[].value
+    - included[1].attributes.values[].value
+    - included[2].attributes.values[].value
+    variates: 3
     variates: 1
   history_available: P5Y
   update_cadence_observed: hourly; rolling current-day window (dedupe backfills)
@@ -8527,6 +8536,7 @@
   license: Eurostat open data (CC-BY 4.0)
   notes: 'Plain rest_csv GET against the SDMX 2.1 REST endpoint with a fully-specified series key and format=SDMX-CSV (comma CSV: TIME_PERIOD, OBS_VALUE) — the scraper only decodes SDMX-JSON (dataSets+structure), not Eurostat''s JSON-stat value{} map, so SDMX-CSV is used. Verified: 184 monthly rows, 184 distinct timestamps, numeric. Swap nrg_bal / siec / geo dims for other energy indicators.'
 - id: sensor_community_pm25_global_panel
+  mv_channels: ["sensordatavalues_0_value", "sensordatavalues_1_value"]
   name: sensor.community global PM2.5 dust-sensor snapshot panel (~9.7k sensors)
   domain: healthcare
   dgp_class: air_quality
@@ -13197,6 +13207,7 @@
   license: Public exchange market-data API
   notes: A 15-minute view of the same asset sampled at 1 minute on Bitstamp — the pair supports temporal-aggregation studies on one underlying process.
 - id: bitstamp_eth_usd_hourly
+  mv_channels: ["close", "volume"]
   name: Bitstamp — ETH/USD hourly OHLC
   domain: econ_fin
   dgp_class: crypto_spot_price
@@ -15791,6 +15802,7 @@
     value_field:
     - SSTA
 - id: elexon_gb_demand_outturn_30min
+  mv_channels: ["initialDemandOutturn", "initialTransmissionSystemDemandOutturn"]
   name: Elexon BMRS GB initial demand outturn (30-min settlement periods)
   domain: energy
   frequency: PT30M
@@ -16329,6 +16341,7 @@
       op: count
       bin: PT30M
 - id: tepco_demand_5min
+  mv_channels: ["当日実績（５分間隔値）(万kW)", "太陽光発電実績（５分間隔値）(万kW)"]
   name: TEPCO area electricity demand and solar (5-min actuals)
   domain: energy
   frequency: PT5M
@@ -17090,6 +17103,7 @@
       op: sum
       bin: P1D
 - id: elia_system_imbalance_1min
+  mv_channels: ["systemimbalance", "ace", "igccvolumeup", "igccvolumedown", "afrrvolumeup", "afrrvolumedown"]
   name: Elia Belgium current system imbalance (1-min, near real-time)
   domain: energy
   frequency: PT1M
@@ -21639,6 +21653,7 @@
   audit_slack_days: 107
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'permis de construire'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: fr_prix_des_carburants_j_7
+  mv_channels: ["prix_gazole", "prix_sp98"]
   name: Prix des carburants - J-7 (data.ampmetropole.fr)
   domain: econ_fin
   dgp_class: price_series
@@ -22306,6 +22321,7 @@
     skip_rows: 1
     drop_null_values: true
 - id: hepco_jp_area_balance_30min
+  mv_channels: ["エリア総需要量(kWh)", "エリア総発電量(kWh)", "エリア風力・太陽光発電量(kWh)"]
   name: Hokkaido area supply-demand half-hourly actuals (Japan)
   domain: energy
   frequency: PT30M
@@ -29022,6 +29038,7 @@
   audit_slack_days: 45
   notes: Bulk-generated from the Opendatasoft federated catalog (publisher walk, theme-classified). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: opendatasoft_energy_injected_into_the_distribution_ne
+  mv_channels: ["cogeracao", "eolica", "fotovoltaica"]
   name: Energy Injected into the Distribution Network (e-redes.opendatasoft.com)
   domain: energy
   dgp_class: building_load
@@ -70621,6 +70638,7 @@
 
 # -- wired batch: energy wave 52: SVK / XM Colombia / RTE --
 - id: svk_afrr_capacity_se1
+  mv_channels: ["price", "volume"]
   name: aFRR downward capacity price and volume, SE1 (Svenska kraftnat)
   domain: energy
   dgp_class: grid_balancing
@@ -70656,6 +70674,7 @@
     _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
     is normally in the future.'
 - id: svk_afrr_capacity_se2
+  mv_channels: ["price", "volume"]
   name: aFRR downward capacity price and volume, SE2 (Svenska kraftnat)
   domain: energy
   dgp_class: grid_balancing
@@ -70726,6 +70745,7 @@
     _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
     is normally in the future.'
 - id: svk_mfrr_capacity_se1
+  mv_channels: ["price", "volume"]
   name: mFRR upward capacity price and volume, SE1 (Svenska kraftnat)
   domain: energy
   dgp_class: grid_balancing
@@ -70796,6 +70816,7 @@
     _id on a 2020 row. CAVEAT: capacity results are published for the day AHEAD, so the newest timestamp
     is normally in the future.'
 - id: svk_mfrr_capacity_se3
+  mv_channels: ["price", "volume"]
   name: mFRR upward capacity price and volume, SE3 (Svenska kraftnat)
   domain: energy
   dgp_class: grid_balancing
@@ -71150,6 +71171,7 @@
     the Danish local one, which is ambiguous across the October fold. Price area DK1 is pinned: the dataset
     is a panel over areas and without the pin the response carries several values per timestamp.'
 - id: energinet_electricityprodex5minrealtime_dk1
+  mv_channels: ["ProductionLt100MW", "ProductionGe100MW", "OffshoreWindPower", "OnshoreWindPower"]
   name: Electricity Production and Exchange 5 min Realtime (Energinet, Denmark [DK1]
   domain: energy
   dgp_class: energy_market_activity
@@ -71357,6 +71379,7 @@
     v2.1 caps `limit` at 100 whatever is asked for. Ordering matters: the default is insertion order, which
     returns the oldest rows of a rolling table.'
 - id: elia_ods126_current_system_imbalance_historical_dat
+  mv_channels: ["systemimbalance", "ace", "igccvolumeup", "afrrvolumeup"]
   name: Current system imbalance (Historical data as of 22/05/2024) (Elia, Belgium)
   domain: energy
   dgp_class: energy_market_activity
@@ -90687,6 +90710,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''7'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_20
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [20]
   domain: energy
   dgp_class: energy_market_activity
@@ -91294,6 +91318,7 @@
 
 # -- wired batch: grind-20260821-0713 --
 - id: opendata_ods157_16
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [16]
   domain: energy
   dgp_class: energy_market_activity
@@ -91474,6 +91499,7 @@
 
 # -- wired batch: grind-20260823-0713 --
 - id: opendata_ods156_24
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [24]
   domain: energy
   dgp_class: energy_market_activity
@@ -92318,6 +92344,7 @@
 
 # -- wired batch: commerce-wave-2026-08-25 --
 - id: usda_mpr_boxed_beef_choice_cuts_daily_panel
+  mv_channels: ["weighted_average", "total_pounds"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — boxed beef Choice cuts, negotiated weighted-average price by cut (~42 cuts)
   domain: sales
@@ -92435,6 +92462,7 @@
     value choice_600_900). Sparse-trading items have gaps (no trade = null); fixed start 2025-06-01 keeps
     every fetch ~2-14 MB. Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_loin_cuts_daily_panel
+  mv_channels: ["weighted_average", "total_pounds"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — pork loin cuts, FOB plant negotiated weighted-average price (~43 items)
   domain: sales
@@ -92493,6 +92521,7 @@
     Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_belly_cuts_daily_panel
+  mv_channels: ["weighted_average", "total_pounds"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — pork belly cuts, FOB plant negotiated weighted-average price (~29 items)
   domain: sales
@@ -92522,6 +92551,7 @@
     Sparse-trading items have gaps (no trade = null); fixed start 2025-01-01 (weekday-only report, ~410 trading days) keeps every fetch ~3-20 MB.
     Sibling of the single-series usda_mpr_* cutout sources.
 - id: usda_mpr_pork_butt_cuts_daily_panel
+  mv_channels: ["weighted_average", "total_pounds"]
   poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
   name: USDA AMS daily — pork butt cuts, FOB plant negotiated weighted-average price (~31 items)
   domain: sales
@@ -93038,6 +93068,7 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''28'': without it the response
     interleaves several series on the same timestamps.'
 - id: opendata_ods157_28
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual decremental balancing energy bids (Historical data as of 22 [28]
   domain: energy
   dgp_class: energy_market_activity
@@ -93987,6 +94018,7 @@
 
 # -- wired batch: grind-20260905-0713 --
 - id: opendata_ods156_19
+  mv_channels: ["energybidvolume", "cumulativevolume", "energybidmarginalprice"]
   name: Individual incremental balancing energy bids (Historical data as of 22 [19]
   domain: energy
   dgp_class: energy_market_activity
@@ -94720,3 +94752,34 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''29'': without it the response
     interleaves several series on the same timestamps.'
+- id: usda_mpr_prior_day_slaughtered_swine_daily
+  poll: PT6H  # mpr.datamart 500s intermittently; without poll the sweep retried every 15 min (~1.7k failed req/day to USDA)
+  audit_slack_days: 7
+  name: USDA AMS MPR — Daily Direct Prior Day Slaughtered Swine (LM_HG201), barrows & gilts price/head/carcass weight
+  domain: sales
+  dgp_class: agricultural_price
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  admit_slow: daily mandatory price report; the report_date range re-serves ~20 months per purchase type
+    on every fetch
+  endpoint:
+    type: rest_json
+    url: https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2511/Barrows/Gilts?q=report_date=01/01/2025:12/31/2035
+    timeout: 120
+  schema:
+    timestamp_field: results[].report_date
+    value_field:
+    - results[].base_price
+    - results[].head_count
+    - results[].avg_carcass_weight
+    panel_field: results[].purchase_type
+    variates: 3
+    thousands_comma: true
+  history_available: P10Y
+  license: Public domain (USDA)
+  notes: 'Slaughtered (not purchased) prior-day swine — distinct report from the wired LM_HG218 purchased-hog
+    slug 3458. Panel by purchase_type; base_price, head_count and avg_carcass_weight per row. head_count
+    carries US thousands commas (thousands_comma strips them). Section name contains a slash (Barrows/Gilts)
+    that the datamart API accepts literally in the path.'

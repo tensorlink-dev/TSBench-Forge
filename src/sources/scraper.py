@@ -761,12 +761,19 @@ def _value_col_names(paths: list) -> list:
     out = []
     seen = set()
     for p, leaf in zip(paths, leaves):
+        name = leaf
         if leaves.count(leaf) > 1 and leaf in seen:
-            tail = ".".join(p.split(".")[-2:])
-            out.append(re.sub(r"[^0-9A-Za-z]+", "_", tail).strip("_"))
-        else:
-            out.append(leaf)
-        seen.add(leaf)
+            # Take as many trailing segments as it needs to be unique — two
+            # is usually enough, but paths that differ only in an early
+            # index ('included[1].attributes.values[].value') need more.
+            segs = p.split(".")
+            for k in range(2, len(segs) + 1):
+                tail = ".".join(segs[-k:])
+                name = re.sub(r"[^0-9A-Za-z]+", "_", tail).strip("_")
+                if name not in seen:
+                    break
+        out.append(name)
+        seen.add(name)
     return out
 
 
