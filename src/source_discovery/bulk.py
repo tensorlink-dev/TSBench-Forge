@@ -52,8 +52,46 @@ import unicodedata
 from typing import Any, Iterable, Optional, Sequence
 from urllib.parse import quote, urlparse
 
-import requests
 import yaml
+
+
+# ``requests`` is the sweeps' only third-party dependency, and it is needed
+# nowhere else in the module. It cannot be imported at module level all the
+# same: the CLI entrypoint imports this module unconditionally (so does
+# grind.py), which made `requests` a hard dependency of EVERY subcommand —
+# including the deterministic, network-free ones. The autosearch workflow's
+# `--coverage` step installs pyyaml + numpy only, exactly as it deliberately
+# omits httpx/pyarrow (see the scraper note in duration.py), and died on
+# `ModuleNotFoundError: No module named 'requests'` before printing a byte of
+# its JSON. Binding it lazily keeps the ~60 `requests.<verb>` call sites below
+# unchanged while paying the import only when a sweep actually goes out.
+class _LazyRequests:
+    """Import-on-first-use stand-in for the ``requests`` module.
+
+    Attributes assigned onto the instance — which is what
+    ``monkeypatch.setattr(bulk.requests, "get", ...)`` does throughout the
+    tests — are found before ``__getattr__`` runs, so patching a verb still
+    intercepts every call site and no import is triggered.
+    """
+
+    _module = None
+
+    def __getattr__(self, name: str):
+        module = _LazyRequests._module
+        if module is None:
+            try:
+                import requests as module  # noqa: PLC0415 — deliberately deferred
+            except ModuleNotFoundError as exc:  # pragma: no cover — env-specific
+                raise ModuleNotFoundError(
+                    "the bulk sweeps need `requests` (pip install requests); the "
+                    "deterministic paths (--coverage, --audit, --monitor, "
+                    "--pool-report) do not"
+                ) from exc
+            _LazyRequests._module = module
+        return getattr(module, name)
+
+
+requests = _LazyRequests()
 
 CATALOG_API = "https://api.us.socrata.com/api/catalog/v1"
 UA = "TSBench-Forge/1.0 (benchmark data collection; chris@tensor-link.com)"
