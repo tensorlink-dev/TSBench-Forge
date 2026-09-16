@@ -750,19 +750,30 @@ def _value_col_names(paths: list) -> list:
 
     Positional paths into the same array share a leaf ('sensordatavalues[0]
     .value' and '[1].value' both end in 'value'); a plain leaf-name dict
-    silently collapsed them to one column. Colliding entries take their last
-    TWO segments flattened instead ('sensordatavalues_0_value'), so every
-    declared path gets its own parquet column. Non-colliding lists keep the
-    exact names they always had.
+    silently collapsed them to one column. The FIRST path with a colliding
+    leaf keeps the plain leaf name — it is the column the source served
+    before siblings were added, so its parquet history stays continuous.
+    Later collisions take their last TWO segments flattened
+    ('sensordatavalues_1_value'). Non-colliding lists keep the exact names
+    they always had.
     """
     leaves = [_leaf_name(p) for p in paths]
     out = []
+    seen = set()
     for p, leaf in zip(paths, leaves):
-        if leaves.count(leaf) > 1:
-            tail = ".".join(p.split(".")[-2:])
-            out.append(re.sub(r"[^0-9A-Za-z]+", "_", tail).strip("_"))
-        else:
-            out.append(leaf)
+        name = leaf
+        if leaves.count(leaf) > 1 and leaf in seen:
+            # Take as many trailing segments as it needs to be unique — two
+            # is usually enough, but paths that differ only in an early
+            # index ('included[1].attributes.values[].value') need more.
+            segs = p.split(".")
+            for k in range(2, len(segs) + 1):
+                tail = ".".join(segs[-k:])
+                name = re.sub(r"[^0-9A-Za-z]+", "_", tail).strip("_")
+                if name not in seen:
+                    break
+        out.append(name)
+        seen.add(name)
     return out
 
 
@@ -890,9 +901,13 @@ def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
     points are kept, never the timestamps they carry.
     """
     val_path = schema.get("value_field", "")
-    paths = val_path if isinstance(val_path, list) else [val_path]
+    paths = [p for p in (val_path if isinstance(val_path, list) else [val_path]) if p]
+    # First path keeps the historical single-series column name ("value") so a
+    # source rewired from one path to several stays continuous with its old
+    # parquet history; later paths get disambiguated leaf names.
+    names = ["value"] + _value_col_names(paths)[1:]
     try:
-        seqs = {_leaf_name(p): _walk(data, p) for p in paths if p}
+        seqs = {n: _walk(data, p) for n, p in zip(names, paths)}
     except Exception as exc:                                  # noqa: BLE001
         log.debug("stepped series: value walk failed (%s)", exc)
         return []
@@ -940,11 +955,8 @@ def _records_from_stepped_series(data: Any, schema: dict) -> list[dict]:
         ts = (start - dt.timedelta(seconds=step_s * i) if backwards
               else start + dt.timedelta(seconds=step_s * i))
         row: dict[str, Any] = {"timestamp": ts.isoformat()}
-        if len(seqs) == 1:
-            row["value"] = next(iter(seqs.values()))[i]
-        else:
-            for name, seq in seqs.items():
-                row[name] = seq[i]
+        for name, seq in seqs.items():
+            row[name] = seq[i]
         records.append(row)
     return records
 
