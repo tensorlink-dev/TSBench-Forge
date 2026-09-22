@@ -104,7 +104,11 @@ jobs:
           # never converges. Bounded, each run banks whatever it fetched.
           PULL_BUDGET_S: "9000"
         run: |
-          before=$(du -sm src/sources/data 2>/dev/null | cut -f1 || echo 0)
+          # du exits 0 with an error on stderr for a missing directory, so
+          # `|| echo 0` never fires and ${before} came out empty in run
+          # 33143984751. Default it instead.
+          before=$(du -sm src/sources/data 2>/dev/null | cut -f1)
+          before=${before:-0}
           start=$(date +%s)
           set +e
           timeout "${PULL_BUDGET_S}" python src/sources/sync_storage.py --download
