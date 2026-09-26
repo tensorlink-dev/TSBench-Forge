@@ -102955,3 +102955,3988 @@
   license: Public (NBP open API)
   notes: Per-currency date-range endpoint — the full-table endpoint caps at 67 rows per query, the rates/ endpoint
     serves a year per fetch. Business days only. Host api.nbp.pl shared by the sibling nbp_pln_* rates.
+- id: kraken_btc_usd_hourly
+  name: Kraken — XBT/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XXBTZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XXBTZUSD[][0]
+    value_field: result.XXBTZUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: boc_fx_audcad_daily
+  name: Bank of Canada — AUD/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXAUDCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXAUDCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_corra_overnight_repo_daily
+  name: Bank of Canada — CORRA overnight repo rate
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes:
+  - step_function
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/group/CORRA/json?start_date=2020-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].CORRA_RATE_AT_TRIM.v
+    variates: 1
+  history_available: P6Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Overnight repo benchmark (rate at trim). The volume/submitter-count siblings in the same group were audit-rejected.
+- id: riksbank_sek_eur_fx_daily
+  name: Riksbank SWEA — EUR/SEK daily fixing
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKEURPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKEURPMI; history from 1993.
+- id: boc_fx_brlcad_daily
+  name: Bank of Canada — BRL/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXBRLCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXBRLCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_cnycad_daily
+  name: Bank of Canada — CNY/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXCNYCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXCNYCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_eurcad_daily
+  name: Bank of Canada — EUR/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXEURCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXEURCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_hkdcad_daily
+  name: Bank of Canada — HKD/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXHKDCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXHKDCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_inrcad_daily
+  name: Bank of Canada — INR/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXINRCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXINRCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_idrcad_daily
+  name: Bank of Canada — IDR/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXIDRCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXIDRCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_jpycad_daily
+  name: Bank of Canada — JPY/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXJPYCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXJPYCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_myrcad_daily
+  name: Bank of Canada — MYR/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXMYRCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXMYRCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_mxncad_daily
+  name: Bank of Canada — MXN/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXMXNCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXMXNCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_nzdcad_daily
+  name: Bank of Canada — NZD/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXNZDCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXNZDCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_nokcad_daily
+  name: Bank of Canada — NOK/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXNOKCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXNOKCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_pencad_daily
+  name: Bank of Canada — PEN/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXPENCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXPENCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_plncad_daily
+  name: Bank of Canada — PLN/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXPLNCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXPLNCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_sgdcad_daily
+  name: Bank of Canada — SGD/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXSGDCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXSGDCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_zarcad_daily
+  name: Bank of Canada — ZAR/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXZARCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXZARCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_krwcad_daily
+  name: Bank of Canada — KRW/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXKRWCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXKRWCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_sekcad_daily
+  name: Bank of Canada — SEK/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXSEKCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXSEKCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_chfcad_daily
+  name: Bank of Canada — CHF/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXCHFCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXCHFCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_twdcad_daily
+  name: Bank of Canada — TWD/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXTWDCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXTWDCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_thbcad_daily
+  name: Bank of Canada — THB/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXTHBCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXTHBCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_trycad_daily
+  name: Bank of Canada — TRY/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXTRYCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXTRYCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_gbpcad_daily
+  name: Bank of Canada — GBP/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXGBPCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXGBPCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_fx_usdcad_daily
+  name: Bank of Canada — USD/CAD daily average rate
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].FXUSDCAD.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days ~16:30 ET
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Valet single-series endpoint; indicative noon-equivalent average rate.
+- id: boc_benchmark_bond_yield_2yr_daily
+  name: Bank of Canada — GoC benchmark bond yield, 2-year
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    url: https://www.bankofcanada.ca/valet/observations/BD.CDN.2YR.DQ.YLD/csv?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: BD.CDN.2YR.DQ.YLD
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: CSV form because the Valet series id contains dots, which the JSON value path would split.
+- id: boc_benchmark_bond_yield_3yr_daily
+  name: Bank of Canada — GoC benchmark bond yield, 3-year
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    url: https://www.bankofcanada.ca/valet/observations/BD.CDN.3YR.DQ.YLD/csv?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: BD.CDN.3YR.DQ.YLD
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: CSV form because the Valet series id contains dots, which the JSON value path would split.
+- id: boc_benchmark_bond_yield_5yr_daily
+  name: Bank of Canada — GoC benchmark bond yield, 5-year
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    url: https://www.bankofcanada.ca/valet/observations/BD.CDN.5YR.DQ.YLD/csv?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: BD.CDN.5YR.DQ.YLD
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: CSV form because the Valet series id contains dots, which the JSON value path would split.
+- id: boc_benchmark_bond_yield_7yr_daily
+  name: Bank of Canada — GoC benchmark bond yield, 7-year
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    url: https://www.bankofcanada.ca/valet/observations/BD.CDN.7YR.DQ.YLD/csv?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: BD.CDN.7YR.DQ.YLD
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: CSV form because the Valet series id contains dots, which the JSON value path would split.
+- id: boc_benchmark_bond_yield_10yr_daily
+  name: Bank of Canada — GoC benchmark bond yield, 10-year
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    url: https://www.bankofcanada.ca/valet/observations/BD.CDN.10YR.DQ.YLD/csv?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: BD.CDN.10YR.DQ.YLD
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: CSV form because the Valet series id contains dots, which the JSON value path would split.
+- id: boc_benchmark_bond_yield_long_daily
+  name: Bank of Canada — GoC benchmark bond yield, long-term
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    url: https://www.bankofcanada.ca/valet/observations/BD.CDN.LONG.DQ.YLD/csv?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: BD.CDN.LONG.DQ.YLD
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: CSV form because the Valet series id contains dots, which the JSON value path would split.
+- id: boc_benchmark_bond_yield_rrb_daily
+  name: Bank of Canada — GoC benchmark bond yield, real-return long-term
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    url: https://www.bankofcanada.ca/valet/observations/BD.CDN.RRB.DQ.YLD/csv?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: BD.CDN.RRB.DQ.YLD
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: CSV form because the Valet series id contains dots, which the JSON value path would split.
+- id: boc_tbill_yield_1m_daily
+  name: Bank of Canada — treasury bill yield, 1 month
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/V80691342/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].V80691342.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Money-market end of the Canadian curve.
+- id: boc_tbill_yield_3m_daily
+  name: Bank of Canada — treasury bill yield, 3 month
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/V80691344/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].V80691344.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Money-market end of the Canadian curve.
+- id: boc_tbill_yield_6m_daily
+  name: Bank of Canada — treasury bill yield, 6 month
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/V80691345/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].V80691345.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Money-market end of the Canadian curve.
+- id: boc_tbill_yield_1y_daily
+  name: Bank of Canada — treasury bill yield, 1 year
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://www.bankofcanada.ca/valet/observations/V80691346/json?start_date=2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: observations[].d
+    value_field: observations[].V80691346.v
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Canada terms (open)
+  notes: Money-market end of the Canadian curve.
+- id: riksbank_secbrepoeff_daily
+  name: Riksbank SWEA — Policy rate
+  domain: econ_fin
+  dgp_class: monetary_policy_rate
+  archetypes: &id001
+  - step_function
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SECBREPOEFF/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SECBREPOEFF (group 2); history from 1994-06-01.
+- id: riksbank_secbdepoeff_daily
+  name: Riksbank SWEA — Deposit rate
+  domain: econ_fin
+  dgp_class: monetary_policy_rate
+  archetypes: *id001
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SECBDEPOEFF/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SECBDEPOEFF (group 2); history from 1994-06-01.
+- id: riksbank_secblendeff_daily
+  name: Riksbank SWEA — Lending rate
+  domain: econ_fin
+  dgp_class: monetary_policy_rate
+  archetypes: *id001
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SECBLENDEFF/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SECBLENDEFF (group 2); history from 1994-06-01.
+- id: riksbank_secblikveff_daily
+  name: Riksbank SWEA — Liquidity facility rate
+  domain: econ_fin
+  dgp_class: monetary_policy_rate
+  archetypes: *id001
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SECBLIKVEFF/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SECBLIKVEFF (group 2); history from 2022-06-08.
+- id: riksbank_secbrefeff_daily
+  name: Riksbank SWEA — Reference rate
+  domain: econ_fin
+  dgp_class: monetary_policy_rate
+  archetypes:
+  - step_function
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SECBREFEFF/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SECBREFEFF (group 3); history from 2002-07-01.
+- id: riksbank_setb1mbenchc_daily
+  name: Riksbank SWEA — Swedish Treasury Bill maturity 1 month
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: &id002
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SETB1MBENCHC/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SETB1MBENCHC (group 6); history from 1983-01-03.
+- id: riksbank_setb3mbench_daily
+  name: Riksbank SWEA — Swedish Treasury Bill maturity 3 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id002
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SETB3MBENCH/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SETB3MBENCH (group 6); history from 1983-01-03.
+- id: riksbank_setb6mbench_daily
+  name: Riksbank SWEA — Swedish Treasury Bill maturity 6  months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id002
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SETB6MBENCH/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SETB6MBENCH (group 6); history from 1984-01-02.
+- id: riksbank_segvb2yc_daily
+  name: Riksbank SWEA — Swedish Government Bond, maturity 2 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: &id003
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEGVB2YC/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEGVB2YC (group 7); history from 1987-01-07.
+- id: riksbank_segvb5yc_daily
+  name: Riksbank SWEA — Swedish Government Bond, maturity 5 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id003
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEGVB5YC/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEGVB5YC (group 7); history from 1985-01-02.
+- id: riksbank_segvb7yc_daily
+  name: Riksbank SWEA — Swedish Government Bond, maturity 7 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id003
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEGVB7YC/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEGVB7YC (group 7); history from 1987-01-02.
+- id: riksbank_segvb10yc_daily
+  name: Riksbank SWEA — Swedish Government Bond, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id003
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEGVB10YC/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEGVB10YC (group 7); history from 1987-01-02.
+- id: riksbank_semb2ycacomb_daily
+  name: Riksbank SWEA — Swedish Mortgage Bond, maturity 2 years
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: &id004
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEMB2YCACOMB/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEMB2YCACOMB (group 9); history from 1994-01-03.
+- id: riksbank_semb5ycacomb_daily
+  name: Riksbank SWEA — Swedish Mortgage Bond, maturity 5 years
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id004
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEMB5YCACOMB/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEMB5YCACOMB (group 9); history from 1986-06-16.
+- id: riksbank_eudp3musd_daily
+  name: Riksbank SWEA — Euro market rate USA maturity, 3 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: &id005
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP3MUSD/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP3MUSD (group 97); history from 1979-11-28.
+- id: riksbank_eudp3mjpy_daily
+  name: Riksbank SWEA — Euro market rate Japan, maturity 3 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id005
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP3MJPY/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP3MJPY (group 97); history from 1979-11-29.
+- id: riksbank_eudp3mgbp_daily
+  name: Riksbank SWEA — Euro market rate United Kingdom, maturity 3 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id005
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP3MGBP/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP3MGBP (group 97); history from 1979-12-19.
+- id: riksbank_eudp3meur_daily
+  name: Riksbank SWEA — Euro market rate EUR, maturity 3 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id005
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP3MEUR/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP3MEUR (group 97); history from 1999-01-04.
+- id: riksbank_eudp3mnok_daily
+  name: Riksbank SWEA — Euro market rate Norway, maturity 3 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id005
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP3MNOK/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP3MNOK (group 97); history from 1981-11-12.
+- id: riksbank_eudp3mdkk_daily
+  name: Riksbank SWEA — Euro market rate Denmark, maturity 3 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id005
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP3MDKK/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP3MDKK (group 97); history from 1981-11-12.
+- id: riksbank_eudp6musd_daily
+  name: Riksbank SWEA — Euro market rate USA, maturity 6 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: &id006
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP6MUSD/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP6MUSD (group 98); history from 1979-11-28.
+- id: riksbank_eudp6mjpy_daily
+  name: Riksbank SWEA — Euro market rate Japan, maturity 6 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id006
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP6MJPY/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP6MJPY (group 98); history from 1979-11-29.
+- id: riksbank_eudp6mgbp_daily
+  name: Riksbank SWEA — Euro market rate United Kingdom, maturity 6 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id006
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP6MGBP/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP6MGBP (group 98); history from 1979-11-28.
+- id: riksbank_eudp6meur_daily
+  name: Riksbank SWEA — Euro market rate EUR, maturity 6 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id006
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP6MEUR/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP6MEUR (group 98); history from 1999-01-04.
+- id: riksbank_eudp6mnok_daily
+  name: Riksbank SWEA — Euro market rate Norway, maturity 6 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id006
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP6MNOK/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP6MNOK (group 98); history from 1981-11-12.
+- id: riksbank_eudp6mdkk_daily
+  name: Riksbank SWEA — Euro market rate Denmark, maturity 6 months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id006
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EUDP6MDKK/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EUDP6MDKK (group 98); history from 1981-11-12.
+- id: riksbank_usgvb5y_daily
+  name: Riksbank SWEA — Government Bond USA, maturity 5 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: &id007
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/USGVB5Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series USGVB5Y (group 99); history from 1987-02-02.
+- id: riksbank_jpgvb5y_daily
+  name: Riksbank SWEA — Government Bond Japan, maturity 5 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id007
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/JPGVB5Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series JPGVB5Y (group 99); history from 1987-03-23.
+- id: riksbank_degvb5y_daily
+  name: Riksbank SWEA — Government Bond Germany, maturity 5 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id007
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/DEGVB5Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series DEGVB5Y (group 99); history from 1987-02-09.
+- id: riksbank_nlgvb5y_daily
+  name: Riksbank SWEA — Government Bond Dutchland, maturity 5 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id007
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/NLGVB5Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series NLGVB5Y (group 99); history from 1987-02-09.
+- id: riksbank_frgvb5y_daily
+  name: Riksbank SWEA — Government Bond France, maturity 5 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id007
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/FRGVB5Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series FRGVB5Y (group 99); history from 1988-02-08.
+- id: riksbank_gbgvb5y_daily
+  name: Riksbank SWEA — Government Bond United Kingdom, maturity 5 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id007
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/GBGVB5Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series GBGVB5Y (group 99); history from 1987-01-02.
+- id: riksbank_emgvb5y_daily
+  name: Riksbank SWEA — Government Bond EUR, maturity 5 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id007
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EMGVB5Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EMGVB5Y (group 99); history from 1999-01-04.
+- id: riksbank_usgvb10y_daily
+  name: Riksbank SWEA — Government Bond USA, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: &id008
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/USGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series USGVB10Y (group 100); history from 1991-01-02.
+- id: riksbank_jpgvb10y_daily
+  name: Riksbank SWEA — Government Bond Japan, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/JPGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series JPGVB10Y (group 100); history from 1987-01-05.
+- id: riksbank_degvb10y_daily
+  name: Riksbank SWEA — Government Bond Germany, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/DEGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series DEGVB10Y (group 100); history from 1987-02-09.
+- id: riksbank_nlgvb10y_daily
+  name: Riksbank SWEA — Government Bond Dutchland, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/NLGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series NLGVB10Y (group 100); history from 1987-02-09.
+- id: riksbank_frgvb10y_daily
+  name: Riksbank SWEA — Government Bond France, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/FRGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series FRGVB10Y (group 100); history from 1988-02-08.
+- id: riksbank_gbgvb10y_daily
+  name: Riksbank SWEA — Government Bond United Kingdom, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/GBGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series GBGVB10Y (group 100); history from 1987-01-02.
+- id: riksbank_emgvb10y_daily
+  name: Riksbank SWEA — Government Bond EUR, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/EMGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series EMGVB10Y (group 100); history from 1999-01-04.
+- id: riksbank_nogvb10y_daily
+  name: Riksbank SWEA — Government Bond Norway, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/NOGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series NOGVB10Y (group 100); history from 1990-05-31.
+- id: riksbank_dkgvb10y_daily
+  name: Riksbank SWEA — Government Bond Denmark, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/DKGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series DKGVB10Y (group 100); history from 1982-01-04.
+- id: riksbank_figvb10y_daily
+  name: Riksbank SWEA — Government Bond Finland, maturity 10 years
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes: *id008
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/FIGVB10Y/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series FIGVB10Y (group 100); history from 1990-04-02.
+- id: riksbank_sekett_daily
+  name: Riksbank SWEA — SEK Sweden, kronor
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: &id009
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKETT/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKETT (group 130); history from 1900-01-02.
+- id: riksbank_sekaudpmi_daily
+  name: Riksbank SWEA — AUD Australia, dollar
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKAUDPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKAUDPMI (group 130); history from 1993-01-04.
+- id: riksbank_sekbrlpmi_daily
+  name: Riksbank SWEA — BRL Brazil, real
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKBRLPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKBRLPMI (group 130); history from 2005-09-06.
+- id: riksbank_sekcadpmi_daily
+  name: Riksbank SWEA — CAD Canada, dollar
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKCADPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKCADPMI (group 130); history from 1993-01-04.
+- id: riksbank_sekchfpmi_daily
+  name: Riksbank SWEA — CHF Switzerland, francs
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKCHFPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKCHFPMI (group 130); history from 1993-01-04.
+- id: riksbank_sekcnypmi_daily
+  name: Riksbank SWEA — CNY China, yuan renminbi
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKCNYPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKCNYPMI (group 130); history from 1994-03-01.
+- id: riksbank_sekczkpmi_daily
+  name: Riksbank SWEA — CZK Czech Republic, koruna
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKCZKPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKCZKPMI (group 130); history from 1998-01-02.
+- id: riksbank_sekdkkpmi_daily
+  name: Riksbank SWEA — DKK Denmark, krone
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKDKKPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKDKKPMI (group 130); history from 1993-01-04.
+- id: riksbank_sekgbppmi_daily
+  name: Riksbank SWEA — GBP Great Britain, pound
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKGBPPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKGBPPMI (group 130); history from 1993-01-04.
+- id: riksbank_sekhkdpmi_daily
+  name: Riksbank SWEA — HKD Hong Kong, dollar
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKHKDPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKHKDPMI (group 130); history from 1994-03-01.
+- id: riksbank_sekhufpmi_daily
+  name: Riksbank SWEA — HUF Hungary, forint
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKHUFPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKHUFPMI (group 130); history from 1998-01-02.
+- id: riksbank_sekidrpmi_daily
+  name: Riksbank SWEA — IDR Indonesia, rupiah
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKIDRPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKIDRPMI (group 130); history from 1998-01-02.
+- id: riksbank_sekilspmi_daily
+  name: Riksbank SWEA — ILS, Israeli shekel
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKILSPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKILSPMI (group 130); history from 2023-11-20.
+- id: riksbank_sekinrpmi_daily
+  name: Riksbank SWEA — INR India, rupee
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKINRPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKINRPMI (group 130); history from 1994-03-01.
+- id: riksbank_sekiskpmi_daily
+  name: Riksbank SWEA — ISK Iceland, kronor
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKISKPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKISKPMI (group 130); history from 1993-01-04.
+- id: riksbank_sekjpypmi_daily
+  name: Riksbank SWEA — JPY Japan, yen
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKJPYPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKJPYPMI (group 130); history from 1993-01-04.
+- id: riksbank_sekkrwpmi_daily
+  name: Riksbank SWEA — KRW South Korea, won
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKKRWPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKKRWPMI (group 130); history from 2005-09-09.
+- id: riksbank_sekmxnpmi_daily
+  name: Riksbank SWEA — MXN Mexico, nuevo peso
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKMXNPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKMXNPMI (group 130); history from 1998-01-02.
+- id: riksbank_sekmyrpmi_daily
+  name: Riksbank SWEA — MYR Malaysia, ringgit
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKMYRPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKMYRPMI (group 130); history from 1994-03-01.
+- id: riksbank_sekronpmi_daily
+  name: Riksbank SWEA — RON, Romanien leu
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKRONPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKRONPMI (group 130); history from 2023-11-20.
+- id: riksbank_seknokpmi_daily
+  name: Riksbank SWEA — NOK Norway, krone
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKNOKPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKNOKPMI (group 130); history from 1993-01-04.
+- id: riksbank_seknzdpmi_daily
+  name: Riksbank SWEA — NZD New Zealand, dollar
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKNZDPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKNZDPMI (group 130); history from 1994-03-01.
+- id: riksbank_sekphppmi_daily
+  name: Riksbank SWEA — PHP, Philippine peso
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKPHPPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKPHPPMI (group 130); history from 2023-11-20.
+- id: riksbank_sekplnpmi_daily
+  name: Riksbank SWEA — PLN Poland, zloty
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKPLNPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKPLNPMI (group 130); history from 1998-01-02.
+- id: riksbank_seksgdpmi_daily
+  name: Riksbank SWEA — SGD Singapore, dollar
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKSGDPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKSGDPMI (group 130); history from 1994-03-01.
+- id: riksbank_sekthbpmi_daily
+  name: Riksbank SWEA — THB Thailand, baht
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKTHBPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKTHBPMI (group 130); history from 1998-01-02.
+- id: riksbank_sektrypmi_daily
+  name: Riksbank SWEA — TRY Turkey, new lira
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKTRYPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKTRYPMI (group 130); history from 2005-01-03.
+- id: riksbank_sekusdpmi_daily
+  name: Riksbank SWEA — USD US, dollar
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKUSDPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKUSDPMI (group 130); history from 1993-01-04.
+- id: riksbank_sekzarpmi_daily
+  name: Riksbank SWEA — ZAR South Africa, rand
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes: *id009
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKZARPMI/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKZARPMI (group 130); history from 1994-03-01.
+- id: riksbank_seksdr_daily
+  name: Riksbank SWEA — SDR Special Drawing Rights (SEK/SDR)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKSDR/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKSDR (group 138); history from 2011-06-27.
+- id: riksbank_sekkix92_daily
+  name: Riksbank SWEA — Svenskt KIX-index
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKKIX92/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKKIX92 (group 151); history from 1992-11-18.
+- id: riksbank_sekusdfo3mfix_daily
+  name: Riksbank SWEA — SEK/USD Forward Premium Maturity 3-Months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: &id010
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKUSDFO3MFIX/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKUSDFO3MFIX (group 155); history from 1980-01-02.
+- id: riksbank_sekusdfo6mfix_daily
+  name: Riksbank SWEA — SEK/USD Forward Premium Maturity 6-Months
+  domain: econ_fin
+  dgp_class: interest_rate
+  archetypes: *id010
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    url: https://api.riksbank.se/swea/v1/Observations/SEKUSDFO6MFIX/2016-01-01
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].value'
+    variates: 1
+  history_available: P30Y
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Riksbank open API
+  notes: SWEA series SEKUSDFO6MFIX (group 155); history from 1980-01-02.
+- id: kraken_xrp_usd_hourly
+  name: Kraken — XRP/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XXRPZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XXRPZUSD[][0]
+    value_field: result.XXRPZUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_eth_usd_hourly
+  mv_channels: ["XETHZUSD_4", "XETHZUSD_6", "XETHZUSD_7"]
+  name: Kraken — ETH/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XETHZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XETHZUSD[][0]
+    value_field:
+    - result.XETHZUSD[][4]
+    - result.XETHZUSD[][6]
+    - result.XETHZUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_sol_usd_hourly
+  mv_channels: ["SOLUSD_4", "SOLUSD_6", "SOLUSD_7"]
+  name: Kraken — SOL/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=SOLUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.SOLUSD[][0]
+    value_field:
+    - result.SOLUSD[][4]
+    - result.SOLUSD[][6]
+    - result.SOLUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_sui_usd_hourly
+  mv_channels: ["SUIUSD_4", "SUIUSD_6", "SUIUSD_7"]
+  name: Kraken — SUI/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=SUIUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.SUIUSD[][0]
+    value_field:
+    - result.SUIUSD[][4]
+    - result.SUIUSD[][6]
+    - result.SUIUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_near_usd_hourly
+  mv_channels: ["NEARUSD_4", "NEARUSD_6", "NEARUSD_7"]
+  name: Kraken — NEAR/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=NEARUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.NEARUSD[][0]
+    value_field:
+    - result.NEARUSD[][4]
+    - result.NEARUSD[][6]
+    - result.NEARUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_eur_usd_hourly
+  mv_channels: ["ZEURZUSD_4", "ZEURZUSD_6", "ZEURZUSD_7"]
+  name: Kraken — EUR/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ZEURZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ZEURZUSD[][0]
+    value_field:
+    - result.ZEURZUSD[][4]
+    - result.ZEURZUSD[][6]
+    - result.ZEURZUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_zec_usd_hourly
+  name: Kraken — ZEC/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XZECZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XZECZUSD[][0]
+    value_field: result.XZECZUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_ltc_usd_hourly
+  mv_channels: ["XLTCZUSD_4", "XLTCZUSD_6", "XLTCZUSD_7"]
+  name: Kraken — LTC/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XLTCZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XLTCZUSD[][0]
+    value_field:
+    - result.XLTCZUSD[][4]
+    - result.XLTCZUSD[][6]
+    - result.XLTCZUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_tao_usd_hourly
+  name: Kraken — TAO/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=TAOUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.TAOUSD[][0]
+    value_field: result.TAOUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_link_usd_hourly
+  name: Kraken — LINK/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=LINKUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.LINKUSD[][0]
+    value_field: result.LINKUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_ena_usd_hourly
+  mv_channels: ["ENAUSD_4", "ENAUSD_6", "ENAUSD_7"]
+  name: Kraken — ENA/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ENAUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ENAUSD[][0]
+    value_field:
+    - result.ENAUSD[][4]
+    - result.ENAUSD[][6]
+    - result.ENAUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_hype_usd_hourly
+  name: Kraken — HYPE/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=HYPEUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.HYPEUSD[][0]
+    value_field: result.HYPEUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_uni_usd_hourly
+  name: Kraken — UNI/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=UNIUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.UNIUSD[][0]
+    value_field: result.UNIUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_xdg_usd_hourly
+  mv_channels: ["XDGUSD_4", "XDGUSD_6", "XDGUSD_7"]
+  name: Kraken — XDG/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XDGUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XDGUSD[][0]
+    value_field:
+    - result.XDGUSD[][4]
+    - result.XDGUSD[][6]
+    - result.XDGUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_avax_usd_hourly
+  mv_channels: ["AVAXUSD_4", "AVAXUSD_6", "AVAXUSD_7"]
+  name: Kraken — AVAX/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=AVAXUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.AVAXUSD[][0]
+    value_field:
+    - result.AVAXUSD[][4]
+    - result.AVAXUSD[][6]
+    - result.AVAXUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_xlm_usd_hourly
+  name: Kraken — XLM/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XXLMZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XXLMZUSD[][0]
+    value_field: result.XXLMZUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_ada_usd_hourly
+  name: Kraken — ADA/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ADAUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ADAUSD[][0]
+    value_field: result.ADAUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_pepe_usd_hourly
+  mv_channels: ["PEPEUSD_4", "PEPEUSD_6", "PEPEUSD_7"]
+  name: Kraken — PEPE/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=PEPEUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.PEPEUSD[][0]
+    value_field:
+    - result.PEPEUSD[][4]
+    - result.PEPEUSD[][6]
+    - result.PEPEUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_gbp_usd_hourly
+  mv_channels: ["ZGBPZUSD_4", "ZGBPZUSD_6", "ZGBPZUSD_7"]
+  name: Kraken — GBP/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ZGBPZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ZGBPZUSD[][0]
+    value_field:
+    - result.ZGBPZUSD[][4]
+    - result.ZGBPZUSD[][6]
+    - result.ZGBPZUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_ondo_usd_hourly
+  mv_channels: ["ONDOUSD_4", "ONDOUSD_6", "ONDOUSD_7"]
+  name: Kraken — ONDO/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ONDOUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ONDOUSD[][0]
+    value_field:
+    - result.ONDOUSD[][4]
+    - result.ONDOUSD[][6]
+    - result.ONDOUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_pump_usd_hourly
+  name: Kraken — PUMP/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=PUMPUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.PUMPUSD[][0]
+    value_field: result.PUMPUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_xpl_usd_hourly
+  mv_channels: ["XPLUSD_4", "XPLUSD_6", "XPLUSD_7"]
+  name: Kraken — XPL/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XPLUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XPLUSD[][0]
+    value_field:
+    - result.XPLUSD[][4]
+    - result.XPLUSD[][6]
+    - result.XPLUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_xmr_usd_hourly
+  mv_channels: ["XXMRZUSD_4", "XXMRZUSD_6", "XXMRZUSD_7"]
+  name: Kraken — XMR/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=XXMRZUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.XXMRZUSD[][0]
+    value_field:
+    - result.XXMRZUSD[][4]
+    - result.XXMRZUSD[][6]
+    - result.XXMRZUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_pengu_usd_hourly
+  mv_channels: ["PENGUUSD_4", "PENGUUSD_6", "PENGUUSD_7"]
+  name: Kraken — PENGU/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=PENGUUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.PENGUUSD[][0]
+    value_field:
+    - result.PENGUUSD[][4]
+    - result.PENGUUSD[][6]
+    - result.PENGUUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_aave_usd_hourly
+  name: Kraken — AAVE/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=AAVEUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.AAVEUSD[][0]
+    value_field: result.AAVEUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_arb_usd_hourly
+  name: Kraken — ARB/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ARBUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ARBUSD[][0]
+    value_field: result.ARBUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_useless_usd_hourly
+  name: Kraken — USELESS/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=USELESSUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.USELESSUSD[][0]
+    value_field: result.USELESSUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_qnt_usd_hourly
+  mv_channels: ["QNTUSD_4", "QNTUSD_6", "QNTUSD_7"]
+  name: Kraken — QNT/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=QNTUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.QNTUSD[][0]
+    value_field:
+    - result.QNTUSD[][4]
+    - result.QNTUSD[][6]
+    - result.QNTUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_cc_usd_hourly
+  mv_channels: ["CCUSD_4", "CCUSD_6", "CCUSD_7"]
+  name: Kraken — CC/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=CCUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.CCUSD[][0]
+    value_field:
+    - result.CCUSD[][4]
+    - result.CCUSD[][6]
+    - result.CCUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_wld_usd_hourly
+  name: Kraken — WLD/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=WLDUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.WLDUSD[][0]
+    value_field: result.WLDUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_bch_usd_hourly
+  mv_channels: ["BCHUSD_4", "BCHUSD_6", "BCHUSD_7"]
+  name: Kraken — BCH/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=BCHUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.BCHUSD[][0]
+    value_field:
+    - result.BCHUSD[][4]
+    - result.BCHUSD[][6]
+    - result.BCHUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_sei_usd_hourly
+  mv_channels: ["SEIUSD_4", "SEIUSD_6", "SEIUSD_7"]
+  name: Kraken — SEI/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=SEIUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.SEIUSD[][0]
+    value_field:
+    - result.SEIUSD[][4]
+    - result.SEIUSD[][6]
+    - result.SEIUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_hbar_usd_hourly
+  mv_channels: ["HBARUSD_4", "HBARUSD_6", "HBARUSD_7"]
+  name: Kraken — HBAR/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=HBARUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.HBARUSD[][0]
+    value_field:
+    - result.HBARUSD[][4]
+    - result.HBARUSD[][6]
+    - result.HBARUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_dash_usd_hourly
+  name: Kraken — DASH/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=DASHUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.DASHUSD[][0]
+    value_field: result.DASHUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_jup_usd_hourly
+  name: Kraken — JUP/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=JUPUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.JUPUSD[][0]
+    value_field: result.JUPUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_fartcoin_usd_hourly
+  name: Kraken — FARTCOIN/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=FARTCOINUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.FARTCOINUSD[][0]
+    value_field: result.FARTCOINUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_fet_usd_hourly
+  name: Kraken — FET/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=FETUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.FETUSD[][0]
+    value_field: result.FETUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_aero_usd_hourly
+  mv_channels: ["AEROUSD_4", "AEROUSD_6", "AEROUSD_7"]
+  name: Kraken — AERO/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=AEROUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.AEROUSD[][0]
+    value_field:
+    - result.AEROUSD[][4]
+    - result.AEROUSD[][6]
+    - result.AEROUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_pha_usd_hourly
+  mv_channels: ["PHAUSD_4", "PHAUSD_6", "PHAUSD_7"]
+  name: Kraken — PHA/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=PHAUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.PHAUSD[][0]
+    value_field:
+    - result.PHAUSD[][4]
+    - result.PHAUSD[][6]
+    - result.PHAUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_vvv_usd_hourly
+  name: Kraken — VVV/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=VVVUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.VVVUSD[][0]
+    value_field: result.VVVUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_algo_usd_hourly
+  mv_channels: ["ALGOUSD_4", "ALGOUSD_6", "ALGOUSD_7"]
+  name: Kraken — ALGO/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ALGOUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ALGOUSD[][0]
+    value_field:
+    - result.ALGOUSD[][4]
+    - result.ALGOUSD[][6]
+    - result.ALGOUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_crv_usd_hourly
+  mv_channels: ["CRVUSD_4", "CRVUSD_6", "CRVUSD_7"]
+  name: Kraken — CRV/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=CRVUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.CRVUSD[][0]
+    value_field:
+    - result.CRVUSD[][4]
+    - result.CRVUSD[][6]
+    - result.CRVUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_bnb_usd_hourly
+  name: Kraken — BNB/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=BNBUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.BNBUSD[][0]
+    value_field: result.BNBUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_render_usd_hourly
+  mv_channels: ["RENDERUSD_4", "RENDERUSD_6", "RENDERUSD_7"]
+  name: Kraken — RENDER/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=RENDERUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.RENDERUSD[][0]
+    value_field:
+    - result.RENDERUSD[][4]
+    - result.RENDERUSD[][6]
+    - result.RENDERUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_dot_usd_hourly
+  name: Kraken — DOT/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=DOTUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.DOTUSD[][0]
+    value_field: result.DOTUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_lighter_usd_hourly
+  name: Kraken — LIGHTER/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=LIGHTERUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.LIGHTERUSD[][0]
+    value_field: result.LIGHTERUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_inj_usd_hourly
+  mv_channels: ["INJUSD_4", "INJUSD_6", "INJUSD_7"]
+  name: Kraken — INJ/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=INJUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.INJUSD[][0]
+    value_field:
+    - result.INJUSD[][4]
+    - result.INJUSD[][6]
+    - result.INJUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_ake_usd_hourly
+  name: Kraken — AKE/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=AKEUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.AKEUSD[][0]
+    value_field: result.AKEUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_zro_usd_hourly
+  mv_channels: ["ZROUSD_4", "ZROUSD_6", "ZROUSD_7"]
+  name: Kraken — ZRO/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ZROUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ZROUSD[][0]
+    value_field:
+    - result.ZROUSD[][4]
+    - result.ZROUSD[][6]
+    - result.ZROUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_virtual_usd_hourly
+  name: Kraken — VIRTUAL/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=VIRTUALUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.VIRTUALUSD[][0]
+    value_field: result.VIRTUALUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_pol_usd_hourly
+  name: Kraken — POL/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=POLUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.POLUSD[][0]
+    value_field: result.POLUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_jto_usd_hourly
+  name: Kraken — JTO/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=JTOUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.JTOUSD[][0]
+    value_field: result.JTOUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_kas_usd_hourly
+  name: Kraken — KAS/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=KASUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.KASUSD[][0]
+    value_field: result.KASUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_nil_usd_hourly
+  name: Kraken — NIL/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=NILUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.NILUSD[][0]
+    value_field: result.NILUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_icp_usd_hourly
+  mv_channels: ["ICPUSD_4", "ICPUSD_6", "ICPUSD_7"]
+  name: Kraken — ICP/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=ICPUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.ICPUSD[][0]
+    value_field:
+    - result.ICPUSD[][4]
+    - result.ICPUSD[][6]
+    - result.ICPUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_ldo_usd_hourly
+  mv_channels: ["LDOUSD_4", "LDOUSD_6", "LDOUSD_7"]
+  name: Kraken — LDO/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=LDOUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.LDOUSD[][0]
+    value_field:
+    - result.LDOUSD[][4]
+    - result.LDOUSD[][6]
+    - result.LDOUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_op_usd_hourly
+  name: Kraken — OP/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=OPUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.OPUSD[][0]
+    value_field: result.OPUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: kraken_fil_usd_hourly
+  mv_channels: ["FILUSD_4", "FILUSD_6", "FILUSD_7"]
+  name: Kraken — FIL/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=FILUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.FILUSD[][0]
+    value_field:
+    - result.FILUSD[][4]
+    - result.FILUSD[][6]
+    - result.FILUSD[][7]
+    variates: 3
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call; columns are close, base volume and trade count.
+- id: kraken_aud_usd_hourly
+  name: Kraken — AUD/USD hourly OHLC
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    url: https://api.kraken.com/0/public/OHLC?pair=AUDUSD&interval=60
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: result.AUDUSD[][0]
+    value_field: result.AUDUSD[][4]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: hourly
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
