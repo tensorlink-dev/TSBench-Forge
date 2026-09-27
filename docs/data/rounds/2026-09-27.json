@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "round_id": "2026-09-27",
+  "generated_at": "2026-09-27T09:44:44+00:00",
+  "config": {
+    "seed": "tsfm-significance-v1",
+    "motif_len": 304,
+    "n_challenges": 1280,
+    "n_series": 274,
+    "k_draws": 5
+  },
+  "leaderboard": [
+    {
+      "rank": 1,
+      "model": "toto2-313m",
+      "crps_rel": 0.5133361328729951,
+      "mase_rel": 0.7613971305254912,
+      "crps": 0.6009022350203076,
+      "mase": 3.313120507476347
+    },
+    {
+      "rank": 2,
+      "model": "paracast-router",
+      "crps_rel": 0.5133361328729951,
+      "mase_rel": 0.7613971305254912,
+      "crps": 0.6009022350203076,
+      "mase": 3.313120507476347
+    },
+    {
+      "rank": 3,
+      "model": "paracast-ensemble",
+      "crps_rel": 0.5264132735045828,
+      "mase_rel": 0.7873423517212466,
+      "crps": 0.6042477230379716,
+      "mase": 3.4577066966691925
+    },
+    {
+      "rank": 4,
+      "model": "chronos2",
+      "crps_rel": 0.5417691158825395,
+      "mase_rel": 0.8204473144713811,
+      "crps": 0.6080740913689587,
+      "mase": 3.522017321143282
+    },
+    {
+      "rank": 5,
+      "model": "timesfm25",
+      "crps_rel": 0.5449447158229701,
+      "mase_rel": 0.8105420044040549,
+      "crps": 0.6130983471584454,
+      "mase": 3.5012566785954276
+    },
+    {
+      "rank": 6,
+      "model": "patchtst-fm-r1",
+      "crps_rel": 0.5537016920341554,
+      "mase_rel": 0.8358763066514496,
+      "crps": 0.5995663312594077,
+      "mase": 2.8972244900659305
+    },
+    {
+      "rank": 7,
+      "model": "flowstate-r1",
+      "crps_rel": 0.5573036791736835,
+      "mase_rel": 0.8340944610609107,
+      "crps": 0.641835726435571,
+      "mase": 3.4611797279762797
+    },
+    {
+      "rank": 8,
+      "model": "tirex2",
+      "crps_rel": 0.5602478781759954,
+      "mase_rel": 0.8178847469339675,
+      "crps": 0.6279719506095786,
+      "mase": 3.707019535175444
+    },
+    {
+      "rank": 9,
+      "model": "strong",
+      "crps_rel": 0.8664509317864979,
+      "mase_rel": 0.82713988272864,
+      "crps": 0.8706031456709304,
+      "mase": 3.801587077930832
+    },
+    {
+      "rank": 10,
+      "model": "ewma",
+      "crps_rel": 0.9195367014335679,
+      "mase_rel": 1.0615754662500925,
+      "crps": 0.8676391472311414,
+      "mase": 3.934166729478925
+    },
+    {
+      "rank": 11,
+      "model": "drift",
+      "crps_rel": 0.9311397466474448,
+      "mase_rel": 0.9846792107234222,
+      "crps": 0.9211850418075244,
+      "mase": 3.783630199102009
+    },
+    {
+      "rank": 12,
+      "model": "ar1",
+      "crps_rel": 0.9854585009534267,
+      "mase_rel": 1.2785829550837273,
+      "crps": 0.888644808958957,
+      "mase": 4.394069952299872
+    },
+    {
+      "rank": 13,
+      "model": "seasonal_naive",
+      "crps_rel": 1.0,
+      "mase_rel": 0.9196617279714454,
+      "crps": 0.9248513816919888,
+      "mase": 4.264977207366595
+    },
+    {
+      "rank": 14,
+      "model": "context_parrot",
+      "crps_rel": 1.046715994913057,
+      "mase_rel": 1.328785458300354,
+      "crps": 0.990026276199988,
+      "mase": 3.948119180062258
+    }
+  ],
+  "note": "scored via paracast",
+  "composition": {
+    "domains": {
+      "econ_fin": 186,
+      "energy": 137,
+      "healthcare": 160,
+      "nature": 236,
+      "sales": 163,
+      "transport": 232,
+      "web_cloudops": 166
+    },
+    "domains_per_draw": [
+      {
+        "econ_fin": 41,
+        "energy": 23,
+        "healthcare": 7,
+        "nature": 57,
+        "sales": 38,
+        "transport": 36,
+        "web_cloudops": 54
+      },
+      {
+        "econ_fin": 20,
+        "energy": 16,
+        "healthcare": 58,
+        "nature": 63,
+        "sales": 25,
+        "transport": 54,
+        "web_cloudops": 20
+      },
+      {
+        "econ_fin": 28,
+        "energy": 37,
+        "healthcare": 17,
+        "nature": 65,
+        "sales": 35,
+        "transport": 32,
+        "web_cloudops": 42
+      },
+      {
+        "econ_fin": 58,
+        "energy": 35,
+        "healthcare": 33,
+        "nature": 34,
+        "sales": 29,
+        "transport": 57,
+        "web_cloudops": 10
+      },
+      {
+        "econ_fin": 39,
+        "energy": 26,
+        "healthcare": 45,
+        "nature": 17,
+        "sales": 36,
+        "transport": 53,
+        "web_cloudops": 40
+      }
+    ],
+    "effective_domains": 6.88,
+    "cadences": {
+      "daily": 406,
+      "few-min": 289,
+      "half-hour": 73,
+      "hourly": 245,
+      "monthly": 39,
+      "other": 43,
+      "sub-min": 146,
+      "weekly": 39
+    },
+    "n_dgp_classes": 108
+  },
+  "friedman_crps": {
+    "statistic": 6935.625669642854,
+    "df": 13.0,
+    "p_value": 0.0,
+    "models": [
+      "chronos2",
+      "timesfm25",
+      "toto2-313m",
+      "tirex2",
+      "patchtst-fm-r1",
+      "flowstate-r1",
+      "paracast-ensemble",
+      "paracast-router",
+      "strong",
+      "seasonal_naive",
+      "drift",
+      "ewma",
+      "ar1",
+      "context_parrot"
+    ]
+  },
+  "vs_baseline_crps": [
+    {
+      "model": "toto2-313m",
+      "median_diff": -0.24556220053227018,
+      "win_rate": 0.903125,
+      "wilcoxon_p_holm": 3.907532055867937e-171,
+      "significant": true
+    },
+    {
+      "model": "paracast-router",
+      "median_diff": -0.24556220053227018,
+      "win_rate": 0.903125,
+      "wilcoxon_p_holm": 3.907532055867937e-171,
+      "significant": true
+    },
+    {
+      "model": "paracast-ensemble",
+      "median_diff": -0.2417667510307493,
+      "win_rate": 0.9140625,
+      "wilcoxon_p_holm": 6.514408880679792e-177,
+      "significant": true
+    },
+    {
+      "model": "chronos2",
+      "median_diff": -0.23629620553053277,
+      "win_rate": 0.88671875,
+      "wilcoxon_p_holm": 2.9687092532985754e-169,
+      "significant": true
+    },
+    {
+      "model": "tirex2",
+      "median_diff": -0.23254698687356956,
+      "win_rate": 0.8984375,
+      "wilcoxon_p_holm": 8.73052533220484e-165,
+      "significant": true
+    },
+    {
+      "model": "patchtst-fm-r1",
+      "median_diff": -0.23178377216449564,
+      "win_rate": 0.8953125,
+      "wilcoxon_p_holm": 6.275819499469106e-174,
+      "significant": true
+    },
+    {
+      "model": "timesfm25",
+      "median_diff": -0.23131856326880537,
+      "win_rate": 0.90546875,
+      "wilcoxon_p_holm": 6.918362332494884e-178,
+      "significant": true
+    },
+    {
+      "model": "flowstate-r1",
+      "median_diff": -0.21973530500799518,
+      "win_rate": 0.86953125,
+      "wilcoxon_p_holm": 1.7246240597753787e-147,
+      "significant": true
+    },
+    {
+      "model": "ewma",
+      "median_diff": -0.022082483303591055,
+      "win_rate": 0.6796875,
+      "wilcoxon_p_holm": 3.388232978170632e-36,
+      "significant": true
+    },
+    {
+      "model": "ar1",
+      "median_diff": -0.008206790351411253,
+      "win_rate": 0.5546875,
+      "wilcoxon_p_holm": 1.9055215556521707e-07,
+      "significant": true
+    },
+    {
+      "model": "strong",
+      "median_diff": -0.00302860375580008,
+      "win_rate": 0.5421875,
+      "wilcoxon_p_holm": 1.6289158136086504e-28,
+      "significant": true
+    },
+    {
+      "model": "drift",
+      "median_diff": 9.120020857339428e-05,
+      "win_rate": 0.45234375,
+      "wilcoxon_p_holm": 1.0,
+      "significant": false
+    },
+    {
+      "model": "context_parrot",
+      "median_diff": 0.03427489856724096,
+      "win_rate": 0.38828125,
+      "wilcoxon_p_holm": 1.0,
+      "significant": false
+    }
+  ]
+}
