@@ -106940,3 +106940,3432 @@
   pretraining_novelty: contaminated
   license: Kraken public API
   notes: 720 hourly candles per call. Close only — the volume/trade-count siblings were audit-rejected for this pair.
+- id: irceline_pm10_40al01_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40AL01 Linkeroever
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6152/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6152 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40al02_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40AL02 Beveren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6153/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6153 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40al03_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40AL03 Beveren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10767/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10767 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40al04_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40AL04 Beveren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10768/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10768 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40al05_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40AL05 Beveren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6157/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6157 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40at83_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40AT83 BERENDRECHT
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11115/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11115 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40du07_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40DU07 Deurne
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100039/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100039 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_pm10_40eg05_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40EG05 Rieme
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10953/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10953 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40g100_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40G100 Sint-Kruiswinkel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11097/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11097 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40gk37_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40GK37 Genk
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11048/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11048 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40hb81_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40HB81 Hoboken
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11142/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11142 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40mn01_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40MN01 Menen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6301/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6301 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40ob01_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40OB01 Oostrozebeke
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6324/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6324 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40sa04_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40SA04 Hoevenen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10691/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10691 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40sz05_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40SZ05 Steenokkerzeel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11043/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11043 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40zb07_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40ZB07 Zeebrugge
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11061/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11061 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_40zb08_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 40ZB08 Zeebrugge (Evendijk-Oost)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11074/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11074 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_41b011_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 41B011 Berchem-Sainte-Agathe
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6531/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6531 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_41meu1_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 41MEU1 Meudon
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6552/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6552 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_41n043_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 41N043 Haren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6563/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6563 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_41r001_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 41R001 Molenbeek-Saint-Jean
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6578/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6578 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_41r012_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 41R012 Uccle
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6626/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6626 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_41reg1_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 41REG1 Brussel (Bld du Régent)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100033/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100033 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_pm10_42al09_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 42AL09 Antwerpen (Van Averbekelaan)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10939/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10939 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm10_42al10_hourly
+  name: IRCELINE — Particulate Matter < 10 µm at 42AL10 Antwerpen (Blancefloerlaan)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10945/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10945 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40al01_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40AL01 Linkeroever
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100008/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100008 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_pm25_40al02_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40AL02 Beveren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6154/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6154 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40al03_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40AL03 Beveren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6155/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6155 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40al04_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40AL04 Beveren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6156/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6156 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40al05_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40AL05 Beveren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6158/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6158 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40at83_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40AT83 BERENDRECHT
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11116/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11116 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40du07_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40DU07 Deurne
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100040/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100040 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_pm25_40eg05_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40EG05 Rieme
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10954/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10954 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40g100_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40G100 Sint-Kruiswinkel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11098/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11098 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40gk37_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40GK37 Genk
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11049/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11049 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40hb81_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40HB81 Hoboken
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11141/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11141 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40mn01_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40MN01 Menen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6302/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6302 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40ob01_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40OB01 Oostrozebeke
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100006/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100006 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_pm25_40sa04_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40SA04 Hoevenen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10692/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10692 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40sz05_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40SZ05 Steenokkerzeel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11042/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11042 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40zb07_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40ZB07 Zeebrugge
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11065/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11065 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_40zb08_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 40ZB08 Zeebrugge (Evendijk-Oost)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11078/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11078 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_41b011_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 41B011 Berchem-Sainte-Agathe
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6532/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6532 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_41meu1_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 41MEU1 Meudon
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6553/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6553 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_41n043_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 41N043 Haren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6564/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6564 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_41r001_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 41R001 Molenbeek-Saint-Jean
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6579/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6579 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_41r012_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 41R012 Uccle
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6627/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6627 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_41reg1_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 41REG1 Brussel (Bld du Régent)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100034/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100034 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_pm25_42al09_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 42AL09 Antwerpen (Van Averbekelaan)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10940/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10940 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_pm25_42al10_hourly
+  name: IRCELINE — Particulate Matter < 2.5 µm at 42AL10 Antwerpen (Blancefloerlaan)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10946/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10946 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40at83_hourly
+  name: IRCELINE — Nitrogen dioxide at 40AT83 BERENDRECHT
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11113/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11113 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40du07_hourly
+  name: IRCELINE — Nitrogen dioxide at 40DU07 Deurne
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100038/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100038 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_no2_40ld02_hourly
+  name: IRCELINE — Nitrogen dioxide at 40LD02 Laakdal
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6281/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6281 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40r891_hourly
+  name: IRCELINE — Nitrogen dioxide at 40R891 Antwerpen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6858/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6858 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40r892_hourly
+  name: IRCELINE — Nitrogen dioxide at 40R892 Kallo
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6862/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6862 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40r897_hourly
+  name: IRCELINE — Nitrogen dioxide at 40R897 Antwerpen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6875/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6875 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40sa04_hourly
+  name: IRCELINE — Nitrogen dioxide at 40SA04 Hoevenen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11046/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11046 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40sz05_hourly
+  name: IRCELINE — Nitrogen dioxide at 40SZ05 Steenokkerzeel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11041/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11041 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40zb07_hourly
+  name: IRCELINE — Nitrogen dioxide at 40ZB07 Zeebrugge
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11063/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11063 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40zb08_hourly
+  name: IRCELINE — Nitrogen dioxide at 40ZB08 Zeebrugge (Evendijk-Oost)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11076/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11076 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_40zb12_hourly
+  name: IRCELINE — Nitrogen dioxide at 40ZB12 Zeebrugge
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11131/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11131 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41b001_hourly
+  name: IRCELINE — Nitrogen dioxide at 41B001 Arts-Loi
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6504/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6504 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41b004_hourly
+  name: IRCELINE — Nitrogen dioxide at 41B004 Bruxelles (Sainte-Catherine)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6508/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6508 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41b006_hourly
+  name: IRCELINE — Nitrogen dioxide at 41B006 Bruxelles (Parlement UE)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6516/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6516 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41b008_hourly
+  name: IRCELINE — Nitrogen dioxide at 41B008 Brussel (Beliardstraat)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10614/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10614 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41b011_hourly
+  name: IRCELINE — Nitrogen dioxide at 41B011 Berchem-Sainte-Agathe
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6528/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6528 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41bul1_hourly
+  name: IRCELINE — Nitrogen dioxide at 41BUL1 Brussel (Bld du Midi)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10959/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10959 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41cha1_hourly
+  name: IRCELINE — Nitrogen dioxide at 41CHA1 Brussel (Ganshoren)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100036/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100036 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_no2_41meu1_hourly
+  name: IRCELINE — Nitrogen dioxide at 41MEU1 Meudon
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6551/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6551 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41n043_hourly
+  name: IRCELINE — Nitrogen dioxide at 41N043 Haren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6561/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6561 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41r001_hourly
+  name: IRCELINE — Nitrogen dioxide at 41R001 Molenbeek-Saint-Jean
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6574/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6574 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41r002_hourly
+  name: IRCELINE — Nitrogen dioxide at 41R002 Ixelles
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6615/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6615 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41r012_hourly
+  name: IRCELINE — Nitrogen dioxide at 41R012 Uccle
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6622/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6622 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_no2_41reg1_hourly
+  name: IRCELINE — Nitrogen dioxide at 41REG1 Brussel (Bld du Régent)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100032/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100032 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_o3_41b011_hourly
+  name: IRCELINE — Ozone at 41B011 Berchem-Sainte-Agathe
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6530/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6530 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_41meu1_hourly
+  name: IRCELINE — Ozone at 41MEU1 Meudon
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10766/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10766 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_41n043_hourly
+  name: IRCELINE — Ozone at 41N043 Haren
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6562/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6562 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_41r001_hourly
+  name: IRCELINE — Ozone at 41R001 Molenbeek-Saint-Jean
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6577/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6577 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_41r012_hourly
+  name: IRCELINE — Ozone at 41R012 Uccle
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6625/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6625 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42n016_hourly
+  name: IRCELINE — Ozone at 42N016 Dessel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6703/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6703 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42n027_hourly
+  name: IRCELINE — Ozone at 42N027 Bree
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6711/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6711 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42n035_hourly
+  name: IRCELINE — Ozone at 42N035 Aarschot
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6715/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6715 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42n040_hourly
+  name: IRCELINE — Ozone at 42N040 Sint-Pieters-Leeuw (3m)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6719/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6719 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42n046_hourly
+  name: IRCELINE — Ozone at 42N046 Gellik
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6744/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6744 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42n047_hourly
+  name: IRCELINE — Ozone at 42N047 Hasselt
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10828/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10828 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42r801_hourly
+  name: IRCELINE — Ozone at 42R801 Borgerhout
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6778/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6778 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42r811_hourly
+  name: IRCELINE — Ozone at 42R811 Schoten
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6793/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6793 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_42r842_hourly
+  name: IRCELINE — Ozone at 42R842 Mechelen (Hendrik Speecqvest)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/100020/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 100020 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like
+    the sensor.community dust panel.'
+- id: irceline_o3_43n060_hourly
+  name: IRCELINE — Ozone at 43N060 Havinnes
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6891/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6891 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_43n064_hourly
+  name: IRCELINE — Ozone at 43N064 Rixensart
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11070/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11070 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_o3_43n066_hourly
+  name: IRCELINE — Ozone at 43N066 Eupen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6907/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6907 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_so2_40hb81_hourly
+  name: IRCELINE — Sulphur dioxide at 40HB81 Hoboken
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11143/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11143 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_so2_40r891_hourly
+  name: IRCELINE — Sulphur dioxide at 40R891 Antwerpen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6856/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6856 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_so2_40r892_hourly
+  name: IRCELINE — Sulphur dioxide at 40R892 Kallo
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6860/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6860 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_so2_40r897_hourly
+  name: IRCELINE — Sulphur dioxide at 40R897 Antwerpen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6873/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6873 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_so2_40wz02_hourly
+  name: IRCELINE — Sulphur dioxide at 40WZ02 Mol
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6430/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6430 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_bc_40at83_hourly
+  name: IRCELINE — Black Carbon at 40AT83 BERENDRECHT
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11114/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11114 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_bc_40du07_hourly
+  name: IRCELINE — Black Carbon at 40DU07 Deurne
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11019/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11019 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_bc_40sz05_hourly
+  name: IRCELINE — Black Carbon at 40SZ05 Steenokkerzeel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11044/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11044 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_bc_40zb07_hourly
+  name: IRCELINE — Black Carbon at 40ZB07 Zeebrugge
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11062/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11062 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_bc_40zb08_hourly
+  name: IRCELINE — Black Carbon at 40ZB08 Zeebrugge (Evendijk-Oost)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11075/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11075 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_bc_41r001_hourly
+  name: IRCELINE — Black Carbon at 41R001 Molenbeek-Saint-Jean
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6569/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6569 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_bc_41r012_hourly
+  name: IRCELINE — Black Carbon at 41R012 Uccle
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10607/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10607 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_bc_42mk02_hourly
+  name: IRCELINE — Black Carbon at 42MK02 Merksem
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/11034/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 11034 (µg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_co_41b006_hourly
+  name: IRCELINE — Carbon Monoxide at 41B006 Bruxelles (Parlement UE)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6514/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6514 (mg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_co_41b008_hourly
+  name: IRCELINE — Carbon Monoxide at 41B008 Brussel (Beliardstraat)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/10616/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 10616 (mg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: irceline_co_41r001_hourly
+  name: IRCELINE — Carbon Monoxide at 41R001 Molenbeek-Saint-Jean
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  - chaotic_nonlinear
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://geo.irceline.be/sos/api/v1/timeseries/6571/getData?timespan=PT720H%2F{YYYY-MM-DD}T00%3A00%3A00Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    variates: 1
+  history_available: P20Y
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IRCEL-CELINE open data (Belgian interregional environment agency)
+  notes: 'SOS timeseries 6571 (mg/m³). 30-day window per fetch (721 hourly points), so the series is pool-eligible from the first scrape. Exposure series: air pollution is wired under healthcare like the
+    sensor.community dust panel.'
+- id: miteco_fuel_prices_barcelona
+  name: Spain MITECO retail fuel prices — Barcelona province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/08
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Barcelona province. Stations carry no per-row timestamp (top-level Fecha only), so rows take wire-time stamps like GBFS snapshots and the panel ripens at
+    the poll cadence (~7 days to 320 points). Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_valencia
+  name: Spain MITECO retail fuel prices — Valencia province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/46
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Valencia province. Stations carry no per-row timestamp (top-level Fecha only), so rows take wire-time stamps like GBFS snapshots and the panel ripens at
+    the poll cadence (~7 days to 320 points). Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_sevilla
+  name: Spain MITECO retail fuel prices — Sevilla province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/41
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Sevilla province. Stations carry no per-row timestamp (top-level Fecha only), so rows take wire-time stamps like GBFS snapshots and the panel ripens at
+    the poll cadence (~7 days to 320 points). Re-audit the two price columns for an mv_channels tag once ripe.
+- id: octopus_agile_outgoing_tariff
+  name: Octopus Energy Agile Outgoing export tariff (14-region UK panel)
+  domain: energy
+  dgp_class: energy_price
+  archetypes:
+  - non_stationary_regime
+  - bounded
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 100 req/min
+    url: https://api.octopus.energy/v1/products/AGILE-OUTGOING-19-05-13/electricity-tariffs/E-1R-AGILE-OUTGOING-19-05-13-{REGION}/standard-unit-rates/?page_size=1500
+  panel:
+  - REGION: A
+  - REGION: B
+  - REGION: C
+  - REGION: D
+  - REGION: E
+  - REGION: F
+  - REGION: G
+  - REGION: H
+  - REGION: J
+  - REGION: K
+  - REGION: L
+  - REGION: M
+  - REGION: N
+  - REGION: P
+  schema:
+    timestamp_field: results[].valid_from
+    value_field: results[].value_inc_vat
+    variates: 1
+  history_available: P6Y
+  update_cadence_observed: 30 minutes; next-day prices ~16:00 UTC
+  pretraining_novelty: clean
+  license: Octopus Energy API ToS — research-permissive
+  notes: 'Export counterpart to octopus_agile_tariff: what Octopus pays for exported half-hours, same 14 GSP regions. 1,500 rates per fetch.'
+- id: elexon_fuelinst_generation_5min
+  name: Elexon BMRS — GB instantaneous generation by fuel type (5-min panel)
+  domain: energy
+  dgp_class: generation_mix
+  archetypes:
+  - hierarchical
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://data.elexon.co.uk/bmrs/api/v1/datasets/FUELINST?publishDateTimeFrom={YYYY-MM-DD-2d}T00:00Z&publishDateTimeTo={YYYY-MM-DD}T23:59Z
+  schema:
+    timestamp_field: data[].startTime
+    value_field: data[].generation
+    panel_field: data[].fuelType
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 5 minutes
+  pretraining_novelty: clean
+  license: Elexon BMRS open data (keyless v1 API)
+  notes: ~20 fuel types x 5-minute settlement instants; 2-day window per fetch (~576 points per fuel) so every panel row is pool-eligible on the first scrape.
+- id: miteco_fuel_prices_bizkaia
+  name: Spain MITECO retail fuel prices — Bizkaia province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/48
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Bizkaia province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320 points).
+    Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_asturias
+  name: Spain MITECO retail fuel prices — Asturias province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/33
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Asturias province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320 points).
+    Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_malaga
+  name: Spain MITECO retail fuel prices — Malaga province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/29
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Malaga province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320 points).
+    Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_murcia
+  name: Spain MITECO retail fuel prices — Murcia province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/30
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Murcia province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320 points).
+    Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_a_coruna
+  name: Spain MITECO retail fuel prices — A Coruna province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/15
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for A Coruna province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320 points).
+    Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_zaragoza
+  name: Spain MITECO retail fuel prices — Zaragoza province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/50
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Zaragoza province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320 points).
+    Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_illes_balears
+  name: Spain MITECO retail fuel prices — Illes Balears province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/07
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Illes Balears province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to
+    320 points). Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_las_palmas
+  name: Spain MITECO retail fuel prices — Las Palmas province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/35
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Las Palmas province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320
+    points). Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_cadiz
+  name: Spain MITECO retail fuel prices — Cadiz province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/11
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Cadiz province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320 points).
+    Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_alicante
+  name: Spain MITECO retail fuel prices — Alicante province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/03
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Alicante province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320 points).
+    Re-audit the two price columns for an mv_channels tag once ripe.
+- id: miteco_fuel_prices_tarragona
+  name: Spain MITECO retail fuel prices — Tarragona province station panel
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    timeout: 90
+    url: https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/43
+  schema:
+    timestamp_field: ListaEESSPrecio[].Fecha
+    value_field:
+    - ListaEESSPrecio[].Precio Gasoleo A
+    - ListaEESSPrecio[].Precio Gasolina 95 E5
+    panel_field: ListaEESSPrecio[].IDEESS
+    decimal_comma: true
+    drop_null_values: true
+  license: Spanish open government data (MITECO/Minetur sedeaplicaciones reuse terms)
+  notes: Sibling of miteco_fuel_prices_madrid for Tarragona province. No per-row timestamp (top-level Fecha only), so rows take wire-time stamps and the panel ripens at the poll cadence (~7 days to 320
+    points). Re-audit the two price columns for an mv_channels tag once ripe.
+- id: elexon_agpt_generation_per_type_30min
+  name: Elexon BMRS — GB actual generation per production type (30-min panel)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - hierarchical
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://data.elexon.co.uk/bmrs/api/v1/datasets/AGPT?publishDateTimeFrom={YYYY-MM-DD-1d}T00:00Z&publishDateTimeTo={YYYY-MM-DD}T23:59Z
+  schema:
+    timestamp_field: data[].startTime
+    value_field: data[].quantity
+    panel_field: data[].psrType
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 30 minutes
+  pretraining_novelty: clean
+  license: Elexon BMRS open data (keyless v1 API)
+  notes: EMFIP actual aggregated generation per production type. The API refuses publish-time ranges beyond ~2 days, so each fetch carries ~96 settlement periods per type and the series ripen over ~4 days.
+- id: elexon_windfor_forecast_30min
+  name: Elexon BMRS — GB wind generation forecast (30-min)
+  domain: energy
+  dgp_class: grid_generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT30M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://data.elexon.co.uk/bmrs/api/v1/datasets/WINDFOR?publishDateTimeFrom={YYYY-MM-DD-1d}T00:00Z&publishDateTimeTo={YYYY-MM-DD}T23:59Z
+  schema:
+    timestamp_field: data[].startTime
+    value_field: data[].generation
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 30 minutes
+  pretraining_novelty: clean
+  license: Elexon BMRS open data (keyless v1 API)
+  notes: Day-ahead wind forecast for the GB transmission system — the forecast counterpart to the FUELINST wind outturn.
+- id: elexon_ndf_demand_forecast_30min
+  name: Elexon BMRS — GB national demand forecast (30-min, by boundary)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - seasonal_multiscale
+  - smooth_periodic
+  frequency: PT30M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://data.elexon.co.uk/bmrs/api/v1/datasets/NDF?publishDateTimeFrom={YYYY-MM-DD}T00:00Z&publishDateTimeTo={YYYY-MM-DD}T23:59Z
+  schema:
+    timestamp_field: data[].startTime
+    value_field: data[].demand
+    panel_field: data[].boundary
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 30 minutes
+  pretraining_novelty: clean
+  license: Elexon BMRS open data (keyless v1 API)
+  notes: National demand forecast per system boundary; ~96 settlement periods per fetch, so the series ripen over ~4 days.
+- id: elexon_tsdf_demand_forecast_30min
+  name: Elexon BMRS — GB transmission system demand forecast (30-min, by boundary)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - seasonal_multiscale
+  - smooth_periodic
+  frequency: PT30M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://data.elexon.co.uk/bmrs/api/v1/datasets/TSDF?publishDateTimeFrom={YYYY-MM-DD}T00:00Z&publishDateTimeTo={YYYY-MM-DD}T23:59Z
+  schema:
+    timestamp_field: data[].startTime
+    value_field: data[].demand
+    panel_field: data[].boundary
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 30 minutes
+  pretraining_novelty: clean
+  license: Elexon BMRS open data (keyless v1 API)
+  notes: Transmission system demand forecast per system boundary; ~96 settlement periods per fetch, so the series ripen over ~4 days.
+- id: energy_charts_cbpf_at_15min
+  name: energy-charts — cross-border physical power flow, Austria
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Austria's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_be_15min
+  name: energy-charts — cross-border physical power flow, Belgium
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=be&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Belgium's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_ch_15min
+  name: energy-charts — cross-border physical power flow, Switzerland
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=ch&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Switzerland's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_cz_15min
+  name: energy-charts — cross-border physical power flow, Czechia
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Czechia's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_dk_15min
+  name: energy-charts — cross-border physical power flow, Denmark
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Denmark's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_es_15min
+  name: energy-charts — cross-border physical power flow, Spain
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Spain's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_fr_15min
+  name: energy-charts — cross-border physical power flow, France
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on France's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_it_15min
+  name: energy-charts — cross-border physical power flow, Italy
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Italy's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_nl_15min
+  name: energy-charts — cross-border physical power flow, Netherlands
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Netherlands's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_pl_15min
+  name: energy-charts — cross-border physical power flow, Poland
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Poland's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_pt_15min
+  name: energy-charts — cross-border physical power flow, Portugal
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=pt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Portugal's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cbpf_se_15min
+  name: energy-charts — cross-border physical power flow, Sweden
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: null
+    url: https://api.energy-charts.info/cbpf?country=se&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: countries[0].data
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: Physical flow on Sweden's first cross-border interconnector (countries[0], index verified stable per country like the public_power wiring). 14-day window = ~1,344 quarter-hours per fetch.
