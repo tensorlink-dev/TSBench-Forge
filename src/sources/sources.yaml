@@ -114396,3 +114396,754 @@
   pretraining_novelty: clean
   license: open data (see host portal terms)
   notes: Top-12 call types only, counted server-side via SoQL so one request carries years of history. Diversifies healthcare away from the air-quality networks.
+
+# -- wired batch: novel-wave GBFS (transport) --
+- id: gbfs_ridedott_dott_ras_al_khaimah_ras_al_khaimah
+  name: Dott Ras Al Khaimah (Ras Al Khaimah) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.api.ridedott.com/public/v2/ras-al-khaimah/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    panel_field: data.stations[].station_id
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 31 stations; ttl unsets
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (AE, system id dott-ras-al-khaimah). Station
+    panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_nextbike_city_bike_linz_linz
+  name: city bike Linz (Linz) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_al/en/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 54 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (AT, system id nextbike_al). Station panel keyed
+    on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
+- id: gbfs_bike_donkey_republic_westhoek_westhoek
+  name: Donkey Republic Westhoek (Westhoek) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://stables.donkey.bike/api/public/gbfs/3.0/donkey_westhoek/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_vehicles_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 55 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (BE, system id donkey_westhoek). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_bird_bird_vaughan_vaughan
+  name: Bird Vaughan (Vaughan) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://mds.bird.co/gbfs/v2/public/vaughan/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 496 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (CA, system id bird-vaughan). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_mobidata_carvelo_ecargo_bike_sharing_switzerland
+  name: carvelo eCargo-Bike Sharing (Switzerland) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.mobidata-bw.de/sharing/gbfs/v3/carvelo2go_ch/station_status
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_vehicles_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 314 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (CH, system id carvelo2go_ch). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_cyclocity_sevici_seville
+  name: Sevici (Seville) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.cyclocity.fr/contracts/seville/gbfs/v3/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_vehicles_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 242 stations; ttl 1s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (ES, system id seville). Station panel keyed
+    on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
+- id: gbfs_mobi_capcotentin_cherbourg_en_cotentin
+  name: CapCotentin (Cherbourg-en-Cotentin) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.gbfs.v3.0.ecovelo.mobi/capcotentin/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_vehicles_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 53 stations; ttl unsets
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (FR, system id capcotentin). Station panel keyed
+    on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
+- id: gbfs_fifteen_idecycle_pau_pau
+  name: IDEcycle (Pau) (PAU) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.partners.fifteen.eu/gbfs/2.2/pau/en/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 40 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (FR, system id idecycle_pau). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_imarguerite_marguerite_vehicule_en_libre_service_a_n
+  name: Marguerite - Véhicule en libre-service à Nantes (Nantes) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.imarguerite.com/opendata/gbfs/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    panel_field: data.stations[].station_id
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 60 stations; ttl unsets
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (FR, system id Marguerite_FR_Nantes). Station
+    panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_gouv_pony_beauvais_beauvais
+  name: Pony Beauvais (Beauvais) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://proxy.transport.data.gouv.fr/resource/pony-beauvais-gbfs/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    panel_field: data.stations[].station_id
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 219 stations; ttl unsets
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (FR, system id pony_Beauvais). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_io_voi_grenoble_grenoble
+  name: Voi Grenoble (Grenoble) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.voiapp.io/gbfs/fr/6bb6b5dc-1cda-4da7-9216-d3023a0bc54a/v2/358/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    panel_field: data.stations[].station_id
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 709 stations; ttl unsets
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (FR, system id voi_Grenoble). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_app_beryl_brighton_brighton
+  name: Beryl - Brighton (Brighton) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://beryl-gbfs-production.web.app/v2_2/Brighton/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 118 stations; ttl 120s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (GB, system id beryl_brighton). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_odpt_docomo_bike_share_service_tokyo
+  name: docomo bike share service (Tokyo) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api-public.odpt.org/api/v4/gbfs/docomo-cycle-tokyo/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 1910 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (JP, system id docomo-cycle-tokyo). Station
+    panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_io_farte_bysykkel_skien
+  name: Farte Bysykkel (Skien) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://api.entur.io/mobility/v2/gbfs/v3/fartebysykkel/station_status
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_vehicles_available
+    panel_field: data.stations[].station_id
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 54 stations; ttl 5s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (NO, system id fartebysykkel). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_rideflamingo_flamingo_dunedin_dunedin
+  name: Flamingo Dunedin (Dunedin) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://data.rideflamingo.com/gbfs/3/dunedin/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_vehicles_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 37 stations; ttl 3600s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (NZ, system id flamingo_dunedin). Station panel
+    keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_whitebikes_white_bikes_bratislava
+  name: White bikes (Bratislava) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://whitebikes.info/gbfs/en/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    panel_field: data.stations[].station_id
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 96 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (SK, system id whitebikes_bratislava). Station
+    panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_bcycle_bentonville_bcycle_bentonville_ar
+  name: Bentonville BCycle (Bentonville, AR) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.bcycle.com/bcycle_bentonville/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 30 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (US, system id bcycle_bentonville). Station
+    panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: gbfs_lyft_blue_bikes_boston_ma
+  name: Blue Bikes (Boston, MA) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.lyft.com/gbfs/1.1/bos/en/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 622 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (US, system id bluebikes). Station panel keyed
+    on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
+- id: gbfs_lyft_capital_bike_share_washington_dc
+  name: Capital Bike Share (Washington, DC) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gbfs.lyft.com/gbfs/2.3/dca-cabi/en/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 866 stations; ttl 60s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (US, system id cabi). Station panel keyed on
+    station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
+- id: gbfs_longbeachbikeshare_long_beach_ca_bikeshare_long_beach_ca
+  name: Long Beach CA Bikeshare (Long Beach, CA) — per-station availability (GBFS panel)
+  domain: transport
+  dgp_class: micromobility_availability
+  archetypes:
+  - count_discrete
+  - bounded
+  - smooth_periodic
+  - hierarchical
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: http://www.longbeachbikeshare.com/opendata/station_status.json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: data.stations[].last_reported
+    value_field:
+    - data.stations[].num_bikes_available
+    - data.stations[].num_docks_available
+    panel_field: data.stations[].station_id
+    variates: 2
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: 107 stations; ttl 180s
+  pretraining_novelty: clean
+  novelty_notes: Live dock occupancy; the snapshot series begins at wiring time and so post-dates every
+    known TSFM pretraining cutoff.
+  license: GBFS open data (see operator terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from the MobilityData GBFS registry (US, system id long_beach_ca_bikeshare). Station
+    panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between
+    polls.
+- id: rba_fx_usd_daily
+  name: Reserve Bank of Australia — AUD/USD daily rate (F11.1)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.rba.gov.au/statistics/tables/csv/f11.1-data.csv
+  schema:
+    timestamp_field: Title
+    value_field: A$1=USD
+    drop_null_values: true
+    variates: 1
+  history_available: P4Y
+  update_cadence_observed: business days ~16:00 AEST
+  pretraining_novelty: clean
+  license: RBA statistical tables (open)
+  notes: Table F11.1 daily exchange rates. The CSV carries eight metadata rows (Description/Frequency/Units/Series ID...) above the data; they parse to non-numeric values and drop_null_values removes them.
+- id: rba_fx_twi_daily
+  name: Reserve Bank of Australia — AUD trade-weighted index daily rate (F11.1)
+  domain: econ_fin
+  dgp_class: price_index
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.rba.gov.au/statistics/tables/csv/f11.1-data.csv
+  schema:
+    timestamp_field: Title
+    value_field: Trade-weighted Index May 1970 = 100
+    drop_null_values: true
+    variates: 1
+  history_available: P4Y
+  update_cadence_observed: business days ~16:00 AEST
+  pretraining_novelty: clean
+  license: RBA statistical tables (open)
+  notes: Table F11.1 daily exchange rates. The CSV carries eight metadata rows (Description/Frequency/Units/Series ID...) above the data; they parse to non-numeric values and drop_null_values removes them.
+- id: rba_fx_jpy_daily
+  name: Reserve Bank of Australia — AUD/JPY daily rate (F11.1)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.rba.gov.au/statistics/tables/csv/f11.1-data.csv
+  schema:
+    timestamp_field: Title
+    value_field: A$1=JPY
+    drop_null_values: true
+    variates: 1
+  history_available: P4Y
+  update_cadence_observed: business days ~16:00 AEST
+  pretraining_novelty: clean
+  license: RBA statistical tables (open)
+  notes: Table F11.1 daily exchange rates. The CSV carries eight metadata rows (Description/Frequency/Units/Series ID...) above the data; they parse to non-numeric values and drop_null_values removes them.
+- id: rba_fx_eur_daily
+  name: Reserve Bank of Australia — AUD/EUR daily rate (F11.1)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.rba.gov.au/statistics/tables/csv/f11.1-data.csv
+  schema:
+    timestamp_field: Title
+    value_field: A$1=EUR
+    drop_null_values: true
+    variates: 1
+  history_available: P4Y
+  update_cadence_observed: business days ~16:00 AEST
+  pretraining_novelty: clean
+  license: RBA statistical tables (open)
+  notes: Table F11.1 daily exchange rates. The CSV carries eight metadata rows (Description/Frequency/Units/Series ID...) above the data; they parse to non-numeric values and drop_null_values removes them.
+- id: rba_fx_cny_daily
+  name: Reserve Bank of Australia — AUD/CNY daily rate (F11.1)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.rba.gov.au/statistics/tables/csv/f11.1-data.csv
+  schema:
+    timestamp_field: Title
+    value_field: A$1=CNY
+    drop_null_values: true
+    variates: 1
+  history_available: P4Y
+  update_cadence_observed: business days ~16:00 AEST
+  pretraining_novelty: clean
+  license: RBA statistical tables (open)
+  notes: Table F11.1 daily exchange rates. The CSV carries eight metadata rows (Description/Frequency/Units/Series ID...) above the data; they parse to non-numeric values and drop_null_values removes them.
