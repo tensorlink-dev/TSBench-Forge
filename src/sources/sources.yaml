@@ -115147,3 +115147,539 @@
   pretraining_novelty: clean
   license: RBA statistical tables (open)
   notes: Table F11.1 daily exchange rates. The CSV carries eight metadata rows (Description/Frequency/Units/Series ID...) above the data; they parse to non-numeric values and drop_null_values removes them.
+
+# -- wired batch: novel-wave ArcGIS --
+- id: agis_dc_emergency_no_parking_verification_in_las
+  name: Emergency No Parking Verification in Last 30 Days (maps2.dcgis.dc.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_APPS/SR_30days_Open/MapServer/36/query?where=ADDDATE+IS+NOT+NULL&outFields=ADDDATE%2CSERVICECALLCOUNT%2CXCOORD%2CYCOORD&orderByFields=ADDDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.ADDDATE
+    variates: 3
+    value_field:
+    - features[].attributes.SERVICECALLCOUNT
+    - features[].attributes.XCOORD
+    - features[].attributes.YCOORD
+  history_available: 256 distinct timestamps in the newest 256 features
+  update_cadence_observed: median gap 75.2 min; newest 2026-09-27T20:36:26+00:00 (0.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query '911 calls'), layer https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_APPS/SR_30days_Open/MapServer/36.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_dc_tree_removal_in_last_30_days
+  name: Tree Removal in Last 30 Days (maps2.dcgis.dc.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_APPS/SR_30days_Open/MapServer/28/query?where=ADDDATE+IS+NOT+NULL&outFields=ADDDATE%2CSERVICECALLCOUNT%2CXCOORD%2CYCOORD&orderByFields=ADDDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.ADDDATE
+    variates: 3
+    value_field:
+    - features[].attributes.SERVICECALLCOUNT
+    - features[].attributes.XCOORD
+    - features[].attributes.YCOORD
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 25.1 min; newest 2026-09-27T16:56:26+00:00 (0.2d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query '911 calls'), layer https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_APPS/SR_30days_Open/MapServer/28.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_dc_scheduled_yard_waste_in_last_30_days
+  name: Scheduled Yard Waste in Last 30 Days (maps2.dcgis.dc.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_APPS/SR_30days_Open/MapServer/43/query?where=ADDDATE+IS+NOT+NULL&outFields=ADDDATE%2CSERVICECALLCOUNT%2CXCOORD%2CYCOORD&orderByFields=ADDDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.ADDDATE
+    variates: 3
+    value_field:
+    - features[].attributes.SERVICECALLCOUNT
+    - features[].attributes.XCOORD
+    - features[].attributes.YCOORD
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 6.7 min; newest 2026-09-27T21:42:17+00:00 (0.0d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query '911 calls'), layer https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_APPS/SR_30days_Open/MapServer/43.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_westfargond_fire_incidents_featur
+  name: Fire Incidents (gis.westfargond.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://gis.westfargond.gov/arcgis/rest/services/Fire/Incidents/FeatureServer/1/query?where=Alarm_DateTime+IS+NOT+NULL&outFields=Alarm_DateTime%2CTotal_Dispatch_Time%2CTotal_Reaction_Time%2CTotal_Travel_Time&orderByFields=Alarm_DateTime+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.Alarm_DateTime
+    variates: 3
+    value_field:
+    - features[].attributes.Total_Dispatch_Time
+    - features[].attributes.Total_Reaction_Time
+    - features[].attributes.Total_Travel_Time
+  history_available: 308 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 106.8 min; newest 2026-09-25T19:17:00+00:00 (2.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'fire incidents'), layer https://gis.westfargond.gov/arcgis/rest/services/Fire/Incidents/FeatureServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_nhcgov_buildingpermits_featur
+  name: BuildingPermits (gis.nhcgov.com)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gis.nhcgov.com/server/rest/services/Thematic/BuildingPermits/FeatureServer/0/query?where=APPLICATION_DATE+IS+NOT+NULL&outFields=APPLICATION_DATE%2CFAST_TRACK%2CSQUARE_FEET%2CSUBMITTED_ONLINE&orderByFields=APPLICATION_DATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.APPLICATION_DATE
+    variates: 3
+    value_field:
+    - features[].attributes.FAST_TRACK
+    - features[].attributes.SQUARE_FEET
+    - features[].attributes.SUBMITTED_ONLINE
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 4.2 min; newest 2026-09-24T21:44:25+00:00 (3.0d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 48
+  notes: Bulk-generated from ArcGIS Hub (query 'building permits'), layer https://gis.nhcgov.com/server/rest/services/Thematic/BuildingPermits/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mi_mdot_real_estate_polygons
+  name: MDOT Real Estate Polygons (mdotgis.state.mi.us)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://mdotgis.state.mi.us/arcgis/rest/services/DataAccess/MdotLamda/MapServer/1/query?where=SystemCreateDate+IS+NOT+NULL&outFields=SystemCreateDate%2CParcelSequenceNumber%2CTractId%2CSaleSequenceNumber&orderByFields=SystemCreateDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.SystemCreateDate
+    variates: 3
+    value_field:
+    - features[].attributes.ParcelSequenceNumber
+    - features[].attributes.TractId
+    - features[].attributes.SaleSequenceNumber
+  history_available: 352 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 2.4 min; newest 2026-09-25T20:22:37+00:00 (2.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'real property sales'), layer https://mdotgis.state.mi.us/arcgis/rest/services/DataAccess/MdotLamda/MapServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mappmycity_tree_maintenance_service_requests
+  name: Tree Maintenance Service Requests (mappmycity.ca)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mappmycity.ca/arcgis/rest/services/open_data_services/governmentservices/MapServer/60/query?where=created_date+IS+NOT+NULL&outFields=created_date&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 1
+    value_field: features[].attributes.created_date
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 13.9 min; newest 2026-09-10T22:58:48+00:00 (17.0d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 61
+  notes: Bulk-generated from ArcGIS Hub (query '311 service requests'), layer https://mappmycity.ca/arcgis/rest/services/open_data_services/governmentservices/MapServer/60.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_mappmycity_parks_maintenance_service_requests
+  name: Parks Maintenance Service Requests (mappmycity.ca)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mappmycity.ca/arcgis/rest/services/open_data_services/governmentservices/MapServer/41/query?where=created_date+IS+NOT+NULL&outFields=created_date&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 1
+    value_field: features[].attributes.created_date
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 60.6 min; newest 2026-09-11T00:14:50+00:00 (16.9d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 61
+  notes: Bulk-generated from ArcGIS Hub (query '311 service requests'), layer https://mappmycity.ca/arcgis/rest/services/open_data_services/governmentservices/MapServer/41.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_houstontx_houston_311_recent_service_request_snow
+  name: Houston 311 Recent Service Request - SNOW (mycity2.houstontx.gov)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://mycity2.houstontx.gov/gisweb01/rest/services/311/HOUSTON311_RECENT_SR_SNOW/FeatureServer/0/query?where=CREATED_ON+IS+NOT+NULL&outFields=CREATED_ON%2CUID&orderByFields=CREATED_ON+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CREATED_ON
+    variates: 1
+    value_field:
+    - features[].attributes.UID
+  history_available: 398 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1.4 min; newest 2026-09-27T21:15:37+00:00 (0.0d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query '311 service requests'), layer https://mycity2.houstontx.gov/gisweb01/rest/services/311/HOUSTON311_RECENT_SR_SNOW/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_govt_ws_lateral_opendata
+  name: Ws Lateral (OpenData) (gis.ccc.govt.nz)
+  domain: nature
+  dgp_class: water_demand
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gis.ccc.govt.nz/server/rest/services/OpenData/WaterSupply/FeatureServer/18/query?where=CreateDate+IS+NOT+NULL&outFields=CreateDate%2CInsideDiameter%2CDepth%2CdrvLength&orderByFields=CreateDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CreateDate
+    variates: 3
+    value_field:
+    - features[].attributes.InsideDiameter
+    - features[].attributes.Depth
+    - features[].attributes.drvLength
+  history_available: 124 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 3.4 min; newest 2026-09-25T04:20:33+00:00 (2.7d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'water consumption'), layer https://gis.ccc.govt.nz/server/rest/services/OpenData/WaterSupply/FeatureServer/18.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_govt_ws_pipe_type_opendata
+  name: Ws Pipe Type (OpenData) (gis.ccc.govt.nz)
+  domain: nature
+  dgp_class: water_demand
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://gis.ccc.govt.nz/server/rest/services/OpenData/WaterSupply/FeatureServer/27/query?where=CreateDate+IS+NOT+NULL&outFields=CreateDate%2CNominalDiameter%2CInsideDiameter%2CStartInvert&orderByFields=CreateDate+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CreateDate
+    variates: 3
+    value_field:
+    - features[].attributes.NominalDiameter
+    - features[].attributes.InsideDiameter
+    - features[].attributes.StartInvert
+  history_available: 80 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 3.3 min; newest 2026-09-25T02:42:59+00:00 (2.8d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 47
+  notes: Bulk-generated from ArcGIS Hub (query 'water consumption'), layer https://gis.ccc.govt.nz/server/rest/services/OpenData/WaterSupply/FeatureServer/27.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_wacotx_publicmap_planningecondev_featur
+  name: PublicMap_PlanningEconDev (gis.wacotx.gov)
+  domain: econ_fin
+  dgp_class: public_finance
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT30M
+  endpoint:
+    type: rest_json
+    url: https://gis.wacotx.gov/server/rest/services/PublicMap/PublicMap_Planning_and_Economical_Development/FeatureServer/1/query?where=created_date+IS+NOT+NULL&outFields=created_date%2CShape__Area%2CShape__Length&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 2
+    value_field:
+    - features[].attributes.Shape__Area
+    - features[].attributes.Shape__Length
+  history_available: 233 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 38.2 min; newest 2026-09-18T16:17:24+00:00 (9.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 54
+  notes: Bulk-generated from ArcGIS Hub (query 'municipal revenue'), layer https://gis.wacotx.gov/server/rest/services/PublicMap/PublicMap_Planning_and_Economical_Development/FeatureServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_dekalbcountyga_code_enforcement_cases_and_inspections
+  name: Code Enforcement Cases and Inspections (dcgis.dekalbcountyga.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://dcgis.dekalbcountyga.gov/mapping/rest/services/Hansen/CodeEnforcementCasesInspections/FeatureServer/0/query?where=addedDateTime+IS+NOT+NULL&outFields=addedDateTime%2Caddress_Spatial_xCoordinate%2Caddress_Spatial_yCoordinate%2CSpatial_xCoordinate&orderByFields=addedDateTime+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.addedDateTime
+    variates: 3
+    value_field:
+    - features[].attributes.address_Spatial_xCoordinate
+    - features[].attributes.address_Spatial_yCoordinate
+    - features[].attributes.Spatial_xCoordinate
+  history_available: 400 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 7.5 min; newest 2026-09-27T11:19:39+00:00 (0.5d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 45
+  notes: Bulk-generated from ArcGIS Hub (query 'code enforcement cases'), layer https://dcgis.dekalbcountyga.gov/mapping/rest/services/Hansen/CodeEnforcementCasesInspections/FeatureServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_dekalbcountyga_code_enforcement_cases_and_inspectio_featur
+  name: Code Enforcement Cases and Inspections (dcgis.dekalbcountyga.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://dcgis.dekalbcountyga.gov/mapping/rest/services/Hansen/CodeEnforcementCasesInspections/FeatureServer/1/query?where=startDateTime+IS+NOT+NULL&outFields=startDateTime&orderByFields=startDateTime+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.startDateTime
+    variates: 1
+    value_field: features[].attributes.startDateTime
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: 388 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 119.0 min; newest 2026-09-26T19:17:00+00:00 (1.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 46
+  notes: Bulk-generated from ArcGIS Hub (query 'code enforcement cases'), layer https://dcgis.dekalbcountyga.gov/mapping/rest/services/Hansen/CodeEnforcementCasesInspections/FeatureServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_nnva_stormwater_gravity_mains
+  name: Stormwater Gravity Mains (maps.nnva.gov)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://maps.nnva.gov/gis/rest/services/Operational/StormwaterGravityMain/MapServer/0/query?where=CREATEDDATE+IS+NOT+NULL&outFields=CREATEDDATE%2CYEARBUILT%2CLIFEEXPECTANCY%2CCOST&orderByFields=CREATEDDATE+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.CREATEDDATE
+    variates: 3
+    value_field:
+    - features[].attributes.YEARBUILT
+    - features[].attributes.LIFEEXPECTANCY
+    - features[].attributes.COST
+  history_available: 299 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 6.2 min; newest 2026-09-19T20:46:02+00:00 (8.1d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 53
+  notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://maps.nnva.gov/gis/rest/services/Operational/StormwaterGravityMain/MapServer/0.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_roundrocktexas_stormwater_impervious_surfaces
+  name: Stormwater Impervious Surfaces (maps.roundrocktexas.gov)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://maps.roundrocktexas.gov/un/rest/services/StormwaterUN_AGO/Stormwater_Impervious_Surfaces/MapServer/1/query?where=created_date+IS+NOT+NULL&outFields=created_date%2Clifecyclestatus%2CSHAPE.STArea%28%29%2CSHAPE.STLength%28%29&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 3
+    value_field:
+    - features[].attributes.lifecyclestatus
+    - features[].attributes.SHAPE.STArea()
+    - features[].attributes.SHAPE.STLength()
+  history_available: 378 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 1.4 min; newest 2026-09-17T16:44:28+00:00 (10.2d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 55
+  notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://maps.roundrocktexas.gov/un/rest/services/StormwaterUN_AGO/Stormwater_Impervious_Surfaces/MapServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_fuquay_fuquay_varina_utilities_stormwater_syste_mapser
+  name: Fuquay-Varina Utilities - Stormwater System - Stormwater Points (gis1.fuquay-varina.org)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://gis1.fuquay-varina.org/server/rest/services/Public/All_Utilities/MapServer/28/query?where=created_date+IS+NOT+NULL&outFields=created_date%2Clof%2Ccof%2Celevation&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 3
+    value_field:
+    - features[].attributes.lof
+    - features[].attributes.cof
+    - features[].attributes.elevation
+  history_available: 399 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 0.3 min; newest 2026-09-18T14:09:51+00:00 (9.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 54
+  notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://gis1.fuquay-varina.org/server/rest/services/Public/All_Utilities/MapServer/28.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
+- id: agis_roundrocktexas_stormwater_lines
+  name: Stormwater Lines (maps.roundrocktexas.gov)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - non_stationary_regime
+  - positive_continuous
+  frequency: PT1M
+  endpoint:
+    type: rest_json
+    url: https://maps.roundrocktexas.gov/un/rest/services/StormwaterUN_AGO/Stormwater_Lines/MapServer/1/query?where=created_date+IS+NOT+NULL&outFields=created_date%2CFLOWDIRECTION%2CASSETGROUP%2CASSETTYPE&orderByFields=created_date+DESC&resultRecordCount=2000&returnGeometry=false&f=json
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: features[].attributes.created_date
+    variates: 3
+    value_field:
+    - features[].attributes.FLOWDIRECTION
+    - features[].attributes.ASSETGROUP
+    - features[].attributes.ASSETTYPE
+  history_available: 398 distinct timestamps in the newest 400 features
+  update_cadence_observed: median gap 0.5 min; newest 2026-09-22T15:31:27+00:00 (5.3d old)
+  pretraining_novelty: clean
+  novelty_notes: Local-government ArcGIS feature service. Published as a map layer rather than a tabular
+    download, so it is unlikely to appear in pretraining mixes assembled from open-data CSV dumps.
+  license: open data (see publisher terms)
+  audit_slack_days: 50
+  notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://maps.roundrocktexas.gov/un/rest/services/StormwaterUN_AGO/Stormwater_Lines/MapServer/1.
+    Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
+    server, not the vendor's shared services*.arcgis.com tenancy.
