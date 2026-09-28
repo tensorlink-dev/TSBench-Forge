@@ -115683,3 +115683,1441 @@
   notes: Bulk-generated from ArcGIS Hub (query 'stormwater flow'), layer https://maps.roundrocktexas.gov/un/rest/services/StormwaterUN_AGO/Stormwater_Lines/MapServer/1.
     Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
     server, not the vendor's shared services*.arcgis.com tenancy.
+
+# -- wired batch: novel-wave Misskey (web_cloudops) --
+- id: misskey_dog_notes
+  name: misskey.dog — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://misskey.dog/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 368/499 populated hours, 15 distinct levels, peak 29/h; 17/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_casa_notes_blebmi
+  name: blebmi.denvi.casa — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://blebmi.denvi.casa/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 252/499 populated hours, 20 distinct levels, peak 19/h; 12/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_my_notes
+  name: and.farewell.my — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://and.farewell.my/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 308/499 populated hours, 32 distinct levels, peak 41/h; 15/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_xsns_notes_maguro
+  name: maguro-no-osashimi.xsns.jp — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://maguro-no-osashimi.xsns.jp/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 499/499 populated hours, 23 distinct levels, peak 60/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_xsns_notes_shimob
+  name: shimobukure-chan.xsns.jp — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://shimobukure-chan.xsns.jp/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 403/499 populated hours, 19 distinct levels, peak 21/h; 20/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_best_notes
+  name: toast.best — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://toast.best/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 270/499 populated hours, 29 distinct levels, peak 55/h; 12/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_msnis_notes
+  name: freeski.msnis.net — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://freeski.msnis.net/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 412/499 populated hours, 254 distinct levels, peak 1486/h; 23/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_msnis_active_users
+  name: freeski.msnis.net — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://freeski.msnis.net/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 412/499 populated hours, 51 distinct levels, peak 55/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_xsns_notes_radian
+  name: radiann6631.xsns.jp — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://radiann6631.xsns.jp/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 421/499 populated hours, 37 distinct levels, peak 56/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_blue_notes_neko_b
+  name: neko.blue — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://neko.blue/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 337/499 populated hours, 17 distinct levels, peak 26/h; 19/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_dev_notes_mk_jui
+  name: mk-juice.dev — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mk-juice.dev/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 472/499 populated hours, 115 distinct levels, peak 254/h; 23/24 newest hours
+    populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_dev_active_users_mk_jui
+  name: mk-juice.dev — active local users (Misskey)
+  domain: web_cloudops
+  dgp_class: active_user_count
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - bounded
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mk-juice.dev/api/charts/active-users
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - readWrite
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 472/499 populated hours, 17 distinct levels, peak 17/h; 23/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote
+    in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_xsns_notes_tomi_s
+  name: tomi-studio.xsns.jp — local note publication rate (Misskey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://tomi-studio.xsns.jp/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 304/499 populated hours, 22 distinct levels, peak 25/h; 14/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (misskey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_day_notes_fluffy
+  name: fluffyshelter.day — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://fluffyshelter.day/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 318/499 populated hours, 29 distinct levels, peak 41/h; 16/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_possum_notes
+  name: possum.city — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://possum.city/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 494/499 populated hours, 56 distinct levels, peak 80/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_club_notes_mk_phr
+  name: mk.phreedom.club — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mk.phreedom.club/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 299/499 populated hours, 15 distinct levels, peak 20/h; 14/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_bar_notes
+  name: moppels.bar — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://moppels.bar/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 345/499 populated hours, 36 distinct levels, peak 43/h; 13/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_ph_notes
+  name: hol.ogra.ph — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://hol.ogra.ph/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 274/499 populated hours, 17 distinct levels, peak 25/h; 11/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_netzkae_notes
+  name: netzkae.se — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://netzkae.se/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 299/499 populated hours, 25 distinct levels, peak 26/h; 16/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_place_notes_mk_nya
+  name: mk.nyaa.place — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://mk.nyaa.place/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 495/499 populated hours, 20 distinct levels, peak 26/h; 24/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_social_notes_ibe_so
+  name: ibe.social — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://ibe.social/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 314/499 populated hours, 16 distinct levels, peak 15/h; 18/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_life_notes_enby_l
+  name: enby.life — local note publication rate (Sharkey)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://enby.life/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 289/499 populated hours, 20 distinct levels, peak 26/h; 16/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (sharkey). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_boo_notes
+  name: spookygirl.boo — local note publication rate (Iceshrimp)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://spookygirl.boo/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 295/499 populated hours, 22 distinct levels, peak 28/h; 13/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (iceshrimp). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_seoulstream_notes
+  name: seoulstream.kr — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://seoulstream.kr/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 261/499 populated hours, 35 distinct levels, peak 79/h; 15/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: misskey_me_notes_tosang
+  name: tosang-is.me — local note publication rate (Cherrypick)
+  domain: web_cloudops
+  dgp_class: social_posting_rate
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://tosang-is.me/api/charts/notes
+    method: POST
+    body:
+      span: hour
+      limit: 500
+    auth: none
+    rate_limit: polite
+  schema:
+    series_end: now
+    series_step: PT1H
+    series_skip: 1
+    value_field:
+    - local.inc
+    variates: 1
+  history_available: 499 hourly buckets (~20d) in every response
+  update_cadence_observed: 311/499 populated hours, 41 distinct levels, peak 52/h; 17/24 newest hours populated
+  pretraining_novelty: clean
+  novelty_notes: Per-instance activity on one federated server. No aggregator republishes these counts,
+    and the instance itself only serves a rolling ~21-day window, so no long history exists to have been
+    scraped into a pretraining mix.
+  license: public Misskey charts API (see instance terms)
+  audit_slack_days: 3
+  notes: Bulk-generated from fediverse.observer (cherrypick). Measures notes created per hour by this instance's
+    own users. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step;
+    series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
+    cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
+    count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+
+# -- wired batch: novel-wave IXP (web_cloudops) --
+- id: ixp_inx_durban_internet_exchange_point_inx
+  name: Durban Internet Exchange Point (INX) — exchange traffic (Durban, ZA)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.inx.net.za/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 139.6 Gbit/s; newest 2026-09-27T23:20:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 487. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_ix_gr_ix_thessaloniki_greek_internet_exchan
+  name: GR-IX::Thessaloniki (Greek Internet Exchange) — exchange traffic (Athens, GR)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.gr-ix.gr/grapher/infrastructure?id=3&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 25.7 Gbit/s; newest 2026-09-27T23:20:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 753. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_inex_inex_lan1_internet_neutral_exchange_asso
+  name: INEX LAN1 (Internet Neutral Exchange Association Limited by Guarantee) — exchange traffic (Dublin,
+    IE)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.inex.ie/ixp/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 400 samples, median gap 5 min; peak 956.0 Gbit/s; newest 2026-09-27T23:20:44+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 20. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_inex_inex_lan2_internet_neutral_exchange_asso
+  name: INEX LAN2 (Internet Neutral Exchange Association Limited by Guarantee) — exchange traffic (Dublin,
+    IE)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://www.inex.ie/ixp/grapher/infrastructure?id=2&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 400 samples, median gap 5 min; peak 344.9 Gbit/s; newest 2026-09-27T23:20:44+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 645. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_inx_johannesburg_internet_exchange_point_inx
+  name: Johannesburg Internet Exchange Point (INX) — exchange traffic (Johannesburg, ZA)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.inx.net.za/grapher/infrastructure?id=4&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 996.6 Gbit/s; newest 2026-09-27T23:20:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 95. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_africa_napafrica_ix_johannesburg_napafrica
+  name: NAPAfrica IX Johannesburg (NAPAfrica) — exchange traffic (Johannesburg, ZA)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ix.nap.africa/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 5.1 Tbit/s; newest 2026-09-27T23:21:55+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 351. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_ninja_phoenix_ix_ninja_ix
+  name: Phoenix-IX (Ninja-IX) — exchange traffic (Phoenix, US)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.ninja-ix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 543.9 Gbit/s; newest 2026-09-27T23:20:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 268. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_ninja_richmond_ix_ninja_ix
+  name: Richmond-IX (Ninja-IX) — exchange traffic (Sandston, VA, US)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.ninja-ix.net/grapher/infrastructure?id=7&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 5.6 Gbit/s; newest 2026-09-27T23:20:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 925. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_sthix_sthix_stockholm_stockholm_internet_excha
+  name: STHIX - Stockholm (Stockholm Internet eXchange AB) — exchange traffic (Stockholm, SE)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.sthix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 289 samples, median gap 5 min; peak 366.3 Gbit/s; newest 2026-09-27T23:25:17+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 144. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_sthix_sthix_sundsvall_stockholm_internet_excha
+  name: STHIX - Sundsvall (Stockholm Internet eXchange AB) — exchange traffic (Sundsvall, SE)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.sthix.net/grapher/infrastructure?id=5&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 289 samples, median gap 5 min; peak 67.2 Mbit/s; newest 2026-09-27T23:25:17+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider 820. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
+    they duplicate in/out exactly.
+- id: ixp_ix_ix_denver
+  name: IX-Denver — exchange traffic (Denver, US)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.ix-denver.org/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 400 samples, median gap 5 min; peak 861.8 Gbit/s; newest 2026-09-27T23:35:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-1207. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at
+    period=day they duplicate in/out exactly.
+- id: ixp_pit_pit_ix
+  name: PIT-IX — exchange traffic (Pittsburgh, US)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.pit-ix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 401 samples, median gap 5 min; peak 561.7 Gbit/s; newest 2026-09-27T23:35:41+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-1999. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at
+    period=day they duplicate in/out exactly.
+- id: ixp_qcix_qcix
+  name: QCIX — exchange traffic (Davenport, US)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://ixpmgr.qcix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 263.9 Gbit/s; newest 2026-09-27T23:35:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-2741. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at
+    period=day they duplicate in/out exactly.
+- id: ixp_id_aix
+  name: AIX — exchange traffic (Tapos, Depok, ID)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: http://aix.area31.id/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 391.9 Gbit/s; newest 2026-09-27T23:45:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-4449. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at
+    period=day they duplicate in/out exactly.
+- id: ixp_nvl_nvl_ix
+  name: NVL-IX — exchange traffic (Athens, GR)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://nvl-ix.com/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 1.5 Gbit/s; newest 2026-09-27T23:45:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-4775. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at
+    period=day they duplicate in/out exactly.
+- id: ixp_kosix_kosix
+  name: KOSIX — exchange traffic (Pristine, XK)
+  domain: web_cloudops
+  dgp_class: ixp_traffic
+  archetypes:
+  - smooth_periodic
+  - positive_continuous
+  - multi_seasonal
+  frequency: PT5M
+  endpoint:
+    type: rest_json
+    url: https://portal.kosix.net/grapher/infrastructure?id=1&type=log&period=day&format=json
+    auth: none
+    rate_limit: null
+  schema:
+    timestamp_field: '[][0]'
+    value_field:
+    - '[][1]'
+    - '[][2]'
+    variates: 2
+  history_available: ~33h rolling window per request at PT5M
+  update_cadence_observed: 399 samples, median gap 5 min; peak 14.6 Gbit/s; newest 2026-09-27T23:50:00+00:00
+  pretraining_novelty: clean
+  novelty_notes: Live IXP throughput read from the exchange's own grapher; the rolling window means the
+    stored series starts at wiring time.
+  license: public IXP statistics (see exchange terms)
+  audit_slack_days: 2
+  notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
+    provider pdb-5026. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at
+    period=day they duplicate in/out exactly.
