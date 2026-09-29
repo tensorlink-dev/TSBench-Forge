@@ -76,11 +76,14 @@ jobs:
 
       # stdlib urllib handles the OpenRouter call; the module needs pyyaml
       # (catalog) and numpy (quality.py is imported by the CLI entrypoint).
-      # Nothing on the --coverage path may import scraper.py — that pulls in
-      # httpx + pyarrow, which this job deliberately does not install (see
-      # source_discovery/duration.py).
+      # requests is here because __main__ imports bulk.py eagerly and bulk.py
+      # imports requests at module scope — without it EVERY run of this job
+      # died in the coverage step with ModuleNotFoundError (2026-07-27 to
+      # 2026-09-29). Nothing on the --coverage path may import scraper.py —
+      # that pulls in httpx + pyarrow, which this job deliberately does not
+      # install (see source_discovery/duration.py).
       - name: Install deps
-        run: pip install pyyaml numpy
+        run: pip install pyyaml numpy requests
 
       # `--coverage` writes the summary JSON to stdout and the human matrix /
       # gap list to stderr. Capture stdout to a file rather than piping into a
