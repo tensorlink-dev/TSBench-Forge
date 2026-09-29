@@ -716,6 +716,8 @@
     sample_freshness_hours: 0.5
   notes: Station list at /api/prod/stations.json. Smooth_periodic exemplar.
 - id: ndbc_buoy_realtime
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-29T14:30:00+00:00 is 30.9d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   mv_channels: ["WSPD", "WVHT", "PRES", "WTMP"]
   name: NDBC buoy realtime metereological (20-buoy panel)
   domain: nature
@@ -3119,6 +3121,8 @@
 
     '
 - id: lta_singapore_traffic_speeds
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-31T01:20:26.352718+00:00 is 60.4d old vs a 3.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: Singapore LTA — traffic speed bands (road network, 5-min cadence)
   domain: transport
   dgp_class: urban_transit_ridership
@@ -5405,6 +5409,8 @@
     sample_freshness_hours: null
   notes: Keyless RSS, HTTP 200, but the public /feed only carries ~10 items and looked stale at probe time (newest Aug-2023) — treat freshness with caution and consider category feeds (e.g. /category/reports/feed). Value = report count per window; item title/description are categorical event labels.
 - id: digitalocean_status_incidents
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-16T09:00:00+00:00 is 13.1d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: DigitalOcean Status — incident stream (Statuspage)
   domain: web_cloudops
   dgp_class: service_health
@@ -5468,6 +5474,8 @@
     sample_freshness_hours: 72
   notes: 'Standard Atlassian Statuspage v2 API. Rank-encode impact or aggregate to incident counts per window. Alt endpoints: /api/v2/summary.json, /api/v2/components.json.'
 - id: peeringdb_network_ixp_changes
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2010-06-01T23:11:39+00:00 is 5963.5d old vs a 35.0d limit for P1W. Re-enable if the upstream resumes.'
   name: PeeringDB — network registration stream
   domain: web_cloudops
   dgp_class: network_flow
@@ -6883,6 +6891,8 @@
   license: Deribit public market data API - research use
   notes: Plain rest_json GET; result.trades[] carries epoch-ms timestamp + numeric price (amount/direction also available). Switched off the snapshot ticker to this trade-tape endpoint for a real time series.
 - id: hubeau_hydrometry_river_stage
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-16T14:20:00+00:00 is 12.9d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Hub'Eau — French real-time river stage (station K001002010, height H)
   domain: nature
   dgp_class: hydrology_river_stage
@@ -7316,6 +7326,8 @@
     sample_rows: null
     sample_freshness_hours: null
 - id: ndbc_spectral_wave_density_41013
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-30T13:20:00+00:00 is 60.9d old vs a 3.0d limit for PT30M. Re-enable if the upstream resumes.'
   name: NDBC realtime spectral wave density (buoy 41013, Frying Pan Shoals NC)
   domain: nature
   dgp_class: weather_field
@@ -8678,6 +8690,8 @@
   license: Public (Oklahoma Climatological Survey / OU-OSU); keyless MDF archive.
   notes: 'Feature: paneled snapshot (schema.panel_field: STID) + URL date/hour tokens ({YYYY}/{MM}/{DD}/{YYYYMMDD}{HH}00.mdf) over a wide whitespace-delimited text feed. Verified via scraper._records_from_csv on a top-of-hour MDF: 120 rows = 120 distinct STID entities, TAIR/PRES/RELH numeric for all 120 (>=20 numeric entities). Top-of-hour file lags a few minutes, so run cron mid-hour (e.g. minute 20); intra-hour 5-min files exist but the minute is not templatable with supported tokens.'
 - id: ndbc_latest_obs_all_stations
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-29T14:30:00+00:00 is 30.9d old vs a 3.0d limit for PT30M. Re-enable if the upstream resumes.'
   mv_channels: ["ATMP", "PRES", "WTMP", "WSPD"]
   name: NDBC latest observations - all-station meteorological snapshot panel
   domain: nature
@@ -16309,6 +16323,8 @@
     - data[].price
     - data[].volume
 - id: calgary_traffic_incidents_30min
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-18T17:00:00+00:00 is 10.8d old vs a 1.0d limit for PT30M. Re-enable if the upstream resumes.'
   name: Calgary traffic incidents (30-min event counts)
   domain: transport
   frequency: PT30M
@@ -16628,6 +16644,8 @@
     - n
     - avg_response_s
 - id: nys_covid_testing_county_daily
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-24T00:00:00+00:00 is 67.5d old vs a 10.0d limit for P1D. Re-enable if the upstream resumes.'
   name: New York State — daily COVID-19 new positives and cases per 100k by county
   domain: healthcare
   frequency: P1D
@@ -26409,6 +26427,8 @@
   audit_slack_days: 4
   notes: 'Bulk-generated from the OOI ERDDAP server (erddap.dataexplorer.oceanobservatories.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: partial_pressure_of_carbon_dioxide_in_sea_water.'
 - id: edu_rads_altimeter_along_track_data
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-15T15:25:27+00:00 is 13.9d old vs a 4.0d limit for PT1M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: RADS Altimeter Along-Track Data (Rutgers University)
   domain: nature
@@ -26438,6 +26458,8 @@
   audit_slack_days: 4
   notes: 'Bulk-generated from the RUTGERS ERDDAP server (tds.marine.rutgers.edu). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: sla, provenance, dry_tropo, wet_tropo.'
 - id: edu_rads_altimeter_along_track_data_for_the
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-15T00:55:27+00:00 is 14.5d old vs a 4.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: RADS Altimeter Along-Track Data for the ECCOFS domain (Rutgers University)
   domain: nature
   dgp_class: environmental_sensor
@@ -26878,6 +26900,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the SmartAtlantic ERDDAP server (www.smartatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: wind_dir_avg, wind_spd_avg, wind_spd_max.'
 - id: smartatlantic_halifax_herring_cove_buoy
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-14T16:53:01+00:00 is 14.8d old vs a 3.0d limit for PT30M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2"]
   name: Halifax (Herring Cove) Buoy (COVE)
   domain: nature
@@ -26980,6 +27004,8 @@
   audit_slack_days: 12
   notes: 'Bulk-generated from the GCOOS ERDDAP server (erddap.gcoos.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: sea_surface_temperature_1.'
 - id: cioosatlantic_force_meteorological_tower
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-29T19:24:28+00:00 is 30.7d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_2", "rows_3", "rows_4"]
   name: FORCE Meteorological Tower (FORCE)
   domain: nature
@@ -27009,6 +27035,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CIOOS Atlantic ERDDAP server (cioosatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: StationID, battery_voltage, air_temperature, solar_irradiance.'
 - id: cioosatlantic_halifax_herring_cove_buoy
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-14T16:53:01+00:00 is 14.8d old vs a 3.0d limit for PT30M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2"]
   name: Halifax (Herring Cove) Buoy (COVE)
   domain: nature
@@ -27092,6 +27120,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the NOAA Oceanview ERDDAP server (oceanview.pfeg.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: river_km, length, release_rkm.'
 - id: linkedsystems_mogli_unit_1209_deployment_729_real_time
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-14T07:15:38+00:00 is 15.2d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: MOGli unit_1209 (deployment 729) real-time slocum data (NOC)
   domain: nature
   dgp_class: environmental_sensor
@@ -27117,6 +27147,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the NOC-BODC Linked Systems ERDDAP server (linkedsystems.uk). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: CNDC.'
 - id: linkedsystems_pisces_sg637_deployment_726_real_time_se
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-28T06:11:00+00:00 is 63.2d old vs a 12.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: PISCES sg637 (deployment 726) real-time seaglider data (NOC)
   domain: nature
   dgp_class: sea_level
@@ -30035,6 +30067,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 946. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_ga_gabix_libreville_gabon_internet_exchange
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-31T10:40:00+00:00 is 29.1d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: GABIX LIBREVILLE (Gabon Internet eXchange) — exchange traffic (Libreville)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30608,6 +30642,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 649. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_nnenix_northern_new_england_neutral_internet_ex
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-07T10:00:07+00:00 is 53.1d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: Northern New England Neutral Internet Exchange - Maine (Northern New England Neutral Internet Exchange) — exchange traffic (Portland, US)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30743,6 +30779,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 1412. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_tr_regional_peering_exchange_regional_peeri
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-04T12:55:00+00:00 is 25.0d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   mv_channels: ["1", "2"]
   name: Regional Peering Exchange (Regional Peering Exchange) — exchange traffic (ANKARA, TR)
   domain: web_cloudops
@@ -32893,6 +32931,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_marcorennmaus_video_marcorennmaus_de
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-30T00:00:00+00:00 is 30.5d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: video.marcorennmaus.de — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -33425,6 +33465,8 @@
   audit_slack_days: 8
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_eqver_peertube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-31T17:00:00+00:00 is 28.8d old vs a 9.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -33481,6 +33523,8 @@
   audit_slack_days: 8
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), SE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_pcf_pcf_peertube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-06T00:00:00+00:00 is 54.5d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PCF-PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -33536,6 +33580,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-ixp-manager.aaix.at. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_id_bix_jakarta
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-03T03:55:00+00:00 is 26.3d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: BIX Jakarta — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -33945,6 +33991,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-portal.douala-ix.net. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_sumix_sumix
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-30T04:10:00+00:00 is 30.3d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   mv_channels: ["1", "2"]
   name: sumIX — exchange traffic
   domain: web_cloudops
@@ -39380,6 +39428,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_f5_notes
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-12T04:00:00+00:00 is 17.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: oyumiss.f5.si — local note publication rate (Misskey)
   domain: web_cloudops
   dgp_class: social_posting_rate
@@ -39678,6 +39728,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_radiann6631_notes
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-17T09:00:00+00:00 is 43.1d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: radiann6631.net — local note publication rate (Misskey)
   domain: web_cloudops
   dgp_class: social_posting_rate
@@ -42802,6 +42854,8 @@
   audit_slack_days: 12
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), UY. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ru_simplex_2_0_video_server
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-22T00:00:00+00:00 is 69.5d old vs a 23.0d limit for P1D. Re-enable if the upstream resumes.'
   name: 'Simplex 2.0:  video server — local video publication rate (PeerTube)'
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -43054,6 +43108,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_dromeadhere_dromeadhere_tv
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-29T12:00:00+00:00 is 62.0d old vs a 16.0d limit for PT6H. Re-enable if the upstream resumes.'
   name: dromeadhere.tv — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -43502,6 +43558,8 @@
   audit_slack_days: 14
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_io_watch_makearmy
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-15T00:00:00+00:00 is 45.5d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Watch MakeArmy — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -43530,6 +43588,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_video_wiwi_video
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-02T00:00:00+00:00 is 58.5d old vs a 12.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Wiwi.Video 好和弦聯播網 — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -44006,6 +44066,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_tv_bavatube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-04T00:00:00+00:00 is 56.5d old vs a 10.0d limit for P1D. Re-enable if the upstream resumes.'
   name: bavatube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -44258,6 +44320,8 @@
   audit_slack_days: 16
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ru_zombietv
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-02T00:00:00+00:00 is 58.5d old vs a 12.0d limit for P1D. Re-enable if the upstream resumes.'
   name: ZombieTV — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -44398,6 +44462,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_govital_govital_peertube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-24T00:00:00+00:00 is 36.5d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Govital PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -45042,6 +45108,8 @@
   audit_slack_days: 17
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_apc_apc_media_server
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-21T00:00:00+00:00 is 39.5d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: APC Media Server — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -45406,6 +45474,8 @@
   audit_slack_days: 25
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_video_my_sunshine_video
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-14T00:00:00+00:00 is 46.5d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: My Sunshine Video — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -45658,6 +45728,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_iut_iut_d_orsay
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-16T00:00:00+00:00 is 44.5d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: IUT d'Orsay — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -45826,6 +45898,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_edunova_openmedia_edunova
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-28T00:00:00+00:00 is 63.5d old vs a 17.0d limit for P1D. Re-enable if the upstream resumes.'
   name: OpenMedia Edunova — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -46162,6 +46236,8 @@
   audit_slack_days: 14
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_cat_peertube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-03T00:00:00+00:00 is 57.5d old vs a 11.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -46470,6 +46546,8 @@
   audit_slack_days: 19
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ru_iafamtube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-05T00:00:00+00:00 is 55.5d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: iafamTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -46666,6 +46744,8 @@
   audit_slack_days: 14
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_media_peertube_1312
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-23T00:00:00+00:00 is 68.5d old vs a 22.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube @ 1312 — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -46722,6 +46802,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances). isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_io_revol_e
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-26T00:00:00+00:00 is 65.5d old vs a 19.0d limit for PT6H. Re-enable if the upstream resumes.'
   name: Revol+e — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47002,6 +47084,8 @@
   audit_slack_days: 19
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances). isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_tube_bolhaverso
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-31T00:00:00+00:00 is 60.5d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Bolhaverso — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47030,6 +47114,8 @@
   audit_slack_days: 14
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_hoga_hoga_tube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-29T00:00:00+00:00 is 62.5d old vs a 16.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Hoga Tube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47114,6 +47200,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), ES. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_space_abnormalbeingstube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-24T00:00:00+00:00 is 67.5d old vs a 21.0d limit for P1D. Re-enable if the upstream resumes.'
   name: AbnormalBeingsTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47142,6 +47230,8 @@
   audit_slack_days: 21
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ru
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-03T00:00:00+00:00 is 26.5d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Видео — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47170,6 +47260,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_amicale_peertube_amicale_net
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-25T00:00:00+00:00 is 66.5d old vs a 20.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube amicale.net — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47310,6 +47402,8 @@
   audit_slack_days: 24
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), GB. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_cnil_commission_nationale_de_l_informatique_e
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-30T00:00:00+00:00 is 61.5d old vs a 15.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Commission nationale de l'informatique et des libertés — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47422,6 +47516,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_futo_futo_peertube_instance
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-05T00:00:00+00:00 is 55.5d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: FUTO PeerTube Instance — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47450,6 +47546,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_parleur_videos_sur_parleur_net
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-23T00:00:00+00:00 is 68.5d old vs a 22.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Vidéos sur parleur.net — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47478,6 +47576,8 @@
   audit_slack_days: 22
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_fhtagn_video_fhtagn
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-04T00:00:00+00:00 is 25.5d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Video_fhtagn — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47618,6 +47718,8 @@
   audit_slack_days: 10
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), AM. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_tv_varis_tv
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-14T00:00:00+00:00 is 46.5d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Varis.TV — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47646,6 +47748,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances). isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_tube_gnu_linux_tube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-31T00:00:00+00:00 is 29.5d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: GNU/Linux Tube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47674,6 +47778,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_artisanlogiciel_pirepeertube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-03T00:00:00+00:00 is 57.5d old vs a 11.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PirePeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -48262,6 +48368,8 @@
   audit_slack_days: 19
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances). isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_click_biketube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-12T18:00:00+00:00 is 47.7d old vs a 8.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: BikeTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -48430,6 +48538,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_txs_tuvideo
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-27T00:00:00+00:00 is 64.5d old vs a 17.0d limit for P1D. Re-enable if the upstream resumes.'
   name: TuVídeo — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -48570,6 +48680,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_naln1_lucy_s_theatre
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-19T00:00:00+00:00 is 41.5d old vs a 10.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Lucy's Theatre — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -48626,6 +48738,8 @@
   audit_slack_days: 19
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), BE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_kotur_kotur_tube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-04T00:00:00+00:00 is 56.5d old vs a 10.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Kotur Tube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -48906,6 +49020,8 @@
   audit_slack_days: 25
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_inrae_moulontube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-23T00:00:00+00:00 is 68.5d old vs a 22.0d limit for P1D. Re-enable if the upstream resumes.'
   name: MoulonTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -48934,6 +49050,8 @@
   audit_slack_days: 22
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_adullact_peertube_adullact
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-05T11:00:00+00:00 is 55.0d old vs a 9.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: PeerTube ADULLACT — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -48990,6 +49108,8 @@
   audit_slack_days: 10
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_space_apt_no_707
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-28T00:00:00+00:00 is 63.5d old vs a 17.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Apt. No. 707 — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49046,6 +49166,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), BR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_fedihost_fedihost
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-03T00:00:00+00:00 is 57.5d old vs a 11.0d limit for P1D. Re-enable if the upstream resumes.'
   name: FediHost — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49074,6 +49196,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_elltube_elltube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-23T06:00:00+00:00 is 68.2d old vs a 22.0d limit for PT6H. Re-enable if the upstream resumes.'
   name: ellTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49354,6 +49478,8 @@
   audit_slack_days: 19
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_mo_peertube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-30T00:00:00+00:00 is 61.5d old vs a 15.0d limit for PT6H. Re-enable if the upstream resumes.'
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49438,6 +49564,8 @@
   audit_slack_days: 19
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_folkdata_peertube_folkdata
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-19T07:00:00+00:00 is 41.2d old vs a 13.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: PeerTube Folkdata — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49494,6 +49622,8 @@
   audit_slack_days: 21
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_martin_video_martin_riedl
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-30T00:00:00+00:00 is 30.5d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Video - Martin Riedl — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49802,6 +49932,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_coop_graptube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-07T00:00:00+00:00 is 53.5d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: GrapTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49858,6 +49990,8 @@
   audit_slack_days: 19
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_snarkytechlab_snarktube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-26T00:00:00+00:00 is 34.5d old vs a 7.0d limit for PT6H. Re-enable if the upstream resumes.'
   name: SnarkTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49970,6 +50104,8 @@
   audit_slack_days: 23
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_libretic_peertube_libretic
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-04T00:00:00+00:00 is 25.5d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube Libretic — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49998,6 +50134,8 @@
   audit_slack_days: 8
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_bzh_kaztube
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-07T18:00:00+00:00 is 52.7d old vs a 7.0d limit for PT6H. Re-enable if the upstream resumes.'
   name: KazTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -50082,6 +50220,8 @@
   audit_slack_days: 15
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_eloquer_eloquer
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-03T00:00:00+00:00 is 26.5d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Eloquer — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -50110,6 +50250,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_media_espaces_tv
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-13T00:00:00+00:00 is 47.5d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Espaces TV — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -51514,6 +51656,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API count what the instance mirrored from its peers, which is the same global firehose seen from every host.
 - id: misskey_f5_active_users
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-12T04:00:00+00:00 is 17.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: oyumiss.f5.si — active local users (Misskey)
   domain: web_cloudops
   dgp_class: active_user_count
@@ -58725,6 +58869,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (CA, system id Bixi_MTL). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_sharedmobility_sharedmobility_ch_switzerland
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-06-04T19:45:11+00:00 is 116.7d old vs a 3.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: sharedmobility.ch (Switzerland) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -58985,6 +59131,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (ES, system id BIKI_valladolid). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_fifteen_auxr_m_le_velo_auxerre
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-07T23:59:30+00:00 is 21.5d old vs a 3.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: AuxR_M le vélo (Auxerre) — per-station availability (GBFS panel)
   domain: transport
   dgp_class: micromobility_availability
@@ -62042,6 +62190,8 @@
   audit_slack_days: 14
   notes: 'Bulk-generated from the CSWC ERDDAP server (coastwatch.pfeg.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: blueshark, bluesharkTRK, sealions, leatherbacks.'
 - id: emodnet_a_summary_of_oceanographic_data_from_fis
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-01T17:04:53+00:00 is 27.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2"]
   name: A summary of oceanographic data from fishing vessels and gears (Ocean Data Network)
   domain: nature
@@ -65309,6 +65459,8 @@
     cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
     count what the instance mirrored from its peers, which is the same global firehose seen from every host.
 - id: misskey_florist_notes
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-10T19:00:00+00:00 is 18.7d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: peculiar.florist — local note publication rate (Iceshrimp)
   domain: web_cloudops
   dgp_class: social_posting_rate
@@ -73774,6 +73926,8 @@
   notes: Socrata SODA resource 3maa-4fgr, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: hicscdata_campaign_contributions_received_by_hawai
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-08T23:39:42+00:00 is 51.5d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Campaign Contributions Received By Hawaii State and County Candidates From (hicscdata.hawaii.gov)
   domain: econ_fin
   dgp_class: political_finance
@@ -73803,6 +73957,8 @@
   notes: Socrata SODA resource jexd-xbcg, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: hicscdata_expenditures_made_by_hawaii_noncandidate
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-06T23:54:53+00:00 is 53.5d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Expenditures Made By Hawaii Noncandidate Committees From January 1, 2015 T (hicscdata.hawaii.gov)
   domain: econ_fin
   dgp_class: economic_indicator
@@ -74098,6 +74254,8 @@
     Panel dimension id is pinned to ''100041662'': without it the response interleaves several series on
     the same timestamps.'
 - id: opendata_tableau_sterilisation_chats_2024
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-01-29T00:00:00+00:00 is 243.5d old vs a 10.0d limit for P1W. Re-enable if the upstream resumes.'
   name: Chats errants (opendata.mons.be)
   domain: nature
   dgp_class: environmental_measurement
@@ -74186,6 +74344,8 @@
   notes: Opendatasoft v2.1 records endpoint, dataset qualite-de-lair, newest-first on date_heure; v2.1 caps
     `limit` at 100. Domain taken from the publisher's own theme field, not the title.
 - id: spi_digitalwallonia_bornes_de_comptage_cyclistes_et_piet
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-25T21:00:00+00:00 is 34.6d old vs a 10.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Bornes de comptage cyclistes et piétons - Chiffres - Ville de Liège (spi-digitalwallonia.opendatasoft.com)
   domain: transport
   dgp_class: transport_activity
@@ -74714,6 +74874,8 @@
   notes: Socrata SODA resource 5bd5-md2c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension entity pinned to 'JTI'.
 - id: data_exemptions
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-30T13:56:07.610000+00:00 is 60.9d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Exemptions (data.wcad.org)
   domain: sales
   dgp_class: property_market_activity
@@ -75684,6 +75846,8 @@
   notes: Socrata SODA resource wpz8-mnw8, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension problem pinned to 'Behavioral Alpha One'.
 - id: opendata_state_of_maryland_payments_data_fy2008_to_departme
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-01-01T00:00:00+00:00 is 271.5d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: 'State of Maryland Payments Data: FY2008 to FY2024 [DEPARTMENT OF INFO] (opendata.maryland.gov)'
   domain: econ_fin
   dgp_class: economic_indicator
@@ -77769,6 +77933,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Luther Burbank'.
 - id: data_freshwater_swim_beach_data_grovelan
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-18T00:00:00+00:00 is 42.5d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Groveland] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -79761,6 +79927,8 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: airPressure, airTemperature, conductivity, relativeHumidity.'
 - id: emodnet_mobile_gears_oceanographic_data_from_fis
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-20T05:36:47+00:00 is 40.3d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: 'Mobile gears: Oceanographic data from fishing vessels (Ocean Data Network)'
   domain: nature
   dgp_class: biodiversity
@@ -80206,6 +80374,8 @@
     against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered,
     air_temperature_rms.'
 - id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1069_hur
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-14T12:00:00+00:00 is 15.0d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   poll: P7D  # saildrone went 404 2026-09-05 (hurricane mission ended); weekly resume-probe instead of a 404 per minute
   name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1069 (NOAA Atlantic Oceanographic and Meteorological
@@ -81613,6 +81783,8 @@
   notes: ECB SDMX REST data query, dataflow NEC, single series NEC.M.I10.N.ECPE.CTOTNE.4F0.N.IX, CSV rendition
     via format=csvdata. Frequency dimension M.
 - id: ecb_omo_b_u2_t_ltro_z_o_20260037_eur
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-07-28T00:00:00+00:00 is 63.5d old vs a 19.0d limit for P1D. Re-enable if the upstream resumes.'
   name: ECB OMO — OMO.B.U2.T.LTRO._Z.O.20260037.EUR
   domain: econ_fin
   dgp_class: macro_activity
@@ -81641,6 +81813,8 @@
   notes: ECB SDMX REST data query, dataflow OMO, single series OMO.B.U2.T.LTRO._Z.O.20260037.EUR, CSV rendition
     via format=csvdata. Frequency dimension B.
 - id: ecb_omo_b_u2_t_ltro_z_o_20260046_eur
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-08-25T00:00:00+00:00 is 35.5d old vs a 6.0d limit for P1D. Re-enable if the upstream resumes.'
   name: ECB OMO — OMO.B.U2.T.LTRO._Z.O.20260046.EUR
   domain: econ_fin
   dgp_class: macro_activity
@@ -84156,6 +84330,8 @@
   audit_slack_days: 3
   notes: SMHI meteorological observations, parameter 1 at station 122260 (Tännäs A), latest-months window.
 - id: smhi_1_96040
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-04T13:00:00+00:00 is 25.0d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Air temperature — Floda A (SMHI)
   domain: nature
   dgp_class: air_temperature
@@ -85196,6 +85372,8 @@
   notes: USGS NWIS IV service, gauge 09246200 (Elkhead Creek Above Long Gulch, Near Hayden, Co), parameter
     code 00060 (Discharge), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00060_07083710
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-01T06:45:00+00:00 is 28.2d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Discharge — Arkansas River Below Empire Gulch Near Malta, Co (USGS 07083710)
   domain: nature
   dgp_class: river_flow
@@ -108658,6 +108836,8 @@
   license: IRCEL-CELINE open data (Belgian interregional environment agency)
   notes: SOS timeseries 10894 (µg/m³). 30-day window per fetch (721 hourly points) — pool-eligible on the first scrape.
 - id: irceline_co_43n064_hourly
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-12T00:00:00+00:00 is 17.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: IRCELINE — Carbon Monoxide at 43N064 Rixensart
   domain: healthcare
   dgp_class: air_quality
@@ -108682,6 +108862,8 @@
   license: IRCEL-CELINE open data (Belgian interregional environment agency)
   notes: SOS timeseries 11066 (mg/m³). 30-day window per fetch (721 hourly points) — pool-eligible on the first scrape.
 - id: irceline_co_43n070_hourly
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-12T00:00:00+00:00 is 17.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: IRCELINE — Carbon Monoxide at 43N070 Mons
   domain: healthcare
   dgp_class: air_quality
@@ -108730,6 +108912,8 @@
   license: IRCEL-CELINE open data (Belgian interregional environment agency)
   notes: SOS timeseries 6930 (mg/m³). 30-day window per fetch (721 hourly points) — pool-eligible on the first scrape.
 - id: irceline_co_43r222_hourly
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-12T00:00:00+00:00 is 17.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: IRCELINE — Carbon Monoxide at 43R222 Seraing
   domain: healthcare
   dgp_class: air_quality
@@ -108754,6 +108938,8 @@
   license: IRCEL-CELINE open data (Belgian interregional environment agency)
   notes: SOS timeseries 6995 (mg/m³). 30-day window per fetch (721 hourly points) — pool-eligible on the first scrape.
 - id: irceline_co_43r223_hourly
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-12T00:00:00+00:00 is 17.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: IRCELINE — Carbon Monoxide at 43R223 Jemeppe
   domain: healthcare
   dgp_class: air_quality
@@ -108778,6 +108964,8 @@
   license: IRCEL-CELINE open data (Belgian interregional environment agency)
   notes: SOS timeseries 7003 (mg/m³). 30-day window per fetch (721 hourly points) — pool-eligible on the first scrape.
 - id: irceline_co_45r501_hourly
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-12T00:00:00+00:00 is 17.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: IRCELINE — Carbon Monoxide at 45R501 Charleroi
   domain: healthcare
   dgp_class: air_quality
@@ -108802,6 +108990,8 @@
   license: IRCEL-CELINE open data (Belgian interregional environment agency)
   notes: SOS timeseries 7129 (mg/m³). 30-day window per fetch (721 hourly points) — pool-eligible on the first scrape.
 - id: irceline_co_45r512_hourly
+  disabled: true
+  disabled_reason: '2026-09-29: auto-disabled by freshness audit — newest observation 2026-09-12T00:00:00+00:00 is 17.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: IRCELINE — Carbon Monoxide at 45R512 Marchienne
   domain: healthcare
   dgp_class: air_quality
