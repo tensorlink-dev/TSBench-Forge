@@ -117121,3 +117121,1654 @@
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for
     provider pdb-5026. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at
     period=day they duplicate in/out exactly.
+- id: lemmy_sh_itjust_works_active_users
+  name: Lemmy sh.itjust.works (sh.itjust.works) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://sh.itjust.works/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_zip_active_users
+  name: Lemmy Lemmy.zip (lemmy.zip) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.zip/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_ml_active_users
+  name: Lemmy Lemmy (lemmy.ml) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.ml/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_ca_active_users
+  name: Lemmy Lemmy.ca (lemmy.ca) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.ca/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_feddit_org_active_users
+  name: Lemmy feddit.org (feddit.org) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://feddit.org/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_programming_dev_active_users
+  name: Lemmy programming.dev (programming.dev) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://programming.dev/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_blahaj_zone_active_users
+  name: Lemmy Blåhaj Lemmy (lemmy.blahaj.zone) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.blahaj.zone/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_discuss_tchncs_de_active_users
+  name: Lemmy tchncs (discuss.tchncs.de) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://discuss.tchncs.de/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_sopuli_xyz_active_users
+  name: Lemmy Sopuli (sopuli.xyz) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://sopuli.xyz/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_slrpnk_net_active_users
+  name: Lemmy SLRPNK (slrpnk.net) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://slrpnk.net/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_today_active_users
+  name: Lemmy Lemmy Today (lemmy.today) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.today/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_feddit_uk_active_users
+  name: Lemmy Feddit UK (feddit.uk) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://feddit.uk/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_infosec_pub_active_users
+  name: Lemmy Infosec.Pub (infosec.pub) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://infosec.pub/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_beehaw_org_active_users
+  name: Lemmy Beehaw (beehaw.org) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://beehaw.org/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_jlai_lu_active_users
+  name: Lemmy jlai.lu (jlai.lu) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://jlai.lu/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_thelemmy_club_active_users
+  name: Lemmy The Lemmy Club (thelemmy.club) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://thelemmy.club/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_pawb_social_active_users
+  name: Lemmy Pawb.Social (pawb.social) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://pawb.social/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_feddit_nl_active_users
+  name: Lemmy feddit.nl (feddit.nl) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://feddit.nl/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_sdf_org_active_users
+  name: Lemmy SDF Chatter (lemmy.sdf.org) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.sdf.org/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_feddit_dk_active_users
+  name: Lemmy Feddit.dk (feddit.dk) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://feddit.dk/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_startrek_website_active_users
+  name: Lemmy Star Trek Website (startrek.website) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://startrek.website/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_ani_social_active_users
+  name: Lemmy ani.social (ani.social) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://ani.social/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_feddit_it_active_users
+  name: Lemmy Feddit.it (feddit.it) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://feddit.it/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_leminal_space_active_users
+  name: Lemmy Leminal Space (leminal.space) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://leminal.space/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmus_org_active_users
+  name: Lemmy lemmus.org (lemmus.org) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmus.org/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_wtf_active_users
+  name: Lemmy Lemmy.wtf (lemmy.wtf) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.wtf/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_szmer_info_active_users
+  name: Lemmy szmer (szmer.info) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://szmer.info/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_feddit_nu_active_users
+  name: Lemmy Feddit.nu (feddit.nu) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://feddit.nu/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_awful_systems_active_users
+  name: Lemmy awful.systems (awful.systems) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://awful.systems/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_discuss_online_active_users
+  name: Lemmy Discuss Online (discuss.online) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://discuss.online/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_cafe_active_users
+  name: Lemmy Lemmy Cafe (lemmy.cafe) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.cafe/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_nz_active_users
+  name: Lemmy Lemmy NZ (lemmy.nz) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.nz/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_ttrpg_network_active_users
+  name: Lemmy The TTRPG network (ttrpg.network) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://ttrpg.network/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_literature_cafe_active_users
+  name: Lemmy literature.cafe (literature.cafe) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://literature.cafe/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_europe_pub_active_users
+  name: Lemmy Europe Pub (europe.pub) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://europe.pub/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemdro_id_active_users
+  name: Lemmy Lemdro.id (lemdro.id) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemdro.id/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_retrolemmy_com_active_users
+  name: Lemmy RetroLemmy (retrolemmy.com) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://retrolemmy.com/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_feddit_cl_active_users
+  name: Lemmy Feddit.cl (feddit.cl) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://feddit.cl/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_scribe_disroot_org_active_users
+  name: Lemmy D•Scribe (scribe.disroot.org) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://scribe.disroot.org/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemy_lol_active_users
+  name: Lemmy lemy.lol (lemy.lol) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemy.lol/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_eviltoast_org_active_users
+  name: Lemmy eviltoast (eviltoast.org) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://eviltoast.org/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_forum_guncadindex_com_active_users
+  name: Lemmy GunCAD Forums (forum.guncadindex.com) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://forum.guncadindex.com/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_futurology_today_active_users
+  name: Lemmy Futurology Today (futurology.today) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://futurology.today/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_api_rabotaem_app_active_users
+  name: Lemmy Работаем! (api.rabotaem.app) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.rabotaem.app/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_radio_active_users
+  name: Lemmy Lemmy.Radio (lemmy.radio) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.radio/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_1095_me_active_users
+  name: Lemmy Lemmy 1095 (lemmy.1095.me) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.1095.me/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_diggita_com_active_users
+  name: Lemmy diggita lemmy social (diggita.com) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://diggita.com/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_crazypeople_online_active_users
+  name: Lemmy crazypeople.online (crazypeople.online) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://crazypeople.online/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_pt_active_users
+  name: Lemmy Lemmy Português (lemmy.pt) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.pt/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_mtgzone_com_active_users
+  name: Lemmy MTGZone (mtgzone.com) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://mtgzone.com/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_suppo_fi_active_users
+  name: Lemmy Suppo.fi (suppo.fi) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://suppo.fi/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemy_nl_active_users
+  name: Lemmy Lemy (lemy.nl) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemy.nl/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_frozeninferno_xyz_active_users
+  name: Lemmy Frozen Lemmy (lemmy.frozeninferno.xyz) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.frozeninferno.xyz/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lazysoci_al_active_users
+  name: Lemmy lazysoci.al (lazysoci.al) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lazysoci.al/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_aggregatet_org_active_users
+  name: Lemmy Aggregatet (aggregatet.org) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://aggregatet.org/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lemmy_vg_active_users
+  name: Lemmy Lemmy.VG (lemmy.vg) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lemmy.vg/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: lemmy_lem_cochrun_xyz_active_users
+  name: Lemmy Christian Lemmy (lem.cochrun.xyz) — daily active users
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://lem.cochrun.xyz/api/v3/site
+  schema:
+    snapshot_now: true
+    value_field: site_view.counts.users_active_day
+    variates: 1
+  history_available: P0D — live snapshot, history accrues from wiring
+  update_cadence_observed: counter refreshes continuously
+  pretraining_novelty: clean
+  license: Lemmy instance public API (AGPL software, operator terms apply)
+  notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
+    in ~2 weeks of hourly polls.'
+- id: tor_relay_users_by_country_daily
+  name: Tor Project — estimated daily relay users by country
+  domain: web_cloudops
+  dgp_class: network_activity
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_csv
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://metrics.torproject.org/userstats-relay-country.csv?start=2024-01-01&end={YYYY-MM-DD}&events=off
+  schema:
+    timestamp_field: date
+    value_field: users
+    panel_field: country
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: daily, ~2 day publication lag
+  pretraining_novelty: clean
+  license: Tor Project metrics (CC0)
+  notes: Anonymity-network usage per country; the CSV carries a "#"-commented preamble the parser skips. Two-year window per fetch, so every country series is pool-eligible on the first scrape.
+- id: eccc_climate_hourly_victoria_gonzales_cs
+  name: Environment Canada — hourly temperature at VICTORIA GONZALES CS (BC)
+  domain: nature
+  dgp_class: air_temperature
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.weather.gc.ca/collections/climate-hourly/items?STN_ID=114&datetime={YYYY-MM-DD-60d}%2000:00:00/{YYYY-MM-DD}%2000:00:00&limit=2000&f=json&properties=LOCAL_DATE,TEMP
+  schema:
+    timestamp_field: features[].properties.LOCAL_DATE
+    value_field: features[].properties.TEMP
+    drop_null_values: true
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: hourly, ~1 day lag
+  pretraining_novelty: clean
+  license: Environment and Climate Change Canada open data
+  notes: OGC API Features collection climate-hourly, station 114. 60-day window per fetch (~1,400 hourly points) so the series is pool-eligible on the first scrape.
+- id: eccc_climate_hourly_comox_a
+  name: Environment Canada — hourly temperature at COMOX A (BC)
+  domain: nature
+  dgp_class: air_temperature
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.weather.gc.ca/collections/climate-hourly/items?STN_ID=155&datetime={YYYY-MM-DD-60d}%2000:00:00/{YYYY-MM-DD}%2000:00:00&limit=2000&f=json&properties=LOCAL_DATE,TEMP
+  schema:
+    timestamp_field: features[].properties.LOCAL_DATE
+    value_field: features[].properties.TEMP
+    drop_null_values: true
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: hourly, ~1 day lag
+  pretraining_novelty: clean
+  license: Environment and Climate Change Canada open data
+  notes: OGC API Features collection climate-hourly, station 155. 60-day window per fetch (~1,400 hourly points) so the series is pool-eligible on the first scrape.
+- id: eccc_climate_hourly_squamish_airport
+  name: Environment Canada — hourly temperature at SQUAMISH AIRPORT (BC)
+  domain: nature
+  dgp_class: air_temperature
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.weather.gc.ca/collections/climate-hourly/items?STN_ID=336&datetime={YYYY-MM-DD-60d}%2000:00:00/{YYYY-MM-DD}%2000:00:00&limit=2000&f=json&properties=LOCAL_DATE,TEMP
+  schema:
+    timestamp_field: features[].properties.LOCAL_DATE
+    value_field: features[].properties.TEMP
+    drop_null_values: true
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: hourly, ~1 day lag
+  pretraining_novelty: clean
+  license: Environment and Climate Change Canada open data
+  notes: OGC API Features collection climate-hourly, station 336. 60-day window per fetch (~1,400 hourly points) so the series is pool-eligible on the first scrape.
+- id: eccc_climate_hourly_pemberton_airport_cs
+  name: Environment Canada — hourly temperature at PEMBERTON AIRPORT CS (BC)
+  domain: nature
+  dgp_class: air_temperature
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.weather.gc.ca/collections/climate-hourly/items?STN_ID=536&datetime={YYYY-MM-DD-60d}%2000:00:00/{YYYY-MM-DD}%2000:00:00&limit=2000&f=json&properties=LOCAL_DATE,TEMP
+  schema:
+    timestamp_field: features[].properties.LOCAL_DATE
+    value_field: features[].properties.TEMP
+    drop_null_values: true
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: hourly, ~1 day lag
+  pretraining_novelty: clean
+  license: Environment and Climate Change Canada open data
+  notes: OGC API Features collection climate-hourly, station 536. 60-day window per fetch (~1,400 hourly points) so the series is pool-eligible on the first scrape.
+- id: eccc_climate_hourly_burns_lake_decker_lake
+  name: Environment Canada — hourly temperature at BURNS LAKE DECKER LAKE (BC)
+  domain: nature
+  dgp_class: air_temperature
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.weather.gc.ca/collections/climate-hourly/items?STN_ID=574&datetime={YYYY-MM-DD-60d}%2000:00:00/{YYYY-MM-DD}%2000:00:00&limit=2000&f=json&properties=LOCAL_DATE,TEMP
+  schema:
+    timestamp_field: features[].properties.LOCAL_DATE
+    value_field: features[].properties.TEMP
+    drop_null_values: true
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: hourly, ~1 day lag
+  pretraining_novelty: clean
+  license: Environment and Climate Change Canada open data
+  notes: OGC API Features collection climate-hourly, station 574. 60-day window per fetch (~1,400 hourly points) so the series is pool-eligible on the first scrape.
+- id: eccc_climate_hourly_vancouver_harbour_cs
+  name: Environment Canada — hourly temperature at VANCOUVER HARBOUR CS (BC)
+  domain: nature
+  dgp_class: air_temperature
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.weather.gc.ca/collections/climate-hourly/items?STN_ID=888&datetime={YYYY-MM-DD-60d}%2000:00:00/{YYYY-MM-DD}%2000:00:00&limit=2000&f=json&properties=LOCAL_DATE,TEMP
+  schema:
+    timestamp_field: features[].properties.LOCAL_DATE
+    value_field: features[].properties.TEMP
+    drop_null_values: true
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: hourly, ~1 day lag
+  pretraining_novelty: clean
+  license: Environment and Climate Change Canada open data
+  notes: OGC API Features collection climate-hourly, station 888. 60-day window per fetch (~1,400 hourly points) so the series is pool-eligible on the first scrape.
+- id: eccc_climate_hourly_white_rock_campbell_scientific
+  name: Environment Canada — hourly temperature at WHITE ROCK CAMPBELL SCIENTIFIC (BC)
+  domain: nature
+  dgp_class: air_temperature
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.weather.gc.ca/collections/climate-hourly/items?STN_ID=925&datetime={YYYY-MM-DD-60d}%2000:00:00/{YYYY-MM-DD}%2000:00:00&limit=2000&f=json&properties=LOCAL_DATE,TEMP
+  schema:
+    timestamp_field: features[].properties.LOCAL_DATE
+    value_field: features[].properties.TEMP
+    drop_null_values: true
+    variates: 1
+  history_available: P50Y
+  update_cadence_observed: hourly, ~1 day lag
+  pretraining_novelty: clean
+  license: Environment and Climate Change Canada open data
+  notes: OGC API Features collection climate-hourly, station 925. 60-day window per fetch (~1,400 hourly points) so the series is pool-eligible on the first scrape.
+- id: imgw_synop_temperature_panel
+  name: IMGW Poland — synoptic station panel (temperature, wind, humidity, rainfall)
+  domain: nature
+  dgp_class: weather_field
+  archetypes:
+  - hierarchical
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://danepubliczne.imgw.pl/api/data/synop/format/json
+  schema:
+    timestamp_field: '[].data_pomiaru [].godzina_pomiaru'
+    compose_hour_of_day: true
+    value_field:
+    - '[].temperatura'
+    - '[].predkosc_wiatru'
+    - '[].wilgotnosc_wzgledna'
+    - '[].suma_opadu'
+    panel_field: '[].stacja'
+    drop_null_values: true
+    variates: 4
+  history_available: P0D — latest hour per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IMGW-PIB public data
+  notes: ~60 Polish synoptic stations. The feed serves only the newest hour, so the panel ripens at the poll cadence (~2 weeks to 320 points). Four channels per station — MV-audit once ripe.
+- id: imgw_hydro_water_level_panel
+  name: IMGW Poland — river gauge panel (water level and water temperature)
+  domain: nature
+  dgp_class: hydrology
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://danepubliczne.imgw.pl/api/data/hydro/format/json
+  schema:
+    snapshot_now: true
+    value_field:
+    - '[].stan_wody'
+    - '[].temperatura_wody'
+    panel_field: '[].id_stacji'
+    drop_null_values: true
+    variates: 2
+  history_available: P0D — live snapshot
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: IMGW-PIB public data
+  notes: Polish river gauges. Snapshot feed keyed on station id; ripens at the poll cadence.
+- id: boi_ils_exchange_rates_panel
+  name: Bank of Israel — official ILS exchange rates (currency panel)
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://boi.org.il/PublicApi/GetExchangeRates?asJson=true
+  schema:
+    snapshot_now: true
+    value_field: exchangeRates[].currentExchangeRate
+    panel_field: exchangeRates[].key
+    drop_null_values: true
+  history_available: P0D — snapshot of the current fixing
+  update_cadence_observed: business days
+  pretraining_novelty: clean
+  license: Bank of Israel public API
+  notes: Official daily fixing against ILS. Snapshot endpoint, so the per-currency series ripen at one point per business day.
