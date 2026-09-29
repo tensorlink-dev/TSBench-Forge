@@ -77,6 +77,7 @@ schedules:
   - lichess_realtime_api
   - steam_concurrent_players
   - wsdot_ferry_locations
+  - agis_houstontx_houston_311_recent_service_request_snow
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -136,6 +137,27 @@ schedules:
   - gbfs_rideflamingo_flamingo_christchurch_christchurch
   - gbfs_bolt_bolt_technology_ou_brussels
   - statnett_physical_flow
+  - gbfs_ridedott_dott_ras_al_khaimah_ras_al_khaimah
+  - gbfs_nextbike_city_bike_linz_linz
+  - gbfs_bike_donkey_republic_westhoek_westhoek
+  - gbfs_bird_bird_vaughan_vaughan
+  - gbfs_mobidata_carvelo_ecargo_bike_sharing_switzerland
+  - gbfs_cyclocity_sevici_seville
+  - gbfs_mobi_capcotentin_cherbourg_en_cotentin
+  - gbfs_fifteen_idecycle_pau_pau
+  - gbfs_imarguerite_marguerite_vehicule_en_libre_service_a_n
+  - gbfs_gouv_pony_beauvais_beauvais
+  - gbfs_io_voi_grenoble_grenoble
+  - gbfs_app_beryl_brighton_brighton
+  - gbfs_odpt_docomo_bike_share_service_tokyo
+  - gbfs_io_farte_bysykkel_skien
+  - gbfs_rideflamingo_flamingo_dunedin_dunedin
+  - gbfs_whitebikes_white_bikes_bratislava
+  - gbfs_bcycle_bentonville_bcycle_bentonville_ar
+  - gbfs_lyft_blue_bikes_boston_ma
+  - gbfs_lyft_capital_bike_share_washington_dc
+  - gbfs_longbeachbikeshare_long_beach_ca_bikeshare_long_beach_ca
+  - agis_dc_scheduled_yard_waste_in_last_30_days
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -493,6 +515,7 @@ schedules:
   - elexon_fuel_outturn
   - carbonintensity_gb_genmix
   - opendata_referentiel_parkings_saemes
+  - agis_dc_tree_removal_in_last_30_days
   cron: '*/30 * * * *'
 - every: PT1H
   sources:
@@ -1032,6 +1055,25 @@ schedules:
   - opendata_ods157_27
   - opendata_real_time_air_quality_ozone_o3_6562
   - opendata_ods157_65
+  - agis_dc_emergency_no_parking_verification_in_las
+  - agis_dekalbcountyga_code_enforcement_cases_and_inspections
+  - agis_dekalbcountyga_code_enforcement_cases_and_inspectio_featur
+  - ixp_inx_durban_internet_exchange_point_inx
+  - ixp_ix_gr_ix_thessaloniki_greek_internet_exchan
+  - ixp_inex_inex_lan1_internet_neutral_exchange_asso
+  - ixp_inex_inex_lan2_internet_neutral_exchange_asso
+  - ixp_inx_johannesburg_internet_exchange_point_inx
+  - ixp_africa_napafrica_ix_johannesburg_napafrica
+  - ixp_ninja_phoenix_ix_ninja_ix
+  - ixp_ninja_richmond_ix_ninja_ix
+  - ixp_sthix_sthix_stockholm_stockholm_internet_excha
+  - ixp_sthix_sthix_sundsvall_stockholm_internet_excha
+  - ixp_ix_ix_denver
+  - ixp_pit_pit_ix
+  - ixp_qcix_qcix
+  - ixp_id_aix
+  - ixp_nvl_nvl_ix
+  - ixp_kosix_kosix
   - opendata_ods156_36
   - opendata_ods157_72
   - opendata_real_time_air_quality_nitrogen_dioxide_no2_10959
@@ -2870,9 +2912,43 @@ schedules:
   - misskey_lol_notes_kasako
   - misskey_superneko_notes
   - misskey_semisskey_notes
-  - misskey_my_notes
-  - misskey_casa_notes_blebmi
+  - agis_westfargond_fire_incidents_featur
+  - agis_nhcgov_buildingpermits_featur
+  - agis_mi_mdot_real_estate_polygons
+  - agis_mappmycity_tree_maintenance_service_requests
+  - agis_mappmycity_parks_maintenance_service_requests
+  - agis_govt_ws_lateral_opendata
+  - agis_govt_ws_pipe_type_opendata
+  - agis_wacotx_publicmap_planningecondev_featur
+  - agis_nnva_stormwater_gravity_mains
+  - agis_roundrocktexas_stormwater_impervious_surfaces
+  - agis_fuquay_fuquay_varina_utilities_stormwater_syste_mapser
+  - agis_roundrocktexas_stormwater_lines
   - misskey_dog_notes
+  - misskey_casa_notes_blebmi
+  - misskey_my_notes
+  - misskey_xsns_notes_maguro
+  - misskey_xsns_notes_shimob
+  - misskey_best_notes
+  - misskey_msnis_notes
+  - misskey_msnis_active_users
+  - misskey_xsns_notes_radian
+  - misskey_blue_notes_neko_b
+  - misskey_dev_notes_mk_jui
+  - misskey_dev_active_users_mk_jui
+  - misskey_xsns_notes_tomi_s
+  - misskey_day_notes_fluffy
+  - misskey_possum_notes
+  - misskey_club_notes_mk_phr
+  - misskey_bar_notes
+  - misskey_ph_notes
+  - misskey_netzkae_notes
+  - misskey_place_notes_mk_nya
+  - misskey_social_notes_ibe_so
+  - misskey_life_notes_enby_l
+  - misskey_boo_notes
+  - misskey_seoulstream_notes
+  - misskey_me_notes_tosang
   cron: 10 1 * * *
 - every: P1D
   sources:
