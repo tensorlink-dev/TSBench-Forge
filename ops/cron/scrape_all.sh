@@ -36,6 +36,12 @@ source "$REPO/.venv/bin/activate"
 # before the next tick; cadence tracking means anything skipped is simply due
 # again next sweep. 2026-08-19: the catalog's +625 sources (08-13/14) had the
 # sweep hitting this deadline on every pass with ~34 sources unstarted.
+# 2026-09-29: left at 12 again. The catalog grew by ~900 sources and one run
+# hit the deadline (22 sources not started); the fix was removing work, not
+# adding minutes — the audit now disables sources stale past 3x their cadence
+# (95 in the first pass). Sweeps run 499-620s of the 720s budget after that.
+# Raising to 13 is NOT the next step: the sweep would then stop starting
+# sources at :13/:28/:43/:58, exactly where sync_hippius runs.
 # Considered raising to 14 and DIDN'T: the daily jobs at :43/:13 sit in gaps
 # that assume sweeps end at :12, and this box OOMs when heavy readers overlap.
 # Instead the backfill-window gate in is_due() (same date) took ~160 fetches
