@@ -44996,6 +44996,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ru_4e6atube
+  disabled: true
+  disabled_reason: '2026-09-30: auto-disabled by freshness audit — newest observation 2026-08-01T00:00:00+00:00 is 60.3d old vs a 13.0d limit for P1D. Re-enable if the upstream resumes.'
   name: 4e6aTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47808,6 +47810,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_k_k_prod
+  disabled: true
+  disabled_reason: '2026-09-30: auto-disabled by freshness audit — newest observation 2026-09-09T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: K-PROD — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -68716,6 +68720,8 @@
     Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
     server, not the vendor's shared services*.arcgis.com tenancy.
 - id: agis_iowadot_crash_data_sor
+  disabled: true
+  disabled_reason: '2026-09-30: auto-disabled by freshness audit — newest observation 2025-12-31T23:19:00+00:00 is 272.3d old vs a 46.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Crash Data (SOR) (gis.iowadot.gov)
   domain: transport
   dgp_class: collision_stream
