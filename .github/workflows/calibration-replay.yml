@@ -1,0 +1,111 @@
+# Replay ensemble-calibration policies over the stored paracast rounds.
+#
+# Every paracast-round run uploads its per-challenge scores as the
+# `paracast-round-results` artifact. This workflow pulls every one still
+# retained and asks whether a policy calibrated on past rounds would have beaten
+# the served paracast-ensemble on the next round (scripts/replay_calibration.py).
+#
+# Those artifacts expire after 30 days, so the pulled set is also re-uploaded
+# with the longest retention GitHub allows: each run of this workflow extends
+# the history instead of watching it age out.
+#
+# Nothing is committed or published; the report lands in the run summary and
+# as an artifact.
+
+name: Calibration replay
+
+on:
+  # Weekly, so the archive is re-uploaded well inside its 90-day retention and
+  # the replay history keeps growing once this is on main.
+  schedule:
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+    inputs:
+      windows:
+        description: "Trailing windows in rounds (two rounds/day), comma-separated; 'all' = full history"
+        required: false
+        default: "1,4,14,all"
+  push:
+    branches: [calibration-replay]
+    paths:
+      - scripts/replay_calibration.py
+      - tests/test_calibration_replay.py
+      - .github/workflows/calibration-replay.yml
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      WINDOWS: ${{ inputs.windows || '1,4,14,all' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install numpy scipy pyyaml pytest
+
+      - name: Unit tests
+        run: python -m pytest -q tests/test_calibration_replay.py
+
+      - name: Pull retained round artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p replay_rounds
+          # Start from the newest archive, so rounds whose own artifact has
+          # expired survive. Directories are keyed <created_at>_<artifact id>,
+          # so re-pulling a round still retained just overwrites itself.
+          archive=$(gh api \
+            "repos/${{ github.repository }}/actions/artifacts?name=paracast-round-archive&per_page=100" \
+            --jq '[.artifacts[] | select(.expired | not)] | sort_by(.created_at) | last | .id // empty')
+          if [ -n "$archive" ]; then
+            gh api "repos/${{ github.repository }}/actions/artifacts/${archive}/zip" > archive.zip
+            unzip -q -o archive.zip -d replay_rounds
+            rm -f archive.zip
+            echo "restored $(ls replay_rounds | wc -l) rounds from archive ${archive}"
+          fi
+          gh api --paginate \
+            "repos/${{ github.repository }}/actions/artifacts?name=paracast-round-results&per_page=100" \
+            --jq '.artifacts[] | select(.expired | not) | "\(.id) \(.created_at)"' |
+          while read -r id ts; do
+            d="replay_rounds/${ts}_${id}"
+            mkdir -p "$d"
+            gh api "repos/${{ github.repository }}/actions/artifacts/${id}/zip" > "$d/a.zip"
+            unzip -q -o "$d/a.zip" results.json -d "$d" || echo "no results.json in artifact ${id}"
+            rm -f "$d/a.zip"
+          done
+          echo "pulled $(ls replay_rounds | wc -l) artifacts"
+
+      - name: Replay
+        run: |
+          python scripts/replay_calibration.py \
+            --rounds-dir replay_rounds --windows "$WINDOWS" \
+            --out replay_report.json --markdown replay_report.md
+          cat replay_report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calibration-replay-report
+          path: |
+            replay_report.json
+            replay_report.md
+          if-no-files-found: ignore
+
+      - name: Archive the pulled rounds
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paracast-round-archive
+          path: replay_rounds/
+          retention-days: 90
+          if-no-files-found: ignore
