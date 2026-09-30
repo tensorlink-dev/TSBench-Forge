@@ -64,6 +64,7 @@ ENSEMBLE = "paracast-ensemble"
 ROUTER = "paracast-router"
 PSEUDO = {ENSEMBLE, ROUTER}
 BASELINE = "seasonal_naive"
+METRICS = ("crps", "mase")
 UNKNOWN = "unknown"
 
 # A domain or source needs this many challenges in a round before its score
@@ -344,20 +345,21 @@ def replay(
                 synthetic[name] = compose(name, current.scores, choice)
                 choices[name] = dict(Counter(choice.tolist()))
         everything = {**current.scores, **synthetic}
-        rows = leaderboard_from_scores(everything, metrics=("crps",))
-        by_cadence = {}
+        rows = leaderboard_from_scores(everything, metrics=METRICS)
+        by_cadence: dict[str, dict[str, dict[str, float]]] = {m: {} for m in METRICS}
         if current.cadences is not None:
             for bucket in CADENCE_BUCKETS:
                 idx = np.flatnonzero(current.cadences == bucket)
                 if idx.size >= MIN_DOMAIN_CHALLENGES:
-                    sub = leaderboard_from_scores(subset_scores(everything, idx), metrics=("crps",))
-                    by_cadence[bucket] = {r["model"]: r["crps_rel"] for r in sub}
+                    sub = leaderboard_from_scores(subset_scores(everything, idx), metrics=METRICS)
+                    for m in METRICS:
+                        by_cadence[m][bucket] = {r["model"]: r[f"{m}_rel"] for r in sub}
         per_round.append(
             {
                 "round": current.label,
                 "history": i - gap,
-                "crps_rel": {r["model"]: r["crps_rel"] for r in rows},
-                "crps_rel_by_cadence": by_cadence,
+                **{f"{m}_rel": {r["model"]: r[f"{m}_rel"] for r in rows} for m in METRICS},
+                **{f"{m}_rel_by_cadence": by_cadence[m] for m in METRICS},
                 "choices": choices,
             }
         )
@@ -388,30 +390,37 @@ def _diff_table(per_round: list[dict], key: Callable[[dict], dict | None]) -> li
             {
                 "row": name,
                 "n_rounds": len(vals),
-                "mean_crps_rel": float(np.mean(vals)),
+                "mean_rel": float(np.mean(vals)),
                 "mean_diff_vs_ensemble": float(diffs_a.mean()),
                 "wins_vs_ensemble": int((diffs_a < 0).sum()),
                 "losses_vs_ensemble": int((diffs_a > 0).sum()),
                 "wilcoxon_p": _wilcoxon(diffs_a),
             }
         )
-    table.sort(key=lambda r: r["mean_crps_rel"])
+    table.sort(key=lambda r: r["mean_rel"])
     return table
 
 
 def summarize(result: dict, rounds: list[Round]) -> dict:
-    """Mean crps_rel per row and its per-round record against the served ensemble."""
+    """Per metric: mean relative score per row and its record against the served ensemble.
+
+    Policies always *choose* by CRPS, the metric the leaderboard ranks on; MASE
+    is reported for the same choices, to show whether a CRPS win costs the
+    point forecast (a mixture can widen the fan while dragging the median).
+    """
     per_round = result["per_round"]
-    buckets = sorted({b for r in per_round for b in r.get("crps_rel_by_cadence", {})})
-    return {
-        "table": _diff_table(per_round, lambda r: r["crps_rel"]),
-        "by_cadence": {
-            b: _diff_table(per_round, lambda r, b=b: r.get("crps_rel_by_cadence", {}).get(b))
-            for b in buckets
-        },
-        "stability": rank_stability(rounds),
-        "domain_leaders": domain_leader_counts(rounds),
-    }
+    out: dict = {"stability": rank_stability(rounds), "domain_leaders": domain_leader_counts(rounds)}
+    for m in METRICS:
+        cad_key = f"{m}_rel_by_cadence"
+        buckets = sorted({b for r in per_round for b in r.get(cad_key, {})})
+        out[m] = {
+            "table": _diff_table(per_round, lambda r, m=m: r.get(f"{m}_rel")),
+            "by_cadence": {
+                b: _diff_table(per_round, lambda r, b=b, k=cad_key: r.get(k, {}).get(b))
+                for b in buckets
+            },
+        }
+    return out
 
 
 def _wilcoxon(diffs: np.ndarray) -> float | None:
@@ -469,9 +478,11 @@ def domain_leader_counts(rounds: list[Round]) -> dict[str, dict[str, int]]:
 # --------------------------------------------------------------------------- #
 
 
-def _table_md(table: list[dict], keep: Callable[[str], bool] = lambda _: True) -> list[str]:
+def _table_md(
+    table: list[dict], keep: Callable[[str], bool] = lambda _: True, metric: str = "crps"
+) -> list[str]:
     lines = [
-        "| row | rounds | mean crps_rel | vs ensemble | W/L | wilcoxon p |",
+        f"| row | rounds | mean {metric}_rel | vs ensemble | W/L | wilcoxon p |",
         "|---|---:|---:|---:|---:|---:|",
     ]
     for r in table:
@@ -479,7 +490,7 @@ def _table_md(table: list[dict], keep: Callable[[str], bool] = lambda _: True) -
             continue
         p = "" if r["wilcoxon_p"] is None else f"{r['wilcoxon_p']:.3f}"
         lines.append(
-            f"| `{r['row']}` | {r['n_rounds']} | {r['mean_crps_rel']:.4f} | "
+            f"| `{r['row']}` | {r['n_rounds']} | {r['mean_rel']:.4f} | "
             f"{r['mean_diff_vs_ensemble']:+.4f} | {r['wins_vs_ensemble']}/{r['losses_vs_ensemble']} | {p} |"
         )
     return lines
@@ -508,19 +519,25 @@ def to_markdown(
         "`hindsight_*` rows use the round's own results: a ceiling, not a policy. "
         "Twice-daily runs are not independent rounds, so read p-values as indicative.",
         "",
-        f"## All rows, gap {min(summaries)}",
-        "",
-        *_table_md(base["table"]),
+        "Policies choose by CRPS; MASE is the same choices scored on the point forecast.",
     ]
+    for m in METRICS:
+        lines += ["", f"## All rows, {m.upper()}, gap {min(summaries)}", "", *_table_md(base[m]["table"], metric=m)]
     for gap, summary in sorted(summaries.items()):
-        lines += [
-            "",
-            f"## Gap {gap}: policies see nothing from the last {gap} rounds",
-            "",
-            *_table_md(summary["table"], _policy_rows),
-        ]
-        for bucket, table in summary["by_cadence"].items():
-            lines += ["", f"### gap {gap}, sources updating `{bucket}`", "", *_table_md(table, _policy_rows)]
+        for m in METRICS:
+            lines += [
+                "",
+                f"## Gap {gap}, {m.upper()}: policies see nothing from the last {gap} rounds",
+                "",
+                *_table_md(summary[m]["table"], _policy_rows, metric=m),
+            ]
+            for bucket, table in summary[m]["by_cadence"].items():
+                lines += [
+                    "",
+                    f"### gap {gap}, {m.upper()}, sources updating `{bucket}`",
+                    "",
+                    *_table_md(table, _policy_rows, metric=m),
+                ]
     st = base["stability"]
     lines += [
         "",

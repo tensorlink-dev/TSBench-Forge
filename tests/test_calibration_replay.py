@@ -107,9 +107,9 @@ def test_replay_end_to_end_prefers_domain_selection_here(tmp_path):
     result = rc.replay(rounds, [None])
     assert len(result["per_round"]) == 4
     summary = rc.summarize(result, rounds)
-    by_row = {r["row"]: r for r in summary["table"]}
-    domain = by_row["domain_leader[all]|members"]["mean_crps_rel"]
-    single = by_row["trailing_leader[all]|members"]["mean_crps_rel"]
+    by_row = {r["row"]: r for r in summary["crps"]["table"]}
+    domain = by_row["domain_leader[all]|members"]["mean_rel"]
+    single = by_row["trailing_leader[all]|members"]["mean_rel"]
     assert domain < single
     assert by_row["domain_leader[all]|members"]["wins_vs_ensemble"] == 4
     assert summary["domain_leaders"] == {"energy": {"a": 5}, "nature": {"b": 5}}
@@ -157,7 +157,8 @@ def test_cadence_breakdown_is_reported_per_bucket():
     cadence = {s: ("daily" if s.startswith("e") else "slower") for s in DOMAIN_MAP}
     rounds = [rc.round_from_results(f"r{i}", payload(seed=i), DOMAIN_MAP, cadence) for i in range(3)]
     summary = rc.summarize(rc.replay(rounds, [None]), rounds)
-    assert set(summary["by_cadence"]) == {"daily", "slower"}
+    for metric in ("crps", "mase"):
+        assert set(summary[metric]["by_cadence"]) == {"daily", "slower"}
 
 
 @pytest.mark.parametrize("text,expected", [("1,4,all", [1, 4, None]), (" 2 ", [2])])
