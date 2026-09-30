@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -17,6 +18,9 @@ import pytest
 REPO = Path(__file__).resolve().parent.parent
 _spec = importlib.util.spec_from_file_location("replay_calibration", REPO / "scripts/replay_calibration.py")
 rc = importlib.util.module_from_spec(_spec)
+# Registered before executing: @dataclass looks its own module up in
+# sys.modules to resolve the postponed annotations.
+sys.modules["replay_calibration"] = rc
 _spec.loader.exec_module(rc)
 
 N_PER_DOMAIN = 30
