@@ -41,6 +41,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import Counter
 from collections.abc import Callable, Sequence
@@ -86,6 +87,7 @@ class Round:
     scores: dict[str, ModelScores]
     members: list[str]
     domains: np.ndarray
+    cadences: np.ndarray | None = None
     # Filled lazily: {(scope, key): {model: crps_rel}}.
     _rel_cache: dict = field(default_factory=dict, repr=False)
 
@@ -115,19 +117,51 @@ class Round:
         return self.rel(idx, key=("source", source))
 
 
-def load_domain_map(repo: Path = REPO) -> dict[str, str]:
-    out: dict[str, str] = {}
+def _catalog(repo: Path = REPO) -> list[dict]:
+    entries: list[dict] = []
     for rel in CATALOGS:
         path = repo / rel
-        if not path.exists():
-            continue
-        for entry in yaml.load(path.read_text(), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader)) or []:
-            if isinstance(entry, dict) and "id" in entry:
-                out[entry["id"]] = entry.get("domain") or UNKNOWN
-    return out
+        if path.exists():
+            loaded = yaml.load(path.read_text(), Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
+            entries += [e for e in loaded or [] if isinstance(e, dict) and "id" in e]
+    return entries
 
 
-def round_from_results(label: str, results: dict, domain_map: dict[str, str]) -> Round | None:
+def load_domain_map(repo: Path = REPO) -> dict[str, str]:
+    return {e["id"]: e.get("domain") or UNKNOWN for e in _catalog(repo)}
+
+
+# How fast a source's newest window moves. The split matters because a slow
+# source can serve the *same* eval window on consecutive rounds, and then
+# "last round's winner on this series" is scored on data it was chosen on.
+CADENCE_BUCKETS = ("sub_daily", "daily", "slower", UNKNOWN)
+# ISO 8601 reuses "M": months before the "T", minutes after it.
+_DATE_UNITS = {"Y": 365 * 86400, "M": 30 * 86400, "W": 7 * 86400, "D": 86400}
+_TIME_UNITS = {"H": 3600, "M": 60, "S": 1}
+_ISO = re.compile(r"P(?:(\d+)([YMWD]))?(?:T(\d+)([HMS]))?")
+
+
+def cadence_bucket(freq: str | None) -> str:
+    m = _ISO.fullmatch(str(freq or "").strip())
+    if not m or not any(m.groups()):
+        return UNKNOWN
+    seconds = 0
+    if m.group(1):
+        seconds += int(m.group(1)) * _DATE_UNITS[m.group(2)]
+    if m.group(3):
+        seconds += int(m.group(3)) * _TIME_UNITS[m.group(4)]
+    if seconds < 86400:
+        return "sub_daily"
+    return "daily" if seconds == 86400 else "slower"
+
+
+def load_cadence_map(repo: Path = REPO) -> dict[str, str]:
+    return {e["id"]: cadence_bucket(e.get("frequency")) for e in _catalog(repo)}
+
+
+def round_from_results(
+    label: str, results: dict, domain_map: dict[str, str], cadence_map: dict[str, str] | None = None
+) -> Round | None:
     """Build a Round from a results.json payload, or None if it cannot be replayed."""
     pc = results.get("per_challenge")
     if not pc:
@@ -140,10 +174,13 @@ def round_from_results(label: str, results: dict, domain_map: dict[str, str]) ->
     if len(members) < 2:
         return None
     domains = np.array([domain_map.get(s, UNKNOWN) for s in pc["source_ids"]])
-    return Round(label=label, scores=scores, members=members, domains=domains)
+    cadences = np.array([(cadence_map or {}).get(s, UNKNOWN) for s in pc["source_ids"]])
+    return Round(label=label, scores=scores, members=members, domains=domains, cadences=cadences)
 
 
-def load_rounds(rounds_dir: Path, domain_map: dict[str, str]) -> tuple[list[Round], list[str]]:
+def load_rounds(
+    rounds_dir: Path, domain_map: dict[str, str], cadence_map: dict[str, str] | None = None
+) -> tuple[list[Round], list[str]]:
     """Every ``<label>/results.json`` under ``rounds_dir``, oldest first.
 
     Labels are expected to sort chronologically (the workflow names each
@@ -152,7 +189,7 @@ def load_rounds(rounds_dir: Path, domain_map: dict[str, str]) -> tuple[list[Roun
     rounds, skipped = [], []
     for path in sorted(rounds_dir.glob("*/results.json")):
         label = path.parent.name
-        rnd = round_from_results(label, json.loads(path.read_text()), domain_map)
+        rnd = round_from_results(label, json.loads(path.read_text()), domain_map, cadence_map)
         if rnd is None:
             skipped.append(label)
         else:
@@ -283,12 +320,20 @@ CANDIDATE_SETS: dict[str, Callable[[Round], list[str]]] = {
 }
 
 
-def replay(rounds: list[Round], windows: Sequence[int | None], min_history: int = 1) -> dict:
-    """Score every policy on every round that has ``min_history`` rounds before it."""
+def replay(
+    rounds: list[Round], windows: Sequence[int | None], min_history: int = 1, gap: int = 0
+) -> dict:
+    """Score every policy on every round with ``min_history`` usable rounds before it.
+
+    ``gap`` withholds the most recent rounds from the policy: with ``gap=2`` a
+    policy scored on round i sees only rounds before i-2 (a full day, at two
+    rounds a day). If a policy's edge collapses as the gap opens, it was being
+    scored on windows it had effectively already seen.
+    """
     policies = build_policies(windows)
     per_round = []
-    for i in range(min_history, len(rounds)):
-        history, current = rounds[:i], rounds[i]
+    for i in range(min_history + gap, len(rounds)):
+        history, current = rounds[: i - gap], rounds[i]
         synthetic: dict[str, ModelScores] = {}
         choices: dict[str, dict[str, int]] = {}
         for set_name, pick in CANDIDATE_SETS.items():
@@ -298,27 +343,40 @@ def replay(rounds: list[Round], windows: Sequence[int | None], min_history: int 
                 choice = policy(history, current, candidates)
                 synthetic[name] = compose(name, current.scores, choice)
                 choices[name] = dict(Counter(choice.tolist()))
-        rows = leaderboard_from_scores({**current.scores, **synthetic}, metrics=("crps",))
+        everything = {**current.scores, **synthetic}
+        rows = leaderboard_from_scores(everything, metrics=("crps",))
+        by_cadence = {}
+        if current.cadences is not None:
+            for bucket in CADENCE_BUCKETS:
+                idx = np.flatnonzero(current.cadences == bucket)
+                if idx.size >= MIN_DOMAIN_CHALLENGES:
+                    sub = leaderboard_from_scores(subset_scores(everything, idx), metrics=("crps",))
+                    by_cadence[bucket] = {r["model"]: r["crps_rel"] for r in sub}
         per_round.append(
             {
                 "round": current.label,
-                "history": i,
+                "history": i - gap,
                 "crps_rel": {r["model"]: r["crps_rel"] for r in rows},
+                "crps_rel_by_cadence": by_cadence,
                 "choices": choices,
             }
         )
-    return {"per_round": per_round, "policies": list(policies), "candidate_sets": list(CANDIDATE_SETS)}
+    return {
+        "gap": gap,
+        "per_round": per_round,
+        "policies": list(policies),
+        "candidate_sets": list(CANDIDATE_SETS),
+    }
 
 
-def summarize(result: dict, rounds: list[Round]) -> dict:
-    """Mean crps_rel per row and its per-round record against the served ensemble."""
-    per_round = result["per_round"]
-    names = sorted({n for r in per_round for n in r["crps_rel"]})
+def _diff_table(per_round: list[dict], key: Callable[[dict], dict | None]) -> list[dict]:
+    names = sorted({n for r in per_round for n in (key(r) or {})})
     table = []
     for name in names:
         diffs, vals = [], []
         for r in per_round:
-            v, e = r["crps_rel"].get(name), r["crps_rel"].get(ENSEMBLE)
+            t = key(r) or {}
+            v, e = t.get(name), t.get(ENSEMBLE)
             if v is None or e is None:
                 continue
             vals.append(v)
@@ -326,19 +384,31 @@ def summarize(result: dict, rounds: list[Round]) -> dict:
         if not vals:
             continue
         diffs_a = np.asarray(diffs)
-        row = {
-            "row": name,
-            "n_rounds": len(vals),
-            "mean_crps_rel": float(np.mean(vals)),
-            "mean_diff_vs_ensemble": float(diffs_a.mean()),
-            "wins_vs_ensemble": int((diffs_a < 0).sum()),
-            "losses_vs_ensemble": int((diffs_a > 0).sum()),
-        }
-        row["wilcoxon_p"] = _wilcoxon(diffs_a)
-        table.append(row)
+        table.append(
+            {
+                "row": name,
+                "n_rounds": len(vals),
+                "mean_crps_rel": float(np.mean(vals)),
+                "mean_diff_vs_ensemble": float(diffs_a.mean()),
+                "wins_vs_ensemble": int((diffs_a < 0).sum()),
+                "losses_vs_ensemble": int((diffs_a > 0).sum()),
+                "wilcoxon_p": _wilcoxon(diffs_a),
+            }
+        )
     table.sort(key=lambda r: r["mean_crps_rel"])
+    return table
+
+
+def summarize(result: dict, rounds: list[Round]) -> dict:
+    """Mean crps_rel per row and its per-round record against the served ensemble."""
+    per_round = result["per_round"]
+    buckets = sorted({b for r in per_round for b in r.get("crps_rel_by_cadence", {})})
     return {
-        "table": table,
+        "table": _diff_table(per_round, lambda r: r["crps_rel"]),
+        "by_cadence": {
+            b: _diff_table(per_round, lambda r, b=b: r.get("crps_rel_by_cadence", {}).get(b))
+            for b in buckets
+        },
         "stability": rank_stability(rounds),
         "domain_leaders": domain_leader_counts(rounds),
     }
@@ -399,29 +469,59 @@ def domain_leader_counts(rounds: list[Round]) -> dict[str, dict[str, int]]:
 # --------------------------------------------------------------------------- #
 
 
-def to_markdown(summary: dict, rounds: list[Round], skipped: list[str]) -> str:
+def _table_md(table: list[dict], keep: Callable[[str], bool] = lambda _: True) -> list[str]:
     lines = [
-        "# Ensemble calibration replay",
-        "",
-        f"{len(rounds)} rounds replayed ({rounds[0].label} .. {rounds[-1].label})"
-        if rounds
-        else "no rounds",
-        f"; {len(skipped)} skipped." if skipped else ".",
-        "",
-        "Every policy is scored on round *i* using only rounds before *i*. "
-        "`hindsight_*` rows use the round's own results: a ceiling, not a policy. "
-        "Twice-daily runs are not independent rounds, so read p-values as indicative.",
-        "",
         "| row | rounds | mean crps_rel | vs ensemble | W/L | wilcoxon p |",
         "|---|---:|---:|---:|---:|---:|",
     ]
-    for r in summary["table"]:
+    for r in table:
+        if not keep(r["row"]):
+            continue
         p = "" if r["wilcoxon_p"] is None else f"{r['wilcoxon_p']:.3f}"
         lines.append(
             f"| `{r['row']}` | {r['n_rounds']} | {r['mean_crps_rel']:.4f} | "
             f"{r['mean_diff_vs_ensemble']:+.4f} | {r['wins_vs_ensemble']}/{r['losses_vs_ensemble']} | {p} |"
         )
-    st = summary["stability"]
+    return lines
+
+
+def _policy_rows(name: str) -> bool:
+    """The rows worth repeating in the per-gap and per-cadence sections."""
+    return name in PSEUDO or name.startswith(("source_leader", "domain_leader", "hindsight"))
+
+
+def to_markdown(
+    summaries: dict[int, dict], rounds: list[Round], skipped: list[str]
+) -> str:
+    base = summaries[min(summaries)]
+    lines = [
+        "# Ensemble calibration replay",
+        "",
+        (
+            f"{len(rounds)} rounds replayed ({rounds[0].label} .. {rounds[-1].label})"
+            + (f"; {len(skipped)} skipped." if skipped else ".")
+        )
+        if rounds
+        else "no rounds",
+        "",
+        "Every policy is scored on round *i* using only rounds before *i*. "
+        "`hindsight_*` rows use the round's own results: a ceiling, not a policy. "
+        "Twice-daily runs are not independent rounds, so read p-values as indicative.",
+        "",
+        f"## All rows, gap {min(summaries)}",
+        "",
+        *_table_md(base["table"]),
+    ]
+    for gap, summary in sorted(summaries.items()):
+        lines += [
+            "",
+            f"## Gap {gap}: policies see nothing from the last {gap} rounds",
+            "",
+            *_table_md(summary["table"], _policy_rows),
+        ]
+        for bucket, table in summary["by_cadence"].items():
+            lines += ["", f"### gap {gap}, sources updating `{bucket}`", "", *_table_md(table, _policy_rows)]
+    st = base["stability"]
     lines += [
         "",
         "## Rank stability (members, consecutive rounds)",
@@ -434,7 +534,7 @@ def to_markdown(summary: dict, rounds: list[Round], skipped: list[str]) -> str:
         "## Domain leaders (member leading each domain, count of rounds)",
         "",
     ]
-    for d, counts in summary["domain_leaders"].items():
+    for d, counts in base["domain_leaders"].items():
         lines.append(f"- **{d}**: {counts}")
     return "\n".join(lines) + "\n"
 
@@ -453,18 +553,27 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--rounds-dir", type=Path, required=True)
     ap.add_argument("--windows", default="1,4,14,all",
                     help="trailing windows in rounds (two rounds per day); 'all' = full history")
+    ap.add_argument("--gaps", default="0,2,8,20",
+                    help="rounds withheld from each policy before the scored round, comma-separated")
     ap.add_argument("--out", type=Path, default=Path("replay_report.json"))
     ap.add_argument("--markdown", type=Path, default=None)
     args = ap.parse_args(argv)
 
-    rounds, skipped = load_rounds(args.rounds_dir, load_domain_map())
+    rounds, skipped = load_rounds(args.rounds_dir, load_domain_map(), load_cadence_map())
     if len(rounds) < 2:
         print(f"error: need at least 2 replayable rounds, found {len(rounds)}", file=sys.stderr)
         return 1
-    result = replay(rounds, parse_windows(args.windows))
-    summary = summarize(result, rounds)
-    args.out.write_text(json.dumps({**result, "summary": summary, "skipped": skipped}, indent=1))
-    md = to_markdown(summary, rounds, skipped)
+    windows = parse_windows(args.windows)
+    results, summaries = {}, {}
+    for gap in sorted({int(g) for g in args.gaps.split(",") if g.strip()}):
+        if gap + 1 >= len(rounds):
+            continue
+        results[gap] = replay(rounds, windows, gap=gap)
+        summaries[gap] = summarize(results[gap], rounds)
+    args.out.write_text(
+        json.dumps({"by_gap": results, "summaries": summaries, "skipped": skipped}, indent=1)
+    )
+    md = to_markdown(summaries, rounds, skipped)
     if args.markdown:
         args.markdown.write_text(md)
     print(md)

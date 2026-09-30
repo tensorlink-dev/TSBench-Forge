@@ -25,6 +25,10 @@ on:
         description: "Trailing windows in rounds (two rounds/day), comma-separated; 'all' = full history"
         required: false
         default: "1,4,14,all"
+      gaps:
+        description: "Rounds withheld from each policy before the scored round, comma-separated"
+        required: false
+        default: "0,2,8,20"
   push:
     branches: [calibration-replay]
     paths:
@@ -43,6 +47,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       WINDOWS: ${{ inputs.windows || '1,4,14,all' }}
+      GAPS: ${{ inputs.gaps || '0,2,8,20' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -76,7 +81,9 @@ jobs:
             "repos/${{ github.repository }}/actions/artifacts?name=paracast-round-results&per_page=100" \
             --jq '.artifacts[] | select(.expired | not) | "\(.id) \(.created_at)"' |
           while read -r id ts; do
-            d="replay_rounds/${ts}_${id}"
+            # Colons are not allowed in artifact paths; the name still sorts
+            # chronologically with them swapped out.
+            d="replay_rounds/${ts//:/-}_${id}"
             mkdir -p "$d"
             gh api "repos/${{ github.repository }}/actions/artifacts/${id}/zip" > "$d/a.zip"
             unzip -q -o "$d/a.zip" results.json -d "$d" || echo "no results.json in artifact ${id}"
@@ -87,7 +94,7 @@ jobs:
       - name: Replay
         run: |
           python scripts/replay_calibration.py \
-            --rounds-dir replay_rounds --windows "$WINDOWS" \
+            --rounds-dir replay_rounds --windows "$WINDOWS" --gaps "$GAPS" \
             --out replay_report.json --markdown replay_report.md
           cat replay_report.md >> "$GITHUB_STEP_SUMMARY"
 

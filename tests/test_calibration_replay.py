@@ -124,6 +124,42 @@ def test_rounds_missing_the_ensemble_are_skipped(tmp_path):
     assert rounds == [] and skipped == ["x"]
 
 
+@pytest.mark.parametrize(
+    "freq,bucket",
+    [
+        ("PT15M", "sub_daily"),
+        ("PT1H", "sub_daily"),
+        ("P1D", "daily"),
+        ("P1W", "slower"),
+        ("P1M", "slower"),  # a month, not a minute: "M" before the "T"
+        ("P1Y", "slower"),
+        ("weekly", "unknown"),
+        (None, "unknown"),
+    ],
+)
+def test_cadence_bucket_reads_iso_durations(freq, bucket):
+    assert rc.cadence_bucket(freq) == bucket
+
+
+def test_a_gap_withholds_the_most_recent_rounds():
+    # Rounds 0-3: "b" is dreadful in nature. Round 4: "b" wins nature. With a
+    # gap of 1, the policy scored on round 5 must not see round 4.
+    rounds = [make_round(f"r{i}", b_nature=2.0, seed=i) for i in range(4)]
+    rounds += [make_round("r4", b_nature=0.2, seed=4), make_round("r5", seed=5)]
+    no_gap = rc.replay(rounds, [1], gap=0)["per_round"][-1]["choices"]
+    gapped = rc.replay(rounds, [1], gap=1)["per_round"][-1]["choices"]
+    key = "domain_leader[1]|members"
+    assert no_gap[key].get("b") == N_PER_DOMAIN
+    assert "b" not in gapped[key]
+
+
+def test_cadence_breakdown_is_reported_per_bucket():
+    cadence = {s: ("daily" if s.startswith("e") else "slower") for s in DOMAIN_MAP}
+    rounds = [rc.round_from_results(f"r{i}", payload(seed=i), DOMAIN_MAP, cadence) for i in range(3)]
+    summary = rc.summarize(rc.replay(rounds, [None]), rounds)
+    assert set(summary["by_cadence"]) == {"daily", "slower"}
+
+
 @pytest.mark.parametrize("text,expected", [("1,4,all", [1, 4, None]), (" 2 ", [2])])
 def test_parse_windows(text, expected):
     assert rc.parse_windows(text) == expected
