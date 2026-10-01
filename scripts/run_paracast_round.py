@@ -41,6 +41,8 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+import numpy as np
+
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "src"))
 
@@ -99,6 +101,52 @@ def _load_publish_round():
     return mod
 
 
+def save_members(prefetch, challenges: list, specs: list[ModelSpec], path: Path) -> dict:
+    """Every row's quantile forecasts for this round, beside its scores.
+
+    results.json keeps per-challenge scores, which is enough to replay any
+    *selection* policy but not a re-*weighted* mixture: a mixture's CRPS is not
+    a function of its members' CRPS. Calibrating the ensemble on live rounds
+    needs the members' forecasts themselves, so they are written here, aligned
+    to the same challenge order as results.json's per_challenge block.
+
+    Layout (npz): ``models`` (M,), ``levels`` (Q,), ``forecasts`` (M, N, Q, H)
+    float32 with NaN where a row has no forecast for a challenge, ``truth``
+    (N, H), ragged contexts as ``context_flat`` + ``context_off`` (N+1,), and
+    per-challenge ``source_id`` / ``domain`` / ``freq`` / ``cadence``.
+    """
+    models = [s.model_id for s in specs if s.model_id in prefetch.forecasts]
+    n = len(challenges)
+    horizon = max(len(ch.truth) for ch in challenges)
+    first = next(fc for m in models for fc in prefetch.forecasts[m].values())
+    levels = sorted(float(q) for q in first.quantiles)
+    fc = np.full((len(models), n, len(levels), horizon), np.nan, dtype=np.float32)
+    for mi, m in enumerate(models):
+        for ci, f in prefetch.forecasts[m].items():
+            for qi, q in enumerate(levels):
+                arr = np.asarray(f.quantiles[q], dtype=np.float32)
+                fc[mi, ci, qi, : arr.size] = arr
+    truth = np.full((n, horizon), np.nan, dtype=np.float32)
+    for ci, ch in enumerate(challenges):
+        truth[ci, : len(ch.truth)] = ch.truth
+    ctx = [np.asarray(ch.context, dtype=np.float32) for ch in challenges]
+    meta = lambda k: np.array([str((ch.meta or {}).get(k, "")) for ch in challenges])  # noqa: E731
+    np.savez_compressed(
+        path,
+        models=np.array(models),
+        levels=np.array(levels),
+        forecasts=fc,
+        truth=truth,
+        context_flat=np.concatenate(ctx) if ctx else np.zeros(0, np.float32),
+        context_off=np.concatenate([[0], np.cumsum([c.size for c in ctx])]).astype(np.int64),
+        source_id=meta("source_id"),
+        domain=meta("domain"),
+        freq=meta("freq"),
+        cadence=meta("cadence"),
+    )
+    return {"models": len(models), "challenges": n, "levels": len(levels), "horizon": horizon}
+
+
 def build_specs(client: ParacastClient, args) -> list[ModelSpec]:
     """The rows to fetch: the live panel (or --models subset) + pseudo-models."""
     panel = client.panel()
@@ -139,6 +187,8 @@ def main(argv: list[str]) -> int:
                          "against paracast's already-loaded panel.")
     ap.add_argument("--models", default=None,
                     help="comma-separated subset of the panel (default: all enabled+healthy)")
+    ap.add_argument("--no-save-members", action="store_true",
+                    help="skip writing members.npz (every row's quantile forecasts)")
     ap.add_argument("--no-ensemble", action="store_true",
                     help="skip the paracast-ensemble pseudo-model row")
     ap.add_argument("--no-router", action="store_true",
@@ -193,6 +243,17 @@ def main(argv: list[str]) -> int:
     if not prefetch.forecasts:
         print("error: every model failed — not publishing an empty round", file=sys.stderr)
         return 1
+
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    if not args.no_save_members:
+        # Never let the archive cost the round: a failure here is logged and
+        # the round still scores and publishes.
+        try:
+            info = save_members(prefetch, challenges, specs, out_dir / "members.npz")
+            print(f"wrote {out_dir / 'members.npz'}: {info}")
+        except Exception as e:  # noqa: BLE001
+            print(f"warning: member forecasts not saved: {type(e).__name__}: {e}")
 
     if args.feedback != "off":
         modes = ("explicit", "route", "ensemble") if args.feedback == "all" else ("ensemble",)
@@ -254,8 +315,6 @@ def main(argv: list[str]) -> int:
             "pairwise": {"names": pw["names"], "p": pw["p"].tolist(),
                          "win": pw["win"].tolist(), "better": pw["better"].tolist()},
         }
-    out_dir = Path(args.out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "results.json").write_text(
         json.dumps(results, indent=2, default=_json_default) + "\n")
     print(f"wrote {out_dir / 'results.json'}")

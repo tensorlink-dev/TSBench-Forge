@@ -1,0 +1,33 @@
+# Unit tests for the paracast round pipeline, on every change to it.
+#
+# The repo has no general test CI; these tests are cheap (numpy only) and guard
+# the scripts the twice-daily leaderboard round depends on, including the
+# members.npz archive the ensemble calibration replays from.
+
+name: Round pipeline tests
+
+on:
+  pull_request:
+    paths:
+      - scripts/run_paracast_round.py
+      - scripts/publish_round.py
+      - src/paracast_client.py
+      - tests/test_publish_round.py
+      - tests/test_paracast_client.py
+      - .github/workflows/round-tests.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy scipy pyyaml pandas pytest
+      - run: python -m pytest -q tests/test_publish_round.py tests/test_paracast_client.py
