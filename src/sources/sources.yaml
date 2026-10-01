@@ -119732,3 +119732,635 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''9'': without it the response
     interleaves several series on the same timestamps.'
+- id: promlabs_api_requests_in_progress_svc0
+  name: PromLabs demo API — in-flight HTTP requests (service 0, 10s)
+  domain: web_cloudops
+  dgp_class: service_concurrency
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=demo_api_http_requests_in_progress%7Binstance%3D%22demo-service-0%3A10000%22%7D&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: In-flight request gauge at 10-second resolution — the fast bursty server-metric shape that GIFT-Eval bizitobs_application covers and this pool had none of. 8,640 points per daily fetch.
+- id: promlabs_api_request_rate_svc0
+  name: PromLabs demo API — HTTP request rate (service 0, 10s)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_api_request_duration_seconds_count%7Binstance%3D%22demo-service-0%3A10000%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Request throughput per second, 10-second steps, summed over method/path/status.
+- id: promlabs_api_requests_in_progress_svc1
+  name: PromLabs demo API — in-flight HTTP requests (service 1, 10s)
+  domain: web_cloudops
+  dgp_class: service_concurrency
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=demo_api_http_requests_in_progress%7Binstance%3D%22demo-service-1%3A10001%22%7D&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: In-flight request gauge at 10-second resolution — the fast bursty server-metric shape that GIFT-Eval bizitobs_application covers and this pool had none of. 8,640 points per daily fetch.
+- id: promlabs_api_request_rate_svc1
+  name: PromLabs demo API — HTTP request rate (service 1, 10s)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_api_request_duration_seconds_count%7Binstance%3D%22demo-service-1%3A10001%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Request throughput per second, 10-second steps, summed over method/path/status.
+- id: promlabs_api_requests_in_progress_svc2
+  name: PromLabs demo API — in-flight HTTP requests (service 2, 10s)
+  domain: web_cloudops
+  dgp_class: service_concurrency
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=demo_api_http_requests_in_progress%7Binstance%3D%22demo-service-2%3A10002%22%7D&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: In-flight request gauge at 10-second resolution — the fast bursty server-metric shape that GIFT-Eval bizitobs_application covers and this pool had none of. 8,640 points per daily fetch.
+- id: promlabs_api_request_rate_svc2
+  name: PromLabs demo API — HTTP request rate (service 2, 10s)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_api_request_duration_seconds_count%7Binstance%3D%22demo-service-2%3A10002%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Request throughput per second, 10-second steps, summed over method/path/status.
+- id: promlabs_api_latency_avg
+  name: PromLabs demo API — mean request latency (10s)
+  domain: web_cloudops
+  dgp_class: service_latency
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_api_request_duration_seconds_sum%5B1m%5D%29%29%2Fsum%28rate%28demo_api_request_duration_seconds_count%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: 'Mean request duration: ratio of the two counters, 10-second steps.'
+- id: promlabs_api_latency_p90
+  name: PromLabs demo API — p90 request latency (10s)
+  domain: web_cloudops
+  dgp_class: service_latency
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=histogram_quantile%280.9%2Csum+by+%28le%29+%28rate%28demo_api_request_duration_seconds_bucket%5B1m%5D%29%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: 90th-percentile request duration from the native histogram buckets.
+- id: promlabs_api_error_rate
+  name: PromLabs demo API — non-200 response rate (10s)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_api_request_duration_seconds_count%7Bstatus%21%3D%22200%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Error throughput — a sparse, spiky counter rate, the hardest shape in this family.
+- id: promlabs_node_cpu_busy_pct
+  name: PromLabs demo host — CPU busy fraction (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bounded
+  - bursty_spiky
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=1-avg%28rate%28node_cpu_seconds_total%7Bmode%3D%22idle%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Real node-exporter CPU utilisation, 10-second steps.
+- id: promlabs_node_memory_available
+  name: PromLabs demo host — available memory bytes (10s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - non_stationary_regime
+  - step_function
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_memory_MemAvailable_bytes%7Binstance%3D%22node-exporter%3A9100%22%7D&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Available memory gauge; slow drift with allocation steps.
+- id: promlabs_node_network_receive_bytes
+  name: PromLabs demo host — network bytes received/s (10s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28node_network_receive_bytes_total%7Binstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Interface throughput, 10-second steps — bursty by nature.
+- id: promlabs_node_network_transmit_bytes
+  name: PromLabs demo host — network bytes transmitted/s (10s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28node_network_transmit_bytes_total%7Binstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Interface throughput, 10-second steps — bursty by nature.
+- id: promlabs_node_disk_read_bytes
+  name: PromLabs demo host — disk bytes read/s (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28node_disk_read_bytes_total%7Binstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: 'Block-device throughput: long quiet stretches punctuated by spikes.'
+- id: promlabs_node_disk_written_bytes
+  name: PromLabs demo host — disk bytes written/s (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28node_disk_written_bytes_total%7Binstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: 'Block-device throughput: long quiet stretches punctuated by spikes.'
+- id: promlabs_node_load1
+  name: PromLabs demo host — 1-minute load average (10s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bounded
+  - non_stationary_regime
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_load1%7Binstance%3D%22node-exporter%3A9100%22%7D&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Load average sampled every 10 seconds.
+- id: promlabs_node_context_switches
+  name: PromLabs demo host — context switches/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_context_switches_total%7Binstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Kernel scheduling pressure.
+- id: promlabs_prometheus_samples_appended
+  name: PromLabs demo — TSDB samples appended/s (10s)
+  domain: web_cloudops
+  dgp_class: ingest_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28prometheus_tsdb_head_samples_appended_total%5B1m%5D%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: 'The monitoring system watching itself: sample ingest rate.'
+- id: promlabs_prometheus_head_series
+  name: PromLabs demo — TSDB head series count (10s)
+  domain: web_cloudops
+  dgp_class: ingest_rate
+  archetypes:
+  - step_function
+  - non_stationary_regime
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=prometheus_tsdb_head_series&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Active series in the head block; staircase growth with churn.
+- id: promlabs_cadvisor_container_cpu
+  name: PromLabs demo — cAdvisor container CPU seconds/s (10s)
+  domain: web_cloudops
+  dgp_class: container_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28container_cpu_usage_seconds_total%7Bname%21%3D%22%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo (demo.promlabs.com)
+  notes: Container-level CPU across the demo stack.
+- id: okx_btc_usdt_1s
+  name: OKX — BTC-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=BTC-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Sub-minute price data is almost absent from the pool and from miner generators; at 1s the microstructure (flat runs then jumps) is a different process from the
+    1m tape.
+- id: okx_eth_usdt_1s
+  name: OKX — ETH-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=ETH-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Sub-minute price data is almost absent from the pool and from miner generators; at 1s the microstructure (flat runs then jumps) is a different process from the
+    1m tape.
+- id: okx_sol_usdt_1s
+  name: OKX — SOL-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=SOL-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Sub-minute price data is almost absent from the pool and from miner generators; at 1s the microstructure (flat runs then jumps) is a different process from the
+    1m tape.
+- id: okx_xrp_usdt_1s
+  name: OKX — XRP-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=XRP-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Sub-minute price data is almost absent from the pool and from miner generators; at 1s the microstructure (flat runs then jumps) is a different process from the
+    1m tape.
+- id: coinbase_btc_trade_rate_10s
+  name: Coinbase — BTC-USD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 10 req/s
+    url: https://api.exchange.coinbase.com/products/BTC-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest 1,000 trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Coinbase Exchange public API
+  notes: 'Trades counted into 10-second bins: a point-process arrival rate, the closest market analogue to a server request-rate series. Ripens at poll cadence.'
+- id: coinbase_eth_trade_rate_10s
+  name: Coinbase — ETH-USD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 10 req/s
+    url: https://api.exchange.coinbase.com/products/ETH-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest 1,000 trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Coinbase Exchange public API
+  notes: 'Trades counted into 10-second bins: a point-process arrival rate, the closest market analogue to a server request-rate series. Ripens at poll cadence.'
