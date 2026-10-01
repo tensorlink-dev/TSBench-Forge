@@ -44434,6 +44434,8 @@
   audit_slack_days: 12
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ru_peertube_peertu
+  disabled: true
+  disabled_reason: '2026-10-01: auto-disabled by freshness audit — newest observation 2026-09-04T00:00:00+00:00 is 27.3d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49512,6 +49514,8 @@
   audit_slack_days: 15
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), MO. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_su_home_tube
+  disabled: true
+  disabled_reason: '2026-10-01: auto-disabled by freshness audit — newest observation 2026-07-21T00:00:00+00:00 is 72.3d old vs a 24.0d limit for PT6H. Re-enable if the upstream resumes.'
   name: home Tube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
