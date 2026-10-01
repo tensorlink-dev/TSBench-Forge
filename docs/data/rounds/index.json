@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-29T10:27:30+00:00",
+  "updated_at": "2026-10-01T20:49:08+00:00",
   "rounds": [
     {
       "round_id": "2026-07-09",
@@ -500,7 +500,27 @@
     },
     {
       "round_id": "2026-09-29",
-      "generated_at": "2026-09-29T10:27:30+00:00",
+      "generated_at": "2026-09-29T20:34:49+00:00",
+      "n_models": 14,
+      "n_tsfms": 8,
+      "top": [
+        "paracast-ensemble",
+        "tirex2",
+        "toto2-313m"
+      ],
+      "has_metrics": true,
+      "config": {
+        "seed": "tsfm-significance-v1",
+        "n_challenges": 1280,
+        "n_series": 282,
+        "k_draws": 5
+      },
+      "effective_domains": 6.87,
+      "note": "scored via paracast"
+    },
+    {
+      "round_id": "2026-09-30",
+      "generated_at": "2026-09-30T20:29:46+00:00",
       "n_models": 14,
       "n_tsfms": 8,
       "top": [
@@ -512,10 +532,30 @@
       "config": {
         "seed": "tsfm-significance-v1",
         "n_challenges": 1280,
-        "n_series": 289,
+        "n_series": 269,
         "k_draws": 5
       },
-      "effective_domains": 6.95,
+      "effective_domains": 6.93,
+      "note": "scored via paracast"
+    },
+    {
+      "round_id": "2026-10-01",
+      "generated_at": "2026-10-01T20:49:08+00:00",
+      "n_models": 14,
+      "n_tsfms": 8,
+      "top": [
+        "paracast-ensemble",
+        "toto2-313m",
+        "paracast-router"
+      ],
+      "has_metrics": true,
+      "config": {
+        "seed": "tsfm-significance-v1",
+        "n_challenges": 1280,
+        "n_series": 266,
+        "k_draws": 5
+      },
+      "effective_domains": 6.9,
       "note": "scored via paracast"
     }
   ]
