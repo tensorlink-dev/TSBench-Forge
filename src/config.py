@@ -31,6 +31,10 @@ HORIZON: int = 48
 # snapshot of data that has already happened, so a 14-day daily horizon scores
 # against known actuals rather than waiting for them.
 PROFILES: dict[str, tuple[int, int]] = {
+    # 10s data: 512 steps of context is ~85 min, 48 ahead is ~8 min — the
+    # operational shape for server metrics, and what GIFT-Eval's 10-second
+    # bizitobs tests use too.
+    "seconds": (512, 48),
     "sub-min": (512, 48),
     "few-min": (512, 48),
     "half-hour": (512, 48),
@@ -47,6 +51,9 @@ PROFILES: dict[str, tuple[int, int]] = {
 # above that). Frequencies absent here score with m=1 (non-seasonal MASE).
 # Shared by the evaluator (MASE scaling) and the panel's seasonality search.
 FREQ_SEASONALITY: dict[str, int] = {
+    "PT1S": 3600,   # 1 hour
+    "PT10S": 360,   # 1 hour
+    "PT15S": 240,   # 1 hour
     "PT30S": 120,   # 1 hour
     "PT1M": 1440,   # 1 day
     "PT2M30S": 576,

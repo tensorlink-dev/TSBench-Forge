@@ -24,6 +24,7 @@ adapter is decoupled through the on-disk parquet contract.
 """
 from __future__ import annotations
 
+import re
 import warnings
 import zlib
 from collections import Counter, defaultdict
@@ -37,12 +38,47 @@ from ingest import LiveSource, MotifMeta
 # Coarse cadence bands — the partition the reward-hacking-defense breadth gates
 # in score.py read off each motif's cadence label.
 FREQ_BAND: dict[str, str] = {
+    "PT1S": "seconds", "PT10S": "seconds", "PT15S": "seconds",
     "PT30S": "sub-min", "PT1M": "sub-min", "PT2M30S": "sub-min",
     "PT5M": "few-min", "PT6M": "few-min", "PT10M": "few-min", "PT15M": "few-min",
     "PT30M": "half-hour",
     "PT1H": "hourly", "PT8H": "hourly",
     "P1D": "daily", "P1W": "weekly", "P1M": "monthly", "P1Q": "quarterly", "P1Y": "yearly",
 }
+
+
+# Anything not named above is bucketed from its parsed ISO duration rather than
+# falling into one catch-all. It mattered: PT1S server metrics and P30D indices
+# both landed in "other", so `cadence_breadth_gate` counted them as one band and
+# a round could satisfy it with monthly data while drawing no fast series at all.
+# Kept local and arithmetic — the draw path takes no cross-package import.
+_ISO = re.compile(
+    r"^P(?!$)(?:(?P<years>\d+)Y)?(?:(?P<months>\d+)M)?(?:(?P<weeks>\d+)W)?"
+    r"(?:(?P<days>\d+)D)?(?:T(?:(?P<hours>\d+)H)?(?:(?P<minutes>\d+)M)?"
+    r"(?:(?P<seconds>\d+(?:\.\d+)?)S)?)?$"
+)
+_UNIT_SECONDS = {"years": 31_557_600, "months": 2_629_800, "weeks": 604_800,
+                 "days": 86_400, "hours": 3_600, "minutes": 60, "seconds": 1}
+
+
+def band_for(freq: str) -> str:
+    """Cadence band for any catalog frequency, pre-listed or not."""
+    named = FREQ_BAND.get(freq)
+    if named is not None:
+        return named
+    m = _ISO.match(str(freq or ""))
+    if not m:
+        return "irregular"
+    sec = sum(_UNIT_SECONDS[k] * float(v) for k, v in m.groupdict().items() if v)
+    if sec <= 0:
+        return "irregular"
+    for limit, label in ((30, "seconds"), (150, "sub-min"), (900, "few-min"),
+                         (1800, "half-hour"), (10800, "hourly"),
+                         (3 * 86400, "daily"), (14 * 86400, "weekly"),
+                         (45 * 86400, "monthly"), (200 * 86400, "quarterly")):
+        if sec <= limit:
+            return label
+    return "yearly"
 
 
 # The shortest window worth serving. Below it a series is refused outright;
@@ -194,7 +230,7 @@ class ScrapedLiveSource(LiveSource):
                 "domain": entry.get("domain", "?"),
                 "dgp_class": entry.get("dgp_class", "?"),
                 "freq": entry.get("frequency", "?"),
-                "cadence": FREQ_BAND.get(entry.get("frequency", ""), "other"),
+                "cadence": band_for(str(entry.get("frequency", ""))),
                 "panel": entry.get("panel", []) or [],
             }
 
@@ -871,4 +907,4 @@ def _pick(pool: list[dict], n: int, rng: np.random.Generator) -> list[dict]:
     return [pool[int(i)] for i in idx]
 
 
-__all__ = ["ScrapedLiveSource", "FREQ_BAND"]
+__all__ = ["ScrapedLiveSource", "FREQ_BAND", "band_for"]
