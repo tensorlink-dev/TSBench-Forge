@@ -44306,6 +44306,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), AT. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_cat_castube
+  disabled: true
+  disabled_reason: '2026-10-02: auto-disabled by freshness audit — newest observation 2026-09-11T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: CasTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
