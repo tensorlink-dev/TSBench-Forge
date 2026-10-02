@@ -120364,3 +120364,3366 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''9'': without it the response
     interleaves several series on the same timestamps.'
+- id: osem_pm25_sensepi
+  name: openSenseMap — PM2.5 at sensePi
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/581dab879337ed000f6b308d/data/5c27b643919bf8001a0e3b8c?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_luftdaten_radstadt
+  name: openSenseMap — PM2.5 at Luftdaten Radstadt
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/58d40641c877fb0011ac43e6/data/58d40641c877fb0011ac43e9?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_fijnstof_1
+  name: openSenseMap — PM2.5 at Fijnstof 1
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/58e257ccf7b1c10011d9f5ef/data/58e257ccf7b1c10011d9f5f1?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_particulate_matter_sniffer
+  name: openSenseMap — PM2.5 at particulate matter sniffer
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/58e3e663ba279000111a97b8/data/58e3e663ba279000111a97ba?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_eadrax
+  name: openSenseMap — PM2.5 at Eadrax
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/58f7a793161fa50011096eb5/data/58f7a793161fa50011096eb7?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaubsensor_hechtviertel
+  name: openSenseMap — PM2.5 at Feinstaubsensor Hechtviertel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/58fcc8c15ba9e50011c238ee/data/58fcc8c15ba9e50011c238f0?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_s_neuwirtshaus
+  name: openSenseMap — PM2.5 at S-Neuwirtshaus
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/590c598d51d3460011b70de9/data/590c598d51d3460011b70deb?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_hafencity_am_standtorkai_osakaal
+  name: openSenseMap — PM2.5 at Hafencity - Am Standtorkai/Osakaal
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/590e0b0a51d3460011c725c4/data/590e0b0a51d3460011c725c6?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_wessel_garten
+  name: openSenseMap — PM2.5 at Wessel Garten
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/591216ec51d3460011ec8174/data/591216ec51d3460011ec8176?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_sensor_g_d_w_wroc_aw
+  name: openSenseMap — PM2.5 at Sensor_Gądów_Wrocław
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/591872cc51d346001127f52f/data/591872cc51d346001127f533?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_augsburg_textilviertel
+  name: openSenseMap — PM2.5 at Augsburg Textilviertel
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/591b70c051d3460011442cc8/data/591b70c051d3460011442cca?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_hroluftdaten
+  name: openSenseMap — PM2.5 at HROluftdaten
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59206a3b51d3460011750d4e/data/59206a3b51d3460011750d50?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_repelenserste
+  name: openSenseMap — PM2.5 at RepelensErste
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5926719e51d3460011af420e/data/5926719e51d3460011af4210?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_airstation_dryriver
+  name: openSenseMap — PM2.5 at AirStation_DryRiver
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59298fc851d3460011cc64fc/data/59298fc851d3460011cc64fe?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaub_bobenden
+  name: openSenseMap — PM2.5 at Feinstaub - Bobenden
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/592a682751d3460011d4562e/data/592a682751d3460011d45630?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_seestra_e
+  name: openSenseMap — PM2.5 at Seestraße
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/592c894f51d3460011e912a4/data/592c894f51d3460011e912a6?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_bengt_luftdaten
+  name: openSenseMap — PM2.5 at Bengt-Luftdaten
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59342ee2ad0fa30011e85360/data/59354bdfad0fa30011f3cc26?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_freiburg_im_breisgau
+  name: openSenseMap — PM2.5 at Freiburg im Breisgau
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/593fc68947df4f001113f9eb/data/593fc68947df4f001113f9ed?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_mohnblumenweg
+  name: openSenseMap — PM2.5 at Mohnblumenweg
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59402b5d47df4f0011182bf8/data/59402b5d47df4f0011182bfa?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_luftdaten_info_bechen_pohl
+  name: openSenseMap — PM2.5 at Luftdaten Info  Bechen Pohl
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5945106fa4ad59001113c04e/data/5945106fa4ad59001113c050?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_16255084
+  name: openSenseMap — PM2.5 at 16255084
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59457a2ba4ad59001117ecef/data/59457a2ba4ad59001117ecf1?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_luftg_te_merkengersch
+  name: openSenseMap — PM2.5 at Luftgüte Merkengersch
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5947ee5ca4ad59001130e32f/data/5947ee5ca4ad59001130e331?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaubmessung_wetterstation_w
+  name: openSenseMap — PM2.5 at Feinstaubmessung Wetterstation - W
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/594961eba4ad5900113ffc7b/data/594961eba4ad5900113ffc7d?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_niederfeld
+  name: openSenseMap — PM2.5 at Niederfeld
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/594bd2eebe77820011771698/data/5a1ec6d219991f001108e141?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_dachnetbox
+  name: openSenseMap — PM2.5 at dachnetbox
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/594c01c7be77820011792180/data/594c01c7be77820011792182?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_malterstra_e
+  name: openSenseMap — PM2.5 at Malterstraße
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/594c1567be7782001179f790/data/594c1567be7782001179f792?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaubsensor_offenthal
+  name: openSenseMap — PM2.5 at Feinstaubsensor Offenthal
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/594ec6b2be7782001199758b/data/594ec6b2be7782001199758d?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaubsensor_id_13817248
+  name: 'openSenseMap — PM2.5 at Feinstaubsensor ID: 13817248'
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/595028c094f0520011d0b350/data/595028c094f0520011d0b352?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_wanderr_hre
+  name: openSenseMap — PM2.5 at WanderRöhre
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/595178fb94f0520011e083ec/data/595178fb94f0520011e083ee?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_innenstadt
+  name: openSenseMap — PM2.5 at Innenstadt
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5952e6b094f0520011f177c4/data/5952e6b094f0520011f177c6?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_airstation_skynet
+  name: openSenseMap — PM2.5 at airstation.skynet
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5957b67494f0520011304cc1/data/5957b67494f0520011304cc3?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_uett1
+  name: openSenseMap — PM2.5 at Uett1
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5958818894f05200113af6e2/data/5958818894f05200113af6e4?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_ger_potsdam_hvkleist15
+  name: openSenseMap — PM2.5 at GER.Potsdam.HvKleist15
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59592d0994f05200114428e8/data/59c7c253d67eb500117e0bf1?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_mottencastle
+  name: openSenseMap — PM2.5 at Mottencastle
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/595b27e794f0520011603111/data/595b27e794f0520011603113?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaub_sens_kbr
+  name: openSenseMap — PM2.5 at Feinstaub_Sens_Kbr
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5968c9c41900bf0011fd792d/data/5968c9c41900bf0011fd792f?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_ringelberg01
+  name: openSenseMap — PM2.5 at Ringelberg01
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/596914641900bf001101bd2c/data/5968c9c41900bf0011fd792f?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_wetterstation_pliening
+  name: openSenseMap — PM2.5 at Wetterstation Pliening
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5969c5a81900bf00110b936d/data/5969c5a81900bf00110b936f?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_luftsensor_1442706
+  name: openSenseMap — PM2.5 at Luftsensor_1442706
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/596a5e2a1900bf001114b066/data/596a5e2a1900bf001114b068?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_spoon_1
+  name: openSenseMap — PM2.5 at Spoon-1
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5970f5672e9396000fd6e0a8/data/5970f5672e9396000fd6e0aa?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaub_balkon
+  name: openSenseMap — PM2.5 at Feinstaub Balkon
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59726914fe1c740011396a83/data/59726914fe1c740011396a87?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaubsensor
+  name: openSenseMap — PM2.5 at Feinstaubsensor
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59744fc5fe1c74001155db40/data/59744fc5fe1c74001155db43?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_d_rrhennersdorf
+  name: openSenseMap — PM2.5 at Dürrhennersdorf
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59789358fe1c7400119500d3/data/59789358fe1c7400119500d6?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_pegasus
+  name: openSenseMap — PM2.5 at pegasus
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/597dbd5dfe1c740011e16e7d/data/597dbd5dfe1c740011e16e80?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaubsensor_biederstein
+  name: openSenseMap — PM2.5 at Feinstaubsensor Biederstein
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/597dfd52fe1c740011e50de2/data/597dfd52fe1c740011e50de5?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_home
+  name: openSenseMap — PM2.5 at home
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5985a45fe3b1fa00107e4051/data/5985a45fe3b1fa00107e4054?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_kiesel_cker
+  name: openSenseMap — PM2.5 at Kieseläcker
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/598b2f86e3b1fa0010f0f8d4/data/598b2f86e3b1fa0010f0f8d7?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_feinstaubsensor_erkrath1
+  name: openSenseMap — PM2.5 at Feinstaubsensor Erkrath1
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/598c2b4de3b1fa001000d27c/data/598c2b4de3b1fa001000d280?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_berlepsch50
+  name: openSenseMap — PM2.5 at Berlepsch50
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/5998a7bad67eb500114b7d76/data/5998a7bad67eb500114b7d7a?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_messstation_steinheim_am_albuch
+  name: openSenseMap — PM2.5 at Messstation Steinheim am Albuch
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/599d405ed67eb50011973bc5/data/599d405ed67eb50011973bc8?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_am_roten_berge
+  name: openSenseMap — PM2.5 at Am Roten Berge
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59a06329d67eb50011ccf751/data/59a06329d67eb50011ccf754?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_jb_innenhof
+  name: openSenseMap — PM2.5 at JB Innenhof
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59a30ebdd67eb50011fcf42d/data/59a30ebdd67eb50011fcf430?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_kortumweg
+  name: openSenseMap — PM2.5 at Kortumweg
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59ad958fd67eb50011b85f6d/data/59ad958fd67eb50011b85f70?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_kuchl_garnei
+  name: openSenseMap — PM2.5 at Kuchl Garnei
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59afc443d67eb50011dee24f/data/59afc443d67eb50011dee252?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_naturschutzzentrum_kreis_coesfeld
+  name: openSenseMap — PM2.5 at Naturschutzzentrum Kreis Coesfeld
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59ba6c8ad67eb50011922fff/data/59ba6c8ad67eb50011923000?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_denkershausen
+  name: openSenseMap — PM2.5 at Denkershausen
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59bd2966d67eb50011c0a401/data/59bd2966d67eb50011c0a405?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_deepsci_greifswald
+  name: openSenseMap — PM2.5 at deepsci_Greifswald
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59bd6fc6d67eb50011c55318/data/59bd6fc6d67eb50011c5531b?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_wetterstation_willich
+  name: openSenseMap — PM2.5 at Wetterstation Willich
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59c7b236d67eb500117ce5ed/data/59c7b236d67eb500117ce5f0?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_air_quality_varna
+  name: openSenseMap — PM2.5 at Air Quality Varna
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59d13e6866f66a001001257b/data/59d13e6866f66a001001257f?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_makerlab_murnau
+  name: openSenseMap — PM2.5 at MakerLab Murnau
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT10M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59d5e7e366f66a0010559330/data/59d5e7e366f66a0010559331?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_fasanerie
+  name: openSenseMap — PM2.5 at Fasanerie
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59d7233466f66a00106bf1af/data/59d7233466f66a00106bf1b2?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_nauheim_03
+  name: openSenseMap — PM2.5 at Nauheim_03
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59dc93d7b6d1250011f0f8fd/data/59dc93d7b6d1250011f0f900?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_www_wetterstation_krefeld_de
+  name: openSenseMap — PM2.5 at www.wetterstation-krefeld.de
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59e3abd449f6f80011163489/data/59e3abd449f6f8001116348c?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_w_rnsdorf_feinstaub_temperatur_luf
+  name: openSenseMap — PM2.5 at Würnsdorf Feinstaub Temperatur Luf
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59ec624a49f6f80011bd1d82/data/59ec624a49f6f80011bd1d86?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: osem_pm25_webcontrol_umweltstation_crailsh
+  name: openSenseMap — PM2.5 at WebControl - Umweltstation Crailsh
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT2M30S
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.opensensemap.org/boxes/59ef5d34215fb8000fc211c4/data/59ef5d34215fb8000fc211c8?from-date={YYYY-MM-DD-1d}T00:00:00Z&to-date={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: '[].createdAt'
+    value_field: '[].value'
+    variates: 1
+  history_available: P2Y
+  update_cadence_observed: 2.5-5 minutes depending on the box
+  pretraining_novelty: clean
+  license: openSenseMap / senseBox open data (ODbL)
+  notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
+- id: kraken_eth_usd_1m
+  name: Kraken — ETH/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/OHLC?pair=XETHZUSD&interval=1
+  schema:
+    timestamp_field: result.XETHZUSD[][0]
+    value_field: result.XETHZUSD[][4]
+    variates: 1
+  history_available: P12H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 one-minute closes per fetch.
+- id: kraken_sol_usd_1m
+  name: Kraken — SOL/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/OHLC?pair=SOLUSD&interval=1
+  schema:
+    timestamp_field: result.SOLUSD[][0]
+    value_field: result.SOLUSD[][4]
+    variates: 1
+  history_available: P12H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 one-minute closes per fetch.
+- id: kraken_xrp_usd_1m
+  name: Kraken — XRP/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/OHLC?pair=XXRPZUSD&interval=1
+  schema:
+    timestamp_field: result.XXRPZUSD[][0]
+    value_field: result.XXRPZUSD[][4]
+    variates: 1
+  history_available: P12H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 one-minute closes per fetch.
+- id: kraken_ada_usd_1m
+  name: Kraken — ADA/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/OHLC?pair=ADAUSD&interval=1
+  schema:
+    timestamp_field: result.ADAUSD[][0]
+    value_field: result.ADAUSD[][4]
+    variates: 1
+  history_available: P12H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 one-minute closes per fetch.
+- id: kraken_link_usd_1m
+  name: Kraken — LINK/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/OHLC?pair=LINKUSD&interval=1
+  schema:
+    timestamp_field: result.LINKUSD[][0]
+    value_field: result.LINKUSD[][4]
+    variates: 1
+  history_available: P12H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 one-minute closes per fetch.
+- id: kraken_avax_usd_1m
+  name: Kraken — AVAX/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/OHLC?pair=AVAXUSD&interval=1
+  schema:
+    timestamp_field: result.AVAXUSD[][0]
+    value_field: result.AVAXUSD[][4]
+    variates: 1
+  history_available: P12H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 one-minute closes per fetch.
+- id: kraken_dot_usd_1m
+  name: Kraken — DOT/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/OHLC?pair=DOTUSD&interval=1
+  schema:
+    timestamp_field: result.DOTUSD[][0]
+    value_field: result.DOTUSD[][4]
+    variates: 1
+  history_available: P12H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Kraken public API
+  notes: 720 one-minute closes per fetch.
+- id: bitstamp_btc_usd_1m
+  name: Bitstamp — BTC/USD 1-minute OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/ohlc/btcusd/?step=60&limit=1000
+  schema:
+    timestamp_field: data.ohlc[].timestamp
+    value_field: data.ohlc[].close
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Bitstamp public API
+  notes: 1,000 one-minute bars per fetch.
+- id: bitstamp_eth_usd_1m
+  name: Bitstamp — ETH/USD 1-minute OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/ohlc/ethusd/?step=60&limit=1000
+  schema:
+    timestamp_field: data.ohlc[].timestamp
+    value_field: data.ohlc[].close
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Bitstamp public API
+  notes: 1,000 one-minute bars per fetch.
+- id: bitstamp_ltc_usd_1m
+  name: Bitstamp — LTC/USD 1-minute OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/ohlc/ltcusd/?step=60&limit=1000
+  schema:
+    timestamp_field: data.ohlc[].timestamp
+    value_field: data.ohlc[].close
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Bitstamp public API
+  notes: 1,000 one-minute bars per fetch.
+- id: bitstamp_sol_usd_1m
+  name: Bitstamp — SOL/USD 1-minute OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/ohlc/solusd/?step=60&limit=1000
+  schema:
+    timestamp_field: data.ohlc[].timestamp
+    value_field: data.ohlc[].close
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Bitstamp public API
+  notes: 1,000 one-minute bars per fetch.
+- id: bitstamp_ada_usd_1m
+  name: Bitstamp — ADA/USD 1-minute OHLC
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/ohlc/adausd/?step=60&limit=1000
+  schema:
+    timestamp_field: data.ohlc[].timestamp
+    value_field: data.ohlc[].close
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Bitstamp public API
+  notes: 1,000 one-minute bars per fetch.
+- id: gemini_btc_usd_1m
+  name: Gemini — BTC/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.gemini.com/v2/candles/btcusd/1m
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P1D
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Gemini public API
+  notes: ~1,440 one-minute candles per fetch; newest first.
+- id: gemini_eth_usd_1m
+  name: Gemini — ETH/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.gemini.com/v2/candles/ethusd/1m
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P1D
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Gemini public API
+  notes: ~1,440 one-minute candles per fetch; newest first.
+- id: gemini_sol_usd_1m
+  name: Gemini — SOL/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.gemini.com/v2/candles/solusd/1m
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P1D
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Gemini public API
+  notes: ~1,440 one-minute candles per fetch; newest first.
+- id: gemini_link_usd_1m
+  name: Gemini — LINK/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.gemini.com/v2/candles/linkusd/1m
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P1D
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Gemini public API
+  notes: ~1,440 one-minute candles per fetch; newest first.
+- id: bitfinex_btc_usd_1m
+  name: Bitfinex — BTC/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api-pub.bitfinex.com/v2/candles/trade:1m:tBTCUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][2]'
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Bitfinex public API
+  notes: 1,000 one-minute candles per fetch; column 2 is the close in the Bitfinex ordering (MTS, OPEN, CLOSE, HIGH, LOW, VOLUME).
+- id: bitfinex_sol_usd_1m
+  name: Bitfinex — SOL/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api-pub.bitfinex.com/v2/candles/trade:1m:tSOLUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][2]'
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Bitfinex public API
+  notes: 1,000 one-minute candles per fetch; column 2 is the close in the Bitfinex ordering (MTS, OPEN, CLOSE, HIGH, LOW, VOLUME).
+- id: bitfinex_xrp_usd_1m
+  name: Bitfinex — XRP/USD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api-pub.bitfinex.com/v2/candles/trade:1m:tXRPUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][2]'
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: Bitfinex public API
+  notes: 1,000 one-minute candles per fetch; column 2 is the close in the Bitfinex ordering (MTS, OPEN, CLOSE, HIGH, LOW, VOLUME).
+- id: promlabs_node_cpu0_user
+  name: PromLabs demo host — CPU0 user time/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_cpu_seconds_total%7Bmode%3D%22user%22%2Ccpu%3D%220%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: 'Per-core utilisation: four cores on one host move together but not identically.'
+- id: promlabs_node_cpu0_iowait
+  name: PromLabs demo host — CPU0 iowait/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_cpu_seconds_total%7Bmode%3D%22iowait%22%2Ccpu%3D%220%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Iowait is near-zero with rare spikes — a sparse counter rate.
+- id: promlabs_node_cpu1_user
+  name: PromLabs demo host — CPU1 user time/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_cpu_seconds_total%7Bmode%3D%22user%22%2Ccpu%3D%221%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: 'Per-core utilisation: four cores on one host move together but not identically.'
+- id: promlabs_node_cpu1_iowait
+  name: PromLabs demo host — CPU1 iowait/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_cpu_seconds_total%7Bmode%3D%22iowait%22%2Ccpu%3D%221%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Iowait is near-zero with rare spikes — a sparse counter rate.
+- id: promlabs_node_cpu2_user
+  name: PromLabs demo host — CPU2 user time/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_cpu_seconds_total%7Bmode%3D%22user%22%2Ccpu%3D%222%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: 'Per-core utilisation: four cores on one host move together but not identically.'
+- id: promlabs_node_cpu2_iowait
+  name: PromLabs demo host — CPU2 iowait/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_cpu_seconds_total%7Bmode%3D%22iowait%22%2Ccpu%3D%222%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Iowait is near-zero with rare spikes — a sparse counter rate.
+- id: promlabs_node_cpu3_user
+  name: PromLabs demo host — CPU3 user time/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_cpu_seconds_total%7Bmode%3D%22user%22%2Ccpu%3D%223%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: 'Per-core utilisation: four cores on one host move together but not identically.'
+- id: promlabs_node_cpu3_iowait
+  name: PromLabs demo host — CPU3 iowait/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_cpu_seconds_total%7Bmode%3D%22iowait%22%2Ccpu%3D%223%22%2Cinstance%3D%22node-exporter%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Iowait is near-zero with rare spikes — a sparse counter rate.
+- id: promlabs_api_latency_p50
+  name: PromLabs demo — api latency p50 (10s)
+  domain: web_cloudops
+  dgp_class: service_latency
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=histogram_quantile%280.5%2Csum%20by%20%28le%29%20%28rate%28demo_api_request_duration_seconds_bucket%5B1m%5D%29%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Median request duration.
+- id: promlabs_api_latency_p99
+  name: PromLabs demo — api latency p99 (10s)
+  domain: web_cloudops
+  dgp_class: service_latency
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=histogram_quantile%280.99%2Csum%20by%20%28le%29%20%28rate%28demo_api_request_duration_seconds_bucket%5B1m%5D%29%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: p99 latency — the tail the others hide.
+- id: promlabs_api_get_rate
+  name: PromLabs demo — api get rate (10s)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_api_request_duration_seconds_count%7Bmethod%3D%22GET%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: GET throughput alone.
+- id: promlabs_api_post_rate
+  name: PromLabs demo — api post rate (10s)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_api_request_duration_seconds_count%7Bmethod%3D%22POST%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: POST throughput — a lower-volume, burstier sibling of GET.
+- id: promlabs_api_5xx_rate
+  name: PromLabs demo — api 5xx rate (10s)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_api_request_duration_seconds_count%7Bstatus%3D~%225..%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: '5xx rate: mostly zero, occasionally not.'
+- id: promlabs_node_fs_avail
+  name: PromLabs demo — node fs avail (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_filesystem_avail_bytes%7Bmountpoint%3D%22/%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Root filesystem free space — slow drift with step changes.
+- id: promlabs_node_disk_io_time
+  name: PromLabs demo — node disk io time (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_disk_io_time_seconds_total%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Disk busy fraction.
+- id: promlabs_node_memory_cached
+  name: PromLabs demo — node memory cached (10s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_memory_Cached_bytes&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Page cache size.
+- id: promlabs_node_tcp_retrans
+  name: PromLabs demo — node tcp retrans (10s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_netstat_Tcp_RetransSegs%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: TCP retransmits per second — a rare-event counter.
+- id: promlabs_node_filefd
+  name: PromLabs demo — node filefd (10s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_filefd_allocated&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Allocated file descriptors.
+- id: promlabs_prom_http_rate
+  name: PromLabs demo — prom http rate (10s)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28prometheus_http_requests_total%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Prometheus own HTTP request rate.
+- id: promlabs_prom_head_chunks
+  name: PromLabs demo — prom head chunks (10s)
+  domain: web_cloudops
+  dgp_class: ingest_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=prometheus_tsdb_head_chunks&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Head chunks in the TSDB.
+- id: promlabs_prom_process_cpu
+  name: PromLabs demo — prom process cpu (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28process_cpu_seconds_total%7Bjob%3D%22prometheus%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Prometheus process CPU.
+- id: promlabs_cadvisor_net_rx
+  name: PromLabs demo — cadvisor net rx (10s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28container_network_receive_bytes_total%7Bname%21%3D%22%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Container network receive across the stack.
+- id: promlabs_cadvisor_memory
+  name: PromLabs demo — cadvisor memory (10s)
+  domain: web_cloudops
+  dgp_class: container_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28container_memory_usage_bytes%7Bname%21%3D%22%22%7D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: Container memory in use.
+- id: promlabs_targets_up
+  name: PromLabs demo — targets up (10s)
+  domain: web_cloudops
+  dgp_class: ingest_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=count%28up%3D%3D1%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: How many scrape targets are up — a small-integer step series.
+- id: ioc_sea_level_aarh
+  name: IOC Sea Level Monitoring — Aarhus (aarh)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=aarh&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_abas
+  name: IOC Sea Level Monitoring — Abashiri (abas)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=abas&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_abed
+  name: IOC Sea Level Monitoring — Aberdeen (abed)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=abed&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_abur
+  name: IOC Sea Level Monitoring — Aburatsu (abur)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=abur&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_acaj
+  name: IOC Sea Level Monitoring — Acajutla_SV (acaj)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=acaj&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_acnj
+  name: IOC Sea Level Monitoring — Atlantic_City_NJ (acnj)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=acnj&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_acnj2
+  name: IOC Sea Level Monitoring — Atlantic_City_NJ (acnj2)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=acnj2&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_acya
+  name: IOC Sea Level Monitoring — Acapulco Club de Yates (acya)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=acya&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_adak
+  name: IOC Sea Level Monitoring — Adak_AK (adak)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=adak&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_adak2
+  name: IOC Sea Level Monitoring — Adak_AK (adak2)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=adak2&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_agua
+  name: IOC Sea Level Monitoring — Aguadilla (Crash Boat) (agua)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=agua&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_ajac
+  name: IOC Sea Level Monitoring — Ajaccio (ajac)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=ajac&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_ajac2
+  name: IOC Sea Level Monitoring — Ajaccio2 (ajac2)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=ajac2&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alac1
+  name: IOC Sea Level Monitoring — Alicante1 (alac1)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alac1&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alac2
+  name: IOC Sea Level Monitoring — Alicante2 (alac2)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alac2&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alak
+  name: IOC Sea Level Monitoring — Alitak_US (alak)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alak&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alak2
+  name: IOC Sea Level Monitoring — Alitak_US (alak2)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alak2&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alam
+  name: IOC Sea Level Monitoring — Alameda_CA (alam)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alam&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alawa
+  name: IOC Sea Level Monitoring — Ala Wai Hbr (alawa)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alawa&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alcu
+  name: IOC Sea Level Monitoring — Alcudia (alcu)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alcu&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_ales
+  name: IOC Sea Level Monitoring — Ålesund (ales)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=ales&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alex
+  name: IOC Sea Level Monitoring — Alexandria (alex)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alex&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alex2
+  name: IOC Sea Level Monitoring — Alexandria (alex2)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alex2&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alex3
+  name: IOC Sea Level Monitoring — alexandria (alex3)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alex3&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alge
+  name: IOC Sea Level Monitoring — Algeciras (alge)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alge&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alme
+  name: IOC Sea Level Monitoring — Almeria (alme)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alme&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alme2
+  name: IOC Sea Level Monitoring — Almería (alme2)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alme2&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alofi
+  name: IOC Sea Level Monitoring — Alofi_Niue (alofi)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alofi&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_alva
+  name: IOC Sea Level Monitoring — Alvarado (alva)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=alva&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
+- id: ioc_sea_level_amal
+  name: IOC Sea Level Monitoring — Charlotte-Amalie_VI (amal)
+  domain: nature
+  dgp_class: sea_level
+  archetypes:
+  - smooth_periodic
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://www.ioc-sealevelmonitoring.org/service.php?query=data&code=amal&format=json&period=0.5
+  schema:
+    timestamp_field: '[].stime'
+    value_field: '[].slevel'
+    panel_field: '[].sensor'
+    drop_null_values: true
+  history_available: P10Y
+  update_cadence_observed: 1 minute
+  pretraining_novelty: clean
+  license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
+  notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
