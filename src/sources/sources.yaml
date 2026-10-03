@@ -125051,3 +125051,757 @@
   license: btcmarkets public market API
   notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
     share rather than its size.'
+- id: promlabs_node_procs_running
+  name: PromLabs demo — runnable processes (10s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_procs_running&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: runnable processes at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_procs_blocked
+  name: PromLabs demo — blocked processes (10s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_procs_blocked&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: blocked processes at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_intr_rate
+  name: PromLabs demo — hardware interrupts/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_intr_total%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: hardware interrupts/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_forks_rate
+  name: PromLabs demo — process forks/s (10s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_forks_total%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: process forks/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_sockstat_tcp
+  name: PromLabs demo — TCP sockets in use (10s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_sockstat_TCP_inuse&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: TCP sockets in use at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_net_err_rx
+  name: PromLabs demo — network receive errors/s (10s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28node_network_receive_errs_total%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: network receive errors/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_net_drop_rx
+  name: PromLabs demo — network receive drops/s (10s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28node_network_receive_drop_total%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: network receive drops/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_disk_reads_completed
+  name: PromLabs demo — disk reads completed/s (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28node_disk_reads_completed_total%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: disk reads completed/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_disk_writes_completed
+  name: PromLabs demo — disk writes completed/s (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28node_disk_writes_completed_total%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: disk writes completed/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_memory_dirty
+  name: PromLabs demo — dirty page bytes (10s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_memory_Dirty_bytes&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: dirty page bytes at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_memory_swap_free
+  name: PromLabs demo — swap free bytes (10s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_memory_SwapFree_bytes&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: swap free bytes at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_entropy
+  name: PromLabs demo — available entropy (10s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_entropy_available_bits&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: available entropy at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_timex_offset
+  name: PromLabs demo — clock offset seconds (10s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=node_timex_offset_seconds&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: clock offset seconds at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_pressure_cpu
+  name: PromLabs demo — CPU pressure stall/s (10s)
+  domain: web_cloudops
+  dgp_class: host_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_pressure_cpu_waiting_seconds_total%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: CPU pressure stall/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_node_pressure_io
+  name: PromLabs demo — IO pressure stall/s (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_pressure_io_waiting_seconds_total%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: IO pressure stall/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_prom_rule_duration
+  name: PromLabs demo — rule evaluation duration (10s)
+  domain: web_cloudops
+  dgp_class: ingest_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=prometheus_rule_group_last_duration_seconds&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: rule evaluation duration at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_prom_wal_fsync
+  name: PromLabs demo — TSDB WAL fsync duration/s (10s)
+  domain: web_cloudops
+  dgp_class: ingest_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28prometheus_tsdb_wal_fsync_duration_seconds_sum%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: TSDB WAL fsync duration/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_prom_notifications
+  name: PromLabs demo — alertmanager notifications/s (10s)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28prometheus_notifications_sent_total%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: alertmanager notifications/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_cadvisor_fs_reads
+  name: PromLabs demo — container fs reads/s (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28container_fs_reads_total%7Bname%21%3D%22%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: container fs reads/s at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_cadvisor_tasks
+  name: PromLabs demo — container task state count (10s)
+  domain: web_cloudops
+  dgp_class: container_cpu
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28container_tasks_state%7Bname%21%3D%22%22%7D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: container task state count at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: promlabs_demo_batch_duration
+  name: PromLabs demo — demo batch job duration (10s)
+  domain: web_cloudops
+  dgp_class: service_latency
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28rate%28demo_batch_last_run_duration_seconds%5B1m%5D%29%29%20or%20sum%28demo_batch_last_run_duration_seconds%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape interval
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: demo batch job duration at 10-second resolution. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs to fill.
+- id: okx_doge_1s
+  name: OKX — DOGE-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=DOGE-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_ada_1s
+  name: OKX — ADA-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=ADA-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_link_1s
+  name: OKX — LINK-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=LINK-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_avax_1s
+  name: OKX — AVAX-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=AVAX-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_ton_1s
+  name: OKX — TON-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=TON-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_dot_1s
+  name: OKX — DOT-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=DOT-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_ltc_1s
+  name: OKX — LTC-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=LTC-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_bch_1s
+  name: OKX — BCH-USDT 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=BCH-USDT&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_ethbtc_1s
+  name: OKX — ETH-BTC 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=ETH-BTC&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
+- id: okx_solbtc_1s
+  name: OKX — SOL-BTC 1-second candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  - bursty_spiky
+  frequency: PT1S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 20 req/2s
+    url: https://www.okx.com/api/v5/market/candles?instId=SOL-BTC&bar=1s&limit=300
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][4]
+    variates: 1
+  history_available: P0D — 300 seconds per fetch
+  update_cadence_observed: 1 second
+  pretraining_novelty: clean
+  license: OKX public market API
+  notes: 300 one-second closes per fetch. Added to clear the ~70 eligible sub-minute series a 10% granularity floor needs; the two cross pairs (ETH-BTC, SOL-BTC) are a different process from the USDT tape
+    — no dollar leg, so the dollar move cancels.
