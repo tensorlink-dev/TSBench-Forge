@@ -184,3 +184,46 @@ def test_round_composition_reports_pooled_and_per_draw_mix():
                                         {"energy": 3, "nature": 1}]
     assert abs(comp["effective_domains"] - 2.0) < 1e-6  # pooled mix is even
     assert comp["n_dgp_classes"] == 2
+
+
+def test_save_members_round_trips_every_rows_forecasts(tmp_path):
+    """members.npz must line up with results.json's challenge order exactly.
+
+    It exists so a re-weighted ensemble can be replayed later, which only
+    works if forecast i, truth i and context i are the same challenge.
+    """
+    from types import SimpleNamespace
+
+    import numpy as np
+
+    _spec2 = importlib.util.spec_from_file_location(
+        "run_paracast_round", REPO / "scripts/run_paracast_round.py")
+    rpr = importlib.util.module_from_spec(_spec2)
+    _spec2.loader.exec_module(rpr)
+
+    levels = [0.1, 0.5, 0.9]
+    chs = [SimpleNamespace(context=np.arange(5 + i, dtype=float), truth=np.full(4, float(i)),
+                           meta={"source_id": f"s{i}", "domain": "energy", "freq": "PT1H",
+                                 "cadence": "hourly"}) for i in range(3)]
+
+    def pf(v):
+        return SimpleNamespace(mean=np.full(4, v), quantiles={q: np.full(4, v + q) for q in levels})
+
+    # "b" failed on challenge 1: its slot must be NaN, not a neighbour's value.
+    prefetch = SimpleNamespace(forecasts={
+        "a": {0: pf(10.0), 1: pf(11.0), 2: pf(12.0)},
+        "b": {0: pf(20.0), 2: pf(22.0)},
+    })
+    specs = [SimpleNamespace(model_id=m) for m in ("a", "b", "gone")]
+    info = rpr.save_members(prefetch, chs, specs, tmp_path / "members.npz")
+    assert info == {"models": 2, "challenges": 3, "levels": 3, "horizon": 4}
+
+    z = np.load(tmp_path / "members.npz")
+    assert list(z["models"]) == ["a", "b"]
+    assert z["forecasts"].shape == (2, 3, 3, 4)
+    assert z["forecasts"][0, 2, 1, 0] == np.float32(12.5)   # model a, challenge 2, q=0.5
+    assert np.isnan(z["forecasts"][1, 1]).all()
+    assert z["truth"][1, 0] == 1.0
+    off = z["context_off"]
+    assert z["context_flat"][off[2]:off[3]].tolist() == list(range(7))
+    assert list(z["source_id"]) == ["s0", "s1", "s2"]
