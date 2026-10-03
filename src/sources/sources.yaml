@@ -123795,3 +123795,1259 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''56'': without it the response
     interleaves several series on the same timestamps.'
+- id: wmf_codfw_varnish_client_req
+  name: Wikimedia codfw — Varnish client request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000005/api/v1/query_range?query=sum%28rate%28varnish_main_client_req%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the codfw datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_codfw_haproxy_requests
+  name: Wikimedia codfw — HAProxy frontend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000005/api/v1/query_range?query=sum%28rate%28haproxy_frontend_http_requests_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the codfw datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_codfw_ats_backend_rate
+  name: Wikimedia codfw — ATS backend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000005/api/v1/query_range?query=sum%28ats_backend%3Atrafficserver_backend_requests%3Arate5m%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the codfw datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_codfw_mysql_queries
+  name: Wikimedia codfw — MariaDB queries per second (1-minute)
+  domain: web_cloudops
+  dgp_class: database_load
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000005/api/v1/query_range?query=sum%28rate%28mysql_global_status_queries%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the codfw datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_codfw_memcached_gets
+  name: Wikimedia codfw — memcached command rate (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000005/api/v1/query_range?query=sum%28rate%28memcached_commands_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the codfw datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_codfw_cache_hitrate
+  name: Wikimedia codfw — Varnish cache hits per second (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000005/api/v1/query_range?query=sum%28rate%28varnish_main_cache_hit%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the codfw datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_drmrs_varnish_client_req
+  name: Wikimedia drmrs — Varnish client request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/BgLFSNT7k/api/v1/query_range?query=sum%28rate%28varnish_main_client_req%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the drmrs datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_drmrs_haproxy_requests
+  name: Wikimedia drmrs — HAProxy frontend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/BgLFSNT7k/api/v1/query_range?query=sum%28rate%28haproxy_frontend_http_requests_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the drmrs datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_drmrs_ats_backend_rate
+  name: Wikimedia drmrs — ATS backend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/BgLFSNT7k/api/v1/query_range?query=sum%28ats_backend%3Atrafficserver_backend_requests%3Arate5m%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the drmrs datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_drmrs_node_net_rx
+  name: Wikimedia drmrs — host network bytes received per second (1-minute)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/BgLFSNT7k/api/v1/query_range?query=sum%28rate%28node_network_receive_bytes_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the drmrs datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_drmrs_cache_hitrate
+  name: Wikimedia drmrs — Varnish cache hits per second (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/BgLFSNT7k/api/v1/query_range?query=sum%28rate%28varnish_main_cache_hit%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the drmrs datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqiad_varnish_client_req
+  name: Wikimedia eqiad — Varnish client request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28rate%28varnish_main_client_req%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqiad datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqiad_mw_request_rate
+  name: Wikimedia eqiad — MediaWiki request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28rate%28mediawiki_http_requests_duration_count%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqiad datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqiad_haproxy_requests
+  name: Wikimedia eqiad — HAProxy frontend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28rate%28haproxy_frontend_http_requests_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqiad datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqiad_ats_backend_rate
+  name: Wikimedia eqiad — ATS backend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28ats_backend%3Atrafficserver_backend_requests%3Arate5m%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqiad datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqiad_mysql_queries
+  name: Wikimedia eqiad — MariaDB queries per second (1-minute)
+  domain: web_cloudops
+  dgp_class: database_load
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28rate%28mysql_global_status_queries%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqiad datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqiad_memcached_gets
+  name: Wikimedia eqiad — memcached command rate (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28rate%28memcached_commands_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqiad datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqiad_cache_hitrate
+  name: Wikimedia eqiad — Varnish cache hits per second (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28rate%28varnish_main_cache_hit%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqiad datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqiad_mw_p95_latency
+  name: Wikimedia eqiad — MediaWiki p95 request duration (1-minute)
+  domain: web_cloudops
+  dgp_class: service_latency
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=quantile%280.95%2C%20cluster_method_code_handler%3Amediawiki_http_requests_duration%3A95p2m%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqiad datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqsin_varnish_client_req
+  name: Wikimedia eqsin — Varnish client request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000022/api/v1/query_range?query=sum%28rate%28varnish_main_client_req%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqsin datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqsin_haproxy_requests
+  name: Wikimedia eqsin — HAProxy frontend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000022/api/v1/query_range?query=sum%28rate%28haproxy_frontend_http_requests_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqsin datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqsin_ats_backend_rate
+  name: Wikimedia eqsin — ATS backend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000022/api/v1/query_range?query=sum%28ats_backend%3Atrafficserver_backend_requests%3Arate5m%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqsin datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqsin_node_net_rx
+  name: Wikimedia eqsin — host network bytes received per second (1-minute)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000022/api/v1/query_range?query=sum%28rate%28node_network_receive_bytes_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqsin datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_eqsin_cache_hitrate
+  name: Wikimedia eqsin — Varnish cache hits per second (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000022/api/v1/query_range?query=sum%28rate%28varnish_main_cache_hit%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the eqsin datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_esams_varnish_client_req
+  name: Wikimedia esams — Varnish client request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000008/api/v1/query_range?query=sum%28rate%28varnish_main_client_req%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the esams datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_esams_haproxy_requests
+  name: Wikimedia esams — HAProxy frontend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000008/api/v1/query_range?query=sum%28rate%28haproxy_frontend_http_requests_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the esams datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_esams_ats_backend_rate
+  name: Wikimedia esams — ATS backend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000008/api/v1/query_range?query=sum%28ats_backend%3Atrafficserver_backend_requests%3Arate5m%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the esams datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_esams_node_net_rx
+  name: Wikimedia esams — host network bytes received per second (1-minute)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000008/api/v1/query_range?query=sum%28rate%28node_network_receive_bytes_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the esams datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_esams_cache_hitrate
+  name: Wikimedia esams — Varnish cache hits per second (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000008/api/v1/query_range?query=sum%28rate%28varnish_main_cache_hit%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the esams datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_magru_http_requests
+  name: Wikimedia magru — edge backend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/PD5D189AC87A701C5/api/v1/query_range?query=sum%28rate%28trafficserver_backend_requests_seconds_count%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the magru datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_magru_varnish_client_req
+  name: Wikimedia magru — Varnish client request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/PD5D189AC87A701C5/api/v1/query_range?query=sum%28rate%28varnish_main_client_req%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the magru datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_magru_haproxy_requests
+  name: Wikimedia magru — HAProxy frontend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/PD5D189AC87A701C5/api/v1/query_range?query=sum%28rate%28haproxy_frontend_http_requests_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the magru datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_magru_ats_backend_rate
+  name: Wikimedia magru — ATS backend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/PD5D189AC87A701C5/api/v1/query_range?query=sum%28ats_backend%3Atrafficserver_backend_requests%3Arate5m%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the magru datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_magru_node_net_rx
+  name: Wikimedia magru — host network bytes received per second (1-minute)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/PD5D189AC87A701C5/api/v1/query_range?query=sum%28rate%28node_network_receive_bytes_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the magru datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_magru_cache_hitrate
+  name: Wikimedia magru — Varnish cache hits per second (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/PD5D189AC87A701C5/api/v1/query_range?query=sum%28rate%28varnish_main_cache_hit%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the magru datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_ulsfo_varnish_client_req
+  name: Wikimedia ulsfo — Varnish client request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000007/api/v1/query_range?query=sum%28rate%28varnish_main_client_req%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the ulsfo datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_ulsfo_haproxy_requests
+  name: Wikimedia ulsfo — HAProxy frontend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000007/api/v1/query_range?query=sum%28rate%28haproxy_frontend_http_requests_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the ulsfo datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_ulsfo_ats_backend_rate
+  name: Wikimedia ulsfo — ATS backend request rate (1-minute)
+  domain: web_cloudops
+  dgp_class: request_rate
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000007/api/v1/query_range?query=sum%28ats_backend%3Atrafficserver_backend_requests%3Arate5m%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the ulsfo datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_ulsfo_node_net_rx
+  name: Wikimedia ulsfo — host network bytes received per second (1-minute)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000007/api/v1/query_range?query=sum%28rate%28node_network_receive_bytes_total%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the ulsfo datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: wmf_ulsfo_cache_hitrate
+  name: Wikimedia ulsfo — Varnish cache hits per second (1-minute)
+  domain: web_cloudops
+  dgp_class: cache_activity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000007/api/v1/query_range?query=sum%28rate%28varnish_main_cache_hit%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana (CC0 operational metrics)
+  notes: Production traffic from the ulsfo datacentre, read through the public Grafana datasource proxy. Two-day window per fetch (~2,880 points). Real site load with a daily and weekly cycle plus incident
+    spikes — a different generating process from a demo host under synthetic load, and the same metric across seven datacentres gives genuinely correlated-but-distinct series.
+- id: kucoin_btc_1m
+  name: Kucoin — BTC-USDT 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kucoin.com/api/v1/market/candles?type=1min&symbol=BTC-USDT
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][2]
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: kucoin public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
+- id: kucoin_eth_1m
+  name: Kucoin — ETH-USDT 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kucoin.com/api/v1/market/candles?type=1min&symbol=ETH-USDT
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][2]
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: kucoin public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
+- id: kucoin_sol_1m
+  name: Kucoin — SOL-USDT 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kucoin.com/api/v1/market/candles?type=1min&symbol=SOL-USDT
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][2]
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: kucoin public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
+- id: kucoin_ada_1m
+  name: Kucoin — ADA-USDT 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kucoin.com/api/v1/market/candles?type=1min&symbol=ADA-USDT
+  schema:
+    timestamp_field: data[][0]
+    value_field: data[][2]
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: kucoin public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
+- id: bitvavo_btc_eur_1m
+  name: Bitvavo — BTC-EUR 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.bitvavo.com/v2/BTC-EUR/candles?interval=1m&limit=1000
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: bitvavo public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
+- id: bitvavo_eth_eur_1m
+  name: Bitvavo — ETH-EUR 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.bitvavo.com/v2/ETH-EUR/candles?interval=1m&limit=1000
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: bitvavo public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
+- id: bitvavo_sol_eur_1m
+  name: Bitvavo — SOL-EUR 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.bitvavo.com/v2/SOL-EUR/candles?interval=1m&limit=1000
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: bitvavo public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
+- id: btcmarkets_btc_aud_1m
+  name: Btcmarkets — BTC-AUD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.btcmarkets.net/v3/markets/BTC-AUD/candles?timeWindow=1m&limit=200
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: btcmarkets public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
+- id: btcmarkets_eth_aud_1m
+  name: Btcmarkets — ETH-AUD 1-minute candles
+  domain: econ_fin
+  dgp_class: crypto_spot_price
+  archetypes:
+  - heavy_tailed
+  - volatility_clustering
+  frequency: PT1M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.btcmarkets.net/v3/markets/ETH-AUD/candles?timeWindow=1m&limit=200
+  schema:
+    timestamp_field: '[][0]'
+    value_field: '[][4]'
+    variates: 1
+  history_available: P16H
+  update_cadence_observed: 1 minute
+  pretraining_novelty: contaminated
+  license: btcmarkets public market API
+  notes: '1-minute closes, a venue and quote currency the catalog did not have. econ_fin sits at its 600-series cap, so these displace daily econ series — which is the point: they raise the domain''s sub-15-minute
+    share rather than its size.'
