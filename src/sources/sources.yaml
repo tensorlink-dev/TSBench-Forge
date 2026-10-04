@@ -81235,6 +81235,8 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_dir_avg, wind_spd_max.'
 - id: noaa_sfsu_eos_metstation_real_time_data
+  disabled: true
+  disabled_reason: '2026-10-04: auto-disabled by freshness audit — newest observation 2026-09-24T14:13:50+00:00 is 9.7d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: SFSU EOS MetStation real time data (SFSU EOS)
   domain: nature
   dgp_class: environmental_sensor
