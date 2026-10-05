@@ -34432,6 +34432,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-atl.communityix.org. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_net_9654_mmix_yangon
+  disabled: true
+  disabled_reason: '2026-10-05: auto-disabled by freshness audit — newest observation 2026-09-29T03:30:00+00:00 is 6.1d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: MMIX Yangon — exchange traffic
   domain: web_cloudops
   dgp_class: ixp_traffic
