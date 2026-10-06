@@ -31,14 +31,21 @@ CTX_NAME=$(basename "$CTX")
 # The market moves between listing and renting, so try the cheapest few
 # single-GPU nodes in turn until one is acquired. `lium up` resolves nodes
 # by UUID only (a HUID gives "not found" despite its help text).
-NODES=$(lium ls --count 1 --format json 2>/dev/null | python3 -c '
-import json, sys
+# The listing API occasionally answers with no JSON at all; retry, then say why.
+NODES=""
+for _ in 1 2 3; do
+  LS=$(lium ls --count 1 --format json 2>&1 || true)
+  NODES=$(printf '%s' "$LS" | python3 -c '
+import json, re, sys
 ok = set(sys.argv[1].split(","))
-raw = sys.stdin.read()  # a fresh install prints a banner before the JSON
-nodes = [n for n in json.loads(raw[raw.index("["):]) if n.get("gpu_type") in ok and (n.get("vram_gb") or 0) >= 24]
+raw = sys.stdin.read()  # banners and warnings may precede the JSON array
+nodes = [n for n in json.loads(raw[re.search(r"(?m)^\[", raw).start():]) if n.get("gpu_type") in ok and (n.get("vram_gb") or 0) >= 24]
 for n in sorted(nodes, key=lambda n: n["price_per_hour"])[:6]:
-    print(n["id"], n["huid"], n["gpu_type"], n["price_per_hour"])' "$GPUS")
-[ -n "$NODES" ] || { echo "no $GPUS node listed" >&2; exit 1; }
+    print(n["id"], n["huid"], n["gpu_type"], n["price_per_hour"])' "$GPUS" 2>/dev/null || true)
+  [ -n "$NODES" ] && break
+  sleep 20
+done
+[ -n "$NODES" ] || { echo "no $GPUS node listed; lium said:" >&2; printf '%s\n' "$LS" | tail -5 >&2; exit 1; }
 while read -r NODE HUID TYPE PRICE; do
   echo "renting $TYPE $HUID (\$$PRICE/h) as $POD"
   UP=$(yes y | timeout 900 lium up "$NODE" --name "$POD" --ttl "${REF_TTL:-1h}" 2>&1 || true)
