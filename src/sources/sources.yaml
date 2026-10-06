@@ -125929,3 +125929,872 @@
     series_skip drops element 0 because it is the hour still being filled and would otherwise put a false
     cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
     count what the instance mirrored from its peers, which is the same global firehose seen from every host.
+- id: bitstamp_btc_usd_trade_rate_10s
+  name: Bitstamp — btcusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/transactions/btcusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: bitstamp_btc_usd_trade_volume_10s
+  name: Bitstamp — btcusd traded size per 10s
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - heavy_tailed
+  - bursty_spiky
+  - volatility_clustering
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/transactions/btcusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].amount'
+    aggregate:
+      op: sum
+      bin: PT10S
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Summed trade size per 10-second bin — heavier-tailed than the arrival count, because one large fill dominates a bin. Sibling of the trade_rate series on the same feed.
+- id: bitstamp_eth_usd_trade_rate_10s
+  name: Bitstamp — ethusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/transactions/ethusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: bitstamp_eth_usd_trade_volume_10s
+  name: Bitstamp — ethusd traded size per 10s
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - heavy_tailed
+  - bursty_spiky
+  - volatility_clustering
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.bitstamp.net/api/v2/transactions/ethusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].amount'
+    aggregate:
+      op: sum
+      bin: PT10S
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Summed trade size per 10-second bin — heavier-tailed than the arrival count, because one large fill dominates a bin. Sibling of the trade_rate series on the same feed.
+- id: kraken_btc_usd_trade_rate_10s
+  name: Kraken — XXBTZUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/Trades?pair=XXBTZUSD&count=1000
+  schema:
+    timestamp_field: result.XXBTZUSD[][2]
+    value_field: result.XXBTZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: kraken_btc_usd_trade_volume_10s
+  name: Kraken — XXBTZUSD traded size per 10s
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - heavy_tailed
+  - bursty_spiky
+  - volatility_clustering
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/Trades?pair=XXBTZUSD&count=1000
+  schema:
+    timestamp_field: result.XXBTZUSD[][2]
+    value_field: result.XXBTZUSD[][1]
+    aggregate:
+      op: sum
+      bin: PT10S
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Summed trade size per 10-second bin — heavier-tailed than the arrival count, because one large fill dominates a bin. Sibling of the trade_rate series on the same feed.
+- id: kraken_eth_usd_trade_rate_10s
+  name: Kraken — XETHZUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/Trades?pair=XETHZUSD&count=1000
+  schema:
+    timestamp_field: result.XETHZUSD[][2]
+    value_field: result.XETHZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: kraken_eth_usd_trade_volume_10s
+  name: Kraken — XETHZUSD traded size per 10s
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - heavy_tailed
+  - bursty_spiky
+  - volatility_clustering
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.kraken.com/0/public/Trades?pair=XETHZUSD&count=1000
+  schema:
+    timestamp_field: result.XETHZUSD[][2]
+    value_field: result.XETHZUSD[][1]
+    aggregate:
+      op: sum
+      bin: PT10S
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Summed trade size per 10-second bin — heavier-tailed than the arrival count, because one large fill dominates a bin. Sibling of the trade_rate series on the same feed.
+- id: bitfinex_btc_usd_trade_rate_10s
+  name: Bitfinex — tBTCUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api-pub.bitfinex.com/v2/trades/tBTCUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: bitfinex_eth_usd_trade_rate_10s
+  name: Bitfinex — tETHUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api-pub.bitfinex.com/v2/trades/tETHUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: gemini_btc_usd_trade_rate_10s
+  name: Gemini — btcusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.gemini.com/v1/trades/btcusd?limit_trades=500
+  schema:
+    timestamp_field: '[].timestampms'
+    value_field: '[].timestampms'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: gemini public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: gemini_btc_usd_trade_volume_10s
+  name: Gemini — btcusd traded size per 10s
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - heavy_tailed
+  - bursty_spiky
+  - volatility_clustering
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.gemini.com/v1/trades/btcusd?limit_trades=500
+  schema:
+    timestamp_field: '[].timestampms'
+    value_field: '[].amount'
+    aggregate:
+      op: sum
+      bin: PT10S
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: gemini public market API
+  notes: Summed trade size per 10-second bin — heavier-tailed than the arrival count, because one large fill dominates a bin. Sibling of the trade_rate series on the same feed.
+- id: gemini_eth_usd_trade_rate_10s
+  name: Gemini — ethusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.gemini.com/v1/trades/ethusd?limit_trades=500
+  schema:
+    timestamp_field: '[].timestampms'
+    value_field: '[].timestampms'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: gemini public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: gemini_eth_usd_trade_volume_10s
+  name: Gemini — ethusd traded size per 10s
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - heavy_tailed
+  - bursty_spiky
+  - volatility_clustering
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.gemini.com/v1/trades/ethusd?limit_trades=500
+  schema:
+    timestamp_field: '[].timestampms'
+    value_field: '[].amount'
+    aggregate:
+      op: sum
+      bin: PT10S
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: gemini public market API
+  notes: Summed trade size per 10-second bin — heavier-tailed than the arrival count, because one large fill dominates a bin. Sibling of the trade_rate series on the same feed.
+- id: okx_btc_usdt_trade_rate_10s
+  name: Okx — BTC-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.okx.com/api/v5/market/trades?instId=BTC-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: okx_btc_usdt_trade_volume_10s
+  name: Okx — BTC-USDT traded size per 10s
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - heavy_tailed
+  - bursty_spiky
+  - volatility_clustering
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.okx.com/api/v5/market/trades?instId=BTC-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].sz
+    aggregate:
+      op: sum
+      bin: PT10S
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Summed trade size per 10-second bin — heavier-tailed than the arrival count, because one large fill dominates a bin. Sibling of the trade_rate series on the same feed.
+- id: okx_eth_usdt_trade_rate_10s
+  name: Okx — ETH-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.okx.com/api/v5/market/trades?instId=ETH-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: okx_eth_usdt_trade_volume_10s
+  name: Okx — ETH-USDT traded size per 10s
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - heavy_tailed
+  - bursty_spiky
+  - volatility_clustering
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://www.okx.com/api/v5/market/trades?instId=ETH-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].sz
+    aggregate:
+      op: sum
+      bin: PT10S
+  history_available: P0D
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Summed trade size per 10-second bin — heavier-tailed than the arrival count, because one large fill dominates a bin. Sibling of the trade_rate series on the same feed.
+- id: bitvavo_btc_eur_trade_rate_10s
+  name: Bitvavo — BTC-EUR trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.bitvavo.com/v2/BTC-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: bitvavo_eth_eur_trade_rate_10s
+  name: Bitvavo — ETH-EUR trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.bitvavo.com/v2/ETH-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: btcmarkets_btc_aud_trade_rate_10s
+  name: Btcmarkets — BTC-AUD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.btcmarkets.net/v3/markets/BTC-AUD/trades?limit=200
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: btcmarkets public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: bitso_btc_mxn_trade_rate_10s
+  name: Bitso — btc_mxn trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.bitso.com/v3/trades/?book=btc_mxn&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: 'Trades counted into 10-second bins: a point process, which is the shape the models are weak on (GIFT bizitobs). The two Coinbase siblings measure cv 0.8-1.5 with a mean of 41 and a max of 953
+    trades per bin. Needs the every-minute cron band for continuous coverage.'
+- id: promlabs_node_vmstat_pgmajfault
+  name: PromLabs demo — major page faults/s (10s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - count_discrete
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28node_vmstat_pgmajfault%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: 'major page faults/s: measured 96-98% zeros with rare large spikes — a spike train, not a smooth gauge. Candidates that sat at a flat zero on this host were dropped rather than wired.'
+- id: promlabs_node_disk_io_now
+  name: PromLabs demo — in-flight disk IO operations (10s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - count_discrete
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=sum%28node_disk_io_now%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: 'in-flight disk IO operations: measured 96-98% zeros with rare large spikes — a spike train, not a smooth gauge. Candidates that sat at a flat zero on this host were dropped rather than wired.'
+- id: promlabs_prom_tsdb_compactions
+  name: PromLabs demo — TSDB compactions/s (10s)
+  domain: web_cloudops
+  dgp_class: ingest_rate
+  archetypes:
+  - bursty_spiky
+  - count_discrete
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://demo.promlabs.com/api/v1/query_range?query=rate%28prometheus_tsdb_compactions_total%5B5m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z&step=10s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: 10-second scrape
+  pretraining_novelty: clean
+  license: PromLabs public Prometheus demo
+  notes: 'TSDB compactions/s: measured 96-98% zeros with rare large spikes — a spike train, not a smooth gauge. Candidates that sat at a flat zero on this host were dropped rather than wired.'
+- id: wmf_eqiad_mw_5xx_rate
+  name: Wikimedia eqiad — MediaWiki 5xx response rate (1-minute)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  - count_discrete
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28rate%28mediawiki_http_requests_duration_count%7Bcode%3D~%225..%22%7D%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana
+  notes: MediaWiki 5xx response rate from the eqiad datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero
+    (varnish backend failures, dropped sessions) were dropped.
+- id: wmf_codfw_haproxy_5xx
+  name: Wikimedia codfw — HAProxy 5xx response rate (1-minute)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  - count_discrete
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000005/api/v1/query_range?query=sum%28rate%28haproxy_server_http_responses_total%7Bcode%3D%225xx%22%7D%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana
+  notes: HAProxy 5xx response rate from the codfw datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero (varnish
+    backend failures, dropped sessions) were dropped.
+- id: wmf_drmrs_haproxy_5xx
+  name: Wikimedia drmrs — HAProxy 5xx response rate (1-minute)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  - count_discrete
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/BgLFSNT7k/api/v1/query_range?query=sum%28rate%28haproxy_server_http_responses_total%7Bcode%3D%225xx%22%7D%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana
+  notes: HAProxy 5xx response rate from the drmrs datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero (varnish
+    backend failures, dropped sessions) were dropped.
+- id: wmf_eqiad_haproxy_5xx
+  name: Wikimedia eqiad — HAProxy 5xx response rate (1-minute)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  - count_discrete
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000006/api/v1/query_range?query=sum%28rate%28haproxy_server_http_responses_total%7Bcode%3D%225xx%22%7D%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana
+  notes: HAProxy 5xx response rate from the eqiad datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero (varnish
+    backend failures, dropped sessions) were dropped.
+- id: wmf_eqsin_haproxy_5xx
+  name: Wikimedia eqsin — HAProxy 5xx response rate (1-minute)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  - count_discrete
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000022/api/v1/query_range?query=sum%28rate%28haproxy_server_http_responses_total%7Bcode%3D%225xx%22%7D%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana
+  notes: HAProxy 5xx response rate from the eqsin datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero (varnish
+    backend failures, dropped sessions) were dropped.
+- id: wmf_esams_haproxy_5xx
+  name: Wikimedia esams — HAProxy 5xx response rate (1-minute)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  - count_discrete
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000008/api/v1/query_range?query=sum%28rate%28haproxy_server_http_responses_total%7Bcode%3D%225xx%22%7D%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana
+  notes: HAProxy 5xx response rate from the esams datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero (varnish
+    backend failures, dropped sessions) were dropped.
+- id: wmf_magru_haproxy_5xx
+  name: Wikimedia magru — HAProxy 5xx response rate (1-minute)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  - count_discrete
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/PD5D189AC87A701C5/api/v1/query_range?query=sum%28rate%28haproxy_server_http_responses_total%7Bcode%3D%225xx%22%7D%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana
+  notes: HAProxy 5xx response rate from the magru datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero (varnish
+    backend failures, dropped sessions) were dropped.
+- id: wmf_ulsfo_haproxy_5xx
+  name: Wikimedia ulsfo — HAProxy 5xx response rate (1-minute)
+  domain: web_cloudops
+  dgp_class: error_rate
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  - count_discrete
+  frequency: PT1M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://grafana.wikimedia.org/api/datasources/proxy/uid/000000007/api/v1/query_range?query=sum%28rate%28haproxy_server_http_responses_total%7Bcode%3D%225xx%22%7D%5B5m%5D%29%29&start={YYYY-MM-DD-1d}T00:00:00Z&end={YYYY-MM-DD}T23:59:00Z&step=60s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P30D
+  update_cadence_observed: ~52s scrape, queried at 60s steps
+  pretraining_novelty: clean
+  license: Wikimedia Foundation public Grafana
+  notes: HAProxy 5xx response rate from the ulsfo datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero (varnish
+    backend failures, dropped sessions) were dropped.

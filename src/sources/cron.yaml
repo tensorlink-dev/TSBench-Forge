@@ -84,6 +84,28 @@ schedules:
   - okx_xrp_usdt_1s
   - coinbase_btc_trade_rate_10s
   - coinbase_eth_trade_rate_10s
+  - bitstamp_btc_usd_trade_rate_10s
+  - bitstamp_btc_usd_trade_volume_10s
+  - bitstamp_eth_usd_trade_rate_10s
+  - bitstamp_eth_usd_trade_volume_10s
+  - kraken_btc_usd_trade_rate_10s
+  - kraken_btc_usd_trade_volume_10s
+  - kraken_eth_usd_trade_rate_10s
+  - kraken_eth_usd_trade_volume_10s
+  - bitfinex_btc_usd_trade_rate_10s
+  - bitfinex_eth_usd_trade_rate_10s
+  - gemini_btc_usd_trade_rate_10s
+  - gemini_btc_usd_trade_volume_10s
+  - gemini_eth_usd_trade_rate_10s
+  - gemini_eth_usd_trade_volume_10s
+  - okx_btc_usdt_trade_rate_10s
+  - okx_btc_usdt_trade_volume_10s
+  - okx_eth_usdt_trade_rate_10s
+  - okx_eth_usdt_trade_volume_10s
+  - bitvavo_btc_eur_trade_rate_10s
+  - bitvavo_eth_eur_trade_rate_10s
+  - btcmarkets_btc_aud_trade_rate_10s
+  - bitso_btc_mxn_trade_rate_10s
   cron: '* * * * *'
 - every: PT2M30S
   sources:
