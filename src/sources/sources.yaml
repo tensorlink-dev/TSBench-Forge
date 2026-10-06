@@ -44338,6 +44338,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_gargantia_peertube_gargantia
+  disabled: true
+  disabled_reason: '2026-10-06: auto-disabled by freshness audit — newest observation 2026-08-10T00:00:00+00:00 is 57.3d old vs a 19.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube Gargantia — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -45578,6 +45580,8 @@
   audit_slack_days: 16
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_deadpilots_peertube
+  disabled: true
+  disabled_reason: '2026-10-06: auto-disabled by freshness audit — newest observation 2026-09-15T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47556,6 +47560,8 @@
   audit_slack_days: 24
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_nemethstarproduction_nemeth_star_productions_video_stre
+  disabled: true
+  disabled_reason: '2026-10-06: auto-disabled by freshness audit — newest observation 2026-09-05T18:00:00+00:00 is 30.5d old vs a 10.0d limit for PT6H. Re-enable if the upstream resumes.'
   name: Nemeth/Star Productions - Video, Streaming and Live — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
