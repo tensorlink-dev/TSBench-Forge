@@ -206,9 +206,10 @@ jobs:
             --export-contexts ref/contexts.npz ${{ github.event.inputs.runner_args }}
           pip install -q lium-io==0.0.24
           mkdir -p ~/.lium ~/.ssh
-          printf '%s\n' "$LIUM_SSH_KEY" > ~/.ssh/lium_key && chmod 600 ~/.ssh/lium_key
-          ssh-keygen -y -f ~/.ssh/lium_key > ~/.ssh/lium_key.pub
-          printf '[api]\napi_key = %s\n\n[ssh]\nkey_path = %s\n' "$LIUM_API_KEY" "$HOME/.ssh/lium_key" > ~/.lium/config.ini
+          # lium-io 0.0.24 ignores [ssh] key_path and only discovers ~/.ssh/id_ed25519.
+          printf '%s\n' "$LIUM_SSH_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
+          printf '[api]\napi_key = %s\n' "$LIUM_API_KEY" > ~/.lium/config.ini
           bash scripts/run_reference_pod.sh ref/contexts.npz ref/out timesfm3,toto2-2.5b
 
       - name: Run the round
