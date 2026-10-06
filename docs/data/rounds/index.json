@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-06T00:29:38+00:00",
+  "updated_at": "2026-10-06T04:55:02+00:00",
   "rounds": [
     {
       "round_id": "2026-07-09",
@@ -640,13 +640,13 @@
     },
     {
       "round_id": "2026-10-06",
-      "generated_at": "2026-10-06T00:29:38+00:00",
-      "n_models": 14,
-      "n_tsfms": 8,
+      "generated_at": "2026-10-06T04:55:02+00:00",
+      "n_models": 15,
+      "n_tsfms": 9,
       "top": [
         "paracast-ensemble",
-        "toto2-313m",
-        "paracast-router"
+        "chronos2",
+        "toto2-313m"
       ],
       "has_metrics": true,
       "config": {
@@ -656,7 +656,7 @@
         "k_draws": 5
       },
       "effective_domains": 6.91,
-      "note": "first round on Ephemeris 0.7.5: patchtst-fm-r2 replaces r1; ensemble uses the accuracy-weighted mixture"
+      "note": "Ephemeris 0.7.5 panel + Cascade Toto2-4M + reference TimesFM-3 and Toto-2 2.5B"
     }
   ]
 }
