@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Add new models to an already-published round, without re-running it.
 
-A round's challenges are cut from the scraped mirror as it stood when the
-round ran. The round workflow caches that exact snapshot
-(``hippius-mirror-<run id>``) and uploads the round's per-challenge scores
-(``results.json``) as an artifact, so a model added later can be scored on the
-very same challenges and merged into the round: nothing is re-queried from
-Ephemeris and no existing row changes.
+The round workflow uploads each round's per-challenge scores (``results.json``)
+and its exact challenges (``challenges.pkl.gz``) as the run's artifact, kept 30
+days, so a model added later is scored on the very same challenges and merged
+into the round: nothing is re-queried from Ephemeris and no existing row
+changes. Rounds from before the challenges were saved are rebuilt from the
+run's mirror cache (``hippius-mirror-<run id>``) instead, which only works
+while GitHub still holds it: the 10 GB repo limit keeps the latest three.
 
 Two steps, run by .github/workflows/backfill-round.yml:
 
@@ -18,10 +19,10 @@ Two steps, run by .github/workflows/backfill-round.yml:
     python scripts/backfill_round.py publish --results results.json \
         --round-doc docs/data/rounds/2026-10-06.json --reference-forecasts ref/out
 
-The proof: the challenges are rebuilt with the round's own seed and settings,
-with the clock frozen to the round's date (the cutoff and freshness window are
-date-based), and the in-process seasonal-naive baseline must reproduce the
-round's published per-challenge scores exactly. Any drift refuses the backfill.
+Either way the challenges must prove themselves. Rebuilt ones use the round's
+own seed and settings with the truth cutoff pinned to the round's date; saved
+or rebuilt, the in-process seasonal-naive baseline must reproduce the round's
+published per-challenge scores exactly. Any drift refuses the backfill.
 """
 
 from __future__ import annotations
@@ -38,23 +39,43 @@ sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts"))
 
 
-def _rebuild(results: dict, round_doc: dict, data_dir: str, catalog: str) -> list:
-    """The round's challenges, rebuilt under the round's own clock."""
-    from freezegun import freeze_time
+def _challenges(args, results: dict, round_doc: dict) -> list:
+    """The round's challenges: saved with the run if it saved them, else rebuilt."""
+    saved = Path(args.results).with_name("challenges.pkl.gz")
+    if saved.is_file():
+        import gzip
+        import pickle
 
+        with gzip.open(saved, "rb") as fh:  # our own run artifact
+            challenges = pickle.load(fh)
+        print(f"loaded {len(challenges)} challenges saved with the round")
+        return challenges
+    return _rebuild(results, round_doc, args.data_dir, args.catalog)
+
+
+def _rebuild(results: dict, round_doc: dict, data_dir: str, catalog: str) -> list:
+    """The round's challenges, rebuilt under the round's own cutoff date."""
+    import challenges as ch_mod
     import tsfm_comparison
 
+    # The only clock read on the round path is the daily truth cutoff (the
+    # freshness window is unset). Challenges are built moments after the round
+    # id is stamped, so the round id's date is the build date even when the
+    # publish crossed midnight. Patching the one function, rather than faking
+    # datetime globally, keeps pyarrow and pandas happy (freezegun segfaults them).
+    rid = str(round_doc["round_id"])
+    day = rid if len(rid) == 10 else str(round_doc["generated_at"])[:10]
     cfg = results["config"]
     k = int(cfg["k_draws"])
-    # Challenges are built moments after the round id is stamped, so the round
-    # id's date is the build date even when publishing crossed midnight.
-    rid = str(round_doc["round_id"])
-    clock = f"{rid}T12:00:00+00:00" if len(rid) == 10 else round_doc["generated_at"]
-    with freeze_time(clock):
+    real = ch_mod.default_cutoff
+    ch_mod.default_cutoff = lambda: np.datetime64(day)
+    try:
         return tsfm_comparison.build_challenges(
             data_dir, catalog=catalog, motif_len=int(cfg["motif_len"]),
             n_challenges=int(cfg["n_challenges"]) // k, seed=cfg["seed"], k_draws=k,
         )
+    finally:
+        ch_mod.default_cutoff = real
 
 
 def _stored_scores(results: dict) -> dict:
@@ -92,7 +113,7 @@ def _verify(challenges: list, stored: dict) -> None:
 def cmd_export(args, results, round_doc) -> int:
     from reference_io import export_contexts
 
-    challenges = _rebuild(results, round_doc, args.data_dir, args.catalog)
+    challenges = _challenges(args, results, round_doc)
     _verify(challenges, _stored_scores(results))
     fp = export_contexts(challenges, Path(args.contexts))
     print(f"exported {len(challenges)} contexts to {args.contexts} (fingerprint {fp[:16]})")
@@ -105,7 +126,7 @@ def cmd_publish(args, results, round_doc) -> int:
 
     import publish_round
 
-    challenges = _rebuild(results, round_doc, args.data_dir, args.catalog)
+    challenges = _challenges(args, results, round_doc)
     stored = _stored_scores(results)
     _verify(challenges, stored)
 
