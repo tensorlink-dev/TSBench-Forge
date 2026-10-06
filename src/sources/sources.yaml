@@ -127317,3 +127317,4315 @@
   license: Iowa State University / NWS public data
   notes: 'Storm reports nationwide, counted hourly. The archetypal intermittent process: long quiet stretches then dozens of reports in an hour when a system crosses. Nature is at its domain cap, so this
     displaces a smoother series rather than enlarging the pool — which is the intent.'
+- id: kraken_usdtzusd_trade_rate_1m
+  name: Kraken — USDTZUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=USDTZUSD&count=1000
+  schema:
+    timestamp_field: result.USDTZUSD[][2]
+    value_field: result.USDTZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5614s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~5614s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xxbtzusd_trade_rate_10s
+  name: Kraken — XXBTZUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XXBTZUSD&count=1000
+  schema:
+    timestamp_field: result.XXBTZUSD[][2]
+    value_field: result.XXBTZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~1676s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~1676s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_usdcusd_trade_rate_1m
+  name: Kraken — USDCUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=USDCUSD&count=1000
+  schema:
+    timestamp_field: result.USDCUSD[][2]
+    value_field: result.USDCUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~11346s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~11346s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_usdceur_trade_rate_1m
+  name: Kraken — USDCEUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=USDCEUR&count=1000
+  schema:
+    timestamp_field: result.USDCEUR[][2]
+    value_field: result.USDCEUR[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5291s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~5291s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_usdteur_trade_rate_1m
+  name: Kraken — USDTEUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=USDTEUR&count=1000
+  schema:
+    timestamp_field: result.USDTEUR[][2]
+    value_field: result.USDTEUR[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~13924s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~13924s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xethzusd_trade_rate_1m
+  name: Kraken — XETHZUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XETHZUSD&count=1000
+  schema:
+    timestamp_field: result.XETHZUSD[][2]
+    value_field: result.XETHZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4102s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~4102s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_solusd_trade_rate_10s
+  name: Kraken — SOLUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=SOLUSD&count=1000
+  schema:
+    timestamp_field: result.SOLUSD[][2]
+    value_field: result.SOLUSD[][2]
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3220s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~3220s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_zeurzusd_trade_rate_10s
+  name: Kraken — ZEURZUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=ZEURZUSD&count=1000
+  schema:
+    timestamp_field: result.ZEURZUSD[][2]
+    value_field: result.ZEURZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~2029s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~2029s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xxbtzeur_trade_rate_1m
+  name: Kraken — XXBTZEUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XXBTZEUR&count=1000
+  schema:
+    timestamp_field: result.XXBTZEUR[][2]
+    value_field: result.XXBTZEUR[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~7744s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~7744s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xbtusd_btnl_trade_rate_1m
+  name: Kraken — XBTUSD:BTNL trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XBTUSD:BTNL&count=1000
+  schema:
+    timestamp_field: result.XBTUSD:BTNL[][2]
+    value_field: result.XBTUSD:BTNL[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~34861s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~34861s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xxrpzusd_trade_rate_1m
+  name: Kraken — XXRPZUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XXRPZUSD&count=1000
+  schema:
+    timestamp_field: result.XXRPZUSD[][2]
+    value_field: result.XXRPZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4754s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~4754s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_usdcusdt_trade_rate_1m
+  name: Kraken — USDCUSDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=USDCUSDT&count=1000
+  schema:
+    timestamp_field: result.USDCUSDT[][2]
+    value_field: result.USDCUSDT[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~16402s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~16402s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_avaxusd_trade_rate_1m
+  name: Kraken — AVAXUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=AVAXUSD&count=1000
+  schema:
+    timestamp_field: result.AVAXUSD[][2]
+    value_field: result.AVAXUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6242s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~6242s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_qntusd_trade_rate_10s
+  name: Kraken — QNTUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=QNTUSD&count=1000
+  schema:
+    timestamp_field: result.QNTUSD[][2]
+    value_field: result.QNTUSD[][2]
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3445s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~3445s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_nearusd_trade_rate_1m
+  name: Kraken — NEARUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=NEARUSD&count=1000
+  schema:
+    timestamp_field: result.NEARUSD[][2]
+    value_field: result.NEARUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6792s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~6792s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xzeczusd_trade_rate_1m
+  name: Kraken — XZECZUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XZECZUSD&count=1000
+  schema:
+    timestamp_field: result.XZECZUSD[][2]
+    value_field: result.XZECZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~7378s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~7378s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xbtusdt_trade_rate_1m
+  name: Kraken — XBTUSDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XBTUSDT&count=1000
+  schema:
+    timestamp_field: result.XBTUSDT[][2]
+    value_field: result.XBTUSDT[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~20034s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~20034s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_adausd_trade_rate_1m
+  name: Kraken — ADAUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=ADAUSD&count=1000
+  schema:
+    timestamp_field: result.ADAUSD[][2]
+    value_field: result.ADAUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~9914s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~9914s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_suiusd_trade_rate_1m
+  name: Kraken — SUIUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=SUIUSD&count=1000
+  schema:
+    timestamp_field: result.SUIUSD[][2]
+    value_field: result.SUIUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~8608s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~8608s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_hypeusd_trade_rate_1m
+  name: Kraken — HYPEUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=HYPEUSD&count=1000
+  schema:
+    timestamp_field: result.HYPEUSD[][2]
+    value_field: result.HYPEUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~7222s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~7222s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xbtusdc_trade_rate_1m
+  name: Kraken — XBTUSDC trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XBTUSDC&count=1000
+  schema:
+    timestamp_field: result.XBTUSDC[][2]
+    value_field: result.XBTUSDC[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~16928s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~16928s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xethzeur_trade_rate_1m
+  name: Kraken — XETHZEUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XETHZEUR&count=1000
+  schema:
+    timestamp_field: result.XETHZEUR[][2]
+    value_field: result.XETHZEUR[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~17718s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~17718s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_soleur_trade_rate_1m
+  name: Kraken — SOLEUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=SOLEUR&count=1000
+  schema:
+    timestamp_field: result.SOLEUR[][2]
+    value_field: result.SOLEUR[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~15642s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~15642s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_usdcgbp_trade_rate_1m
+  name: Kraken — USDCGBP trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=USDCGBP&count=1000
+  schema:
+    timestamp_field: result.USDCGBP[][2]
+    value_field: result.USDCGBP[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~30912s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~30912s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xxrpzeur_trade_rate_1m
+  name: Kraken — XXRPZEUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XXRPZEUR&count=1000
+  schema:
+    timestamp_field: result.XXRPZEUR[][2]
+    value_field: result.XXRPZEUR[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~14882s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~14882s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_zgbpzusd_trade_rate_1m
+  name: Kraken — ZGBPZUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=ZGBPZUSD&count=1000
+  schema:
+    timestamp_field: result.ZGBPZUSD[][2]
+    value_field: result.ZGBPZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5735s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~5735s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_pumpusd_trade_rate_1m
+  name: Kraken — PUMPUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=PUMPUSD&count=1000
+  schema:
+    timestamp_field: result.PUMPUSD[][2]
+    value_field: result.PUMPUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~12117s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~12117s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xltczusd_trade_rate_1m
+  name: Kraken — XLTCZUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XLTCZUSD&count=1000
+  schema:
+    timestamp_field: result.XLTCZUSD[][2]
+    value_field: result.XLTCZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~7640s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~7640s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_taousd_trade_rate_1m
+  name: Kraken — TAOUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=TAOUSD&count=1000
+  schema:
+    timestamp_field: result.TAOUSD[][2]
+    value_field: result.TAOUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~10333s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~10333s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_dashusd_trade_rate_10s
+  name: Kraken — DASHUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=DASHUSD&count=1000
+  schema:
+    timestamp_field: result.DASHUSD[][2]
+    value_field: result.DASHUSD[][2]
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3566s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~3566s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xzeczeur_trade_rate_1m
+  name: Kraken — XZECZEUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XZECZEUR&count=1000
+  schema:
+    timestamp_field: result.XZECZEUR[][2]
+    value_field: result.XZECZEUR[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~16074s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~16074s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_usdtgbp_trade_rate_1m
+  name: Kraken — USDTGBP trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=USDTGBP&count=1000
+  schema:
+    timestamp_field: result.USDTGBP[][2]
+    value_field: result.USDTGBP[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~23825s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~23825s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xdgusd_trade_rate_1m
+  name: Kraken — XDGUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XDGUSD&count=1000
+  schema:
+    timestamp_field: result.XDGUSD[][2]
+    value_field: result.XDGUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~11625s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~11625s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_usdtchf_trade_rate_1m
+  name: Kraken — USDTCHF trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=USDTCHF&count=1000
+  schema:
+    timestamp_field: result.USDTCHF[][2]
+    value_field: result.USDTCHF[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~21222s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~21222s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_uniusd_trade_rate_1m
+  name: Kraken — UNIUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=UNIUSD&count=1000
+  schema:
+    timestamp_field: result.UNIUSD[][2]
+    value_field: result.UNIUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6384s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~6384s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_minausd_trade_rate_1m
+  name: Kraken — MINAUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=MINAUSD&count=1000
+  schema:
+    timestamp_field: result.MINAUSD[][2]
+    value_field: result.MINAUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3861s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~3861s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_jupusd_trade_rate_1m
+  name: Kraken — JUPUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=JUPUSD&count=1000
+  schema:
+    timestamp_field: result.JUPUSD[][2]
+    value_field: result.JUPUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~21585s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~21585s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: kraken_xxlmzusd_trade_rate_1m
+  name: Kraken — XXLMZUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.kraken.com/0/public/Trades?pair=XXLMZUSD&count=1000
+  schema:
+    timestamp_field: result.XXLMZUSD[][2]
+    value_field: result.XXLMZUSD[][2]
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~11980s over 1000 trades
+  pretraining_novelty: clean
+  license: kraken public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~11980s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_voxel_usd_trade_rate_1m
+  name: Coinbase — VOXEL-USD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/VOXEL-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~19011s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~19011s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_giga_usd_trade_rate_1m
+  name: Coinbase — GIGA-USD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/GIGA-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4042s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~4042s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_toshi_usd_trade_rate_1m
+  name: Coinbase — TOSHI-USD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/TOSHI-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~9542s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~9542s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_op_usd_trade_rate_1m
+  name: Coinbase — OP-USD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/OP-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~14469s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~14469s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_tia_usd_trade_rate_1m
+  name: Coinbase — TIA-USD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/TIA-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4080s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~4080s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_wif_usd_trade_rate_1m
+  name: Coinbase — WIF-USD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/WIF-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~32282s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~32282s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_mantle_usd_trade_rate_1m
+  name: Coinbase — MANTLE-USD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/MANTLE-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~20340s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~20340s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_ogn_usd_trade_rate_1m
+  name: Coinbase — OGN-USD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/OGN-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~42152s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~42152s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: coinbase_well_usd_trade_rate_10s
+  name: Coinbase — WELL-USD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.exchange.coinbase.com/products/WELL-USD/trades?limit=1000
+  schema:
+    timestamp_field: '[].time'
+    value_field: '[].time'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~381s over 1000 trades
+  pretraining_novelty: clean
+  license: coinbase public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~381s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_usdc_usdt_trade_rate_10s
+  name: Okx — USDC-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=USDC-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~612s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~612s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_usdt_try_trade_rate_1m
+  name: Okx — USDT-TRY trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=USDT-TRY&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~7323s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~7323s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_usdt_brl_trade_rate_1m
+  name: Okx — USDT-BRL trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=USDT-BRL&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6235s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~6235s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_sol_usdt_trade_rate_10s
+  name: Okx — SOL-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=SOL-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~611s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~611s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_okb_usdt_trade_rate_10s
+  name: Okx — OKB-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=OKB-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~982s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~982s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_zec_usdt_trade_rate_10s
+  name: Okx — ZEC-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=ZEC-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~248s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~248s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_ct_try_trade_rate_1m
+  name: Okx — CT-TRY trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=CT-TRY&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~18409s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~18409s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_near_usdt_trade_rate_10s
+  name: Okx — NEAR-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=NEAR-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~1470s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~1470s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_xrp_usdt_trade_rate_10s
+  name: Okx — XRP-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=XRP-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~2456s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~2456s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_doge_usdt_trade_rate_10s
+  name: Okx — DOGE-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=DOGE-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~970s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~970s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_hype_usdt_trade_rate_10s
+  name: Okx — HYPE-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=HYPE-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~1875s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~1875s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_btc_usdc_trade_rate_1m
+  name: Okx — BTC-USDC trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=BTC-USDC&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5759s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~5759s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_usdc_eur_trade_rate_1m
+  name: Okx — USDC-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=USDC-EUR&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5465s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~5465s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_usdc_brl_trade_rate_1m
+  name: Okx — USDC-BRL trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=USDC-BRL&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~24963s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~24963s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_ct_usdt_trade_rate_1m
+  name: Okx — CT-USDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=CT-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3609s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~3609s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_uni_usdt_trade_rate_10s
+  name: Okx — UNI-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=UNI-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~1873s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~1873s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_sui_usdt_trade_rate_10s
+  name: Okx — SUI-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=SUI-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~1779s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~1779s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_xaut_usdt_trade_rate_1m
+  name: Okx — XAUT-USDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=XAUT-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~10835s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~10835s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_fil_usdt_trade_rate_10s
+  name: Okx — FIL-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=FIL-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~1457s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~1457s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_lit_usdt_trade_rate_10s
+  name: Okx — LIT-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=LIT-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~729s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~729s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_eth_usdc_trade_rate_1m
+  name: Okx — ETH-USDC trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=ETH-USDC&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6790s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~6790s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_ada_usdt_trade_rate_10s
+  name: Okx — ADA-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=ADA-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3552s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~3552s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_avax_usdt_trade_rate_10s
+  name: Okx — AVAX-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=AVAX-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~492s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~492s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_pepe_usdt_trade_rate_10s
+  name: Okx — PEPE-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=PEPE-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3061s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~3061s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_xcrcl_usdt_trade_rate_1m
+  name: Okx — XCRCL-USDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=XCRCL-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~7995s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~7995s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_btc_brl_trade_rate_1m
+  name: Okx — BTC-BRL trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=BTC-BRL&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~28711s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~28711s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_wld_usdt_trade_rate_10s
+  name: Okx — WLD-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=WLD-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3355s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~3355s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_trump_usdt_trade_rate_10s
+  name: Okx — TRUMP-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=TRUMP-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3558s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~3558s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_aave_usdt_trade_rate_1m
+  name: Okx — AAVE-USDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=AAVE-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3663s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~3663s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_bnb_usdt_trade_rate_1m
+  name: Okx — BNB-USDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=BNB-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4750s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~4750s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_usdg_usdt_trade_rate_1m
+  name: Okx — USDG-USDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=USDG-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~21573s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~21573s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_ondo_usdt_trade_rate_10s
+  name: Okx — ONDO-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=ONDO-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~2560s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~2560s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_pump_usdt_trade_rate_1m
+  name: Okx — PUMP-USDT trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=PUMP-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3665s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~3665s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: okx_pons_usdt_trade_rate_10s
+  name: Okx — PONS-USDT trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.okx.com/api/v5/market/trades?instId=PONS-USDT&limit=500
+  schema:
+    timestamp_field: data[].ts
+    value_field: data[].ts
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~2841s over 500 trades
+  pretraining_novelty: clean
+  license: okx public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 500-trade window spans ~2841s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_btcusd_trade_rate_10s
+  name: Bitstamp — btcusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/btcusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3589s over 2283 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 2283-trade window spans ~3589s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_usdtusd_trade_rate_10s
+  name: Bitstamp — usdtusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/usdtusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3498s over 67 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 67-trade window spans ~3498s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_ethusd_trade_rate_10s
+  name: Bitstamp — ethusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/ethusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3595s over 932 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 932-trade window spans ~3595s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_xrpusd_trade_rate_10s
+  name: Bitstamp — xrpusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/xrpusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3588s over 939 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 939-trade window spans ~3588s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_solusd_trade_rate_10s
+  name: Bitstamp — solusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/solusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3596s over 651 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 651-trade window spans ~3596s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_dogeusd_trade_rate_10s
+  name: Bitstamp — dogeusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/dogeusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3544s over 330 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 330-trade window spans ~3544s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_qntusd_trade_rate_10s
+  name: Bitstamp — qntusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/qntusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3570s over 740 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 740-trade window spans ~3570s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_btceur_trade_rate_10s
+  name: Bitstamp — btceur trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/btceur/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3417s over 69 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 69-trade window spans ~3417s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_cashcatusd_trade_rate_10s
+  name: Bitstamp — cashcatusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/cashcatusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3582s over 933 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 933-trade window spans ~3582s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_nearusd_trade_rate_10s
+  name: Bitstamp — nearusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/nearusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3534s over 96 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 96-trade window spans ~3534s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_adausd_trade_rate_10s
+  name: Bitstamp — adausd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/adausd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3392s over 131 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 131-trade window spans ~3392s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_xrpusd_perp_trade_rate_10s
+  name: Bitstamp — xrpusd-perp trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/xrpusd-perp/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3450s over 84 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 84-trade window spans ~3450s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_orcausd_trade_rate_10s
+  name: Bitstamp — orcausd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/orcausd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3589s over 323 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 323-trade window spans ~3589s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_hypeusd_trade_rate_10s
+  name: Bitstamp — hypeusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/hypeusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3095s over 101 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 101-trade window spans ~3095s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_ondousd_trade_rate_10s
+  name: Bitstamp — ondousd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/ondousd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3551s over 103 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 103-trade window spans ~3551s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_uniusd_trade_rate_10s
+  name: Bitstamp — uniusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/uniusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3555s over 97 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 97-trade window spans ~3555s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_suiusd_trade_rate_10s
+  name: Bitstamp — suiusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/suiusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3551s over 86 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 86-trade window spans ~3551s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitstamp_penguusd_trade_rate_10s
+  name: Bitstamp — penguusd trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.bitstamp.net/api/v2/transactions/penguusd/?time=hour
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].date'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3421s over 241 trades
+  pretraining_novelty: clean
+  license: bitstamp public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 241-trade window spans ~3421s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tethusd_trade_rate_1m
+  name: Bitfinex — tETHUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tETHUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5834s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~5834s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tustusd_trade_rate_1m
+  name: Bitfinex — tUSTUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tUSTUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~11277s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~11277s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tbtcusd_trade_rate_10s
+  name: Bitfinex — tBTCUSD trade arrival rate (10s bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT10S
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tBTCUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT10S
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~2733s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 10s. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~2733s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tbtcust_trade_rate_1m
+  name: Bitfinex — tBTCUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tBTCUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5665s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~5665s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tethust_trade_rate_1m
+  name: Bitfinex — tETHUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tETHUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~12591s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~12591s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tudcust_trade_rate_1m
+  name: Bitfinex — tUDCUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tUDCUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~10511s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~10511s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tudcusd_trade_rate_1m
+  name: Bitfinex — tUDCUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tUDCUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~18250s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~18250s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_txmrust_trade_rate_1m
+  name: Bitfinex — tXMRUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tXMRUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~17490s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~17490s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_txrpusd_trade_rate_1m
+  name: Bitfinex — tXRPUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tXRPUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6956s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~6956s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_txmrusd_trade_rate_1m
+  name: Bitfinex — tXMRUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tXMRUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4131s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~4131s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tsolusd_trade_rate_1m
+  name: Bitfinex — tSOLUSD trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tSOLUSD/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~10878s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~10878s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_teurust_trade_rate_1m
+  name: Bitfinex — tEURUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tEURUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~34051s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~34051s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tsolust_trade_rate_1m
+  name: Bitfinex — tSOLUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tSOLUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5812s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~5812s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_txrpust_trade_rate_1m
+  name: Bitfinex — tXRPUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tXRPUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~26089s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~26089s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_txdcust_trade_rate_1m
+  name: Bitfinex — tXDCUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tXDCUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~16646s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~16646s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tltcust_trade_rate_1m
+  name: Bitfinex — tLTCUST trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tLTCUST/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~28872s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~28872s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitfinex_tbtceur_trade_rate_1m
+  name: Bitfinex — tBTCEUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api-pub.bitfinex.com/v2/trades/tBTCEUR/hist?limit=1000
+  schema:
+    timestamp_field: '[][1]'
+    value_field: '[][1]'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~37731s over 1000 trades
+  pretraining_novelty: clean
+  license: bitfinex public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~37731s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_btc_eur_trade_rate_1m
+  name: Bitvavo — BTC-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/BTC-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6881s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~6881s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_ada_eur_trade_rate_1m
+  name: Bitvavo — ADA-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/ADA-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6076s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~6076s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_xrp_eur_trade_rate_1m
+  name: Bitvavo — XRP-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/XRP-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~11622s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~11622s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_sol_eur_trade_rate_1m
+  name: Bitvavo — SOL-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/SOL-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~11448s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~11448s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_qnt_eur_trade_rate_1m
+  name: Bitvavo — QNT-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/QNT-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~5942s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~5942s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_eth_eur_trade_rate_1m
+  name: Bitvavo — ETH-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/ETH-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~12582s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~12582s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_hype_eur_trade_rate_1m
+  name: Bitvavo — HYPE-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/HYPE-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~15410s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~15410s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_near_eur_trade_rate_1m
+  name: Bitvavo — NEAR-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/NEAR-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~11720s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~11720s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_rlc_eur_trade_rate_1m
+  name: Bitvavo — RLC-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/RLC-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~10564s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~10564s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_avax_eur_trade_rate_1m
+  name: Bitvavo — AVAX-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/AVAX-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~13927s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~13927s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_tao_eur_trade_rate_1m
+  name: Bitvavo — TAO-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/TAO-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~14125s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~14125s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_sui_eur_trade_rate_1m
+  name: Bitvavo — SUI-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/SUI-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~14360s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~14360s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_orca_eur_trade_rate_1m
+  name: Bitvavo — ORCA-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/ORCA-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~8568s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~8568s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_usdc_eur_trade_rate_1m
+  name: Bitvavo — USDC-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/USDC-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~29009s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~29009s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_fet_eur_trade_rate_1m
+  name: Bitvavo — FET-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/FET-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~14574s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~14574s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_zeus_eur_trade_rate_1m
+  name: Bitvavo — ZEUS-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/ZEUS-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~3752s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~3752s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_ena_eur_trade_rate_1m
+  name: Bitvavo — ENA-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/ENA-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~30369s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~30369s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_cap_eur_trade_rate_1m
+  name: Bitvavo — CAP-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/CAP-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~24120s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~24120s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_pump_eur_trade_rate_1m
+  name: Bitvavo — PUMP-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/PUMP-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~21742s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~21742s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_wld_eur_trade_rate_1m
+  name: Bitvavo — WLD-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/WLD-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~22422s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~22422s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_nmr_eur_trade_rate_1m
+  name: Bitvavo — NMR-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/NMR-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~21767s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~21767s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_hbar_eur_trade_rate_1m
+  name: Bitvavo — HBAR-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/HBAR-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~26526s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~26526s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_render_eur_trade_rate_1m
+  name: Bitvavo — RENDER-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/RENDER-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~24723s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~24723s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_ondo_eur_trade_rate_1m
+  name: Bitvavo — ONDO-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/ONDO-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~17684s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~17684s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitvavo_link_eur_trade_rate_1m
+  name: Bitvavo — LINK-EUR trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitvavo.com/v2/LINK-EUR/trades?limit=1000
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].timestamp'
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~18575s over 1000 trades
+  pretraining_novelty: clean
+  license: bitvavo public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 1000-trade window spans ~18575s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_sol_mxn_trade_rate_1m
+  name: Bitso — sol_mxn trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=sol_mxn&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~8617s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~8617s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_ada_usd_trade_rate_1m
+  name: Bitso — ada_usd trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=ada_usd&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~14466s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~14466s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_ondo_usd_trade_rate_1m
+  name: Bitso — ondo_usd trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=ondo_usd&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~25609s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~25609s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_usd_ars_trade_rate_1m
+  name: Bitso — usd_ars trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=usd_ars&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~6821s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~6821s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_xlm_usd_trade_rate_1m
+  name: Bitso — xlm_usd trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=xlm_usd&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~29748s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~29748s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_btc_usd_trade_rate_1m
+  name: Bitso — btc_usd trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=btc_usd&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4115s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~4115s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_xrp_usdt_trade_rate_1m
+  name: Bitso — xrp_usdt trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=xrp_usdt&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4353s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~4353s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_paxg_usd_trade_rate_1m
+  name: Bitso — paxg_usd trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=paxg_usd&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~42519s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~42519s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_btc_usdt_trade_rate_1m
+  name: Bitso — btc_usdt trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=btc_usdt&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~4132s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~4132s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_pepe_usd_trade_rate_1m
+  name: Bitso — pepe_usd trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=pepe_usd&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~17110s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~17110s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_sol_usdt_trade_rate_1m
+  name: Bitso — sol_usdt trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=sol_usdt&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~10969s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~10969s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_avax_usd_trade_rate_1m
+  name: Bitso — avax_usd trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=avax_usd&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~40079s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~40079s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: bitso_eth_usd_trade_rate_1m
+  name: Bitso — eth_usd trade arrival rate (1m bins)
+  domain: econ_fin
+  dgp_class: market_microstructure
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://api.bitso.com/v3/trades/?book=eth_usd&limit=100
+  schema:
+    timestamp_field: payload[].created_at
+    value_field: payload[].created_at
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest trades per fetch
+  update_cadence_observed: the fetched window spans ~9845s over 100 trades
+  pretraining_novelty: clean
+  license: bitso public market API
+  notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~9845s — so the cadence label is honest rather than aspirational. 99 of 255
+    candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.

@@ -122,6 +122,12 @@ schedules:
   - wiki_edit_rate_commons
   - wiki_edit_rate_meta
   - wiki_edit_rate_wiktionary
+  - coinbase_well_usd_trade_rate_10s
+  - okx_usdc_usdt_trade_rate_10s
+  - okx_sol_usdt_trade_rate_10s
+  - okx_zec_usdt_trade_rate_10s
+  - okx_lit_usdt_trade_rate_10s
+  - okx_avax_usdt_trade_rate_10s
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -202,6 +208,44 @@ schedules:
   - gbfs_lyft_capital_bike_share_washington_dc
   - gbfs_longbeachbikeshare_long_beach_ca_bikeshare_long_beach_ca
   - agis_dc_scheduled_yard_waste_in_last_30_days
+  - kraken_xxbtzusd_trade_rate_10s
+  - kraken_solusd_trade_rate_10s
+  - kraken_zeurzusd_trade_rate_10s
+  - kraken_qntusd_trade_rate_10s
+  - kraken_dashusd_trade_rate_10s
+  - okx_okb_usdt_trade_rate_10s
+  - okx_near_usdt_trade_rate_10s
+  - okx_xrp_usdt_trade_rate_10s
+  - okx_doge_usdt_trade_rate_10s
+  - okx_hype_usdt_trade_rate_10s
+  - okx_uni_usdt_trade_rate_10s
+  - okx_sui_usdt_trade_rate_10s
+  - okx_fil_usdt_trade_rate_10s
+  - okx_ada_usdt_trade_rate_10s
+  - okx_pepe_usdt_trade_rate_10s
+  - okx_wld_usdt_trade_rate_10s
+  - okx_trump_usdt_trade_rate_10s
+  - okx_ondo_usdt_trade_rate_10s
+  - okx_pons_usdt_trade_rate_10s
+  - bitstamp_btcusd_trade_rate_10s
+  - bitstamp_usdtusd_trade_rate_10s
+  - bitstamp_ethusd_trade_rate_10s
+  - bitstamp_xrpusd_trade_rate_10s
+  - bitstamp_solusd_trade_rate_10s
+  - bitstamp_dogeusd_trade_rate_10s
+  - bitstamp_qntusd_trade_rate_10s
+  - bitstamp_btceur_trade_rate_10s
+  - bitstamp_cashcatusd_trade_rate_10s
+  - bitstamp_nearusd_trade_rate_10s
+  - bitstamp_adausd_trade_rate_10s
+  - bitstamp_xrpusd_perp_trade_rate_10s
+  - bitstamp_orcausd_trade_rate_10s
+  - bitstamp_hypeusd_trade_rate_10s
+  - bitstamp_ondousd_trade_rate_10s
+  - bitstamp_uniusd_trade_rate_10s
+  - bitstamp_suiusd_trade_rate_10s
+  - bitstamp_penguusd_trade_rate_10s
+  - bitfinex_tbtcusd_trade_rate_10s
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
