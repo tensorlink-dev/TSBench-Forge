@@ -70,6 +70,16 @@ jobs:
         # to read the scraped catalog; boto3 for the mirror pull.
         run: pip install numpy scipy pyarrow pyyaml pandas boto3
 
+      - name: Install cascade (for the subnet king row)
+        # The king is a 4M-parameter Toto2 scored in-process on CPU. CPU torch
+        # first, pinned to cascade's exact version, so the cascade install
+        # doesn't pull the CUDA wheel. Optional row: a failed install only
+        # drops cascade-toto2-4m from the round (run_paracast_round reports it).
+        continue-on-error: true
+        run: |
+          pip install --index-url https://download.pytorch.org/whl/cpu torch==2.4.1
+          pip install "cascade[train,hippius] @ git+https://github.com/TensorLink-AI/cascade"
+
       - name: Missing-secret guard
         if: env.PARACAST_URL == '' || env.HIPPIUS_S3_ACCESS_KEY == ''
         run: |
@@ -185,6 +195,7 @@ jobs:
           python scripts/run_paracast_round.py \
             --data-dir src/sources/data \
             --publish --feedback all \
+            --cascade-king \
             ${{ github.event.inputs.runner_args }}
 
       - name: Commit the published round
