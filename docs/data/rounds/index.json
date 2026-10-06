@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-05T22:44:50+00:00",
+  "updated_at": "2026-10-06T00:29:38+00:00",
   "rounds": [
     {
       "round_id": "2026-07-09",
@@ -637,6 +637,26 @@
       },
       "effective_domains": 6.83,
       "note": "scored via paracast"
+    },
+    {
+      "round_id": "2026-10-06",
+      "generated_at": "2026-10-06T00:29:38+00:00",
+      "n_models": 14,
+      "n_tsfms": 8,
+      "top": [
+        "paracast-ensemble",
+        "toto2-313m",
+        "paracast-router"
+      ],
+      "has_metrics": true,
+      "config": {
+        "seed": "tsfm-significance-v1",
+        "n_challenges": 1280,
+        "n_series": 277,
+        "k_draws": 5
+      },
+      "effective_domains": 6.91,
+      "note": "first round on Ephemeris 0.7.5: patchtst-fm-r2 replaces r1; ensemble uses the accuracy-weighted mixture"
     }
   ]
 }
