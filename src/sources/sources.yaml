@@ -126798,3 +126798,522 @@
   license: Wikimedia Foundation public Grafana
   notes: HAProxy 5xx response rate from the ulsfo datacentre — real error bursts on production traffic (eqiad measures cv 0.8-0.9 with a p99 3.7-7.7x the median). The counters that sit at a flat zero (varnish
     backend failures, dropped sessions) were dropped.
+- id: wiki_edit_rate_en
+  name: English Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://en.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_de
+  name: German Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://de.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_fr
+  name: French Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://fr.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_es
+  name: Spanish Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://es.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_ja
+  name: Japanese Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ja.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_ru
+  name: Russian Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ru.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_it
+  name: Italian Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://it.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_pt
+  name: Portuguese Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://pt.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_zh
+  name: Chinese Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://zh.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_pl
+  name: Polish Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://pl.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_nl
+  name: Dutch Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://nl.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_sv
+  name: Swedish Wikipedia — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://sv.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_wikidata
+  name: Wikidata — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://www.wikidata.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_commons
+  name: Wikimedia Commons — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://commons.wikimedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_meta
+  name: Meta-Wiki — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://meta.wikimedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: wiki_edit_rate_wiktionary
+  name: English Wiktionary — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  - seasonal_multiscale
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://en.wiktionary.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API, CC BY-SA content metadata
+  notes: 'Edits counted into 1-minute bins: an arrival process with heavy bot-driven bursts on top of a human diurnal cycle. Needs the every-minute cron band — 500 edits covers only a few minutes on the
+    busy wikis. Quiet wikis give a sparse, near-Poisson count; busy ones give bursts.'
+- id: sf311_request_rate_10min
+  name: San Francisco 311 — service request arrival rate (10-minute bins)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT10M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://data.sf.gov/resource/vw6y-z8j6.json?$order=requested_datetime%20DESC&$limit=1000
+  schema:
+    timestamp_field: '[].requested_datetime'
+    value_field: '[].requested_datetime'
+    aggregate:
+      op: count
+      bin: PT10M
+  history_available: P0D — the newest 1,000 requests per fetch
+  update_cadence_observed: continuous intake
+  pretraining_novelty: clean
+  license: City of San Francisco open data
+  notes: Chosen because SF is a feed we do not already aggregate hourly — a finer-binned copy of NYC or Chicago would add a cluster to the KOTH bootstrap without adding independent evidence.
+- id: iem_local_storm_reports_hourly
+  name: Iowa Environmental Mesonet — NWS local storm reports (hourly counts)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://mesonet.agron.iastate.edu/geojson/lsr.geojson?hours=48
+  schema:
+    timestamp_field: features[].properties.valid
+    value_field: features[].properties.valid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P0D — a rolling 48-hour window per fetch
+  update_cadence_observed: reports arrive continuously during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: 'Storm reports nationwide, counted hourly. The archetypal intermittent process: long quiet stretches then dozens of reports in an hour when a system crosses. Nature is at its domain cap, so this
+    displaces a smoother series rather than enlarging the pool — which is the intent.'
