@@ -204,7 +204,7 @@ jobs:
         run: |
           python scripts/run_paracast_round.py --data-dir src/sources/data \
             --export-contexts ref/contexts.npz ${{ github.event.inputs.runner_args }}
-          pip install -q lium-io==0.0.24
+          pip install -q lium-io==0.0.24 click  # lium-io imports click but no longer gets it via typer
           mkdir -p ~/.lium ~/.ssh
           # lium-io 0.0.24 ignores [ssh] key_path and only discovers ~/.ssh/id_ed25519.
           printf '%s\n' "$LIUM_SSH_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519

@@ -48,7 +48,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install numpy scipy pyarrow pyyaml pandas lium-io==0.0.24
+        run: pip install numpy scipy pyarrow pyyaml pandas lium-io==0.0.24 click  # lium-io imports click but no longer gets it via typer
 
       - name: Fetch the round's scores and challenges
         uses: actions/download-artifact@v5
