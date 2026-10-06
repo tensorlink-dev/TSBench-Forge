@@ -11,10 +11,12 @@ Models (each needs its own package; run each in its own venv):
 
   timesfm3     google/timesfm-3.0-pytorch   (pip: timesfm[torch] >= 3)
   toto2-2.5b   Datadog/Toto-2.0-2.5B        (pip: toto-models)
+  toto2-22m    Datadog/Toto-2.0-22m         (pip: toto-models)
+  toto2-4m     Datadog/Toto-2.0-4m          (pip: toto-models)
 
-Both are scored zero-shot with their published defaults: TimesFM-3 through
-``TimesFM3Forecaster.predict_batch``; Toto-2 with the same context budget,
-patch padding and masking the served Toto-2 313M uses in paracast.
+All are scored zero-shot with their published defaults: TimesFM-3 through
+``TimesFM3Forecaster.predict_batch``; every Toto-2 size with the same context
+budget, patch padding and masking the served Toto-2 313M uses in paracast.
 
     python scripts/reference_forecasts.py --contexts contexts.npz --out ref/ --models timesfm3
 """
@@ -69,8 +71,8 @@ class TimesFM3:
         return np.transpose(q, (0, 2, 1))  # (n, L, H)
 
 
-class Toto25B:
-    name = "toto2-2.5b"
+class Toto2:
+    repo = ""
     budget, patch, decode_block = 4096, 32, 768
 
     def __init__(self, device: str):
@@ -79,7 +81,7 @@ class Toto25B:
 
         self.torch = torch
         self.device = torch.device(device)
-        self.model = Toto2Model.from_pretrained("Datadog/Toto-2.0-2.5B").to(self.device).eval()
+        self.model = Toto2Model.from_pretrained(self.repo).to(self.device).eval()
         knots = getattr(getattr(self.model, "output_head", None), "knots", None)
         self.levels = [float(k) for k in knots] if knots else [0.1 * i for i in range(1, 10)]
 
@@ -111,7 +113,19 @@ class Toto25B:
         return np.transpose(q[:, :, 0, :], (1, 0, 2))  # (B, Q, H)
 
 
-MODELS = {"timesfm3": TimesFM3, "toto2-2.5b": Toto25B}
+class Toto25B(Toto2):
+    name, repo = "toto2-2.5b", "Datadog/Toto-2.0-2.5B"
+
+
+class Toto22M(Toto2):
+    name, repo = "toto2-22m", "Datadog/Toto-2.0-22m"
+
+
+class Toto4M(Toto2):
+    name, repo = "toto2-4m", "Datadog/Toto-2.0-4m"
+
+
+MODELS = {m.name: m for m in (TimesFM3, Toto25B, Toto22M, Toto4M)}
 
 
 def main() -> int:

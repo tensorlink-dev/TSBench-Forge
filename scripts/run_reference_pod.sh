@@ -13,7 +13,7 @@ set -euo pipefail
 
 CTX=$1
 OUT=$2
-MODELS=${3:-timesfm3,toto2-2.5b}
+MODELS=${3:-timesfm3,toto2-2.5b,toto2-22m,toto2-4m}
 GPUS=${REF_GPUS:-RTX4090,A6000,L40,L40S,RTX6000,A100}
 POD="forge-ref-${GITHUB_RUN_ID:-local}-${RANDOM}"
 STAGE=$(mktemp -d)
