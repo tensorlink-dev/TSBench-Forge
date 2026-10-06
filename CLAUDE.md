@@ -43,3 +43,9 @@ namespaced targets, e.g. `ME:EV-0021`.
   corpus). Rounds from 2026-10-06 are a discontinuity: method and membership
   (paracast 0.7.5) change at once.
   (`decisions/DEC-TB-0005-ensemble-row-uses-mixture.md`)
+
+- **DEC-TB-0006** — Reference models Ephemeris does not serve (TimesFM-3,
+  Toto-2 2.5B) are scored each round from a rented Lium GPU that receives only
+  contexts and horizons, never the truth; a contexts fingerprint guards the
+  hand-off and any failure just omits the rows.
+  (`decisions/DEC-TB-0006-reference-models-on-rented-gpu.md`)

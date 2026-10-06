@@ -58,6 +58,10 @@ jobs:
       # Job-level so the mirror step can gate on it: the `secrets` context
       # is not available in a step `if`, but `env` is.
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      # Optional: reference models (TimesFM-3, Toto-2 2.5B) on a rented Lium
+      # GPU. Without these secrets the round runs exactly as before.
+      LIUM_API_KEY: ${{ secrets.LIUM_API_KEY }}
+      LIUM_SSH_KEY: ${{ secrets.LIUM_SSH_KEY }}
     steps:
       - uses: actions/checkout@v5
 
@@ -189,6 +193,24 @@ jobs:
 
           echo "panel $(field "${body}" 'd.get("status")') -- $(field "${body}" 'len(d.get("healthy",[]))') healthy workers"
 
+      - name: Reference models on a rented GPU
+        # Exports the round's contexts (never the truth), forecasts them with
+        # TimesFM-3 and Toto-2 2.5B on a Lium pod that is always deleted, and
+        # leaves <model>.npz files for the round to score. Optional: any failure
+        # just leaves those rows out of the round.
+        if: steps.pull.outputs.complete == 'true' && env.LIUM_API_KEY != '' && env.LIUM_SSH_KEY != ''
+        continue-on-error: true
+        timeout-minutes: 60
+        run: |
+          python scripts/run_paracast_round.py --data-dir src/sources/data \
+            --export-contexts ref/contexts.npz ${{ github.event.inputs.runner_args }}
+          pip install -q lium-io==0.0.24
+          mkdir -p ~/.lium ~/.ssh
+          printf '%s\n' "$LIUM_SSH_KEY" > ~/.ssh/lium_key && chmod 600 ~/.ssh/lium_key
+          ssh-keygen -y -f ~/.ssh/lium_key > ~/.ssh/lium_key.pub
+          printf '[api]\napi_key = %s\n\n[ssh]\nkey_path = %s\n' "$LIUM_API_KEY" "$HOME/.ssh/lium_key" > ~/.lium/config.ini
+          bash scripts/run_reference_pod.sh ref/contexts.npz ref/out timesfm3,toto2-2.5b
+
       - name: Run the round
         if: steps.pull.outputs.complete == 'true'
         run: |
@@ -196,6 +218,7 @@ jobs:
             --data-dir src/sources/data \
             --publish --feedback all \
             --cascade-king \
+            --reference-forecasts ref/out \
             ${{ github.event.inputs.runner_args }}
 
       - name: Commit the published round

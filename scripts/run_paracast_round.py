@@ -157,10 +157,29 @@ def main(argv: list[str]) -> int:
                          "in-process) as cascade-toto2-4m; needs the cascade package")
     ap.add_argument("--cascade-cache", default=str(REPO / ".cache/cascade-king"),
                     help="where the king checkpoint is downloaded")
+    ap.add_argument("--export-contexts", default=None, metavar="NPZ",
+                    help="build the round's challenges, write their contexts and horizons "
+                         "(never the truth) for an off-runner GPU job, and exit")
+    ap.add_argument("--reference-forecasts", default=None, metavar="DIR",
+                    help="score precomputed reference-model forecasts (<model>.npz from "
+                         "scripts/reference_forecasts.py) alongside the paracast rows")
     ap.add_argument("--round-id", default=datetime.now(UTC).strftime("%Y-%m-%d"))
     ap.add_argument("--note", default="scored via paracast",
                     help="provenance note shown in the round log")
     args = ap.parse_args(argv)
+
+    if args.export_contexts:
+        from config import K_DRAWS
+        from reference_io import export_contexts
+
+        k_draws = args.k_draws if args.k_draws is not None else K_DRAWS
+        challenges = tsfm_comparison.build_challenges(
+            args.data_dir, catalog=args.catalog, motif_len=args.motif_len,
+            n_challenges=args.n_challenges, seed=args.seed, k_draws=k_draws,
+        )
+        fp = export_contexts(challenges, Path(args.export_contexts))
+        print(f"exported {len(challenges)} challenge contexts to {args.export_contexts} (fingerprint {fp[:16]})")
+        return 0
 
     if not args.base_url:
         print("error: --base-url or $PARACAST_URL is required", file=sys.stderr)
@@ -209,6 +228,23 @@ def main(argv: list[str]) -> int:
     models = {mid: prefetch.forecaster(mid) for mid in prefetch.forecasts}
     for name, fc in probabilistic_panel().items():
         models.setdefault(name, fc)
+    reference_report = []
+    if args.reference_forecasts:
+        # Optional rows: missing or mismatched files are reported, never fatal.
+        from reference_io import load_reference_forecasters
+
+        ref_dir = Path(args.reference_forecasts)
+        if ref_dir.is_dir():
+            refs, ref_errors = load_reference_forecasters(ref_dir, challenges)
+            for name, fc in refs.items():
+                models[name] = fc
+                reference_report.append({"name": name, "loaded": True, "error": None, "source": "reference"})
+            for name, err in ref_errors.items():
+                reference_report.append({"name": name, "loaded": False, "error": err, "source": "reference"})
+                print(f"warning: reference model {name} not scored: {err}", file=sys.stderr)
+            print(f"reference models: {sorted(refs) or 'none'}")
+        else:
+            print(f"warning: no reference forecasts at {ref_dir}", file=sys.stderr)
     king_report = None
     if args.cascade_king:
         # Optional row: a failure here (registry down, cascade release drift
@@ -234,8 +270,10 @@ def main(argv: list[str]) -> int:
         [{"name": s.model_id, "loaded": s.model_id in prefetch.forecasts,
           "error": prefetch.errors.get(s.model_id)} for s in specs]
         + [{"name": n, "loaded": True, "error": None} for n in models
-           if not any(s.model_id == n for s in specs) and n != "cascade-toto2-4m"]
+           if not any(s.model_id == n for s in specs) and n != "cascade-toto2-4m"
+           and not any(r["name"] == n for r in reference_report)]
         + ([king_report] if king_report else [])
+        + reference_report
     )
 
     _first = next(iter(scores.values()))
