@@ -2,9 +2,10 @@ name: backfill-round
 
 # Score models added after a round ran on that round's exact challenges, and
 # merge them into its published leaderboard (scripts/backfill_round.py). Needs
-# the round's mirror cache (hippius-mirror-<run id>, GitHub keeps it 7 days
-# after last use) and its paracast-round-results artifact (30 days). Nothing is
-# re-queried from Ephemeris; existing rows do not change.
+# the round's paracast-round-results artifact (30 days), which carries its
+# challenges; older runs without them fall back to the run's mirror cache,
+# which the 10 GB repo cache limit keeps only for the latest three runs.
+# Nothing is re-queried from Ephemeris; existing rows do not change.
 
 on:
   workflow_dispatch:
@@ -47,22 +48,23 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install numpy scipy pyarrow pyyaml pandas freezegun lium-io==0.0.24
+        run: pip install numpy scipy pyarrow pyyaml pandas lium-io==0.0.24 click  # lium-io imports click but no longer gets it via typer
 
-      - name: Restore the round's exact mirror snapshot
-        uses: actions/cache/restore@v4
-        with:
-          path: src/sources/data
-          key: hippius-mirror-${{ inputs.run_id }}
-          fail-on-cache-miss: true
-
-      - name: Fetch the round's per-challenge scores
+      - name: Fetch the round's scores and challenges
         uses: actions/download-artifact@v5
         with:
           name: paracast-round-results
           run-id: ${{ inputs.run_id }}
           github-token: ${{ github.token }}
           path: round-results
+
+      - name: Restore the round's exact mirror snapshot (runs that did not save challenges)
+        if: hashFiles('round-results/challenges.pkl.gz') == ''
+        uses: actions/cache/restore@v4
+        with:
+          path: src/sources/data
+          key: hippius-mirror-${{ inputs.run_id }}
+          fail-on-cache-miss: true
 
       - name: Rebuild and verify the challenges, export contexts
         run: |

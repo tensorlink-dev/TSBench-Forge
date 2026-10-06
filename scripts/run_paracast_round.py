@@ -316,6 +316,19 @@ def main(argv: list[str]) -> int:
         }
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    # The exact challenges (context, truth, meta), uploaded with the run's
+    # artifact so scripts/backfill_round.py can add a model to this round
+    # later without the mirror cache, which GitHub evicts within ~2 days.
+    # Best effort: a failure here costs only the later backfill, never the round.
+    import gzip
+    import pickle
+
+    try:
+        with gzip.open(out_dir / "challenges.pkl.gz", "wb") as fh:
+            pickle.dump(challenges, fh, protocol=pickle.HIGHEST_PROTOCOL)
+    except Exception as e:  # noqa: BLE001
+        (out_dir / "challenges.pkl.gz").unlink(missing_ok=True)
+        print(f"warning: challenges not saved for backfill: {type(e).__name__}: {e}", file=sys.stderr)
     (out_dir / "results.json").write_text(
         json.dumps(results, indent=2, default=_json_default) + "\n")
     print(f"wrote {out_dir / 'results.json'}")
