@@ -152,10 +152,34 @@ def main(argv: list[str]) -> int:
                     help="also write docs/data/rounds/<round-id>.json + index + history")
     ap.add_argument("--docs-data", default=str(REPO / "docs/data"),
                     help="feed root for --publish (docs/data; point elsewhere to rehearse)")
+    ap.add_argument("--cascade-king", action="store_true",
+                    help="also score the Cascade subnet's current king model (Toto2-4M, CPU, "
+                         "in-process) as cascade-toto2-4m; needs the cascade package")
+    ap.add_argument("--cascade-cache", default=str(REPO / ".cache/cascade-king"),
+                    help="where the king checkpoint is downloaded")
+    ap.add_argument("--export-contexts", default=None, metavar="NPZ",
+                    help="build the round's challenges, write their contexts and horizons "
+                         "(never the truth) for an off-runner GPU job, and exit")
+    ap.add_argument("--reference-forecasts", default=None, metavar="DIR",
+                    help="score precomputed reference-model forecasts (<model>.npz from "
+                         "scripts/reference_forecasts.py) alongside the paracast rows")
     ap.add_argument("--round-id", default=datetime.now(UTC).strftime("%Y-%m-%d"))
     ap.add_argument("--note", default="scored via paracast",
                     help="provenance note shown in the round log")
     args = ap.parse_args(argv)
+
+    if args.export_contexts:
+        from config import K_DRAWS
+        from reference_io import export_contexts
+
+        k_draws = args.k_draws if args.k_draws is not None else K_DRAWS
+        challenges = tsfm_comparison.build_challenges(
+            args.data_dir, catalog=args.catalog, motif_len=args.motif_len,
+            n_challenges=args.n_challenges, seed=args.seed, k_draws=k_draws,
+        )
+        fp = export_contexts(challenges, Path(args.export_contexts))
+        print(f"exported {len(challenges)} challenge contexts to {args.export_contexts} (fingerprint {fp[:16]})")
+        return 0
 
     if not args.base_url:
         print("error: --base-url or $PARACAST_URL is required", file=sys.stderr)
@@ -204,6 +228,39 @@ def main(argv: list[str]) -> int:
     models = {mid: prefetch.forecaster(mid) for mid in prefetch.forecasts}
     for name, fc in probabilistic_panel().items():
         models.setdefault(name, fc)
+    reference_report = []
+    if args.reference_forecasts:
+        # Optional rows: missing or mismatched files are reported, never fatal.
+        from reference_io import load_reference_forecasters
+
+        ref_dir = Path(args.reference_forecasts)
+        if ref_dir.is_dir():
+            refs, ref_errors = load_reference_forecasters(ref_dir, challenges)
+            for name, fc in refs.items():
+                models[name] = fc
+                reference_report.append({"name": name, "loaded": True, "error": None, "source": "reference"})
+            for name, err in ref_errors.items():
+                reference_report.append({"name": name, "loaded": False, "error": err, "source": "reference"})
+                print(f"warning: reference model {name} not scored: {err}", file=sys.stderr)
+            print(f"reference models: {sorted(refs) or 'none'}")
+        else:
+            print(f"warning: no reference forecasts at {ref_dir}", file=sys.stderr)
+    king_report = None
+    if args.cascade_king:
+        # Optional row: a failure here (registry down, cascade release drift
+        # tripping the checkpoint guard) is reported, never fatal to the round.
+        try:
+            from cascade_king import MODEL_ID, load_king_forecaster
+
+            fc, king = load_king_forecaster(Path(args.cascade_cache))
+            models[MODEL_ID] = fc
+            king_report = {"name": MODEL_ID, "loaded": True, "error": None,
+                           "checkpoint": king.ref, "cascade_round": king.round_id,
+                           "king_uid": king.king_uid}
+            print(f"cascade king: {king.ref} (round {king.round_id}, uid {king.king_uid})")
+        except Exception as e:  # noqa: BLE001
+            king_report = {"name": "cascade-toto2-4m", "loaded": False, "error": f"{type(e).__name__}: {e}"}
+            print(f"warning: cascade king not scored: {king_report['error']}", file=sys.stderr)
     print(f"scoring {len(models)} models client-side…")
     scores = mc.score_models(models, challenges)
     board = mc.leaderboard_from_scores(scores)
@@ -213,7 +270,10 @@ def main(argv: list[str]) -> int:
         [{"name": s.model_id, "loaded": s.model_id in prefetch.forecasts,
           "error": prefetch.errors.get(s.model_id)} for s in specs]
         + [{"name": n, "loaded": True, "error": None} for n in models
-           if not any(s.model_id == n for s in specs)]
+           if not any(s.model_id == n for s in specs) and n != "cascade-toto2-4m"
+           and not any(r["name"] == n for r in reference_report)]
+        + ([king_report] if king_report else [])
+        + reference_report
     )
 
     _first = next(iter(scores.values()))
@@ -256,6 +316,19 @@ def main(argv: list[str]) -> int:
         }
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    # The exact challenges (context, truth, meta), uploaded with the run's
+    # artifact so scripts/backfill_round.py can add a model to this round
+    # later without the mirror cache, which GitHub evicts within ~2 days.
+    # Best effort: a failure here costs only the later backfill, never the round.
+    import gzip
+    import pickle
+
+    try:
+        with gzip.open(out_dir / "challenges.pkl.gz", "wb") as fh:
+            pickle.dump(challenges, fh, protocol=pickle.HIGHEST_PROTOCOL)
+    except Exception as e:  # noqa: BLE001
+        (out_dir / "challenges.pkl.gz").unlink(missing_ok=True)
+        print(f"warning: challenges not saved for backfill: {type(e).__name__}: {e}", file=sys.stderr)
     (out_dir / "results.json").write_text(
         json.dumps(results, indent=2, default=_json_default) + "\n")
     print(f"wrote {out_dir / 'results.json'}")

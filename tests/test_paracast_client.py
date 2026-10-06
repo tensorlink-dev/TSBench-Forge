@@ -150,6 +150,12 @@ def test_pseudo_model_specs():
     assert (route.model_id, route.mode, route.model) == (pc.ROUTER_ID, "route", None)
 
 
+def test_ensemble_row_requests_the_served_mixture():
+    # DEC-TB-0005: the published row must measure what paracast serves.
+    assert pc.ModelSpec.ensemble().combine == "mixture"
+    assert pc.ModelSpec.ensemble("vincentize").combine == "vincentize"
+
+
 def test_feedback_mirrors_truths(challenges):
     fake = FakeEndpoint()
     client = _client(fake)

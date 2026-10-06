@@ -58,6 +58,10 @@ jobs:
       # Job-level so the mirror step can gate on it: the `secrets` context
       # is not available in a step `if`, but `env` is.
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      # Optional: reference models (TimesFM-3, Toto-2 2.5B/22M/4M) on a rented Lium
+      # GPU. Without these secrets the round runs exactly as before.
+      LIUM_API_KEY: ${{ secrets.LIUM_API_KEY }}
+      LIUM_SSH_KEY: ${{ secrets.LIUM_SSH_KEY }}
     steps:
       - uses: actions/checkout@v5
 
@@ -69,6 +73,16 @@ jobs:
         # numpy is the core; scipy for the paired tests; pyarrow/pyyaml/pandas
         # to read the scraped catalog; boto3 for the mirror pull.
         run: pip install numpy scipy pyarrow pyyaml pandas boto3
+
+      - name: Install cascade (for the subnet king row)
+        # The king is a 4M-parameter Toto2 scored in-process on CPU. CPU torch
+        # first, pinned to cascade's exact version, so the cascade install
+        # doesn't pull the CUDA wheel. Optional row: a failed install only
+        # drops cascade-toto2-4m from the round (run_paracast_round reports it).
+        continue-on-error: true
+        run: |
+          pip install --index-url https://download.pytorch.org/whl/cpu torch==2.4.1
+          pip install "cascade[train,hippius] @ git+https://github.com/TensorLink-AI/cascade"
 
       - name: Missing-secret guard
         if: env.PARACAST_URL == '' || env.HIPPIUS_S3_ACCESS_KEY == ''
@@ -179,12 +193,33 @@ jobs:
 
           echo "panel $(field "${body}" 'd.get("status")') -- $(field "${body}" 'len(d.get("healthy",[]))') healthy workers"
 
+      - name: Reference models on a rented GPU
+        # Exports the round's contexts (never the truth), forecasts them with
+        # TimesFM-3 and Toto-2 2.5B on a Lium pod that is always deleted, and
+        # leaves <model>.npz files for the round to score. Optional: any failure
+        # just leaves those rows out of the round.
+        if: steps.pull.outputs.complete == 'true' && env.LIUM_API_KEY != '' && env.LIUM_SSH_KEY != ''
+        continue-on-error: true
+        timeout-minutes: 60
+        run: |
+          python scripts/run_paracast_round.py --data-dir src/sources/data \
+            --export-contexts ref/contexts.npz ${{ github.event.inputs.runner_args }}
+          pip install -q lium-io==0.0.24 click  # lium-io imports click but no longer gets it via typer
+          mkdir -p ~/.lium ~/.ssh
+          # lium-io 0.0.24 ignores [ssh] key_path and only discovers ~/.ssh/id_ed25519.
+          printf '%s\n' "$LIUM_SSH_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
+          printf '[api]\napi_key = %s\n' "$LIUM_API_KEY" > ~/.lium/config.ini
+          bash scripts/run_reference_pod.sh ref/contexts.npz ref/out timesfm3,toto2-2.5b,toto2-22m,toto2-4m
+
       - name: Run the round
         if: steps.pull.outputs.complete == 'true'
         run: |
           python scripts/run_paracast_round.py \
             --data-dir src/sources/data \
             --publish --feedback all \
+            --cascade-king \
+            --reference-forecasts ref/out \
             ${{ github.event.inputs.runner_args }}
 
       - name: Commit the published round

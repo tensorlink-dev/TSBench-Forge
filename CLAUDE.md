@@ -36,3 +36,16 @@ namespaced targets, e.g. `ME:EV-0021`.
   variance by design, pooling K draws is what keeps the seed-error margin
   tight. `pool_report` uses neutral knobs (it reports the expected mix).
   Cascade unaffected. (`decisions/DEC-TB-0003-jittered-round-mix.md`)
+
+- **DEC-TB-0005** — The `paracast-ensemble` row requests `combine="mixture"`,
+  paracast's served default, instead of a hard-coded vincentize that measured
+  a combination no customer receives (and was the worst ensemble on every
+  corpus). Rounds from 2026-10-06 are a discontinuity: method and membership
+  (paracast 0.7.5) change at once.
+  (`decisions/DEC-TB-0005-ensemble-row-uses-mixture.md`)
+
+- **DEC-TB-0006** — Reference models Ephemeris does not serve (TimesFM-3,
+  Toto-2 2.5B) are scored each round from a rented Lium GPU that receives only
+  contexts and horizons, never the truth; a contexts fingerprint guards the
+  hand-off and any failure just omits the rows.
+  (`decisions/DEC-TB-0006-reference-models-on-rented-gpu.md`)

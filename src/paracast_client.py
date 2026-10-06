@@ -177,7 +177,7 @@ class ParacastClient:
         model: str | None = None,
         freq: str | None = None,
         quantiles: tuple[float, ...] = REQUEST_QUANTILES,
-        combine: str = "vincentize",
+        combine: str = "mixture",
     ) -> dict:
         payload: dict = {
             "mode": mode,
@@ -224,14 +224,14 @@ class ModelSpec:
     model_id: str
     mode: str = "explicit"
     model: str | None = None
-    combine: str = "vincentize"
+    combine: str = "mixture"
 
     @staticmethod
     def explicit(name: str) -> ModelSpec:
         return ModelSpec(model_id=name, mode="explicit", model=name)
 
     @staticmethod
-    def ensemble(combine: str = "vincentize") -> ModelSpec:
+    def ensemble(combine: str = "mixture") -> ModelSpec:
         return ModelSpec(model_id=ENSEMBLE_ID, mode="ensemble", combine=combine)
 
     @staticmethod
