@@ -152,6 +152,11 @@ def main(argv: list[str]) -> int:
                     help="also write docs/data/rounds/<round-id>.json + index + history")
     ap.add_argument("--docs-data", default=str(REPO / "docs/data"),
                     help="feed root for --publish (docs/data; point elsewhere to rehearse)")
+    ap.add_argument("--cascade-king", action="store_true",
+                    help="also score the Cascade subnet's current king model (Toto2-4M, CPU, "
+                         "in-process) as cascade-toto2-4m; needs the cascade package")
+    ap.add_argument("--cascade-cache", default=str(REPO / ".cache/cascade-king"),
+                    help="where the king checkpoint is downloaded")
     ap.add_argument("--round-id", default=datetime.now(UTC).strftime("%Y-%m-%d"))
     ap.add_argument("--note", default="scored via paracast",
                     help="provenance note shown in the round log")
@@ -204,6 +209,22 @@ def main(argv: list[str]) -> int:
     models = {mid: prefetch.forecaster(mid) for mid in prefetch.forecasts}
     for name, fc in probabilistic_panel().items():
         models.setdefault(name, fc)
+    king_report = None
+    if args.cascade_king:
+        # Optional row: a failure here (registry down, cascade release drift
+        # tripping the checkpoint guard) is reported, never fatal to the round.
+        try:
+            from cascade_king import MODEL_ID, load_king_forecaster
+
+            fc, king = load_king_forecaster(Path(args.cascade_cache))
+            models[MODEL_ID] = fc
+            king_report = {"name": MODEL_ID, "loaded": True, "error": None,
+                           "checkpoint": king.ref, "cascade_round": king.round_id,
+                           "king_uid": king.king_uid}
+            print(f"cascade king: {king.ref} (round {king.round_id}, uid {king.king_uid})")
+        except Exception as e:  # noqa: BLE001
+            king_report = {"name": "cascade-toto2-4m", "loaded": False, "error": f"{type(e).__name__}: {e}"}
+            print(f"warning: cascade king not scored: {king_report['error']}", file=sys.stderr)
     print(f"scoring {len(models)} models client-side…")
     scores = mc.score_models(models, challenges)
     board = mc.leaderboard_from_scores(scores)
@@ -213,7 +234,8 @@ def main(argv: list[str]) -> int:
         [{"name": s.model_id, "loaded": s.model_id in prefetch.forecasts,
           "error": prefetch.errors.get(s.model_id)} for s in specs]
         + [{"name": n, "loaded": True, "error": None} for n in models
-           if not any(s.model_id == n for s in specs)]
+           if not any(s.model_id == n for s in specs) and n != "cascade-toto2-4m"]
+        + ([king_report] if king_report else [])
     )
 
     _first = next(iter(scores.values()))
