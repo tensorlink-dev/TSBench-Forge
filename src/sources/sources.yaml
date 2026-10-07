@@ -131629,3 +131629,1739 @@
   license: bitso public market API
   notes: Trade arrivals binned at 1m. Bin and poll are set from the MEASURED density of this pair — its 100-trade window spans ~9845s — so the cadence label is honest rather than aspirational. 99 of 255
     candidate pairs were rejected outright because their window spans more than 12 hours; a 10-second bin on those would be mostly empty.
+- id: openfda_food_enforcement_all_classes_daily
+  name: openFDA — food recall enforcement reports per day (all classes)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/food/enforcement.json?count=report_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_food_enforcement_class_i_only_daily
+  name: openFDA — food recall enforcement reports per day (Class I only)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/food/enforcement.json?search=classification:"Class+I"&count=report_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_food_enforcement_class_ii_only_daily
+  name: openFDA — food recall enforcement reports per day (Class II only)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/food/enforcement.json?search=classification:"Class+II"&count=report_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_food_enforcement_class_iii_only_daily
+  name: openFDA — food recall enforcement reports per day (Class III only)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/food/enforcement.json?search=classification:"Class+III"&count=report_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_drug_enforcement_all_classes_daily
+  name: openFDA — drug recall enforcement reports per day (all classes)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/drug/enforcement.json?count=report_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_drug_enforcement_class_i_only_daily
+  name: openFDA — drug recall enforcement reports per day (Class I only)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/drug/enforcement.json?search=classification:"Class+I"&count=report_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_drug_enforcement_class_ii_only_daily
+  name: openFDA — drug recall enforcement reports per day (Class II only)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/drug/enforcement.json?search=classification:"Class+II"&count=report_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_drug_enforcement_class_iii_only_daily
+  name: openFDA — drug recall enforcement reports per day (Class III only)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/drug/enforcement.json?search=classification:"Class+III"&count=report_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_device_recall_all_daily
+  name: openFDA — device recall initiations per day (all)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/device/recall.json?count=event_date_initiated&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: openfda_animalandveterinary_event_all_daily
+  name: openFDA — veterinary adverse event reports per day (all)
+  domain: healthcare
+  dgp_class: adverse_event_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 240 req/min, 1000/day anonymous
+    timeout: 60
+    url: https://api.fda.gov/animalandveterinary/event.json?count=original_receive_date&limit=1000
+  schema:
+    timestamp_field: results[].time
+    value_field: results[].count
+    variates: 1
+  history_available: P14Y
+  update_cadence_observed: reports land in clusters on working days
+  pretraining_novelty: clean
+  license: openFDA public domain
+  notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
+    one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
+- id: iem_nws_svr_hourly
+  name: NWS severe thunderstorm warnings — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=SVR
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Severe thunderstorm warnings counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_tor_hourly
+  name: NWS tornado warnings — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=TOR
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Tornado warnings counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency the
+    models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_ffw_hourly
+  name: NWS flash flood warnings — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=FFW
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Flash flood warnings counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_flw_hourly
+  name: NWS flood warnings — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=FLW
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Flood warnings counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency the
+    models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_wsw_hourly
+  name: NWS winter storm warnings — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=WSW
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Winter storm warnings counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_mww_hourly
+  name: NWS marine weather warnings — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=MWW
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Marine weather warnings counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_smw_hourly
+  name: NWS special marine warnings — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=SMW
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Special marine warnings counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_sps_hourly
+  name: NWS special weather statements — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=SPS
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Special weather statements counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_ffa_hourly
+  name: NWS flash flood watches — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=FFA
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Flash flood watches counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_wcn_hourly
+  name: NWS watch county notifications — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=WCN
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Watch county notifications counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: iem_nws_npw_hourly
+  name: NWS non-precipitation warnings — issuance rate (hourly)
+  domain: nature
+  dgp_class: severe_weather_events
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1H
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://mesonet.agron.iastate.edu/json/nwstext_search.py?sts={YYYY-MM-DD-30d}T00:00Z&ets={YYYY-MM-DD}T00:00Z&awipsid=NPW
+  schema:
+    timestamp_field: results[].utcvalid
+    value_field: results[].utcvalid
+    aggregate:
+      op: count
+      bin: PT1H
+  history_available: P20Y (archive)
+  update_cadence_observed: issued only during severe weather
+  pretraining_novelty: clean
+  license: Iowa State University / NWS public data
+  notes: Non-precipitation warnings counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
+    the models handle worst. Tornado and squall products are the sparsest.
+- id: wiki_edit_rate_ar
+  name: ar.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ar.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_fa
+  name: fa.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://fa.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_he
+  name: he.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://he.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_tr
+  name: tr.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://tr.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_uk
+  name: uk.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://uk.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_ko
+  name: ko.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ko.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_id
+  name: id.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://id.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_vi
+  name: vi.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://vi.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_cs
+  name: cs.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://cs.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_fi
+  name: fi.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://fi.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_hu
+  name: hu.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://hu.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_no
+  name: no.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://no.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_da
+  name: da.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://da.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_ro
+  name: ro.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ro.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_th
+  name: th.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://th.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_bg
+  name: bg.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://bg.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_el
+  name: el.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://el.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_hi
+  name: hi.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://hi.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_bn
+  name: bn.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://bn.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_ca
+  name: ca.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ca.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_eu
+  name: eu.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://eu.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_sr
+  name: sr.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://sr.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_hr
+  name: hr.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://hr.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_sk
+  name: sk.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://sk.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_sl
+  name: sl.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://sl.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_lt
+  name: lt.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://lt.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_lv
+  name: lv.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://lv.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_et
+  name: et.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://et.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_ms
+  name: ms.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ms.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_az
+  name: az.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://az.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_ka
+  name: ka.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ka.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_kk
+  name: kk.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://kk.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_hy
+  name: hy.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://hy.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_uz
+  name: uz.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://uz.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_ta
+  name: ta.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ta.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_te
+  name: te.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://te.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_ml
+  name: ml.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://ml.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_mr
+  name: mr.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://mr.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_simple
+  name: simple.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://simple.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: wiki_edit_rate_eo
+  name: eo.wikipedia.org — edit arrival rate (1-minute bins)
+  domain: web_cloudops
+  dgp_class: edit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 45
+    url: https://eo.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&rcprop=timestamp&format=json
+  schema:
+    timestamp_field: query.recentchanges[].timestamp
+    value_field: query.recentchanges[].timestamp
+    aggregate:
+      op: count
+      bin: PT1M
+  history_available: P0D — the newest 500 edits per fetch
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: Wikimedia API
+  notes: 'A smaller-language wiki: 500 edits covers hours rather than minutes, so a 5-minute poll keeps coverage continuous and the per-minute counts are sparse and spiky — the burstiest end of this vein,
+    unlike the big wikis whose rate is almost smooth.'
+- id: mempool_btc_tx_per_block
+  name: Bitcoin — transactions per block
+  domain: econ_fin
+  dgp_class: onchain_activity
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - non_stationary_regime
+  frequency: PT10M
+  poll: PT10M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://mempool.space/api/v1/blocks
+  schema:
+    timestamp_field: '[].timestamp'
+    value_field: '[].tx_count'
+    variates: 1
+  history_available: P0D — the newest 15 blocks per fetch
+  update_cadence_observed: one block every ~10 minutes, Poisson
+  pretraining_novelty: clean
+  license: mempool.space public API
+  notes: Transactions per block on an irregular ~10-minute grid. Block arrival is a Poisson process, so the sampling instants are themselves bursty, and the tx count jumps with fee pressure.
+- id: mempool_btc_pending_count
+  name: Bitcoin — unconfirmed mempool transaction count
+  domain: econ_fin
+  dgp_class: onchain_activity
+  archetypes:
+  - bursty_spiky
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: PT1M
+  poll: PT1M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://mempool.space/api/mempool
+  schema:
+    snapshot_now: true
+    value_field: count
+    variates: 1
+  history_available: P0D — live snapshot
+  update_cadence_observed: continuous
+  pretraining_novelty: clean
+  license: mempool.space public API
+  notes: 'The confirmation backlog: sawtooth decay as each block clears it, spikes when fees or demand jump.'

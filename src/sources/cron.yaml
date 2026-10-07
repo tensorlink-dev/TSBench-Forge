@@ -128,6 +128,7 @@ schedules:
   - okx_zec_usdt_trade_rate_10s
   - okx_lit_usdt_trade_rate_10s
   - okx_avax_usdt_trade_rate_10s
+  - mempool_btc_pending_count
   cron: '* * * * *'
 - every: PT2M30S
   sources:
@@ -246,6 +247,46 @@ schedules:
   - bitstamp_suiusd_trade_rate_10s
   - bitstamp_penguusd_trade_rate_10s
   - bitfinex_tbtcusd_trade_rate_10s
+  - wiki_edit_rate_ar
+  - wiki_edit_rate_fa
+  - wiki_edit_rate_he
+  - wiki_edit_rate_tr
+  - wiki_edit_rate_uk
+  - wiki_edit_rate_ko
+  - wiki_edit_rate_id
+  - wiki_edit_rate_vi
+  - wiki_edit_rate_cs
+  - wiki_edit_rate_fi
+  - wiki_edit_rate_hu
+  - wiki_edit_rate_no
+  - wiki_edit_rate_da
+  - wiki_edit_rate_ro
+  - wiki_edit_rate_th
+  - wiki_edit_rate_bg
+  - wiki_edit_rate_el
+  - wiki_edit_rate_hi
+  - wiki_edit_rate_bn
+  - wiki_edit_rate_ca
+  - wiki_edit_rate_eu
+  - wiki_edit_rate_sr
+  - wiki_edit_rate_hr
+  - wiki_edit_rate_sk
+  - wiki_edit_rate_sl
+  - wiki_edit_rate_lt
+  - wiki_edit_rate_lv
+  - wiki_edit_rate_et
+  - wiki_edit_rate_ms
+  - wiki_edit_rate_az
+  - wiki_edit_rate_ka
+  - wiki_edit_rate_kk
+  - wiki_edit_rate_hy
+  - wiki_edit_rate_uz
+  - wiki_edit_rate_ta
+  - wiki_edit_rate_te
+  - wiki_edit_rate_ml
+  - wiki_edit_rate_mr
+  - wiki_edit_rate_simple
+  - wiki_edit_rate_eo
   cron: '*/5 * * * *'
 - every: PT15M
   sources:
@@ -3398,3 +3439,6 @@ schedules:
   - energy_charts_se_wind_onshore
   - energy_charts_si_public_power
   - energy_charts_sk_public_power
+- every: PT10M
+  sources:
+  - mempool_btc_tx_per_block
