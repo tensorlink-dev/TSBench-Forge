@@ -8618,6 +8618,8 @@
   novelty_notes: Imperial College ERG LAQN keyless API; hourly NO2 at Marylebone Road — recent hourly slice novel to pretraining.
   notes: plain rest_json; uses relative URL date tokens {YYYY-MM-DD-7d}/{YYYY-MM-DD} for a rolling 7-day hourly window.
 - id: newcastle_urban_observatory_temp
+  disabled: true
+  disabled_reason: '2026-10-07: auto-disabled by freshness audit — newest observation 2026-09-28T04:08:00+00:00 is 9.1d old vs a 3.0d limit for PT30M. Re-enable if the upstream resumes.'
   name: Newcastle Urban Observatory — city temperature sensors (panel)
   domain: nature
   dgp_class: environmental_sensor
@@ -131864,6 +131866,8 @@
   notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
     one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
 - id: openfda_animalandveterinary_event_all_daily
+  disabled: true
+  disabled_reason: '2026-10-07: auto-disabled by freshness audit — newest observation 2026-06-26T00:00:00+00:00 is 103.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: openFDA — veterinary adverse event reports per day (all)
   domain: healthcare
   dgp_class: adverse_event_stream
