@@ -5340,6 +5340,8 @@
     sample_freshness_hours: 12
   notes: 'SPA site blocks scraped API paths (all return index.html); the RSS feed is the reachable keyless surface. Per item: <title>=''Magnitude X.X, Near <place>, <STATE>'' (regex the number for value), <description>=ISO UTC origin time, <summary>=depth km, <georss:point>=lat lon. Aggregate to hourly/daily counts for count_discrete, or use magnitude as the value. No <pubDate> per item — use <description>.'
 - id: dartmouth_flood_observatory
+  disabled: true
+  disabled_reason: '2026-10-08: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Dartmouth Flood Observatory — daily satellite river discharge (station 000001)
   domain: nature
   dgp_class: hydrology
@@ -33285,6 +33287,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), ES. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_pw_shmallstube
+  disabled: true
+  disabled_reason: '2026-10-08: auto-disabled by freshness audit — newest observation 2026-09-05T00:00:00+00:00 is 33.3d old vs a 11.0d limit for P1D. Re-enable if the upstream resumes.'
   name: shmallstube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -48570,6 +48574,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_apertatube_apertatube
+  disabled: true
+  disabled_reason: '2026-10-08: auto-disabled by freshness audit — newest observation 2026-09-11T00:00:00+00:00 is 27.3d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: ApertaTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -74552,6 +74558,8 @@
   notes: Socrata SODA resource pj7k-98z2, newest-first on timestamp. Domain from the publisher's own category/tags,
     not the title. Panel dimension device_id pinned to '2'.
 - id: hicscdata_expenditures_made_by_hawaii_state_and_co
+  disabled: true
+  disabled_reason: '2026-10-08: auto-disabled by freshness audit — newest observation 2026-08-26T14:25:37+00:00 is 42.7d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Expenditures Made By Hawaii State and County Candidates From January 1, 20 (hicscdata.hawaii.gov)
   domain: econ_fin
   dgp_class: economic_indicator
@@ -116086,6 +116094,8 @@
     Columns chosen from the layer's declared field types. Esri serves dates as epoch MILLISECONDS. Self-hosted
     server, not the vendor's shared services*.arcgis.com tenancy.
 - id: agis_westfargond_fire_incidents_featur
+  disabled: true
+  disabled_reason: '2026-10-08: auto-disabled by freshness audit — newest observation 2025-12-31T21:28:07+00:00 is 280.4d old vs a 47.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Fire Incidents (gis.westfargond.gov)
   domain: healthcare
   dgp_class: emergency_dispatch
@@ -131840,6 +131850,8 @@
   notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
     one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
 - id: openfda_device_recall_all_daily
+  disabled: true
+  disabled_reason: '2026-10-08: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: openFDA — device recall initiations per day (all)
   domain: healthcare
   dgp_class: adverse_event_stream
