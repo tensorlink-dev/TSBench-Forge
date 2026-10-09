@@ -39904,6 +39904,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_me_notes_doussk
+  disabled: true
+  disabled_reason: '2026-10-09: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: dousskey.me — local note publication rate (Misskey)
   domain: web_cloudops
   dgp_class: social_posting_rate
@@ -72945,6 +72947,8 @@
   notes: Socrata SODA resource w896-7wba, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: data_fin_daily_po_notifications
+  disabled: true
+  disabled_reason: '2026-10-09: auto-disabled by freshness audit — newest observation 2026-08-28T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: FIN - Daily PO Notifications (data.modestogov.com)
   domain: econ_fin
   dgp_class: economic_indicator
@@ -96759,6 +96763,8 @@
   notes: active-users chart sibling of misskey_social_notes_derg_s; same host, distinct endpoint/metric (readWrite
     = users who both read and wrote in the hour).
 - id: misskey_me_notes_doussk_active_users
+  disabled: true
+  disabled_reason: '2026-10-09: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: dousskey.me — active local users (Misskey)
   domain: web_cloudops
   dgp_class: active_user_count
