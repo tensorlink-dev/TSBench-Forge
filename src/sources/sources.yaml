@@ -8928,6 +8928,8 @@
   novelty_notes: 'F-Droid FOSS repository app-update firehose: each app''s most-recent release timestamp binned to daily update counts. An app-store release count-process, novel vs typical pretrains.'
   notes: schema.aggregate count (bin P1D) over apps[].lastUpdated (epoch-ms, auto-converted). ~4085 apps -> ~860 distinct update days. index-v1.json is large (~54MB); poll daily. Dedup folds unchanged rows.
 - id: mastodon_public_timeline_events
+  disabled: true
+  disabled_reason: '2026-10-10: auto-disabled by freshness audit — newest observation 2026-09-30T19:36:01+00:00 is 9.4d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: Mastodon — federated public timeline post stream (mstdn.social)
   domain: sales
   dgp_class: event_stream
@@ -22646,6 +22648,8 @@
   audit_slack_days: 50
   notes: Bulk-generated from the Opendatasoft federated catalog (query 'Stromverbrauch'). Fields chosen from the portal's declared types; the endpoint points at the publisher's own host, not the aggregator.
 - id: de_klimasensoren_messdaten
+  disabled: true
+  disabled_reason: '2026-10-10: auto-disabled by freshness audit — newest observation 2025-12-12T00:00:00+00:00 is 302.3d old vs a 67.0d limit for P1M. Re-enable if the upstream resumes.'
   name: Klimasensoren - Messdaten (open-data.dortmund.de)
   domain: nature
   dgp_class: hydrology
@@ -46184,6 +46188,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CH. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_vidbel_vidbel_com
+  disabled: true
+  disabled_reason: '2026-10-10: auto-disabled by freshness audit — newest observation 2026-09-13T00:00:00+00:00 is 27.3d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: vidbel.com — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -80561,6 +80567,8 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: airPressure, conductivity.'
 - id: noaa_noaa_ship_gordon_gunter_underway_meteoro
+  disabled: true
+  disabled_reason: '2026-10-10: auto-disabled by freshness audit — newest observation 2026-09-30T16:07:00+00:00 is 9.6d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2", "rows_4"]
   name: NOAA Ship Gordon Gunter Underway Meteorological Data, Near Real Time (FSU)
   domain: nature
@@ -80974,6 +80982,8 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: airPressure, conductivity.'
 - id: noaa_noaa_ship_gordon_gunter_underway_meteoro_fsunoaashi
+  disabled: true
+  disabled_reason: '2026-10-10: auto-disabled by freshness audit — newest observation 2026-09-30T16:07:00+00:00 is 9.6d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2", "rows_4"]
   name: NOAA Ship Gordon Gunter Underway Meteorological Data, Near Real Time (FSU)
   domain: nature
