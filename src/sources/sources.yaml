@@ -44774,6 +44774,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_io18_peertube
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-09-20T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47432,6 +47434,8 @@
   audit_slack_days: 22
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), GB. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_me_subscribeto_me
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 27.3d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Subscribeto.me — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -75048,6 +75052,8 @@
     on start_datetime; v2.1 caps `limit` at 100. Domain taken from the publisher's own theme field, not
     the title.
 - id: app_production_quotidienne_consolidee_de_biomethane_sur
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-09-11T00:00:00+00:00 is 30.3d old vs a 10.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Production Quotidienne Consolidée de Biométhane sur le réseau de transport et de (app.datajoule.fr)
   domain: energy
   dgp_class: energy_consumption
@@ -75139,6 +75145,8 @@
     newest-first on timestamp_transaction; v2.1 caps `limit` at 100. Domain taken from the publisher's own
     theme field, not the title.
 - id: data_comptages_des_passages_velos_a_pasteur_vers_a3
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-09-10T22:30:00+00:00 is 30.3d old vs a 10.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Comptages des passages vélos à Pasteur (prolongement Résistance) sens montant (data.montreuil.fr)
   domain: transport
   dgp_class: vehicle_counts
@@ -75167,6 +75175,8 @@
   notes: Opendatasoft v2.1 records endpoint, dataset comptages-des-passages-velos-a-pasteur-vers-a3, newest-first
     on date; v2.1 caps `limit` at 100. Domain taken from the publisher's own theme field, not the title.
 - id: data_comptages_des_passages_velos_a_pasteur_vers_la_croi
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-09-10T23:00:00+00:00 is 30.3d old vs a 10.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Comptages des passages vélos à Pasteur (prolongement Résistance) sens descendant (data.montreuil.fr)
   domain: transport
   dgp_class: vehicle_counts
@@ -75196,6 +75206,8 @@
     newest-first on date; v2.1 caps `limit` at 100. Domain taken from the publisher's own theme field, not
     the title.
 - id: data_comptages_des_passages_velo_paul_vaillant_couturier
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-09-11T03:00:00+00:00 is 30.1d old vs a 10.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Comptage des passages des vélos avenue Paul Vaillant Couturier (data.montreuil.fr)
   domain: transport
   dgp_class: vehicle_counts
@@ -78055,6 +78067,8 @@
   notes: Socrata SODA resource 7zcp-kyfg, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension intersection pinned to 'Broadway and Third Street'.
 - id: data_miovision_daily_pedestrian_counts_cambridg
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-08-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: MioVision Daily Pedestrian Counts [Cambridge Street a] (data.cambridgema.gov)
   domain: transport
   dgp_class: transport_activity
@@ -86416,6 +86430,8 @@
   notes: USGS NWIS IV service, gauge 09073005 (Lincoln Creek Below Grizzly Reservoir Nr Aspen, Co), parameter
     code 00060 (Discharge), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00060_06730160
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-10-01T07:05:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Discharge — Fourmile Canyon Creek Near Sunshine, Co (USGS 06730160)
   domain: nature
   dgp_class: river_flow
@@ -86444,6 +86460,8 @@
   notes: USGS NWIS IV service, gauge 06730160 (Fourmile Canyon Creek Near Sunshine, Co), parameter code
     00060 (Discharge), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00060_06727410
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-10-01T07:05:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Discharge — Fourmile Creek At Logan Mill Road Near Crisman, Co (USGS 06727410)
   domain: nature
   dgp_class: river_flow
@@ -86808,6 +86826,8 @@
   notes: USGS NWIS IV service, gauge 06709530 (Plum Creek At Titan Road Near Louviers, Co), parameter code
     00065 (Gage height), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00010_09033100
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-10-01T07:15:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Water temperature — Ranch Creek Blw Meadow Cr Nr Tabernash, Co (USGS 09033100)
   domain: nature
   dgp_class: water_temperature
@@ -86948,6 +86968,8 @@
   notes: USGS NWIS IV service, gauge 09066200 (Booth Creek Near Minturn, Co.), parameter code 00010 (Water
     temperature), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00010_09040500
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-10-01T07:15:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Water temperature — Troublesome Creek Near Troublesome, Co. (USGS 09040500)
   domain: nature
   dgp_class: water_temperature
@@ -87116,6 +87138,8 @@
   notes: USGS NWIS IV service, gauge 09064600 (Eagle River Near Minturn, Co), parameter code 00095 (Conductance),
     15-minute instantaneous readings over a 10-day window.
 - id: usgs_00095_09019500
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-10-01T07:15:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Conductance — Colorado River Near Granby, Co (USGS 09019500)
   domain: nature
   dgp_class: water_conductance
@@ -87228,6 +87252,8 @@
   notes: USGS NWIS IV service, gauge 09359020 (Animas River Below Silverton, Co), parameter code 63680 (Turbidity),
     15-minute instantaneous readings over a 10-day window.
 - id: usgs_63680_09034250
+  disabled: true
+  disabled_reason: '2026-10-11: auto-disabled by freshness audit — newest observation 2026-10-01T07:15:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Turbidity — Colorado River At Windy Gap, Near Granby, Co. (USGS 09034250)
   domain: nature
   dgp_class: water_turbidity
