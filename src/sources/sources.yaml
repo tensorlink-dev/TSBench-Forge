@@ -133827,3 +133827,798 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''68'': without it the response
     interleaves several series on the same timestamps.'
+- id: vmplay_load1_10_142_0_111_9100_15s
+  name: VictoriaMetrics playground — 1-minute load average (10.142.0.111:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_load1%7Binstance%3D%2210.142.0.111%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: 1-minute load average at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.75 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_read_10_142_0_111_9100_15s
+  name: VictoriaMetrics playground — disk bytes read/s (10.142.0.111:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_read_bytes_total%7Binstance%3D%2210.142.0.111%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes read/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 3.46 with 6% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_write_10_142_0_111_9100_15s
+  name: VictoriaMetrics playground — disk bytes written/s (10.142.0.111:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_written_bytes_total%7Binstance%3D%2210.142.0.111%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes written/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.62 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_procs_run_10_142_0_111_9100_15s
+  name: VictoriaMetrics playground — runnable processes (10.142.0.111:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_procs_running%7Binstance%3D%2210.142.0.111%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: runnable processes at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.57 with 0% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_pgfault_10_142_0_111_9100_15s
+  name: VictoriaMetrics playground — major page faults/s (10.142.0.111:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=rate%28node_vmstat_pgmajfault%7Binstance%3D%2210.142.0.111%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: major page faults/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 11.17 with 99% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_load1_10_142_0_112_9100_15s
+  name: VictoriaMetrics playground — 1-minute load average (10.142.0.112:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_load1%7Binstance%3D%2210.142.0.112%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: 1-minute load average at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.79 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_read_10_142_0_112_9100_15s
+  name: VictoriaMetrics playground — disk bytes read/s (10.142.0.112:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_read_bytes_total%7Binstance%3D%2210.142.0.112%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes read/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 2.77 with 1% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_write_10_142_0_112_9100_15s
+  name: VictoriaMetrics playground — disk bytes written/s (10.142.0.112:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_written_bytes_total%7Binstance%3D%2210.142.0.112%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes written/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.46 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_procs_run_10_142_0_112_9100_15s
+  name: VictoriaMetrics playground — runnable processes (10.142.0.112:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_procs_running%7Binstance%3D%2210.142.0.112%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: runnable processes at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.71 with 0% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_pgfault_10_142_0_112_9100_15s
+  name: VictoriaMetrics playground — major page faults/s (10.142.0.112:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=rate%28node_vmstat_pgmajfault%7Binstance%3D%2210.142.0.112%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: major page faults/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 10.58 with 98% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_load1_10_142_0_113_9100_15s
+  name: VictoriaMetrics playground — 1-minute load average (10.142.0.113:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_load1%7Binstance%3D%2210.142.0.113%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: 1-minute load average at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.59 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_read_10_142_0_113_9100_15s
+  name: VictoriaMetrics playground — disk bytes read/s (10.142.0.113:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_read_bytes_total%7Binstance%3D%2210.142.0.113%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes read/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 3.36 with 3% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_write_10_142_0_113_9100_15s
+  name: VictoriaMetrics playground — disk bytes written/s (10.142.0.113:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_written_bytes_total%7Binstance%3D%2210.142.0.113%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes written/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.51 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_procs_run_10_142_0_113_9100_15s
+  name: VictoriaMetrics playground — runnable processes (10.142.0.113:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_procs_running%7Binstance%3D%2210.142.0.113%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: runnable processes at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.67 with 0% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_pgfault_10_142_0_113_9100_15s
+  name: VictoriaMetrics playground — major page faults/s (10.142.0.113:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=rate%28node_vmstat_pgmajfault%7Binstance%3D%2210.142.0.113%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: major page faults/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 15.11 with 98% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_load1_10_142_0_16_9100_15s
+  name: VictoriaMetrics playground — 1-minute load average (10.142.0.16:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_load1%7Binstance%3D%2210.142.0.16%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: 1-minute load average at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.74 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_read_10_142_0_16_9100_15s
+  name: VictoriaMetrics playground — disk bytes read/s (10.142.0.16:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_read_bytes_total%7Binstance%3D%2210.142.0.16%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes read/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 9.85 with 0% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_write_10_142_0_16_9100_15s
+  name: VictoriaMetrics playground — disk bytes written/s (10.142.0.16:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_written_bytes_total%7Binstance%3D%2210.142.0.16%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes written/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.23 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_procs_run_10_142_0_16_9100_15s
+  name: VictoriaMetrics playground — runnable processes (10.142.0.16:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_procs_running%7Binstance%3D%2210.142.0.16%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: runnable processes at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.58 with 0% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_pgfault_10_142_0_16_9100_15s
+  name: VictoriaMetrics playground — major page faults/s (10.142.0.16:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=rate%28node_vmstat_pgmajfault%7Binstance%3D%2210.142.0.16%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: major page faults/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 13.38 with 99% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_load1_10_142_0_21_9100_15s
+  name: VictoriaMetrics playground — 1-minute load average (10.142.0.21:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_load1%7Binstance%3D%2210.142.0.21%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: 1-minute load average at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.77 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_read_10_142_0_21_9100_15s
+  name: VictoriaMetrics playground — disk bytes read/s (10.142.0.21:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_read_bytes_total%7Binstance%3D%2210.142.0.21%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes read/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 2.6 with 0% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_disk_write_10_142_0_21_9100_15s
+  name: VictoriaMetrics playground — disk bytes written/s (10.142.0.21:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=sum%28rate%28node_disk_written_bytes_total%7Binstance%3D%2210.142.0.21%3A9100%22%7D%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: disk bytes written/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.4 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_procs_run_10_142_0_21_9100_15s
+  name: VictoriaMetrics playground — runnable processes (10.142.0.21:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=node_procs_running%7Binstance%3D%2210.142.0.21%3A9100%22%7D&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: runnable processes at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.64 with 0% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: vmplay_pgfault_10_142_0_21_9100_15s
+  name: VictoriaMetrics playground — major page faults/s (10.142.0.21:9100, 15s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://play.victoriametrics.com/select/0/prometheus/api/v1/query_range?query=rate%28node_vmstat_pgmajfault%7Binstance%3D%2210.142.0.21%3A9100%22%7D%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: VictoriaMetrics playground public endpoint
+  notes: major page faults/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 9.47 with 96% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: promdemo_load1_demo_15s
+  name: Prometheus community demo — 1-minute load average (demo, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://prometheus.demo.prometheus.io/api/v1/query_range?query=node_load1&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: Prometheus community demo public endpoint
+  notes: 1-minute load average at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.82 with 1% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: promdemo_net_rx_demo_15s
+  name: Prometheus community demo — network bytes received/s (demo, 15s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://prometheus.demo.prometheus.io/api/v1/query_range?query=sum%28rate%28node_network_receive_bytes_total%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: Prometheus community demo public endpoint
+  notes: network bytes received/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.4 with 0% zeros. 5,760 points
+    per daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: promdemo_net_tx_demo_15s
+  name: Prometheus community demo — network bytes sent/s (demo, 15s)
+  domain: web_cloudops
+  dgp_class: host_network
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://prometheus.demo.prometheus.io/api/v1/query_range?query=sum%28rate%28node_network_transmit_bytes_total%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: Prometheus community demo public endpoint
+  notes: network bytes sent/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.56 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: promdemo_disk_read_demo_15s
+  name: Prometheus community demo — disk bytes read/s (demo, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://prometheus.demo.prometheus.io/api/v1/query_range?query=sum%28rate%28node_disk_read_bytes_total%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: Prometheus community demo public endpoint
+  notes: disk bytes read/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 22.9 with 85% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: promdemo_disk_write_demo_15s
+  name: Prometheus community demo — disk bytes written/s (demo, 15s)
+  domain: web_cloudops
+  dgp_class: host_disk_io
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://prometheus.demo.prometheus.io/api/v1/query_range?query=sum%28rate%28node_disk_written_bytes_total%5B1m%5D%29%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: Prometheus community demo public endpoint
+  notes: disk bytes written/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 2.51 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: promdemo_procs_run_demo_15s
+  name: Prometheus community demo — runnable processes (demo, 15s)
+  domain: web_cloudops
+  dgp_class: host_load
+  archetypes:
+  - non_stationary_regime
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://prometheus.demo.prometheus.io/api/v1/query_range?query=node_procs_running&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: Prometheus community demo public endpoint
+  notes: runnable processes at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.46 with 0% zeros. 5,760 points per daily
+    fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
+- id: promdemo_pgfault_demo_15s
+  name: Prometheus community demo — major page faults/s (demo, 15s)
+  domain: web_cloudops
+  dgp_class: host_memory
+  archetypes:
+  - bursty_spiky
+  - heavy_tailed
+  frequency: PT15S
+  poll: PT15M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://prometheus.demo.prometheus.io/api/v1/query_range?query=rate%28node_vmstat_pgmajfault%5B1m%5D%29&start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:45Z&step=15s
+  schema:
+    timestamp_field: data.result[0].values[][0]
+    value_field: data.result[0].values[][1]
+    variates: 1
+  history_available: P15D
+  update_cadence_observed: 15-second scrape interval, measured from raw samples
+  pretraining_novelty: clean
+  license: Prometheus community demo public endpoint
+  notes: major page faults/s at the host's real 15-second scrape interval (confirmed against raw exported samples, not assumed from the step parameter). Measured cv 0.92 with 0% zeros. 5,760 points per
+    daily fetch. This is the second and third independent cloud-telemetry publisher in the catalog — until now every sub-minute server metric came from one demo host.
