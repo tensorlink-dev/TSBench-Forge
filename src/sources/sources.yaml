@@ -30490,6 +30490,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 21. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_bf_bfix_bobo_dioulasso_burkina_faso_interne
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-10-05T09:55:00+00:00 is 6.9d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: BFIX Bobo-Dioulasso (Burkina Faso Internet Exchange Point) — exchange traffic (Bobo-Dioulasso, BF)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -30571,6 +30573,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 28. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_cr_crix_costa_rica_internet_exchange
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-10-05T20:55:00+00:00 is 6.4d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: CRIX (Costa Rica Internet Exchange) — exchange traffic (San José, CR)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -44148,6 +44152,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_cc_sbcloud_peertube
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-09-21T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: sbCloud Peertube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -76098,6 +76104,8 @@
   notes: Socrata SODA resource 7p5y-sxmu, newest-first on start_utc. Domain from the publisher's own category/tags,
     not the title.
 - id: open_hs_homeless_persons_served_that_return_to_hom
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-08-31T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: HS - Homeless Persons Served that Return to Homelessness (open.piercecountywa.gov)
   domain: sales
   dgp_class: property_market_activity
@@ -76127,6 +76135,8 @@
   notes: Socrata SODA resource w8ng-epq2, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: open_hs_dataset_length_of_time_homeless
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-08-31T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: HS Dataset Length of time homeless (open.piercecountywa.gov)
   domain: sales
   dgp_class: property_market_activity
@@ -76156,6 +76166,8 @@
   notes: Socrata SODA resource kjas-zw9k, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: open_homeless_youth_who_regain_housing
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-08-31T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Homeless Youth Who Regain Housing (open.piercecountywa.gov)
   domain: sales
   dgp_class: property_market_activity
@@ -76186,6 +76198,8 @@
   notes: Socrata SODA resource t77e-d223, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: open_homeless_veterans_who_regain_housing
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-08-31T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Homeless Veterans Who Regain Housing (open.piercecountywa.gov)
   domain: sales
   dgp_class: property_market_activity
@@ -76216,6 +76230,8 @@
   notes: Socrata SODA resource keuh-wyje, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: open_homeless_persons_who_regain_housing
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-08-31T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Homeless Persons Who Regain Housing (open.piercecountywa.gov)
   domain: sales
   dgp_class: property_market_activity
@@ -77448,6 +77464,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Psorophora columbiae'.
 - id: data_mosquito_trap_counts_uranotae
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-08-31T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Uranotaenia sapphi] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -94689,6 +94707,8 @@
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''34'': without it the response
     interleaves several series on the same timestamps.'
 - id: data_20_station_meteo_mondonville_ecole
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-09-11T14:30:00+00:00 is 30.7d old vs a 10.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: 20 Station météo Mondonville école (Toulouse, France)
   domain: transport
   dgp_class: urban_mobility
@@ -103113,6 +103133,8 @@
   notes: 'Hourly OHLC for COMPUSD on the already-wired Bitstamp host; close+volume columns like the wired eth_usd
     sibling. poll PT6H: each fetch re-serves 1000 candles so 4 polls/day keeps the series gap-free.'
 - id: bitstamp_mkr_usd_hourly
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-10-02T10:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Bitstamp — MKR/USD hourly OHLC close and volume
   domain: econ_fin
   dgp_class: crypto_price
@@ -103210,6 +103232,8 @@
   notes: 'Hourly OHLC for MANAUSD on the already-wired Bitstamp host; close+volume columns like the wired eth_usd
     sibling. poll PT6H: each fetch re-serves 1000 candles so 4 polls/day keeps the series gap-free.'
 - id: bitstamp_ftm_usd_hourly
+  disabled: true
+  disabled_reason: '2026-10-12: auto-disabled by freshness audit — newest observation 2026-10-02T10:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Bitstamp — FTM/USD hourly OHLC close and volume
   domain: econ_fin
   dgp_class: crypto_price
