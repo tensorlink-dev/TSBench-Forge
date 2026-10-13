@@ -137952,3 +137952,69 @@
   license: Wikimedia Foundation public Grafana
   notes: Wikimedia recording rule command:memcached_items_reclaimed_total:rate5m, measured on eqiad at cv 0.75 with a p99 2.8x the median before wiring. 1-minute is BOOM's second-worst band (+13.7% CRPS),
     and this is genuine production telemetry rather than a demo host under synthetic load. The same rule across four datacentres gives correlated-but-distinct series.
+
+# -- wired batch: grind-20261013-0713 --
+- id: opendata_ods156_44
+  name: Individual incremental balancing energy bids (Historical data as of 22 [44]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods156/records?limit=100&order_by=datetime%20desc&where=rank%3D%2244%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods156.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods156, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''44'': without it the response
+    interleaves several series on the same timestamps.'
+- id: opendata_ods157_64
+  name: Individual decremental balancing energy bids (Historical data as of 22 [64]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2264%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''64'': without it the response
+    interleaves several series on the same timestamps.'
