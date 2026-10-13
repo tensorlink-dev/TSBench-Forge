@@ -9393,6 +9393,8 @@
   novelty_notes: NYC DOHMH restaurant inspection results (Socrata 43nn-pn8j) binned to daily inspection volume — a count_discrete series with strong weekly seasonality (few weekend inspections).
   notes: Keyless Socrata SoQL. Uses schema.aggregate {op:count, bin:P1D} over the inspection_date event stream ($where inspection_date IS NOT NULL). 166 daily bins.
 - id: jikan_top_anime_scores
+  disabled: true
+  disabled_reason: '2026-10-13: auto-disabled by freshness audit — newest observation 2026-10-03T12:45:43+00:00 is 9.7d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Jikan (MyAnimeList) top-anime score panel
   domain: sales
   dgp_class: content_engagement
@@ -26987,6 +26989,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the OTN ERDDAP server (erddap.oceantrack.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: row.'
 - id: oceanobservatories_coastal_endurance_oregon_offshore_cabled
+  disabled: true
+  disabled_reason: '2026-10-13: auto-disabled by freshness audit — newest observation 2026-10-01T03:27:00+00:00 is 12.1d old vs a 4.0d limit for PT1M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: 'Coastal Endurance: Oregon Offshore Cabled Benthic Experiment Package: Low-Power JBox (LJ01C): 3-D Single Point Velocity Meter (Ocean Observatories Initiative (OOI))'
   domain: nature
@@ -27569,6 +27573,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the SmartAtlantic ERDDAP server (www.smartatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_spd_max.'
 - id: gcoos_data_for_ioos_station_cbi_042
+  disabled: true
+  disabled_reason: '2026-10-13: auto-disabled by freshness audit — newest observation 2026-10-03T19:36:00+00:00 is 9.4d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Data for ioos-station-CBI-042 (GCOOS)
   domain: nature
   dgp_class: environmental_sensor
@@ -49582,6 +49588,8 @@
   audit_slack_days: 18
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_boc47_boc47_x_peertube
+  disabled: true
+  disabled_reason: '2026-10-13: auto-disabled by freshness audit — newest observation 2026-08-29T00:00:00+00:00 is 45.3d old vs a 15.0d limit for P1D. Re-enable if the upstream resumes.'
   name: BOC47 x Peertube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -73307,6 +73315,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Madison Park'.
 - id: data_freshwater_swim_beach_data_sammamis
+  disabled: true
+  disabled_reason: '2026-10-13: auto-disabled by freshness audit — newest observation 2026-09-01T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Sammamish Landing] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78487,6 +78497,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Enatai'.
 - id: data_freshwater_swim_beach_data_pine_lak
+  disabled: true
+  disabled_reason: '2026-10-13: auto-disabled by freshness audit — newest observation 2026-09-01T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Pine Lake] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -91992,6 +92004,8 @@
     same quantity from the source of record. Headerless semicolon CSV
     (csv_columns), composite year+month timestamp, series starts 1749.'
 - id: nasa_donki_solar_flares
+  disabled: true
+  disabled_reason: '2026-10-13: auto-disabled by freshness audit — newest observation 2026-09-19T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: NASA DONKI solar flare events — daily count
   domain: nature
   dgp_class: space_weather
