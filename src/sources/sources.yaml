@@ -46994,6 +46994,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_privacyinternational_privacy_international_s_media_serv
+  disabled: true
+  disabled_reason: '2026-10-14: auto-disabled by freshness audit — newest observation 2026-09-17T00:00:00+00:00 is 27.3d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Privacy International's Media Service — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49190,6 +49192,8 @@
   audit_slack_days: 10
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_typica_typica_video
+  disabled: true
+  disabled_reason: '2026-10-14: auto-disabled by freshness audit — newest observation 2026-09-23T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Typica Video — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -74053,6 +74057,8 @@
   notes: Socrata SODA resource vf2j-h8vy, newest-first on run_datetime. Domain from the publisher's own
     category/tags, not the title.
 - id: cos_data_paid_parking_occupancy_last_30_days_ne
+  disabled: true
+  disabled_reason: '2026-10-14: auto-disabled by freshness audit — newest observation 2026-09-01T21:59:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Paid Parking Occupancy (Last 30 Days) [NE] (cos-data.seattle.gov)
   domain: transport
   dgp_class: transport_activity
@@ -74083,6 +74089,8 @@
   notes: Socrata SODA resource rke9-rsvs, newest-first on occupancydatetime. Domain from the publisher's
     own category/tags, not the title. Panel dimension sideofstreet pinned to 'NE'.
 - id: cos_data_paid_parking_occupancy_last_30_days_nw
+  disabled: true
+  disabled_reason: '2026-10-14: auto-disabled by freshness audit — newest observation 2026-09-01T21:59:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Paid Parking Occupancy (Last 30 Days) [NW] (cos-data.seattle.gov)
   domain: transport
   dgp_class: transport_activity
@@ -74113,6 +74121,8 @@
   notes: Socrata SODA resource rke9-rsvs, newest-first on occupancydatetime. Domain from the publisher's
     own category/tags, not the title. Panel dimension sideofstreet pinned to 'NW'.
 - id: cos_data_paid_parking_occupancy_last_30_days_se
+  disabled: true
+  disabled_reason: '2026-10-14: auto-disabled by freshness audit — newest observation 2026-09-01T21:59:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Paid Parking Occupancy (Last 30 Days) [SE] (cos-data.seattle.gov)
   domain: transport
   dgp_class: transport_activity
