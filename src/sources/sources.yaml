@@ -27710,6 +27710,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CIOOS Atlantic ERDDAP server (cioosatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_spd_max.'
 - id: cioosatlantic_halifax_ocean_terminals_fairview
+  disabled: true
+  disabled_reason: '2026-10-19: auto-disabled by freshness audit — newest observation 2026-10-09T14:10:00+00:00 is 9.7d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: 'Halifax Ocean Terminals: Fairview (COVE)'
   domain: nature
@@ -37296,6 +37298,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_uma_notes
+  disabled: true
+  disabled_reason: '2026-10-19: auto-disabled by freshness audit — newest observation 2026-10-09T10:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   mv_channels: ["value", "remote_inc"]
   name: uma-aji.com — local note publication rate (Misskey)
   domain: web_cloudops
@@ -43454,6 +43458,8 @@
   audit_slack_days: 16
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_tube_peertube
+  disabled: true
+  disabled_reason: '2026-10-19: auto-disabled by freshness audit — newest observation 2026-09-21T19:00:00+00:00 is 27.5d old vs a 9.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Peertube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -51808,6 +51814,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API count what the instance mirrored from its peers, which is the same global firehose seen from every host.
 - id: misskey_uma_active_users
+  disabled: true
+  disabled_reason: '2026-10-19: auto-disabled by freshness audit — newest observation 2026-10-09T10:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: uma-aji.com — active local users (Misskey)
   domain: web_cloudops
   dgp_class: active_user_count
@@ -81149,6 +81157,8 @@
     against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered,
     air_temperature_rms.'
 - id: smartatlantic_halifax_ocean_terminals_fairview
+  disabled: true
+  disabled_reason: '2026-10-19: auto-disabled by freshness audit — newest observation 2026-10-09T14:10:00+00:00 is 9.7d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: 'Halifax Ocean Terminals: Fairview (COVE)'
   domain: nature
