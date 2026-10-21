@@ -16393,6 +16393,8 @@
     - results[].Butter_Price
     - results[].Butter_Sales
 - id: bloomington_fire_response_volume
+  disabled: true
+  disabled_reason: '2026-10-21: auto-disabled by freshness audit — newest observation 2026-09-27T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Bloomington IN Fire Department incident responses (daily unit-response volume)
   domain: healthcare
   frequency: P1D
@@ -31543,6 +31545,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 898. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_sthix_sthix_copenhagen_stockholm_internet_exch
+  disabled: true
+  disabled_reason: '2026-10-21: auto-disabled by freshness audit — newest observation 2026-10-14T12:00:19+00:00 is 6.8d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: STHIX - Copenhagen (Stockholm Internet eXchange AB) — exchange traffic (Copenhagen, DK)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -31570,6 +31574,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 713. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_sthix_sthix_gothenburg_stockholm_internet_exch
+  disabled: true
+  disabled_reason: '2026-10-21: auto-disabled by freshness audit — newest observation 2026-10-14T12:05:19+00:00 is 6.8d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: STHIX - Gothenburg (Stockholm Internet eXchange AB) — exchange traffic (Gothenburg, SE)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -93965,6 +93971,8 @@
   license: Open data (portal terms)
   notes: Server-side daily aggregate (no raw table download).
 - id: nyc_dca_business_licenses_created_daily
+  disabled: true
+  disabled_reason: '2026-10-21: auto-disabled by freshness audit — newest observation 2026-08-19T00:00:00+00:00 is 63.3d old vs a 21.0d limit for P1D. Re-enable if the upstream resumes.'
   name: NYC DCWP business licences created per day
   domain: sales
   dgp_class: registration_stream
@@ -117926,6 +117934,8 @@
     provider 925. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
     they duplicate in/out exactly.
 - id: ixp_sthix_sthix_stockholm_stockholm_internet_excha
+  disabled: true
+  disabled_reason: '2026-10-21: auto-disabled by freshness audit — newest observation 2026-10-14T12:05:18+00:00 is 6.8d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: STHIX - Stockholm (Stockholm Internet eXchange AB) — exchange traffic (Stockholm, SE)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -117956,6 +117966,8 @@
     provider 144. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day
     they duplicate in/out exactly.
 - id: ixp_sthix_sthix_sundsvall_stockholm_internet_excha
+  disabled: true
+  disabled_reason: '2026-10-21: auto-disabled by freshness audit — newest observation 2026-10-14T12:05:19+00:00 is 6.8d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: STHIX - Sundsvall (Stockholm Internet eXchange AB) — exchange traffic (Sundsvall, SE)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -122077,6 +122089,8 @@
   license: openSenseMap / senseBox open data (ODbL)
   notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
 - id: osem_pm25_nauheim_03
+  disabled: true
+  disabled_reason: '2026-10-21: auto-disabled by freshness audit — newest observation 2026-10-11T13:01:58+00:00 is 9.7d old vs a 3.0d limit for PT2M30S. Re-enable if the upstream resumes.'
   name: openSenseMap — PM2.5 at Nauheim_03
   domain: healthcare
   dgp_class: air_quality
