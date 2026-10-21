@@ -1537,6 +1537,11 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     Use `mean` for intensive quantities (a delay, a temperature) where `sum`
     would conflate the level with how many events happened to land in the bin.
 
+    `schema.null_values: [-999999]` rewrites those values to null BEFORE the
+    drop below, for feeds that encode missingness as a number (USGS NWIS
+    declares `noDataValue: -999999`). Without it a sentinel is stored as a
+    reading and passes every downstream missingness filter.
+
     `schema.drop_null_values: true` drops records whose every value field is
     null/empty — for feeds that null-pad future periods to the end of the
     current year/day (SMARD weekly files): kept, those pad rows make the max
@@ -1597,6 +1602,39 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
                 if (k != "timestamp" and not k.startswith("_panel_")
                         and isinstance(v, str) and _THOUSANDS_COMMA_RE.match(v)):
                     r[k] = v.replace(",", "")
+    # schema.null_values: values that ENCODE missingness as a number, converted
+    # to None here so they are missing everywhere downstream rather than being
+    # read as real observations.
+    #
+    # Reported 2026-10-20: three USGS discharge gauges reached cascade's pool
+    # 39-96% filled with -999999 and sailed through its 20%-missingness gate,
+    # because the gate counts nulls and these were numbers. The USGS IV service
+    # declares the convention itself — `variable.noDataValue: -999999.0`, with
+    # the affected rows carrying qualifier `***` (temporarily unavailable) — so
+    # storing them as readings was never right. A 96%-sentinel gauge then trains
+    # and scores as a flat line at -999999.
+    #
+    # Declared per source, never guessed globally: -999 is a sentinel in some
+    # feeds and a real floor price in an energy bid ladder, and no catalog-wide
+    # list can tell those apart.
+    nulls = schema.get("null_values")
+    if nulls:
+        def _is_null(v: Any) -> bool:
+            if v is None or v == "":
+                return True
+            for n in nulls:
+                if v == n:
+                    return True
+                try:                       # "-999999" == -999999
+                    if float(v) == float(n):
+                        return True
+                except (TypeError, ValueError):
+                    pass
+            return False
+        for r in recs:
+            for k, v in list(r.items()):
+                if k != "timestamp" and not k.startswith("_panel_") and _is_null(v):
+                    r[k] = None
     if schema.get("drop_null_values"):
         recs = [r for r in recs
                 if any(v not in (None, "")

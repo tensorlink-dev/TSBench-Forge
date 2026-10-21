@@ -1279,6 +1279,8 @@
   - SITE: '14266000'
   - SITE: '10128500'
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field: value.timeSeries[0].values[0].value[].value
     variates: 1
@@ -3122,6 +3124,8 @@
     auth: none
     rate_limit: null
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field: value.timeSeries[0].values[0].value[].value
     variates: 1
@@ -10153,6 +10157,8 @@
     auth: none
     rate_limit: null
   schema:
+    null_values:
+    - -999999
     timestamp_field: '[].collection_week'
     value_field:
     - '[].inpatient_beds_used_7_day_avg'
@@ -17705,6 +17711,8 @@
     type: rest_json
     timeout: 60
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field: value.timeSeries[0].values[0].value[].value
 - id: cftc_cot_disaggregated_gold_weekly
@@ -17953,6 +17961,8 @@
   - SITE: '03335500'
   - SITE: '02035000'
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field: value.timeSeries[0].values[0].value[].value
 - id: cdc_covid_variant_proportions_biweekly
@@ -18141,6 +18151,8 @@
     type: rest_json
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[].values[0].value[].dateTime
     value_field:
     - value.timeSeries[].values[0].value[].value
@@ -86126,6 +86138,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86156,6 +86170,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86184,6 +86200,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86212,6 +86230,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86240,6 +86260,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86268,6 +86290,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86296,6 +86320,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86324,6 +86350,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86352,6 +86380,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86380,6 +86410,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86408,6 +86440,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86436,6 +86470,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86464,6 +86500,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86492,6 +86530,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86522,6 +86562,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86552,6 +86594,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86580,6 +86624,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86608,6 +86654,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86636,6 +86684,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86664,6 +86714,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86692,6 +86744,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86720,6 +86774,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86748,6 +86804,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86776,6 +86834,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86804,6 +86864,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86832,6 +86894,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86860,6 +86924,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86888,6 +86954,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86918,6 +86986,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86946,6 +87016,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -86974,6 +87046,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87002,6 +87076,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87030,6 +87106,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87060,6 +87138,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87090,6 +87170,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87118,6 +87200,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87146,6 +87230,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87174,6 +87260,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87202,6 +87290,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87232,6 +87322,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87260,6 +87352,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87288,6 +87382,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87316,6 +87412,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
@@ -87346,6 +87444,8 @@
     rate_limit: polite
     timeout: 90
   schema:
+    null_values:
+    - -999999
     timestamp_field: value.timeSeries[0].values[0].value[].dateTime
     value_field:
     - value.timeSeries[0].values[0].value[].value
