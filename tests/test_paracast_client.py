@@ -239,3 +239,112 @@ def test_models_json_covers_every_publishable_id():
         assert mid in registered, f"models.json lacks display metadata for {mid!r}"
     assert registered[pc.ENSEMBLE_ID]["class"] == "ensemble"
     assert registered[pc.ROUTER_ID]["class"] == "ensemble"
+
+
+# --------------------------------------------------------------------------- #
+# Public Ephemeris API front door (base_url ending in /api/v1)
+# --------------------------------------------------------------------------- #
+
+
+class PublicFakeEndpoint(FakeEndpoint):
+    """Answers like the Ephemeris gateway: /api/v1 routes, series objects,
+    an unwrapped /models list, health at /api/status. Forecasts are delegated
+    to the raw fake after translating the request back."""
+
+    def __call__(self, method, url, body, headers):
+        path = url.split("://", 1)[-1].split("/", 1)[1]
+        if path == "api/status":
+            self.calls.append({"method": method, "path": "/" + path,
+                               "payload": None, "headers": headers})
+            return 200, json.dumps({"state": "operational", "models": [
+                {"name": "chronos2", "state": "ready", "enabled": True},
+                {"name": "tirex2", "state": "warming", "enabled": True},
+                {"name": "moirai2", "state": "unavailable", "enabled": False},
+            ]}).encode()
+        assert path.startswith("api/v1/"), path
+        rest = path[len("api/v1/"):]
+        raw_url = "http://x/" + rest
+        if rest == "models":
+            status, raw = super().__call__(method, raw_url, body, headers)
+            return status, json.dumps(json.loads(raw)["models"]).encode()
+        if rest == "forecast":
+            payload = json.loads(body)
+            assert all(isinstance(s, dict) for s in payload["series"])
+            raw_payload = {**payload, "series": [s["values"] for s in payload["series"]]}
+            status, raw = super().__call__(method, raw_url, json.dumps(raw_payload).encode(),
+                                           headers)
+            self.calls[-1]["public_payload"] = payload
+            return status, raw
+        return super().__call__(method, raw_url, body, headers)
+
+
+def _public(fake, **kw):
+    return pc.ParacastClient("https://eph.example/api/v1/", transport=fake, retries=0, **kw)
+
+
+def test_public_flavour_is_detected_from_the_path():
+    assert _public(PublicFakeEndpoint()).public
+    assert not _client(FakeEndpoint()).public
+    assert not pc.ParacastClient("https://host:20004").public
+
+
+def test_public_forecast_sends_series_objects_full_context_and_a_key(challenges):
+    fake = PublicFakeEndpoint()
+    result = pc.prefetch_forecasts(_public(fake), challenges,
+                                   [pc.ModelSpec.explicit("chronos2")], verbose=False)
+    assert len(result.forecasts["chronos2"]) == 3
+    sent = [c for c in fake.calls if "public_payload" in c]
+    assert len(sent) == 2
+    for call in sent:
+        p = call["public_payload"]
+        assert "freq" not in p  # per series, not per request
+        assert {s["freq"] for s in p["series"]} <= {"h", "D"}
+        assert p["context_len"] == max(len(s["values"]) for s in p["series"])
+        assert call["headers"]["Idempotency-Key"].startswith("weir-")
+    assert len({c["headers"]["Idempotency-Key"] for c in sent}) == 2
+
+
+def test_public_retry_reuses_the_idempotency_key():
+    keys = []
+
+    def transport(method, url, body, headers):
+        keys.append(headers.get("Idempotency-Key"))
+        if len(keys) < 2:
+            return 503, b"busy"
+        return 200, json.dumps({"forecasts": [{"quantiles": {"0.5": [1.0]}}],
+                                "meta": {"request_id": "r"}}).encode()
+
+    client = pc.ParacastClient("https://eph.example/api/v1", transport=transport,
+                               retries=2, retry_wait=0.0)
+    client.forecast([[1.0, 2.0]], horizon=1)
+    assert len(keys) == 2 and keys[0] == keys[1] is not None
+
+
+def test_public_models_list_and_status_map_to_the_raw_shapes():
+    fake = PublicFakeEndpoint()
+    client = _public(fake)
+    assert client.panel() == ["chronos2", "tirex2"]
+    health = client.health()
+    assert health == {"status": "ok", "healthy": ["chronos2"], "unhealthy": ["tirex2"]}
+    assert fake.calls[-1]["path"] == "/api/status"
+
+
+def test_public_batches_stay_inside_the_output_budget():
+    horizon = 400  # 64 x 400 x 19 quantiles would be 486,400 values
+    chs = [_challenge(float(i), 32, horizon, "P1D", "src") for i in range(40)]
+    fake = PublicFakeEndpoint()
+    pc.prefetch_forecasts(_public(fake), chs, [pc.ModelSpec.explicit("chronos2")],
+                          verbose=False)
+    sizes = [len(c["public_payload"]["series"]) for c in fake.calls if "public_payload" in c]
+    cap = pc.PUBLIC_MAX_OUTPUT_VALUES // (horizon * len(pc.REQUEST_QUANTILES))
+    assert sum(sizes) == 40 and max(sizes) == cap
+
+
+def test_public_feedback_goes_to_the_gateway_route(challenges):
+    fake = PublicFakeEndpoint()
+    client = _public(fake)
+    result = pc.prefetch_forecasts(client, challenges,
+                                   [pc.ModelSpec.explicit("chronos2")], verbose=False)
+    out = pc.send_feedback(client, challenges, result.requests, verbose=False)
+    assert out == {"sent": 2, "failed": 0, "skipped": 0}
+    assert len(fake.feedbacks) == 2

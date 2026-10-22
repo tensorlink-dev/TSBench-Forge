@@ -22,6 +22,15 @@ Division of labour, deliberately:
   every benchmark round. The leaderboard and the serving weights improve from
   the same evaluation without either trusting the other's arithmetic.
 
+**Two front doors, one contract.** ``base_url`` is either the raw paracast
+backend (``https://host:port``: ``/forecast``, ``/models``, ``/health``,
+``/feedback``) or the public Ephemeris API (``https://…/api/v1``), which fronts
+the same backend for customers. The public API takes series as
+``{"values", "freq"}`` objects, answers ``/models`` with a bare list, serves
+health at ``/api/status``, bills every forecast in credits and accepts an
+``Idempotency-Key`` so a retried request is never charged twice. The client
+translates; scoring is unchanged either way.
+
 The client is stdlib-only (urllib) on top of the repo's numpy core: no httpx,
 no pydantic — the wire contract is mirrored here as plain dicts and pinned by
 tests/test_paracast_client.py against the shapes in paracast_common.
@@ -32,7 +41,9 @@ from __future__ import annotations
 import json
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
+import uuid
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -65,6 +76,10 @@ KNOWN_PANEL_IDS: tuple[str, ...] = (
 # needs (the WQL deciles are the 0.1/0.2/…/0.9 subset), instead of a coarse
 # decile band being re-interpolated.
 REQUEST_QUANTILES: tuple[float, ...] = _CRPS_QUANTILES
+
+# Public Ephemeris API request limits (paracast-web lib/forecast/validation.ts).
+PUBLIC_MAX_CONTEXT = 16_384
+PUBLIC_MAX_OUTPUT_VALUES = 120_000  # series x horizon x quantiles per request
 
 # ISO-8601 sampling interval (challenge meta["freq"], the FREQ_SEASONALITY
 # keys) → the pandas-style alias paracast's feature extractor understands.
@@ -123,6 +138,8 @@ class ParacastClient:
         transport=None,
     ):
         self.base_url = base_url.rstrip("/")
+        # The public Ephemeris API lives under /api/v1; anything else is the raw backend.
+        self.public = urllib.parse.urlparse(self.base_url).path.endswith("/api/v1")
         self.api_key = api_key
         self.timeout = timeout
         self.retries = retries
@@ -139,10 +156,18 @@ class ParacastClient:
         except urllib.error.HTTPError as e:  # non-2xx still carries a JSON body
             return e.code, e.read()
 
-    def _call(self, method: str, path: str, payload: dict | None = None) -> dict:
-        url = self.base_url + path
+    def _call(
+        self,
+        method: str,
+        path: str,
+        payload: dict | None = None,
+        *,
+        url: str | None = None,
+        headers: dict | None = None,
+    ) -> dict:
+        url = url or self.base_url + path
         body = None if payload is None else json.dumps(payload).encode()
-        headers = {"Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json", **(headers or {})}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         last: Exception | None = None
@@ -188,18 +213,42 @@ class ParacastClient:
         }
         if model is not None:
             payload["model"] = model
-        if freq is not None:
-            payload["freq"] = freq
-        return self._call("POST", "/forecast", payload)
+        if not self.public:
+            if freq is not None:
+                payload["freq"] = freq
+            return self._call("POST", "/forecast", payload)
+        payload["series"] = [
+            {"values": s, **({"freq": freq} if freq is not None else {})} for s in series
+        ]
+        # The public API reads only the last context_len points (default 256); send
+        # the full history so rounds score exactly what the raw backend saw.
+        payload["context_len"] = min(max(len(s) for s in series), PUBLIC_MAX_CONTEXT)
+        # One key per logical request, reused by _call's retries: a retry after a
+        # timeout replays the stored result instead of paying for it twice.
+        key = f"weir-{uuid.uuid4().hex}"
+        return self._call("POST", "/forecast", payload, headers={"Idempotency-Key": key})
 
     def feedback(self, request_id: str, actuals: list[list[float]]) -> dict:
         return self._call("POST", "/feedback", {"request_id": request_id, "actuals": actuals})
 
     def models(self) -> dict:
-        return self._call("GET", "/models")
+        doc = self._call("GET", "/models")
+        # The public API answers with the provider's model list, unwrapped.
+        return {"models": doc} if isinstance(doc, list) else doc
 
     def health(self) -> dict:
-        return self._call("GET", "/health")
+        if not self.public:
+            return self._call("GET", "/health")
+        # Public status, mapped onto the raw /health shape the round expects.
+        root = self.base_url[: -len("/api/v1")]
+        doc = self._call("GET", "/api/status", url=root + "/api/status")
+        models = doc.get("models", [])
+        return {
+            "status": "ok" if doc.get("state") == "operational" else doc.get("state", "unknown"),
+            "healthy": [m["name"] for m in models if m.get("state") == "ready"],
+            "unhealthy": [m["name"] for m in models
+                          if m.get("enabled") and m.get("state") != "ready"],
+        }
 
     def panel(self) -> list[str]:
         """Names of the enabled+healthy serving panel, in manifest order."""
@@ -353,8 +402,12 @@ def prefetch_forecasts(
         table: dict[int, ProbForecast] = {}
         try:
             for (horizon, freq), indices in groups.items():
-                for start in range(0, len(indices), chunk):
-                    batch = indices[start : start + chunk]
+                step = chunk
+                if getattr(client, "public", False):  # stay inside the public API's output budget
+                    per_series = horizon * len(REQUEST_QUANTILES)
+                    step = max(1, min(chunk, PUBLIC_MAX_OUTPUT_VALUES // per_series))
+                for start in range(0, len(indices), step):
+                    batch = indices[start : start + step]
                     series = [_clean_series(challenges[i].context) for i in batch]
                     resp = client.forecast(
                         series,
