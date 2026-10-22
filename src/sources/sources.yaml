@@ -2511,6 +2511,8 @@
     sample_freshness_hours: 12.0
   notes: Use ?starttime/endtime for historical. Other AS resources for hierarchical.
 - id: rki_germany_cases
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-28T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: RKI Germany daily new COVID/respiratory cases
   domain: healthcare
   dgp_class: disease_case_count
@@ -37986,6 +37988,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_beretsky_notes
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-10-13T01:00:00+00:00 is 9.2d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   mv_channels: ["value", "remote_inc"]
   name: beretsky.net — local note publication rate (Misskey)
   domain: web_cloudops
@@ -77270,6 +77274,8 @@
   notes: Socrata SODA resource n7fk-dce5, newest-first on crash_date_time. Domain from the publisher's own
     category/tags, not the title.
 - id: data_mosquito_trap_counts_aedes_at
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-10T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Aedes atlanticus] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -77298,6 +77304,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Aedes atlanticus'.
 - id: data_mosquito_trap_counts_aedes_ve
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-10T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Aedes vexans] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -77326,6 +77334,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Aedes vexans'.
 - id: data_mosquito_trap_counts_anophele
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-10T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Anopheles crucians] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -77354,6 +77364,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Anopheles crucians'.
 - id: data_mosquito_trap_counts_culex_er
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-10T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Culex erraticus] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -77382,6 +77394,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Culex erraticus'.
 - id: data_mosquito_trap_counts_culex_sa
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-10T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Culex salinarius] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -77410,6 +77424,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Culex salinarius'.
 - id: data_mosquito_trap_counts_culiseta
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-10T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Culiseta melanura] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -77438,6 +77454,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Culiseta melanura'.
 - id: data_mosquito_trap_counts_males
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-10T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Males] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -77496,6 +77514,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Orthopodomyia signifera'.
 - id: data_mosquito_trap_counts_psoropho
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-10T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Mosquito Trap Counts [Psorophora columbi] (data.norfolk.gov)
   domain: nature
   dgp_class: environmental_measurement
@@ -86306,6 +86326,8 @@
   notes: USGS NWIS IV service, gauge 09352900 (Vallecito Creek Near Bayfield, Co.), parameter code 00060
     (Discharge), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00060_09246500
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-09-29T07:00:00+00:00 is 23.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Discharge — Elkhead Creek Near Craig, Co (USGS 09246500)
   domain: nature
   dgp_class: river_flow
@@ -86516,6 +86538,8 @@
   notes: USGS NWIS IV service, gauge 09034900 (Bobtail Creek Near Jones Pass, Co), parameter code 00060
     (Discharge), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00060_09073005
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-10-08T09:15:00+00:00 is 13.9d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Discharge — Lincoln Creek Below Grizzly Reservoir Nr Aspen, Co (USGS 09073005)
   domain: nature
   dgp_class: river_flow
@@ -96258,6 +96282,8 @@
   notes: active-users chart sibling of misskey_blue_notes; same host, distinct endpoint/metric (readWrite = users
     who both read and wrote in the hour).
 - id: misskey_beretsky_active_users
+  disabled: true
+  disabled_reason: '2026-10-22: auto-disabled by freshness audit — newest observation 2026-10-13T01:00:00+00:00 is 9.2d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: beretsky.net — active local users (Misskey)
   domain: web_cloudops
   dgp_class: active_user_count
