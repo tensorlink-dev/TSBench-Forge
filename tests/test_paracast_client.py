@@ -222,6 +222,36 @@ def test_5xx_retries():
     assert len(calls) == 2
 
 
+def test_429_waits_retry_after_without_spending_retries():
+    calls, slept = [], []
+
+    def transport(method, url, body, headers):
+        calls.append(headers.get("Idempotency-Key"))
+        if len(calls) < 3:
+            return 429, b'{"error": "Rate limit exceeded"}', {"Retry-After": "7"}
+        return 200, json.dumps({"forecasts": [], "meta": {}}).encode(), {}
+
+    client = pc.ParacastClient("https://eph.example/api/v1", transport=transport,
+                               retries=0, sleep=slept.append)
+    client.forecast([[1.0, 2.0]], horizon=2)
+    assert slept == [7.0, 7.0]
+    assert len(set(calls)) == 1  # the same idempotency key on every attempt
+
+
+def test_429_gives_up_after_rate_limit_wait():
+    slept = []
+
+    def transport(method, url, body, headers):
+        return 429, b'{"error": "Rate limit exceeded"}'  # no headers: default pause
+
+    client = pc.ParacastClient("http://x", transport=transport, retries=3,
+                               rate_limit_wait=20.0, sleep=slept.append)
+    with pytest.raises(pc.ParacastError) as e:
+        client.forecast([[1.0, 2.0]], horizon=2)
+    assert e.value.status == 429
+    assert slept == [6.0, 6.0, 6.0]
+
+
 def test_models_json_covers_every_publishable_id():
     """Every id a paracast round can publish has display metadata.
 

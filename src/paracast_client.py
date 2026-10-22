@@ -120,6 +120,17 @@ class ParacastError(RuntimeError):
         self.status = status
 
 
+def _retry_after(headers: dict | None, default: float = 6.0) -> float:
+    """Seconds a 429 asks us to wait; the bucket refills one token per 6 s."""
+    for k, v in (headers or {}).items():
+        if k.lower() == "retry-after":
+            try:
+                return min(max(float(v), 1.0), 120.0)
+            except ValueError:
+                break
+    return default
+
+
 class ParacastClient:
     """Minimal JSON client for the paracast router API.
 
@@ -127,7 +138,13 @@ class ParacastClient:
     ``(method, url, body_bytes|None, headers) -> (status, body_bytes)``. The
     default uses urllib. Retries cover transient 5xx / connection failures —
     the endpoint cold-starts workers (weight downloads), so first contact after
-    a deploy can 503 briefly.
+    a deploy can 503 briefly. A transport may also return a third element, the
+    response headers, so a 429 can honour ``Retry-After``.
+
+    A 429 is the public API's per-account rate limit (10 forecasts/min, burst
+    20), not a contract error: it waits ``Retry-After`` and tries again without
+    spending ``retries``, up to ``rate_limit_wait`` seconds per call. Rejected
+    requests are not charged, and a forecast keeps its idempotency key.
     """
 
     def __init__(
@@ -138,7 +155,9 @@ class ParacastClient:
         timeout: float = 300.0,
         retries: int = 2,
         retry_wait: float = 2.0,
+        rate_limit_wait: float = 900.0,
         transport=None,
+        sleep=time.sleep,
     ):
         self.base_url = base_url.rstrip("/")
         # The public Ephemeris API lives under /api/v1; anything else is the raw backend.
@@ -147,7 +166,9 @@ class ParacastClient:
         self.timeout = timeout
         self.retries = retries
         self.retry_wait = retry_wait
+        self.rate_limit_wait = rate_limit_wait
         self._transport = transport or self._urllib_transport
+        self._sleep = sleep
 
     # -- transport ----------------------------------------------------------
 
@@ -155,9 +176,9 @@ class ParacastClient:
         req = urllib.request.Request(url, data=body, headers=headers, method=method)
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                return resp.status, resp.read()
+                return resp.status, resp.read(), dict(resp.headers)
         except urllib.error.HTTPError as e:  # non-2xx still carries a JSON body
-            return e.code, e.read()
+            return e.code, e.read(), dict(e.headers or {})
 
     def _call(
         self,
@@ -174,13 +195,21 @@ class ParacastClient:
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         last: Exception | None = None
-        for attempt in range(self.retries + 1):
+        waited = 0.0
+        attempt = 0
+        while True:
             try:
-                status, raw = self._transport(method, url, body, headers)
+                status, raw, *rest = self._transport(method, url, body, headers)
             except OSError as e:  # DNS/conn/timeout — retryable
                 last = ParacastError(f"{method} {path}: {e}")
                 status, raw = None, b""
             else:
+                if status == 429:
+                    pause = _retry_after(rest[0] if rest else None)
+                    if waited + pause <= self.rate_limit_wait:
+                        self._sleep(pause)
+                        waited += pause
+                        continue
                 if status is not None and status < 400:
                     try:
                         return json.loads(raw.decode() or "{}")
@@ -190,9 +219,10 @@ class ParacastClient:
                 last = ParacastError(f"{method} {path}: HTTP {status}: {detail}", status)
                 if status is not None and status < 500:
                     raise last  # 4xx is a contract bug, not a blip — never retry
-            if attempt < self.retries:
-                time.sleep(self.retry_wait * (2**attempt))
-        raise last  # type: ignore[misc]
+            if attempt >= self.retries:
+                raise last  # type: ignore[misc]
+            self._sleep(self.retry_wait * (2**attempt))
+            attempt += 1
 
     # -- endpoints ----------------------------------------------------------
 
