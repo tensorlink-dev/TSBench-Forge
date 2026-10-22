@@ -14,8 +14,11 @@
 # date"), so the feed updates twice daily while history stays one round/day.
 #
 # SECRETS (Settings -> Secrets and variables -> Actions):
-#   PARACAST_URL            required — the deployed chute's base URL
-#   PARACAST_API_KEY        optional — bearer token if the gateway needs one
+#   PARACAST_URL            required — the public Ephemeris API
+#                           (https://ephemeris.cascade.industries/api/v1), or a raw
+#                           paracast backend's base URL
+#   PARACAST_API_KEY        a pc_live_ Ephemeris key (rounds are billed in credits),
+#                           or the raw backend's bearer token
 #   HIPPIUS_S3_ACCESS_KEY   required — pulls the scraped parquet mirror
 #   HIPPIUS_S3_SECRET_KEY   required
 #   HIPPIUS_S3_ENDPOINT     optional (default https://s3.hippius.com)
@@ -159,7 +162,24 @@ jobs:
           fi
           # ${arr[@]+...} so an empty auth array is not an unbound-variable
           # error under `set -u`.
-          probe() { curl -sf -m 30 ${auth[@]+"${auth[@]}"} "${PARACAST_URL}/health" 2>/dev/null; }
+          # The public Ephemeris API reports health at /api/status (no key), in
+          # its own shape; map it onto the raw /health fields used below.
+          case "${PARACAST_URL%/}" in
+            */api/v1)
+              status_url="${PARACAST_URL%/}"; status_url="${status_url%/api/v1}/api/status"
+              probe() {
+                curl -sf -m 30 "${status_url}" 2>/dev/null | python -c '
+          import json, sys
+          d = json.load(sys.stdin); m = d.get("models", [])
+          print(json.dumps({
+              "status": "ok" if d.get("state") == "operational" else d.get("state", "?"),
+              "healthy": [x["name"] for x in m if x.get("state") == "ready"],
+              "unhealthy": [x["name"] for x in m if x.get("enabled") and x.get("state") != "ready"],
+          }))'
+              } ;;
+            *)
+              probe() { curl -sf -m 30 ${auth[@]+"${auth[@]}"} "${PARACAST_URL}/health" 2>/dev/null; } ;;
+          esac
           field() { printf '%s' "$1" | python -c "import json,sys;d=json.load(sys.stdin);print($2)" 2>/dev/null; }
 
           up_wait="${PARACAST_UP_TIMEOUT:-1800}"   # 30 min to answer at all
