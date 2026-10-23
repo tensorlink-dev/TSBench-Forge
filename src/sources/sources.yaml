@@ -26980,6 +26980,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the SECOORA ERDDAP server (erddap.secoora.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: air_pressure_at_mean_sea_level, relative_humidity, sea_water_practical_salinity, air_temperature.'
 - id: oceantrack_glider_deployment_228_sambro_2026_07_19
+  disabled: true
+  disabled_reason: '2026-10-23: auto-disabled by freshness audit — newest observation 2026-10-13T08:28:10+00:00 is 9.9d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: 'Glider deployment #228 - sambro 2026-07-19 (realtime) (OTN)'
   domain: nature
   dgp_class: ocean_physics
@@ -43964,6 +43966,8 @@
   audit_slack_days: 27
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_great_peertube_great_service
+  disabled: true
+  disabled_reason: '2026-10-23: auto-disabled by freshness audit — newest observation 2026-08-21T00:00:00+00:00 is 63.3d old vs a 21.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube | Great-Service — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -46998,6 +47002,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_fedivienne_peertube_du_fedivienne
+  disabled: true
+  disabled_reason: '2026-10-23: auto-disabled by freshness audit — newest observation 2026-10-01T08:00:00+00:00 is 21.9d old vs a 7.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: PeerTube du FédiVienne — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47654,6 +47660,8 @@
   audit_slack_days: 10
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_social_lfdi_bawu
+  disabled: true
+  disabled_reason: '2026-10-23: auto-disabled by freshness audit — newest observation 2026-09-11T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: LfDI BaWü — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
