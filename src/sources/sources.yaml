@@ -144997,3 +144997,1085 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''25'': without it the response
     interleaves several series on the same timestamps.'
+- id: sg_nea_psi_twenty_four_hourly_central
+  name: Singapore NEA — 24-hour PSI, central region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.psi_twenty_four_hourly.central
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_psi_twenty_four_hourly_east
+  name: Singapore NEA — 24-hour PSI, east region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.psi_twenty_four_hourly.east
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_psi_twenty_four_hourly_north
+  name: Singapore NEA — 24-hour PSI, north region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.psi_twenty_four_hourly.north
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_psi_twenty_four_hourly_south
+  name: Singapore NEA — 24-hour PSI, south region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.psi_twenty_four_hourly.south
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_psi_twenty_four_hourly_west
+  name: Singapore NEA — 24-hour PSI, west region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.psi_twenty_four_hourly.west
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm25_twenty_four_hourly_central
+  name: Singapore NEA — 24-hour PM2.5, central region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm25_twenty_four_hourly.central
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm25_twenty_four_hourly_east
+  name: Singapore NEA — 24-hour PM2.5, east region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm25_twenty_four_hourly.east
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm25_twenty_four_hourly_north
+  name: Singapore NEA — 24-hour PM2.5, north region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm25_twenty_four_hourly.north
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm25_twenty_four_hourly_south
+  name: Singapore NEA — 24-hour PM2.5, south region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm25_twenty_four_hourly.south
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm25_twenty_four_hourly_west
+  name: Singapore NEA — 24-hour PM2.5, west region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm25_twenty_four_hourly.west
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm10_twenty_four_hourly_central
+  name: Singapore NEA — 24-hour PM10, central region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm10_twenty_four_hourly.central
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm10_twenty_four_hourly_east
+  name: Singapore NEA — 24-hour PM10, east region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm10_twenty_four_hourly.east
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm10_twenty_four_hourly_north
+  name: Singapore NEA — 24-hour PM10, north region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm10_twenty_four_hourly.north
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm10_twenty_four_hourly_south
+  name: Singapore NEA — 24-hour PM10, south region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm10_twenty_four_hourly.south
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_pm10_twenty_four_hourly_west
+  name: Singapore NEA — 24-hour PM10, west region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.pm10_twenty_four_hourly.west
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_o3_sub_index_central
+  name: Singapore NEA — ozone sub-index, central region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.o3_sub_index.central
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_o3_sub_index_east
+  name: Singapore NEA — ozone sub-index, east region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.o3_sub_index.east
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_o3_sub_index_north
+  name: Singapore NEA — ozone sub-index, north region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.o3_sub_index.north
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_o3_sub_index_south
+  name: Singapore NEA — ozone sub-index, south region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.o3_sub_index.south
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_o3_sub_index_west
+  name: Singapore NEA — ozone sub-index, west region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.o3_sub_index.west
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_no2_one_hour_max_central
+  name: Singapore NEA — 1-hour max NO2, central region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.no2_one_hour_max.central
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_no2_one_hour_max_east
+  name: Singapore NEA — 1-hour max NO2, east region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.no2_one_hour_max.east
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_no2_one_hour_max_north
+  name: Singapore NEA — 1-hour max NO2, north region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.no2_one_hour_max.north
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_no2_one_hour_max_south
+  name: Singapore NEA — 1-hour max NO2, south region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.no2_one_hour_max.south
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_no2_one_hour_max_west
+  name: Singapore NEA — 1-hour max NO2, west region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.no2_one_hour_max.west
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_so2_sub_index_central
+  name: Singapore NEA — sulphur dioxide sub-index, central region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.so2_sub_index.central
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_so2_sub_index_east
+  name: Singapore NEA — sulphur dioxide sub-index, east region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.so2_sub_index.east
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_so2_sub_index_north
+  name: Singapore NEA — sulphur dioxide sub-index, north region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.so2_sub_index.north
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_so2_sub_index_south
+  name: Singapore NEA — sulphur dioxide sub-index, south region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.so2_sub_index.south
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_so2_sub_index_west
+  name: Singapore NEA — sulphur dioxide sub-index, west region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.so2_sub_index.west
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_co_sub_index_central
+  name: Singapore NEA — carbon monoxide sub-index, central region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.co_sub_index.central
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_co_sub_index_east
+  name: Singapore NEA — carbon monoxide sub-index, east region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.co_sub_index.east
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_co_sub_index_north
+  name: Singapore NEA — carbon monoxide sub-index, north region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.co_sub_index.north
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_co_sub_index_south
+  name: Singapore NEA — carbon monoxide sub-index, south region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.co_sub_index.south
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_co_sub_index_west
+  name: Singapore NEA — carbon monoxide sub-index, west region
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/psi
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings.co_sub_index.west
+    variates: 1
+  history_available: P0D — latest reading per fetch
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: 'National Environment Agency air-quality index. A publisher new to the catalog — the point of this batch is breadth of distinct APIs, not depth in one network, because the KOTH bootstrap resamples
+    whole feeds. Snapshot feed: ripens at the poll cadence.'
+- id: sg_nea_air_temperature_panel
+  name: Singapore NEA — air temperature (station panel)
+  domain: nature
+  dgp_class: air_temperature
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  frequency: PT5M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/air-temperature
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings[].value
+    panel_field: items[0].readings[].station_id
+    drop_null_values: true
+  history_available: P0D
+  update_cadence_observed: 5 minutes
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: NEA weather station network, 5-minute readings. nature rather than healthcare because the domain is already at its pool cap on hourly air quality.
+- id: sg_nea_relative_humidity_panel
+  name: Singapore NEA — relative humidity (station panel)
+  domain: nature
+  dgp_class: humidity
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  frequency: PT5M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/relative-humidity
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings[].value
+    panel_field: items[0].readings[].station_id
+    drop_null_values: true
+  history_available: P0D
+  update_cadence_observed: 5 minutes
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: NEA weather station network, 5-minute readings. nature rather than healthcare because the domain is already at its pool cap on hourly air quality.
+- id: sg_nea_wind_speed_panel
+  name: Singapore NEA — wind speed (station panel)
+  domain: nature
+  dgp_class: wind_speed
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  frequency: PT5M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/wind-speed
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings[].value
+    panel_field: items[0].readings[].station_id
+    drop_null_values: true
+  history_available: P0D
+  update_cadence_observed: 5 minutes
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: NEA weather station network, 5-minute readings. nature rather than healthcare because the domain is already at its pool cap on hourly air quality.
+- id: sg_nea_wind_direction_panel
+  name: Singapore NEA — wind direction (station panel)
+  domain: nature
+  dgp_class: wind_direction
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  frequency: PT5M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/wind-direction
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings[].value
+    panel_field: items[0].readings[].station_id
+    drop_null_values: true
+  history_available: P0D
+  update_cadence_observed: 5 minutes
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: NEA weather station network, 5-minute readings. nature rather than healthcare because the domain is already at its pool cap on hourly air quality.
+- id: sg_nea_rainfall_panel
+  name: Singapore NEA — rainfall (station panel)
+  domain: nature
+  dgp_class: precipitation
+  archetypes:
+  - seasonal_multiscale
+  - bursty_spiky
+  frequency: PT5M
+  poll: PT5M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.data.gov.sg/v1/environment/rainfall
+  schema:
+    snapshot_now: true
+    value_field: items[0].readings[].value
+    panel_field: items[0].readings[].station_id
+    drop_null_values: true
+  history_available: P0D
+  update_cadence_observed: 5 minutes
+  pretraining_novelty: clean
+  license: Singapore Open Data Licence (data.gov.sg)
+  notes: NEA weather station network, 5-minute readings. nature rather than healthcare because the domain is already at its pool cap on hourly air quality.
+- id: wa_fuelwatch_ulp_panel
+  name: WA FuelWatch — unleaded 91 price (station panel)
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://www.fuelwatch.wa.gov.au/api/sites?fuelType=ULP
+  schema:
+    snapshot_now: true
+    value_field: '[].product.priceToday'
+    panel_field: '[].id'
+    drop_null_values: true
+  history_available: P0D — today's posted price
+  update_cadence_observed: prices are set daily by law
+  pretraining_novelty: clean
+  license: Government of Western Australia open data
+  notes: Western Australia publishes every station's price daily under its FuelWatch scheme — ~948 stations. A distinct publisher from the Spanish MITECO panels already wired.
+- id: wa_fuelwatch_lpg_panel
+  name: WA FuelWatch — LPG price (station panel)
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://www.fuelwatch.wa.gov.au/api/sites?fuelType=LPG
+  schema:
+    snapshot_now: true
+    value_field: '[].product.priceToday'
+    panel_field: '[].id'
+    drop_null_values: true
+  history_available: P0D — today's posted price
+  update_cadence_observed: prices are set daily by law
+  pretraining_novelty: clean
+  license: Government of Western Australia open data
+  notes: Western Australia publishes every station's price daily under its FuelWatch scheme — ~948 stations. A distinct publisher from the Spanish MITECO panels already wired.
+- id: at_econtrol_die_vienna
+  name: Austria E-Control — diesel price, Vienna stations
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  poll: PT30M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=48.2&longitude=16.37&fuelType=DIE
+  schema:
+    snapshot_now: true
+    value_field: '[].prices[].amount'
+    panel_field: '[].id'
+    drop_null_values: true
+  history_available: P0D
+  update_cadence_observed: operators must post changes; the API returns current prices
+  pretraining_novelty: clean
+  license: E-Control Austria open API
+  notes: Austrian regulator's price API. 30-minute band, which is the thinnest cadence cell in the pool (99 series catalog-wide), so these land where there is both domain and band headroom.
+- id: at_econtrol_sup_vienna
+  name: Austria E-Control — petrol price, Vienna stations
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  poll: PT30M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=48.2&longitude=16.37&fuelType=SUP
+  schema:
+    snapshot_now: true
+    value_field: '[].prices[].amount'
+    panel_field: '[].id'
+    drop_null_values: true
+  history_available: P0D
+  update_cadence_observed: operators must post changes; the API returns current prices
+  pretraining_novelty: clean
+  license: E-Control Austria open API
+  notes: Austrian regulator's price API. 30-minute band, which is the thinnest cadence cell in the pool (99 series catalog-wide), so these land where there is both domain and band headroom.
+- id: at_econtrol_gas_vienna
+  name: Austria E-Control — CNG price, Vienna stations
+  domain: sales
+  dgp_class: retail_fuel_price
+  archetypes:
+  - hierarchical
+  - non_stationary_regime
+  frequency: PT30M
+  poll: PT30M
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    url: https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=48.2&longitude=16.37&fuelType=GAS
+  schema:
+    snapshot_now: true
+    value_field: '[].prices[].amount'
+    panel_field: '[].id'
+    drop_null_values: true
+  history_available: P0D
+  update_cadence_observed: operators must post changes; the API returns current prices
+  pretraining_novelty: clean
+  license: E-Control Austria open API
+  notes: Austrian regulator's price API. 30-minute band, which is the thinnest cadence cell in the pool (99 series catalog-wide), so these land where there is both domain and band headroom.
