@@ -146079,3 +146079,2217 @@
   pretraining_novelty: clean
   license: E-Control Austria open API
   notes: Austrian regulator's price API. 30-minute band, which is the thinnest cadence cell in the pool (99 series catalog-wide), so these land where there is both domain and band headroom.
+- id: colorado_wumm_7awb_daily_volume
+  name: DWR Well Application Permit — daily volume (data.colorado.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.colorado.gov/resource/wumm-7awb.json?$select=date_trunc_ymd%28modified%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 18950 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 18950 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: austintexas_3syk_w9eu_daily_volume
+  name: Issued Construction Permits — daily volume (datahub.austintexas.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datahub.austintexas.gov/resource/3syk-w9eu.json?$select=date_trunc_ymd%28completed_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 15690 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 15690 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: colorado_7s5z_vewr_daily_volume
+  name: Professional and Occupational Licenses in Colo — daily volume (data.colorado.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.colorado.gov/resource/7s5z-vewr.json?$select=date_trunc_ymd%28licenseexpirationdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 13263 days measured before wiring
+  update_cadence_observed: newest record 2032-10-21; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 13263 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: texas_kxv3_diwf_daily_volume
+  name: Insurance agents, adjusters, and people approv — daily volume (data.texas.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/kxv3-diwf.json?$select=date_trunc_ymd%28license_issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 12635 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 12635 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofnewyork_ezy6_djsf_daily_volume
+  name: Street Closures due to Construction Activities — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/ezy6-djsf.json?$select=date_trunc_ymd%28workstartdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 12313 days measured before wiring
+  update_cadence_observed: newest record 2026-10-24; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 12313 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: delaware_mv7j_tx3u_daily_volume
+  name: Permitted Septic Systems — daily volume (data.delaware.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.delaware.gov/resource/mv7j-tx3u.json?$select=date_trunc_ymd%28appreceiveddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 10200 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 10200 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: nola_uh5a_f7uw_daily_volume
+  name: Code Enforcement All Inspections — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/uh5a-f7uw.json?$select=date_trunc_ymd%28inspectiondate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 9368 days measured before wiring
+  update_cadence_observed: newest record 2026-11-16; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 9368 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofchicago_ydr8_5enu_daily_volume
+  name: Building Permits — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/ydr8-5enu.json?$select=date_trunc_ymd%28application_start_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8426 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 8426 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: montgomerycountymd_qxie_8qnp_daily_volume
+  name: Electrical Building Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/qxie-8qnp.json?$select=date_trunc_ymd%28issueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8164 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 8164 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: dallasopendata_4n3h_rfqm_daily_volume
+  name: 311 Service Requests October 1, 2000 to Presen — daily volume (www.dallasopendata.com)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://www.dallasopendata.com/resource/4n3h-rfqm.json?$select=date_trunc_ymd%28closed_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8025 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 8025 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: lacity_rken_a55j_daily_volume
+  name: Building and Safety - Code Enforcement Case -  — daily volume (data.lacity.org)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.lacity.org/resource/rken-a55j.json?$select=date_trunc_ymd%28resdttm%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 7941 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 7941 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: calgary_c2es_76ed_daily_volume
+  name: Building Permits — daily volume (data.calgary.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/c2es-76ed.json?$select=date_trunc_ymd%28completeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 7395 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 7395 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: seattle_76t5_zqzr_daily_volume
+  name: Building Permits — daily volume (cos-data.seattle.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/76t5-zqzr.json?$select=date_trunc_ymd%28expiresdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 7145 days measured before wiring
+  update_cadence_observed: newest record 2029-07-10; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 7145 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: nola_u6yx_v2tw_daily_volume
+  name: Code Enforcement All Cases — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/u6yx-v2tw.json?$select=date_trunc_ymd%28permitfiling%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 7136 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 7136 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: texas_3yqc_fcdt_daily_volume
+  name: Insurance agencies and businesses approved to  — daily volume (data.texas.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/3yqc-fcdt.json?$select=date_trunc_ymd%28license_issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 7058 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 7058 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: nola_hjcd_grvu_daily_volume
+  name: Occupational Business Licenses — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/hjcd-grvu.json?$select=date_trunc_ymd%28businessstartdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 7046 days measured before wiring
+  update_cadence_observed: newest record 2027-02-27; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 7046 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofchicago_r5kz_chrr_daily_volume
+  name: Business Licenses — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/r5kz-chrr.json?$select=date_trunc_ymd%28application_requirements_complete%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 7018 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 7018 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: montgomerycountymd_m88u_pqki_daily_volume
+  name: Residential Permit — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/m88u-pqki.json?$select=date_trunc_ymd%28issueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6991 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 6991 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: montgomerycountymd_i26v_w6bd_daily_volume
+  name: Commercial Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/i26v-w6bd.json?$select=date_trunc_ymd%28addeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6923 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 6923 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: montgomerycountymd_ih88_a6aa_daily_volume
+  name: Mechanical Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/ih88-a6aa.json?$select=date_trunc_ymd%28addeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6509 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 6509 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cincinnati_oh_cncm_znd6_daily_volume
+  name: Code Enforcement — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/cncm-znd6.json?$select=date_trunc_ymd%28last_updated%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6209 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 6209 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cincinnati_oh_7dk3_gngs_daily_volume
+  name: Business Licenses — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/7dk3-gngs.json?$select=date_trunc_ymd%28effectivefrom%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5620 days measured before wiring
+  update_cadence_observed: newest record 2027-04-15; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 5620 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofnewyork_p937_wjvj_daily_volume
+  name: Rodent Inspection — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/p937-wjvj.json?$select=date_trunc_ymd%28inspection_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5596 days measured before wiring
+  update_cadence_observed: newest record 2045-08-28; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 5596 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityoforlando_7388_4re5_daily_volume
+  name: Business Tax Receipts — daily volume (data.cityoforlando.net)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityoforlando.net/resource/7388-4re5.json?$select=date_trunc_ymd%28last_licensed_issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5547 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 5547 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: calgary_iahh_g8bj_daily_volume
+  name: 311 Service Requests — daily volume (data.calgary.ca)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/iahh-g8bj.json?$select=date_trunc_ymd%28requested_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5507 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 5507 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: mesaaz_dzpk_hxfb_daily_volume
+  name: Building Permits — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/dzpk-hxfb.json?$select=date_trunc_ymd%28cofo_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5255 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 5255 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: lacity_4f5p_udkv_daily_volume
+  name: Parking Citations — daily volume (data.lacity.org)
+  domain: sales
+  dgp_class: citation_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.lacity.org/resource/4f5p-udkv.json?$select=date_trunc_ymd%28issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5151 days measured before wiring
+  update_cadence_observed: newest record 2034-01-12; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 5151 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: calgary_wrtt_2nqs_daily_volume
+  name: Tenancy Change Applications — daily volume (data.calgary.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/wrtt-2nqs.json?$select=date_trunc_ymd%28issueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4925 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4925 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: nola_rcm3_fn58_daily_volume
+  name: Permits — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/rcm3-fn58.json?$select=date_trunc_ymd%28issuedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4895 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4895 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: edmonton_ukww_xkmj_daily_volume
+  name: 311 Explorer — daily volume (data.edmonton.ca)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.edmonton.ca/resource/ukww-xkmj.json?$select=date_trunc_ymd%28ticket_created_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4824 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4824 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: edmonton_24uj_dj8v_daily_volume
+  name: General Building Permits — daily volume (data.edmonton.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.edmonton.ca/resource/24uj-dj8v.json?$select=date_trunc_ymd%28permit_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4789 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4789 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: lacity_9w5z_rg2h_daily_volume
+  name: Building and Safety Inspections — daily volume (data.lacity.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.lacity.org/resource/9w5z-rg2h.json?$select=date_trunc_ymd%28inspection_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4572 days measured before wiring
+  update_cadence_observed: newest record 2026-10-17; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4572 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: data_4ju2_mf55_daily_volume
+  name: Building Permits - Contractors — daily volume (internal-sandiegocounty.data.socrata.com)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://internal-sandiegocounty.data.socrata.com/resource/4ju2-mf55.json?$select=date_trunc_ymd%28last_updated%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4528 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4528 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofnewyork_cj3v_xdpd_daily_volume
+  name: Street Construction Permits - Related Agency — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/cj3v-xdpd.json?$select=date_trunc_ymd%28createdon%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4474 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4474 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofnewyork_hcv3_zacv_daily_volume
+  name: Street Construction Permits - Cranes — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/hcv3-zacv.json?$select=date_trunc_ymd%28modifiedon%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4469 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4469 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: seattle_k8z7_3feg_daily_volume
+  name: Permit Fees — daily volume (cos-data.seattle.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/k8z7-3feg.json?$select=date_trunc_ymd%28invoicedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4436 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4436 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: nola_8pqz_ftzc_daily_volume
+  name: Code Enforcement Active Pipeline — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/8pqz-ftzc.json?$select=date_trunc_ymd%28initinspection%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4389 days measured before wiring
+  update_cadence_observed: newest record 2026-11-16; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4389 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofchicago_ndbz_vy4e_daily_volume
+  name: Roadway Construction Moratoriums — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/ndbz-vy4e.json?$select=date_trunc_ymd%28expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4349 days measured before wiring
+  update_cadence_observed: newest record 2207-05-12; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4349 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofchicago_4ijn_s7e5_daily_volume
+  name: Food Inspections — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/4ijn-s7e5.json?$select=date_trunc_ymd%28inspection_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4233 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4233 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: everettwa_qvfa_2v26_daily_volume
+  name: Licensed Businesses within the City of Everett — daily volume (data.everettwa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.everettwa.gov/resource/qvfa-2v26.json?$select=date_trunc_ymd%28firstactivitydate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4015 days measured before wiring
+  update_cadence_observed: newest record 2027-01-02; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 4015 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cincinnati_oh_uhjb_xac9_daily_volume
+  name: Cincinnati Building Permits — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/uhjb-xac9.json?$select=date_trunc_ymd%28coissueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3976 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3976 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: marincounty_yfwm_p533_daily_volume
+  name: Building Permit Inspection — daily volume (data.marincounty.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.marincounty.gov/resource/yfwm-p533.json?$select=date_trunc_ymd%28inspection_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3916 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3916 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: montgomerycountymd_6m7h_b5eg_daily_volume
+  name: Fire Alarm Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/6m7h-b5eg.json?$select=date_trunc_ymd%28final_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3868 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3868 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: brla_7ixm_mnvx_daily_volume
+  name: 311 Citizen Requests for Service — daily volume (data.brla.gov)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.brla.gov/resource/7ixm-mnvx.json?$select=date_trunc_ymd%28closeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3839 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3839 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: brla_7fq7_8j7r_daily_volume
+  name: EBR Building Permits — daily volume (data.brla.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.brla.gov/resource/7fq7-8j7r.json?$select=date_trunc_ymd%28creationdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3770 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3770 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofnewyork_tqtj_sjs8_daily_volume
+  name: Street Construction Permits (2022 - Present) — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/tqtj-sjs8.json?$select=date_trunc_ymd%28issuedworkenddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3716 days measured before wiring
+  update_cadence_observed: newest record 2027-10-06; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3716 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityofchicago_nxj5_ix6z_daily_volume
+  name: Sidewalk Cafe Permits — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/nxj5-ix6z.json?$select=date_trunc_ymd%28issued_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3662 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3662 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cincinnati_oh_94uh_66xv_daily_volume
+  name: Cincinnati Building Permits Timeline — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/94uh-66xv.json?$select=date_trunc_ymd%28latest_revision_recd%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3658 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3658 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cincinnati_oh_thvx_5mem_daily_volume
+  name: Cincinnati Building Permits (Combo) w/ Plan Re — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/thvx-5mem.json?$select=date_trunc_ymd%28entry_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3647 days measured before wiring
+  update_cadence_observed: newest record 3201-01-11; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3647 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: norfolk_fahm_yuh4_daily_volume
+  name: Permits — daily volume (data.norfolk.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/fahm-yuh4.json?$select=date_trunc_ymd%28expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3606 days measured before wiring
+  update_cadence_observed: newest record 2121-07-31; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3606 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: data_3v5w_b33m_daily_volume
+  name: Business Licenses — daily volume (integration-kcmo.data.socrata.com)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://integration-kcmo.data.socrata.com/resource/3v5w-b33m.json?$select=date_trunc_ymd%28expirationdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3591 days measured before wiring
+  update_cadence_observed: newest record 3000-01-01; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3591 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: marincounty_mkbn_caye_daily_volume
+  name: Building Permit — daily volume (data.marincounty.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.marincounty.gov/resource/mkbn-caye.json?$select=date_trunc_ymd%28issued_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3553 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3553 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: wa_m8qx_ubtq_daily_volume
+  name: L&I Contractor License Data - General — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/m8qx-ubtq.json?$select=date_trunc_ymd%28contractorlicensesuspenddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3198 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3198 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: mesaaz_8t34_hz58_daily_volume
+  name: Code Compliance Investigation Response — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/8t34-hz58.json?$select=date_trunc_ymd%28record_open_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3190 days measured before wiring
+  update_cadence_observed: newest record 2026-10-17; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3190 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: calgary_vxgy_id5s_daily_volume
+  name: Electrical Permits and Inspections — daily volume (data.calgary.ca)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/vxgy-id5s.json?$select=date_trunc_ymd%28issueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3081 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3081 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: marincounty_73zb_z5me_daily_volume
+  name: Food Facility Inspections — daily volume (data.marincounty.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.marincounty.gov/resource/73zb-z5me.json?$select=date_trunc_ymd%28inspection_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3021 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 3021 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: calgary_tg24_jt7r_daily_volume
+  name: Gas Permits and Inspections — daily volume (data.calgary.ca)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/tg24-jt7r.json?$select=date_trunc_ymd%28issueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2917 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2917 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: texas_7hf9_qc9f_daily_volume
+  name: TABC License Information — daily volume (data.texas.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/7hf9-qc9f.json?$select=date_trunc_ymd%28current_issued_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2831 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2831 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cambridgema_hvtc_3ab9_daily_volume
+  name: Electrical Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/hvtc-3ab9.json?$select=date_trunc_ymd%28applicant_submit_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2538 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2538 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: coronaca_2agx_camz_daily_volume
+  name: CorStat - Building Permits — daily volume (corstat.coronaca.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://corstat.coronaca.gov/resource/2agx-camz.json?$select=date_trunc_ymd%28expired%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2491 days measured before wiring
+  update_cadence_observed: newest record 2027-10-15; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2491 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cityoforlando_k6e8_nw6w_daily_volume
+  name: Code Enforcement Cases — daily volume (data.cityoforlando.net)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityoforlando.net/resource/k6e8-nw6w.json?$select=date_trunc_ymd%28resdt%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2416 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2416 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: mesaaz_2mnr_j6un_daily_volume
+  name: Code Compliance Case Workflow And Inspections — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/2mnr-j6un.json?$select=date_trunc_ymd%28workflow_statusdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2413 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2413 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: mesaaz_hgf6_yenu_daily_volume
+  name: Code Compliance — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/hgf6-yenu.json?$select=date_trunc_ymd%28workflow_status_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2377 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2377 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: mesaaz_k9hp_cy2s_daily_volume
+  name: Code Enforcement Case Turn Around Time (TAT) — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/k9hp-cy2s.json?$select=date_trunc_ymd%28end_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2371 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2371 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: dallasopendata_d7e7_envw_daily_volume
+  name: 311 Service Requests October 1, 2020 to Presen — daily volume (www.dallasopendata.com)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://www.dallasopendata.com/resource/d7e7-envw.json?$select=date_trunc_ymd%28overall_service_request_due_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2341 days measured before wiring
+  update_cadence_observed: newest record 2027-04-13; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2341 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cambridgema_8793_tet2_daily_volume
+  name: Plumbing Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/8793-tet2.json?$select=date_trunc_ymd%28applicant_submit_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2323 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2323 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: norfolk_dpi6_sct5_daily_volume
+  name: Business Licenses — daily volume (data.norfolk.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/dpi6-sct5.json?$select=date_trunc_ymd%28business_opened_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2193 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 2193 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: austintexas_ji6n_8jff_daily_volume
+  name: Signs and Markings Knack 311 Service Requests — daily volume (datahub.austintexas.gov)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datahub.austintexas.gov/resource/ji6n-8jff.json?$select=date_trunc_ymd%28issue_closed_datetime%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1907 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1907 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: austintexas_38mr_dwji_daily_volume
+  name: 311 Service Requests - Austin Transportation a — daily volume (datahub.austintexas.gov)
+  domain: sales
+  dgp_class: service_requests
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datahub.austintexas.gov/resource/38mr-dwji.json?$select=date_trunc_ymd%28created_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1849 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1849 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: data_aaxz_j6pj_daily_volume
+  name: 'Food Service Establishment Inspections: Beginn — daily volume (health.data.ny.gov)'
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://health.data.ny.gov/resource/aaxz-j6pj.json?$select=date_trunc_ymd%28permit_expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1780 days measured before wiring
+  update_cadence_observed: newest record 3018-06-30; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1780 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: ny_3nr4_s9yt_daily_volume
+  name: Currently Licensed Real Estate Appraisers — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/3nr4-s9yt.json?$select=date_trunc_ymd%28org_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1730 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1730 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: kingcounty_r878_4sxa_daily_volume
+  name: Food Establishment Inspection Data — daily volume (data.kingcounty.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.kingcounty.gov/resource/r878-4sxa.json?$select=date_trunc_ymd%28inspection_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1708 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1708 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: ny_ucu3_8265_daily_volume
+  name: Active Appearance Enhancement and Barber Indiv — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/ucu3-8265.json?$select=date_trunc_ymd%28license_effective_term%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1586 days measured before wiring
+  update_cadence_observed: newest record 2030-10-21; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1586 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cambridgema_iect_ma2e_daily_volume
+  name: Food Establishment Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/iect-ma2e.json?$select=date_trunc_ymd%28applicant_submit_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1578 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1578 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: ny_rwbv_mz6z_daily_volume
+  name: Commissioned NYS Notaries Public — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/rwbv-mz6z.json?$select=date_trunc_ymd%28term_issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1529 days measured before wiring
+  update_cadence_observed: newest record 2027-01-14; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1529 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: ny_y3u4_jbgh_daily_volume
+  name: Active Appearance Enhancement and Barber Busin — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/y3u4-jbgh.json?$select=date_trunc_ymd%28license_cur_effective_term%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1525 days measured before wiring
+  update_cadence_observed: newest record 2030-09-25; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1525 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: texas_82ee_gbj5_daily_volume
+  name: Collin CAD Building Permits — daily volume (data.texas.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/82ee-gbj5.json?$select=date_trunc_ymd%28permitissueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1329 days measured before wiring
+  update_cadence_observed: newest record 2206-08-19; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1329 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cambridgema_79ih_g44d_daily_volume
+  name: Roof - Building Permit — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/79ih-g44d.json?$select=date_trunc_ymd%28debris_removal_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1307 days measured before wiring
+  update_cadence_observed: newest record 2027-02-01; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1307 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: ny_95bk_87hc_daily_volume
+  name: 'Asbestos Individual Certificates: Two Year Win — daily volume (data.ny.gov)'
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/95bk-87hc.json?$select=date_trunc_ymd%28issued_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1293 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1293 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: cambridgema_cmy2_saf4_daily_volume
+  name: Sheet Metal Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/cmy2-saf4.json?$select=date_trunc_ymd%28issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1196 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1196 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: norfolk_mxtv_99gh_daily_volume
+  name: Neighborhood Quality Code Enforcement Cases — daily volume (data.norfolk.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/mxtv-99gh.json?$select=date_trunc_ymd%28complaint_created_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1157 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 1157 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill
+    its long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers
+    rather than deepening one city.'
+- id: edmonton_qhi4_bdpu_daily_volume
+  name: City of Edmonton - Business Licences — daily volume (data.edmonton.ca)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.edmonton.ca/resource/qhi4-bdpu.json?$select=date_trunc_ymd%28expiry_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 796 days measured before wiring
+  update_cadence_observed: newest record 2028-12-02; counts aggregated server-side
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 796 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill its
+    long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers rather
+    than deepening one city.'
