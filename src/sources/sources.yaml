@@ -46916,6 +46916,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_4d2_video_4d2_org
+  disabled: true
+  disabled_reason: '2026-10-24: auto-disabled by freshness audit — newest observation 2026-09-12T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: video.4d2.org — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -132056,6 +132058,8 @@
   notes: Counts come pre-aggregated by the API, so one fetch is the whole history — 744 dated points back to 2012 for the food series, cv 1.27 with a p99 10.3x the median. Recalls arrive in clusters when
     one investigation implicates many products, which is the bursty shape with a long memory rather than a spike train.
 - id: openfda_food_enforcement_class_iii_only_daily
+  disabled: true
+  disabled_reason: '2026-10-24: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: openFDA — food recall enforcement reports per day (Class III only)
   domain: healthcare
   dgp_class: adverse_event_stream
@@ -151206,6 +151210,8 @@
   notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 10864 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
     (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
 - id: cityofnewyork_i9n8_a8ed_daily_volume
+  disabled: true
+  disabled_reason: '2026-10-24: auto-disabled by freshness audit — newest observation 2026-06-24T00:00:00+00:00 is 122.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: NYPD Officer Profile - Department Recognition — daily volume (data.cityofnewyork.us)
   domain: sales
   dgp_class: permit_stream
