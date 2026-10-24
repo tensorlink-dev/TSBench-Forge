@@ -155475,3 +155475,37 @@
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
   notes: production_types[3] is "Hydro Run-of-River" for country pl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
     becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+
+# -- wired batch: grind-20261024-0713 --
+- id: opendata_ods157_60
+  name: Individual decremental balancing energy bids (Historical data as of 22 [60]
+  domain: energy
+  dgp_class: energy_market_activity
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT15M
+  endpoint:
+    type: rest_json
+    url: https://opendata.elia.be/api/explore/v2.1/catalog/datasets/ods157/records?limit=100&order_by=datetime%20desc&where=rank%3D%2260%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].datetime
+    value_field:
+    - results[].energybidvolume
+    - results[].cumulativevolume
+    - results[].energybidmarginalprice
+    drop_null_values: true
+    variates: 3
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 15 min over 24 newest records, newest 0.4d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Elia open-data portal, dataset ods157.
+  license: Elia open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset ods157, ordered newest-first on datetime; v2.1 caps
+    `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
+    oldest rows and reads as a dead source. Panel dimension rank is pinned to ''60'': without it the response
+    interleaves several series on the same timestamps.'
