@@ -148293,3 +148293,2785 @@
   notes: 'Daily record count via SoQL date_trunc_ymd, so ONE fetch carries the whole history — 796 distinct days measured before wiring. Chosen for DEPTH: sales was the only domain that could not fill its
     long-horizon window quota (169 of 285 at h=720, which needs 784 points), and a daily series needs over two years of history to qualify. At most 5 datasets per portal so the batch adds publishers rather
     than deepening one city.'
+- id: winnipeg_iibp_28fx_daily_volume
+  name: Burial Records — daily volume (data.winnipeg.ca)
+  domain: healthcare
+  dgp_class: mortality_surveillance
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.winnipeg.ca/resource/iibp-28fx.json?$select=date_trunc_ymd%28date_of_burial%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 30917 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 30917 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_wvxf_dwi5_daily_volume
+  name: Housing Maintenance Code Violations — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/wvxf-dwi5.json?$select=date_trunc_ymd%28originalcertifybydate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 13475 days measured before wiring
+  update_cadence_observed: newest record 2027-02-08
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 13475 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: texas_tm3v_pfq9_daily_volume
+  name: DataSet-01-All Licenses — daily volume (data.texas.gov)
+  domain: healthcare
+  dgp_class: vital_statistics
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/tm3v-pfq9.json?$select=date_trunc_ymd%28license_expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 11236 days measured before wiring
+  update_cadence_observed: newest record 2929-06-30
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 11236 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: wa_4xk5_x9j6_daily_volume
+  name: L&I Contractor License - Principal Data — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/4xk5-x9j6.json?$select=date_trunc_ymd%28startdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 9878 days measured before wiring
+  update_cadence_observed: newest record 2026-10-30
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 9878 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: delaware_pjnv_eaih_daily_volume
+  name: Professional and Occupational Licensing — daily volume (data.delaware.gov)
+  domain: healthcare
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.delaware.gov/resource/pjnv-eaih.json?$select=date_trunc_ymd%28expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 9745 days measured before wiring
+  update_cadence_observed: newest record 2206-09-02
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 9745 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: delaware_2655_qn8j_daily_volume
+  name: Well Permits — daily volume (data.delaware.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.delaware.gov/resource/2655-qn8j.json?$select=date_trunc_ymd%28waterleveldate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 9681 days measured before wiring
+  update_cadence_observed: newest record 7916-08-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 9681 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: wa_t9je_9qwa_daily_volume
+  name: L&I Intent Project Details — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/t9je-9qwa.json?$select=date_trunc_ymd%28bid_due_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 9633 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 9633 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: calgary_6933_unw5_daily_volume
+  name: Development Permits — daily volume (data.calgary.ca)
+  domain: healthcare
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/6933-unw5.json?$select=date_trunc_ymd%28decisiondate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 9319 days measured before wiring
+  update_cadence_observed: newest record 2028-02-06
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 9319 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofchicago_pubx_yq2d_daily_volume
+  name: Transportation Department Permits — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/pubx-yq2d.json?$select=date_trunc_ymd%28applicationenddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8655 days measured before wiring
+  update_cadence_observed: newest record 9025-09-18
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 8655 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofchicago_rsxa_ify5_daily_volume
+  name: Contracts — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/rsxa-ify5.json?$select=date_trunc_ymd%28approval_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8520 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 8520 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: wa_9ncw_tqjn_daily_volume
+  name: L&I Affidavit Project Details — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/9ncw-tqjn.json?$select=date_trunc_ymd%28bidduedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8397 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 8397 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: seattle_kzjm_xkqj_daily_volume
+  name: Seattle Real Time Fire 911 Calls — daily volume (cos-data.seattle.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/kzjm-xkqj.json?$select=date_trunc_ymd%28datetime%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8387 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 8387 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: calgary_8ced_xbvn_daily_volume
+  name: Building Inspections Results — daily volume (data.calgary.ca)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/8ced-xbvn.json?$select=date_trunc_ymd%28issuedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8161 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 8161 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: lacity_e67z_kt2n_daily_volume
+  name: Building and Safety - Building Permits Issued  — daily volume (data.lacity.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.lacity.org/resource/e67z-kt2n.json?$select=date_trunc_ymd%28status_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8045 days measured before wiring
+  update_cadence_observed: newest record 4997-04-18
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 8045 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cincinnati_oh_ivda_umw7_daily_volume
+  name: Inspections & Certificates — daily volume (data.cincinnati-oh.gov)
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/ivda-umw7.json?$select=date_trunc_ymd%28entered_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 7340 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 7340 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofchicago_qhb4_qx8k_daily_volume
+  name: DOE Environmental Asbestos and Demolition Noti — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/qhb4-qx8k.json?$select=date_trunc_ymd%28end_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6390 days measured before wiring
+  update_cadence_observed: newest record 9820-07-01
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6390 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: seattle_33kz_ixgy_daily_volume
+  name: Call Data — daily volume (cos-data.seattle.gov)
+  domain: healthcare
+  dgp_class: crisis_services
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/33kz-ixgy.json?$select=date_trunc_ymd%28cad_event_original_time_queued%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6350 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6350 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_ez4e_fazm_daily_volume
+  name: Bus Breakdown and Delays — daily volume (data.cityofnewyork.us)
+  domain: healthcare
+  dgp_class: crisis_services
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/ez4e-fazm.json?$select=date_trunc_ymd%28occurred_on%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6202 days measured before wiring
+  update_cadence_observed: newest record 2027-02-26
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6202 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: winnipeg_6x82_bz5y_daily_volume
+  name: Substance Use — daily volume (data.winnipeg.ca)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.winnipeg.ca/resource/6x82-bz5y.json?$select=date_trunc_ymd%28dispatch_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5774 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5774 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofgainesville_gvua_xt9q_daily_volume
+  name: Crime Responses — daily volume (data.cityofgainesville.org)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofgainesville.org/resource/gvua-xt9q.json?$select=date_trunc_ymd%28report_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5766 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5766 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_4mse_ku6q_daily_volume
+  name: Traffic Violations — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/4mse-ku6q.json?$select=date_trunc_ymd%28date_of_stop%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5407 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5407 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_2fhm_xt6p_daily_volume
+  name: Use and Occupancy Certificates — daily volume (data.montgomerycountymd.gov)
+  domain: healthcare
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/2fhm-xt6p.json?$select=date_trunc_ymd%28issued_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5405 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5405 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofchicago_ir7v_8mc8_daily_volume
+  name: DOE Environmental Permits — daily volume (data.cityofchicago.org)
+  domain: healthcare
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/ir7v-8mc8.json?$select=date_trunc_ymd%28expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5377 days measured before wiring
+  update_cadence_observed: newest record 2033-03-26
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5377 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: winnipeg_qd6b_q49i_daily_volume
+  name: Naloxone Administrations — daily volume (data.winnipeg.ca)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.winnipeg.ca/resource/qd6b-q49i.json?$select=date_trunc_ymd%28dispatch_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5252 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5252 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: norfolk_u9wr_q74w_daily_volume
+  name: Fire-Rescue Calls for Service — daily volume (data.norfolk.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/u9wr-q74w.json?$select=date_trunc_ymd%28callreceiveddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4678 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4678 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: winnipeg_yg42_q284_daily_volume
+  name: WFPS Call Logs — daily volume (data.winnipeg.ca)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.winnipeg.ca/resource/yg42-q284.json?$select=date_trunc_ymd%28call_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4313 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4313 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cincinnati_oh_vnsz_a3wp_daily_volume
+  name: Cincinnati Fire Incidents (CAD) (including EMS — daily volume (data.cincinnati-oh.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/vnsz-a3wp.json?$select=date_trunc_ymd%28dispatch_time_primary_unit%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4310 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4310 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: ny_9evn_drxk_daily_volume
+  name: Green Jobs - Green New York (GJGNY) Residentia — daily volume (data.ny.gov)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/9evn-drxk.json?$select=date_trunc_ymd%28first_payment_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4286 days measured before wiring
+  update_cadence_observed: newest record 2027-12-24
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4286 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: seattle_28ny_9ts8_daily_volume
+  name: Terry Stops — daily volume (cos-data.seattle.gov)
+  domain: healthcare
+  dgp_class: vital_statistics
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/28ny-9ts8.json?$select=date_trunc_ymd%28occurred_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4240 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4240 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: seattle_i2q9_thny_daily_volume
+  name: Crisis Data — daily volume (cos-data.seattle.gov)
+  domain: healthcare
+  dgp_class: vital_statistics
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/i2q9-thny.json?$select=date_trunc_ymd%28occured_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4181 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4181 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: calgary_d6us_rmnf_daily_volume
+  name: Fire Emergency Response Calls Daily — daily volume (data.calgary.ca)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/d6us-rmnf.json?$select=date_trunc_ymd%28date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4163 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4163 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: wa_ciwg_agsx_daily_volume
+  name: L&I Contractor License Data - Insurance — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/ciwg-agsx.json?$select=date_trunc_ymd%28effectivedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4153 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4153 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofchicago_68nd_jvt3_daily_volume
+  name: Traffic Crashes - Vehicles — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/68nd-jvt3.json?$select=date_trunc_ymd%28crash_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4139 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4139 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofchicago_85ca_t3if_daily_volume
+  name: Traffic Crashes - Crashes — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/85ca-t3if.json?$select=date_trunc_ymd%28date_police_notified%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4102 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4102 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: pittsburghpa_t8t2_4b5n_daily_volume
+  name: Checkbook Data — daily volume (fiscalfocus.pittsburghpa.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://fiscalfocus.pittsburghpa.gov/resource/t8t2-4b5n.json?$select=date_trunc_ymd%28general_ledger_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4002 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4002 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: nola_3ehi_je3s_daily_volume
+  name: Code Enforcement All Violations — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/3ehi-je3s.json?$select=date_trunc_ymd%28violationdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3999 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3999 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: coloradosprings_bjpt_tkzq_daily_volume
+  name: Crash Data — daily volume (policedata.coloradosprings.gov)
+  domain: healthcare
+  dgp_class: mortality_surveillance
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://policedata.coloradosprings.gov/resource/bjpt-tkzq.json?$select=date_trunc_ymd%28accidentdatetime%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3948 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3948 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_b6ht_fw3x_daily_volume
+  name: Demolition Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/b6ht-fw3x.json?$select=date_trunc_ymd%28issueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3907 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3907 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: wa_ucdg_xgbj_daily_volume
+  name: Department of Licensing's Business Licenses Re — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/ucdg-xgbj.json?$select=date_trunc_ymd%28bond_effective_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3855 days measured before wiring
+  update_cadence_observed: newest record 9999-12-31
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3855 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: colorado_fdcw_ei67_daily_volume
+  name: Campaign Reports for Solicitation Notices to C — daily volume (data.colorado.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.colorado.gov/resource/fdcw-ei67.json?$select=date_trunc_ymd%28charitysigneddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3854 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3854 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: pittsburghpa_mk7i_weg4_daily_volume
+  name: New Revenue Budget — daily volume (fiscalfocus.pittsburghpa.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://fiscalfocus.pittsburghpa.gov/resource/mk7i-weg4.json?$select=date_trunc_ymd%28general_ledger_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3783 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3783 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_icn6_v9z3_daily_volume
+  name: Crime — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/icn6-v9z3.json?$select=date_trunc_ymd%28end_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3766 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3766 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofchicago_fypr_ksnz_daily_volume
+  name: DOE Environmental Complaints — daily volume (data.cityofchicago.org)
+  domain: healthcare
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/fypr-ksnz.json?$select=date_trunc_ymd%28resolved_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3760 days measured before wiring
+  update_cadence_observed: newest record 2206-09-24
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3760 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: nola_wy29_i338_daily_volume
+  name: Adjudication Enforcement Cases for the Office  — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/wy29-i338.json?$select=date_trunc_ymd%28nextstatusdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3724 days measured before wiring
+  update_cadence_observed: newest record 2031-08-24
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3724 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cookcountyil_gpmj_6p9q_daily_volume
+  name: Asbestos & Demolition Permits — daily volume (datacatalog.cookcountyil.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datacatalog.cookcountyil.gov/resource/gpmj-6p9q.json?$select=date_trunc_ymd%28permit_expired_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3717 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3717 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_hsz7_ef2y_daily_volume
+  name: OAS - Animal Shelter Pathway — daily volume (data.montgomerycountymd.gov)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/hsz7-ef2y.json?$select=date_trunc_ymd%28indate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3579 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3579 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_bs8b_p36w_daily_volume
+  name: DOB Certificate Of Occupancy — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/bs8b-p36w.json?$select=date_trunc_ymd%28c_o_issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3562 days measured before wiring
+  update_cadence_observed: newest record 2105-11-05
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3562 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_e2zi_m2b7_daily_volume
+  name: OAS - Animal Outcome — daily volume (data.montgomerycountymd.gov)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/e2zi-m2b7.json?$select=date_trunc_ymd%28out_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3552 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3552 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_g76y_dcqj_daily_volume
+  name: DOB After Hour Variance Permits — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/g76y-dcqj.json?$select=date_trunc_ymd%28variance_start_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3470 days measured before wiring
+  update_cadence_observed: newest record 2027-09-30
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3470 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: brla_vwa8_ps2a_daily_volume
+  name: City-Parish Expenditures — daily volume (data.brla.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.brla.gov/resource/vwa8-ps2a.json?$select=date_trunc_ymd%28invoice_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3439 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3439 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: brla_7qhq_wwsg_daily_volume
+  name: Open Checkbook BR — daily volume (data.brla.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.brla.gov/resource/7qhq-wwsg.json?$select=date_trunc_ymd%28invoice_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3432 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3432 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: pittsburghpa_f3ui_3zxw_daily_volume
+  name: Expenses — daily volume (fiscalfocus.pittsburghpa.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://fiscalfocus.pittsburghpa.gov/resource/f3ui-3zxw.json?$select=date_trunc_ymd%28invoice_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3431 days measured before wiring
+  update_cadence_observed: newest record 2424-08-12
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3431 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: mesaaz_kg7m_y6f3_daily_volume
+  name: Development Services - Permit Submittals and R — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/kg7m-y6f3.json?$select=date_trunc_ymd%28record_open_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3143 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3143 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: nola_f5zm_xkyr_daily_volume
+  name: Adjudication Enforcement Fines and Fees Data f — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/f5zm-xkyr.json?$select=date_trunc_ymd%28d_mod%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3100 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3100 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: nola_aib5_en5t_daily_volume
+  name: Permit Application Data for the Office of Busi — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/aib5-en5t.json?$select=date_trunc_ymd%28issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3092 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3092 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: nola_uzyk_jrck_daily_volume
+  name: Adjudication Enforcement Detailed Hearings Dat — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/uzyk-jrck.json?$select=date_trunc_ymd%28hearing_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3015 days measured before wiring
+  update_cadence_observed: newest record 2027-02-03
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3015 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cincinnati_oh_5f3f_hgt9_daily_volume
+  name: Emergency Communications Center (ECC) Calls — daily volume (data.cincinnati-oh.gov)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/5f3f-hgt9.json?$select=date_trunc_ymd%28ali_query_timestamp%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2693 days measured before wiring
+  update_cadence_observed: newest record 2026-10-18
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2693 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cstx_y2v6_fvti_daily_volume
+  name: Open Checkbook - Master Dataset — daily volume (data.cstx.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cstx.gov/resource/y2v6-fvti.json?$select=date_trunc_ymd%28payment_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2681 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2681 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_w9ak_ipjd_daily_volume
+  name: 'DOB NOW: Build – Job Application Filings — daily volume (data.cityofnewyork.us)'
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/w9ak-ipjd.json?$select=date_trunc_ymd%28first_permit_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2652 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2652 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: bloomington_guch_m6cb_daily_volume
+  name: Scooter Activity Daily — daily volume (data.bloomington.in.gov)
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.bloomington.in.gov/resource/guch-m6cb.json?$select=date_trunc_ymd%28day%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2595 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2595 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: norfolk_qzfe_wj25_daily_volume
+  name: Work Orders — daily volume (data.norfolk.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/qzfe-wj25.json?$select=date_trunc_ymd%28start_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2545 days measured before wiring
+  update_cadence_observed: newest record 2027-07-31
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2545 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: austintexas_5bb2_gtef_daily_volume
+  name: Parking Transactions — daily volume (datahub.austintexas.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datahub.austintexas.gov/resource/5bb2-gtef.json?$select=date_trunc_ymd%28start_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2489 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2489 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: nola_en36_xvxg_daily_volume
+  name: Short-Term Rental Permit Applications — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/en36-xvxg.json?$select=date_trunc_ymd%28expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2471 days measured before wiring
+  update_cadence_observed: newest record 2027-11-04
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2471 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_kfp4_dz4h_daily_volume
+  name: 'DOB NOW: Build Elevator Permit Applications — daily volume (data.cityofnewyork.us)'
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/kfp4-dz4h.json?$select=date_trunc_ymd%28plan_examiner_assigned_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2392 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2392 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: lacity_pggv_e4fn_daily_volume
+  name: Checkbook L.A. Data — daily volume (controllerdata.lacity.org)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://controllerdata.lacity.org/resource/pggv-e4fn.json?$select=date_trunc_ymd%28transaction_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2341 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2341 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: mesaaz_j7s9_qiuq_daily_volume
+  name: Vendor Payments — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/j7s9-qiuq.json?$select=date_trunc_ymd%28payment_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2321 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2321 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: mesaaz_822f_avdk_daily_volume
+  name: Temporary Traffic Control (TTC) Permits — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/822f-avdk.json?$select=date_trunc_ymd%28closed_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2299 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2299 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cincinnati_oh_rg6p_b3h3_daily_volume
+  name: Cincinnati Food Safety Program — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/rg6p-b3h3.json?$select=date_trunc_ymd%28last_table_update%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2264 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2264 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: seattle_s7df_xba4_daily_volume
+  name: Short Term Rental License — daily volume (cos-data.seattle.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/s7df-xba4.json?$select=date_trunc_ymd%28licenseexpirationdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2258 days measured before wiring
+  update_cadence_observed: newest record 2028-11-18
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2258 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: wa_bzff_4fmt_daily_volume
+  name: L&I Contractor License Data - Bond — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/bzff-4fmt.json?$select=date_trunc_ymd%28bondcanceldate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2241 days measured before wiring
+  update_cadence_observed: newest record 2723-01-01
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2241 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: dallasopendata_pe63_26ny_daily_volume
+  name: Dog Bite Data — daily volume (www.dallasopendata.com)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://www.dallasopendata.com/resource/pe63-26ny.json?$select=date_trunc_ymd%28reported_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2229 days measured before wiring
+  update_cadence_observed: newest record 2032-08-02
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2229 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cambridgema_qu2z_8suj_daily_volume
+  name: 'Building Permits: Addition/Alteration — daily volume (data.cambridgema.gov)'
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/qu2z-8suj.json?$select=date_trunc_ymd%28construction_debris_removal%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2221 days measured before wiring
+  update_cadence_observed: newest record 2028-06-01
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2221 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: nola_abc4_h3u3_daily_volume
+  name: Occupational Business License Data for the Off — daily volume (data.nola.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.nola.gov/resource/abc4-h3u3.json?$select=date_trunc_ymd%28issuedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2197 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2197 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: calgary_5pvv_k7hn_daily_volume
+  name: Plumbing Permits and Inspections — daily volume (data.calgary.ca)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.calgary.ca/resource/5pvv-k7hn.json?$select=date_trunc_ymd%28completeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2193 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2193 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: colorado_9pwz_gi5v_daily_volume
+  name: Sales Rooms in Colorado — daily volume (data.colorado.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.colorado.gov/resource/9pwz-gi5v.json?$select=date_trunc_ymd%28expiration%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2187 days measured before wiring
+  update_cadence_observed: newest record 2027-12-07
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2187 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cincinnati_oh_w3jp_dfxy_daily_volume
+  name: Vacant & Foreclosed Property Registration — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/w3jp-dfxy.json?$select=date_trunc_ymd%28last_updated%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2016 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2016 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_8vrz_nrur_daily_volume
+  name: Police Service Calls for the Homeless — daily volume (data.montgomerycountymd.gov)
+  domain: healthcare
+  dgp_class: crisis_services
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/8vrz-nrur.json?$select=date_trunc_ymd%28incident_started_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1999 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1999 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cincinnati_oh_pk9w_99n6_daily_volume
+  name: Private Lot Abatement Program — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/pk9w-99n6.json?$select=date_trunc_ymd%28clean_contrctr_costrecd_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1983 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1983 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cambridgema_4rb4_q8tj_daily_volume
+  name: Mechanical Permits — daily volume (data.cambridgema.gov)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/4rb4-q8tj.json?$select=date_trunc_ymd%28attestat_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1880 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1880 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: ny_bpkx_gmh7_daily_volume
+  name: Alternative Fuel Stations in New York — daily volume (data.ny.gov)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/bpkx-gmh7.json?$select=date_trunc_ymd%28open_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1828 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1828 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: norfolk_m9m3_wk2s_daily_volume
+  name: Complaints — daily volume (data.norfolk.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/m9m3-wk2s.json?$select=date_trunc_ymd%28closed_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1808 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1808 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_tb8q_a3ar_daily_volume
+  name: Order to Repair/Vacate Orders — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: enforcement_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/tb8q-a3ar.json?$select=date_trunc_ymd%28actual_rescind_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1807 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1807 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: ct_ajdm_rvz7_daily_volume
+  name: 'State of CT: Open Expenditures - Ledger Curren — daily volume (data.ct.gov)'
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ct.gov/resource/ajdm-rvz7.json?$select=date_trunc_ymd%28invoice_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1781 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1781 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cookcountyil_qh8j_6k63_daily_volume
+  name: Procurement - Awarded Contracts & Amendments — daily volume (datacatalog.cookcountyil.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datacatalog.cookcountyil.gov/resource/qh8j-6k63.json?$select=date_trunc_ymd%28end_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1770 days measured before wiring
+  update_cadence_observed: newest record 2037-04-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1770 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_5d73_8hsh_daily_volume
+  name: Police Service Calls Deemed Unfounded — daily volume (data.montgomerycountymd.gov)
+  domain: healthcare
+  dgp_class: crisis_services
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/5d73-8hsh.json?$select=date_trunc_ymd%28incidentstarteddatetime%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1755 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1755 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: providenceri_425y_pm5m_daily_volume
+  name: City and School Department Purchase Orders — daily volume (data.providenceri.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.providenceri.gov/resource/425y-pm5m.json?$select=date_trunc_ymd%28po_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1741 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1741 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cambridgema_5cra_jws5_daily_volume
+  name: Gas Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/5cra-jws5.json?$select=date_trunc_ymd%28issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1691 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1691 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_43nn_pn8j_daily_volume
+  name: DOHMH New York City Restaurant Inspection Resu — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/43nn-pn8j.json?$select=date_trunc_ymd%28grade_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1669 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1669 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cambridgema_vppe_a39w_daily_volume
+  name: Crane, Boom and Pump Truck Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/vppe-a39w.json?$select=date_trunc_ymd%28issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1610 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1610 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cincinnati_oh_qrj9_83t8_daily_volume
+  name: City of Cincinnati Vendor Payments — daily volume (data.cincinnati-oh.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cincinnati-oh.gov/resource/qrj9-83t8.json?$select=date_trunc_ymd%28record_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1579 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1579 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cambridgema_jrxr_y9ty_daily_volume
+  name: Asbestos Removal Permits — daily volume (data.cambridgema.gov)
+  domain: healthcare
+  dgp_class: inspection_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/jrxr-y9ty.json?$select=date_trunc_ymd%28applicant_submit_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1438 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1438 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: mesaaz_daky_m4y3_daily_volume
+  name: Parks Ranger Reports — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: citation_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/daky-m4y3.json?$select=date_trunc_ymd%28reporting_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1385 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1385 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cambridgema_a5s6_4529_daily_volume
+  name: Tool Truck Parking Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/a5s6-4529.json?$select=date_trunc_ymd%28applicant_submit_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1373 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1373 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: ny_w2zp_sf2x_daily_volume
+  name: 'Certified Payroll Registration: Seven Year Win — daily volume (data.ny.gov)'
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/w2zp-sf2x.json?$select=date_trunc_ymd%28project_start_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1207 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1207 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: norfolk_cab7_wvn5_daily_volume
+  name: Police Active Warrants — daily volume (data.norfolk.gov)
+  domain: healthcare
+  dgp_class: vital_statistics
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/cab7-wvn5.json?$select=date_trunc_ymd%28issudate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1202 days measured before wiring
+  update_cadence_observed: newest record 2026-10-30
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1202 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: energystar_p5st_her9_daily_volume
+  name: ENERGY STAR Certified Residential Refrigerator — daily volume (data.energystar.gov)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.energystar.gov/resource/p5st-her9.json?$select=date_trunc_ymd%28date_qualified%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1110 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1110 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: energystar_qbg3_d468_daily_volume
+  name: ENERGY STAR Certified Displays — daily volume (data.energystar.gov)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.energystar.gov/resource/qbg3-d468.json?$select=date_trunc_ymd%28date_certified%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1098 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1098 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cambridgema_c552_ny5k_daily_volume
+  name: Sprinkler and Standpipe Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/c552-ny5k.json?$select=date_trunc_ymd%28issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1076 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1076 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cityofmesquite_6tva_azs5_daily_volume
+  name: Check Register for Open Checkbook — daily volume (opendata.cityofmesquite.com)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://opendata.cityofmesquite.com/resource/6tva-azs5.json?$select=date_trunc_ymd%28check_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 985 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 985 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: ny_9s3h_dpkz_daily_volume
+  name: Current Liquor Authority Active Licenses — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/9s3h-dpkz.json?$select=date_trunc_ymd%28effectivedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 980 days measured before wiring
+  update_cadence_observed: newest record 2029-09-01
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 980 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: energystar_83eb_xbyy_daily_volume
+  name: ENERGY STAR Certified Heat Pumps — daily volume (data.energystar.gov)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.energystar.gov/resource/83eb-xbyy.json?$select=date_trunc_ymd%28date_available_on_market%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 950 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 950 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: ny_afs9_v7xx_daily_volume
+  name: DMV Peer To Peer Car Sharing — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/afs9-v7xx.json?$select=date_trunc_ymd%28peer_to_peer_vehicle_added_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 905 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 905 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: winnipeg_w8u2_knz6_daily_volume
+  name: DCSP Incident Responses — daily volume (data.winnipeg.ca)
+  domain: healthcare
+  dgp_class: emergency_dispatch
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.winnipeg.ca/resource/w8u2-knz6.json?$select=date_trunc_ymd%28call_datetime%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 901 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 901 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: ny_ikqx_ispy_daily_volume
+  name: 'Mold Contractor Licenses: Four Year Window — daily volume (data.ny.gov)'
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/ikqx-ispy.json?$select=date_trunc_ymd%28issued_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 893 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 893 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: cambridgema_nuxx_d95m_daily_volume
+  name: Excavation Permits — daily volume (data.cambridgema.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/nuxx-d95m.json?$select=date_trunc_ymd%28hoisting_license_expiration%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 846 days measured before wiring
+  update_cadence_observed: newest record 2109-08-02
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 846 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: ny_yg7h_zjbf_daily_volume
+  name: Active Real Estate Salespersons and Brokers — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/yg7h-zjbf.json?$select=date_trunc_ymd%28license_expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 822 days measured before wiring
+  update_cadence_observed: newest record 2029-01-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 822 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: energystar_t2v6_g4nf_daily_volume
+  name: ENERGY STAR Certified Imaging Equipment — daily volume (data.energystar.gov)
+  domain: energy
+  dgp_class: energy_consumption
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.energystar.gov/resource/t2v6-g4nf.json?$select=date_trunc_ymd%28date_available_on_market%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 800 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 800 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
