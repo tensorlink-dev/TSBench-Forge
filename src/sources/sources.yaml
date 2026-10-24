@@ -151075,3 +151075,4397 @@
   license: open data (see host portal terms)
   notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 800 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
     (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
+- id: colorado_wffy_3uut_daily_volume
+  name: Uniform Commercial Code (UCC) Filing Informati — daily volume (data.colorado.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.colorado.gov/resource/wffy-3uut.json?$select=date_trunc_ymd%28filingdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 15083 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 15083 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_f4rp_2kvy_daily_volume
+  name: Clean Air Tracking System (CATS) Permits — daily volume (data.cityofnewyork.us)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/f4rp-2kvy.json?$select=date_trunc_ymd%28expirationdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 14832 days measured before wiring
+  update_cadence_observed: newest record 2030-03-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 14832 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_jz4z_kudi_daily_volume
+  name: OATH Hearings Division Case Status — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/jz4z-kudi.json?$select=date_trunc_ymd%28decision_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 14119 days measured before wiring
+  update_cadence_observed: newest record 9997-05-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 14119 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: edmonton_ib2b_3mi4_daily_volume
+  name: Weather Data (Hourly) - Environment Canada — daily volume (data.edmonton.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.edmonton.ca/resource/ib2b-3mi4.json?$select=date_trunc_ymd%28date_and_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 11163 days measured before wiring
+  update_cadence_observed: newest record 57971-01-1
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 11163 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: mesaaz_79yx_6u9i_daily_volume
+  name: 'Weather Data: Mesa Airports & Sky Harbor — daily volume (citydata.mesaaz.gov)'
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/79yx-6u9i.json?$select=date_trunc_ymd%28date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 10864 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 10864 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_i9n8_a8ed_daily_volume
+  name: NYPD Officer Profile - Department Recognition — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/i9n8-a8ed.json?$select=date_trunc_ymd%28date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 10719 days measured before wiring
+  update_cadence_observed: newest record 9702-02-07
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 10719 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: edmonton_s4ws_tdws_daily_volume
+  name: Weather Data (Daily) - Environment Canada — daily volume (data.edmonton.ca)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.edmonton.ca/resource/s4ws-tdws.json?$select=date_trunc_ymd%28date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 9791 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 9791 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: ny_pteg_c78n_daily_volume
+  name: Bulk Storage Facilities in New York State — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/pteg-c78n.json?$select=date_trunc_ymd%28close_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 9425 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 9425 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_mdbu_nrqn_daily_volume
+  name: Open Market Order (OMO) Charges — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/mdbu-nrqn.json?$select=date_trunc_ymd%28omocreatedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 8162 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 8162 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_q9nk_vsym_daily_volume
+  name: Public Chauffeurs - Historical — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/q9nk-vsym.json?$select=date_trunc_ymd%28status_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6994 days measured before wiring
+  update_cadence_observed: newest record 3004-07-31
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6994 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_4dpw_9rts_daily_volume
+  name: Micro-Market Recovery Program - Permits — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/4dpw-9rts.json?$select=date_trunc_ymd%28add_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6715 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6715 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_87fk_79fk_daily_volume
+  name: Fire Protection Systems Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/87fk-79fk.json?$select=date_trunc_ymd%28addeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6678 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6678 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_9quz_avmj_daily_volume
+  name: Fence Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/9quz-avmj.json?$select=date_trunc_ymd%28issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6466 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6466 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_ujwc_724r_daily_volume
+  name: Micro-Market Recovery Program - Violations and — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/ujwc-724r.json?$select=date_trunc_ymd%28violation_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6400 days measured before wiring
+  update_cadence_observed: newest record 3005-08-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6400 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_22u3_xenr_daily_volume
+  name: Building Violations — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/22u3-xenr.json?$select=date_trunc_ymd%28violation_last_modified_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6303 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6303 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: seattle_ez4a_iug7_daily_volume
+  name: Code Complaints and Violations — daily volume (cos-data.seattle.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/ez4a-iug7.json?$select=date_trunc_ymd%28lastinspdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6227 days measured before wiring
+  update_cadence_observed: newest record 2031-01-03
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6227 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_6kbp_uz6m_daily_volume
+  name: Sidewalk Management Database - Violations — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/6kbp-uz6m.json?$select=date_trunc_ymd%28post_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6175 days measured before wiring
+  update_cadence_observed: newest record 3006-04-08
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6175 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: texas_bc5r_88dy_daily_volume
+  name: HHSC CCL Daycare and Residential Operations Da — daily volume (data.texas.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/bc5r-88dy.json?$select=date_trunc_ymd%28issuance_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6082 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6082 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: johnscreekga_ake9_ajui_daily_volume
+  name: Incident — daily volume (policeview.johnscreekga.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://policeview.johnscreekga.gov/resource/ake9-ajui.json?$select=date_trunc_ymd%28date_fnd%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6078 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6078 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: ny_cb42_qumz_daily_volume
+  name: Child Care Regulated Programs — daily volume (data.ny.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/cb42-qumz.json?$select=date_trunc_ymd%28facility_opened_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6023 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6023 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_d4ku_3xrx_daily_volume
+  name: DEP - Continuous Emissions Monitoring (CEM) — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/d4ku-3xrx.json?$select=date_trunc_ymd%28date_reported%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 6012 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6012 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_dg92_zbpx_daily_volume
+  name: City Record Online — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/dg92-zbpx.json?$select=date_trunc_ymd%28start_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5954 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5954 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: johnscreekga_gezc_jm4k_daily_volume
+  name: Accident — daily volume (policeview.johnscreekga.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://policeview.johnscreekga.gov/resource/gezc-jm4k.json?$select=date_trunc_ymd%28occured%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5892 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5892 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_6br9_quuz_daily_volume
+  name: Ordinance Violations — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/6br9-quuz.json?$select=date_trunc_ymd%28violation_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5878 days measured before wiring
+  update_cadence_observed: newest record 6111-12-01
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5878 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_bdky_n9r2_daily_volume
+  name: Sediment Control Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/bdky-n9r2.json?$select=date_trunc_ymd%28approved_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5771 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5771 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: lacity_8spw_3fhx_daily_volume
+  name: Building and Safety Temporary Special Event (T — daily volume (data.lacity.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.lacity.org/resource/8spw-3fhx.json?$select=date_trunc_ymd%28event_start_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5468 days measured before wiring
+  update_cadence_observed: newest record 2104-04-13
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5468 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_gm9b_bwv5_daily_volume
+  name: Micro-Market Recovery Program - Cases — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/gm9b-bwv5.json?$select=date_trunc_ymd%28modified_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5332 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5332 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: ct_tett_bw6q_daily_volume
+  name: Child Care & Youth Camp Licensing Investigatio — daily volume (data.ct.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ct.gov/resource/tett-bw6q.json?$select=date_trunc_ymd%28dateclosed%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5271 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5271 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_ct66_47at_daily_volume
+  name: Bicycle and Pedestrian Counts — daily volume (data.cityofnewyork.us)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/ct66-47at.json?$select=date_trunc_ymd%28timestamp%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5167 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5167 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: texas_n4rp_ar9b_daily_volume
+  name: Active Cigarette/Tobacco Retailers — daily volume (data.texas.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/n4rp-ar9b.json?$select=date_trunc_ymd%28permit_begin_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 5159 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5159 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: austintexas_s7gx_9m54_daily_volume
+  name: Subdivision Cases — daily volume (datahub.austintexas.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datahub.austintexas.gov/resource/s7gx-9m54.json?$select=date_trunc_ymd%28final_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4843 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4843 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: austintexas_ac2h_ha3r_daily_volume
+  name: Issued Tree Permits — daily volume (datahub.austintexas.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datahub.austintexas.gov/resource/ac2h-ha3r.json?$select=date_trunc_ymd%28issued_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4760 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4760 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cookcountyil_cjeq_bs86_daily_volume
+  name: Medical Examiner Case Archive — daily volume (datacatalog.cookcountyil.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datacatalog.cookcountyil.gov/resource/cjeq-bs86.json?$select=date_trunc_ymd%28incident_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4662 days measured before wiring
+  update_cadence_observed: newest record 9999-09-09
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4662 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_97wa_y6ff_daily_volume
+  name: Public Chauffeurs — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/97wa-y6ff.json?$select=date_trunc_ymd%28status_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4485 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4485 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: fcc_3xyp_aqkj_daily_volume
+  name: CGB - Consumer Complaints Data — daily volume (opendata.fcc.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://opendata.fcc.gov/resource/3xyp-aqkj.json?$select=date_trunc_ymd%28date_created%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4376 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4376 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: texas_bwem_j8ee_daily_volume
+  name: Texas Commission on Environmental Quality - NO — daily volume (data.texas.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/bwem-j8ee.json?$select=date_trunc_ymd%28wst_status_cd_dt%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4328 days measured before wiring
+  update_cadence_observed: newest record 2026-10-20
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4328 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_bhju_22kf_daily_volume
+  name: Crash Reporting - Incidents Data — daily volume (data.montgomerycountymd.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/bhju-22kf.json?$select=date_trunc_ymd%28crash_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4310 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4310 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_mmzv_x632_daily_volume
+  name: Crash Reporting - Drivers Data — daily volume (data.montgomerycountymd.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/mmzv-x632.json?$select=date_trunc_ymd%28crash_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4310 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4310 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityoforlando_bhxy_4rji_daily_volume
+  name: Planning Applications — daily volume (data.cityoforlando.net)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityoforlando.net/resource/bhxy-4rji.json?$select=date_trunc_ymd%28approval_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 4125 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 4125 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: sonomacounty_924a_vesw_daily_volume
+  name: Animal Shelter Intake and Outcome — daily volume (data.sonomacounty.ca.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.sonomacounty.ca.gov/resource/924a-vesw.json?$select=date_trunc_ymd%28outcome_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3963 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3963 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: ct_ccit_2ev8_daily_volume
+  name: Child Care & Youth Camp Licensing Violations — daily volume (data.ct.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ct.gov/resource/ccit-2ev8.json?$select=date_trunc_ymd%28caselastmodifieddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3867 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3867 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: ct_6rnk_h6iy_daily_volume
+  name: Child Care & Youth Camp Licensing Inspections — daily volume (data.ct.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ct.gov/resource/6rnk-h6iy.json?$select=date_trunc_ymd%28caselastmodifieddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3836 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3836 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_k7hf_8y75_daily_volume
+  name: Beach Weather Stations - Automated Sensors — daily volume (data.cityofchicago.org)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/k7hf-8y75.json?$select=date_trunc_ymd%28measurement_timestamp%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3816 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3816 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: austintexas_n8ck_xkda_daily_volume
+  name: Plan Review Cases — daily volume (datahub.austintexas.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://datahub.austintexas.gov/resource/n8ck-xkda.json?$select=date_trunc_ymd%28issued_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3778 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3778 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: ct_h8mr_dn95_daily_volume
+  name: Child Care & Youth Camp Licensing Program Data — daily volume (data.ct.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ct.gov/resource/h8mr-dn95.json?$select=date_trunc_ymd%28effectivedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3609 days measured before wiring
+  update_cadence_observed: newest record 2027-01-01
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3609 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_6nf9_ewgt_daily_volume
+  name: OAS - Animal Impound — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/6nf9-ewgt.json?$select=date_trunc_ymd%28stamp%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3567 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3567 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: wa_fvrz_yz45_daily_volume
+  name: Complaint By Practice — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/fvrz-yz45.json?$select=date_trunc_ymd%28openeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3545 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3545 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: wa_gpri_47xz_daily_volume
+  name: Attorney General Consumer Complaints — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/gpri-47xz.json?$select=date_trunc_ymd%28openeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3543 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3543 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: ny_va8e_9s3h_daily_volume
+  name: 'Mined Land Permits: Beginning 1974 — daily volume (data.ny.gov)'
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ny.gov/resource/va8e-9s3h.json?$select=date_trunc_ymd%28permit_end_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3542 days measured before wiring
+  update_cadence_observed: newest record 2032-05-07
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3542 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_dm9a_ab7w_daily_volume
+  name: 'DOB NOW: Electrical Permit Applications — daily volume (data.cityofnewyork.us)'
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/dm9a-ab7w.json?$select=date_trunc_ymd%28general_liability_expiration%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3476 days measured before wiring
+  update_cadence_observed: newest record 2050-12-31
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3476 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_cygx_ui4j_daily_volume
+  name: Dig Ticket Notifications — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/cygx-ui4j.json?$select=date_trunc_ymd%28requestdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3213 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3213 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: norfolk_bnrb_u445_daily_volume
+  name: Permits and Inspections — daily volume (data.norfolk.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/bnrb-u445.json?$select=date_trunc_ymd%28permit_issue_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3150 days measured before wiring
+  update_cadence_observed: newest record 2026-12-24
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3150 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_92iy_9c3n_daily_volume
+  name: Storefronts Reported Vacant or Not — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/92iy-9c3n.json?$select=date_trunc_ymd%28expir_dt_of_most_recent_lease%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3124 days measured before wiring
+  update_cadence_observed: newest record 2099-12-31
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3124 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: edmonton_2ccn_pwtu_daily_volume
+  name: Development Permits — daily volume (data.edmonton.ca)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.edmonton.ca/resource/2ccn-pwtu.json?$select=date_trunc_ymd%28permit_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3045 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3045 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_rbx6_tga4_daily_volume
+  name: 'DOB NOW: Build – Approved Permits — daily volume (data.cityofnewyork.us)'
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/rbx6-tga4.json?$select=date_trunc_ymd%28approved_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3014 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3014 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_tx35_q6ia_daily_volume
+  name: Public Passenger Vehicle Licenses - Historical — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/tx35-q6ia.json?$select=date_trunc_ymd%28last_valid_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 3009 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 3009 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: norfolk_ihzr_5x5n_daily_volume
+  name: Inspections — daily volume (data.norfolk.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/ihzr-5x5n.json?$select=date_trunc_ymd%28scheduled_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2852 days measured before wiring
+  update_cadence_observed: newest record 2488-01-17
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2852 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cambridgema_jwtp_n65u_daily_volume
+  name: Miovision Traffic Volume Data (All) — daily volume (data.cambridgema.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cambridgema.gov/resource/jwtp-n65u.json?$select=date_trunc_ymd%28timebin%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2451 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2451 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: mesaaz_j9ar_bfch_daily_volume
+  name: PRCF - Parks Safety Inspections Completed — daily volume (citydata.mesaaz.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/j9ar-bfch.json?$select=date_trunc_ymd%28inspection_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2219 days measured before wiring
+  update_cadence_observed: newest record 2026-12-31
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2219 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: lacity_9rag_xmmd_daily_volume
+  name: Building and Safety - Mechanical Permits Submi — daily volume (data.lacity.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.lacity.org/resource/9rag-xmmd.json?$select=date_trunc_ymd%28status_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2210 days measured before wiring
+  update_cadence_observed: newest record 2026-10-18
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2210 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_xxbr_ypig_daily_volume
+  name: 'DOB NOW: Build – Limited Alteration Applicatio — daily volume (data.cityofnewyork.us)'
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/xxbr-ypig.json?$select=date_trunc_ymd%28inspection_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2106 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2106 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_k46n_sa2m_daily_volume
+  name: DHS Daily Report — daily volume (data.cityofnewyork.us)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/k46n-sa2m.json?$select=date_trunc_ymd%28date_of_census%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 2062 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2062 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: mesaaz_46nc_ukaa_daily_volume
+  name: Class A Signal Preventive Maintenance — daily volume (citydata.mesaaz.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/46nc-ukaa.json?$select=date_trunc_ymd%28maintenance_completed%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1980 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1980 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_pkdm_hqz6_daily_volume
+  name: 'DOB NOW: Certificate of Occupancy — daily volume (data.cityofnewyork.us)'
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/pkdm-hqz6.json?$select=date_trunc_ymd%28submitted_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1927 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1927 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: colorado_d3m2_b6we_daily_volume
+  name: Trademarks for Businesses in Colorado — daily volume (data.colorado.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.colorado.gov/resource/d3m2-b6we.json?$select=date_trunc_ymd%28expirationdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1868 days measured before wiring
+  update_cadence_observed: newest record 2032-04-14
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1868 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_ugp2_qvgy_daily_volume
+  name: eCigarette Excise Tax — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: transaction_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/ugp2-qvgy.json?$select=date_trunc_ymd%28datepaid%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1737 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1737 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: texas_tqgd_mf4x_daily_volume
+  name: HHSC CCL Non-Compliance Data — daily volume (data.texas.gov)
+  domain: healthcare
+  dgp_class: public_health_indicator
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.texas.gov/resource/tqgd-mf4x.json?$select=date_trunc_ymd%28date_correction_verified%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1668 days measured before wiring
+  update_cadence_observed: newest record 2026-12-30
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1668 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_r7cy_t8ms_daily_volume
+  name: Police Service Calls for Mental Health — daily volume (data.montgomerycountymd.gov)
+  domain: healthcare
+  dgp_class: crisis_services
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/r7cy-t8ms.json?$select=date_trunc_ymd%28incident_started_date_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1634 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1634 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: brla_7wah_qncc_daily_volume
+  name: Baton Rouge Traffic Crash Incidents — daily volume (data.brla.gov)
+  domain: energy
+  dgp_class: grid_reliability
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.brla.gov/resource/7wah-qncc.json?$select=date_trunc_ymd%28crash_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1563 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1563 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: seattle_crg2_ssqd_daily_volume
+  name: Permit Review Time Data — daily volume (cos-data.seattle.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://cos-data.seattle.gov/resource/crg2-ssqd.json?$select=date_trunc_ymd%28readyissuedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1559 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1559 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: mesaaz_knta_3f2w_daily_volume
+  name: DSD - Document Retrieval Applications — daily volume (citydata.mesaaz.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://citydata.mesaaz.gov/resource/knta-3f2w.json?$select=date_trunc_ymd%28record_status_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1455 days measured before wiring
+  update_cadence_observed: newest record 2026-10-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1455 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: ct_t64r_mt64_daily_volume
+  name: Insurance Company Complaints, Resolutions, Sta — daily volume (data.ct.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.ct.gov/resource/t64r-mt64.json?$select=date_trunc_ymd%28closed%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1442 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1442 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: delaware_wb83_pkcv_daily_volume
+  name: Child Care Licensing Compliance Review Informa — daily volume (data.delaware.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.delaware.gov/resource/wb83-pkcv.json?$select=date_trunc_ymd%28facility_visit_regulation_corrected_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1353 days measured before wiring
+  update_cadence_observed: newest record 2028-11-17
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1353 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_c7hs_c9qq_daily_volume
+  name: New Home Builders — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: registration_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/c7hs-c9qq.json?$select=date_trunc_ymd%28issueddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1349 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1349 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_jgtb_hmpg_daily_volume
+  name: Medallion Vehicles - Inactive — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/jgtb-hmpg.json?$select=date_trunc_ymd%28suspension_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1302 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1302 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_q2rb_en4r_daily_volume
+  name: DPS - General Permits — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/q2rb-en4r.json?$select=date_trunc_ymd%28addeddate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1275 days measured before wiring
+  update_cadence_observed: newest record 2026-10-21
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1275 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_ipu4_2q9a_daily_volume
+  name: DOB Permit Issuance — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/ipu4-2q9a.json?$select=date_trunc_ymd%28dobrundate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1263 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1263 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_td5q_ry6d_daily_volume
+  name: Medallion Drivers – Passenger Assistance Train — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/td5q-ry6d.json?$select=date_trunc_ymd%28expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1175 days measured before wiring
+  update_cadence_observed: newest record 2030-01-14
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1175 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofnewyork_5tub_eh45_daily_volume
+  name: Street Hail Livery (SHL) Drivers - Active — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/5tub-eh45.json?$select=date_trunc_ymd%28expiration_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1174 days measured before wiring
+  update_cadence_observed: newest record 2030-01-14
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1174 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: cityofchicago_kxfh_a6zz_daily_volume
+  name: Public Passenger Vehicle Inspection Schedule — daily volume (data.cityofchicago.org)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofchicago.org/resource/kxfh-a6zz.json?$select=date_trunc_ymd%28scheduled_inspection_date_and_time%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1122 days measured before wiring
+  update_cadence_observed: newest record 2098-07-15
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1122 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: norfolk_agip_sqwc_daily_volume
+  name: Violations — daily volume (data.norfolk.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.norfolk.gov/resource/agip-sqwc.json?$select=date_trunc_ymd%28created_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 1098 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1098 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: delaware_pnbd_85r6_daily_volume
+  name: Child Care Licensing Complaint Reviews — daily volume (data.delaware.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.delaware.gov/resource/pnbd-85r6.json?$select=date_trunc_ymd%28investigation_completed%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 879 days measured before wiring
+  update_cadence_observed: newest record 2026-10-22
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 879 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: montgomerycountymd_eeq6_nnwe_daily_volume
+  name: Solicitations — daily volume (data.montgomerycountymd.gov)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.montgomerycountymd.gov/resource/eeq6-nnwe.json?$select=date_trunc_ymd%28issuancedate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 831 days measured before wiring
+  update_cadence_observed: newest record 2026-10-23
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 831 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: richmondgov_xqn7_jvv2_daily_volume
+  name: City Contracts — daily volume (data.richmondgov.com)
+  domain: sales
+  dgp_class: permit_stream
+  archetypes:
+  - count_discrete
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: P1D
+  poll: P1D
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.richmondgov.com/resource/xqn7-jvv2.json?$select=date_trunc_ymd%28effective_to%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&$group=d&$order=d%20DESC&$limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  history_available: 803 days measured before wiring
+  update_cadence_observed: newest record 2050-08-19
+  pretraining_novelty: clean
+  license: open data (see host portal terms)
+  notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 803 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
+    (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
+- id: energy_charts_at_solar_15min
+  name: energy-charts — Solar generation, AT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[11] is "Solar" for country at as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_at_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, AT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[10] is "Wind onshore" for country at as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_at_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, AT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[4].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[4] is "Fossil gas" for country at as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_at_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, AT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[2] is "Hydro Run-of-River" for country at as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_at_biomass_15min
+  name: energy-charts — Biomass generation, AT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Biomass" for country at as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cz_solar_15min
+  name: energy-charts — Solar generation, CZ (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[15] is "Solar" for country cz as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cz_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, CZ (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[14] is "Wind onshore" for country cz as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cz_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, CZ (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[8] is "Fossil gas" for country cz as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cz_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, CZ (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Hydro Run-of-River" for country cz as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_cz_biomass_15min
+  name: energy-charts — Biomass generation, CZ (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[4].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[4] is "Biomass" for country cz as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_dk_solar_15min
+  name: energy-charts — Solar generation, DK (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[7].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[7] is "Solar" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_dk_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, DK (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[6].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[6] is "Wind onshore" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_dk_wind_offshore_15min
+  name: energy-charts — Wind offshore generation, DK (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[5].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[5] is "Wind offshore" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_dk_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, DK (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Fossil gas" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_dk_biomass_15min
+  name: energy-charts — Biomass generation, DK (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=dk&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[1].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[1] is "Biomass" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_es_solar_15min
+  name: energy-charts — Solar generation, ES (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[16].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[16] is "Solar" for country es as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_es_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, ES (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[15] is "Wind onshore" for country es as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_es_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, ES (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[8] is "Fossil gas" for country es as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_es_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, ES (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[4].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[4] is "Hydro Run-of-River" for country es as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_es_biomass_15min
+  name: energy-charts — Biomass generation, ES (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[5].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[5] is "Biomass" for country es as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fi_solar_15min
+  name: energy-charts — Solar generation, FI (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[14] is "Solar" for country fi as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fi_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, FI (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[13].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[13] is "Wind onshore" for country fi as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fi_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, FI (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[8] is "Fossil gas" for country fi as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fi_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, FI (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Hydro Run-of-River" for country fi as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fi_biomass_15min
+  name: energy-charts — Biomass generation, FI (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[4].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[4] is "Biomass" for country fi as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ie_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, IE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[9] is "Wind onshore" for country ie as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ie_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, IE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[6].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[6] is "Fossil gas" for country ie as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ie_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, IE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[2] is "Hydro Run-of-River" for country ie as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ie_hard_coal_15min
+  name: energy-charts — Fossil hard coal generation, IE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Fossil hard coal" for country ie as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ie_residual_load_15min
+  name: energy-charts — Residual load generation, IE (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[11] is "Residual load" for country ie as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_nl_solar_15min
+  name: energy-charts — Solar generation, NL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[9] is "Solar" for country nl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_nl_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, NL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[8] is "Wind onshore" for country nl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_nl_wind_offshore_15min
+  name: energy-charts — Wind offshore generation, NL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[7].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[7] is "Wind offshore" for country nl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_nl_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, NL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[4].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[4] is "Fossil gas" for country nl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_nl_biomass_15min
+  name: energy-charts — Biomass generation, NL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[2] is "Biomass" for country nl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_no_solar_15min
+  name: energy-charts — Solar generation, NO (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[9] is "Solar" for country no as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_no_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, NO (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[8] is "Wind onshore" for country no as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_no_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, NO (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Fossil gas" for country no as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_no_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, NO (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[2] is "Hydro Run-of-River" for country no as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_no_residual_load_15min
+  name: energy-charts — Residual load generation, NO (15-min)
+  domain: energy
+  dgp_class: grid_demand
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[11] is "Residual load" for country no as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_de_solar_15min
+  name: energy-charts — Solar generation, DE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[16].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[16] is "Solar" for country de as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_de_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, DE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[15] is "Wind onshore" for country de as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_de_wind_offshore_15min
+  name: energy-charts — Wind offshore generation, DE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[14] is "Wind offshore" for country de as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_de_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, DE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[8].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[8] is "Fossil gas" for country de as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_de_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, DE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[2] is "Hydro Run-of-River" for country de as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ee_solar_15min
+  name: energy-charts — Solar generation, EE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[10] is "Solar" for country ee as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ee_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, EE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[9] is "Wind onshore" for country ee as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ee_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, EE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[5].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[5] is "Fossil gas" for country ee as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ee_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, EE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[1].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[1] is "Hydro Run-of-River" for country ee as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_ee_biomass_15min
+  name: energy-charts — Biomass generation, EE (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[2] is "Biomass" for country ee as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fr_solar_15min
+  name: energy-charts — Solar generation, FR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[14] is "Solar" for country fr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fr_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, FR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[13].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[13] is "Wind onshore" for country fr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fr_wind_offshore_15min
+  name: energy-charts — Wind offshore generation, FR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[12].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[12] is "Wind offshore" for country fr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fr_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, FR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[7].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[7] is "Fossil gas" for country fr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_fr_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, FR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[4].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[4] is "Hydro Run-of-River" for country fr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hr_solar_15min
+  name: energy-charts — Solar generation, HR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[12].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[12] is "Solar" for country hr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hr_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, HR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[11] is "Wind onshore" for country hr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hr_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, HR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[5].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[5] is "Fossil gas" for country hr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hr_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, HR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Hydro Run-of-River" for country hr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hr_biomass_15min
+  name: energy-charts — Biomass generation, HR (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[4].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[4] is "Biomass" for country hr as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hu_solar_15min
+  name: energy-charts — Solar generation, HU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[13].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[13] is "Solar" for country hu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hu_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, HU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[12].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[12] is "Wind onshore" for country hu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hu_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, HU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[6].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[6] is "Fossil gas" for country hu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hu_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, HU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[2] is "Hydro Run-of-River" for country hu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_hu_biomass_15min
+  name: energy-charts — Biomass generation, HU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Biomass" for country hu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_it_solar_15min
+  name: energy-charts — Solar generation, IT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[15] is "Solar" for country it as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_it_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, IT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[14].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[14] is "Wind onshore" for country it as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_it_wind_offshore_15min
+  name: energy-charts — Wind offshore generation, IT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[13].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[13] is "Wind offshore" for country it as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_it_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, IT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[7].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[7] is "Fossil gas" for country it as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_it_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, IT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Hydro Run-of-River" for country it as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lt_solar_15min
+  name: energy-charts — Solar generation, LT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[11].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[11] is "Solar" for country lt as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lt_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, LT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[10].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[10] is "Wind onshore" for country lt as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lt_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, LT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[5].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[5] is "Fossil gas" for country lt as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lt_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, LT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Hydro Run-of-River" for country lt as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lt_biomass_15min
+  name: energy-charts — Biomass generation, LT (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[4].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[4] is "Biomass" for country lt as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lu_solar_15min
+  name: energy-charts — Solar generation, LU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[7].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[7] is "Solar" for country lu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lu_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, LU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[6].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[6] is "Wind onshore" for country lu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lu_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, LU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Fossil gas" for country lu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lu_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, LU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[1].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[1] is "Hydro Run-of-River" for country lu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_lu_biomass_15min
+  name: energy-charts — Biomass generation, LU (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[2].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[2] is "Biomass" for country lu as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_pl_solar_15min
+  name: energy-charts — Solar generation, PL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[17].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[17] is "Solar" for country pl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_pl_wind_onshore_15min
+  name: energy-charts — Wind onshore generation, PL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[16].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[16] is "Wind onshore" for country pl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_pl_wind_offshore_15min
+  name: energy-charts — Wind offshore generation, PL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[15].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[15] is "Wind offshore" for country pl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_pl_fossil_gas_15min
+  name: energy-charts — Fossil gas generation, PL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[9].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[9] is "Fossil gas" for country pl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
+    a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
+- id: energy_charts_pl_hydro_ror_15min
+  name: energy-charts — Hydro Run-of-River generation, PL (15-min)
+  domain: energy
+  dgp_class: generation
+  archetypes:
+  - seasonal_multiscale
+  - non_stationary_regime
+  frequency: PT15M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
+  schema:
+    timestamp_field: unix_seconds
+    value_field: production_types[3].data
+    drop_null_values: true
+    variates: 1
+  history_available: P10Y
+  update_cadence_observed: 15 minutes
+  pretraining_novelty: clean
+  license: CC BY 4.0 (Fraunhofer ISE energy-charts)
+  notes: production_types[3] is "Hydro Run-of-River" for country pl as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
+    becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
