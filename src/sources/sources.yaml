@@ -45560,6 +45560,8 @@
   audit_slack_days: 18
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_k_peertube
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-02T00:00:00+00:00 is 54.3d old vs a 18.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -73343,6 +73345,8 @@
   notes: Socrata SODA resource weu6-zpb9, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension period_of_service pinned to '(k) WWII, KC, VNE'.
 - id: data_freshwater_swim_beach_data_madison
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Madison Park] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -73435,6 +73439,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Juanita'.
 - id: data_freshwater_swim_beach_data_gene_cou
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Gene Coulon] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -73465,6 +73471,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Gene Coulon'.
 - id: data_freshwater_swim_beach_data_mt_baker
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Mt Baker] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78519,6 +78527,8 @@
   notes: Socrata SODA resource s4ws-tdws, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: data_freshwater_swim_beach_data_matthews
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Matthews] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78611,6 +78621,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Pine Lake'.
 - id: data_freshwater_swim_beach_data_echo_lak
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Echo Lake] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78671,6 +78683,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Kennydale'.
 - id: data_freshwater_swim_beach_data_pritchar
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Pritchard] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78763,6 +78777,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Groveland'.
 - id: data_freshwater_swim_beach_data_angle_la
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Angle Lake] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78853,6 +78869,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Lake Sammamish State Park'.
 - id: data_freshwater_swim_beach_data_green_la
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-09-14T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Green Lake West] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -86017,6 +86035,8 @@
   audit_slack_days: 3
   notes: SMHI meteorological observations, parameter 21 at station 97100 (Tullinge), latest-months window.
 - id: smhi_21_96190
+  disabled: true
+  disabled_reason: '2026-10-26: auto-disabled by freshness audit — newest observation 2026-10-17T00:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Wind gust — Eskilstuna A (SMHI)
   domain: nature
   dgp_class: wind_gust
