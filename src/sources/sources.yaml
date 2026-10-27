@@ -48876,6 +48876,8 @@
   audit_slack_days: 14
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), HK. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_bee_bee_tube
+  disabled: true
+  disabled_reason: '2026-10-27: auto-disabled by freshness audit — newest observation 2026-09-18T00:00:00+00:00 is 39.3d old vs a 13.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Bee Tube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -78559,6 +78561,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Matthews'.
 - id: data_freshwater_swim_beach_data_enatai
+  disabled: true
+  disabled_reason: '2026-10-27: auto-disabled by freshness audit — newest observation 2026-09-15T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Enatai] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78653,6 +78657,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Echo Lake'.
 - id: data_freshwater_swim_beach_data_kennydal
+  disabled: true
+  disabled_reason: '2026-10-27: auto-disabled by freshness audit — newest observation 2026-09-15T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Kennydale] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78715,6 +78721,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Pritchard'.
 - id: data_freshwater_swim_beach_data_luther_b
+  disabled: true
+  disabled_reason: '2026-10-27: auto-disabled by freshness audit — newest observation 2026-09-15T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Luther Burbank] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78809,6 +78817,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Angle Lake'.
 - id: data_freshwater_swim_beach_data_newcastl
+  disabled: true
+  disabled_reason: '2026-10-27: auto-disabled by freshness audit — newest observation 2026-09-15T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Newcastle] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -78839,6 +78849,8 @@
   notes: Socrata SODA resource mbzm-4r9y, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension beach pinned to 'Newcastle'.
 - id: data_freshwater_swim_beach_data_lake_sam
+  disabled: true
+  disabled_reason: '2026-10-27: auto-disabled by freshness audit — newest observation 2026-09-15T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Freshwater Swim Beach Data [Lake Sammamish Sta] (data.kingcounty.gov)
   domain: nature
   dgp_class: water_quality
@@ -121147,6 +121159,8 @@
   license: openSenseMap / senseBox open data (ODbL)
   notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
 - id: osem_pm25_bengt_luftdaten
+  disabled: true
+  disabled_reason: '2026-10-27: auto-disabled by freshness audit — newest observation 2026-10-17T21:10:03.465000+00:00 is 9.4d old vs a 3.0d limit for PT2M30S. Re-enable if the upstream resumes.'
   name: openSenseMap — PM2.5 at Bengt-Luftdaten
   domain: healthcare
   dgp_class: air_quality
