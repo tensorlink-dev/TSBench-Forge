@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "round_id": "2026-10-27",
+  "generated_at": "2026-10-27T10:49:41+00:00",
+  "config": {
+    "seed": "tsfm-significance-v1",
+    "motif_len": 304,
+    "n_challenges": 1280,
+    "n_series": 293,
+    "k_draws": 5
+  },
+  "leaderboard": [
+    {
+      "rank": 1,
+      "model": "paracast-ensemble",
+      "crps_rel": 0.548811627112075,
+      "mase_rel": 0.7080708259321865,
+      "crps": 3.011938743210056,
+      "mase": 5.057736236230824
+    },
+    {
+      "rank": 2,
+      "model": "toto2-2.5b",
+      "crps_rel": 0.5543011453360717,
+      "mase_rel": 0.7148516971326465,
+      "crps": 3.0167358521795955,
+      "mase": 5.115771599567057
+    },
+    {
+      "rank": 3,
+      "model": "timestral-209m",
+      "crps_rel": 0.556245805175965,
+      "mase_rel": 0.720954050966522,
+      "crps": 3.0116375034191285,
+      "mase": 5.066111507759005
+    },
+    {
+      "rank": 4,
+      "model": "toto2-313m",
+      "crps_rel": 0.5613184241340293,
+      "mase_rel": 0.7306905656584542,
+      "crps": 3.01971329172709,
+      "mase": 5.13968422072281
+    },
+    {
+      "rank": 5,
+      "model": "paracast-router",
+      "crps_rel": 0.5615077739648979,
+      "mase_rel": 0.7308744709538392,
+      "crps": 3.0197263909407766,
+      "mase": 5.13970907481033
+    },
+    {
+      "rank": 6,
+      "model": "timesfm3",
+      "crps_rel": 0.561982157610482,
+      "mase_rel": 0.7435459936427934,
+      "crps": 3.0170888415172867,
+      "mase": 5.114000094852426
+    },
+    {
+      "rank": 7,
+      "model": "toto2-22m",
+      "crps_rel": 0.5678566586331348,
+      "mase_rel": 0.7411743419966034,
+      "crps": 3.022984312399818,
+      "mase": 5.163683429603768
+    },
+    {
+      "rank": 8,
+      "model": "chronos2",
+      "crps_rel": 0.5713979358929294,
+      "mase_rel": 0.7715262951019176,
+      "crps": 3.022166658194984,
+      "mase": 5.114502781367666
+    },
+    {
+      "rank": 9,
+      "model": "toto2-4m",
+      "crps_rel": 0.5717278576500461,
+      "mase_rel": 0.7511420020756154,
+      "crps": 3.024486421911396,
+      "mase": 5.13516549679154
+    },
+    {
+      "rank": 10,
+      "model": "tirex2",
+      "crps_rel": 0.5744877838493845,
+      "mase_rel": 0.7566233399712029,
+      "crps": 3.024094414680465,
+      "mase": 5.191736409223066
+    },
+    {
+      "rank": 11,
+      "model": "cascade-toto2-4m",
+      "crps_rel": 0.5773959983039285,
+      "mase_rel": 0.7650322004868301,
+      "crps": 3.0268849914012534,
+      "mase": 5.136351267028202
+    },
+    {
+      "rank": 12,
+      "model": "timesfm25",
+      "crps_rel": 0.5799408050724789,
+      "mase_rel": 0.7769923733513023,
+      "crps": 3.0288527105446708,
+      "mase": 5.240157902650314
+    },
+    {
+      "rank": 13,
+      "model": "patchtst-fm-r2",
+      "crps_rel": 0.5846400138059569,
+      "mase_rel": 0.7955305518121255,
+      "crps": 3.031056843133496,
+      "mase": 5.277286653579172
+    },
+    {
+      "rank": 14,
+      "model": "flowstate-r1",
+      "crps_rel": 0.6195586267279323,
+      "mase_rel": 0.8290666534500902,
+      "crps": 3.060899938186104,
+      "mase": 5.443623100001423
+    },
+    {
+      "rank": 15,
+      "model": "strong",
+      "crps_rel": 0.9069992845960912,
+      "mase_rel": 0.8463045679156354,
+      "crps": 3.238693042298338,
+      "mase": 5.912095664418135
+    },
+    {
+      "rank": 16,
+      "model": "ewma",
+      "crps_rel": 0.908509863161841,
+      "mase_rel": 0.9654962010222286,
+      "crps": 3.235728478747547,
+      "mase": 6.0231594293231545
+    },
+    {
+      "rank": 17,
+      "model": "drift",
+      "crps_rel": 0.9460412725466688,
+      "mase_rel": 1.0648147651713191,
+      "crps": 3.2819660723216626,
+      "mase": 6.165194154580361
+    },
+    {
+      "rank": 18,
+      "model": "ar1",
+      "crps_rel": 0.9649889381412243,
+      "mase_rel": 1.1322553591019828,
+      "crps": 3.2447035195391876,
+      "mase": 6.322493229855934
+    },
+    {
+      "rank": 19,
+      "model": "seasonal_naive",
+      "crps_rel": 1.0,
+      "mase_rel": 0.9644794116957227,
+      "crps": 3.2935633929442054,
+      "mase": 6.357131188487788
+    },
+    {
+      "rank": 20,
+      "model": "context_parrot",
+      "crps_rel": 1.1569907069569114,
+      "mase_rel": 1.3821846028088562,
+      "crps": 3.3821924501954963,
+      "mase": 6.622034625994752
+    }
+  ],
+  "note": "scored via paracast",
+  "composition": {
+    "domains": {
+      "econ_fin": 155,
+      "energy": 156,
+      "healthcare": 202,
+      "nature": 235,
+      "sales": 168,
+      "transport": 191,
+      "web_cloudops": 173
+    },
+    "domains_per_draw": [
+      {
+        "econ_fin": 24,
+        "energy": 31,
+        "healthcare": 14,
+        "nature": 79,
+        "sales": 32,
+        "transport": 33,
+        "web_cloudops": 43
+      },
+      {
+        "econ_fin": 14,
+        "energy": 29,
+        "healthcare": 58,
+        "nature": 31,
+        "sales": 48,
+        "transport": 34,
+        "web_cloudops": 42
+      },
+      {
+        "econ_fin": 30,
+        "energy": 33,
+        "healthcare": 47,
+        "nature": 60,
+        "sales": 25,
+        "transport": 31,
+        "web_cloudops": 30
+      },
+      {
+        "econ_fin": 47,
+        "energy": 41,
+        "healthcare": 31,
+        "nature": 39,
+        "sales": 27,
+        "transport": 60,
+        "web_cloudops": 11
+      },
+      {
+        "econ_fin": 40,
+        "energy": 22,
+        "healthcare": 52,
+        "nature": 26,
+        "sales": 36,
+        "transport": 33,
+        "web_cloudops": 47
+      }
+    ],
+    "effective_domains": 6.93,
+    "cadences": {
+      "daily": 384,
+      "few-min": 287,
+      "half-hour": 97,
+      "hourly": 205,
+      "irregular": 11,
+      "monthly": 44,
+      "quarterly": 5,
+      "seconds": 39,
+      "sub-min": 136,
+      "weekly": 72
+    },
+    "n_dgp_classes": 109
+  },
+  "friedman_crps": {
+    "statistic": 8043.698024553567,
+    "df": 19.0,
+    "p_value": 0.0,
+    "models": [
+      "chronos2",
+      "timesfm25",
+      "toto2-313m",
+      "tirex2",
+      "patchtst-fm-r2",
+      "timestral-209m",
+      "flowstate-r1",
+      "paracast-ensemble",
+      "paracast-router",
+      "strong",
+      "seasonal_naive",
+      "drift",
+      "ewma",
+      "ar1",
+      "context_parrot",
+      "timesfm3",
+      "toto2-2.5b",
+      "toto2-22m",
+      "toto2-4m",
+      "cascade-toto2-4m"
+    ]
+  },
+  "vs_baseline_crps": [
+    {
+      "model": "paracast-ensemble",
+      "median_diff": -0.21418787377413828,
+      "win_rate": 0.89375,
+      "wilcoxon_p_holm": 1.1120473401648445e-162,
+      "significant": true
+    },
+    {
+      "model": "timestral-209m",
+      "median_diff": -0.2127800255174609,
+      "win_rate": 0.890625,
+      "wilcoxon_p_holm": 2.0202467514026228e-161,
+      "significant": true
+    },
+    {
+      "model": "toto2-313m",
+      "median_diff": -0.21195644692484633,
+      "win_rate": 0.88125,
+      "wilcoxon_p_holm": 1.38676070193063e-154,
+      "significant": true
+    },
+    {
+      "model": "paracast-router",
+      "median_diff": -0.21195644692484633,
+      "win_rate": 0.88125,
+      "wilcoxon_p_holm": 1.38676070193063e-154,
+      "significant": true
+    },
+    {
+      "model": "tirex2",
+      "median_diff": -0.2101643349066984,
+      "win_rate": 0.88125,
+      "wilcoxon_p_holm": 6.740713381856066e-154,
+      "significant": true
+    },
+    {
+      "model": "timesfm3",
+      "median_diff": -0.20993533758456986,
+      "win_rate": 0.88046875,
+      "wilcoxon_p_holm": 5.044484172884215e-157,
+      "significant": true
+    },
+    {
+      "model": "toto2-2.5b",
+      "median_diff": -0.20989934675185007,
+      "win_rate": 0.8921875,
+      "wilcoxon_p_holm": 2.559274548566693e-156,
+      "significant": true
+    },
+    {
+      "model": "toto2-22m",
+      "median_diff": -0.20916097139822662,
+      "win_rate": 0.8703125,
+      "wilcoxon_p_holm": 4.322538381691574e-154,
+      "significant": true
+    },
+    {
+      "model": "chronos2",
+      "median_diff": -0.2080727504707759,
+      "win_rate": 0.8703125,
+      "wilcoxon_p_holm": 4.74279175633323e-148,
+      "significant": true
+    },
+    {
+      "model": "toto2-4m",
+      "median_diff": -0.2065935944469133,
+      "win_rate": 0.8703125,
+      "wilcoxon_p_holm": 2.86618730532964e-154,
+      "significant": true
+    },
+    {
+      "model": "patchtst-fm-r2",
+      "median_diff": -0.2035919976974899,
+      "win_rate": 0.87421875,
+      "wilcoxon_p_holm": 5.685179504228363e-149,
+      "significant": true
+    },
+    {
+      "model": "timesfm25",
+      "median_diff": -0.20146569624232846,
+      "win_rate": 0.88046875,
+      "wilcoxon_p_holm": 1.0428761057162326e-154,
+      "significant": true
+    },
+    {
+      "model": "cascade-toto2-4m",
+      "median_diff": -0.19348634011106455,
+      "win_rate": 0.8625,
+      "wilcoxon_p_holm": 1.058405201082818e-148,
+      "significant": true
+    },
+    {
+      "model": "flowstate-r1",
+      "median_diff": -0.1921253382371369,
+      "win_rate": 0.83515625,
+      "wilcoxon_p_holm": 1.3645327467102492e-123,
+      "significant": true
+    },
+    {
+      "model": "ewma",
+      "median_diff": -0.021058478875376284,
+      "win_rate": 0.7234375,
+      "wilcoxon_p_holm": 2.0721217929698405e-64,
+      "significant": true
+    },
+    {
+      "model": "ar1",
+      "median_diff": -0.01598013877844201,
+      "win_rate": 0.584375,
+      "wilcoxon_p_holm": 3.969378159491063e-12,
+      "significant": true
+    },
+    {
+      "model": "strong",
+      "median_diff": -0.008502286381637136,
+      "win_rate": 0.5859375,
+      "wilcoxon_p_holm": 3.398496889812709e-30,
+      "significant": true
+    },
+    {
+      "model": "drift",
+      "median_diff": 0.00018600631245108135,
+      "win_rate": 0.44765625,
+      "wilcoxon_p_holm": 0.7703523686184379,
+      "significant": false
+    },
+    {
+      "model": "context_parrot",
+      "median_diff": 0.06055485699758975,
+      "win_rate": 0.346875,
+      "wilcoxon_p_holm": 1.0,
+      "significant": false
+    }
+  ]
+}
