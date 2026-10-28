@@ -7021,6 +7021,8 @@
   license: public (autosearch-wired)
   notes: Autosearch grind wire. Chess.com public monthly archive (GET/JSON, no key). Tokenized year/month to {YYYY}/{MM} so it always fetches the current month. games[].end_time epoch, white.rating numeric, panel
 - id: cneos_fireball_events
+  disabled: true
+  disabled_reason: '2026-10-28: auto-disabled by freshness audit — newest observation 2026-10-04T03:14:45+00:00 is 24.1d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: cneos_fireball_events
   domain: nature
   dgp_class: event_magnitude
@@ -31646,6 +31648,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 139. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_thescax_thescax_south_coast_access_exchange
+  disabled: true
+  disabled_reason: '2026-10-28: auto-disabled by freshness audit — newest observation 2026-10-21T19:40:00+00:00 is 6.4d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   name: TheSCAX (South Coast Access Exchange) — exchange traffic (Brookings, US)
   domain: web_cloudops
   dgp_class: ixp_traffic
@@ -45052,6 +45056,8 @@
   audit_slack_days: 12
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_everydayimshuflin_peertube
+  disabled: true
+  disabled_reason: '2026-10-28: auto-disabled by freshness audit — newest observation 2026-09-13T00:00:00+00:00 is 45.3d old vs a 15.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -47180,6 +47186,8 @@
   audit_slack_days: 13
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), AT. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_pc_staryvids
+  disabled: true
+  disabled_reason: '2026-10-28: auto-disabled by freshness audit — newest observation 2026-09-25T00:00:00+00:00 is 33.3d old vs a 11.0d limit for P1D. Re-enable if the upstream resumes.'
   name: staryvids — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49046,6 +49054,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), US. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_messerli_streaming_messerli_informatik_ag
+  disabled: true
+  disabled_reason: '2026-10-28: auto-disabled by freshness audit — newest observation 2026-09-28T00:00:00+00:00 is 30.3d old vs a 10.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Streaming | Messerli Informatik AG — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -85284,6 +85294,8 @@
   notes: SMHI meteorological observations, parameter 4 at station 86340 (Norrköping-SMHI), latest-months
     window.
 - id: smhi_4_94190
+  disabled: true
+  disabled_reason: '2026-10-28: auto-disabled by freshness audit — newest observation 2026-10-18T10:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Wind speed — Kilsbergen-Suttarboda A (SMHI)
   domain: nature
   dgp_class: wind_speed
