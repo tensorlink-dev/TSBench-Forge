@@ -155735,3 +155735,35 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''109'': without it the response
     interleaves several series on the same timestamps.'
+
+# -- wired batch: grind-20261029-0713 --
+- id: opendata_real_time_air_quality_pm25_fine_particulate_mat_100034
+  name: Concentration moyenne horaire de particules fines PM2.5 (qualité de l' [100034]
+  domain: nature
+  dgp_class: air_quality
+  archetypes:
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: PT1H
+  endpoint:
+    type: rest_json
+    url: https://opendata.bruxelles.be/api/explore/v2.1/catalog/datasets/real-time-air-quality-pm25-fine-particulate-matter/records?limit=100&order_by=timestamp%20desc&where=device_id%3D%22100034%22
+    auth: none
+    rate_limit: polite
+    timeout: 90
+  schema:
+    timestamp_field: results[].timestamp
+    value_field:
+    - results[].value
+    drop_null_values: true
+    variates: 1
+  history_available: 100 newest points per call
+  update_cadence_observed: median gap 60 min over 24 newest records, newest 0.0d old (probed at wire time)
+  pretraining_novelty: unknown
+  novelty_notes: Brussels open-data portal, dataset real-time-air-quality-pm25-fine-particulate-matter.
+  license: Brussels open data
+  audit_slack_days: 10
+  notes: 'Opendatasoft v2.1 records endpoint, dataset real-time-air-quality-pm25-fine-particulate-matter,
+    ordered newest-first on timestamp; v2.1 caps `limit` at 100. Ordering matters: the default is insertion
+    order, which on a rolling table returns the oldest rows and reads as a dead source. Panel dimension
+    device_id is pinned to ''100034'': without it the response interleaves several series on the same timestamps.'
