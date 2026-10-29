@@ -15877,6 +15877,8 @@
       op: count
       bin: PT1H
 - id: cincinnati_fire_ems_cad_volume
+  disabled: true
+  disabled_reason: '2026-10-29: auto-disabled by freshness audit — newest observation 2026-10-19T23:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Cincinnati Fire/EMS CAD incidents (hourly dispatch volume)
   domain: healthcare
   frequency: PT1H
@@ -31817,6 +31819,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_cotv_cotv_play
+  disabled: true
+  disabled_reason: '2026-10-29: auto-disabled by freshness audit — newest observation 2026-10-08T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: COTV Play — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -33923,6 +33927,8 @@
   audit_slack_days: 21
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), RU. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ynm_ynm_tube
+  disabled: true
+  disabled_reason: '2026-10-29: auto-disabled by freshness audit — newest observation 2026-10-08T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: YnM Tube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -49518,6 +49524,8 @@
   audit_slack_days: 10
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_yahweasel_yahtube
+  disabled: true
+  disabled_reason: '2026-10-29: auto-disabled by freshness audit — newest observation 2026-10-08T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Yahtube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -152638,6 +152646,8 @@
   notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2451 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
     (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
 - id: mesaaz_j9ar_bfch_daily_volume
+  disabled: true
+  disabled_reason: '2026-10-29: auto-disabled by freshness audit — newest observation 2026-10-05T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: PRCF - Parks Safety Inspections Completed — daily volume (citydata.mesaaz.gov)
   domain: energy
   dgp_class: grid_reliability
