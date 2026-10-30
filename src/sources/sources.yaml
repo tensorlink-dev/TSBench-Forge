@@ -44580,6 +44580,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_veedeo_veedeo
+  disabled: true
+  disabled_reason: '2026-10-30: auto-disabled by freshness audit — newest observation 2026-10-09T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Veedeo — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -86758,6 +86760,8 @@
   notes: USGS NWIS IV service, gauge 09113500 (Ohio Creek Near Baldwin, Co.), parameter code 00065 (Gage
     height), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00065_09106800
+  disabled: true
+  disabled_reason: '2026-10-30: auto-disabled by freshness audit — newest observation 2026-10-21T02:05:00+00:00 is 9.2d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Gage height — Taylor River Above Trail Creek Nr Taylor Park, Co (USGS 09106800)
   domain: nature
   dgp_class: water_level
