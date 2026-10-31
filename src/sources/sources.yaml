@@ -7674,6 +7674,8 @@
   license: Public domain (USGS/EPA Water Quality Portal)
   notes: 'Autosearch wire. Verified via scraper._records_from_csv: 3463 rows, 265 distinct ActivityStartDate, ResultMeasureValue 100% numeric, HTTP 200, no key. WQP legacy /data/Result/search no longer serves USGS-* sites (migrated to USGS OGC API 2024) — query STORET providers via statecode instead. startDateLo must be MM-DD-YYYY; pinned a literal date because the {YYYY-MM-DD-Nd} offset token renders YYYY-MM-DD which WQP rejects (400). Plain GET csv.'
 - id: malwarebazaar_sample_submissions
+  disabled: true
+  disabled_reason: '2026-10-31: auto-disabled by freshness audit — newest observation 2026-10-21T15:00:00+00:00 is 9.6d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: abuse.ch MalwareBazaar — recent malware sample submissions (hourly count)
   domain: web_cloudops
   dgp_class: submission_stream
@@ -12721,6 +12723,8 @@
   license: Stack Exchange API (CC BY-SA)
   notes: Consumer-facing rather than professional — weekend behaviour is the inverse of Server Fault, which makes the two a clean contrast on the same measurement pipeline.
 - id: urlhaus_malicious_url_submissions
+  disabled: true
+  disabled_reason: '2026-10-31: auto-disabled by freshness audit — newest observation 2026-10-21T16:00:00+00:00 is 9.6d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: abuse.ch URLhaus — malicious URL submissions (hourly bins)
   domain: web_cloudops
   dgp_class: threat_intel_stream
@@ -16918,6 +16922,8 @@
     - ORGNL_MDCR_BENES
     - MA_AND_OTH_BENES
 - id: nmdb_oulu_neutron_1min
+  disabled: true
+  disabled_reason: '2026-10-31: auto-disabled by freshness audit — newest observation 2026-10-21T13:29:00+00:00 is 9.7d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: NMDB Oulu neutron monitor corrected count rate (1-min)
   domain: nature
   frequency: PT1M
@@ -26664,6 +26670,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the EMODnet Physics ERDDAP server (erddap.emodnet-physics.eu). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: TEMP.'
 - id: ioos_41024_sun2_sunset_nearshore_met_and_wate
+  disabled: true
+  disabled_reason: '2026-10-31: auto-disabled by freshness audit — newest observation 2026-10-21T22:08:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: (41024 / SUN2) Sunset Nearshore Met and Water, NC (UNCW - Coastal Ocean Research and Monitoring Program (CORMP))
   domain: nature
   dgp_class: sea_level
@@ -26902,6 +26910,8 @@
   audit_slack_days: 9
   notes: 'Bulk-generated from the NERACOOS ERDDAP server (data.neracoos.org). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: WATER_TEMPERATURE, WAVE_MEAN_DIRECTION.'
 - id: secoora_41024_sun2_sunset_nearshore_met_and_wate
+  disabled: true
+  disabled_reason: '2026-10-31: auto-disabled by freshness audit — newest observation 2026-10-21T22:08:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: (41024 / SUN2) Sunset Nearshore Met and Water, NC (UNCW - Coastal Ocean Research and Monitoring Program (CORMP))
   domain: nature
   dgp_class: sea_level
@@ -117618,6 +117628,8 @@
     cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
     count what the instance mirrored from its peers, which is the same global firehose seen from every host.
 - id: misskey_netzkae_notes
+  disabled: true
+  disabled_reason: '2026-10-31: auto-disabled by freshness audit — newest observation 2026-10-21T10:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: netzkae.se — local note publication rate (Sharkey)
   domain: web_cloudops
   dgp_class: social_posting_rate
