@@ -50110,6 +50110,8 @@
   audit_slack_days: 13
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), BG. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_flokinet_flokitube
+  disabled: true
+  disabled_reason: '2026-11-01: auto-disabled by freshness audit — newest observation 2026-10-08T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: FlokiTube — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -87164,6 +87166,8 @@
   notes: USGS NWIS IV service, gauge 09106485 (Colorado R. Abv Gunnison R. At Grand Junction, Co), parameter
     code 00010 (Water temperature), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00010_09014050
+  disabled: true
+  disabled_reason: '2026-11-01: auto-disabled by freshness audit — newest observation 2026-10-22T06:50:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   name: Water temperature — Grand Lake Outlet Blw Chipmunk Ln At Grand Lk, Co (USGS 09014050)
   domain: nature
   dgp_class: water_temperature
@@ -118600,6 +118604,8 @@
   notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
     in ~2 weeks of hourly polls.'
 - id: lemmy_slrpnk_net_active_users
+  disabled: true
+  disabled_reason: '2026-11-01: auto-disabled by freshness audit — newest observation 2026-10-22T13:51:33+00:00 is 9.7d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Lemmy SLRPNK (slrpnk.net) — daily active users
   domain: web_cloudops
   dgp_class: network_activity
