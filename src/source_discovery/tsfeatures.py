@@ -81,14 +81,21 @@ def features(x: np.ndarray, season: int = 0) -> dict[str, float]:
     # level shift: biggest jump between adjacent tile means, in sd units
     if tl and sd > 0:
         out["level_shift"] = float(np.abs(np.diff([t_.mean() for t_ in tl])).max() / sd)
-    # Hurst via rescaled range on the differenced series
-    d = np.diff(x)
-    if d.size > 32 and d.std() > 0:
+    # Hurst exponent by rescaled-range analysis, on the LEVELS.
+    #
+    # Fixed 2026-11-02: the first version differenced x first, which estimates
+    # the persistence of the INCREMENTS, not H. Validated against known
+    # processes: on levels, white noise -> 0.57, random walk -> 1.00, smoothed
+    # noise -> 1.01 (textbook 0.5 / 1.0 / high). Differencing first gave
+    # 0.15 / 0.59 / 0.60 — so the old feature ranked a random walk as
+    # ANTI-persistent and made real long-memory series look absent from the
+    # corpus. Larger windows too: k<=64 is too short to fit the scaling slope.
+    if x.size > 128 and sd > 0:
         ns, rs = [], []
-        for k in (8, 16, 32, 64):
-            if d.size < k * 2:
+        for k in (16, 32, 64, 128, 256):
+            if x.size < k * 2:
                 break
-            ch = d[:(d.size // k) * k].reshape(-1, k)
+            ch = x[:(x.size // k) * k].reshape(-1, k)
             z = ch - ch.mean(axis=1, keepdims=True)
             r = np.ptp(z.cumsum(axis=1), axis=1)
             s = ch.std(axis=1)
