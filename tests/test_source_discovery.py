@@ -600,3 +600,54 @@ def test_period_seconds_matches_scraper(freq) -> None:
     scraper = pytest.importorskip(
         "scraper", reason="scraper needs httpx/pyarrow; parity check is opt-in")
     assert duration.period_seconds(freq) == scraper._period_seconds(freq)
+
+
+# --- tsfeatures: statistical-character profiling (feature-space coverage) ---
+
+def test_tsfeatures_separates_canonical_shapes():
+    """The features must tell the textbook shapes apart, or feature-space
+    coverage is measuring noise. Thresholds are deliberately loose — this
+    pins behaviour, not exact values."""
+    import numpy as np
+    from source_discovery.tsfeatures import FEATURES, features
+
+    rng = np.random.default_rng(0)
+    noise = features(rng.normal(size=2000), season=24)
+    sine = features(np.sin(np.arange(2000) * 0.1) + np.arange(2000) * 0.01, season=24)
+    spikes = features((rng.random(2000) < 0.03) * rng.exponential(10, 2000), season=24)
+    walk = features(np.cumsum(rng.normal(size=2000)), season=24)
+
+    assert noise["spectral_entropy"] > 0.8 > sine["spectral_entropy"]
+    assert sine["trend_strength"] > 0.5 > noise["trend_strength"]
+    assert spikes["zero_frac"] > 0.5 and noise["zero_frac"] == 0.0
+    assert walk["acf1"] > 0.9 and abs(noise["acf1"]) < 0.2
+    for f in (noise, sine, spikes, walk):
+        assert set(f) == set(FEATURES)
+        assert all(np.isfinite(v) for v in f.values())
+
+
+def test_tsfeatures_handles_degenerate_input():
+    """Short, constant and all-NaN series must return zeros rather than raise:
+    the profiler runs over the whole catalog and one bad series must not stop
+    the sweep."""
+    import numpy as np
+    from source_discovery.tsfeatures import FEATURES, features
+
+    for bad in (np.array([]), np.zeros(10), np.full(500, 3.0),
+                np.full(500, np.nan), np.array([1.0, np.nan, np.inf])):
+        f = features(bad, season=24)
+        assert set(f) == set(FEATURES)
+        assert all(np.isfinite(v) for v in f.values())
+
+
+def test_tsfeatures_pca_is_orthonormal_and_ordered():
+    import numpy as np
+    from source_discovery.tsfeatures import pca
+
+    rng = np.random.default_rng(1)
+    mat = rng.normal(size=(200, 8))
+    mat[:, 1] = mat[:, 0] * 2 + rng.normal(scale=0.01, size=200)  # a dominant direction
+    scores, comps, var = pca(mat, k=3)
+    assert scores.shape == (200, 3) and comps.shape == (3, 8)
+    assert var[0] >= var[1] >= var[2] > 0
+    assert np.allclose(np.linalg.norm(comps, axis=1), 1.0, atol=1e-6)
