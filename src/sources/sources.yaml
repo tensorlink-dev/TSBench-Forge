@@ -27330,6 +27330,8 @@
   audit_slack_days: 60
   notes: From the auto-search proposal ledger (PR 61). The proposal named the protobuf GTFS-RT endpoint, which the scraper cannot read; the JSON alerts API carries the same events. EventStart mixes started and SCHEDULED alerts, so drop_future_timestamps is REQUIRED here — without it the newest stamp sits months ahead and the source reads as permanently fresh.
 - id: noaa_noaa_ship_bell_m_shimada_underway_meteor
+  disabled: true
+  disabled_reason: '2026-11-03: auto-disabled by freshness audit — newest observation 2026-10-22T02:09:00+00:00 is 12.2d old vs a 4.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: NOAA Ship Bell M. Shimada Underway Meteorological Data, Near Real Time (FSU)
   domain: nature
   dgp_class: ocean_physics
@@ -28141,6 +28143,8 @@
   audit_slack_days: 54
   notes: 'Bulk-generated from the UAF ERDDAP server (upwell.pfeg.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: Nino1_2_sst, Nino1_2_ssta, Nino3_sst, Nino3_ssta.'
 - id: noaa_noaa_ship_bell_m_shimada_underway_meteor_fsunoaashi
+  disabled: true
+  disabled_reason: '2026-11-03: auto-disabled by freshness audit — newest observation 2026-10-22T02:09:00+00:00 is 12.2d old vs a 4.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: NOAA Ship Bell M. Shimada Underway Meteorological Data, Near Real Time (FSU)
   domain: nature
   dgp_class: ocean_physics
