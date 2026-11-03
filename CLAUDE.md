@@ -49,3 +49,14 @@ namespaced targets, e.g. `ME:EV-0021`.
   contexts and horizons, never the truth; a contexts fingerprint guards the
   hand-off and any failure just omits the rows.
   (`decisions/DEC-TB-0006-reference-models-on-rented-gpu.md`)
+
+- **DEC-TB-0007** — Statistical archetypes are a third balance axis next to
+  domain and cadence. Pool and GIFT/BOOM/TIME series are clustered together on
+  scale-invariant `tsfeatures` (BOOM is published standardised, so
+  unit-dependent features split it by storage format). Each catalog entry
+  carries `stat_archetype` (`stat_tag`, model frozen in
+  `source_discovery/data/archetypes.json`). `wire.verify_entry` rejects
+  over-held archetypes, and sourcing targets the under-held ones (slow trend
+  with level shifts is 6.7% of the pool vs 17.4% of the benchmarks). Cascade
+  is asked to make selection archetype-aware.
+  (`decisions/DEC-TB-0007-archetype-balance-axis.md`)

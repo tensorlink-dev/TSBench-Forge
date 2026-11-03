@@ -14,7 +14,7 @@ from __future__ import annotations
 import numpy as np
 
 FEATURES = [
-    "log_cv", "skew", "log_kurtosis", "zero_frac", "flat_frac",
+    "mode_frac", "skew", "log_kurtosis", "dispersion", "flat_frac",
     "acf1", "acf_seasonal", "trend_strength", "spectral_entropy",
     "spikiness", "lumpiness", "stability", "crossing_rate",
     "level_shift", "hurst",
@@ -43,15 +43,31 @@ def features(x: np.ndarray, season: int = 0) -> dict[str, float]:
     out = {f: 0.0 for f in FEATURES}
     if x.size < 64:
         return out
-    mu, sd = float(x.mean()), float(x.std())
-    out["log_cv"] = float(np.log1p(sd / max(abs(mu), 1e-9)))
-    if sd > 0:
-        z = (x - mu) / sd
-        out["skew"] = float(np.clip((z ** 3).mean(), -10, 10))
-        out["log_kurtosis"] = float(np.log1p(max((z ** 4).mean() - 3.0, 0.0)))
-    out["zero_frac"] = float((x == 0).mean())
+    # SCALE-INVARIANT BY CONSTRUCTION (v2, 2026-11-03). BOOM publishes its
+    # series standardised (67% are exactly mean 0 / sd 1) while GIFT, TIME and
+    # our pool are raw. v1 features that depended on units — log_cv, zero_frac,
+    # and spikiness/lumpiness/stability computed on raw variances — therefore
+    # separated BOOM from everything else by storage format, and produced a
+    # spurious "BOOM-only archetype". Every feature below is computed so that
+    # features(a*x + b) == features(x) for a > 0; a test pins this.
+    #   mode_frac  replaces zero_frac: share of the single most common value
+    #              (intermittency survives a shift, a literal zero does not)
+    #   dispersion replaces log_cv: robust spread of the first differences
+    #              relative to the series' own IQR (noise vs level structure)
     runs = np.diff(np.flatnonzero(np.r_[True, x[1:] != x[:-1], True]))
     out["flat_frac"] = float(runs.max() / x.size)
+    _, counts = np.unique(x, return_counts=True)
+    out["mode_frac"] = float(counts.max() / x.size)
+    mu, sd = float(x.mean()), float(x.std())
+    if sd <= 0:
+        return out
+    x = (x - mu) / sd
+    mu, sd = 0.0, 1.0
+    out["skew"] = float(np.clip((x ** 3).mean(), -10, 10))
+    out["log_kurtosis"] = float(np.log1p(max((x ** 4).mean() - 3.0, 0.0)))
+    iqr = float(np.subtract(*np.percentile(x, [75, 25])))
+    dmad = float(np.median(np.abs(np.diff(x))))
+    out["dispersion"] = float(np.log1p(dmad / max(iqr, 1e-6)))
     out["acf1"] = _acf(x, 1)
     if season and x.size > season + 2:
         out["acf_seasonal"] = _acf(x, season)

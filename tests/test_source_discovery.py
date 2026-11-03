@@ -619,7 +619,7 @@ def test_tsfeatures_separates_canonical_shapes():
 
     assert noise["spectral_entropy"] > 0.8 > sine["spectral_entropy"]
     assert sine["trend_strength"] > 0.5 > noise["trend_strength"]
-    assert spikes["zero_frac"] > 0.5 and noise["zero_frac"] == 0.0
+    assert spikes["mode_frac"] > 0.5 and noise["mode_frac"] < 0.01
     assert walk["acf1"] > 0.9 and abs(noise["acf1"]) < 0.2
     for f in (noise, sine, spikes, walk):
         assert set(f) == set(FEATURES)
@@ -712,3 +712,90 @@ def test_archetypes_roundtrip():
     a = fit(mat, k=4)
     b = Archetypes.from_dict(a.to_dict())
     assert (a.assign(mat) == b.assign(mat)).all()
+
+
+# --- archetype gate in wire.verify_entry ---
+
+def test_archetype_of_rejects_short_and_assigns_long():
+    import numpy as np
+    from source_discovery.wire import archetype_of
+
+    short = [{"timestamp": f"2026-01-01T00:{i:02d}:00Z", "v": float(i)} for i in range(50)]
+    assert archetype_of(short) == (None, None)
+    rng = np.random.default_rng(0)
+    longr = [{"timestamp": f"t{i:05d}", "v": float(x)} for i, x in enumerate(rng.normal(size=600))]
+    name, w = archetype_of(longr)
+    assert name and name.startswith("A") and 0.25 <= w <= 4.0
+
+
+def test_archetype_gate_blocks_overcovered(monkeypatch):
+    """An over-covered archetype fails verification unless the entry opts out."""
+    from source_discovery import wire
+
+    recs = [{"timestamp": f"2026-11-0{1 + i // 600}T{(i // 25) % 24:02d}:{i % 60:02d}:00Z",
+             "v": float(i % 7)} for i in range(400)]
+
+    class FakeScraper:
+        def fetch_payload(self, entry, prow=None):
+            return b"", "application/json"
+
+        def parse_payload(self, entry, blob, ctype):
+            import datetime as dt
+            now = dt.datetime.now(dt.timezone.utc)
+            return [{"timestamp": (now - dt.timedelta(minutes=400 - i)).isoformat(), "v": r["v"]}
+                    for i, r in enumerate(recs)]
+
+    monkeypatch.setattr(wire, "archetype_of", lambda r: ("A07", 0.31))
+    e = {"id": "x", "frequency": "PT1M", "endpoint": {"url": "https://example.org"}}
+    res = wire.verify_entry(e, FakeScraper())
+    assert not res.ok and "over-covered" in res.error and res.archetype == "A07"
+    e["allow_overcovered_archetype"] = True
+    assert wire.verify_entry(e, FakeScraper()).ok
+    monkeypatch.setattr(wire, "archetype_of", lambda r: ("A03", 4.0))
+    del e["allow_overcovered_archetype"]
+    res = wire.verify_entry(e, FakeScraper())
+    assert res.ok and res.archetype == "A03"
+
+
+def test_tsfeatures_are_scale_invariant():
+    """features(a*x + b) == features(x) for a > 0. BOOM publishes standardised
+    series and GIFT/TIME/our pool are raw: any unit-dependent feature splits
+    them by storage format, not by dynamics (it did, in v1)."""
+    import numpy as np
+    from source_discovery.tsfeatures import features
+
+    rng = np.random.default_rng(4)
+    for x in (np.cumsum(rng.normal(size=1500)),
+              (rng.random(1500) < 0.05) * rng.exponential(5, 1500),
+              np.sin(np.arange(1500) * 0.2) + rng.normal(scale=0.3, size=1500)):
+        f0 = features(x, season=24)
+        for a, b in ((1e-3, 0.0), (250.0, -7.5), (1.0, 1e6)):
+            f1 = features(a * x + b, season=24)
+            for k in f0:
+                assert abs(f0[k] - f1[k]) < 1e-6 * max(1.0, abs(f0[k])), (k, a, b, f0[k], f1[k])
+
+
+def test_stat_fit_weights_datasets_not_series_and_reports():
+    """One giant reference dataset must not set the target mix, and the
+    frozen model must carry everything stat_tag / the wire gate read."""
+    import numpy as np
+    import pandas as pd
+    from source_discovery.stat_fit import ref_weights, run
+    from source_discovery.tsfeatures import FEATURES
+
+    rng = np.random.default_rng(5)
+    def rows(c, n, **kw):
+        return [dict(kw, **{f: v for f, v in zip(FEATURES, rng.normal(c, 0.3, len(FEATURES)))})
+                for _ in range(n)]
+    pool = pd.DataFrame(rows(-2.0, 120, id="p", domain="d", freq="PT1H")
+                        + rows(0.0, 120, id="q", domain="d", freq="PT1H"))
+    ref = pd.DataFrame(rows(0.0, 400, bench="gift", config="big", freq="H", sec=3600)
+                       + rows(3.0, 10, bench="gift", config="small", freq="H", sec=3600)
+                       + rows(3.0, 10, bench="boom", config="b1", freq="10S", sec=10))
+    w = ref_weights(ref)
+    assert abs(w.sum() - 1.0) < 1e-9
+    assert abs(w[:400].sum() - w[400:410].sum()) < 1e-9      # big == small within gift
+    m = run(pool, ref, k=3, out=lambda *_: None)
+    for key in ("centroids", "center", "scale", "names", "draw_weight", "describe", "overlap"):
+        assert key in m
+    assert len(m["draw_weight"]) == 3 and 0 < m["overlap"]["daily_or_faster"] < 1

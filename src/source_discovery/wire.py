@@ -145,9 +145,48 @@ class VerifyResult:
     panel_entities: int = 0
     newest: Optional[str] = None
     error: Optional[str] = None
+    archetype: Optional[str] = None
 
     def as_dict(self) -> dict:
         return dataclasses.asdict(self)
+
+
+# Archetype gate: a candidate whose statistical archetype the pool already
+# over-holds relative to GIFT/BOOM/TIME (draw weight below this) is rejected.
+# Volume in those archetypes is what pulled pool-optimised models away from the
+# external benchmarks (see stat_clusters). Opt out per entry with
+# ``allow_overcovered_archetype: true`` for a deliberate exception.
+ARCHETYPE_MIN_WEIGHT = 0.5
+ARCHETYPE_MIN_POINTS = 256
+
+
+def archetype_of(recs: list[dict]) -> tuple[Optional[str], Optional[float]]:
+    """(archetype, draw_weight) for parsed records, or (None, None) if there is
+    too little data to judge (snapshot feeds: tagged later by stat_tag)."""
+    import numpy as np  # noqa: PLC0415
+
+    from .stat_tag import load_model, SEASON  # noqa: PLC0415,F401
+    from .tsfeatures import FEATURES, features  # noqa: PLC0415
+
+    pk = sorted({k for r in recs for k in r if k.startswith("_panel")})
+    if pk:
+        first = recs[0].get(pk[0]) if recs else None
+        recs = [r for r in recs if r.get(pk[0]) == first]
+    col = next((k for r in recs for k, v in r.items()
+                if k != "timestamp" and not k.startswith("_") and _is_num(v)), None)
+    if col is None:
+        return None, None
+    rows = sorted((str(r.get("timestamp")), r.get(col)) for r in recs if _is_num(r.get(col)))
+    x = np.array([float(v) for _, v in rows], dtype=float)
+    if np.isfinite(x).sum() < ARCHETYPE_MIN_POINTS:
+        return None, None
+    try:
+        arch, meta = load_model()
+    except FileNotFoundError:
+        return None, None
+    f = features(x[-4096:])
+    i = int(arch.assign(np.array([[f[k] for k in FEATURES]]))[0])
+    return meta["names"][i], float(meta["draw_weight"][i])
 
 
 def _too_slow(entry: dict) -> Optional[str]:
@@ -239,9 +278,19 @@ def verify_entry(entry: dict, scraper_mod=None) -> VerifyResult:
                 err = None
     else:
         err = None
+    arch_name = None
+    if ok:
+        arch_name, weight = archetype_of(recs)
+        if (weight is not None and weight < ARCHETYPE_MIN_WEIGHT
+                and not entry.get("allow_overcovered_archetype")):
+            ok = False
+            err = (f"archetype {arch_name} is over-covered (draw weight {weight:.2f} < "
+                   f"{ARCHETYPE_MIN_WEIGHT}): the pool already holds more of this kind of "
+                   f"series than GIFT/BOOM/TIME do, so adding it widens the gap")
     return VerifyResult(ok=ok, rows=len(recs), distinct_ts=len(ts),
                         numeric_rows=nn, panel_entities=len(ents),
-                        newest=newest.isoformat() if newest else None, error=err)
+                        newest=newest.isoformat() if newest else None, error=err,
+                        archetype=arch_name)
 
 
 def _parse_candidate(item: dict) -> tuple[str, Optional[dict], str, Optional[str]]:
