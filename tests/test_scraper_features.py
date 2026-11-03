@@ -696,6 +696,20 @@ def test_json_timestamp_composed_from_two_paths():
     assert recs[0]["value"] == "333.9"
 
 
+def test_json_timestamp_key_with_spaces_is_not_a_composition():
+    """GIOŚ keys contain spaces ('Lista danych pomiarowych'); a path that resolves
+    as written must be walked verbatim, not split into fields ('None None None')."""
+    src = {"endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "Lista danych pomiarowych[].Data",
+                      "value_field": ["Lista danych pomiarowych[].Wartość"]}}
+    import json as _json
+    blob = _json.dumps({"Lista danych pomiarowych": [
+        {"Data": "2026-11-03 07:00:00", "Wartość": 24.8},
+        {"Data": "2026-11-03 06:00:00", "Wartość": 21.0}]}).encode()
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert [r["timestamp"] for r in recs] == ["2026-11-03 07:00:00", "2026-11-03 06:00:00"]
+
+
 def test_json_single_path_timestamp_still_walks_verbatim():
     src = {"endpoint": {"type": "rest_json"},
            "schema": {"timestamp_field": "obs[].t", "value_field": ["obs[].v"]}}

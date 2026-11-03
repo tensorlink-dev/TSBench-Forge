@@ -830,6 +830,12 @@ def _compose_json_ts(data: Any, ts_path: str, schema: dict) -> Any:
     paths = ts_path.split()
     if len(paths) < 2:
         return _walk(data, ts_path)
+    # Some publishers DO put spaces in keys (GIOŚ: 'Lista danych pomiarowych').
+    # A path that resolves as written is a real key, not a composition.
+    whole = _walk(data, ts_path)
+    if whole is not None and not (isinstance(whole, list)
+                                  and all(v is None for v in whole)):
+        return whole
     seqs = [_walk(data, p) for p in paths]
     if not all(isinstance(s, list) for s in seqs):
         return _compose_ts([str(s) for s in seqs],

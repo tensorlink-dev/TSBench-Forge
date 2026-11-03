@@ -170157,3 +170157,4539 @@
   license: CC BY 4.0 (NESO / Carbon Intensity API)
   notes: DNO region 17. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
   stat_archetype: A09
+- id: defra_ukair_pm25_toft_newton
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Toft Newton (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5130/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Toft Newton', SOS timeseries 5130 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_weybourne
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Weybourne (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5023/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Weybourne', SOS timeseries 5023 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_barnstaple_a39
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Barnstaple A39 (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/1965/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Barnstaple A39', SOS timeseries 1965 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_nottingham_kenmore_gardens
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Nottingham Kenmore Gardens (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5179/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Nottingham Kenmore Gardens', SOS timeseries 5179 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_no2_brighton_preston_park
+  stat_archetype: A11
+  name: DEFRA UK-AIR — NO2 at Brighton Preston Park (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/103/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Brighton Preston Park', SOS timeseries 103 (NO2, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_manchester_sharston
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Manchester Sharston (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5207/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Manchester Sharston', SOS timeseries 5207 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_rotherham_east_dene
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Rotherham East Dene (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5237/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Rotherham East Dene', SOS timeseries 5237 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_birmingham_hall_green
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Birmingham Hall Green (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5233/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Birmingham Hall Green', SOS timeseries 5233 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_bradford_shipley_airedale_road
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Bradford Shipley Airedale Road (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5425/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Bradford Shipley Airedale Road', SOS timeseries 5425 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not
+    counted as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_coventry_binley_road
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Coventry Binley Road (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5281/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Coventry Binley Road', SOS timeseries 5281 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_leicester_a594_roadside
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Leicester A594 Roadside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5371/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Leicester A594 Roadside', SOS timeseries 5371 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_nottingham_western_boulevard
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Nottingham Western Boulevard (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5344/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Nottingham Western Boulevard', SOS timeseries 5344 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not
+    counted as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_shrewsbury_underdale
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Shrewsbury Underdale (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5268/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Shrewsbury Underdale', SOS timeseries 5268 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_southampton_a33
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Southampton A33 (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5394/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Southampton A33', SOS timeseries 5394 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_stoke_on_trent_a50_roadside
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Stoke-on-Trent A50 Roadside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5351/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Stoke-on-Trent A50 Roadside', SOS timeseries 5351 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not
+    counted as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_gloucester_tredworth
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Gloucester Tredworth (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5482/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Gloucester Tredworth', SOS timeseries 5482 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_loughborough_thorpe_acre
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Loughborough Thorpe Acre (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5520/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Loughborough Thorpe Acre', SOS timeseries 5520 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_worcester_tolladine
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Worcester Tolladine (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5486/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Worcester Tolladine', SOS timeseries 5486 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_chatham_roadside
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Chatham Roadside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2004/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Chatham Roadside', SOS timeseries 2004 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_wrexham
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Wrexham (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/4727/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Wrexham', SOS timeseries 4727 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_salford_eccles
+  stat_archetype: A07
+  name: DEFRA UK-AIR — PM2.5 at Salford Eccles (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2050/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Salford Eccles', SOS timeseries 2050 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_liverpool_speke
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Liverpool Speke (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2189/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Liverpool Speke', SOS timeseries 2189 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_newport
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Newport (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2241/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Newport', SOS timeseries 2241 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_glasgow_townhead
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Glasgow Townhead (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2079/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Glasgow Townhead', SOS timeseries 2079 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_chepstow_a48
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Chepstow A48 (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2008/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Chepstow A48', SOS timeseries 2008 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_saltash_callington_road
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Saltash Callington Road (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2295/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Saltash Callington Road', SOS timeseries 2295 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_york_fishergate
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at York Fishergate (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2383/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'York Fishergate', SOS timeseries 2383 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_no2_st_helens_linkway
+  stat_archetype: A11
+  name: DEFRA UK-AIR — NO2 at St Helens Linkway (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/4454/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'St Helens Linkway', SOS timeseries 4454 (NO2, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_scunthorpe_town
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Scunthorpe Town (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5506/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Scunthorpe Town', SOS timeseries 5506 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_grangemouth
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Grangemouth (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2085/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Grangemouth', SOS timeseries 2085 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_lough_navar
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Lough Navar (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/4726/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Lough Navar', SOS timeseries 4726 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_narberth
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Narberth (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/4713/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Narberth', SOS timeseries 4713 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_chilbolton_observatory
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Chilbolton Observatory (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/3480/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Chilbolton Observatory', SOS timeseries 3480 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_auchencorth_moss
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Auchencorth Moss (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/1908/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Auchencorth Moss', SOS timeseries 1908 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_glasgow_high_street
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Glasgow High Street (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/1270/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Glasgow High Street', SOS timeseries 1270 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_stoke_on_trent_centre
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Stoke-on-Trent Centre (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2330/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Stoke-on-Trent Centre', SOS timeseries 2330 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_eastbourne
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Eastbourne (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2046/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Eastbourne', SOS timeseries 2046 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_stanford_le_hope_roadside
+  stat_archetype: A01
+  name: DEFRA UK-AIR — PM2.5 at Stanford-le-Hope Roadside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2112/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Stanford-le-Hope Roadside', SOS timeseries 2112 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_belfast_centre
+  stat_archetype: A07
+  name: DEFRA UK-AIR — PM2.5 at Belfast Centre (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/1934/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Belfast Centre', SOS timeseries 1934 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_birmingham_ladywood
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Birmingham Ladywood (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/4733/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Birmingham Ladywood', SOS timeseries 4733 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_bristol_st_paul_s
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Bristol St Paul's (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/1970/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Bristol St Paul's', SOS timeseries 1970 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_coventry_allesley
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Coventry Allesley (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2022/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Coventry Allesley', SOS timeseries 2022 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_edinburgh_st_leonards
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Edinburgh St Leonards (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2056/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Edinburgh St Leonards', SOS timeseries 2056 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_hull_freetown
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Hull Freetown (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2126/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Hull Freetown', SOS timeseries 2126 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_leamington_spa
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Leamington Spa (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2145/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Leamington Spa', SOS timeseries 2145 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_leamington_spa_rugby_road
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Leamington Spa Rugby Road (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2149/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Leamington Spa Rugby Road', SOS timeseries 2149 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_norwich_lakenfields
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Norwich Lakenfields (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2231/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Norwich Lakenfields', SOS timeseries 2231 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_oxford_st_ebbes
+  stat_archetype: A01
+  name: DEFRA UK-AIR — PM2.5 at Oxford St Ebbes (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2253/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Oxford St Ebbes', SOS timeseries 2253 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_preston
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Preston (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2275/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Preston', SOS timeseries 2275 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_southend_on_sea
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Southend-on-Sea (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2307/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Southend-on-Sea', SOS timeseries 2307 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_sunderland_silksworth
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Sunderland Silksworth (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2338/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Sunderland Silksworth', SOS timeseries 2338 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_swansea_roadside
+  stat_archetype: A01
+  name: DEFRA UK-AIR — PM2.5 at Swansea Roadside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/487/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Swansea Roadside', SOS timeseries 487 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_wigan_centre
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Wigan Centre (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2374/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Wigan Centre', SOS timeseries 2374 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_wirral_tranmere
+  stat_archetype: A01
+  name: DEFRA UK-AIR — PM2.5 at Wirral Tranmere (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2358/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Wirral Tranmere', SOS timeseries 2358 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_leeds_centre
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Leeds Centre (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2163/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Leeds Centre', SOS timeseries 2163 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_leeds_headingley_kerbside
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Leeds Headingley Kerbside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2157/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Leeds Headingley Kerbside', SOS timeseries 2157 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_leicester_university
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Leicester University (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2153/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Leicester University', SOS timeseries 2153 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_middlesbrough
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Middlesbrough (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2206/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Middlesbrough', SOS timeseries 2206 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_newcastle_centre
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Newcastle Centre (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2226/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Newcastle Centre', SOS timeseries 2226 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_southampton_centre
+  stat_archetype: A11
+  name: DEFRA UK-AIR — PM2.5 at Southampton Centre (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2325/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Southampton Centre', SOS timeseries 2325 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_york_bootham
+  stat_archetype: A01
+  name: DEFRA UK-AIR — PM2.5 at York Bootham (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2379/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'York Bootham', SOS timeseries 2379 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_cardiff_centre
+  stat_archetype: A01
+  name: DEFRA UK-AIR — PM2.5 at Cardiff Centre (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/1995/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Cardiff Centre', SOS timeseries 1995 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_manchester_piccadilly
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Manchester Piccadilly (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/2197/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Manchester Piccadilly', SOS timeseries 2197 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_immingham_woodlands_avenue
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Immingham Woodlands Avenue (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/4931/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Immingham Woodlands Avenue', SOS timeseries 4931 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_sheffield_tinsley
+  stat_archetype: A07
+  name: DEFRA UK-AIR — PM2.5 at Sheffield Tinsley (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/4913/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Sheffield Tinsley', SOS timeseries 4913 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_swindon_walcot
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Swindon Walcot (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/4959/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Swindon Walcot', SOS timeseries 4959 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_barnsley_gawber
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Barnsley Gawber (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5074/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Barnsley Gawber', SOS timeseries 5074 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_derby_stockbrook_park
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Derby Stockbrook Park (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5141/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Derby Stockbrook Park', SOS timeseries 5141 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_bristol_temple_way
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Bristol Temple Way (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5271/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Bristol Temple Way', SOS timeseries 5271 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as
+    independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_cannock_a5190_roadside
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Cannock A5190 Roadside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5333/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Cannock A5190 Roadside', SOS timeseries 5333 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_derby_st_alkmund_s_way
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Derby St Alkmund's Way (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5330/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Derby St Alkmund's Way', SOS timeseries 5330 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_doncaster_a630_cleveland_street
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Doncaster A630 Cleveland Street (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5360/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Doncaster A630 Cleveland Street', SOS timeseries 5360 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are
+    not counted as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_hull_holderness_road
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Hull Holderness Road (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5352/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Hull Holderness Road', SOS timeseries 5352 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_middlewich_st_michael_s_way
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Middlewich St Michael's Way (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5332/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Middlewich St Michael's Way', SOS timeseries 5332 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not
+    counted as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_newcastle_cradlewell_roadside
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Newcastle Cradlewell Roadside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5382/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Newcastle Cradlewell Roadside', SOS timeseries 5382 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not
+    counted as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_reading_rose_kiln_lane
+  stat_archetype: A07
+  name: DEFRA UK-AIR — PM2.5 at Reading Rose Kiln Lane (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5296/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Reading Rose Kiln Lane', SOS timeseries 5296 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_pm25_sunderland_wessington_way
+  stat_archetype: A09
+  name: DEFRA UK-AIR — PM2.5 at Sunderland Wessington Way (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/5306/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Sunderland Wessington Way', SOS timeseries 5306 (PM2.5, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted
+    as independent evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_no2_peebles
+  stat_archetype: A09
+  name: DEFRA UK-AIR — NO2 at Peebles (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/397/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Peebles', SOS timeseries 397 (NO2, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: defra_ukair_no2_exeter_roadside
+  stat_archetype: A09
+  name: DEFRA UK-AIR — NO2 at Exeter Roadside (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://uk-air.defra.gov.uk/sos-ukair/api/v1/timeseries/201/getData?timespan={YYYY-MM-DD-14d}T00:00:00Z/{YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: values[].timestamp
+    value_field: values[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2026-01 on this SOS (older via datastore CSV)
+  update_cadence_observed: hourly, ~1-2 day provisional lag
+  pretraining_novelty: clean
+  license: Open Government Licence v3 (DEFRA UK-AIR)
+  notes: Automatic Urban and Rural Network station 'Exeter Roadside', SOS timeseries 201 (NO2, ug.m-3). One pollutant per station (PM2.5 > NO2 > O3 > PM10) so co-located channels are not counted as independent
+    evidence. Epoch-ms timestamps. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_17375
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Lionel (Dendermonde)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/17375/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 17375 (indoor, Belgium), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_11109
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at 早良区昭代 (Fukuoka)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/11109/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 11109 (indoor, Japan), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19040
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Familiar Playground Eggnog (Caluire-et-Cuire)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19040/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19040 (outdoor, France), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19514
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Web2Learn - 5th Gymnasium of Agios Dimitrios, Atti (Greece)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19514/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19514 (outdoor, Greece), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19489
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Duurzaam Waalre HvL (Waalre)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19489/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19489 (outdoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19587
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Barley (Prague)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19587/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19587 (outdoor, Czechia), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20018
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at SC2EB2 (Bristol)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20018/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20018 (indoor, United Kingdom of Great Britain and Northern Ireland), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as
+    independent evidence. Independent citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19539
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Luchtclub_077F (Rotterdam)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19539/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19539 (indoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20125
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at KOINA ΙΟΑΝΝΙΝΑ-ANATOLI-B (Katsikas)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20125/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20125 (outdoor, Greece), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19636
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at ZŠ Vazovova (Bratislava)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19636/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19636 (outdoor, Slovakia), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19578
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Ponte san Nicolò (Ponte San Nicolò)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19578/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19578 (outdoor, Italy), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18343
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at TRI_KHFH_PERS_#9EA8 (Trikala)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18343/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18343 (indoor, Greece), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_15924
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at I_change_Amsterdam001_GJS (Wageningen)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/15924/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 15924 (indoor, Netherlands), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18269
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at SCORE_AQ_8AD1 (Ireland)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18269/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18269 (outdoor, Ireland), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19601
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at PWH-15-ELD (Madrid)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19601/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19601 (outdoor, Spain), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19943
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at Rebote (Zacatecas City)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19943/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19943 (outdoor, Mexico), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19146
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Sneeuwheide 20 (19146) (Helmond)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19146/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19146 (outdoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20141
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at LJUBLJANA_RESLJEVA_POSTAJA (Ljubljana)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20141/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20141 (outdoor, Slovenia), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19122
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Kerkstraat Zuid 17 (19122) (Helmond)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19122/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19122 (outdoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18622
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Cleanair McGee (Sunaire)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18622/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18622 (indoor, United States of America), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent
+    citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18774
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at UTS_IAQ_1 (?)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18774/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18774 (indoor, ?), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_17700
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at LINK-Mainaustr.  (Constance)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/17700/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 17700 (outdoor, Germany), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20086
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Veur_Óffebek_KW155 (Reuver)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20086/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20086 (outdoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19213
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at VDK 18 (Ghent)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19213/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19213 (outdoor, Belgium), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19219
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at Vollsveien - A085 (Østerås)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19219/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19219 (outdoor, Norway), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19907
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at CAAP-MultimediaClassRoom (Montdidier)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19907/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19907 (indoor, France), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18798
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Sensorius (Kaunas)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18798/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18798 (indoor, Lithuania), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18873
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at UTS_IAQ_2 (Sydney)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18873/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18873 (indoor, Australia), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19298
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Strada Traian 57 (Cluj-Napoca)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19298/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19298 (outdoor, Romania), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18371
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Barton Road East (Dundrum)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18371/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18371 (outdoor, Ireland), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19646
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at ZŠ Mudroňova (Bratislava)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19646/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19646 (outdoor, Slovakia), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19271
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Eichberg (Förtha)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19271/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19271 (outdoor, Germany), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20091
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at CitySense-45AF-CLUJ-1 (Cluj-Napoca)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20091/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20091 (outdoor, Romania), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19236
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Ungasan Kit - TEST (Kuta Selatan)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19236/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19236 (outdoor, Indonesia), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19976
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at K UNGASAN - V3- NEW ENCLOSURE (Kuta Selatan)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19976/readings?sensor_id=234&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19976 (outdoor, Indonesia), sensor 234 (Seeed HM-3301 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19939
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at DD9B Jesus and Shu (La Perla)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19939/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19939 (outdoor, Peru), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20094
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at CitySense-FBC0-CLUJ-4 (Cluj-Napoca)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20094/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20094 (outdoor, Romania), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19357
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at Hollandse Luchten 2 (Beverwijk)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19357/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19357 (outdoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_17833
+  stat_archetype: A09
+  name: Smart Citizen — PM2.5 at LIU_TP_4005_#CE2A (Norrköping)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/17833/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 17833 (indoor, Sweden), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20142
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Marinex 1.0_B (Birkirkara)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20142/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20142 (outdoor, Malta), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_16030
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at I-CHANGE CIMA SAVONA (Savona)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/16030/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 16030 (outdoor, Italy), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19267
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at PKG_Allschwil_1 (Allschwil)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19267/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19267 (outdoor, Switzerland), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18559
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at UCD_EPA Rathmines_CoLoation_#2861 (Dublin)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18559/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18559 (outdoor, Ireland), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18794
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at FabLab liverpool_2 (Liverpool)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18794/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18794 (outdoor, United Kingdom of Great Britain and Northern Ireland), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as
+    independent evidence. Independent citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18070
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at LIU_SH_405_#A0BE (Linköping)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18070/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18070 (indoor, Sweden), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19611
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at LIU_PR_LK_A3C0 (Linköping)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19611/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19611 (outdoor, Sweden), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_16984
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at TGH_MAIN_DOCTORS_#C9EC (Municipal Unit of Elefsina)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/16984/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 16984 (indoor, Greece), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19202
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at DalkeyTT_AQ_Wyvern (Killiney)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19202/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19202 (outdoor, Ireland), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_15024
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at WeCount ThornhillRoad (Cardiff)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/15024/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 15024 (outdoor, United Kingdom of Great Britain and Northern Ireland), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted
+    as independent evidence. Independent citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_16647
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at Tannenhof (Constance)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/16647/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 16647 (outdoor, Germany), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_16313
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at I_change_Amsterdam002_GJS (Wageningen)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/16313/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 16313 (indoor, Netherlands), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18970
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at Vaccina - Andria (Andria)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18970/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18970 (outdoor, Italy), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19323
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at 7DC1 (Norway)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19323/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19323 (outdoor, Norway), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_16339
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at I_change_Amsterdam007_GJS (Wageningen)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/16339/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 16339 (indoor, Netherlands), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19798
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at Dust Devil Cypress (Lakewood)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19798/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19798 (outdoor, United States of America), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent
+    citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_16554
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at MuurKeuk (Amersfoort)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/16554/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 16554 (outdoor, Netherlands), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19382
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at GerardHome (Beverwijk)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19382/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19382 (outdoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_14863
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at Mdkar (New York)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/14863/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 14863 (indoor, United States of America), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent
+    citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18146
+  stat_archetype: A04
+  name: Smart Citizen — PM2.5 at I-CHANGE SERRA CASTAGNA (Arenzano)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18146/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18146 (outdoor, Italy), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_16643
+  stat_archetype: A01
+  name: Smart Citizen — PM2.5 at I-CHANGE CIMA CASTAGNA (Castagna)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT6H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/16643/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 16643 (outdoor, Italy), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_109
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Wałbrzych, ul. Wysockiego (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/32600?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 109 (Wałbrzych), sensor 32600 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_225
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Włocławek, ul. Okrzei (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/19698?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 225 (Włocławek), sensor 19698 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm10_275
+  stat_archetype: A07
+  name: GIOŚ Poland — PM10 at Radzyń Podlaski, ul. Sitkowskiego (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/27126?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 275 (Radzyń Podlaski), sensor 27126 (PM10). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData
+    returns only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_o3_282
+  stat_archetype: A09
+  name: GIOŚ Poland — O3 at Wilczopole (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/1983?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 282 (Wilczopole), sensor 1983 (O3). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_285
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Zamość, ul. Hrubieszowska (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/26316?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 285 (Zamość), sensor 26316 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_331
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Radomsko, ul. Rolna (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/21363?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 331 (Radomsko), sensor 21363 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_515
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Radom, ul. Tochtermana (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/14377?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 515 (Radom), sensor 14377 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns only
+    ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_552
+  stat_archetype: A09
+  name: GIOŚ Poland — PM2.5 at Warszawa, ul. Kondratowicza (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/14688?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 552 (Warszawa), sensor 14688 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_562
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Żyrardów, ul. Roosevelta (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/14379?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 562 (Żyrardów), sensor 14379 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_609
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Białystok, ul. Warszawska (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/32441?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 609 (Białystok), sensor 32441 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_631
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Jarosław, ul. Pruchnicka (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/20218?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 631 (Jarosław), sensor 20218 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_no2_842
+  stat_archetype: A09
+  name: GIOŚ Poland — NO2 at Ustroń, ul. Sanatoryjna (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/5512?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 842 (Ustroń), sensor 5512 (NO2). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns only
+    ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_9114
+  stat_archetype: A09
+  name: GIOŚ Poland — PM2.5 at Ostrołęka, ul. Hallera (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/32417?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 9114 (Ostrołęka), sensor 32417 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_no2_9175
+  stat_archetype: A09
+  name: GIOŚ Poland — NO2 at Krempna, Ośrodek edukacyjno-muzealny MPN (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/14753?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 9175 (Krempna), sensor 14753 (NO2). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_11154
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Suwałki, ul. Pułaskiego 26 (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/19697?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 11154 (Suwałki), sensor 19697 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_17179
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Rzeszów, ul. Starzyńskiego (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/28489?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 17179 (Rzeszów), sensor 28489 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_20140
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Wysokie Mazowieckie, ul. 1 Maja (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/31331?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 20140 (Wysokie Mazowieckie), sensor 31331 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData
+    returns only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_20202
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Krasne (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/31422?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 20202 (Krasne), sensor 31422 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_20209
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Ciechanów, ul. Kraszewskiego (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/31492?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 20209 (Ciechanów), sensor 31492 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_20277
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Tomaszów Lubelski, ul. Janusza Petera (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/31525?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 20277 (Tomaszów Lubelski), sensor 31525 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData
+    returns only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_20307
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Krotoszyn, ul. Olimpijska (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/31678?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 20307 (Krotoszyn), sensor 31678 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_20567
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Ostrowiec Świętokrzyski, ul. Polna (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/32500?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 20567 (Ostrowiec Świętokrzyski), sensor 32500 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because
+    getData returns only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: gios_pl_pm25_20647
+  stat_archetype: A07
+  name: GIOŚ Poland — PM2.5 at Braniewo, ul. PCK (hourly)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataBySensor/32741?dateFrom={YYYY-MM-DD-30d}%2000:00&dateTo={YYYY-MM-DD}%2023:00&size=1000
+  schema:
+    timestamp_field: Lista archiwalnych wyników pomiarów[].Data
+    value_field: Lista archiwalnych wyników pomiarów[].Wartość
+    drop_null_values: true
+    variates: 1
+  history_available: P366D per call (archivalData)
+  update_cadence_observed: hourly
+  pretraining_novelty: clean
+  license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
+  notes: Polish State Environmental Monitoring station 20647 (Braniewo), sensor 32741 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
+    only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
