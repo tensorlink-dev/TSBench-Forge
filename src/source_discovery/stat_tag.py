@@ -131,9 +131,24 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--data", default="src/sources/data", type=Path)
     ap.add_argument("--model", default=MODEL, type=Path)
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--dump-features", type=Path, default=None,
+                    help="write one row per profiled series (id, domain, freq, features) "
+                         "for stat_fit / independent verification")
     a = ap.parse_args(argv)
     arch, meta = load_model(a.model)
     catalog = yaml.safe_load(a.catalog.read_text())
+    if a.dump_features:
+        import csv
+        with open(a.dump_features, "w", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=["id", "domain", "freq", *FEATURES])
+            w.writeheader()
+            for e in catalog:
+                for f in source_features(e, a.data):
+                    w.writerow({"id": e["id"], "domain": e["domain"],
+                                "freq": e.get("frequency"), **f})
+        print(f"features -> {a.dump_features}")
+        if not a.apply:
+            return 0
     tags = assign_sources(catalog, a.data, arch, meta["names"])
     c = collections.Counter(tags.values())
     print(f"{len(tags)} of {len(catalog)} sources assigned an archetype")

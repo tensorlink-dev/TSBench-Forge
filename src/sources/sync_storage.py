@@ -52,6 +52,12 @@ from pathlib import Path
 FORGE_DIR = Path(__file__).parent
 DATA_DIR = FORGE_DIR / "data"
 CATALOG_NAME = "sources.yaml"
+# The archetype model (DEC-TB-0007) interprets the catalog's `stat_archetype`
+# tags. It lives outside the forge dir, so it is mirrored to a fixed key at the
+# bucket root. Cascade pins its `version` in snapshot provenance; a refit
+# renumbers archetype ids, so the tags are meaningless without this file.
+ARCHETYPE_MODEL = Path(__file__).resolve().parent.parent / "source_discovery" / "data" / "archetypes.json"
+ARCHETYPE_KEY = "archetypes.json"
 DEFAULT_ENDPOINT = "https://s3.hippius.com"
 DEFAULT_BUCKET = "tsbench-forge-sources"
 
@@ -150,6 +156,14 @@ def _upload(s3, bucket: str, forge_dir: Path, dry_run: bool) -> int:
             up_bytes += size
             continue
         pending.append((key, p, size))
+    if ARCHETYPE_MODEL.is_file():
+        size = ARCHETYPE_MODEL.stat().st_size
+        if dry_run:
+            print(f"would upload {ARCHETYPE_KEY} ({size:,} B)")
+            uploaded += 1
+            up_bytes += size
+        else:
+            pending.append((ARCHETYPE_KEY, ARCHETYPE_MODEL, size))
 
     def _put(item: tuple[str, Path, int]):
         key, p, size = item
@@ -180,8 +194,10 @@ def _upload(s3, bucket: str, forge_dir: Path, dry_run: bool) -> int:
     # head so a consumer listing the bucket finds the file that interprets the
     # data; a pool would not honour that, so it gets its own serial pass.
     t0 = dt.datetime.now(dt.timezone.utc)
+    # Model before catalog: a consumer must never see tags it cannot interpret.
+    _drain([it for it in pending if it[0] == ARCHETYPE_KEY], 1)
     _drain([it for it in pending if it[0] == CATALOG_NAME], 1)
-    _drain([it for it in pending if it[0] != CATALOG_NAME], SYNC_UPLOAD_WORKERS)
+    _drain([it for it in pending if it[0] not in (CATALOG_NAME, ARCHETYPE_KEY)], SYNC_UPLOAD_WORKERS)
     took = (dt.datetime.now(dt.timezone.utc) - t0).total_seconds()
 
     # Stamp the line with wall-clock and duration. The log used to carry neither,

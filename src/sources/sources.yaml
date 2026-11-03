@@ -169698,3 +169698,458 @@
   notes: CO-OPS air_temperature (degC) at station 8775302. Sourced for the A09 archetype (slow trend with level shifts), which is 17% of GIFT/BOOM/TIME and 7% of the pool; coastal temperature/salinity is
     the direct analogue of TIME's Coastal_T_S. Archetype measured at wire time by wire.verify_entry.
   stat_archetype: A09
+- id: energinet_afrrenergyactivation_afrr_activated_dk2
+  name: Energinet aFRR Energy Activation — aFRR_Activated (DK2)
+  domain: energy
+  dgp_class: grid_market
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.energidataservice.dk/dataset/AfrrEnergyActivation?limit=5000&sort=TimeMsUTC%20DESC&columns=TimeMsUTC%2CaFRR_Activated&filter=%7B%22PriceArea%22%3A%20%5B%22DK2%22%5D%7D
+  schema:
+    timestamp_field: records[].TimeMsUTC
+    value_field: records[].aFRR_Activated
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: Energinet DataHub
+  pretraining_novelty: clean
+  license: Energinet open data (CC BY 4.0)
+  notes: Dataset AfrrEnergyActivation, column aFRR_Activated (most variable numeric column), price area DK2. One source per dataset+area, not per column, so sibling columns are not counted as independent
+    evidence. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+  stat_archetype: A01
+- id: energinet_electricityprodex5minrealtime_onshorewindpower_dk2
+  name: Energinet Electricity Production and Exchange 5 min Realtime — OnshoreWindPower (DK2)
+  domain: energy
+  dgp_class: grid_market
+  archetypes:
+  - non_stationary_regime
+  frequency: PT5M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.energidataservice.dk/dataset/ElectricityProdex5MinRealtime?limit=5000&sort=Minutes5UTC%20DESC&columns=Minutes5UTC%2COnshoreWindPower&filter=%7B%22PriceArea%22%3A%20%5B%22DK2%22%5D%7D
+  schema:
+    timestamp_field: records[].Minutes5UTC
+    value_field: records[].OnshoreWindPower
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: Energinet DataHub
+  pretraining_novelty: clean
+  license: Energinet open data (CC BY 4.0)
+  notes: Dataset ElectricityProdex5MinRealtime, column OnshoreWindPower (most variable numeric column), price area DK2. One source per dataset+area, not per column, so sibling columns are not counted as
+    independent evidence. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+  stat_archetype: A09
+- id: energinet_foreignexchange_exchangeimportse_mwh_dk2
+  name: Energinet Foreign Exchange — ExchangeImportSE_MWh (DK2)
+  domain: energy
+  dgp_class: grid_market
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.energidataservice.dk/dataset/ForeignExchange?limit=5000&sort=HourUTC%20DESC&columns=HourUTC%2CExchangeImportSE_MWh&filter=%7B%22PriceArea%22%3A%20%5B%22DK2%22%5D%7D
+  schema:
+    timestamp_field: records[].HourUTC
+    value_field: records[].ExchangeImportSE_MWh
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: Energinet DataHub
+  pretraining_novelty: clean
+  license: Energinet open data (CC BY 4.0)
+  notes: Dataset ForeignExchange, column ExchangeImportSE_MWh (most variable numeric column), price area DK2. One source per dataset+area, not per column, so sibling columns are not counted as independent
+    evidence. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+  stat_archetype: A09
+- id: energinet_gascomposition_ethane_all
+  name: Energinet Gas Composition and Quality for Transmission  — Ethane (DK)
+  domain: energy
+  dgp_class: grid_market
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.energidataservice.dk/dataset/GasComposition?limit=5000&sort=HourUTC%20DESC&columns=HourUTC%2CEthane
+  schema:
+    timestamp_field: records[].HourUTC
+    value_field: records[].Ethane
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: Energinet DataHub
+  pretraining_novelty: clean
+  license: Energinet open data (CC BY 4.0)
+  notes: Dataset GasComposition, column Ethane (most variable numeric column), price area n/a. One source per dataset+area, not per column, so sibling columns are not counted as independent evidence. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+  stat_archetype: A11
+- id: energinet_powersystemrightnow_exchange_sum_all
+  name: Energinet Power System Right Now — Exchange_Sum (DK)
+  domain: energy
+  dgp_class: grid_market
+  archetypes:
+  - non_stationary_regime
+  frequency: PT1M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.energidataservice.dk/dataset/PowerSystemRightNow?limit=5000&sort=Minutes1UTC%20DESC&columns=Minutes1UTC%2CExchange_Sum
+  schema:
+    timestamp_field: records[].Minutes1UTC
+    value_field: records[].Exchange_Sum
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: Energinet DataHub
+  pretraining_novelty: clean
+  license: Energinet open data (CC BY 4.0)
+  notes: Dataset PowerSystemRightNow, column Exchange_Sum (most variable numeric column), price area n/a. One source per dataset+area, not per column, so sibling columns are not counted as independent evidence.
+    Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region3_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 3 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/3
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 3. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region5_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 5 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/5
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 5. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region6_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 6 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/6
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 6. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region7_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 7 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/7
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 7. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region8_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 8 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/8
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 8. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region9_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 9 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/9
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 9. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region11_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 11 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/11
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 11. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region12_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 12 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/12
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 12. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region13_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 13 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/13
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 13. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region14_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 14 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/14
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 14. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region15_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 15 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/15
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 15. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09
+- id: carbonintensity_uk_region16_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 16 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/16
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 16. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A04
+- id: carbonintensity_uk_region17_intensity_30min
+  name: UK Carbon Intensity — regional forecast intensity, region 17 (30-min)
+  domain: energy
+  dgp_class: grid_carbon_intensity
+  archetypes:
+  - non_stationary_regime
+  - seasonal_multiscale
+  frequency: PT30M
+  poll: PT1H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.carbonintensity.org.uk/regional/intensity/{YYYY-MM-DD-13d}T00:00Z/{YYYY-MM-DD}T23:30Z/regionid/17
+  schema:
+    timestamp_field: data.data[].from
+    value_field: data.data[].intensity.forecast
+    variates: 1
+  history_available: P14D per call
+  update_cadence_observed: 30-minute
+  pretraining_novelty: clean
+  license: CC BY 4.0 (NESO / Carbon Intensity API)
+  notes: DNO region 17. Regional intensity moves with local wind/solar/imports, so regions differ (Scotland is near-zero, the south-east is gas-led). Archetype measured at wire time.
+  stat_archetype: A09

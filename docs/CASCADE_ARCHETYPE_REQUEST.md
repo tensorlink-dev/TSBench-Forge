@@ -1,61 +1,93 @@
-# Request to cascade: archetype-aware pool selection
+# Archetype-aware pool selection — forge's side, revised after cascade's review
 
-**From:** TSBench-Forge · **Date:** 2026-11-03 · **Decision record:** DEC-TB-0007
+**From:** TSBench-Forge · **Revised:** 2026-11-03 · **Decision record:** DEC-TB-0007
 
-## The problem
+This revision adopts cascade's corrections and recommended plan. The original
+asked for round-robin over `(domain, freq, stat_archetype)` or draw weighting;
+both are withdrawn (see "What changed").
 
-Miners who win cascade rounds are losing ground on GIFT-Eval, BOOM and TIME.
-The pool is balanced by domain and cadence, but those labels say where a series
-came from, not what kind of forecasting problem it is. The pool's statistical
-mix differs from the benchmarks', so the KOTH verdict rewards behaviour the
-benchmarks don't.
+## The finding
 
-## What we measured
+Pool and benchmark series profiled on the same scale-invariant features and
+clustered together (k = 12) give these overlaps of archetype mix (1.0 = identical):
 
-4,936 pool series and 2,510 benchmark series (all of GIFT and TIME, 250 BOOM
-configs stratified by cadence) were profiled on the same 15 scale-invariant
-statistical features and clustered together into 12 archetypes. Overlap of the
-archetype mixes (1.0 = identical): **0.81** against the daily-or-faster
-benchmark series; GIFT 0.70, BOOM 0.62, TIME 0.67. The result is stable for
-k = 8, 12 and 16.
+| vs | overlap |
+|---|---|
+| daily-or-faster benchmark series | 0.811 |
+| GIFT / BOOM / TIME | 0.701 / 0.623 / 0.668 |
 
-| archetype | pool | benchmarks | note |
-|---|---|---|---|
-| A09 slow trend + level shifts | 6.7% | 17.4% | largest gap; M4, taxi demand, coastal T/S |
-| A04 flat stretches, lumpy, skewed | 2.0% | 4.9% | BOOM 10.7% |
-| A07 heavy-tailed, lumpy | 6.5% | 8.8% | BOOM 18.7% |
-| A08 intermittent skewed counts | 14.9% | 3.7% | over-held; cheapest to scrape |
+| archetype | pool | benchmarks (daily-or-faster) |
+|---|---|---|
+| A09 slow trend + level shifts | 6.7% | 17.4% |
+| A04 flat stretches, lumpy, skewed | 2.0% | 4.9% |
+| A07 heavy-tailed, lumpy | 6.5% | 8.8% |
+| A08 intermittent skewed counts | 14.9% | 3.7% |
 
-## What forge has done
+## What changed from the first request
 
-- Every catalog entry now carries `stat_archetype: A00..A11`, a top-level key
-  read the same way as `mv_channels`. The frozen model, with centroids,
-  scaling, reference shares and a clipped `draw_weight` per archetype, is in
-  `src/source_discovery/data/archetypes.json`.
-- New sources in the over-held archetype are rejected at wire time.
-- Sourcing now targets the under-held archetypes (coastal temperature and
-  salinity, groundwater levels and similar).
+- **Balanced selection is a source round-robin**, not a round-robin over cells:
+  one series per source per pass, in seeded order, inside the per-domain and
+  per-cell caps. Agreed: the source stays the deal unit and the KOTH
+  cluster-bootstrap key.
+- **Equal shares per archetype would overshoot.** A04 would move from 2% toward
+  about 8% against a benchmark 4.9%. The target is the reference shares
+  (`ref_share_daily_or_faster` in the model file), not equal shares.
+- **Draw weighting is dropped.** It costs 25% of effective sample at margins of
+  0.005, and it is a consensus change.
+- **Still a scoring change.** A pool-builder change needs no validator release,
+  but it changes which series every verdict is scored on. Announce it, start at
+  a snapshot boundary, and bump `BUILDER_VERSION` if audit re-derives snapshots.
 
-## What we're asking
+## Cascade's plan (agreed)
 
-Pick one of these:
+1. **Verify our numbers independently** off-box, using the frozen model.
+   Recipe below.
+2. **Build:** within the existing domain caps and source round-robin, deal
+   slots so the archetype mix moves toward `ref_share_daily_or_faster`.
+   Untagged entries get their own `unknown` bucket. The source stays the
+   bootstrap key.
+3. **Dry-run** a pool build. Report overlap before and after, source count,
+   per-domain counts and bootstrap cluster count, before anything goes live.
+4. **Ship** as a pool-builder release: pin the archetype model version in
+   snapshot provenance, start at an announced snapshot boundary, tell miners.
 
-1. **Selection (preferred):** make `--selection balanced` round-robin over
-   `(domain, freq, stat_archetype)` instead of `(domain, freq)`. This needs no
-   new parameters. The archetype mix then follows supply, and our sourcing
-   moves supply toward the benchmarks.
-2. **Draw weighting:** weight the stage-3 window draw by `draw_weight[archetype]`
-   (already clipped to 0.25–4). Simulated on our side, this lifts overlap from
-   0.81 to 1.00 in expectation, at a cost: Kish effective sample drops to 75%.
-   That cost falls as our sourcing fills the under-held archetypes.
+## What forge provides
 
-Untagged entries (feeds too young to profile) should be treated as their own
-"unknown" archetype, not dropped.
+- `stat_archetype: A00..A11` on each catalog entry: 4,715 tagged as of
+  2026-11-03, the rest too young to profile.
+- **`archetypes.json` at the bucket root**, next to `sources.yaml`, uploaded
+  before the catalog on every sync, so a consumer never sees tags without the
+  model that defines them. Pin its `version` in snapshot provenance. A refit
+  renumbers ids and bumps `version`. We will announce refits and never ship
+  one mid-snapshot; for safety, treat a version change as taking effect at the
+  next snapshot boundary only.
+- Fields: `version`, `names`, `centroids`, `center`, `scale` (enough to assign
+  any series), `ref_share_daily_or_faster` (the targets for step 2),
+  `pool_share` and `overlap` (the published numbers to verify).
 
-## Compatibility
+## Verification recipe (step 1)
 
-- Additive key; nothing existing changes meaning.
-- Option 1 is a pool-build change (no validator release). Option 2 changes
-  what validators score, so it needs release-then-activate.
-- Archetype ids are stable within a model version. We will announce any refit,
-  since it renumbers them, and bump `version` in the model file.
+All in `source_discovery` (forge repo, `src/` on the path). CPU only, no keys.
+
+```bash
+# reference benchmarks: ~1.6 GB of public HF data (GIFT all, BOOM 250 configs seeded, TIME all)
+python -m source_discovery.stat_refs fetch   --out REFDIR
+python -m source_discovery.stat_refs profile --refdir REFDIR --out ref.csv
+# pool: profile from your forge mirror (sources.yaml + data/)
+python -m source_discovery.stat_tag --catalog TSFORGE/sources.yaml --data TSFORGE/data \
+       --dump-features pool.csv
+# score under OUR frozen model, no refit; prints published numbers alongside
+python -m source_discovery.stat_fit --pool pool.csv --ref ref.csv --model archetypes.json
+# optionally refit from scratch and compare structure (k = 8/12/16 sensitivity)
+python -m source_discovery.stat_fit --pool pool.csv --ref ref.csv
+```
+
+On forge's data the frozen-model score reproduces the published 0.811 exactly.
+Pool features depend on the snapshot day, so expect small drift on yours.
+
+## One open question for Chris, not a technical one
+
+Steering the private pool toward GIFT/BOOM/TIME aims KOTH at three public
+benchmark families. That is the stated goal, but it narrows what "good data"
+means to those families. Partial matching (move part of the way toward the
+reference) is a reasonable hedge, and the dry run can report both.

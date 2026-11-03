@@ -63,13 +63,22 @@ before computing features, and a test pins `features(a·x+b) == features(x)`.
 3. Sourcing targets archetypes with draw weight above 1 (A09, A11, A04, A07,
    A01, A02), classified at wire time. Volume is not the target.
 
-**Asked of cascade** (their decision): make `--selection balanced` round-robin
-over (domain, freq, stat_archetype), or weight the stage-3 draw by
-`draw_weight` from the model file. Reweighting alone lifts daily-or-faster
-overlap from 0.81 to 1.00 in expectation. It costs effective sample: Kish ESS
-is 3,690 of 4,936 (75%), because A08 series count 0.25× and A09 series 2.6×.
-Item 3 exists to shrink that cost: the more of the under-held archetypes the
-pool holds, the closer the weights get to 1.
+**Agreed with cascade (2026-11-03, after their review).** Their builder deals
+slots round-robin across SOURCES (one series per source per pass, seeded, inside
+domain and cell caps). The source stays the deal unit and the KOTH
+cluster-bootstrap key. Within that, cascade will deal so the archetype mix
+moves toward `ref_share_daily_or_faster`: reference shares, not equal shares.
+Equal shares would overshoot; A04 would go to ~8% against a benchmark 4.9%.
+Untagged entries form an `unknown` bucket. Draw weighting is dropped: it costs
+25% effective sample at 0.005 margins and is a consensus change. Sequence:
+cascade verifies our numbers off-box with the frozen model
+(`stat_refs` + `stat_tag --dump-features` + `stat_fit --model`), dry-runs a
+build (overlap, source count, per-domain counts, bootstrap cluster count), then
+ships a pool-builder release. That release pins the archetype model version in
+snapshot provenance and starts at an announced snapshot boundary. Forge
+mirrors `archetypes.json` to the bucket root before the catalog on every sync.
+Open, and Chris's call: how far toward the benchmarks to go, since full
+matching aims KOTH at three public benchmark families.
 
 **Why not just add more data.** More of the cheap series (municipal and
 platform event counts) lands in A08 and lowers benchmark overlap. Volume and

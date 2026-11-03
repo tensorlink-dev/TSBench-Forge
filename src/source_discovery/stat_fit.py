@@ -40,6 +40,38 @@ def ref_weights(ref) -> np.ndarray:
     return (1.0 / n_cfg / per_cfg / ref["bench"].nunique()).to_numpy()
 
 
+def score_frozen(pool, ref, model: dict, out=print) -> dict:
+    """Alignment under an EXISTING model, without refitting — for independent
+    verification of a published model's numbers."""
+    from source_discovery.stat_clusters import Archetypes
+
+    arch = Archetypes.from_dict(model)
+    ref = ref.copy()
+    ref["w"] = ref_weights(ref)
+    pc = arch.assign(pool[FEATURES].to_numpy(float))
+    rc = arch.assign(ref[FEATURES].to_numpy(float))
+    fast = (ref["sec"].astype(float) <= 86400).to_numpy()
+    k = arch.k
+    res = {"daily_or_faster": alignment(pc, rc[fast], k, ref["w"].to_numpy()[fast])}
+    for b in BENCHES:
+        m = (ref["bench"] == b).to_numpy()
+        if m.any():
+            res[b] = alignment(pc, rc[m], k, ref["w"].to_numpy()[m])
+    pub = model.get("overlap", {})
+    out(f"model v{model.get('version')}  pool {len(pool)} series, ref {len(ref)} series")
+    out(f"daily-or-faster overlap {res['daily_or_faster']['overlap']:.3f}"
+        f"  (published {pub.get('daily_or_faster')})")
+    for b in BENCHES:
+        if b in res:
+            out(f"   vs {b:5s} overlap {res[b]['overlap']:.3f}")
+    names = model["names"]
+    al = res["daily_or_faster"]
+    for c in np.argsort(-al["ratio"]):
+        out(f"   {names[c]}  pool {al['pool_share'][c]:6.1%}  ref {al['ref_share'][c]:6.1%}"
+            f"  (published pool {model['pool_share'][c]:.1%}, ref {model['ref_share_daily_or_faster'][c]:.1%})")
+    return res
+
+
 def run(pool, ref, k: int = 12, seed: int = 0, out=print) -> dict:
     ref = ref.copy()
     ref["w"] = ref_weights(ref)
@@ -98,7 +130,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--k", type=int, default=12)
     ap.add_argument("--freeze", action="store_true")
     ap.add_argument("--provenance", default="")
+    ap.add_argument("--model", type=Path, default=None,
+                    help="score under this frozen model instead of refitting (verification)")
     a = ap.parse_args(argv)
+    if a.model:
+        score_frozen(pd.read_csv(a.pool), pd.read_csv(a.ref), json.loads(a.model.read_text()))
+        return 0
     model = run(pd.read_csv(a.pool), pd.read_csv(a.ref), k=a.k)
     if a.freeze:
         prev = json.loads(MODEL.read_text()).get("version", 0) if MODEL.exists() else 0
