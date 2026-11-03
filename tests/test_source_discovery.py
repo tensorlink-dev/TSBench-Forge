@@ -651,3 +651,64 @@ def test_tsfeatures_pca_is_orthonormal_and_ordered():
     assert scores.shape == (200, 3) and comps.shape == (3, 8)
     assert var[0] >= var[1] >= var[2] > 0
     assert np.allclose(np.linalg.norm(comps, axis=1), 1.0, atol=1e-6)
+
+
+# --- stat_clusters: archetype clustering + alignment to reference benchmarks ---
+
+def _blobs(rng, centers, n):
+    import numpy as np
+    return np.vstack([rng.normal(c, 0.3, size=(n, len(c))) for c in centers])
+
+
+def test_stat_clusters_recovers_separated_groups():
+    import numpy as np
+    from source_discovery.stat_clusters import fit
+
+    rng = np.random.default_rng(0)
+    centers = [np.full(15, v) for v in (-4.0, 0.0, 4.0)]
+    mat = _blobs(rng, centers, 60)
+    arch = fit(mat, k=3, seed=1)
+    lab = arch.assign(mat)
+    # each true group maps to exactly one cluster
+    for g in range(3):
+        assert len(set(lab[g * 60:(g + 1) * 60])) == 1
+    assert len(set(lab)) == 3
+
+
+def test_alignment_flags_a_region_the_pool_lacks():
+    """Fit on pool+reference: a reference-only region must get its own cluster
+    and show up as uncovered, not be silently absorbed."""
+    import numpy as np
+    from source_discovery.stat_clusters import alignment, fit, importance_weights, sourcing_targets
+
+    rng = np.random.default_rng(2)
+    pool = _blobs(rng, [np.full(15, -3.0), np.full(15, 0.0)], 100)
+    ref = _blobs(rng, [np.full(15, 0.0), np.full(15, 3.5)], 100)
+    arch = fit(np.vstack([pool, ref]), k=3, seed=0)
+    al = alignment(arch.assign(pool), arch.assign(ref), arch.k)
+    assert 0.4 < al["overlap"] < 0.6
+    assert al["uncovered_ref_mass"] > 0.4
+    w = importance_weights(al)
+    assert w.max() <= 4.0 and w.min() >= 0.25
+    tgt = sourcing_targets(al, pool_size=200)
+    assert tgt and tgt[0][1] >= 80        # the missing region is the top target
+
+
+def test_alignment_identical_mixes():
+    import numpy as np
+    from source_discovery.stat_clusters import alignment
+
+    lab = np.array([0, 1, 2, 0, 1, 2])
+    al = alignment(lab, lab, 3)
+    assert al["overlap"] == 1.0 and al["js_divergence"] < 1e-9
+
+
+def test_archetypes_roundtrip():
+    import numpy as np
+    from source_discovery.stat_clusters import Archetypes, fit
+
+    rng = np.random.default_rng(3)
+    mat = rng.normal(size=(80, 15))
+    a = fit(mat, k=4)
+    b = Archetypes.from_dict(a.to_dict())
+    assert (a.assign(mat) == b.assign(mat)).all()
