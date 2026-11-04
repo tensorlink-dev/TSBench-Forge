@@ -118,7 +118,7 @@ cluster-count floor at today's count. Forge's additions:
    to `sources.yaml`. Forge re-tags `stat_archetype` from fresh data, so a tag
    can change between days. Record the tags actually used (or the catalog
    hash) in provenance as well as the model version, so audit can re-derive.
-6. **Untagged entries are about 17% of the catalog** (new or snapshot feeds
+6. **Untagged entries are about 13% of active catalog entries** (new or snapshot feeds
    under 256 points). They get tagged as they mature, so the `unknown` bucket
    shrinks over time.
 7. **Sizing at your real caps.** The live caps are 800/domain and 400/cell
