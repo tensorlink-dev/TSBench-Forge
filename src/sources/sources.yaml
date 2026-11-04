@@ -174693,3 +174693,1114 @@
   license: GIOŚ (Chief Inspectorate of Environmental Protection) open data
   notes: Polish State Environmental Monitoring station 20647 (Braniewo), sensor 32741 (PM2.5). One pollutant per station (PM2.5 > NO2 > O3 > PM10). Uses archivalData (30-day window) because getData returns
     only ~2 days. Timestamps are Polish local time. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_marlin_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Marlin average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=32352
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 32352 (Marlin). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_super_defence_3_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Super defence(3) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=163
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 163 (Super defence(3)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_dagannoth_bones_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Dagannoth bones average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=6729
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 6729 (Dagannoth bones). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_blue_d_hide_body_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Blue d'hide body average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=2499
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 2499 (Blue d'hide body). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_onyx_bolt_tips_price_1h
+  stat_archetype: A07
+  name: OSRS Grand Exchange — Onyx bolt tips average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=9194
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 9194 (Onyx bolt tips). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_prayer_potion_3_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Prayer potion(3) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=139
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 139 (Prayer potion(3)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_amulet_of_glory_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Amulet of glory average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=1704
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 1704 (Amulet of glory). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_kwuarm_potion_unf_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Kwuarm potion (unf) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=105
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 105 (Kwuarm potion (unf)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_grimy_snapdragon_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Grimy snapdragon average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=3051
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 3051 (Grimy snapdragon). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_torstol_seed_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Torstol seed average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=5304
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 5304 (Torstol seed). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_crushed_nest_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Crushed nest average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=6693
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 6693 (Crushed nest). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_rune_plateskirt_price_1h
+  stat_archetype: A07
+  name: OSRS Grand Exchange — Rune plateskirt average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=1093
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 1093 (Rune plateskirt). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_rune_pickaxe_price_1h
+  stat_archetype: A11
+  name: OSRS Grand Exchange — Rune pickaxe average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=1275
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 1275 (Rune pickaxe). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_torstol_potion_unf_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Torstol potion (unf) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=111
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 111 (Torstol potion (unf)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_opal_dragon_bolts_e_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Opal dragon bolts (e) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=21932
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 21932 (Opal dragon bolts (e)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_dragon_nails_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Dragon nails average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=31406
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 31406 (Dragon nails). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_black_chinchompa_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Black chinchompa average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=11959
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 11959 (Black chinchompa). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_amethyst_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Amethyst average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=21347
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 21347 (Amethyst). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_snape_grass_seed_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Snape grass seed average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=22879
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 22879 (Snape grass seed). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_soaked_page_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Soaked page average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=25578
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 25578 (Soaked page). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_magpie_impling_jar_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Magpie impling jar average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=11252
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 11252 (Magpie impling jar). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_ranarr_potion_unf_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Ranarr potion (unf) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=99
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 99 (Ranarr potion (unf)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_snapdragon_seed_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Snapdragon seed average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=5300
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 5300 (Snapdragon seed). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_yew_seed_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Yew seed average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=5315
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 5315 (Yew seed). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_ring_of_wealth_5_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Ring of wealth (5) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=11980
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 11980 (Ring of wealth (5)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_combat_bracelet_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Combat bracelet average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=11126
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 11126 (Combat bracelet). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_phoenix_necklace_price_1h
+  stat_archetype: A01
+  name: OSRS Grand Exchange — Phoenix necklace average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=11090
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 11090 (Phoenix necklace). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_sawmill_voucher_price_1h
+  stat_archetype: A01
+  name: OSRS Grand Exchange — Sawmill voucher average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=28628
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 28628 (Sawmill voucher). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_bird_nest_empty_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Bird nest (empty) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=5075
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 5075 (Bird nest (empty)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_purple_sweets_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Purple sweets average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=10476
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 10476 (Purple sweets). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_sanfew_serum_4_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Sanfew serum(4) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=10925
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 10925 (Sanfew serum(4)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_onyx_ascension_bolts_price_1h
+  stat_archetype: A11
+  name: OSRS Grand Exchange — Onyx ascension bolts average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=34702
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 34702 (Onyx ascension bolts). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_uncut_diamond_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Uncut diamond average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=1617
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 1617 (Uncut diamond). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_stamina_potion_4_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Stamina potion(4) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=12625
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 12625 (Stamina potion(4)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_blighted_super_restore_4_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Blighted super restore(4) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=24598
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 24598 (Blighted super restore(4)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can
+    filter it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured
+    at wire time.
+- id: osrs_ge_battlestaff_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Battlestaff average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=1391
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 1391 (Battlestaff). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_dragon_bones_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Dragon bones average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=536
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 536 (Dragon bones). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it. Approved
+    by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: osrs_ge_forgotten_brew_4_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Forgotten brew(4) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=27629
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 27629 (Forgotten brew(4)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_dragon_bolts_price_1h
+  stat_archetype: A09
+  name: OSRS Grand Exchange — Dragon bolts average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=21905
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 21905 (Dragon bolts). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter it.
+    Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
+- id: osrs_ge_saradomin_brew_3_price_1h
+  stat_archetype: A01
+  name: OSRS Grand Exchange — Saradomin brew(3) average instant-buy price (hourly)
+  domain: sales
+  dgp_class: virtual_marketplace
+  archetypes:
+  - non_stationary_regime
+  - random_walk
+  frequency: PT1H
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://prices.runescape.wiki/api/v1/osrs/timeseries?timestep=1h&id=6687
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].avgHighPrice
+    drop_null_values: true
+    variates: 1
+  history_available: 365 points per timestep (5m/1h/6h/24h)
+  update_cadence_observed: hourly buckets, live
+  pretraining_novelty: clean
+  license: OSRS Wiki real-time prices API (free; descriptive User-Agent required)
+  notes: Item 6687 (Saradomin brew(3)). Real player-to-player trade prices in the Old School RuneScape in-game market — a VIRTUAL economy, labelled dgp_class virtual_marketplace so consumers can filter
+    it. Approved by Chris 2026-11-04, capped at ~40 items. Developer updates can shift the economy abruptly (regime breaks). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire
+    time.
