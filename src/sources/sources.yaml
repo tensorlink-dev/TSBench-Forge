@@ -1181,6 +1181,8 @@
     sample_freshness_hours: 0.5
   notes: Daily CSV file URL pattern with date. 11 zones per timestamp (CAPITL, CENTRL, etc.) — naturally hierarchical.
 - id: elia_solar_15min
+  disabled: true
+  disabled_reason: '2026-11-04: auto-disabled by freshness audit — newest observation 2026-10-25T22:45:00+00:00 is 9.3d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   notes: 'Panelled on region. ods032 returns all 14 Elia regions per timestamp, so an unpanelled limit=100 poll covers only ~8 distinct timestamps and dedupe on the whole row then collapses regions that happen to share a value - 288 observations accrued in 35 days. Panelled, each region is its own series at the full 96/day.'
   name: Belgian Elia per-region solar production (15-min)
   domain: energy
@@ -50381,6 +50383,8 @@
   audit_slack_days: 22
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), GB. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_dog_peertube
+  disabled: true
+  disabled_reason: '2026-11-04: auto-disabled by freshness audit — newest observation 2026-10-14T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: PeerTube — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -51526,6 +51530,8 @@
   audit_slack_days: 8
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), BR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_tiktube_tiktube
+  disabled: true
+  disabled_reason: '2026-11-04: auto-disabled by freshness audit — newest observation 2026-10-08T00:00:00+00:00 is 27.3d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: TikTube — local video publication rate (PeerTube)
   domain: web_cloudops
