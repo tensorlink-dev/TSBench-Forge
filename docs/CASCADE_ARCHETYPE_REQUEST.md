@@ -91,3 +91,39 @@ Steering the private pool toward GIFT/BOOM/TIME aims KOTH at three public
 benchmark families. That is the stated goal, but it narrows what "good data"
 means to those families. Partial matching (move part of the way toward the
 reference) is a reasonable hedge, and the dry run can report both.
+
+## Forge's response to cascade's build plan (2026-11-04)
+
+The plan (knob `--archetype-steering S`, default off; target = S × benchmark
+share + (1−S) × natural share; one series per family per pass; every cap and
+the 300/domain floor kept; S=0 byte-identical; dry runs at S = 1.0 and 0.5 in
+the workflow; `cascade-pool/2`) is agreed. Agreed too on both cautions: keep
+DEC-CA-0032 rotation and the validators' per-round jitter, and add a
+cluster-count floor at today's count. Forge's additions:
+
+1. **Overlap formula** (so the dry run is comparable with our numbers):
+   `overlap = Σ_k min(pool_share_k, ref_share_k)` over the 12 archetypes, with
+   `pool_share` counted in **series** (not sources) over tagged series only, and
+   `ref_share = ref_share_daily_or_faster` from `archetypes.json`. Report the
+   `unknown` fraction alongside it. Reference implementation:
+   `source_discovery.stat_clusters.alignment`.
+2. **Per-benchmark overlap too.** `archetypes.json` carries
+   `ref_share_by_bench` (gift / boom / time). The complaint we are fixing is
+   per benchmark (GIFT 0.70, BOOM 0.62, TIME 0.67), so report all three.
+3. **Dry-run S = 0 as well**, so the "before" row comes from the same code path.
+4. **Keep step 1 (independent check)** before shipping: the recipe above
+   reproduces our 0.811 from public benchmark data and your own forge mirror.
+5. **Where the inputs are.** The workflow's `aws s3 sync` of the whole forge
+   bucket already pulls `archetypes.json` to `./tsforge/archetypes.json`, next
+   to `sources.yaml`. Forge re-tags `stat_archetype` from fresh data, so a tag
+   can change between days. Record the tags actually used (or the catalog
+   hash) in provenance as well as the model version, so audit can re-derive.
+6. **Untagged entries are about 17% of the catalog** (new or snapshot feeds
+   under 256 points). They get tagged as they mature, so the `unknown` bucket
+   shrinks over time.
+7. **Sizing at your real caps.** The live caps are 800/domain and 400/cell
+   (forge had been assuming 600/300), so the ceiling is about 5,600 series. At
+   that size the benchmark mix needs about 970 A09 and 275 A04 series. Forge
+   is sourcing toward those numbers; please report per-archetype supply
+   (eligible series) in the dry run so we can see where steering is
+   supply-limited.
