@@ -21152,6 +21152,8 @@
   audit_slack_days: 46
   notes: Bulk-generated from the Socrata federated catalog (query '911 calls'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: cookcountyil_medical_examiner_unidentified_persons
+  disabled: true
+  disabled_reason: '2026-11-06: auto-disabled by freshness audit — newest observation 2026-01-22T00:00:00+00:00 is 288.3d old vs a 90.0d limit for P1Q. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: Medical Examiner - Unidentified Persons (datacatalog.cookcountyil.gov)
   domain: healthcare
@@ -42136,6 +42138,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_nekomiya_notes
+  disabled: true
+  disabled_reason: '2026-11-06: auto-disabled by freshness audit — newest observation 2026-10-27T12:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   mv_channels: ["value", "remote_inc"]
   name: nekomiya.net — local note publication rate (Misskey)
   domain: web_cloudops
@@ -51006,6 +51010,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CH. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_john_john_livingston
+  disabled: true
+  disabled_reason: '2026-11-06: auto-disabled by freshness audit — newest observation 2026-09-13T00:00:00+00:00 is 54.3d old vs a 18.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: John Livingston — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -103193,6 +103199,8 @@
   notes: active-users chart sibling of misskey_natuyasumisskey_notes; same host, distinct endpoint/metric (readWrite
     = users who both read and wrote in the hour).
 - id: misskey_nekomiya_active_users
+  disabled: true
+  disabled_reason: '2026-11-06: auto-disabled by freshness audit — newest observation 2026-10-27T12:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: nekomiya.net — active local users (Misskey)
   domain: web_cloudops
   dgp_class: active_user_count
@@ -127079,6 +127087,8 @@
   license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
   notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
 - id: ioc_sea_level_alak
+  disabled: true
+  disabled_reason: '2026-11-06: auto-disabled by freshness audit — newest observation 2026-10-27T23:03:00+00:00 is 9.3d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: IOC Sea Level Monitoring — Alitak_US (alak)
   domain: nature
   dgp_class: sea_level
