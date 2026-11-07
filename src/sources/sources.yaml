@@ -193088,3 +193088,1578 @@
   license: ENTSOG Transparency Platform (free reuse with attribution)
   notes: Point DIS-00070 (Audley (WM)), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
     statistical archetype (DEC-TB-0007), measured at wire time.
+- id: parkapi_basel_baselparkhauscity_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, City (Basel, Parkhaus, 1114 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhauscity/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhauscity in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    1114. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhauseurope_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Europe (Basel, Parkhaus, 120 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhauseurope/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhauseurope in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    120. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhausaeschen_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Aeschen (Basel, Parkhaus, 95 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhausaeschen/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhausaeschen in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    95. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhausclaramatte_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Claramatte (Basel, Parkhaus, 120 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhausclaramatte/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhausclaramatte in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 120. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhauscentralbahn_free_5min
+  stat_archetype: A05
+  name: ParkAPI — free spaces, Centralbahn (Basel, Parkhaus, 287 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhauscentralbahn/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhauscentralbahn in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 287. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhausbahnhofsued_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Bahnhof Süd (Basel, Parkhaus, 100 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhausbahnhofsued/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhausbahnhofsued in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 100. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhauselisabethen_free_5min
+  stat_archetype: A05
+  name: ParkAPI — free spaces, Elisabethen (Basel, Parkhaus, 840 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhauselisabethen/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhauselisabethen in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 840. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhaussteinen_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Steinen (Basel, Parkhaus, 526 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhaussteinen/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhaussteinen in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    526. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhausstorchen_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Storchen (Basel, Parkhaus, 142 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhausstorchen/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhausstorchen in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    142. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhausmesse_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Messe (Basel, Parkhaus, 727 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhausmesse/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhausmesse in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    727. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhausclarahuus_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Clarahuus (Basel, Parkhaus, 52 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhausclarahuus/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhausclarahuus in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    52. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_basel_baselparkhausanfos_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Anfos (Basel, Parkhaus, 165 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Basel/baselparkhausanfos/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot baselparkhausanfos in Basel: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    165. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenaltmarkt_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Altmarkt (Dresden, Tiefgarage, 400 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenaltmarkt/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenaltmarkt in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    400. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenparkhausmitte_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Mitte (Dresden, Parkhaus, 400 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenparkhausmitte/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenparkhausmitte in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    400. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenworldtradecenter_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, World Trade Center (Dresden, Tiefgarage, 220 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenworldtradecenter/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenworldtradecenter in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 220. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenferdinandplatz_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Ferdinandplatz (Dresden, Parkplatz, 154 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenferdinandplatz/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenferdinandplatz in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 154. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenstadtforumdresden_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Stadtforum Dresden (Dresden, car park, 87 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenstadtforumdresden/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenstadtforumdresden in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 87. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenwienerplatzhauptbahnhof_free_5min
+  stat_archetype: A09
+  name: ParkAPI — free spaces, Wiener Platz / Hauptbahnhof (Dresden, Tiefgarage, 350 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenwienerplatzhauptbahnhof/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenwienerplatzhauptbahnhof in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 350. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdensachsenenergiecenter_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, SachsenEnergie Center (Dresden, car park, 251 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdensachsenenergiecenter/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdensachsenenergiecenter in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 251. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenstrehlenerstrasse_free_5min
+  stat_archetype: A11
+  name: ParkAPI — free spaces, Strehlener Straße (Dresden, Parkplatz, 235 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenstrehlenerstrasse/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenstrehlenerstrasse in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 235. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenterrassenufer_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Terrassenufer (Dresden, Parkplatz, 69 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenterrassenufer/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenterrassenufer in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    69. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenfidelioffinkestrasse_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Fidelio-F.-Finke-Straße (Dresden, Parkplatz, 105 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenfidelioffinkestrasse/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenfidelioffinkestrasse in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 105. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdencossebaude_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Cossebaude (Dresden, Parkplatz, 32 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdencossebaude/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdencossebaude in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    32. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdengrenzstrasse_free_5min
+  stat_archetype: A04
+  name: ParkAPI — free spaces, Grenzstraße (Dresden, Parkplatz, 38 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdengrenzstrasse/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdengrenzstrasse in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    38. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenkaditz_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Kaditz (Dresden, Parkplatz, 190 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenkaditz/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenkaditz in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    190. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenlangebrueck_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Langebrück (Dresden, Parkplatz, 50 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenlangebrueck/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenlangebrueck in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    50. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenprohlis_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Prohlis (Dresden, Parkplatz, 56 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenprohlis/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenprohlis in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    56. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_dresden_dresdenreick_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Reick (Dresden, Parkplatz, 19 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Dresden/dresdenreick/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot dresdenreick in Dresden: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    19. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_freiburg_freiburgunterlinden_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Unterlinden (Freiburg, car park, 181 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Freiburg/freiburgunterlinden/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot freiburgunterlinden in Freiburg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    181. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_freiburg_freiburgschlossberg_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Schlossberg (Freiburg, car park, 429 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Freiburg/freiburgschlossberg/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot freiburgschlossberg in Freiburg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    429. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_freiburg_freiburgparkhausbreisacherstrasse_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Breisacher Straße (Freiburg, car park, 276 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Freiburg/freiburgparkhausbreisacherstrasse/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot freiburgparkhausbreisacherstrasse in Freiburg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local
+    timestamps. Capacity 276. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_freiburg_freiburgpaedhochschule_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Päd. Hochschule (Freiburg, car park, 210 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Freiburg/freiburgpaedhochschule/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot freiburgpaedhochschule in Freiburg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 210. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_freiburg_freiburgwestarkaden_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Westarkaden (Freiburg, car park, 750 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Freiburg/freiburgwestarkaden/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot freiburgwestarkaden in Freiburg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    750. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_freiburg_freiburgkollegiengebaeude_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Kollegiengebäude (Freiburg, car park, 145 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Freiburg/freiburgkollegiengebaeude/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot freiburgkollegiengebaeude in Freiburg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 145. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_freiburg_freiburgrotteck_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Rotteck (Freiburg, car park, 300 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Freiburg/freiburgrotteck/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot freiburgrotteck in Freiburg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    300. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_freiburg_freiburgambahnhof_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Am Bahnhof (Freiburg, car park, 173 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Freiburg/freiburgambahnhof/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot freiburgambahnhof in Freiburg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    173. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_kaiserslautern_kaiserslauternphpfalztheater_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, PH Pfalztheater (Kaiserslautern, Parkhaus, 271 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Kaiserslautern/kaiserslauternphpfalztheater/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot kaiserslauternphpfalztheater in Kaiserslautern: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local
+    timestamps. Capacity 271. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_nuernberg_nuernbergparkhaushanssachsplatz_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Hans-Sachs-Platz (Nuernberg, Parkhaus, 65 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Nuernberg/nuernbergparkhaushanssachsplatz/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot nuernbergparkhaushanssachsplatz in Nuernberg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local
+    timestamps. Capacity 65. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_nuernberg_nuernbergparkhauskarstadt_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Karstadt (Nuernberg, Parkhaus, 365 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Nuernberg/nuernbergparkhauskarstadt/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot nuernbergparkhauskarstadt in Nuernberg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 365. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_nuernberg_nuernbergparkhausadlerstrasse_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Adlerstraße (Nuernberg, Parkhaus, 260 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Nuernberg/nuernbergparkhausadlerstrasse/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot nuernbergparkhausadlerstrasse in Nuernberg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 260. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_nuernberg_nuernbergparkhauswoehrl_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Wöhrl (Nuernberg, Parkhaus, 441 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Nuernberg/nuernbergparkhauswoehrl/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot nuernbergparkhauswoehrl in Nuernberg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 441. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_nuernberg_nuernbergparkhausjakobsmarkt_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Jakobsmarkt (Nuernberg, Parkhaus, 452 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Nuernberg/nuernbergparkhausjakobsmarkt/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot nuernbergparkhausjakobsmarkt in Nuernberg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 452. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_nuernberg_nuernbergparkhausgaleriakaufhof_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Galeria Kaufhof (Nuernberg, Parkhaus, 220 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Nuernberg/nuernbergparkhausgaleriakaufhof/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot nuernbergparkhausgaleriakaufhof in Nuernberg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local
+    timestamps. Capacity 220. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_nuernberg_nuernbergparkhauserlerklinik_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkhaus Erler-Klinik (Nuernberg, Parkhaus, 200 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Nuernberg/nuernbergparkhauserlerklinik/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot nuernbergparkhauserlerklinik in Nuernberg: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 200. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausaccu_free_5min
+  stat_archetype: A11
+  name: ParkAPI — free spaces, Accu (Zuerich, Parkhaus, 194 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausaccu/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausaccu in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    194. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausalbisriederplatz_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Albisriederplatz (Zuerich, Parkhaus, 66 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausalbisriederplatz/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausalbisriederplatz in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 66. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhauscentereleven_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Center Eleven (Zuerich, Parkhaus, 342 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhauscentereleven/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhauscentereleven in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 342. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhauscityparking_free_5min
+  stat_archetype: A05
+  name: ParkAPI — free spaces, City Parking (Zuerich, Parkhaus, 620 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhauscityparking/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhauscityparking in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 620. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhauscityport_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Cityport (Zuerich, Parkhaus, 153 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhauscityport/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhauscityport in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 153. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhauscrowneplaza_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Crowne Plaza (Zuerich, Parkhaus, 520 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhauscrowneplaza/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhauscrowneplaza in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 520. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausdorflinde_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Dorflinde (Zuerich, Parkhaus, 98 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausdorflinde/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausdorflinde in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 98. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausfeldegg_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Feldegg (Zuerich, Parkhaus, 346 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausfeldegg/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausfeldegg in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 346. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausglobus_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Globus (Zuerich, Parkhaus, 178 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausglobus/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausglobus in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 178. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhaushardauii_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Hardau II (Zuerich, Parkhaus, 982 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhaushardauii/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhaushardauii in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 982. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhaushauptbahnhof_free_5min
+  stat_archetype: A05
+  name: ParkAPI — free spaces, Hauptbahnhof (Zuerich, Parkhaus, 176 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhaushauptbahnhof/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhaushauptbahnhof in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 176. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhaushohepromenade_free_5min
+  stat_archetype: A05
+  name: ParkAPI — free spaces, Hohe Promenade (Zuerich, Parkhaus, 556 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhaushohepromenade/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhaushohepromenade in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 556. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausjelmoli_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Jelmoli (Zuerich, Parkhaus, 222 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausjelmoli/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausjelmoli in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 222. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausjungholz_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Jungholz (Zuerich, Parkhaus, 124 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausjungholz/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausjungholz in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 124. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausmaxbillplatz_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Max-Bill-Platz (Zuerich, Parkhaus, 59 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausmaxbillplatz/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausmaxbillplatz in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 59. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausnordhaus_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Nordhaus (Zuerich, Parkhaus, 175 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausnordhaus/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausnordhaus in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 175. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausoctavo_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Octavo (Zuerich, Parkhaus, 123 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausoctavo/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausoctavo in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 123. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausop_ra_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Opéra (Zuerich, Parkhaus, 299 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausopéra/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausopéra in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps. Capacity
+    299. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausparkhyatt_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Park Hyatt (Zuerich, Parkhaus, 267 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausparkhyatt/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausparkhyatt in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 267. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausparkside_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Parkside (Zuerich, Parkhaus, 38 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausparkside/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausparkside in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 38. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhauspfingstweid_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Pfingstweid (Zuerich, Parkhaus, 276 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhauspfingstweid/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhauspfingstweid in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 276. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhaustalgarten_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Talgarten (Zuerich, Parkhaus, 110 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhaustalgarten/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhaustalgarten in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 110. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhaususznord_free_5min
+  stat_archetype: A05
+  name: ParkAPI — free spaces, USZ Nord (Zuerich, Parkhaus, 90 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhaususznord/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhaususznord in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 90. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausuniirchel_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Uni Irchel (Zuerich, Parkhaus, 1227 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausuniirchel/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausuniirchel in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 1227. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhausurania_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Urania (Zuerich, Parkhaus, 607 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhausurania/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhausurania in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 607. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkhauszuerichhorn_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Zürichhorn (Zuerich, Parkhaus, 245 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkhauszuerichhorn/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkhauszuerichhorn in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 245. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkplatztheater11_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, Theater 11 (Zuerich, Parkplatz, 188 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkplatztheater11/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkplatztheater11 in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 188. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: parkapi_zuerich_zuerichparkplatzuszsued_free_5min
+  stat_archetype: A10
+  name: ParkAPI — free spaces, USZ Süd (Zuerich, Parkplatz, 80 spaces)
+  domain: transport
+  dgp_class: parking_occupancy
+  frequency: PT5M
+  poll: PT1D
+  license: 'ParkAPI / OK Lab (city data, per-city attribution: see api.parkendd.de)'
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 90
+    url: https://api.parkendd.de/Zuerich/zuerichparkplatzuszsued/timespan?from={YYYY-MM-DD-6d}T00:00:00&to={YYYY-MM-DD}T23:59:59&version=1.1
+  schema:
+    timestamp_field: data[].timestamp
+    value_field: data[].free
+    drop_null_values: true
+    variates: 1
+  notes: 'Lot zuerichparkplatzuszsued in Zuerich: free spaces sampled ~5 min, via the ParkAPI timespan endpoint (max 7 days per request; version=1.1 required, v1.0 returns empty). Naive local timestamps.
+    Capacity 80. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: cityofnewyork_ptev_4hud_daily_volume
+  stat_archetype: A09
+  name: License Applications — daily volume (data.cityofnewyork.us)
+  domain: sales
+  dgp_class: registration_stream
+  frequency: P1D
+  poll: P1D
+  admit_slow: daily event counts aggregated server-side; one call returns ~900 days, so the 320-point floor is met at wire time
+  license: data.cityofnewyork.us open data (Socrata; see dataset page)
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.cityofnewyork.us/resource/ptev-4hud.json?%24select=date_trunc_ymd%28submission_date%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&%24where=submission_date%20%3E%3D%20%272024-05-21%27%20AND%20submission_date%20%3C%3D%20%27{YYYY-MM-DD}T23%3A59%3A59%27&%24group=d&%24order=d%20DESC&%24limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  notes: 'Dataset ptev-4hud on data.cityofnewyork.us: records per day by `submission_date`, counted server-side (SoQL group by date_trunc_ymd), last ~900 days, future-dated rows excluded. Selected for an
+    under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: pa_xvd7_5r2c_daily_volume
+  stat_archetype: A09
+  name: Registered Businesses in PA Current by County Department of State — daily volume (data.pa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  frequency: P1D
+  poll: P1D
+  admit_slow: daily event counts aggregated server-side; one call returns ~900 days, so the 320-point floor is met at wire time
+  license: data.pa.gov open data (Socrata; see dataset page)
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.pa.gov/resource/xvd7-5r2c.json?%24select=date_trunc_ymd%28creationdate%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&%24where=creationdate%20%3E%3D%20%272024-05-21%27%20AND%20creationdate%20%3C%3D%20%27{YYYY-MM-DD}T23%3A59%3A59%27&%24group=d&%24order=d%20DESC&%24limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  notes: 'Dataset xvd7-5r2c on data.pa.gov: records per day by `creationdate`, counted server-side (SoQL group by date_trunc_ymd), last ~900 days, future-dated rows excluded. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: wa_6du3_3h9e_daily_volume
+  stat_archetype: A06
+  name: Washington State Certified Public Accountants — daily volume (data.wa.gov)
+  domain: sales
+  dgp_class: registration_stream
+  frequency: P1D
+  poll: P1D
+  admit_slow: daily event counts aggregated server-side; one call returns ~900 days, so the 320-point floor is met at wire time
+  license: data.wa.gov open data (Socrata; see dataset page)
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: 1000 req/h anonymous (Socrata)
+    timeout: 120
+    url: https://data.wa.gov/resource/6du3-3h9e.json?%24select=date_trunc_ymd%28originalissue%29%20AS%20d%2Ccount%28%2A%29%20AS%20n&%24where=originalissue%20%3E%3D%20%272024-05-21%27%20AND%20originalissue%20%3C%3D%20%27{YYYY-MM-DD}T23%3A59%3A59%27&%24group=d&%24order=d%20DESC&%24limit=50000
+  schema:
+    timestamp_field: '[].d'
+    value_field: '[].n'
+    variates: 1
+  notes: 'Dataset 6du3-3h9e on data.wa.gov: records per day by `originalissue`, counted server-side (SoQL group by date_trunc_ymd), last ~900 days, future-dated rows excluded. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.'
