@@ -52242,6 +52242,8 @@
   audit_slack_days: 13
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), GB. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ironsysadmin_the_iron_sysadmin
+  disabled: true
+  disabled_reason: '2026-11-07: auto-disabled by freshness audit — newest observation 2026-08-30T00:00:00+00:00 is 69.3d old vs a 23.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: The Iron Sysadmin — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -76054,6 +76056,8 @@
   notes: Socrata SODA resource h6fp-bp8s, newest-first on datetime. Domain from the publisher's own category/tags,
     not the title.
 - id: data_beach_water_quality_automated_sensors
+  disabled: true
+  disabled_reason: '2026-11-07: auto-disabled by freshness audit — newest observation 2026-09-25T23:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A02
   mv_channels: ["water_temperature", "turbidity"]
   name: Beach Water Quality - Automated Sensors (data.cityofchicago.org)
