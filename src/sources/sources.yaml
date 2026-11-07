@@ -194663,3 +194663,60 @@
     variates: 1
   notes: 'Dataset 6du3-3h9e on data.wa.gov: records per day by `originalissue`, counted server-side (SoQL group by date_trunc_ymd), last ~900 days, future-dated rows excluded. Selected for an under-held
     statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: paris_velo_100056035_353266460_hourly
+  stat_archetype: A07
+  name: Paris bike counter — hourly cyclist count, counter 100056035-353266460
+  domain: transport
+  dgp_class: urban_mobility
+  frequency: PT1H
+  poll: PT12H
+  license: ODbL (Ville de Paris open data)
+  audit_slack_days: 4
+  endpoint:
+    type: rest_json
+    url: https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs/exports/json?select=date%2Csum_counts&where=id_compteur%3D%22100056035-353266460%22&order_by=date%20desc&limit=400
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].sum_counts'
+    drop_null_values: true
+  notes: 'Single Eco-Counter channel 100056035-353266460 of the city bike-counting network: cyclists/hour. Exports endpoint (records API caps at 100 rows) with the 400 newest hours, ~1 day publication lag.
+    Distinct from the opendata_comptage_velo_* entries (records API, 100 rows). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: paris_velo_100056226_103056226_hourly
+  stat_archetype: A06
+  name: Paris bike counter — hourly cyclist count, counter 100056226-103056226
+  domain: transport
+  dgp_class: urban_mobility
+  frequency: PT1H
+  poll: PT12H
+  license: ODbL (Ville de Paris open data)
+  audit_slack_days: 4
+  endpoint:
+    type: rest_json
+    url: https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs/exports/json?select=date%2Csum_counts&where=id_compteur%3D%22100056226-103056226%22&order_by=date%20desc&limit=400
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].sum_counts'
+    drop_null_values: true
+  notes: 'Single Eco-Counter channel 100056226-103056226 of the city bike-counting network: cyclists/hour. Exports endpoint (records API caps at 100 rows) with the 400 newest hours, ~1 day publication lag.
+    Distinct from the opendata_comptage_velo_* entries (records API, 100 rows). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
+- id: paris_velo_300030838_353360367_hourly
+  stat_archetype: A09
+  name: Paris bike counter — hourly cyclist count, counter 300030838-353360367
+  domain: transport
+  dgp_class: urban_mobility
+  frequency: PT1H
+  poll: PT12H
+  license: ODbL (Ville de Paris open data)
+  audit_slack_days: 4
+  endpoint:
+    type: rest_json
+    url: https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/comptage-velo-donnees-compteurs/exports/json?select=date%2Csum_counts&where=id_compteur%3D%22300030838-353360367%22&order_by=date%20desc&limit=400
+    timeout: 90
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].sum_counts'
+    drop_null_values: true
+  notes: 'Single Eco-Counter channel 300030838-353360367 of the city bike-counting network: cyclists/hour. Exports endpoint (records API caps at 100 rows) with the 400 newest hours, ~1 day publication lag.
+    Distinct from the opendata_comptage_velo_* entries (records API, 100 rows). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.'
