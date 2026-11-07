@@ -189709,3 +189709,3382 @@
   notes: 'Single loop-sensor arc 4930 (Rue_du_Fbg_St_Martin) from the city''s ~3000 permanent counters: q = vehicles/hour. Exports endpoint (records API caps at 100 rows) with the 400 newest hours, ~1 day
     publication lag. One arc per street label so opposite directions are not double-counted. Distinct from paris_road_sensor_flow_hourly (city-wide sum). Selected for an under-held statistical archetype
     (DEC-TB-0007), measured at wire time.'
+- id: eia930_azps_oth_generation_hourly
+  stat_archetype: A11
+  name: EIA-930 — hourly net generation, Other in Arizona Public Service Company (AZPS)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=AZPS&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority AZPS, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_azps_col_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Coal in Arizona Public Service Company (AZPS)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=AZPS&facets[fueltype][]=COL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority AZPS, fuel COL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_grid_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Gridforce Energy Management, LLC (GRID)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=GRID&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority GRID, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_fla_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Florida (FLA)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=FLA&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority FLA, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_cplw_ng_generation_hourly
+  stat_archetype: A07
+  name: EIA-930 — hourly net generation, Natural Gas in Duke Energy Progress West (CPLW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CPLW&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CPLW, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_soco_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Southern Company Services, Inc. - Trans (SOCO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SOCO&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SOCO, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_swpp_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Southwest Power Pool (SWPP)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SWPP&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SWPP, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_pjm_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in PJM Interconnection, LLC (PJM)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PJM&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PJM, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_car_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in Carolinas (CAR)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CAR&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CAR, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_bhba_col_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Coal in Black Hills Energy (BHBA)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=BHBA&facets[fueltype][]=COL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority BHBA, fuel COL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_se_oil_generation_hourly
+  stat_archetype: A07
+  name: EIA-930 — hourly net generation, Petroleum in Southeast (SE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SE&facets[fueltype][]=OIL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SE, fuel OIL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_sceg_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in Dominion Energy South Carolina, Inc. (SCEG)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SCEG&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SCEG, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_chpd_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Public Utility District No. 1 of Chelan County (CHPD)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CHPD&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CHPD, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_duk_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in Duke Energy Carolinas (DUK)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=DUK&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority DUK, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_ne_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in New England (NE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=NE&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority NE, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_pace_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in PacifiCorp East (PACE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PACE&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PACE, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_deaa_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Arlington Valley, LLC (DEAA)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=DEAA&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority DEAA, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_fpc_col_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Coal in Duke Energy Florida, Inc. (FPC)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=FPC&facets[fueltype][]=COL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority FPC, fuel COL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_pnm_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Public Service Company of New Mexico (PNM)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PNM&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PNM, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_cal_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in California (CAL)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CAL&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CAL, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_nw_oth_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Other in Northwest (NW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=NW&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority NW, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_cal_geo_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Geothermal in California (CAL)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CAL&facets[fueltype][]=GEO&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CAL, fuel GEO: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_isne_oth_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Other in ISO New England (ISNE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=ISNE&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority ISNE, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_lgee_col_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Coal in LG&E and KU Services Company as agent for Louisville Gas and Electric Company and Kentucky Utilities Company (LGEE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=LGEE&facets[fueltype][]=COL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority LGEE, fuel COL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_bpat_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Bonneville Power Administration (BPAT)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=BPAT&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority BPAT, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_ipco_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Idaho Power Company (IPCO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=IPCO&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority IPCO, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_car_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Carolinas (CAR)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CAR&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CAR, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_srp_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Salt River Project Agricultural Improvement and Power District (SRP)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SRP&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SRP, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_cent_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Central (CENT)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CENT&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CENT, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_mida_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in Mid-Atlantic (MIDA)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=MIDA&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority MIDA, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_tidc_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Turlock Irrigation District (TIDC)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=TIDC&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority TIDC, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_gcpd_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Public Utility District No. 2 of Grant County, Washington (GCPD)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=GCPD&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority GCPD, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_ciso_oil_generation_hourly
+  stat_archetype: A11
+  name: EIA-930 — hourly net generation, Petroleum in California Independent System Operator (CISO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CISO&facets[fueltype][]=OIL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CISO, fuel OIL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_nwmt_oil_generation_hourly
+  stat_archetype: A11
+  name: EIA-930 — hourly net generation, Petroleum in NorthWestern Corporation (NWMT)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=NWMT&facets[fueltype][]=OIL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority NWMT, fuel OIL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_ciso_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in California Independent System Operator (CISO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CISO&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CISO, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_sc_oth_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Other in South Carolina Public Service Authority (SC)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SC&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SC, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_pace_col_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Coal in PacifiCorp East (PACE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PACE&facets[fueltype][]=COL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PACE, fuel COL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_cplw_oth_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Other in Duke Energy Progress West (CPLW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CPLW&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CPLW, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_nw_col_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Coal in Northwest (NW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=NW&facets[fueltype][]=COL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority NW, fuel COL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_walc_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Western Area Power Administration - Desert Southwest Region (WALC)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=WALC&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority WALC, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_us48_geo_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Geothermal in United States Lower 48 (US48)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=US48&facets[fueltype][]=GEO&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority US48, fuel GEO: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_miso_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Midcontinent Independent System Operator, Inc. (MISO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=MISO&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority MISO, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_srp_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in Salt River Project Agricultural Improvement and Power District (SRP)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SRP&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SRP, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_miso_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in Midcontinent Independent System Operator, Inc. (MISO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=MISO&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority MISO, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_psei_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Puget Sound Energy, Inc. (PSEI)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PSEI&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PSEI, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_fpc_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Duke Energy Florida, Inc. (FPC)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=FPC&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority FPC, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_lgee_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in LG&E and KU Services Company as agent for Louisville Gas and Electric Company and Kentucky Utilities Company (LGEE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=LGEE&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority LGEE, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_srp_col_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Coal in Salt River Project Agricultural Improvement and Power District (SRP)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SRP&facets[fueltype][]=COL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SRP, fuel COL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_soco_oil_generation_hourly
+  stat_archetype: A07
+  name: EIA-930 — hourly net generation, Petroleum in Southern Company Services, Inc. - Trans (SOCO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SOCO&facets[fueltype][]=OIL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SOCO, fuel OIL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_tex_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Texas (TEX)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=TEX&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority TEX, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_midw_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Midwest (MIDW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=MIDW&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority MIDW, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_miso_wat_generation_hourly
+  stat_archetype: A07
+  name: EIA-930 — hourly net generation, Hydro in Midcontinent Independent System Operator, Inc. (MISO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=MISO&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority MISO, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_erco_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Electric Reliability Council of Texas, Inc. (ERCO)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=ERCO&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority ERCO, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_car_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Carolinas (CAR)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CAR&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CAR, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_midw_wat_generation_hourly
+  stat_archetype: A07
+  name: EIA-930 — hourly net generation, Hydro in Midwest (MIDW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=MIDW&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority MIDW, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_dopd_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in PUD No. 1 of Douglas County (DOPD)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=DOPD&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority DOPD, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_midw_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in Midwest (MIDW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=MIDW&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority MIDW, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_bhba_wat_generation_hourly
+  stat_archetype: A11
+  name: EIA-930 — hourly net generation, Hydro in Black Hills Energy (BHBA)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=BHBA&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority BHBA, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_ne_oth_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Other in New England (NE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=NE&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority NE, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_bpat_oth_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Other in Bonneville Power Administration (BPAT)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=BPAT&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority BPAT, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_pacw_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in PacifiCorp West (PACW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PACW&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PACW, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_cple_col_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Coal in Duke Energy Progress East (CPLE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CPLE&facets[fueltype][]=COL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CPLE, fuel COL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_ldwp_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Los Angeles Department of Water and Power (LDWP)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=LDWP&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority LDWP, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_mida_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Mid-Atlantic (MIDA)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=MIDA&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority MIDA, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_pace_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in PacifiCorp East (PACE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PACE&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PACE, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_us48_nuc_generation_hourly
+  stat_archetype: A11
+  name: EIA-930 — hourly net generation, Nuclear in United States Lower 48 (US48)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=US48&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority US48, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_se_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Southeast (SE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SE&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SE, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_cple_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Duke Energy Progress East (CPLE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CPLE&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CPLE, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_nw_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Northwest (NW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=NW&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority NW, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_pjm_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in PJM Interconnection, LLC (PJM)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PJM&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PJM, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_tec_oth_generation_hourly
+  stat_archetype: A07
+  name: EIA-930 — hourly net generation, Other in Tampa Electric Company (TEC)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=TEC&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority TEC, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_duk_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Duke Energy Carolinas (DUK)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=DUK&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority DUK, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_cal_oil_generation_hourly
+  stat_archetype: A11
+  name: EIA-930 — hourly net generation, Petroleum in California (CAL)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=CAL&facets[fueltype][]=OIL&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority CAL, fuel OIL: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_iid_geo_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Geothermal in Imperial Irrigation District (IID)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=IID&facets[fueltype][]=GEO&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority IID, fuel GEO: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_duk_ng_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Natural Gas in Duke Energy Carolinas (DUK)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=DUK&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority DUK, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_sw_nuc_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Nuclear in Southwest (SW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SW&facets[fueltype][]=NUC&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SW, fuel NUC: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_sw_oth_generation_hourly
+  stat_archetype: A11
+  name: EIA-930 — hourly net generation, Other in Southwest (SW)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=SW&facets[fueltype][]=OTH&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority SW, fuel OTH: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_isne_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in ISO New England (ISNE)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=ISNE&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority ISNE, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_psei_wat_generation_hourly
+  stat_archetype: A09
+  name: EIA-930 — hourly net generation, Hydro in Puget Sound Energy, Inc. (PSEI)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=PSEI&facets[fueltype][]=WAT&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority PSEI, fuel WAT: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: eia930_avrn_ng_generation_hourly
+  stat_archetype: A11
+  name: EIA-930 — hourly net generation, Natural Gas in Avangrid Renewables, LLC (AVRN)
+  domain: energy
+  dgp_class: generation_by_fuel
+  frequency: PT1H
+  poll: PT6H
+  license: US public domain (EIA)
+  endpoint:
+    type: rest_json
+    auth: env:EIA_API_KEY
+    rate_limit: 30 req/min with key
+    timeout: 90
+    url: https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=AVRN&facets[fueltype][]=NG&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key={EIA_API_KEY}
+  schema:
+    timestamp_field: response.data[].period
+    value_field: response.data[].value
+    drop_null_values: true
+    variates: 1
+  history_available: since 2018-07 (EIA-930)
+  update_cadence_observed: hourly, ~1 day lag
+  notes: 'Balancing authority AVRN, fuel NG: net generation MWh per hour, 500 newest hours. One fuel per BA per source; BA demand is a separate EIA series. Selected for an under-held statistical archetype
+    (DEC-TB-0007), measured at wire time.'
+- id: entsog_prd_00242_entry_lv_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, LV domestic production (entry, Conexus)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=LV-TSO-0001PRD-00242entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point PRD-00242 (LV domestic production), direction entry, operator LV-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00133_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Mappowder (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00133exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00133 (Mappowder), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00194_exit_lu_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Public Distribution (LU) (exit, Creos Luxembourg)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=LU-TSO-0001DIS-00194exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00194 (Public Distribution (LU)), direction exit, operator LU-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00090_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Moffat (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001ITP-00090exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00090 (Moffat), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00066_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Armadale (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00066exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00066 (Armadale), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_prd_00218_entry_pl_tso_0002_flow_daily
+  stat_archetype: A07
+  name: ENTSOG — physical gas flow, Domestic Gas Fields - L-gas (PL) (entry, GAZ-SYSTEM)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=PL-TSO-0002PRD-00218entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point PRD-00218 (Domestic Gas Fields - L-gas (PL)), direction entry, operator PL-TSO-0002. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice.
+    Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00259_exit_nl_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Zevenaar (exit, GTS)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=NL-TSO-0001ITP-00259exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00259 (Zevenaar), direction exit, operator NL-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00040_exit_gr_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Lavrio(PPC) (exit, DESFA)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=GR-TSO-0001DIS-00040exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00040 (Lavrio(PPC)), direction exit, operator GR-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_10011_exit_dk_tso_0001_flow_daily
+  stat_archetype: A10
+  name: ENTSOG — physical gas flow, VIP DK-THE (exit, Energinet)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=DK-TSO-0001ITP-10011exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-10011 (VIP DK-THE), direction exit, operator DK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_lng_00026_entry_pt_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Sines (entry, REN - Gasodutos)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=PT-TSO-0001LNG-00026entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point LNG-00026 (Sines), direction entry, operator PT-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00258_exit_nl_tso_0001_flow_daily
+  stat_archetype: A07
+  name: ENTSOG — physical gas flow, 's Gravenvoeren Dilsen (BE) // 's Gravenvoeren/Obb (exit, GTS)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=NL-TSO-0001ITP-00258exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00258 ('s Gravenvoeren Dilsen (BE) // 's Gravenvoeren/Obbicht (NL)), direction exit, operator NL-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector
+    are not counted twice. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00108_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Great Wilbraham (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00108exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00108 (Great Wilbraham), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an
+    under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_ugs_00399_entry_de_tso_0001_flow_daily
+  stat_archetype: A10
+  name: ENTSOG — physical gas flow, Jemgum (DE) (astora) / Jemgum I (GASCADE) (entry, GASCADE Gastransport)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=DE-TSO-0001UGS-00399entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point UGS-00399 (Jemgum (DE) (astora) / Jemgum I (GASCADE)), direction entry, operator DE-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted
+    twice. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00025_exit_gr_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Drama (exit, DESFA)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=GR-TSO-0001DIS-00025exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00025 (Drama), direction exit, operator GR-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00151_exit_nl_tso_0001_flow_daily
+  stat_archetype: A10
+  name: ENTSOG — physical gas flow, Vlieghuis (exit, GTS)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=NL-TSO-0001ITP-00151exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00151 (Vlieghuis), direction exit, operator NL-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00097_entry_dk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Nybro (entry, Energinet)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=DK-TSO-0001ITP-00097entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00097 (Nybro), direction entry, operator DK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00126_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Lockerbie (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00126exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00126 (Lockerbie), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00054_exit_lt_tso_0001_flow_daily
+  stat_archetype: A10
+  name: ENTSOG — physical gas flow, Kiemenai (exit, Amber Grid)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=LT-TSO-0001ITP-00054exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00054 (Kiemenai), direction exit, operator LT-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_lng_00069_entry_it_tso_0001_flow_daily
+  stat_archetype: A10
+  name: ENTSOG — physical gas flow, PIOMBINO TERMINAL (entry, Snam Rete Gas)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=IT-TSO-0001LNG-00069entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point LNG-00069 (PIOMBINO TERMINAL), direction entry, operator IT-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for
+    an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_ugs_00029_exit_lv_tso_0001_flow_daily
+  stat_archetype: A10
+  name: ENTSOG — physical gas flow, Incukalns (LV) (exit, Conexus)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=LV-TSO-0001UGS-00029exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point UGS-00029 (Incukalns (LV)), direction exit, operator LV-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_ugs_00271_exit_nl_tso_0001_flow_daily
+  stat_archetype: A10
+  name: ENTSOG — physical gas flow, Epe (DE) (Eneco) / Enschede (NL) (exit, GTS)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=NL-TSO-0001UGS-00271exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point UGS-00271 (Epe (DE) (Eneco) / Enschede (NL)), direction exit, operator NL-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice.
+    Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00120_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Kinknockie (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00120exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00120 (Kinknockie), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00150_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Ross (SW) (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00150exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00150 (Ross (SW)), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_ugs_00349_exit_de_tso_0009_flow_daily
+  stat_archetype: A10
+  name: ENTSOG — physical gas flow, Etzel (DE) ESE / Friedeburg-Etzel, Bitzenlander We (exit, Open Grid Europe)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=DE-TSO-0009UGS-00349exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point UGS-00349 (Etzel (DE) ESE / Friedeburg-Etzel, Bitzenlander Weg 3, UGS), direction exit, operator DE-TSO-0009. One direction per point (the larger flow) so the two sides of one interconnector
+    are not counted twice. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_fnc_00205_exit_lv_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Latvia domestic consumption (exit, Conexus)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=LV-TSO-0001FNC-00205exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point FNC-00205 (Latvia domestic consumption), direction exit, operator LV-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00126_entry_de_tso_0009_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Dornum / NETRA (OGE) (entry, Open Grid Europe)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=DE-TSO-0009ITP-00126entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00126 (Dornum / NETRA (OGE)), direction entry, operator DE-TSO-0009. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for
+    an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_fnc_00201_exit_fr_tso_0003_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, GRTgaz aggregated industrial consumers (exit, NaTran)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=FR-TSO-0003FNC-00201exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point FNC-00201 (GRTgaz aggregated industrial consumers), direction exit, operator FR-TSO-0003. One direction per point (the larger flow) so the two sides of one interconnector are not counted
+    twice. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00078_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Blaby (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00078exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00078 (Blaby), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00106_entry_be_tso_0001_flow_daily
+  stat_archetype: A11
+  name: ENTSOG — physical gas flow, Zeebrugge ZPT (entry, Fluxys Belgium)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=BE-TSO-0001ITP-00106entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00106 (Zeebrugge ZPT), direction entry, operator BE-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00047_exit_gr_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Serres (exit, DESFA)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=GR-TSO-0001DIS-00047exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00047 (Serres), direction exit, operator GR-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00274_entry_al_tso_0001_flow_daily
+  stat_archetype: A11
+  name: ENTSOG — physical gas flow, Kipoi (entry, TAP)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=AL-TSO-0001ITP-00274entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00274 (Kipoi), direction entry, operator AL-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00495_entry_ie_tso_0002_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Moffat (IE) (entry, GNI)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=IE-TSO-0002ITP-00495entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00495 (Moffat (IE)), direction entry, operator IE-TSO-0002. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_ugs_00269_exit_nl_tso_0001_flow_daily
+  stat_archetype: A07
+  name: ENTSOG — physical gas flow, Epe (DE) / Enschede (NL) (exit, GTS)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=NL-TSO-0001UGS-00269exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point UGS-00269 (Epe (DE) / Enschede (NL)), direction exit, operator NL-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00163_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, St Fergus (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00163exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00163 (St Fergus), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00008_entry_it_tso_0001_flow_daily
+  stat_archetype: A11
+  name: ENTSOG — physical gas flow, Melendugno - IT / TAP (entry, Snam Rete Gas)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=IT-TSO-0001ITP-00008entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00008 (Melendugno - IT / TAP), direction entry, operator IT-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00113_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Humbleton (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00113exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00113 (Humbleton), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00026_entry_de_tso_0002_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Zevenaar (Thyssengas) (entry, Thyssengas)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=DE-TSO-0002ITP-00026entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00026 (Zevenaar (Thyssengas)), direction entry, operator DE-TSO-0002. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_prd_00197_entry_hr_tso_0001_flow_daily
+  stat_archetype: A07
+  name: ENTSOG — physical gas flow, Production (HR) (entry, Plinacro Ltd)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=HR-TSO-0001PRD-00197entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point PRD-00197 (Production (HR)), direction entry, operator HR-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an
+    under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00139_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Netherhowcleugh (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00139exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00139 (Netherhowcleugh), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an
+    under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_lng_00006_entry_pl_tso_0002_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Swinoujscie (entry, GAZ-SYSTEM)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=PL-TSO-0002LNG-00006entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point LNG-00006 (Swinoujscie), direction entry, operator PL-TSO-0002. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_itp_00529_exit_bg_tso_0001_flow_daily
+  stat_archetype: A11
+  name: ENTSOG — physical gas flow, Kireevo (BG) / Zaychar (RS) (exit, Bulgartransgaz)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=BG-TSO-0001ITP-00529exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point ITP-00529 (Kireevo (BG) / Zaychar (RS)), direction exit, operator BG-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00197_exit_fr_tso_0003_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, GRTgaz aggregated distribution consumers (exit, NaTran)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=FR-TSO-0003DIS-00197exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00197 (GRTgaz aggregated distribution consumers), direction exit, operator FR-TSO-0003. One direction per point (the larger flow) so the two sides of one interconnector are not counted
+    twice. Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00114_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Hume (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00114exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00114 (Hume), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00161_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Silk Willoughby (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00161exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00161 (Silk Willoughby), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an
+    under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00088_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Cirencester (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00088exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00088 (Cirencester), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_fnc_00045_exit_de_tso_0006_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Final Consumers DE GTG Nord L Gas (exit, Gastransport Nord)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=DE-TSO-0006FNC-00045exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point FNC-00045 (Final Consumers DE GTG Nord L Gas), direction exit, operator DE-TSO-0006. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice.
+    Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00121_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Kirkstead (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00121exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00121 (Kirkstead), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_fnc_00032_exit_de_tso_0009_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Final Consumers (DE) (OGE) (exit, Open Grid Europe)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=DE-TSO-0009FNC-00032exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point FNC-00032 (Final Consumers (DE) (OGE)), direction exit, operator DE-TSO-0009. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00170_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Towlaw (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00170exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00170 (Towlaw), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00199_exit_gr_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, KOSMIO-GR (exit, DESFA)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=GR-TSO-0001DIS-00199exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00199 (KOSMIO-GR), direction exit, operator GR-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00019_exit_gr_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Alexandroupolis (exit, DESFA)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=GR-TSO-0001DIS-00019exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00019 (Alexandroupolis), direction exit, operator GR-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an
+    under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00090_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Coldstream (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00090exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00090 (Coldstream), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_fnc_00044_exit_ie_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Ten Towns Exit Point (NI) (exit, GNI (UK))
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=IE-TSO-0001FNC-00044exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point FNC-00044 (Ten Towns Exit Point (NI)), direction exit, operator IE-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected
+    for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00109_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Guyzance (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00109exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00109 (Guyzance), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_lng_00011_entry_fi_tso_0003_flow_daily
+  stat_archetype: A07
+  name: ENTSOG — physical gas flow, Hamina LNG (entry, Gasgrid Finland)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=FI-TSO-0003LNG-00011entry&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point LNG-00011 (Hamina LNG), direction entry, operator FI-TSO-0003. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00072_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Aylesbeare (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00072exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00072 (Aylesbeare), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.
+- id: entsog_dis_00070_exit_uk_tso_0001_flow_daily
+  stat_archetype: A09
+  name: ENTSOG — physical gas flow, Audley (WM) (exit, National Gas TSO)
+  domain: energy
+  dgp_class: gas_flow
+  archetypes:
+  - non_stationary_regime
+  frequency: P1D
+  poll: PT12H
+  admit_slow: one call backfills ~400 gas days, so the 320-point floor is met at wire time
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    url: https://transparency.entsog.eu/api/v1/operationaldatas?indicator=Physical%20Flow&periodType=day&pointDirection=UK-TSO-0001DIS-00070exit&limit=1000&from={YYYY-MM-DD-400d}&to={YYYY-MM-DD}
+  schema:
+    timestamp_field: operationaldatas[].periodFrom
+    value_field: operationaldatas[].value
+    drop_null_values: true
+    variates: 1
+  history_available: years
+  update_cadence_observed: daily (gas day), D+1
+  pretraining_novelty: clean
+  license: ENTSOG Transparency Platform (free reuse with attribution)
+  notes: Point DIS-00070 (Audley (WM)), direction exit, operator UK-TSO-0001. One direction per point (the larger flow) so the two sides of one interconnector are not counted twice. Selected for an under-held
+    statistical archetype (DEC-TB-0007), measured at wire time.

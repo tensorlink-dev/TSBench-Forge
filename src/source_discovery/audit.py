@@ -171,6 +171,10 @@ def parse_ts(raw: object) -> Optional[dt.datetime]:
             got = None
         if got:
             return got if got.tzinfo else got.replace(tzinfo=UTC)
+    # EIA v2 hourly periods carry the hour only ("2026-11-04T12", UTC);
+    # fromisoformat rejects a bare hour, pandas does not.
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}", s):
+        s = s + ":00"
     zless = s[:-1] if s.endswith("Z") else s
     for fmt in _FORMATS:
         try:

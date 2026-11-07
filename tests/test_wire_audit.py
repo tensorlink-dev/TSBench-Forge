@@ -197,6 +197,7 @@ def test_wire_batch_bad_domain_rejected(catalog, tmp_path, monkeypatch) -> None:
     ("2026-07-26T07:00:00+00:00", dt.datetime(2026, 7, 26, 7, tzinfo=UTC)),
     ("2026-07-26T07:00:00Z", dt.datetime(2026, 7, 26, 7, tzinfo=UTC)),
     ("2026-07-26T07:00Z", dt.datetime(2026, 7, 26, 7, tzinfo=UTC)),
+    ("2026-07-26T07", dt.datetime(2026, 7, 26, 7, tzinfo=UTC)),           # EIA v2 hourly
     ("2026-07-26 07:00:00.123", dt.datetime(2026, 7, 26, 7, 0, 0, 123000, tzinfo=UTC)),
     ("07/26/2026 14:05:00", dt.datetime(2026, 7, 26, 14, 5, tzinfo=UTC)),  # NYISO
     ("2026/07/26 14:05:00", dt.datetime(2026, 7, 26, 14, 5, tzinfo=UTC)),  # AEMO
