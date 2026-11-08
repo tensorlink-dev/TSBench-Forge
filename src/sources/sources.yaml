@@ -49218,6 +49218,8 @@
   audit_slack_days: 16
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_video_polis_video
+  disabled: true
+  disabled_reason: '2026-11-08: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 39.3d old vs a 13.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: Polis.Video — local video publication rate (PeerTube)
   domain: web_cloudops
