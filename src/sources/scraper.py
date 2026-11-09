@@ -191,6 +191,12 @@ _OFFSET_COMPACT_RE = re.compile(r"\{YYYYMMDD-(\d+)d\}")
 _OFFSET_MONTH_RE = re.compile(r"\{YYYYMM-(\d+)m\}")
 _OFFSET_HOUR_RE = re.compile(r"\{H-(\d+)\}")
 _OFFSET_EPOCH_RE = re.compile(r"\{EPOCH-(\d+)h\}")
+_ROC_DATE_RE = re.compile(r"\{ROC-YYY\.MM\.DD(?:-(\d+)d)?\}")
+
+
+def _roc_date(d: dt.datetime) -> str:
+    """Republic of China (Minguo) calendar date: year - 1911, dotted (115.11.08)."""
+    return f"{d.year - 1911}.{d.month:02d}.{d.day:02d}"
 
 
 def _month_offset(now: dt.datetime, n: int) -> str:
@@ -218,6 +224,9 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
                         (e.g. {H-1} = previous hour).
       {EPOCH} / {EPOCH-Nh}  current unix seconds / N hours ago — for APIs whose
                         windows are epoch query params (OpenSky ?begin=&end=).
+      {ROC-YYY.MM.DD} / {ROC-YYY.MM.DD-Nd}  today / N days ago in the ROC
+                        (Minguo) calendar, year - 1911 — Taiwan's MOA open data
+                        takes StartDate=115.11.08 (pair with schema.roc_date).
 
     Tokens like {ARTICLE} or {PACKAGE} or {CRATE} are *not* expanded — these
     are panel-iteration placeholders; the caller should pre-expand them.
@@ -242,6 +251,8 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
         lambda m: str(int(now.timestamp()) - 3600 * int(m.group(1))),
         url,
     )
+    url = _ROC_DATE_RE.sub(
+        lambda m: _roc_date(now - dt.timedelta(days=int(m.group(1) or 0))), url)
     if "{EPOCH}" in url:
         url = url.replace("{EPOCH}", str(int(now.timestamp())))
     if "{HH}" in url:
@@ -1567,6 +1578,15 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
     ren = schema.get("rename")
     if ren:
         recs = [{ren.get(k, k): v for k, v in r.items()} for r in recs]
+    if schema.get("roc_date"):
+        # ROC (Minguo) calendar dates, "115.11.08" or "115/11/08" = 2026-11-08
+        # (Taiwan MOA open data). Rewritten to ISO here, at parse time: the
+        # eval-pool builder parses stored timestamps with pandas, which reads
+        # a Minguo date as nothing at all.
+        for r in recs:
+            m = re.fullmatch(r"(\d{2,3})[./-](\d{1,2})[./-](\d{1,2})", str(r.get("timestamp", "")).strip())
+            if m:
+                r["timestamp"] = f"{int(m.group(1)) + 1911:04d}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
     if schema.get("snapshot_now"):
         # Live-snapshot APIs with no per-record timestamp (SEPTA TrainView,
         # TTC vehicle positions): stamp fetch time. Without a timestamp list

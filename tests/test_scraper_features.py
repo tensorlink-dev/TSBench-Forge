@@ -1644,3 +1644,16 @@ def test_sweep_orders_oldest_attempt_first(monkeypatch):
     monkeypatch.setattr(scraper, "_last_attempt_age", lambda sid: ages[sid])
     assert scraper._oldest_attempt_first(["fresh", "cut_last_time", "never", "mid"]) == [
         "never", "cut_last_time", "mid", "fresh"]
+
+
+def test_roc_date_url_tokens():
+    now = dt.datetime(2026, 11, 9, 7, tzinfo=dt.timezone.utc)
+    assert scraper.expand_url("s={ROC-YYY.MM.DD-30d}&e={ROC-YYY.MM.DD}", now) == "s=115.10.10&e=115.11.09"
+
+
+def test_roc_date_schema_rewrites_minguo_dates():
+    src = {"id": "tw", "endpoint": {"type": "rest_json", "url": "x"},
+           "schema": {"timestamp_field": "[].d", "value_field": "[].v", "roc_date": True}}
+    blob = b'[{"d": "115.11.08", "v": 1.5}, {"d": "99/1/2", "v": 2}]'
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert [r["timestamp"] for r in recs] == ["2026-11-08", "2010-01-02"]
