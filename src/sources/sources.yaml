@@ -17815,7 +17815,7 @@
   license: NYC Open Data (public domain)
   notes: Daily count of FDNY EMS incident dispatches in New York City plus the mean incident response time (seconds), computed server-side with Socrata SoQL date_trunc_ymd + count/avg so the raw ~25M-row incident table is never downloaded. Batch-loaded monthly, so expect a multi-week publication lag.
   endpoint:
-    url: https://data.cityofnewyork.us/resource/76xm-jjuj.json?$select=date_trunc_ymd(incident_datetime)%20as%20d,count(1)%20as%20n,avg(incident_response_seconds_qy)%20as%20avg_response_s&$group=d&$order=d%20DESC&$limit=1000
+    url: https://data.cityofnewyork.us/resource/76xm-jjuj.json?$select=date_trunc_ymd(incident_datetime)%20as%20d,count(1)%20as%20n,avg(incident_response_seconds_qy)%20as%20avg_response_s&$where=incident_datetime%20%3E=%20%27{YYYY-MM-DD-1000d}%27&$group=d&$order=d%20DESC&$limit=1000
     type: rest_json
     timeout: 90
   schema:
@@ -19964,7 +19964,7 @@
   license: Public domain (City of Baton Rouge / Parish of East Baton Rouge open data)
   notes: BRFD dispatched fire/rescue incidents (dakq-4sda); dispatch date and time live in separate columns so SoQL concatenates them into ts before hourly counting. Timestamps local Central.
   endpoint:
-    url: https://data.brla.gov/resource/dakq-4sda.json?$select=substring(disp_date::text,1,10) || 'T' || disp_time AS ts&$order=ts DESC&$limit=3000
+    url: https://data.brla.gov/resource/dakq-4sda.json?$select=substring(disp_date::text,1,10) || 'T' || disp_time AS ts&$where=disp_date >= '{YYYY-MM-DD-120d}'&$order=ts DESC&$limit=3000
     type: rest_json
     timeout: 90
   schema:
@@ -21987,6 +21987,8 @@
   audit_slack_days: 64
   notes: Bulk-generated from the Socrata federated catalog (query 'open data portal usage'). Columns chosen mechanically from the catalog's declared datatypes; verified against the live endpoint by the wire gate.
 - id: providenceri_providence_police_case_log_past_180_days
+  disabled: true
+  disabled_reason: '2026-11-09: dataset rz3y-pz8v was replaced upstream — it is now an arrest log (arrest_date), reported_date no longer exists (HTTP 400 no-such-column). Re-wire as a new arrests source rather than reuse this id, since the series changed meaning.'
   name: Providence Police Case Log - Past 180 days (data.providenceri.gov)
   domain: healthcare
   dgp_class: disease_surveillance
@@ -119731,7 +119733,7 @@
     auth: none
     rate_limit: 1000 req/h anonymous (Socrata)
     timeout: 90
-    url: https://data.cityofchicago.org/resource/v6vf-nfxy.json?$select=date_trunc_ymd%28created_date%29%20AS%20d%2Cdate_extract_hh%28created_date%29%20AS%20h%2Csr_type%2Ccount%28%2A%29%20AS%20n&$where=sr_type%20in%20%28%27311%20INFORMATION%20ONLY%20CALL%27%2C%27Aircraft%20Noise%20Complaint%27%2C%27Graffiti%20Removal%20Request%27%2C%27Pothole%20in%20Street%20Complaint%27%2C%27Street%20Light%20Out%20Complaint%27%2C%27Garbage%20Cart%20Maintenance%27%2C%27Rodent%20Baiting/Rat%20Complaint%27%2C%27Abandoned%20Vehicle%20Complaint%27%2C%27Tree%20Trim%20Request%20%28NO%20LONGER%20BEING%20ACCEPTED%29%27%2C%27Tree%20Debris%20Clean-Up%20Request%27%2C%27Weed%20Removal%20Request%27%2C%27Traffic%20Signal%20Out%20Complaint%27%29&$group=d%2Ch%2Csr_type&$order=d%20DESC&$limit=50000
+    url: https://data.cityofchicago.org/resource/v6vf-nfxy.json?$select=date_trunc_ymd%28created_date%29%20AS%20d%2Cdate_extract_hh%28created_date%29%20AS%20h%2Csr_type%2Ccount%28%2A%29%20AS%20n&$where=sr_type%20in%20%28%27311%20INFORMATION%20ONLY%20CALL%27%2C%27Aircraft%20Noise%20Complaint%27%2C%27Graffiti%20Removal%20Request%27%2C%27Pothole%20in%20Street%20Complaint%27%2C%27Street%20Light%20Out%20Complaint%27%2C%27Garbage%20Cart%20Maintenance%27%2C%27Rodent%20Baiting/Rat%20Complaint%27%2C%27Abandoned%20Vehicle%20Complaint%27%2C%27Tree%20Trim%20Request%20%28NO%20LONGER%20BEING%20ACCEPTED%29%27%2C%27Tree%20Debris%20Clean-Up%20Request%27%2C%27Weed%20Removal%20Request%27%2C%27Traffic%20Signal%20Out%20Complaint%27%29%20AND%20created_date%20%3E%3D%20%27{YYYY-MM-DD-60d}%27&$group=d%2Ch%2Csr_type&$order=d%20DESC&$limit=50000
   schema:
     timestamp_field: '[].d [].h'
     value_field: '[].n'
