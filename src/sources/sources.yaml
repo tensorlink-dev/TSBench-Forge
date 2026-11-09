@@ -196310,3 +196310,3165 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''76'': without it the response
     interleaves several series on the same timestamps.'
+- id: fmi_aq_100662_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Helsinki Kallio 2 (fmisid 100662)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100662&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Kallio 2 (fmisid 100662), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_100662_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Helsinki Kallio 2 (fmisid 100662)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100662&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Kallio 2 (fmisid 100662), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_100662_no2_hourly
+  stat_archetype: A02
+  name: FMI — hourly NO2 at Helsinki Kallio 2 (fmisid 100662)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100662&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Kallio 2 (fmisid 100662), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_100662_o3_hourly
+  stat_archetype: A05
+  name: FMI — hourly O3 at Helsinki Kallio 2 (fmisid 100662)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100662&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Kallio 2 (fmisid 100662), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_100691_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Espoo Leppävaara Läkkisepänkuja (fmisid 100691)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100691&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Espoo Leppävaara Läkkisepänkuja (fmisid 100691), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_100691_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Espoo Leppävaara Läkkisepänkuja (fmisid 100691)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100691&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Espoo Leppävaara Läkkisepänkuja (fmisid 100691), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_100691_no2_hourly
+  stat_archetype: A02
+  name: FMI — hourly NO2 at Espoo Leppävaara Läkkisepänkuja (fmisid 100691)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100691&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Espoo Leppävaara Läkkisepänkuja (fmisid 100691), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_100723_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Espoo Luukki (fmisid 100723)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100723&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Espoo Luukki (fmisid 100723), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_100723_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Espoo Luukki (fmisid 100723)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100723&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Espoo Luukki (fmisid 100723), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_100723_no2_hourly
+  stat_archetype: A09
+  name: FMI — hourly NO2 at Espoo Luukki (fmisid 100723)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100723&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Espoo Luukki (fmisid 100723), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_100723_o3_hourly
+  stat_archetype: A05
+  name: FMI — hourly O3 at Espoo Luukki (fmisid 100723)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100723&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Espoo Luukki (fmisid 100723), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than 168
+    h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_100742_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Helsinki Mannerheimintie (fmisid 100742)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100742&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Mannerheimintie (fmisid 100742), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100742_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Helsinki Mannerheimintie (fmisid 100742)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100742&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Mannerheimintie (fmisid 100742), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100742_no2_hourly
+  stat_archetype: A02
+  name: FMI — hourly NO2 at Helsinki Mannerheimintie (fmisid 100742)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100742&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Mannerheimintie (fmisid 100742), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100763_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Vantaa Tikkurila Neilikkatie (fmisid 100763)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100763&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Vantaa Tikkurila Neilikkatie (fmisid 100763), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_100763_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Vantaa Tikkurila Neilikkatie (fmisid 100763)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100763&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Vantaa Tikkurila Neilikkatie (fmisid 100763), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100763_no2_hourly
+  stat_archetype: A02
+  name: FMI — hourly NO2 at Vantaa Tikkurila Neilikkatie (fmisid 100763)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100763&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Vantaa Tikkurila Neilikkatie (fmisid 100763), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100803_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Helsinki Vartiokylä Huivipolku (fmisid 100803)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100803&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Vartiokylä Huivipolku (fmisid 100803), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_100803_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Helsinki Vartiokylä Huivipolku (fmisid 100803)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100803&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Vartiokylä Huivipolku (fmisid 100803), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_100803_no2_hourly
+  stat_archetype: A02
+  name: FMI — hourly NO2 at Helsinki Vartiokylä Huivipolku (fmisid 100803)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100803&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Vartiokylä Huivipolku (fmisid 100803), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_100803_o3_hourly
+  stat_archetype: A05
+  name: FMI — hourly O3 at Helsinki Vartiokylä Huivipolku (fmisid 100803)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100803&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Vartiokylä Huivipolku (fmisid 100803), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100823_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Kaarina Kaarina (fmisid 100823)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100823&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kaarina Kaarina (fmisid 100823), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_100823_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Kaarina Kaarina (fmisid 100823)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100823&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kaarina Kaarina (fmisid 100823), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_100824_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Naantali keskusta Asematori (fmisid 100824)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100824&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Naantali keskusta Asematori (fmisid 100824), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100824_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Naantali keskusta Asematori (fmisid 100824)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100824&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Naantali keskusta Asematori (fmisid 100824), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100845_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Turku Ruissalo Saarontie (fmisid 100845)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100845&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Turku Ruissalo Saarontie (fmisid 100845), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_100845_o3_hourly
+  stat_archetype: A05
+  name: FMI — hourly O3 at Turku Ruissalo Saarontie (fmisid 100845)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=100845&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Turku Ruissalo Saarontie (fmisid 100845), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_101317_no2_hourly
+  stat_archetype: A09
+  name: FMI — hourly NO2 at Juupajoki Hyytiälä (fmisid 101317)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=101317&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Juupajoki Hyytiälä (fmisid 101317), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_101317_o3_hourly
+  stat_archetype: A09
+  name: FMI — hourly O3 at Juupajoki Hyytiälä (fmisid 101317)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=101317&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Juupajoki Hyytiälä (fmisid 101317), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103093_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Kuopio Maaherrankatu (fmisid 103093)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103093&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kuopio Maaherrankatu (fmisid 103093), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103093_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Kuopio Maaherrankatu (fmisid 103093)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103093&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kuopio Maaherrankatu (fmisid 103093), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103093_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Kuopio Maaherrankatu (fmisid 103093)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103093&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kuopio Maaherrankatu (fmisid 103093), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103095_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Kuopio Tasavallankatu (fmisid 103095)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103095&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kuopio Tasavallankatu (fmisid 103095), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103095_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Kuopio Tasavallankatu (fmisid 103095)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103095&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kuopio Tasavallankatu (fmisid 103095), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103096_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Tampere Epila 2 (fmisid 103096)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103096&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Epila 2 (fmisid 103096), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103096_pm10_hourly
+  stat_archetype: A06
+  name: FMI — hourly PM10 at Tampere Epila 2 (fmisid 103096)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103096&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Epila 2 (fmisid 103096), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103097_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Tampere Kaleva (fmisid 103097)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103097&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Kaleva (fmisid 103097), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103097_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Tampere Kaleva (fmisid 103097)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103097&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Kaleva (fmisid 103097), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103097_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Tampere Kaleva (fmisid 103097)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103097&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Kaleva (fmisid 103097), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103097_o3_hourly
+  stat_archetype: A09
+  name: FMI — hourly O3 at Tampere Kaleva (fmisid 103097)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103097&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Kaleva (fmisid 103097), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103099_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Tampere Pirkankatu (fmisid 103099)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103099&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Pirkankatu (fmisid 103099), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103099_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Tampere Pirkankatu (fmisid 103099)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103099&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Pirkankatu (fmisid 103099), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103099_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Tampere Pirkankatu (fmisid 103099)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103099&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Tampere Pirkankatu (fmisid 103099), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103100_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Varkaus Psaari 2 (fmisid 103100)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103100&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Varkaus Psaari 2 (fmisid 103100), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103100_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Varkaus Psaari 2 (fmisid 103100)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103100&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Varkaus Psaari 2 (fmisid 103100), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103100_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Varkaus Psaari 2 (fmisid 103100)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103100&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Varkaus Psaari 2 (fmisid 103100), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103102_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Varkaus Taulumäki (toripaviljonki) (fmisid 103102)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103102&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Varkaus Taulumäki (toripaviljonki) (fmisid 103102), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The
+    WFS refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_103104_no2_hourly
+  stat_archetype: A06
+  name: FMI — hourly NO2 at Vaasa keskusta Vaasanpuistikko (fmisid 103104)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103104&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Vaasa keskusta Vaasanpuistikko (fmisid 103104), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_103105_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Kotka Kirjastotalo (fmisid 103105)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103105&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kotka Kirjastotalo (fmisid 103105), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103105_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Kotka Kirjastotalo (fmisid 103105)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103105&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kotka Kirjastotalo (fmisid 103105), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103108_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Kokkola Ykspihlaja (fmisid 103108)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103108&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kokkola Ykspihlaja (fmisid 103108), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103108_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Kokkola Ykspihlaja (fmisid 103108)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103108&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kokkola Ykspihlaja (fmisid 103108), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103108_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Kokkola Ykspihlaja (fmisid 103108)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103108&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kokkola Ykspihlaja (fmisid 103108), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103109_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Hämeenlinna Niittykatu (fmisid 103109)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103109&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Hämeenlinna Niittykatu (fmisid 103109), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103109_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Hämeenlinna Niittykatu (fmisid 103109)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103109&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Hämeenlinna Niittykatu (fmisid 103109), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103109_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Hämeenlinna Niittykatu (fmisid 103109)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103109&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Hämeenlinna Niittykatu (fmisid 103109), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103110_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Seinäjoki Vapaudentie 6a (fmisid 103110)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103110&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Seinäjoki Vapaudentie 6a (fmisid 103110), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103110_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Seinäjoki Vapaudentie 6a (fmisid 103110)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103110&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Seinäjoki Vapaudentie 6a (fmisid 103110), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103113_pm25_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM2.5 at Rauma Tarvonsaari Hallikatu (fmisid 103113)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103113&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Rauma Tarvonsaari Hallikatu (fmisid 103113), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103113_pm10_hourly
+  stat_archetype: A06
+  name: FMI — hourly PM10 at Rauma Tarvonsaari Hallikatu (fmisid 103113)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103113&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Rauma Tarvonsaari Hallikatu (fmisid 103113), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103113_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Rauma Tarvonsaari Hallikatu (fmisid 103113)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103113&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Rauma Tarvonsaari Hallikatu (fmisid 103113), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103116_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Lappeenranta keskusta 4 (fmisid 103116)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103116&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lappeenranta keskusta 4 (fmisid 103116), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103116_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Lappeenranta keskusta 4 (fmisid 103116)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103116&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lappeenranta keskusta 4 (fmisid 103116), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103116_no2_hourly
+  stat_archetype: A09
+  name: FMI — hourly NO2 at Lappeenranta keskusta 4 (fmisid 103116)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103116&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lappeenranta keskusta 4 (fmisid 103116), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103118_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Imatra Mansikkala (fmisid 103118)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103118&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Imatra Mansikkala (fmisid 103118), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103118_no2_hourly
+  stat_archetype: A09
+  name: FMI — hourly NO2 at Imatra Mansikkala (fmisid 103118)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103118&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Imatra Mansikkala (fmisid 103118), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103119_no2_hourly
+  stat_archetype: A09
+  name: FMI — hourly NO2 at Imatra Pelkolan tulliasema Raja (fmisid 103119)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103119&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Imatra Pelkolan tulliasema Raja (fmisid 103119), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_103120_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Lappeenranta Pulp (fmisid 103120)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103120&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lappeenranta Pulp (fmisid 103120), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103122_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Imatra Teppanala (fmisid 103122)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103122&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Imatra Teppanala (fmisid 103122), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103122_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Imatra Teppanala (fmisid 103122)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103122&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Imatra Teppanala (fmisid 103122), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103123_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Lappeenranta Tirilä Pekkasenkatu (fmisid 103123)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103123&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lappeenranta Tirilä Pekkasenkatu (fmisid 103123), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The
+    WFS refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_103123_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Lappeenranta Tirilä Pekkasenkatu (fmisid 103123)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103123&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lappeenranta Tirilä Pekkasenkatu (fmisid 103123), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS
+    refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_103124_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Oulu Nokela (fmisid 103124)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103124&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Oulu Nokela (fmisid 103124), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103125_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Oulu keskusta 2 (fmisid 103125)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103125&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Oulu keskusta 2 (fmisid 103125), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103125_no2_hourly
+  stat_archetype: A02
+  name: FMI — hourly NO2 at Oulu keskusta 2 (fmisid 103125)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103125&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Oulu keskusta 2 (fmisid 103125), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103126_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Oulu Pyykösjärvi (fmisid 103126)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103126&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Oulu Pyykösjärvi (fmisid 103126), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103126_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Oulu Pyykösjärvi (fmisid 103126)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103126&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Oulu Pyykösjärvi (fmisid 103126), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103126_o3_hourly
+  stat_archetype: A09
+  name: FMI — hourly O3 at Oulu Pyykösjärvi (fmisid 103126)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103126&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Oulu Pyykösjärvi (fmisid 103126), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103131_pm25_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM2.5 at Lahti Laune Pohjoinen Liipolankatu (fmisid 103131)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103131&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Laune Pohjoinen Liipolankatu (fmisid 103131), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The
+    WFS refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_103131_pm10_hourly
+  stat_archetype: A06
+  name: FMI — hourly PM10 at Lahti Laune Pohjoinen Liipolankatu (fmisid 103131)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103131&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Laune Pohjoinen Liipolankatu (fmisid 103131), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The
+    WFS refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_103131_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Lahti Laune Pohjoinen Liipolankatu (fmisid 103131)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103131&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Laune Pohjoinen Liipolankatu (fmisid 103131), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The
+    WFS refuses more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day
+    stitch at wire time.
+- id: fmi_aq_103132_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Lahti Saimaankatu (fmisid 103132)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103132&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Saimaankatu (fmisid 103132), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103132_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Lahti Saimaankatu (fmisid 103132)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103132&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Saimaankatu (fmisid 103132), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103132_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Lahti Saimaankatu (fmisid 103132)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103132&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Saimaankatu (fmisid 103132), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103133_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Lahti Satulakatu (fmisid 103133)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103133&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Satulakatu (fmisid 103133), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103133_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Lahti Satulakatu (fmisid 103133)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103133&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Satulakatu (fmisid 103133), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103133_no2_hourly
+  stat_archetype: A06
+  name: FMI — hourly NO2 at Lahti Satulakatu (fmisid 103133)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103133&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Satulakatu (fmisid 103133), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103133_o3_hourly
+  stat_archetype: A09
+  name: FMI — hourly O3 at Lahti Satulakatu (fmisid 103133)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103133&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lahti Satulakatu (fmisid 103133), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103139_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Porvoo Mustijoki (fmisid 103139)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103139&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Porvoo Mustijoki (fmisid 103139), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103139_o3_hourly
+  stat_archetype: A05
+  name: FMI — hourly O3 at Porvoo Mustijoki (fmisid 103139)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103139&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Porvoo Mustijoki (fmisid 103139), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103142_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Harjavalta Kaleva (fmisid 103142)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103142&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Harjavalta Kaleva (fmisid 103142), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103142_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Harjavalta Kaleva (fmisid 103142)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103142&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Harjavalta Kaleva (fmisid 103142), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103143_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Harjavalta Pirkkala (fmisid 103143)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103143&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Harjavalta Pirkkala (fmisid 103143), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103143_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Harjavalta Pirkkala (fmisid 103143)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103143&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Harjavalta Pirkkala (fmisid 103143), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103145_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Raahe Lapaluoto (fmisid 103145)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103145&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Raahe Lapaluoto (fmisid 103145), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103145_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Raahe Lapaluoto (fmisid 103145)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103145&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Raahe Lapaluoto (fmisid 103145), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103147_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Raahe keskusta (fmisid 103147)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103147&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Raahe keskusta (fmisid 103147), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103147_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Raahe keskusta (fmisid 103147)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103147&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Raahe keskusta (fmisid 103147), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_103148_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Joensuu Koskikatu 1 (fmisid 103148)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103148&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Joensuu Koskikatu 1 (fmisid 103148), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103148_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Joensuu Koskikatu 1 (fmisid 103148)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103148&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Joensuu Koskikatu 1 (fmisid 103148), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103148_no2_hourly
+  stat_archetype: A09
+  name: FMI — hourly NO2 at Joensuu Koskikatu 1 (fmisid 103148)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103148&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Joensuu Koskikatu 1 (fmisid 103148), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_103149_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Mikkeli Porrassalmenkatu (fmisid 103149)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103149&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Mikkeli Porrassalmenkatu (fmisid 103149), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103149_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Mikkeli Porrassalmenkatu (fmisid 103149)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103149&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Mikkeli Porrassalmenkatu (fmisid 103149), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103149_no2_hourly
+  stat_archetype: A09
+  name: FMI — hourly NO2 at Mikkeli Porrassalmenkatu (fmisid 103149)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103149&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Mikkeli Porrassalmenkatu (fmisid 103149), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103152_pm25_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM2.5 at Pietarsaari Bottenviksvägen (fmisid 103152)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103152&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Pietarsaari Bottenviksvägen (fmisid 103152), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103152_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Pietarsaari Bottenviksvägen (fmisid 103152)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103152&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Pietarsaari Bottenviksvägen (fmisid 103152), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_103152_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Pietarsaari Bottenviksvägen (fmisid 103152)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=103152&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Pietarsaari Bottenviksvägen (fmisid 103152), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_104017_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Siilinjärvi Sorakuja (fmisid 104017)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=104017&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Siilinjärvi Sorakuja (fmisid 104017), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_104017_pm10_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM10 at Siilinjärvi Sorakuja (fmisid 104017)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=104017&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Siilinjärvi Sorakuja (fmisid 104017), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_104017_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Siilinjärvi Sorakuja (fmisid 104017)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=104017&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Siilinjärvi Sorakuja (fmisid 104017), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_104064_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Parainen (fmisid 104064)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=104064&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Parainen (fmisid 104064), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than 168
+    h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_104078_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Kouvola Kankaan Koulu (fmisid 104078)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=104078&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kouvola Kankaan Koulu (fmisid 104078), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_104078_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Kouvola Kankaan Koulu (fmisid 104078)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=104078&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kouvola Kankaan Koulu (fmisid 104078), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_104085_pm25_hourly
+  stat_archetype: A09
+  name: FMI — hourly PM2.5 at Vantaa Jätevoimala (fmisid 104085)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=104085&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Vantaa Jätevoimala (fmisid 104085), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_104085_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Vantaa Jätevoimala (fmisid 104085)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=104085&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Vantaa Jätevoimala (fmisid 104085), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_106420_pm25_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM2.5 at Pori Paanakedonkatu (fmisid 106420)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=106420&parameters=PM25_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Pori Paanakedonkatu (fmisid 106420), PM2.5 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_106420_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Pori Paanakedonkatu (fmisid 106420)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=106420&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Pori Paanakedonkatu (fmisid 106420), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_106630_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Raisio Ihala (fmisid 106630)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=106630&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Raisio Ihala (fmisid 106630), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_106796_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Jyväskylä Hannikaisenkatu (fmisid 106796)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=106796&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Jyväskylä Hannikaisenkatu (fmisid 106796), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_106954_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Kuopio Savilahti KYS (fmisid 106954)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=106954&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kuopio Savilahti KYS (fmisid 106954), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_107147_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Lohja Harjula (fmisid 107147)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107147&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lohja Harjula (fmisid 107147), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_107147_no2_hourly
+  stat_archetype: A02
+  name: FMI — hourly NO2 at Lohja Harjula (fmisid 107147)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107147&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Lohja Harjula (fmisid 107147), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_107218_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Kemi Keskusta (fmisid 107218)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107218&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kemi Keskusta (fmisid 107218), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_107284_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Kemi Biotuotetehdas (fmisid 107284)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107284&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kemi Biotuotetehdas (fmisid 107284), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_107284_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Kemi Biotuotetehdas (fmisid 107284)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107284&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kemi Biotuotetehdas (fmisid 107284), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_107400_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Järvenpää Helsingintie (fmisid 107400)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107400&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Järvenpää Helsingintie (fmisid 107400), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_107400_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Järvenpää Helsingintie (fmisid 107400)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107400&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Järvenpää Helsingintie (fmisid 107400), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_107401_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Jyväskylä Jyskä (fmisid 107401)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107401&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Jyväskylä Jyskä (fmisid 107401), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_107569_no2_hourly
+  stat_archetype: A02
+  name: FMI — hourly NO2 at Turku Kauppatori 2 (fmisid 107569)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=107569&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Turku Kauppatori 2 (fmisid 107569), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_108068_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Helsinki Teollisuuskatu (fmisid 108068)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108068&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Teollisuuskatu (fmisid 108068), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_108068_o3_hourly
+  stat_archetype: A05
+  name: FMI — hourly O3 at Helsinki Teollisuuskatu (fmisid 108068)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108068&parameters=O3_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Teollisuuskatu (fmisid 108068), O3 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_108074_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Nokia Välikatu (fmisid 108074)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108074&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Nokia Välikatu (fmisid 108074), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_108105_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Helsinki Herttoniemi 2 (fmisid 108105)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108105&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Herttoniemi 2 (fmisid 108105), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_108105_no2_hourly
+  stat_archetype: A05
+  name: FMI — hourly NO2 at Helsinki Herttoniemi 2 (fmisid 108105)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108105&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Helsinki Herttoniemi 2 (fmisid 108105), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses
+    more than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch
+    at wire time.
+- id: fmi_aq_108106_pm10_hourly
+  stat_archetype: A05
+  name: FMI — hourly PM10 at Espoo Tapiola 4 (fmisid 108106)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108106&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Espoo Tapiola 4 (fmisid 108106), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_108107_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Vantaa Ilola (fmisid 108107)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108107&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Vantaa Ilola (fmisid 108107), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: fmi_aq_108131_pm10_hourly
+  stat_archetype: A07
+  name: FMI — hourly PM10 at Kokkola Kauppatori (fmisid 108131)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108131&parameters=PM10_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kokkola Kauppatori (fmisid 108131), PM10 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_108131_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Kokkola Kauppatori (fmisid 108131)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108131&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kokkola Kauppatori (fmisid 108131), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more
+    than 168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire
+    time.
+- id: fmi_aq_108297_no2_hourly
+  stat_archetype: A07
+  name: FMI — hourly NO2 at Kuopio Pirtti (fmisid 108297)
+  domain: healthcare
+  dgp_class: air_quality
+  frequency: PT1H
+  poll: PT6H
+  license: CC BY 4.0 (Finnish Meteorological Institute open data)
+  endpoint:
+    type: rest_xml
+    auth: none
+    rate_limit: 20000 req/day (FMI open data)
+    timeout: 120
+    url: https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=urban::observations::airquality::hourly::timevaluepair&fmisid=108297&parameters=NO2_PT1H_avg&starttime={YYYY-MM-DD-6d}T00:00:00Z
+  schema:
+    record_path: MeasurementTVP
+    timestamp_field: '{*}time'
+    value_field:
+    - '{*}value'
+    drop_null_values: true
+  notes: Urban air-quality station Kuopio Pirtti (fmisid 108297), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
+    168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
