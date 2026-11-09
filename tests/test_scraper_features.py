@@ -1636,3 +1636,11 @@ def test_is_due_poll_gates_on_attempts_not_just_writes(tmp_path, monkeypatch):
     old = _time.time() - 3700
     os.utime(marker, (old, old))
     assert scraper.is_due(src) is True
+
+
+def test_sweep_orders_oldest_attempt_first(monkeypatch):
+    """Sources cut by the sweep deadline lead the next sweep (no starvation)."""
+    ages = {"fresh": 60.0, "cut_last_time": 1800.0, "never": None, "mid": 900.0}
+    monkeypatch.setattr(scraper, "_last_attempt_age", lambda sid: ages[sid])
+    assert scraper._oldest_attempt_first(["fresh", "cut_last_time", "never", "mid"]) == [
+        "never", "cut_last_time", "mid", "fresh"]

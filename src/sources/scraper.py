@@ -2420,6 +2420,24 @@ def _host_lock(url: str) -> threading.Lock:
         return _HOST_LOCKS.setdefault(host, threading.Lock())
 
 
+def _oldest_attempt_first(sids: list[str]) -> list[str]:
+    """Order a sweep's due ids by how long ago each was last attempted, oldest
+    (or never) first; ties keep catalog order.
+
+    When a sweep hits --deadline-minutes, the ids it never started are the tail
+    of this list. In catalog order that tail was the SAME every sweep — measured
+    2026-11-09: 143-553 of ~2,700 due sources unstarted per 15-min sweep, always
+    the later feeds of the biggest hosts, which went stale and dropped out of
+    the eval pool. Ordering by attempt age sends whatever was cut to the front
+    of the next sweep, so the deadline rotates instead of starving. Run before
+    _interleave_by_host, which keeps each host's order.
+    """
+    def age(sid: str) -> float:
+        a = _last_attempt_age(sid)
+        return float("inf") if a is None else a
+    return sorted(sids, key=age, reverse=True)
+
+
 def _interleave_by_host(sids: list[str]) -> list[str]:
     """Reorder ids round-robin across hosts, preserving each host's own order.
 
@@ -2448,7 +2466,9 @@ def run_one(sid: str, dry_run: bool = False) -> int:
         log.info("skip %s (disabled: %s)", sid, src.get("disabled_reason", "no reason given"))
         return 0
     log.info("fetch %s -> %s", sid, src["endpoint"]["url"][:120])
-    if src.get("poll") and not dry_run:
+    if not dry_run:
+        # Every source, not only `poll:` ones: the sweep orders by attempt age
+        # (see _oldest_attempt_first), and the `poll:` gate reads it too.
         _mark_attempt(sid)
 
     panel = src.get("panel") or [None]   # list of dicts or [None] for single-poll
@@ -2536,7 +2556,7 @@ def main() -> int:
         if skipped:
             log.info("cadence: %d/%d sources due this sweep (%d not yet stale)",
                      len(due), len(sources), skipped)
-        targets = [s["id"] for s in due]
+        targets = _oldest_attempt_first([s["id"] for s in due])
     elif args.domain:
         targets = [s["id"] for s in sources if s["domain"] == args.domain]
     else:
