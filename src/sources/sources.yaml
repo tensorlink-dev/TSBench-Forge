@@ -36387,6 +36387,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_moe_notes
+  disabled: true
+  disabled_reason: '2026-11-09: auto-disabled by freshness audit — newest observation 2026-10-31T04:00:00+00:00 is 9.1d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A02
   mv_channels: ["value", "remote_inc"]
   name: nijimiss.moe — local note publication rate (Misskey)
@@ -48925,6 +48927,8 @@
   audit_slack_days: 9
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CH. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_ibiala_video_ibiala
+  disabled: true
+  disabled_reason: '2026-11-09: auto-disabled by freshness audit — newest observation 2026-10-16T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   name: video.ibiala — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -52519,6 +52523,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). Measures distinct local users who read or wrote in the hour. The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API count what the instance mirrored from its peers, which is the same global firehose seen from every host.
 - id: misskey_moe_active_users
+  disabled: true
+  disabled_reason: '2026-11-09: auto-disabled by freshness audit — newest observation 2026-10-31T04:00:00+00:00 is 9.1d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: nijimiss.moe — active local users (Misskey)
   domain: web_cloudops
@@ -79988,6 +79994,8 @@
   notes: Socrata SODA resource 79yx-6u9i, newest-first on date_time. Domain from the publisher's own category/tags,
     not the title.
 - id: data_current_year_rainfall
+  disabled: true
+  disabled_reason: '2026-11-09: auto-disabled by freshness audit — newest observation 2026-09-27T14:25:00+00:00 is 42.7d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: Current Year Rainfall (data.calgary.ca)
   domain: nature
@@ -144711,6 +144719,8 @@
   notes: USGS NWIS IV gauge 07211500 (NM), parameter 00065 (gage height, ft). At most 4 gauges per state+parameter so the batch spreads over basins rather than clustering on one river system. null_values
     carries the -999999 sentinel the service declares.
 - id: usgs_00065_07214470
+  disabled: true
+  disabled_reason: '2026-11-09: auto-disabled by freshness audit — newest observation 2026-10-30T06:45:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A11
   name: Gage Height — SIERRA DITCH NEAR CHACON, NM (USGS 07214470)
   domain: nature
