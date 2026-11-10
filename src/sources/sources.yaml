@@ -28383,6 +28383,8 @@
   audit_slack_days: 14
   notes: 'Bulk-generated from the PMEL ERDDAP server (data.pmel.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: floatid, msgEOT, ActiveBallastAdjustments.'
 - id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026
+  disabled: true
+  disabled_reason: '2026-11-10: auto-disabled by freshness audit — newest observation 2026-11-01T00:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1030 (NOAA Atlantic Oceanographic and Meteorological Laboratory, NOAA PMEL)
   domain: nature
   dgp_class: met_station
@@ -28411,6 +28413,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the PMEL ERDDAP server (data.pmel.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: baro_pressure_filtered, baro_pressure_rms, air_temperature_filtered, air_temperature_rms.'
 - id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1040_hur
+  disabled: true
+  disabled_reason: '2026-11-10: auto-disabled by freshness audit — newest observation 2026-11-01T00:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A09
   mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1040 (NOAA Atlantic Oceanographic and Meteorological Laboratory, NOAA PMEL)
@@ -42533,6 +42537,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (misskey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_club_notes_mfmf_c
+  disabled: true
+  disabled_reason: '2026-11-10: auto-disabled by freshness audit — newest observation 2026-10-31T13:00:00+00:00 is 9.7d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A08
   mv_channels: ["value", "remote_inc"]
   name: mfmf.club — local note publication rate (Misskey)
@@ -48574,6 +48580,8 @@
   audit_slack_days: 14
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_fediverse_tube_fediverse_at
+  disabled: true
+  disabled_reason: '2026-11-10: auto-disabled by freshness audit — newest observation 2026-10-14T00:00:00+00:00 is 27.3d old vs a 9.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: tube.fediverse.at — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -83831,6 +83839,8 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: airPressure, airTemperature, conductivity, relativeHumidity.'
 - id: noaa_noaa_aoml_pmel_hurricane_monitoring_2026_sd1045_hur
+  disabled: true
+  disabled_reason: '2026-11-10: auto-disabled by freshness audit — newest observation 2026-11-01T00:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   poll: P7D  # saildrone went 404 2026-09-05 (hurricane mission ended); weekly resume-probe instead of a 404 per minute
   name: NOAA AOML PMEL Hurricane Monitoring 2026 Saildrone 1045 (NOAA Atlantic Oceanographic and Meteorological
     Laboratory, NOAA PMEL)
@@ -102139,6 +102149,8 @@
   notes: active-users chart sibling of misskey_xsns_notes_meto_n; same host, distinct endpoint/metric (readWrite
     = users who both read and wrote in the hour).
 - id: misskey_club_notes_mfmf_c_active_users
+  disabled: true
+  disabled_reason: '2026-11-10: auto-disabled by freshness audit — newest observation 2026-10-31T13:00:00+00:00 is 9.7d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: mfmf.club — active local users (Misskey)
   domain: web_cloudops
@@ -121534,6 +121546,8 @@
     cliff at the end of every series. The value is a local counter -- the `remote.*` series on this API
     count what the instance mirrored from its peers, which is the same global firehose seen from every host.
 - id: misskey_xsns_notes_radian
+  disabled: true
+  disabled_reason: '2026-11-10: auto-disabled by freshness audit — newest observation 2026-10-31T19:00:00+00:00 is 9.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: radiann6631.xsns.jp — local note publication rate (Misskey)
   domain: web_cloudops
@@ -199472,3 +199486,535 @@
     drop_null_values: true
   notes: Urban air-quality station Kuopio Pirtti (fmisid 108297), NO2 hourly mean (ug/m3), from the FMI WFS stored query urban::observations::airquality::hourly::timevaluepair. The WFS refuses more than
     168 h per request, so each poll takes a rolling 6-day window and history accumulates. Selected for an under-held statistical archetype (DEC-TB-0007), judged on a self-pulled ~20-day stitch at wire time.
+- id: sck_pm25_19815
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Cedar_Bedroom (Glasgow)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19815/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19815 (indoor, United Kingdom of Great Britain and Northern Ireland), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as
+    independent evidence. Independent citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19827
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Oak_Bedroom (Glasgow)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19827/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19827 (outdoor, United Kingdom of Great Britain and Northern Ireland), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as
+    independent evidence. Independent citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19829
+  stat_archetype: A05
+  name: Smart Citizen — PM2.5 at Veur_Óffebek_HU8 (Reuver)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19829/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19829 (outdoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18929
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at citizenquack-sg (Singapore)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18929/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18929 (outdoor, Singapore), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20137
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at PMSTEST - TD - UNGASAN (Kuta Selatan)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20137/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20137 (indoor, Indonesia), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19327
+  stat_archetype: A05
+  name: Smart Citizen — PM2.5 at Likavka (Likavka)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19327/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19327 (outdoor, Slovakia), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18161
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at LIU_SH_407_#A065 (Linköping)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18161/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18161 (indoor, Sweden), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18413
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at Ringstabekkveien - 9EB9 (Norway)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18413/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18413 (outdoor, Norway), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18282
+  stat_archetype: A05
+  name: Smart Citizen — PM2.5 at SCORE_AQ_39C1 (Dalkey)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18282/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18282 (outdoor, Ireland), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19647
+  stat_archetype: A05
+  name: Smart Citizen — PM2.5 at PWH-17-ELD (Madrid)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19647/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19647 (indoor, Spain), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18875
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at UTS_IAQ_4 (Sydney)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18875/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18875 (outdoor, Australia), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18989
+  stat_archetype: A05
+  name: Smart Citizen — PM2.5 at KOINA IOANNINA-LOUTSA (Ioannina)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18989/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18989 (outdoor, Greece), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20017
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at SC8007 (Bristol)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20017/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20017 (indoor, United Kingdom of Great Britain and Northern Ireland), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as
+    independent evidence. Independent citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19856
+  stat_archetype: A05
+  name: Smart Citizen — PM2.5 at Elm_Office (Glasgow)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19856/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19856 (indoor, United Kingdom of Great Britain and Northern Ireland), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as
+    independent evidence. Independent citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_18874
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at UTS_IAQ_3 (?)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/18874/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 18874 (indoor, ?), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_20019
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at SC7FF2 (Bristol)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/20019/readings?sensor_id=87&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 20019 (indoor, United Kingdom of Great Britain and Northern Ireland), sensor 87 (Plantower PMS5003 - PM2.5). One sensor per device so sibling channels are not counted as
+    independent evidence. Independent citizen-sensing platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19897
+  stat_archetype: A07
+  name: Smart Citizen — PM2.5 at S ROOM - OPEN ENCLOSURE FAB26 (Kuta Selatan)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19897/readings?sensor_id=234&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19897 (indoor, Indonesia), sensor 234 (Seeed HM-3301 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19378
+  stat_archetype: A05
+  name: Smart Citizen — PM2.5 at Duurzaam Waalre TM Solar (Aalst)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19378/readings?sensor_id=194&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19378 (outdoor, Netherlands), sensor 194 (Sensirion SEN5X - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
+- id: sck_pm25_19768
+  stat_archetype: A05
+  name: Smart Citizen — PM2.5 at Bayu Sensor by Fab Lab - Kios Serangan (Indonesia)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - bounded
+  - bursty_spiky
+  - seasonal_multiscale
+  frequency: PT5M
+  poll: PT3H
+  endpoint:
+    type: rest_json
+    auth: none
+    rate_limit: polite
+    timeout: 60
+    url: https://api.smartcitizen.me/v0/devices/19768/readings?sensor_id=234&rollup=5m&from={YYYY-MM-DD-3d}&to={YYYY-MM-DD}T23:59:59Z
+  schema:
+    timestamp_field: readings[][0]
+    value_field: readings[][1]
+    drop_null_values: true
+    variates: 1
+  history_available: years (rollup API)
+  update_cadence_observed: ~1 minute raw, 5-minute rollup
+  pretraining_novelty: clean
+  license: Smart Citizen platform (Fab Lab Barcelona / IAAC), open data
+  notes: Smart Citizen Kit device 19768 (outdoor, Indonesia), sensor 234 (Seeed HM-3301 - PM2.5). One sensor per device so sibling channels are not counted as independent evidence. Independent citizen-sensing
+    platform (not openSenseMap / Sensor.Community). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
