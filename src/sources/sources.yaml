@@ -28354,6 +28354,8 @@
   audit_slack_days: 4
   notes: 'Bulk-generated from the UAF ERDDAP server (upwell.pfeg.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: airPressure, airTemperature, relativeHumidity.'
 - id: noaa_engineering_data_for_pmel_bgc_navis_floa
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T03:21:18+00:00 is 42.1d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A10
   mv_channels: ["rows_1", "rows_3"]
   name: Engineering data for PMEL BGC Navis floats (NOAA-PMEL)
@@ -52380,6 +52382,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), CA. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_space_videohost_by_lono_space
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-20T22:00:00+00:00 is 51.3d old vs a 17.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: Videohost by LONO.SPACE — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -75486,6 +75490,8 @@
   notes: Socrata SODA resource e6pq-g5di, newest-first on date. Domain from the publisher's own category/tags,
     not the title.
 - id: data_fin_ap_vendor_emails
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A02
   mv_channels: ["start_unread_emails", "emails_that_came_in", "end_unread_emails"]
   name: FIN - AP Vendor Emails (data.modestogov.com)
@@ -75546,6 +75552,8 @@
   notes: Socrata SODA resource n5dx-bxii, newest-first on survey_timestamp. Domain from the publisher's
     own category/tags, not the title.
 - id: www_vetpop2023_national_data_1l_80_to_84
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [80 to 84] (www.datahub.va.gov)
   domain: healthcare
@@ -75575,6 +75583,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '80 to 84'.
 - id: www_vetpop2023_national_data_1l_60_to_64
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [60 to 64] (www.datahub.va.gov)
   domain: healthcare
@@ -75604,6 +75614,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '60 to 64'.
 - id: www_vetpop2023_national_data_1l_45_to_49
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [45 to 49] (www.datahub.va.gov)
   domain: healthcare
@@ -75633,6 +75645,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '45 to 49'.
 - id: www_vetpop2023_national_data_1l_17_to_19
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [17 to 19] (www.datahub.va.gov)
   domain: healthcare
@@ -75662,6 +75676,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '17 to 19'.
 - id: www_vetpop2023_national_data_1l_70_to_74
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [70 to 74] (www.datahub.va.gov)
   domain: healthcare
@@ -75691,6 +75707,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '70 to 74'.
 - id: www_vetpop2023_national_period_of_service_data_2l_r_vne_gw
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Period of Service Data, 2L [(r) VNE, GW Era - ] (www.datahub.va.gov)
   domain: healthcare
@@ -75721,6 +75739,8 @@
     not the title. Panel dimension period_of_service pinned to '(r) VNE, GW Era - Pre 9/11, GW Era - Post
     9/11'.
 - id: www_vetpop2023_national_period_of_service_data_2l_x_post_g
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Period of Service Data, 2L [(x) Post GW Era] (www.datahub.va.gov)
   domain: healthcare
@@ -75750,6 +75770,8 @@
   notes: Socrata SODA resource weu6-zpb9, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension period_of_service pinned to '(x) Post GW Era'.
 - id: www_vetpop2023_national_period_of_service_data_2l_k_wwii_k
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: VetPop2023 National Period of Service Data, 2L [(k) WWII, KC, VNE] (www.datahub.va.gov)
   domain: healthcare
@@ -82929,6 +82951,8 @@
   notes: Socrata SODA resource gsvs-ypi7, newest-first on timestamp. Domain from the publisher's own category/tags,
     not the title.
 - id: www_vetpop2023_national_data_1l_20_to_24
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [20 to 24] (www.datahub.va.gov)
   domain: healthcare
@@ -82958,6 +82982,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '20 to 24'.
 - id: www_vetpop2023_national_data_1l_30_to_34
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [30 to 34] (www.datahub.va.gov)
   domain: healthcare
@@ -82987,6 +83013,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '30 to 34'.
 - id: www_vetpop2023_national_data_1l_25_to_29
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [25 to 29] (www.datahub.va.gov)
   domain: healthcare
@@ -83016,6 +83044,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '25 to 29'.
 - id: www_vetpop2023_national_data_1l_65_to_69
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [65 to 69] (www.datahub.va.gov)
   domain: healthcare
@@ -83045,6 +83075,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '65 to 69'.
 - id: www_vetpop2023_national_data_1l_85_or_ol
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [85 or older] (www.datahub.va.gov)
   domain: healthcare
@@ -83074,6 +83106,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '85 or older'.
 - id: www_vetpop2023_national_data_1l_40_to_44
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [40 to 44] (www.datahub.va.gov)
   domain: healthcare
@@ -83103,6 +83137,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '40 to 44'.
 - id: www_vetpop2023_national_data_1l_50_to_54
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [50 to 54] (www.datahub.va.gov)
   domain: healthcare
@@ -83132,6 +83168,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '50 to 54'.
 - id: www_vetpop2023_national_data_1l_35_to_39
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [35 to 39] (www.datahub.va.gov)
   domain: healthcare
@@ -83161,6 +83199,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '35 to 39'.
 - id: www_vetpop2023_national_data_1l_75_to_79
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [75 to 79] (www.datahub.va.gov)
   domain: healthcare
@@ -83190,6 +83230,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '75 to 79'.
 - id: www_vetpop2023_national_data_1l_55_to_59
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Data, 1L [55 to 59] (www.datahub.va.gov)
   domain: healthcare
@@ -83219,6 +83261,8 @@
   notes: Socrata SODA resource wubk-nag4, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension age_group pinned to '55 to 59'.
 - id: www_vetpop2023_national_period_of_service_data_2l_b_wartim
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Period of Service Data, 2L [(b) Wartime Vetera] (www.datahub.va.gov)
   domain: healthcare
@@ -83248,6 +83292,8 @@
   notes: Socrata SODA resource weu6-zpb9, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension period_of_service pinned to '(b) Wartime Veterans (i+j+k+m+n+p+q+r+s+u+v+w)'.
 - id: www_vetpop2023_national_period_of_service_data_2l_a_all_ve
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-09-30T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: VetPop2023 National Period of Service Data, 2L [(a) All Veterans (] (www.datahub.va.gov)
   domain: healthcare
@@ -89337,6 +89383,8 @@
   notes: USGS NWIS IV service, gauge 07109500 (Arkansas River Near Avondale, Co.), parameter code 00060
     (Discharge), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00060_07126200
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T07:00:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A04
   name: Discharge — Van Bremer Arroyo Near Model, Co (USGS 07126200)
   domain: nature
@@ -89625,6 +89673,8 @@
   notes: USGS NWIS IV service, gauge 09115500 (Tomichi Creek At Sargents, Co), parameter code 00065 (Gage
     height), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00065_09113500
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T07:00:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Gage height — Ohio Creek Near Baldwin, Co. (USGS 09113500)
   domain: nature
@@ -90105,6 +90155,8 @@
   notes: USGS NWIS IV service, gauge 09014050 (Grand Lake Outlet Blw Chipmunk Ln At Grand Lk, Co), parameter
     code 00010 (Water temperature), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00010_09066200
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T07:15:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: Water temperature — Booth Creek Near Minturn, Co. (USGS 09066200)
   domain: nature
@@ -90233,6 +90285,8 @@
   notes: USGS NWIS IV service, gauge 07099969 (Arkansas R. At St Charles Mesa Diver. At Pueblo,Co), parameter
     code 00010 (Water temperature), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00095_09124500
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T07:00:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Conductance — Lake Fork At Gateview, Co. (USGS 09124500)
   domain: nature
@@ -90297,6 +90351,8 @@
   notes: USGS NWIS IV service, gauge 09112500 (East River At Almont, Co), parameter code 00095 (Conductance),
     15-minute instantaneous readings over a 10-day window.
 - id: usgs_00095_09064600
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T07:00:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Conductance — Eagle River Near Minturn, Co (USGS 09064600)
   domain: nature
@@ -90425,6 +90481,8 @@
   notes: USGS NWIS IV service, gauge 09060799 (Colorado River At Catamount Bridge, Co), parameter code 63680
     (Turbidity), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_63680_09359020
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T07:00:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A07
   name: Turbidity — Animas River Below Silverton, Co (USGS 09359020)
   domain: nature
@@ -145021,6 +145079,8 @@
   notes: USGS NWIS IV gauge 05017500 (MT), parameter 00060 (discharge, ft3/s). At most 4 gauges per state+parameter so the batch spreads over basins rather than clustering on one river system. null_values
     carries the -999999 sentinel the service declares.
 - id: usgs_00065_06012500
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T06:30:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A10
   name: Gage Height — Red Rock R bl Lima Reservoir nr Monida MT (USGS 06012500)
   domain: nature
@@ -145052,6 +145112,8 @@
   notes: USGS NWIS IV gauge 06012500 (MT), parameter 00065 (gage height, ft). At most 4 gauges per state+parameter so the batch spreads over basins rather than clustering on one river system. null_values
     carries the -999999 sentinel the service declares.
 - id: usgs_00065_06016000
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T06:30:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Gage Height — Beaverhead River at Barretts MT (USGS 06016000)
   domain: nature
@@ -145083,6 +145145,8 @@
   notes: USGS NWIS IV gauge 06016000 (MT), parameter 00065 (gage height, ft). At most 4 gauges per state+parameter so the batch spreads over basins rather than clustering on one river system. null_values
     carries the -999999 sentinel the service declares.
 - id: usgs_00065_06017000
+  disabled: true
+  disabled_reason: '2026-11-11: auto-disabled by freshness audit — newest observation 2026-11-01T06:30:00+00:00 is 10.0d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Gage Height — Beaverhead River at Dillon MT (USGS 06017000)
   domain: nature
