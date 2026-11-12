@@ -35976,6 +35976,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider pdb-ixp.edgeix.net.au. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_studio_datasphere_internet_exchange
+  disabled: true
+  disabled_reason: '2026-11-12: auto-disabled by freshness audit — newest observation 2026-11-05T23:55:00+00:00 is 6.3d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   stat_archetype: A00
   mv_channels: ["1", "2"]
   name: DataSphere Internet Exchange — exchange traffic
@@ -89835,6 +89837,8 @@
   notes: USGS NWIS IV service, gauge 09352800 (Los Pinos R Abv Vallecito Res Nr Bayfield, Co), parameter
     code 00065 (Gage height), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_00065_09371520
+  disabled: true
+  disabled_reason: '2026-11-12: auto-disabled by freshness audit — newest observation 2026-11-02T17:00:00+00:00 is 9.6d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Gage height — Mcelmo Creek Above Trail Canyon Near Cortez, Co (USGS 09371520)
   domain: nature
@@ -155810,6 +155814,8 @@
   notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 2341 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
     (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
 - id: mesaaz_j7s9_qiuq_daily_volume
+  disabled: true
+  disabled_reason: '2026-11-12: auto-disabled by freshness audit — newest observation 2026-10-19T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: Vendor Payments — daily volume (citydata.mesaaz.gov)
   domain: sales
@@ -166497,6 +166503,8 @@
     is the direct analogue of TIME's Coastal_T_S. Archetype measured at wire time by wire.verify_entry.
   stat_archetype: A09
 - id: noaa_coops_water_temperature_8536110
+  disabled: true
+  disabled_reason: '2026-11-12: auto-disabled by freshness audit — newest observation 2026-11-05T14:18:00+00:00 is 6.7d old vs a 2.0d limit for PT6M. Re-enable if the upstream resumes.'
   name: NOAA CO-OPS water temperature — Cape May, NJ (8536110)
   domain: nature
   dgp_class: water_temperature
