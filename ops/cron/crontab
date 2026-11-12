@@ -82,3 +82,6 @@ MAILTO=""
 # Moved :10 -> :13 with pool_report above, for the same reason: sweeps now run
 # :00-:12 and this used to start in the clear.
 13 7 * * * /usr/bin/flock -n /tmp/tsforge_grind.lock /root/cron/grind_daily.sh
+
+# MarketCast: record Hyperliquid 1m bars + funding forward (scripts/mkt_record.py)
+*/10 * * * * /usr/bin/flock -n /tmp/tsforge_mkt_record.lock /root/cron/mkt_record.sh
