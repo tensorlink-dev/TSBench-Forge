@@ -85,3 +85,5 @@ MAILTO=""
 
 # MarketCast: record Hyperliquid 1m bars + funding forward (scripts/mkt_record.py)
 */10 * * * * /usr/bin/flock -n /tmp/tsforge_mkt_record.lock /root/cron/mkt_record.sh
+# ...and mirror it to Hippius (marketcast/bars/) hourly; prunes local days > 30 once uploaded
+35 * * * * /usr/bin/flock -n /tmp/tsforge_mkt_sync.lock /root/cron/mkt_sync.sh
