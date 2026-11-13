@@ -27331,6 +27331,8 @@
     - wind_speed_of_gust
     timestamp_pattern: ^\d{4}-
 - id: rws_nl_water_levels
+  disabled: true
+  disabled_reason: '2026-11-13: auto-disabled by freshness audit — newest observation 2026-11-03T08:30:00+00:00 is 9.9d old vs a 3.0d limit for PT10M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Rijkswaterstaat Dutch surface water levels (national panel)
   domain: nature
@@ -84057,6 +84059,8 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: sea_surface_temperature_1.'
 - id: gcoos_data_for_ioos_station_cbi_130
+  disabled: true
+  disabled_reason: '2026-11-13: auto-disabled by freshness audit — newest observation 2026-11-03T05:36:00+00:00 is 10.0d old vs a 3.0d limit for PT30M. Re-enable if the upstream resumes.'
   stat_archetype: A09
   name: Data for ioos-station-CBI-130 (GCOOS)
   domain: nature
