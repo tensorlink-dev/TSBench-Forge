@@ -1218,6 +1218,8 @@
     sample_freshness_hours: 4.0
   notes: 'Region facet for hierarchical panel: facet=region. Other datasets: ods033 wind, ods001 load.'
 - id: uk_neso_carbon_historic_30min
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-11-04T23:30:00+00:00 is 9.3d old vs a 3.0d limit for PT30M. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: UK NESO historic generation mix and carbon intensity (30-min)
   domain: energy
@@ -12036,6 +12038,8 @@
   license: CC BY 4.0 (Fraunhofer ISE energy-charts)
   notes: Gas-heavy system with the fastest solar buildout in Europe — strong regime drift.
 - id: energy_charts_dk_public_power
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 9.9d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: energy-charts — Danish public net electricity generation (15-min)
   domain: energy
@@ -16844,6 +16848,8 @@
       op: count
       bin: PT1H
 - id: norfolk_911_daily_call_volume
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-10-27T00:00:00+00:00 is 18.3d old vs a 6.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: Norfolk VA Emergency Communications — daily 911 call volume and answer metrics
   domain: healthcare
@@ -49174,6 +49180,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_zone_the_puppet_zone
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-10-24T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: The Puppet Zone — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -51501,6 +51509,8 @@
   audit_slack_days: 11
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FI. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_boneste_bonestube
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-10-17T09:00:00+00:00 is 27.9d old vs a 9.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: BonesTube — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -79281,6 +79291,8 @@
   notes: Socrata SODA resource 5f3f-hgt9, newest-first on seizure_datetime. Domain from the publisher's
     own category/tags, not the title. Panel dimension agent_role_name pinned to '311 CS'.
 - id: data_emergency_communications_center_ecc_calls_911_311
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-10-02T06:55:01+00:00 is 43.0d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: Emergency Communications Center (ECC) Calls [911-311 CT] (data.cincinnati-oh.gov)
   domain: healthcare
@@ -83327,6 +83339,8 @@
   notes: Socrata SODA resource weu6-zpb9, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension period_of_service pinned to '(a) All Veterans (b+c)'.
 - id: data_preliminary_estimates_of_cumulative_covid_19
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-10-03T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: Preliminary Estimates of Cumulative COVID-19 Hospitalizations by Week (data.cdc.gov)
   domain: healthcare
@@ -157495,6 +157509,8 @@
   notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6023 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
     (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 18 datasets per portal so the batch adds publishers.
 - id: montgomerycountymd_d4ku_3xrx_daily_volume
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-10-21T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A10
   name: DEP - Continuous Emissions Monitoring (CEM) — daily volume (data.montgomerycountymd.gov)
   domain: sales
@@ -159494,6 +159510,8 @@
   notes: production_types[4] is "Biomass" for country cz as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
     a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
 - id: energy_charts_dk_solar_15min
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 9.9d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: energy-charts — Solar generation, DK (15-min)
   domain: energy
@@ -159521,6 +159539,8 @@
   notes: production_types[7] is "Solar" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
     a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
 - id: energy_charts_dk_wind_onshore_15min
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 9.9d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: energy-charts — Wind onshore generation, DK (15-min)
   domain: energy
@@ -159548,6 +159568,8 @@
   notes: production_types[6] is "Wind onshore" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
     becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
 - id: energy_charts_dk_wind_offshore_15min
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 9.9d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: energy-charts — Wind offshore generation, DK (15-min)
   domain: energy
@@ -159575,6 +159597,8 @@
   notes: production_types[5] is "Wind offshore" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently
     becomes a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
 - id: energy_charts_dk_fossil_gas_15min
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 9.9d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: energy-charts — Fossil gas generation, DK (15-min)
   domain: energy
@@ -159602,6 +159626,8 @@
   notes: production_types[3] is "Fossil gas" for country dk as of 2026-10-24, resolved BY NAME at wiring time. The index is positional, so if energy-charts ever reorders the array this series silently becomes
     a different fuel — the name is recorded here so an audit can detect the swap. 14-day window = ~1,344 quarter-hours per fetch.
 - id: energy_charts_dk_biomass_15min
+  disabled: true
+  disabled_reason: '2026-11-14: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 9.9d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: energy-charts — Biomass generation, DK (15-min)
   domain: energy
