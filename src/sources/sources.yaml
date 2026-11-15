@@ -27532,6 +27532,8 @@
   audit_slack_days: 4
   notes: 'Bulk-generated from the CSWC ERDDAP server (coastwatch.pfeg.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: airPressure, airTemperature, relativeHumidity.'
 - id: emodnet_moanaproject_mangopare_sensor_deployment
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-05T11:35:07+00:00 is 9.8d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: MOANAPROJECT - Mangopare sensor deployments (MOANA PROJECT)
   domain: nature
@@ -28716,6 +28718,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CIOOS Atlantic ERDDAP server (cioosatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: wind_spd_avg, wind_dir_avg, wind_spd_max, air_temp_avg.'
 - id: noaa_sacramento_river_valley_salmonid_tagging
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-05T09:52:59+00:00 is 9.9d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A01
   name: Sacramento River Valley Salmonid Tagging Project (NOAA/NMFS/SWFSC/FED)
   domain: nature
@@ -32023,6 +32027,8 @@
   audit_slack_days: 2
   notes: Bulk-generated from the IXP database (https://api.ixpdb.net/v1/provider/list); apis.traffic for provider 814. Columns are [epoch, in, out]; the grapher's in_max/out_max are dropped because at period=day they duplicate in/out exactly.
 - id: ixp_inter_interix_interedge_b_v
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-08T18:00:00+00:00 is 6.5d old vs a 2.0d limit for PT5M. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: InterIX (InterEdge B.V.) — exchange traffic (Amsterdam, NL)
   domain: web_cloudops
@@ -44764,6 +44770,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (sharkey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_mom_notes
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-06T00:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: kittyy.mom — local note publication rate (Sharkey)
   domain: web_cloudops
   dgp_class: social_posting_rate
@@ -48214,6 +48222,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_cc_wacha
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-10-25T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   name: Wacha — local video publication rate (PeerTube)
   domain: web_cloudops
   dgp_class: media_publishing_rate
@@ -77477,6 +77487,8 @@
     not the title. Panel dimension id is pinned to ''300015141'': without it the response interleaves several
     series on the same timestamps.'
 - id: opendata_fr_229200506_comptages_velos_pas_horaire_100041
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-10-15T21:00:00+00:00 is 30.4d old vs a 10.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: Comptages vélos (pas horaire) (opendata.hauts-de-seine.fr) [100041889]
   domain: transport
@@ -101642,6 +101654,8 @@
   notes: active-users chart sibling of misskey_social_notes_kitty; same host, distinct endpoint/metric (readWrite
     = users who both read and wrote in the hour).
 - id: misskey_mom_active_users
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-06T00:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: kittyy.mom — active local users (Misskey)
   domain: web_cloudops
   dgp_class: active_user_count
@@ -128169,6 +128183,8 @@
   license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
   notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
 - id: ioc_sea_level_acnj2
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-05T21:27:00+00:00 is 9.4d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: IOC Sea Level Monitoring — Atlantic_City_NJ (acnj2)
   domain: nature
@@ -128247,6 +128263,8 @@
   license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
   notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
 - id: ioc_sea_level_adak2
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-05T22:24:00+00:00 is 9.3d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: IOC Sea Level Monitoring — Adak_AK (adak2)
   domain: nature
@@ -128430,6 +128448,8 @@
   license: IOC/UNESCO sealevelmonitoring.org — free for research and operational use
   notes: 12 hours of 1-minute sea level per fetch (~720 points). Panelled on the sensor id because a station can carry several gauges (float, radar, pressure) on one feed.
 - id: ioc_sea_level_alak2
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-05T22:27:00+00:00 is 9.3d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: IOC Sea Level Monitoring — Alitak_US (alak2)
   domain: nature
@@ -169363,6 +169383,8 @@
     is the direct analogue of TIME's Coastal_T_S. Archetype measured at wire time by wire.verify_entry.
   stat_archetype: A09
 - id: noaa_coops_water_temperature_9440910
+  disabled: true
+  disabled_reason: '2026-11-15: auto-disabled by freshness audit — newest observation 2026-11-08T14:06:00+00:00 is 6.7d old vs a 2.0d limit for PT6M. Re-enable if the upstream resumes.'
   name: NOAA CO-OPS water temperature — Toke Point, WA (9440910)
   domain: nature
   dgp_class: water_temperature
