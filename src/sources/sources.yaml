@@ -15961,6 +15961,8 @@
   license: WHO GHO OData — open
   notes: Concentrated in a subset of countries with intervention-driven step changes from bed-net and treatment campaigns — policy shocks rather than natural dynamics. Adds to the yearly band, the thinnest granularity in the catalog.
 - id: listenbrainz_sitewide_daily_listens
+  disabled: true
+  disabled_reason: '2026-11-16: auto-disabled by freshness audit — newest observation 2026-10-23T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: ListenBrainz sitewide listening activity - listens per day
   domain: sales
@@ -34268,6 +34270,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_re_tubefedere
+  disabled: true
+  disabled_reason: '2026-11-16: auto-disabled by freshness audit — newest observation 2026-10-26T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: TubeFédéré — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -44942,6 +44946,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (sharkey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_cc_notes_vsme_c
+  disabled: true
+  disabled_reason: '2026-11-16: auto-disabled by freshness audit — newest observation 2026-11-07T01:00:00+00:00 is 9.2d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A02
   mv_channels: ["value", "remote_inc"]
   name: vsme.cc — local note publication rate (Sharkey)
@@ -50752,6 +50758,8 @@
   audit_slack_days: 24
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_hk_hsuhk_vstation
+  disabled: true
+  disabled_reason: '2026-11-16: auto-disabled by freshness audit — newest observation 2026-10-05T00:00:00+00:00 is 42.3d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: HSUHK vStation — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -50870,6 +50878,8 @@
   audit_slack_days: 17
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), NL. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_qlyoung_qtube
+  disabled: true
+  disabled_reason: '2026-11-16: auto-disabled by freshness audit — newest observation 2026-10-11T00:00:00+00:00 is 36.3d old vs a 12.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: Qtube — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -61557,6 +61567,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from the MobilityData GBFS registry (BR, system id bike_poa). Station panel keyed on station_id; free-floating vehicle feeds are excluded because their panel ids churn between polls.
 - id: gbfs_publicbikesystem_acces_velo_saguenay
+  disabled: true
+  disabled_reason: '2026-11-16: auto-disabled by freshness audit — newest observation 2026-11-06T13:51:23.382000+00:00 is 9.7d old vs a 3.0d limit for PT5M. Re-enable if the upstream resumes.'
   stat_archetype: A01
   name: Accès Vélo (Saguenay) — per-station availability (GBFS panel)
   domain: transport
@@ -106367,6 +106379,8 @@
   notes: active-users chart sibling of misskey_rehab_notes; same host, distinct endpoint/metric (readWrite = users
     who both read and wrote in the hour).
 - id: misskey_cc_notes_vsme_c_active_users
+  disabled: true
+  disabled_reason: '2026-11-16: auto-disabled by freshness audit — newest observation 2026-11-07T01:00:00+00:00 is 9.2d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: vsme.cc — active local users (Misskey)
   domain: web_cloudops
@@ -187978,6 +187992,8 @@
   notes: Continuous traffic registration point 29937V971442 (Stabburet, Østfold, FV109 S1D1 m3493), total vehicles per hour. byHour pages at 100 edges and rejects first>100, so the window is 3 days + today
     (<=96 h); history accumulates across polls (PT12H keeps overlap). Selected for an under-held statistical archetype (DEC-TB-0007), measured at wire time.
 - id: vegvesen_fekjan_v_landoya_67786v44_hourly
+  disabled: true
+  disabled_reason: '2026-11-16: auto-disabled by freshness audit — newest observation 2026-11-12T20:00:00+00:00 is 3.4d old vs a 1.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Statens vegvesen — hourly vehicle volume, Fekjan v/Landøya (Akershus, FV1424 S2D1 m2618)
   domain: transport
