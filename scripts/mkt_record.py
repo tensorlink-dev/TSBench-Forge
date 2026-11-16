@@ -10,8 +10,8 @@ Two things are added around it, and neither changes what is written:
 * **Throttle.** Hyperliquid allows 1200 request-weight per minute per IP. A
   candleSnapshot costs 20 + 1 per 60 candles, a fundingHistory 20 + 1 per 20
   rows. Cascade's recorder fires all 58 assets x 2 calls in ~30 s, so ~20 of
-  them got HTTP 429 on this box. Here every call waits for its share of an
-  800/min budget, and a 429 backs off and retries.
+  them got HTTP 429 on this box. Here every call waits for its share of a
+  1000/min budget (limit 1200), and a 429 backs off and retries.
 * **Adaptive lookback.** A normal pass re-fetches 2 h. After a failed or
   missed pass, the lookback grows to cover everything since the last fully
   clean pass (+1 h), capped at 48 h (the API holds ~83 h of 1m bars).
@@ -27,7 +27,7 @@ import time
 import urllib.error
 from pathlib import Path
 
-BUDGET_PER_MIN = 800.0
+BUDGET_PER_MIN = 1000.0
 MIN_LOOKBACK_H, MAX_LOOKBACK_H = 2.0, 48.0
 
 

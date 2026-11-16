@@ -8,14 +8,20 @@
 # rate-limit throttle and an adaptive lookback. The store layout is cascade's,
 # so `cascade-pool publish --lane mkt --bar-store /root/mkt/bars` reads it.
 #
-# Code: an exported copy of cascade origin/main in /root/cascade-mkt (the
-# /root/cascade checkout is read-only for us and far behind). Refresh it with
+# Code: an exported cascade tree in /root/cascade-mkt (the /root/cascade
+# checkout is read-only for us and far behind); /root/cascade-mkt/.exported_commit
+# says which. Since 2026-11-16 it is PR #453 (feat/marketcast-ohlcv-composite),
+# whose recorder also keeps native 5m / 15m / 1h banks (<asset>/<iv>/<day>/)
+# and backfills the API's full depth for an empty interval; main's records 1m
+# only. When #453 merges, re-export origin/main. Refresh with
+#   R=origin/main   # or origin/<branch> after a fetch of it
 #   rm -rf /root/cascade-mkt && mkdir /root/cascade-mkt && \
 #   git -C /root/cascade fetch -q origin && \
-#   git -C /root/cascade archive origin/main | tar -x -C /root/cascade-mkt
+#   git -C /root/cascade archive $R | tar -x -C /root/cascade-mkt
 # Interpreter: /root/cascade/.venv (numpy + stdlib are all this path needs).
 #
-# Cost: ~45MB RSS, ~3 min per normal 2h pass; ~0.2 MB/day/asset on disk.
+# Cost: ~50MB RSS; a normal 2h pass makes 5 calls per asset (1m, 5m, 15m, 1h,
+# funding). The first #453 pass (full-depth backfill) took 22 min.
 set -uo pipefail
 STORE=${MKT_STORE:-/root/mkt/bars}
 mkdir -p "$STORE"

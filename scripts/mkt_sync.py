@@ -23,6 +23,7 @@ what to fetch from the local files, so a pruned day would be fetched again.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures as cf
 import datetime as dt
 import shutil
 import sys
@@ -55,6 +56,7 @@ def main() -> int:
     ap.add_argument("--prefix", default="marketcast/bars/")
     ap.add_argument("--hot-days", type=int, default=3,
                     help="days re-sent every pass because the recorder still rewrites them")
+    ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     PREFIX = a.prefix.rstrip("/") + "/"
@@ -63,7 +65,7 @@ def main() -> int:
     today = dt.datetime.now(dt.UTC).date()
     hot = {str(today - dt.timedelta(days=k)) for k in range(a.hot_days)}
 
-    sent = failed = 0
+    todo = []
     for p in sorted(a.store.rglob("*")):
         if not p.is_file() or p.name.startswith("."):
             continue
@@ -72,20 +74,33 @@ def main() -> int:
         day = p.parent.name
         if key in remote and remote[key] == p.stat().st_size and day not in hot:
             continue
-        if a.dry_run:
-            sent += 1
-            continue
+        todo.append((p, key))
+
+    def put(item):
+        p, key = item
+        size = p.stat().st_size
         try:
             s3.upload_file(str(p), a.bucket, key)
-            remote[key] = p.stat().st_size
-            sent += 1
+            return key, size, None
         except Exception as e:  # noqa: BLE001 — retried next pass
-            failed += 1
-            print(f"  upload failed {rel}: {type(e).__name__}", file=sys.stderr)
+            return key, size, type(e).__name__
+
+    sent = failed = 0
+    if a.dry_run:
+        sent = len(todo)
+    else:
+        with cf.ThreadPoolExecutor(a.workers) as ex:
+            for key, size, err in ex.map(put, todo):
+                if err:
+                    failed += 1
+                    print(f"  upload failed {key}: {err}", file=sys.stderr)
+                else:
+                    remote[key] = size
+                    sent += 1
 
     cutoff = str(today - dt.timedelta(days=a.keep_days))
     pruned = 0
-    for d in sorted(a.store.glob("*/*/????-??-??")):
+    for d in sorted([*a.store.glob("*/*/????-??-??"), *a.store.glob("*/*/*/????-??-??")]):
         if d.name >= cutoff:
             continue
         files = [f for f in d.iterdir() if f.is_file()]
