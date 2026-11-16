@@ -87,3 +87,5 @@ MAILTO=""
 */10 * * * * /usr/bin/flock -n /tmp/tsforge_mkt_record.lock /root/cron/mkt_record.sh
 # ...and mirror it to Hippius (marketcast/bars/) hourly; prunes local days > 30 once uploaded
 35 * * * * /usr/bin/flock -n /tmp/tsforge_mkt_sync.lock /root/cron/mkt_sync.sh
+# MarketCast FX: Dukascopy 1m bars, all 28 majors/crosses, T+1 + 2-year backfill, -> Hippius
+50 * * * * /usr/bin/flock -n /tmp/tsforge_mkt_dukascopy.lock /root/cron/mkt_dukascopy.sh

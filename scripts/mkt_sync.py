@@ -14,7 +14,11 @@ Local days older than ``--keep-days`` are deleted only once every file of the
 day is in the bucket at the same size. Restore with
 ``aws s3 sync s3://<bucket>/marketcast/bars <store>``.
 
-usage: mkt_sync.py --store DIR [--keep-days 30] [--dry-run]
+usage: mkt_sync.py --store DIR [--prefix marketcast/bars/] [--keep-days 30] [--hot-days 3] [--dry-run]
+
+The Dukascopy store (scripts/mkt_dukascopy.py) goes up with --prefix marketcast/dukascopy/
+--hot-days 0 (its days are final once fetched) and is not pruned: the recorder decides
+what to fetch from the local files, so a pruned day would be fetched again.
 """
 from __future__ import annotations
 
@@ -27,11 +31,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src" / "sources"))
 import sync_storage as S  # noqa: E402
 
-PREFIX = "marketcast/bars/"
-HOT_DAYS = 3
 
 
-def remote_sizes(s3, bucket: str) -> dict[str, int]:
+def remote_sizes(s3, bucket: str, PREFIX: str) -> dict[str, int]:
     out, token = {}, None
     while True:
         kw = {"Bucket": bucket, "Prefix": PREFIX}
@@ -50,12 +52,16 @@ def main() -> int:
     ap.add_argument("--store", type=Path, required=True)
     ap.add_argument("--bucket", default=os.environ.get("HIPPIUS_S3_BUCKET") or S.DEFAULT_BUCKET)
     ap.add_argument("--keep-days", type=int, default=30)
+    ap.add_argument("--prefix", default="marketcast/bars/")
+    ap.add_argument("--hot-days", type=int, default=3,
+                    help="days re-sent every pass because the recorder still rewrites them")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+    PREFIX = a.prefix.rstrip("/") + "/"
     s3 = S._client()
-    remote = remote_sizes(s3, a.bucket)
+    remote = remote_sizes(s3, a.bucket, PREFIX)
     today = dt.datetime.now(dt.UTC).date()
-    hot = {str(today - dt.timedelta(days=k)) for k in range(HOT_DAYS)}
+    hot = {str(today - dt.timedelta(days=k)) for k in range(a.hot_days)}
 
     sent = failed = 0
     for p in sorted(a.store.rglob("*")):
