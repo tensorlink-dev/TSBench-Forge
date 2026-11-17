@@ -28279,6 +28279,8 @@
   audit_slack_days: 4
   notes: 'Bulk-generated from the UBC ERDDAP server (salishsea.eos.ubc.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: salinity, temperature, temperature_std_dev, salinity_std_dev.'
 - id: noaa_ecocast_species_weightings_and_environme_ecocast_in
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-08-26T12:00:00+00:00 is 82.8d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: Ecocast species weightings and environmental data dates (NOAA NMFS SWFSC ERD)
   domain: nature
@@ -28834,6 +28836,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CFRF ERDDAP server (erddap.ondeckdata.com). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: tow_id, segment_type, temperature.'
 - id: ondeckdata_fixed_gear_oceanographic_data
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-11-07T10:00:00+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A05
   mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: Fixed Gear Oceanographic Data (CFRF)
@@ -28863,6 +28867,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the CFRF ERDDAP server (erddap.ondeckdata.com). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: temperature, sensor_sn, stat_area.'
 - id: ondeckdata_mobile_gear_oceanographic_data
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-11-07T10:57:50+00:00 is 9.8d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   mv_channels: ["rows_1", "rows_2", "rows_3", "rows_4"]
   name: Mobile Gear Oceanographic Data (CFRF)
@@ -33980,6 +33986,8 @@
   audit_slack_days: 15
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_tube_autonomy_tube
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-10-27T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: Autonomy.Tube — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -48053,6 +48061,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances). isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_news_cara_news
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-10-27T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: Cara News — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -50671,6 +50681,8 @@
   audit_slack_days: 23
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), IT. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_peertube_peertube_dk
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-10-15T00:00:00+00:00 is 33.3d old vs a 11.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: PeerTube.dk — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -84255,6 +84267,8 @@
     mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded;
     verified against the live endpoint by the wire gate. Columns: upwelling_index.'
 - id: ondeckdata_qaqc_flagged_oceanographic_data
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-11-07T10:57:50+00:00 is 9.8d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A10
   mv_channels: ["rows_1", "rows_2", "rows_4"]
   name: QAQC Flagged Oceanographic Data (CFRF)
@@ -90862,6 +90876,8 @@
   notes: Production type 'Wind onshore' at payload index 15 of the DE public_power response. The index is
     position-stable per country; the type name is recorded here so a reshuffle is detectable.
 - id: energy_charts_dk_load
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 12.9d old vs a 4.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A02
   mv_channels: ["data", "production_types_7_data", "production_types_6_data"]
   name: energy-charts — DK load (15-min)
@@ -90894,6 +90910,8 @@
   notes: Production type 'Load' at payload index 8 of the DK public_power response. The index is position-stable
     per country; the type name is recorded here so a reshuffle is detectable.
 - id: energy_charts_dk_solar
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 12.9d old vs a 4.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A02
   name: energy-charts — DK solar (15-min)
   domain: energy
@@ -90923,6 +90941,8 @@
   notes: Production type 'Solar' at payload index 7 of the DK public_power response. The index is position-stable
     per country; the type name is recorded here so a reshuffle is detectable.
 - id: energy_charts_dk_wind_onshore
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-11-04T07:45:00+00:00 is 12.9d old vs a 4.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: energy-charts — DK wind onshore (15-min)
   domain: energy
@@ -126152,6 +126172,8 @@
   license: openSenseMap / senseBox open data (ODbL)
   notes: Citizen air-quality box. Two-day window per fetch (~600-1,100 points) so it is pool-eligible on the first scrape. Healthcare was 4.2% sub-15-minute; this band is the fix.
 - id: osem_pm25_ger_potsdam_hvkleist15
+  disabled: true
+  disabled_reason: '2026-11-17: auto-disabled by freshness audit — newest observation 2026-11-07T07:28:58.350000+00:00 is 10.0d old vs a 3.0d limit for PT2M30S. Re-enable if the upstream resumes.'
   stat_archetype: A10
   name: openSenseMap — PM2.5 at GER.Potsdam.HvKleist15
   domain: healthcare
