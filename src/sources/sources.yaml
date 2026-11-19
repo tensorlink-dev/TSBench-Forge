@@ -28494,6 +28494,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the SmartAtlantic ERDDAP server (www.smartatlantic.ca). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: wind_dir_avg, air_temp_avg, wind_spd_avg, wind_gust_avg.'
 - id: smartatlantic_diamond_jubilee_cruise_ship_terminal_met
+  disabled: true
+  disabled_reason: '2026-11-19: auto-disabled by freshness audit — newest observation 2026-11-10T02:03:00+00:00 is 9.2d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Diamond Jubilee Cruise Ship Terminal Meteorological Station (COVE)
   domain: nature
@@ -34750,6 +34752,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_nadajemy_nadajemy_com
+  disabled: true
+  disabled_reason: '2026-11-19: auto-disabled by freshness audit — newest observation 2026-09-08T00:00:00+00:00 is 72.3d old vs a 24.0d limit for PT6H. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: nadajemy.com — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -84144,6 +84148,8 @@
     from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified
     against the live endpoint by the wire gate. Columns: sea_surface_temperature_1.'
 - id: cioosatlantic_diamond_jubilee_cruise_ship_terminal_met
+  disabled: true
+  disabled_reason: '2026-11-19: auto-disabled by freshness audit — newest observation 2026-11-10T02:03:00+00:00 is 9.2d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: Diamond Jubilee Cruise Ship Terminal Meteorological Station (COVE)
   domain: nature
