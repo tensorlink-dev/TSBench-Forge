@@ -13637,6 +13637,8 @@
   license: Stack Exchange API (CC BY-SA)
   notes: Very low volume — many hours have zero arrivals, making it a genuinely sparse count series rather than a smooth rate.
 - id: stackexchange_security_question_rate
+  disabled: true
+  disabled_reason: '2026-11-20: auto-disabled by freshness audit — newest observation 2026-11-10T20:00:00+00:00 is 9.4d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: Information Security — new question arrivals (hourly bins)
   domain: web_cloudops
@@ -46232,6 +46234,8 @@
   audit_slack_days: 19
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), FR. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_lu_p_lu
+  disabled: true
+  disabled_reason: '2026-11-20: auto-disabled by freshness audit — newest observation 2026-10-30T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: p.lu — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -123964,6 +123968,8 @@
   notes: 'Fediverse link-aggregator instance. users_active_day rather than the cumulative post/comment counters, which are monotone and trivially forecastable. Snapshot feed: ripens to the 320-point bar
     in ~2 weeks of hourly polls.'
 - id: lemmy_lemmy_1095_me_active_users
+  disabled: true
+  disabled_reason: '2026-11-20: auto-disabled by freshness audit — newest observation 2026-11-10T10:00:32+00:00 is 9.8d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   name: Lemmy Lemmy 1095 (lemmy.1095.me) — daily active users
   domain: web_cloudops
   dgp_class: network_activity
