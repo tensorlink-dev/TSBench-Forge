@@ -43426,6 +43426,8 @@
   audit_slack_days: 3
   notes: Bulk-generated from fediverse.observer (sharkey). The chart array is newest-first with no timestamps in the payload, hence series_end/series_step; series_skip drops element 0 because it is the hour still being filled and would otherwise put a false cliff at the end of every series. Counts are local.inc, not remote -- remote counts what this instance mirrored from its peers, which measures the network rather than this host.
 - id: misskey_club_notes_shitpo
+  disabled: true
+  disabled_reason: '2026-11-21: auto-disabled by freshness audit — newest observation 2026-11-11T19:00:00+00:00 is 9.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A08
   mv_channels: ["value", "remote_inc"]
   name: shitpost.poridge.club — local note publication rate (Sharkey)
@@ -47316,6 +47318,8 @@
   audit_slack_days: 16
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_linux_italian_linux_society_video
+  disabled: true
+  disabled_reason: '2026-11-21: auto-disabled by freshness audit — newest observation 2026-10-31T00:00:00+00:00 is 21.3d old vs a 7.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A04
   name: Italian Linux Society - Video — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -80235,6 +80239,8 @@
   notes: Socrata SODA resource wafq-k26c, newest-first on date. Domain from the publisher's own category/tags,
     not the title. Panel dimension mosquito_species pinned to 'Uranotaenia sapphirina'.
 - id: data_blocked_railroad_crossing_incident_reports
+  disabled: true
+  disabled_reason: '2026-11-21: auto-disabled by freshness audit — newest observation 2026-10-09T15:47:00+00:00 is 42.6d old vs a 14.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: Blocked Railroad Crossing Incident Reports (data.norfolk.gov)
   domain: transport
@@ -105638,6 +105644,8 @@
   notes: active-users chart sibling of misskey_me_notes_sharke; same host, distinct endpoint/metric (readWrite =
     users who both read and wrote in the hour).
 - id: misskey_club_notes_shitpo_active_users
+  disabled: true
+  disabled_reason: '2026-11-21: auto-disabled by freshness audit — newest observation 2026-11-11T19:00:00+00:00 is 9.5d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: shitpost.poridge.club — active local users (Misskey)
   domain: web_cloudops
