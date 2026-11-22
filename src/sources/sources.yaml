@@ -48752,6 +48752,8 @@
   audit_slack_days: 7
   notes: Bulk-generated from the PeerTube instance index (https://instances.joinpeertube.org/api/v1/instances), DE. isLocal=true because the index's totalVideos counts FEDERATED videos mirrored from peers, which measures the network rather than this instance.
 - id: peertube_terrapreta_tv_terra_preta
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-09-23T00:00:00+00:00 is 60.3d old vs a 20.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: TV Terra Preta — local video publication rate (PeerTube)
   domain: web_cloudops
@@ -77747,6 +77749,8 @@
     newest-first on date; v2.1 caps `limit` at 100. Domain taken from the publisher's own theme field, not
     the title.
 - id: data_test_qualite_air_dashboard_gare_s
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-10-22T10:00:00+00:00 is 30.8d old vs a 10.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A00
   name: Qualité de l'air en province de Namur par heure (data.bep.be) [Gare SNCB]
   domain: nature
@@ -90529,6 +90533,8 @@
   notes: USGS NWIS IV service, gauge 07126485 (Purgatoire River At Rock Crossing Nr Timpas, Co.), parameter
     code 63680 (Turbidity), 15-minute instantaneous readings over a 10-day window.
 - id: usgs_63680_09060799
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-11-12T22:30:00+00:00 is 9.3d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A09
   name: Turbidity — Colorado River At Catamount Bridge, Co (USGS 09060799)
   domain: nature
@@ -128087,6 +128093,8 @@
   license: PromLabs public Prometheus demo
   notes: How many scrape targets are up — a small-integer step series.
 - id: ioc_sea_level_aarh
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-11-12T14:00:00+00:00 is 9.7d old vs a 3.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A05
   name: IOC Sea Level Monitoring — Aarhus (aarh)
   domain: nature
@@ -137593,6 +137601,8 @@
   notes: Flash flood watches counted per hour over a rolling 30-day window (~720 bins per fetch, so eligible immediately). Zero for days, then dozens in an hour when a system crosses — the intermittency
     the models handle worst. Tornado and squall products are the sparsest.
 - id: iem_nws_wcn_hourly
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-11-12T23:00:00+00:00 is 9.3d old vs a 3.0d limit for PT1H. Re-enable if the upstream resumes.'
   stat_archetype: A08
   name: NWS watch county notifications — issuance rate (hourly)
   domain: nature
@@ -147141,6 +147151,8 @@
   notes: USGS NWIS IV gauge 06453620 (NE), parameter 00065 (gage height, ft). At most 4 gauges per state+parameter so the batch spreads over basins rather than clustering on one river system. null_values
     carries the -999999 sentinel the service declares.
 - id: usgs_00065_06454100
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-11-12T17:00:00+00:00 is 9.6d old vs a 3.0d limit for PT15M. Re-enable if the upstream resumes.'
   stat_archetype: A09
   name: Gage Height — Niobrara River at Agate, Nebr. (USGS 06454100)
   domain: nature
@@ -154643,6 +154655,8 @@
   notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 6202 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
     (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
 - id: winnipeg_6x82_bz5y_daily_volume
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-10-29T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A09
   name: Substance Use — daily volume (data.winnipeg.ca)
   domain: healthcare
@@ -154778,6 +154792,8 @@
   notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 5377 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
     (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
 - id: winnipeg_qd6b_q49i_daily_volume
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-10-29T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A09
   name: Naloxone Administrations — daily volume (data.winnipeg.ca)
   domain: healthcare
@@ -156562,6 +156578,8 @@
   notes: Daily record count via SoQL date_trunc_ymd — one fetch carries 1610 days of history, so the series is pool-eligible at every horizon rung immediately. Targeted at the three domains with pool headroom
     (energy, healthcare, sales); the other four are at their 600 cap and would discard anything added. At most 8 datasets per portal so the batch adds publishers.
 - id: cincinnati_oh_qrj9_83t8_daily_volume
+  disabled: true
+  disabled_reason: '2026-11-22: auto-disabled by freshness audit — newest observation 2026-10-29T00:00:00+00:00 is 24.3d old vs a 8.0d limit for P1D. Re-enable if the upstream resumes.'
   stat_archetype: A03
   name: City of Cincinnati Vendor Payments — daily volume (data.cincinnati-oh.gov)
   domain: sales
