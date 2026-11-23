@@ -201791,3 +201791,433 @@
     `limit` at 100. Ordering matters: the default is insertion order, which on a rolling table returns the
     oldest rows and reads as a dead source. Panel dimension rank is pinned to ''53'': without it the response
     interleaves several series on the same timestamps.'
+
+# -- wired batch: sales-10k-b1 --
+- id: packagist_daily_downloads
+  name: Packagist per-package daily installs
+  domain: sales
+  dgp_class: download_counts
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://packagist.org/packages/{PACKAGE}/stats/all.json?average=daily&from={YYYY-MM-DD-1500d}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+  panel:
+  - PACKAGE: laravel/framework
+  - PACKAGE: symfony/console
+  - PACKAGE: guzzlehttp/guzzle
+  - PACKAGE: monolog/monolog
+  - PACKAGE: phpunit/phpunit
+  - PACKAGE: doctrine/orm
+  - PACKAGE: ramsey/uuid
+  - PACKAGE: nikic/php-parser
+  - PACKAGE: league/flysystem
+  - PACKAGE: composer/composer
+  - PACKAGE: twig/twig
+  - PACKAGE: nesbot/carbon
+  - PACKAGE: phpstan/phpstan
+  - PACKAGE: aws/aws-sdk-php
+  - PACKAGE: predis/predis
+  - PACKAGE: filp/whoops
+  - PACKAGE: vlucas/phpdotenv
+  - PACKAGE: livewire/livewire
+  - PACKAGE: symfony/http-kernel
+  - PACKAGE: psr/log
+  schema:
+    timestamp_field: labels[]
+    value_field: values.*[]
+  history_available: P1500D per call (the API serves back to 2012)
+  license: Packagist public statistics
+  pretraining_novelty: medium
+  notes: Composer installs per day for one package. `values` is keyed by the package name, read with the
+    `*` wildcard key. Newest label lags ~2 days.
+- id: moa_tw_farm_auction_volume_la1
+  name: 'Taiwan wholesale farm auction volume by market: cabbage (early autumn)'
+  domain: sales
+  dgp_class: agricultural_volume
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://data.moa.gov.tw/Service/OpenData/FromM/FarmTransData.aspx?StartDate={ROC-YYY.MM.DD-900d}&EndDate={ROC-YYY.MM.DD}&CropCode=LA1
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: '[].交易日期'
+    value_field: '[].交易量'
+    panel_field: '[].市場名稱'
+    roc_date: true
+  history_available: 9999 newest rows per call (~650 days across ~15 markets)
+  license: Taiwan Open Government Data License
+  pretraining_novelty: high
+  audit_slack_days: 4
+  notes: MOA agricultural wholesale market transactions, crop code LA1; one series per wholesale market
+    (交易量 = kg traded). Markets close about one day a week. Rows come newest first and the API caps at 9999,
+    so the window trims from the oldest end.
+- id: moa_tw_farm_auction_volume_a1
+  name: 'Taiwan wholesale farm auction volume by market: banana'
+  domain: sales
+  dgp_class: agricultural_volume
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://data.moa.gov.tw/Service/OpenData/FromM/FarmTransData.aspx?StartDate={ROC-YYY.MM.DD-900d}&EndDate={ROC-YYY.MM.DD}&CropCode=A1
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: '[].交易日期'
+    value_field: '[].交易量'
+    panel_field: '[].市場名稱'
+    roc_date: true
+  history_available: 9999 newest rows per call (~650 days across ~15 markets)
+  license: Taiwan Open Government Data License
+  pretraining_novelty: high
+  audit_slack_days: 4
+  notes: MOA agricultural wholesale market transactions, crop code A1; one series per wholesale market (交易量
+    = kg traded). Markets close about one day a week. Rows come newest first and the API caps at 9999, so
+    the window trims from the oldest end.
+- id: moa_tw_farm_auction_volume_p1
+  name: 'Taiwan wholesale farm auction volume by market: guava (pearl)'
+  domain: sales
+  dgp_class: agricultural_volume
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://data.moa.gov.tw/Service/OpenData/FromM/FarmTransData.aspx?StartDate={ROC-YYY.MM.DD-900d}&EndDate={ROC-YYY.MM.DD}&CropCode=P1
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: '[].交易日期'
+    value_field: '[].交易量'
+    panel_field: '[].市場名稱'
+    roc_date: true
+  history_available: 9999 newest rows per call (~650 days across ~15 markets)
+  license: Taiwan Open Government Data License
+  pretraining_novelty: high
+  audit_slack_days: 4
+  notes: MOA agricultural wholesale market transactions, crop code P1; one series per wholesale market (交易量
+    = kg traded). Markets close about one day a week. Rows come newest first and the API caps at 9999, so
+    the window trims from the oldest end.
+- id: moa_tw_farm_auction_volume_i1
+  name: 'Taiwan wholesale farm auction volume by market: papaya'
+  domain: sales
+  dgp_class: agricultural_volume
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://data.moa.gov.tw/Service/OpenData/FromM/FarmTransData.aspx?StartDate={ROC-YYY.MM.DD-900d}&EndDate={ROC-YYY.MM.DD}&CropCode=I1
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: '[].交易日期'
+    value_field: '[].交易量'
+    panel_field: '[].市場名稱'
+    roc_date: true
+  history_available: 9999 newest rows per call (~650 days across ~15 markets)
+  license: Taiwan Open Government Data License
+  pretraining_novelty: high
+  audit_slack_days: 4
+  notes: MOA agricultural wholesale market transactions, crop code I1; one series per wholesale market (交易量
+    = kg traded). Markets close about one day a week. Rows come newest first and the API caps at 9999, so
+    the window trims from the oldest end.
+- id: moa_tw_farm_auction_volume_fy6
+  name: 'Taiwan wholesale farm auction volume by market: sweet corn'
+  domain: sales
+  dgp_class: agricultural_volume
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://data.moa.gov.tw/Service/OpenData/FromM/FarmTransData.aspx?StartDate={ROC-YYY.MM.DD-900d}&EndDate={ROC-YYY.MM.DD}&CropCode=FY6
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: '[].交易日期'
+    value_field: '[].交易量'
+    panel_field: '[].市場名稱'
+    roc_date: true
+  history_available: 9999 newest rows per call (~650 days across ~15 markets)
+  license: Taiwan Open Government Data License
+  pretraining_novelty: high
+  audit_slack_days: 4
+  notes: MOA agricultural wholesale market transactions, crop code FY6; one series per wholesale market
+    (交易量 = kg traded). Markets close about one day a week. Rows come newest first and the API caps at 9999,
+    so the window trims from the oldest end.
+- id: moa_tw_farm_auction_volume_b2
+  name: 'Taiwan wholesale farm auction volume by market: pineapple (golden diamond)'
+  domain: sales
+  dgp_class: agricultural_volume
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://data.moa.gov.tw/Service/OpenData/FromM/FarmTransData.aspx?StartDate={ROC-YYY.MM.DD-900d}&EndDate={ROC-YYY.MM.DD}&CropCode=B2
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: '[].交易日期'
+    value_field: '[].交易量'
+    panel_field: '[].市場名稱'
+    roc_date: true
+  history_available: 9999 newest rows per call (~650 days across ~15 markets)
+  license: Taiwan Open Government Data License
+  pretraining_novelty: high
+  audit_slack_days: 4
+  notes: MOA agricultural wholesale market transactions, crop code B2; one series per wholesale market (交易量
+    = kg traded). Markets close about one day a week. Rows come newest first and the API caps at 9999, so
+    the window trims from the oldest end.
+- id: moa_tw_farm_auction_volume_fb1
+  name: 'Taiwan wholesale farm auction volume by market: cauliflower'
+  domain: sales
+  dgp_class: agricultural_volume
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://data.moa.gov.tw/Service/OpenData/FromM/FarmTransData.aspx?StartDate={ROC-YYY.MM.DD-900d}&EndDate={ROC-YYY.MM.DD}&CropCode=FB1
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: '[].交易日期'
+    value_field: '[].交易量'
+    panel_field: '[].市場名稱'
+    roc_date: true
+  history_available: 9999 newest rows per call (~650 days across ~15 markets)
+  license: Taiwan Open Government Data License
+  pretraining_novelty: high
+  audit_slack_days: 4
+  notes: MOA agricultural wholesale market transactions, crop code FB1; one series per wholesale market
+    (交易量 = kg traded). Markets close about one day a week. Rows come newest first and the API caps at 9999,
+    so the window trims from the oldest end.
+- id: gw2_trading_post_units_sold
+  name: Guild Wars 2 trading post daily units sold per item
+  domain: sales
+  dgp_class: marketplace_sales
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://api.datawars2.ie/gw2/v1/history?itemID={ITEM}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+  panel:
+  - ITEM: '19721'
+  - ITEM: '19976'
+  - ITEM: '24277'
+  - ITEM: '19700'
+  - ITEM: '19701'
+  - ITEM: '19729'
+  - ITEM: '19748'
+  - ITEM: '19722'
+  - ITEM: '24295'
+  - ITEM: '24357'
+  - ITEM: '24351'
+  - ITEM: '24358'
+  - ITEM: '24289'
+  - ITEM: '24300'
+  - ITEM: '24283'
+  - ITEM: '19685'
+  - ITEM: '24276'
+  - ITEM: '19745'
+  - ITEM: '19732'
+  - ITEM: '19723'
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].sell_sold'
+    drop_null_values: true
+  history_available: full history per call (sell_sold present since 2019-03)
+  license: datawars2 community API (free)
+  pretraining_novelty: high
+  notes: 'Daily units sold from sell listings for one item. Items: 19721 Glob of Ectoplasm, 19976 Mystic
+    Coin, 24277 Pile of Crystalline Dust, 19700 Mithril Ore, 19701 Orichalcum Ore, 19729 Thick Leather Section,
+    19748 Silk Scrap, 19722 Elder Wood Log, 24295 Vial of Powerful Blood, 24357 Vicious Fang, 24351 Vicious
+    Claw, 24358 Ancient Bone, 24289 Armored Scale, 24300 Elaborate Totem, 24283 Powerful Venom Sac, 19685
+    Orichalcum Ingot, 24276 Pile of Incandescent Dust, 19745 Gossamer Scrap, 19732 Hardened Leather Section,
+    19723 Green Wood Log. The newest row is the current, partial day.'
+
+# -- wired batch: sales-10k-b2 --
+- id: eve_market_daily_volume_the_forge
+  name: 'EVE Online regional market daily units traded: The Forge'
+  domain: sales
+  dgp_class: marketplace_sales
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: P1D
+  rollup: sum
+  admit_slow: 417 daily points on the first fetch, so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://esi.evetech.net/latest/markets/10000002/history/?datasource=tranquility&type_id={TYPE}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 0.5
+  panel:
+  - TYPE: '34'
+  - TYPE: '35'
+  - TYPE: '36'
+  - TYPE: '37'
+  - TYPE: '38'
+  - TYPE: '39'
+  - TYPE: '40'
+  - TYPE: '11399'
+  - TYPE: '40520'
+  - TYPE: '16274'
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].volume'
+  history_available: P417D rolling per call
+  license: CCP EVE Online developer licence (free, attribution)
+  pretraining_novelty: high
+  notes: 'ESI market history for region 10000002: units traded per day. Types: 34 Tritanium, 35 Pyerite,
+    36 Mexallon, 37 Isogen, 38 Nocxium, 39 Zydrine, 40 Megacyte, 11399 Morphite, 40520 Large Skill Injector,
+    16274 Helium Isotopes.'
+- id: eve_market_daily_volume_metropolis
+  name: 'EVE Online regional market daily units traded: Metropolis'
+  domain: sales
+  dgp_class: marketplace_sales
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: P1D
+  rollup: sum
+  admit_slow: 417 daily points on the first fetch, so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://esi.evetech.net/latest/markets/10000042/history/?datasource=tranquility&type_id={TYPE}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 0.5
+  panel:
+  - TYPE: '34'
+  - TYPE: '35'
+  - TYPE: '36'
+  - TYPE: '37'
+  - TYPE: '38'
+  - TYPE: '39'
+  - TYPE: '40'
+  - TYPE: '11399'
+  - TYPE: '40520'
+  - TYPE: '16274'
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].volume'
+  history_available: P417D rolling per call
+  license: CCP EVE Online developer licence (free, attribution)
+  pretraining_novelty: high
+  notes: 'ESI market history for region 10000042: units traded per day. Types: 34 Tritanium, 35 Pyerite,
+    36 Mexallon, 37 Isogen, 38 Nocxium, 39 Zydrine, 40 Megacyte, 11399 Morphite, 40520 Large Skill Injector,
+    16274 Helium Isotopes.'
+- id: zurich_bahnhofstrasse_footfall_hourly
+  name: Zurich shopping-street pedestrian counts (hystreet), hourly
+  domain: sales
+  dgp_class: retail_footfall
+  archetypes:
+  - smooth_periodic
+  - count_discrete
+  - non_stationary_regime
+  frequency: PT1H
+  poll: P1D
+  rollup: sum
+  endpoint:
+    type: rest_csv
+    url: https://ckan-prod.zurich.datopian.com/dataset/hystreet_fussgaengerfrequenzen/resource/ec1fc740-8e54-4116-aab7-3394575b4666/download/hystreet_fussgaengerfrequenzen_seit2021.csv
+    auth: none
+    rate_limit: polite
+    timeout: 180
+  schema:
+    timestamp_field: timestamp
+    value_field: pedestrians_count
+    panel_field: location_name
+  history_available: since 2021-09 in one file (~45k hourly points per counter)
+  license: CC0 (Stadt Zürich open government data)
+  pretraining_novelty: high
+  notes: Laser pedestrian counters on Bahnhofstrasse (Nord/Mitte/Süd) and Lintheschergasse, the main Zurich
+    shopping street. The whole history is one ~36 MB CSV, so it is polled daily, not hourly; it grows ~7
+    MB a year and will reach the 48 MB fetch cap around mid-2028. The newest hours are `unverified` zeros
+    until hystreet backfills them.
+- id: julia_pkgserver_requests_by_client
+  name: Julia package server daily requests by client type
+  domain: sales
+  dgp_class: download_counts
+  archetypes:
+  - count_discrete
+  - smooth_periodic
+  - non_stationary_regime
+  frequency: P1D
+  rollup: sum
+  admit_slow: 365 daily points on the first fetch, so it is eligible at once
+  endpoint:
+    type: rest_csv
+    url: https://julialang-logs.s3.amazonaws.com/public_outputs/current/client_types_by_date.csv.gz
+    auth: none
+    rate_limit: polite
+  schema:
+    timestamp_field: date
+    value_field: request_count
+    panel_field: client_type
+  history_available: P365D rolling per call
+  license: JuliaLang public package-server logs
+  pretraining_novelty: high
+  notes: Aggregated Pkg server logs (CI / user / unknown clients). Gzipped CSV, refreshed daily ~04:00 UTC.

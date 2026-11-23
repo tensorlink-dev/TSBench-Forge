@@ -1284,6 +1284,7 @@ schedules:
   - opendata_ods157_84
   - opendata_ods157_42
   - opendata_ods156_53
+  - zurich_bahnhofstrasse_footfall_hourly
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -3144,6 +3145,18 @@ schedules:
   - misskey_mochi33_notes
   - misskey_ja_notes
   - misskey_kinachan_notes
+  - packagist_daily_downloads
+  - moa_tw_farm_auction_volume_la1
+  - moa_tw_farm_auction_volume_a1
+  - moa_tw_farm_auction_volume_p1
+  - moa_tw_farm_auction_volume_i1
+  - moa_tw_farm_auction_volume_fy6
+  - moa_tw_farm_auction_volume_b2
+  - moa_tw_farm_auction_volume_fb1
+  - gw2_trading_post_units_sold
+  - eve_market_daily_volume_the_forge
+  - eve_market_daily_volume_metropolis
+  - julia_pkgserver_requests_by_client
   cron: 10 1 * * *
 - every: P1D
   sources:

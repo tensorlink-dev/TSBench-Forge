@@ -638,6 +638,14 @@ def _apply(obj: Any, tokens: list[tuple[str, str]]) -> Any:
         if obj is None:
             return None
         if isinstance(obj, dict):
+            if val == "*" and "*" not in obj:
+                # Wildcard key: payloads that key the series by its own name
+                # (Packagist `values: {"vendor/pkg": [...]}`). One key descends
+                # into it; several are lifted like `[]`.
+                vals = list(obj.values())
+                if len(vals) == 1:
+                    return _apply(vals[0], rest)
+                return [_apply(v, rest) for v in vals]
             return _apply(obj.get(val), rest)
         if isinstance(obj, list):
             return [_apply(item, [(kind, val)] + rest) for item in obj]

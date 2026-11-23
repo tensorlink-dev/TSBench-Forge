@@ -1710,3 +1710,15 @@ def test_day_close_clock_renders_yesterday(monkeypatch):
     assert scraper.expand_url("s={YYYY-MM-DD}T00:00:00Z") == "s=2026-11-22T00:00:00Z"
     # an explicit clock still wins (tests and callers that pass one)
     assert scraper.expand_url("{YYYY-MM-DD}", dt.datetime(2026, 1, 2, tzinfo=dt.timezone.utc)) == "2026-01-02"
+
+
+def test_wildcard_key_descends_into_a_self_named_series():
+    # Packagist keys the series by package name: values: {"vendor/pkg": [...]}
+    blob = json.dumps({"labels": ["2026-11-20", "2026-11-21"],
+                       "values": {"laravel/framework": [10, 12]}}).encode()
+    src = {"id": "t", "endpoint": {"type": "rest_json", "url": "x"},
+           "schema": {"timestamp_field": "labels[]", "value_field": "values.*[]"}}
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert [r["value"] for r in recs] == [10, 12]
+    assert [r["timestamp"] for r in recs] == ["2026-11-20", "2026-11-21"]
+    assert scraper._apply({"a": {"*": 1}}, scraper._tokenize("a.*")) == 1   # a literal "*" key wins
