@@ -202403,3 +202403,178 @@
   pretraining_novelty: medium
   notes: BBSIS term structure of listed Federal securities, zero-coupon rates from the Svensson method,
     residual maturities 1-30 years. Non-trading days carry '.' as OBS_VALUE.
+
+# -- wired batch: 10k-energy_b1 --
+- domain: energy
+  frequency: PT1H
+  poll: PT6H
+  license: ONS dados abertos (CC-BY 4.0)
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: ons_brazil_hydro_generation_hourly
+  name: Brazil ONS hourly hydro generation by subsystem (MWmed)
+  dgp_class: generation_by_fuel
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - seasonal
+  rollup: mean
+  endpoint:
+    type: rest_csv
+    url: https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_{YYYY}.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: din_instante
+    value_field: val_gerhidraulica
+    panel_field: nom_subsistema
+    csv_delimiter: ;
+  history_available: the current calendar year in one file (earlier years are separate files)
+  notes: ONS balanço de energia por subsistema, hourly; column val_gerhidraulica; one series per subsystem
+    (N, NE, S, SE/CO and the national SIN). Lags ~2 days. The year file restarts each January, so history
+    before it lives only in our own snapshots.
+- domain: energy
+  frequency: PT1H
+  poll: PT6H
+  license: ONS dados abertos (CC-BY 4.0)
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: ons_brazil_thermal_generation_hourly
+  name: Brazil ONS hourly thermal generation by subsystem (MWmed)
+  dgp_class: generation_by_fuel
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - seasonal
+  rollup: mean
+  endpoint:
+    type: rest_csv
+    url: https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_{YYYY}.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: din_instante
+    value_field: val_gertermica
+    panel_field: nom_subsistema
+    csv_delimiter: ;
+  history_available: the current calendar year in one file (earlier years are separate files)
+  notes: ONS balanço de energia por subsistema, hourly; column val_gertermica; one series per subsystem
+    (N, NE, S, SE/CO and the national SIN). Lags ~2 days. The year file restarts each January, so history
+    before it lives only in our own snapshots.
+- domain: energy
+  frequency: PT1H
+  poll: PT6H
+  license: ONS dados abertos (CC-BY 4.0)
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: ons_brazil_wind_generation_hourly
+  name: Brazil ONS hourly wind generation by subsystem (MWmed)
+  dgp_class: generation_by_fuel
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - seasonal
+  rollup: mean
+  endpoint:
+    type: rest_csv
+    url: https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_{YYYY}.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: din_instante
+    value_field: val_gereolica
+    panel_field: nom_subsistema
+    csv_delimiter: ;
+  history_available: the current calendar year in one file (earlier years are separate files)
+  notes: ONS balanço de energia por subsistema, hourly; column val_gereolica; one series per subsystem (N,
+    NE, S, SE/CO and the national SIN). Lags ~2 days. The year file restarts each January, so history before
+    it lives only in our own snapshots.
+- domain: energy
+  frequency: PT1H
+  poll: PT6H
+  license: ONS dados abertos (CC-BY 4.0)
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: ons_brazil_solar_generation_hourly
+  name: Brazil ONS hourly solar generation by subsystem (MWmed)
+  dgp_class: generation_by_fuel
+  archetypes:
+  - smooth_periodic
+  - non_stationary_regime
+  - seasonal
+  rollup: mean
+  endpoint:
+    type: rest_csv
+    url: https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_{YYYY}.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: din_instante
+    value_field: val_gersolar
+    panel_field: nom_subsistema
+    csv_delimiter: ;
+  history_available: the current calendar year in one file (earlier years are separate files)
+  notes: ONS balanço de energia por subsistema, hourly; column val_gersolar; one series per subsystem (N,
+    NE, S, SE/CO and the national SIN). Lags ~2 days. The year file restarts each January, so history before
+    it lives only in our own snapshots.
+- domain: energy
+  frequency: PT1H
+  poll: PT6H
+  license: ONS dados abertos (CC-BY 4.0)
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: ons_brazil_load_curve_hourly
+  name: Brazil ONS hourly load curve by subsystem (MWmed)
+  dgp_class: grid_demand
+  archetypes:
+  - smooth_periodic
+  - seasonal
+  - non_stationary_regime
+  rollup: mean
+  endpoint:
+    type: rest_csv
+    url: https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/curva-carga-ho/CURVA_CARGA_{YYYY}.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: din_instante
+    value_field: val_cargaenergiahomwmed
+    panel_field: nom_subsistema
+    csv_delimiter: ;
+  history_available: the current calendar year in one file
+  notes: ONS curva de carga horária per subsystem. The year file restarts each January.
+- domain: energy
+  frequency: PT1H
+  poll: PT6H
+  license: ONS dados abertos (CC-BY 4.0)
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: ons_brazil_interchange_hourly
+  name: Brazil ONS hourly power interchange between subsystems (MWmed)
+  dgp_class: energy_flow
+  archetypes:
+  - non_stationary_regime
+  - regime_switching
+  - smooth_periodic
+  rollup: mean
+  endpoint:
+    type: rest_csv
+    url: https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/intercambio_nacional_ho/INTERCAMBIO_NACIONAL_{YYYY}.csv
+    auth: none
+    rate_limit: polite
+    timeout: 120
+  schema:
+    timestamp_field: din_instante
+    value_field: val_intercambiomwmed
+    panel_field:
+    - nom_subsistema_origem
+    - nom_subsistema_destino
+    csv_delimiter: ;
+  history_available: the current calendar year in one file
+  notes: 'ONS intercâmbio nacional: verified hourly flow per origin->destination subsystem pair. The year
+    file restarts each January.'
