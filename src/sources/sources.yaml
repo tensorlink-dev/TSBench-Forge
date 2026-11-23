@@ -28192,6 +28192,8 @@
   audit_slack_days: 3
   notes: 'Bulk-generated from the GLERL ERDDAP server (apps.glerl.noaa.gov). Variables chosen mechanically from the dataset''s declared types with QC flags, coordinates and instrument ids excluded; verified against the live endpoint by the wire gate. Columns: size.'
 - id: ubc_onc_strait_of_georgia_bc_ferries_tsawwas
+  disabled: true
+  disabled_reason: '2026-11-23: auto-disabled by freshness audit — newest observation 2026-11-10T15:16:00+00:00 is 12.6d old vs a 4.0d limit for PT1M. Re-enable if the upstream resumes.'
   stat_archetype: A10
   mv_channels: ["rows_1", "rows_2", "rows_3"]
   name: ONC, Strait of Georgia, BC Ferries, Tsawwassen - Duke Point, 1min, v18-01 (UBC EOAS)
