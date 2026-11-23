@@ -205,6 +205,12 @@ def _month_offset(now: dt.datetime, n: int) -> str:
     return f"{total // 12:04d}{total % 12 + 1:02d}"
 
 
+# --day-close sets this to the end of yesterday (UTC) so date tokens render
+# yesterday's window. Only URL/body templating reads it: fetch-time stamps,
+# the future-row cutoff and the day-file name keep the real clock.
+_URL_CLOCK: Optional[dt.datetime] = None
+
+
 def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
     """Substitute date tokens in URL templates. Tokens left untouched if value
     not derivable from current UTC date.
@@ -231,7 +237,7 @@ def expand_url(url: str, now: Optional[dt.datetime] = None) -> str:
     Tokens like {ARTICLE} or {PACKAGE} or {CRATE} are *not* expanded — these
     are panel-iteration placeholders; the caller should pre-expand them.
     """
-    now = now or dt.datetime.now(UTC)
+    now = now or _URL_CLOCK or dt.datetime.now(UTC)
     # Relative offsets first so they don't get partially consumed by the literal
     # {H} / {YYYY-MM-DD} substitutions below.
     url = _OFFSET_DATE_RE.sub(
@@ -2440,6 +2446,81 @@ def _host_lock(url: str) -> threading.Lock:
         return _HOST_LOCKS.setdefault(host, threading.Lock())
 
 
+_DAY_TOKENS = ("{YYYY-MM-DD}", "{YYYYMMDD}", "{YYYY/MM/DD}", "{DD}", "{ISO_DATE}", "{ISO_DATETIME}")
+_ISO_LEAD_RE = re.compile(r"^\s*~?(P(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?)\b")
+_N_HOURS_RE = re.compile(r"(\d[\d,]*)\s+hourly\s+(?:buckets|candles|points|auction)")
+_ROLL_H_RE = re.compile(r"~?(\d+)\s*h\s+rolling", re.I)
+_N_POINTS_RE = re.compile(r"(\d[\d,]*)\s+(?:newest|latest|most recent)?\s*(?:[\w-]+\s+)?"
+                          r"(?:points|readings|rows|records|observations)", re.I)
+_LONG_HISTORY_RE = re.compile(r"\b(years?|since|from \d{4}|month|months|archive|retains full)\b", re.I)
+# A sweep that overruns its 15-min slot makes flock drop the next tick, so a
+# source can wait ~30 min plus a deadline cut. Feeds serving less than this
+# lose points to that wait.
+_AT_RISK_WINDOW_SECONDS = 3 * 3600
+
+
+def _endpoint_blob(src: dict) -> str:
+    ep = src.get("endpoint") or {}
+    return " ".join(str(ep.get(k, "")) for k in ("url", "body", "query", "variables"))
+
+
+def _served_window_seconds(src: dict) -> Optional[float]:
+    """How far back one fetch reaches, from the catalog's ``history_available``
+    note (``P0D`` / ``P10D per call`` / ``499 hourly buckets`` / ``100 newest
+    points`` ...) or, failing that, the URL's date tokens. ``None`` = unknown."""
+    period = _period_seconds(src.get("frequency"))
+    note = str(src.get("history_available") or "")
+    m = _ISO_LEAD_RE.match(note)
+    if m and m.group(1) != "P":
+        return float(_period_seconds(m.group(1)) or 0)
+    if (m := _N_HOURS_RE.search(note)):
+        return int(m.group(1).replace(",", "")) * 3600.0
+    if (m := _ROLL_H_RE.search(note)):
+        return int(m.group(1)) * 3600.0
+    if (m := _N_POINTS_RE.search(note)) and period:
+        return int(m.group(1).replace(",", "")) * float(period)
+    if _LONG_HISTORY_RE.search(note):
+        return 30 * 86400.0
+    days = _backfill_window_days(src)
+    if days:
+        return days * 86400.0
+    if any(t in _endpoint_blob(src) for t in _DAY_TOKENS):
+        return 86400.0                        # serves the day so far
+    return None
+
+
+def _loses_data_if_late(src: dict) -> bool:
+    """Hourly-or-faster feeds whose fetch window is too short to ride out a
+    late sweep (or unknown, at 15-min-or-faster). Measured 2026-11-23: the
+    full sweep overran its slot on most ticks and these feeds were cut into
+    pieces (swpc_solar_wind_plasma: 137 gaps, 743 h missing in 4 months)."""
+    period = _period_seconds(src.get("frequency"))
+    if not period or period > 3600:
+        return False
+    w = _served_window_seconds(src)
+    return (w < _AT_RISK_WINDOW_SECONDS) if w is not None else period <= 900
+
+
+def _day_close_targets(sources: list[dict]) -> list[str]:
+    """Sub-daily feeds whose URL asks for *today* only: the last fetch of a UTC
+    day lands minutes before midnight and the next asks for the new day, so
+    every day ends in a 5-25 min hole (measured: promlabs 10s feeds, one hole
+    a night, which splits the series at every midnight). Feeds that re-serve a
+    multi-day window already refill it; snapshot feeds have no date to ask for."""
+    out = []
+    for s in sources:
+        if s.get("disabled"):
+            continue
+        period = _period_seconds(s.get("frequency"))
+        if not period or period >= 86400:
+            continue
+        if _backfill_window_days(s) >= 1 or (s.get("schema") or {}).get("snapshot_now"):
+            continue
+        if any(t in _endpoint_blob(s) for t in _DAY_TOKENS):
+            out.append(s["id"])
+    return out
+
+
 def _oldest_attempt_first(sids: list[str]) -> list[str]:
     """Order a sweep's due ids by how long ago each was last attempted, oldest
     (or never) first; ties keep catalog order.
@@ -2451,11 +2532,20 @@ def _oldest_attempt_first(sids: list[str]) -> list[str]:
     the eval pool. Ordering by attempt age sends whatever was cut to the front
     of the next sweep, so the deadline rotates instead of starving. Run before
     _interleave_by_host, which keeps each host's order.
+
+    Feeds that lose points when fetched late (_loses_data_if_late) lead the
+    sweep, so a deadline cut lands on feeds that re-serve history instead.
     """
     def age(sid: str) -> float:
         a = _last_attempt_age(sid)
         return float("inf") if a is None else a
-    return sorted(sids, key=age, reverse=True)
+
+    def at_risk(sid: str) -> bool:
+        try:
+            return _loses_data_if_late(get_source(sid))
+        except Exception:                                   # noqa: BLE001 — unknown id
+            return False
+    return sorted(sids, key=lambda sid: (at_risk(sid), age(sid)), reverse=True)
 
 
 def _interleave_by_host(sids: list[str]) -> list[str]:
@@ -2529,6 +2619,41 @@ def run_one(sid: str, dry_run: bool = False) -> int:
     return total_written
 
 
+def _run_day_close(sources: list[dict], days: int, *, workers: int, dry_run: bool) -> int:
+    """--day-close: one pass per day, newest first, each with the URL clock at
+    that day's 23:59:59 UTC. Rows land in today's day-file; readers dedup on
+    timestamp across files, so a refetched day merges into the series."""
+    global _URL_CLOCK
+    targets = _day_close_targets(sources)
+    midnight = dt.datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+    failed = 0
+    try:
+        for k in range(1, days + 1):
+            if _out_of_time():
+                log.warning("day-close: deadline reached before day -%d", k)
+                break
+            _URL_CLOCK = midnight - dt.timedelta(days=k - 1, seconds=1)
+            log.info("day-close: %d feed(s) for %s", len(targets), _URL_CLOCK.date())
+            order = _interleave_by_host(targets) if workers > 1 else targets
+
+            def _one(sid: str) -> bool:
+                if _out_of_time():
+                    return True
+                try:
+                    run_one(sid, dry_run=dry_run)
+                    return True
+                except Exception as e:                      # noqa: BLE001
+                    log.exception("%s: day-close error", sid)
+                    log_error(sid, f"DAYCLOSE {e}")
+                    return False
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                failed += sum(not ok for ok in pool.map(_one, order))
+    finally:
+        _URL_CLOCK = None
+    log.info("day-close finished: %d day(s) x %d feed(s), %d failed", days, len(targets), failed)
+    return 0 if failed == 0 else 2
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--id", help="source id, or a comma-separated list, from sources.yaml")
@@ -2548,6 +2673,11 @@ def main() -> int:
                     help="stop starting new sources after this many minutes and exit cleanly "
                          "(default none; env SCRAPER_DEADLINE_MINUTES). Set it below the CI job "
                          "timeout so the run publishes what it collected instead of being killed.")
+    ap.add_argument("--day-close", type=int, nargs="?", const=1, default=0, metavar="DAYS",
+                    help="refetch the last DAYS whole UTC days (default 1 = yesterday) for every "
+                         "sub-daily feed whose URL asks for today only, closing the hole each UTC "
+                         "day ends in. Run just after midnight; a larger DAYS repairs an outage "
+                         "as far back as each endpoint still serves.")
     args = ap.parse_args()
     set_deadline(args.deadline_minutes)
 
@@ -2559,6 +2689,9 @@ def main() -> int:
         return 0
 
     targets: Iterable[str]
+    if args.day_close:
+        return _run_day_close(sources, args.day_close, workers=max(1, args.workers),
+                              dry_run=args.dry_run)
     if args.id:
         # Comma-separated, so a caller with a fixed id list can poll it in ONE
         # process. The fast band used to shell out once per id: ~18s of that
@@ -2586,7 +2719,16 @@ def main() -> int:
     targets = list(targets)
     workers = max(1, args.workers)
     if workers > 1:
-        targets = _interleave_by_host(targets)
+        # Interleave each group on its own so host round-robin cannot pull a
+        # history-serving feed ahead of an at-risk one from another host.
+        def _risky(sid: str) -> bool:
+            try:
+                return _loses_data_if_late(get_source(sid))
+            except Exception:                               # noqa: BLE001
+                return False
+        risky = [t for t in targets if _risky(t)]
+        rest = [t for t in targets if not _risky(t)]
+        targets = _interleave_by_host(risky) + _interleave_by_host(rest)
 
     counts = {"done": 0, "failed": 0, "skipped": 0}
     counts_lock = threading.Lock()

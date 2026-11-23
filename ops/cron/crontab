@@ -47,6 +47,7 @@ MAILTO=""
 # sharing this lock with it put the pair at 17.4 min against a 15-minute tick and
 # flock -n silently dropped every other run, halving the catalog's sample rate.
 */15 * * * * /usr/bin/flock -n /tmp/tsforge_scrape_all.lock /root/cron/scrape_all.sh
+20 0 * * * /usr/bin/flock -n /tmp/tsforge_dayclose.lock /root/cron/scrape_dayclose.sh
 
 # Mirror data/ + sources.yaml to Hippius S3, on its own lock so a slow upload
 # can never delay a scrape. Offset ~1 min past each sweep's finish. Safe to

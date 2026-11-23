@@ -1657,3 +1657,56 @@ def test_roc_date_schema_rewrites_minguo_dates():
     blob = b'[{"d": "115.11.08", "v": 1.5}, {"d": "99/1/2", "v": 2}]'
     recs = scraper.parse_payload(src, blob, "application/json")
     assert [r["timestamp"] for r in recs] == ["2026-11-08", "2010-01-02"]
+
+
+def test_served_window_from_catalog_notes():
+    f = lambda note, freq="PT1M", url="https://x/now": scraper._served_window_seconds(
+        {"frequency": freq, "history_available": note, "endpoint": {"url": url}})
+    assert f("P0D — live snapshot, history accrues from wiring") == 0
+    assert f("P10D per call") == 10 * 86400
+    assert f("499 hourly buckets (~20d) in every response") == 499 * 3600
+    assert f("~3h rolling window per request at PT1M") == 3 * 3600
+    assert f("100 newest points per call", "PT5M") == 100 * 300
+    assert f("years (CWMS)") == 30 * 86400
+    assert f(None, url="https://x?start={YYYY-MM-DD-14d}") == 14 * 86400
+    assert f(None, url="https://x?d={YYYY-MM-DD}") == 86400
+    assert f(None) is None
+
+
+def test_feeds_that_lose_data_when_late():
+    src = lambda freq, note=None, url="https://x/now": {
+        "frequency": freq, "history_available": note, "endpoint": {"url": url}}
+    assert scraper._loses_data_if_late(src("PT1M", "P0D")) is True
+    assert scraper._loses_data_if_late(src("PT1M", "60 newest points per call")) is True   # 1 h
+    assert scraper._loses_data_if_late(src("PT1M", "P10D per call")) is False
+    assert scraper._loses_data_if_late(src("PT10S")) is True          # unknown window, fast
+    assert scraper._loses_data_if_late(src("PT1H")) is False          # unknown window, hourly
+    assert scraper._loses_data_if_late(src("P1D", "P0D")) is False    # daily: not this rule
+
+
+def test_sweep_puts_at_risk_feeds_first(monkeypatch):
+    ages = {"risky_fresh": 60.0, "safe_old": 5000.0, "risky_old": 900.0}
+    monkeypatch.setattr(scraper, "_last_attempt_age", lambda sid: ages[sid])
+    monkeypatch.setattr(scraper, "get_source", lambda sid: {"id": sid})
+    monkeypatch.setattr(scraper, "_loses_data_if_late", lambda s: s["id"].startswith("risky"))
+    assert scraper._oldest_attempt_first(["risky_fresh", "safe_old", "risky_old"]) == [
+        "risky_old", "risky_fresh", "safe_old"]
+
+
+def test_day_close_targets_only_today_dated_subdaily_feeds():
+    mk = lambda sid, freq, url, **kw: {"id": sid, "frequency": freq, "endpoint": {"url": url}, **kw}
+    srcs = [
+        mk("today_10s", "PT10S", "https://x?start={YYYY-MM-DD}T00:00:00Z&end={YYYY-MM-DD}T23:59:50Z"),
+        mk("window_14d", "PT1H", "https://x?from={YYYY-MM-DD-14d}&to={YYYY-MM-DD}"),
+        mk("daily", "P1D", "https://x?d={YYYY-MM-DD}"),
+        mk("now_only", "PT1M", "https://x/latest"),
+        mk("off", "PT10S", "https://x?d={YYYY-MM-DD}", disabled=True),
+    ]
+    assert scraper._day_close_targets(srcs) == ["today_10s"]
+
+
+def test_day_close_clock_renders_yesterday(monkeypatch):
+    monkeypatch.setattr(scraper, "_URL_CLOCK", dt.datetime(2026, 11, 22, 23, 59, 59, tzinfo=dt.timezone.utc))
+    assert scraper.expand_url("s={YYYY-MM-DD}T00:00:00Z") == "s=2026-11-22T00:00:00Z"
+    # an explicit clock still wins (tests and callers that pass one)
+    assert scraper.expand_url("{YYYY-MM-DD}", dt.datetime(2026, 1, 2, tzinfo=dt.timezone.utc)) == "2026-01-02"
