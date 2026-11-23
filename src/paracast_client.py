@@ -57,7 +57,7 @@ ENSEMBLE_ID = "paracast-ensemble"
 ROUTER_ID = "paracast-router"
 
 # Snapshot of the serving panel (paracast models.yaml, 2026-08; patchtst-fm-r2
-# and timestral-209m added 2026-10). The
+# and timestral-209m added 2026-10, t0-gamma 2026-11). The
 # live roster is ALWAYS discovered from GET /models at run time — this tuple
 # exists so tests can pin docs/data/models.json display entries for every id
 # a paracast round can publish without needing a live endpoint.
@@ -72,6 +72,7 @@ KNOWN_PANEL_IDS: tuple[str, ...] = (
     "flowstate-r1",
     "yinglong-300m",
     "timestral-209m",
+    "t0-gamma",
 )
 
 # The dense grid evaluate.py scores CRPS on. Requesting it directly means the
