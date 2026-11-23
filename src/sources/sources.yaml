@@ -709,6 +709,7 @@
   - bounded
   - hierarchical
   frequency: PT1M
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.elections.kalshi.com/trade-api/v2/markets?limit=200&status=open
@@ -738,6 +739,7 @@
   - bounded
   - hierarchical
   frequency: PT1M
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.manifold.markets/v0/markets?limit=200
@@ -766,6 +768,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -844,6 +847,7 @@
   - non_stationary_regime
   - noisy_clean_pair
   frequency: PT5M
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=300
@@ -905,6 +909,7 @@
   - non_stationary_regime
   - hierarchical
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.frankfurter.dev/v1/latest?from=USD
@@ -934,6 +939,7 @@
   - non_stationary_regime
   - hierarchical
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/{YEAR}/all?type=daily_treasury_yield_curve&field_tdr_date_value={YEAR}
@@ -986,6 +992,7 @@
   - smooth_periodic
   - noisy_clean_pair
   frequency: PT30M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.carbonintensity.org.uk/intensity
@@ -1018,6 +1025,7 @@
   - hierarchical
   - categorical
   frequency: PT30M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.carbonintensity.org.uk/generation
@@ -1046,6 +1054,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT30M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.octopus.energy/v1/products/AGILE-24-10-01/electricity-tariffs/E-1R-AGILE-24-10-01-{REGION}/standard-unit-rates/
@@ -1093,6 +1102,7 @@
   - chaotic_nonlinear
   - smooth_periodic
   frequency: PT5M
+  rollup: mean
   endpoint:
     type: rest_csv
     url: https://aemo.com.au/aemo/data/nem/priceanddemand/PRICE_AND_DEMAND_{YYYYMM}_{REGION}.csv
@@ -1132,6 +1142,7 @@
   - chaotic_nonlinear
   - zero_inflated_sparse
   frequency: PT5M
+  rollup: mean
   endpoint:
     type: rest_csv
     url: https://oasis.caiso.com/oasisapi/SingleZip?queryname=PRC_INTVL_LMP&startdatetime={YYYYMMDD-1d}T00:00-0000&enddatetime={YYYYMMDD}T23:59-0000&version=3&market_run_id=RTM&node=TH_NP15_GEN-APND
@@ -1161,6 +1172,7 @@
   - hierarchical
   - non_stationary_regime
   frequency: PT5M
+  rollup: mean
   endpoint:
     type: rest_csv
     url: http://mis.nyiso.com/public/csv/realtime/{YYYYMMDD}realtime_zone.csv
@@ -1259,6 +1271,7 @@
   - chaotic_nonlinear
   - zero_inflated_sparse
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson
@@ -1289,6 +1302,7 @@
   - chaotic_nonlinear
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://waterservices.usgs.gov/nwis/iv/?format=json&sites={SITE}&parameterCd=00060&period=PT24H
@@ -1351,6 +1365,7 @@
   - smooth_periodic
   - hierarchical
   frequency: PT6M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station={STATION}&product=water_level&datum=mllw&time_zone=gmt&units=metric&format=json
@@ -1457,6 +1472,7 @@
   - bounded
   - chaotic_nonlinear
   frequency: PT1M
+  rollup: mean
   poll: PT1H  # services.swpc.noaa.gov 403s this host; resume-probe only
   endpoint:
     type: rest_json
@@ -1486,6 +1502,7 @@
   archetypes:
   - chaotic_nonlinear
   frequency: PT1M
+  rollup: mean
   poll: PT30M  # blocked host; 1h-window feed, PT30M loses nothing once unblocked
   endpoint:
     type: rest_json
@@ -1519,6 +1536,7 @@
   - hierarchical
   - smooth_periodic
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.0&hourly=temperature_2m,precipitation,wind_speed_10m&past_days=7&forecast_days=1
@@ -1551,6 +1569,7 @@
   - hierarchical
   - noisy_clean_pair
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -1585,6 +1604,7 @@
   - hierarchical
   - smooth_periodic
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://marine-api.open-meteo.com/v1/marine?latitude=54.5&longitude=7.5&hourly=wave_height,wave_period&past_days=2&forecast_days=1
@@ -1614,6 +1634,7 @@
   - hierarchical
   - noisy_clean_pair
   frequency: PT2M30S
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data.sensor.community/airrohr/v1/sensor/27357/
@@ -1672,6 +1693,7 @@
   - binary_state
   - categorical
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.weather.gov/alerts/active
@@ -1705,6 +1727,7 @@
   - chaotic_nonlinear
   - zero_inflated_sparse
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_csv
     url: https://webservices.ingv.it/fdsnws/event/1/query?starttime={YYYY-MM-DD-30d}T00:00:00&minmag=2.0&format=text
@@ -1746,6 +1769,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data?stationTriplets=908:WA:SNTL&elements=WTEQ&duration=DAILY&beginDate={YYYY-MM-DD-3650d}&endDate={YYYY-MM-DD}
@@ -1788,6 +1812,7 @@
   - zero_inflated_sparse
   - categorical
   frequency: PT15M
+  rollup: sum
   endpoint:
     type: rss
     url: https://www.gdacs.org/xml/rss.xml
@@ -1821,6 +1846,7 @@
   - smooth_periodic
   - noisy_clean_pair
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/2026/05/09
@@ -1851,6 +1877,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/{ARTICLE}/daily/20150701/{YYYYMMDD}
@@ -2241,6 +2268,7 @@
   - non_stationary_regime
   - noisy_clean_pair
   frequency: PT1M
+  rollup: sum
   paired_with: tfl_arrivals
   endpoint:
     type: rest_json
@@ -2275,6 +2303,7 @@
   - count_discrete
   - binary_state
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://gbfs.citibikenyc.com/gbfs/en/station_status.json
@@ -2307,6 +2336,7 @@
   - bounded
   - categorical
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.bart.gov/api/etd.aspx?cmd=etd&orig=ALL&key=MW9S-E7SL-26DU-VV8V&json=y
@@ -2337,6 +2367,7 @@
   - count_discrete
   - smooth_periodic
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.tfl.gov.uk/Line/{LINE}/Arrivals
@@ -2381,6 +2412,7 @@
   - bounded
   - smooth_periodic
   frequency: PT1M
+  rollup: sum
   poll: PT2H
   endpoint:
     type: rest_json
@@ -2410,6 +2442,7 @@
   - count_discrete
   - non_stationary_regime
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://hacker-news.firebaseio.com/v0/maxitem.json
@@ -2441,6 +2474,7 @@
   - smooth_periodic
   - chaotic_nonlinear
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.github.com/events
@@ -2471,6 +2505,7 @@
   - hierarchical
   - smooth_periodic
   frequency: PT1M
+  rollup: sum
   poll: PT1H  # SE anon quota is ~300 req/day per IP; 10 sources at hourly = 240
   endpoint:
     type: rest_json
@@ -2533,6 +2568,7 @@
   - count_discrete
   - hierarchical
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.weather.gov/alerts/active/count
@@ -2562,6 +2598,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT8H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS3333
@@ -2657,6 +2694,7 @@
   - bounded
   - noisy_clean_pair
   frequency: P1D
+  rollup: sum
   paired_with: rki_germany_cases
   endpoint:
     type: rest_json
@@ -2696,6 +2734,7 @@
   - hierarchical
   - categorical
   frequency: PT1H
+  rollup: sum
   poll: PT3H
   endpoint:
     type: rest_json
@@ -2726,6 +2765,7 @@
   - count_discrete
   - non_stationary_regime
   frequency: PT30S
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://mempool.space/api/mempool
@@ -2787,6 +2827,7 @@
   - chaotic_nonlinear
   - smooth_periodic
   frequency: PT10M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://blockstream.info/api/blocks
@@ -2864,6 +2905,7 @@
   - chaotic_nonlinear
   - zero_inflated_sparse
   frequency: PT1M
+  rollup: mean
   poll: PT1H  # services.swpc.noaa.gov 403s this host; resume-probe only
   endpoint:
     type: rest_json
@@ -2895,6 +2937,7 @@
   - smooth_periodic
   - hierarchical
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -2955,6 +2998,7 @@
   - hierarchical
   - zero_inflated_sparse
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.tfl.gov.uk/Line/Mode/tube/Status
@@ -2988,6 +3032,7 @@
   - count_discrete
   - non_stationary_regime
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -3057,6 +3102,7 @@
   - smooth_periodic
   - noisy_clean_pair
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: ndjson_minute_counts
     url: https://data.gharchive.org/{YYYY-MM-DD}-{H-1}.json.gz
@@ -3175,6 +3221,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.eia.gov/v2/electricity/rto/region-data/data/?frequency=hourly&data[0]=value&facets[respondent][]=NYIS&sort[0][column]=period&sort[0][direction]=desc&length=500&api_key=DEMO_KEY
@@ -3205,6 +3252,7 @@
   - chaotic_nonlinear
   - non_stationary_regime
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://waterservices.usgs.gov/nwis/dv/?format=json&sites=01646500&parameterCd=00060&statCd=00003&startDT={YYYY-MM-DD-3650d}&endDT={YYYY-MM-DD}
@@ -3237,6 +3285,7 @@
   - bounded
   - hierarchical
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://climate-api.open-meteo.com/v1/climate?latitude=40.71&longitude=-74.0&start_date=2020-01-01&end_date=2025-12-31&models=EC_Earth3P_HR&daily=temperature_2m_mean
@@ -3295,6 +3344,7 @@
   - hierarchical
   - categorical
   frequency: PT1H
+  rollup: sum
   poll: PT1H
   endpoint:
     type: rest_json
@@ -3357,6 +3407,7 @@
   - smooth_periodic
   - categorical
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://en.wikipedia.org/w/api.php?action=query&list=recentchanges&rclimit=500&format=json
@@ -3388,6 +3439,7 @@
   - smooth_periodic
   - chaotic_nonlinear
   frequency: PT5M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://aviationweather.gov/api/data/metar?ids={STATION}&format=json&hours=6
@@ -3521,6 +3573,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.openaq.org/v3/sensors/{SENSOR_ID}/measurements?datetime_from={YYYY-MM-DD-14d}&limit=1000
@@ -3574,6 +3627,7 @@
   - count_discrete
   - non_stationary_regime
   frequency: PT1H
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://data.ny.gov/resource/5wq4-mkjj.json?$where=transit_timestamp >= '{YYYY-MM-DD-30d}T00:00:00'&$limit=50000&$order=transit_timestamp%20DESC
@@ -3732,6 +3786,7 @@
   - chaotic_nonlinear
   - hierarchical
   frequency: P1D
+  rollup: mean
   audit_slack_days: 20
   endpoint:
     type: rest_json
@@ -3896,6 +3951,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://www.banxico.org.mx/SieAPIRest/service/v1/series/{SERIES_ID}/datos/2016-01-01/{YYYY-MM-DD}?token={BANXICO_TOKEN}
@@ -4142,6 +4198,7 @@
   - zero_inflated_sparse
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate={YYYY-MM-DD-2d}T00:00:00.000&pubEndDate={YYYY-MM-DD}T23:59:59.999&resultsPerPage=2000
@@ -4172,6 +4229,7 @@
   - chaotic_nonlinear
   - zero_inflated_sparse
   frequency: PT1M
+  rollup: sum
   poll: PT2H
   endpoint:
     type: rest_json
@@ -4203,6 +4261,7 @@
   - zero_inflated_sparse
   - categorical
   frequency: PT1H
+  rollup: sum
   poll: PT3H
   endpoint:
     type: rest_json
@@ -4266,6 +4325,7 @@
   - zero_inflated_sparse
   - categorical
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/food/enforcement.json?sort=report_date:desc&limit=1000
@@ -4298,6 +4358,7 @@
   - zero_inflated_sparse
   - hierarchical
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://data.sec.gov/submissions/CIK{CIK}.json
@@ -4334,6 +4395,7 @@
   - count_discrete
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://environment.data.gov.uk/flood-monitoring/id/stations/{STATION}/readings?_sorted&_limit=1000
@@ -4518,6 +4580,7 @@
   - non_stationary_regime
   - hierarchical
   frequency: PT1M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -4552,6 +4615,7 @@
   - chaotic_nonlinear
   - zero_inflated_sparse
   frequency: PT1M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.geonet.org.nz/quake?MMI=3
@@ -4580,6 +4644,7 @@
   - count_discrete
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://isc.sans.edu/api/dailysummary/{YYYY-MM-DD-180d}/{YYYY-MM-DD}?json
@@ -4759,6 +4824,7 @@
   - zero_inflated_sparse
   - categorical
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://ll.thespacedevs.com/2.2.0/launch/previous/?limit=100
@@ -4790,6 +4856,7 @@
   - smooth_periodic
   - categorical
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.biorxiv.org/details/{SERVER}/{YYYY-MM-DD-1d}/{YYYY-MM-DD}/0
@@ -4862,6 +4929,7 @@
   - zero_inflated_sparse
   - categorical
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://www.federalregister.gov/api/v1/documents.json?conditions%5Bagencies%5D%5B%5D=foreign-assets-control-office&order=newest&per_page=50&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=document_number&fields%5B%5D=html_url
@@ -4928,6 +4996,7 @@
   - non_stationary_regime
   - chaotic_nonlinear
   frequency: PT30M
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api-pub.bitfinex.com/v2/candles/trade:30m:tBTCUSD/hist?limit=100
@@ -5144,6 +5213,7 @@
   - non_stationary_regime
   - noisy_clean_pair
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/drug/event.json?search=receiptdate:%5B20240101+TO+20291231%5D&count=receiptdate
@@ -5232,6 +5302,7 @@
   - count_discrete
   - zero_inflated_sparse
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://www.gov.uk/api/search.json?filter_content_store_document_type=medical_safety_alert&order=-public_timestamp&count=100&fields=title,public_timestamp,link
@@ -5265,6 +5336,7 @@
   - non_stationary_regime
   - categorical
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://data.cityofchicago.org/resource/4ijn-s7e5.json?$limit=1000&$order=inspection_date%20DESC
@@ -5421,6 +5493,7 @@
   - bounded
   - hierarchical
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.luchtmeetnet.nl/open_api/measurements
@@ -6102,6 +6175,7 @@
   - non_stationary_regime
   - zero_inflated_sparse
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://haveibeenpwned.com/api/v3/breaches
@@ -6132,6 +6206,7 @@
   - bounded
   - smooth_periodic
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data1.labs.apnic.net/v6stats/v6economy/{CC}.json
@@ -6501,6 +6576,7 @@
   - hierarchical
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://cwms-data.usace.army.mil/cwms-data/timeseries?name={TSID}&office={OFFICE}
@@ -6560,6 +6636,7 @@
   - hierarchical
   - non_stationary_regime
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_csv
     url: https://coralreefwatch.noaa.gov/product/vs/data/{STATION}.txt
@@ -6603,6 +6680,7 @@
   - noisy_clean_pair
   - hierarchical
   frequency: PT4M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://atlas.ripe.net/api/v2/measurements/{MSM_ID}/results/?start={YYYY-MM-DD-1d}&probe_ids={PROBE}
@@ -6650,6 +6728,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT10M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.datalakes-eawag.ch/data/{DATASET_ID}/{AXIS}
@@ -6724,6 +6803,7 @@
   - chaotic_nonlinear
   - noisy_clean_pair
   frequency: PT1M
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.exchange.coinbase.com/products/{PRODUCT}/candles?granularity=60
@@ -6770,6 +6850,7 @@
   - non_stationary_regime
   - chaotic_nonlinear
   frequency: PT15M
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.exchange.coinbase.com/products/{PRODUCT}/candles?granularity=900
@@ -6849,6 +6930,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -6882,6 +6964,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -7020,6 +7103,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15S
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data.elexon.co.uk/bmrs/api/v1/system/frequency?from={YYYY-MM-DD}T00:00Z&to={YYYY-MM-DD}T23:59Z
@@ -7051,6 +7135,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://apidatos.ree.es/en/datos/demanda/demanda-tiempo-real?start_date={YYYY-MM-DD}T00:00&end_date={YYYY-MM-DD}T23:59&time_trunc=hour
@@ -8023,6 +8108,7 @@
   - smooth_periodic
   - panel
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -8051,6 +8137,7 @@
   - panel
   - spiky
   frequency: PT15M
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -8081,6 +8168,7 @@
   - spiky
   - weekly_seasonal
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/device/event.json?count=date_received
@@ -8107,6 +8195,7 @@
   - count_discrete
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/device/recall.json?count=event_date_initiated
@@ -8225,6 +8314,7 @@
   - count
   - long_memory
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/food/event.json?count=date_started
@@ -8252,6 +8342,7 @@
   - hierarchical
   - smooth_periodic
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.erg.ic.ac.uk/AirQuality/Data/Site/SiteCode=KC1/StartDate={YYYY-MM-DD-3d}/EndDate={YYYY-MM-DD}/Json
@@ -8309,6 +8400,7 @@
   - chaotic_nonlinear
   - zero_inflated_sparse
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={YYYY-MM-DD-30d}&endtime={YYYY-MM-DD}&minmagnitude=4
@@ -8564,6 +8656,7 @@
   - high_frequency
   - bounded
   frequency: PT1S
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.neso.energy/api/3/action/datastore_search?resource_id=dc7c5468-08a1-4586-bcdd-77ced39a5067&limit=500&sort=_id%20desc
@@ -8791,6 +8884,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -9214,6 +9308,7 @@
   - non_stationary_regime
   - intermittent
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://data.transportation.gov/resource/85tf-25kj.json?$select=date,totaldamagecost&$where=date IS NOT NULL&$order=date DESC&$limit=20000
@@ -9466,6 +9561,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://archive-api.open-meteo.com/v1/archive?latitude=52.52&longitude=13.41&start_date={YYYY-MM-DD-30d}&end_date={YYYY-MM-DD-7d}&hourly=soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm
@@ -9833,6 +9929,7 @@
   - hierarchical
   - non_stationary_regime
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -9859,6 +9956,7 @@
   - non_stationary_regime
   - hierarchical
   frequency: PT5M
+  rollup: mean
   endpoint:
     type: rest_csv
     url: http://mis.nyiso.com/public/csv/realtime/{YYYYMMDD-1d}realtime_zone.csv
@@ -9884,6 +9982,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=DE-LU&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -9907,6 +10006,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -9932,6 +10032,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -9960,6 +10061,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -9987,6 +10089,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://dashboard.elering.ee/api/system/with-plan?start={YYYY-MM-DD-7d}T00:00:00.000Z&end={YYYY-MM-DD}T00:00:00.000Z
@@ -10014,6 +10117,7 @@
   - non_stationary_regime
   - hierarchical
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.raporty.pse.pl/api/pdgobpkd?$filter=business_date%20eq%20%27{YYYY-MM-DD-1d}%27
@@ -10065,6 +10169,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.carbonintensity.org.uk/intensity/{YYYY-MM-DD-7d}T00:00Z/{YYYY-MM-DD}T00:00Z
@@ -10317,6 +10422,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/drug/event.json?count=receivedate
@@ -10341,6 +10447,7 @@
   - count_discrete
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/animalandveterinary/event.json?count=original_receive_date
@@ -10365,6 +10472,7 @@
   - count_discrete
   - zero_inflated_sparse
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/tobacco/problem.json?count=date_submitted
@@ -10449,6 +10557,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-120d}:{YYYY-MM-DD-1d}/react
@@ -10523,6 +10632,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT1H
+  rollup: sum
   poll: PT3H
   endpoint:
     type: rest_json
@@ -10547,6 +10657,7 @@
   - count_discrete
   - smooth_periodic
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://wikimedia.org/api/rest_v1/metrics/unique-devices/en.wikipedia/all-sites/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
@@ -10571,6 +10682,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.ooni.io/api/v1/aggregation?since={YYYY-MM-DD-90d}&until={YYYY-MM-DD}&axis_x=measurement_start_day
@@ -10808,6 +10920,7 @@
   - random_walk
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?format=csvdata&lastNObservations=500
@@ -10881,6 +10994,7 @@
   - step_function
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.riksbank.se/swea/v1/Observations/SECBREPOEFF/2020-01-01
@@ -10904,6 +11018,7 @@
   - random_walk
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://data.norges-bank.no/api/data/EXR/B.USD.NOK.SP?format=sdmx-json&lastNObservations=500
@@ -10928,6 +11043,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.blockchain.info/charts/n-transactions?timespan=2years&format=json
@@ -11007,6 +11123,7 @@
   - hierarchical
   - non_stationary_regime
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -11033,6 +11150,7 @@
   - smooth_periodic
   - hierarchical
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -11062,6 +11180,7 @@
   - bounded
   - hierarchical
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -11087,6 +11206,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ch&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -11110,6 +11230,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/cbpf?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -11156,6 +11277,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://dashboard.elering.ee/api/nps/price?start={YYYY-MM-DD-7d}T00:00:00.000Z&end={YYYY-MM-DD}T00:00:00.000Z
@@ -11181,6 +11303,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -11208,6 +11331,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -11236,6 +11360,7 @@
   - hierarchical
   - non_stationary_regime
   frequency: PT5M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data.cityofnewyork.us/resource/i4gi-tjb9.json?$limit=2000&$order=data_as_of%20DESC
@@ -11265,6 +11390,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT1H
+  rollup: sum
   poll: PT3H
   endpoint:
     type: rest_json
@@ -11704,6 +11830,7 @@
   - zero_inflated_sparse
   - heavy_tailed
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/food/enforcement.json?count=report_date
@@ -11728,6 +11855,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate={YYYY-MM-DD-2d}T00:00:00.000&pubEndDate={YYYY-MM-DD}T00:00:00.000&resultsPerPage=2000
@@ -11781,6 +11909,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://wikimedia.org/api/rest_v1/metrics/mediarequests/aggregate/all-referers/all-media-types/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
@@ -11806,6 +11935,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://wikimedia.org/api/rest_v1/metrics/editors/aggregate/en.wikipedia/all-editor-types/all-page-types/all-activity-levels/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
@@ -11830,6 +11960,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/de.wikipedia/all-access/all-agents/daily/{YYYYMMDD-120d}/{YYYYMMDD-1d}
@@ -11854,6 +11985,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_csv
     url: https://metrics.torproject.org/userstats-bridge-country.csv?start={YYYY-MM-DD-180d}&end={YYYY-MM-DD-2d}&country=all
@@ -11877,6 +12009,7 @@
   - smooth_trend
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://metrics.torproject.org/bandwidth.csv?start={YYYY-MM-DD-365d}&end={YYYY-MM-DD-2d}
@@ -11903,6 +12036,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.npmjs.org/downloads/range/{YYYY-MM-DD-120d}:{YYYY-MM-DD-1d}/vue
@@ -11952,6 +12086,7 @@
   - non_stationary_regime
   - volatility_clustering
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -11977,6 +12112,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.blockchain.info/charts/hash-rate?timespan=2years&format=json
@@ -12000,6 +12136,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -12023,6 +12160,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -12072,6 +12210,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -12095,6 +12234,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -12119,6 +12259,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=BE&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -12143,6 +12284,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=NL&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -12166,6 +12308,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=SE4&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -12190,6 +12333,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/co2eq?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -12215,6 +12359,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_csv
@@ -12241,6 +12386,7 @@
   - zero_inflated_sparse
   - hierarchical
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_csv
     url: http://mis.nyiso.com/public/csv/outSched/{YYYYMMDD-1d}outSched.csv
@@ -12268,6 +12414,7 @@
   - random_walk
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://www.bankofcanada.ca/valet/observations/FXUSDCAD/json?start_date=2015-01-01
@@ -12292,6 +12439,7 @@
   - step_function
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://www.bankofcanada.ca/valet/observations/V39079/json?start_date=2010-01-01
@@ -12339,6 +12487,7 @@
   - step_function
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny?page[size]=2000&sort=-record_date
@@ -12386,6 +12535,7 @@
   - random_walk
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y?format=csvdata&lastNObservations=500
@@ -12903,6 +13053,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/device/510k.json?count=decision_date
@@ -12928,6 +13079,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/other/nsde.json?count=marketing_start_date
@@ -13003,6 +13155,7 @@
   - smooth_trend
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.blockchain.info/charts/difficulty?timespan=2years&format=json
@@ -13111,6 +13264,7 @@
   - step_function
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   endpoint:
     type: rest_json
     url: https://stat.ripe.net/data/routing-history/data.json?resource=AS15169&starttime={YYYY-MM-DD-180d}
@@ -13164,6 +13318,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13187,6 +13342,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13210,6 +13366,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13233,6 +13390,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13256,6 +13414,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13279,6 +13438,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13302,6 +13462,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13326,6 +13487,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13350,6 +13512,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13374,6 +13537,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13398,6 +13562,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13422,6 +13587,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -13446,6 +13612,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13470,6 +13637,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13494,6 +13662,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13518,6 +13687,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13542,6 +13712,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13566,6 +13737,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13676,6 +13848,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13700,6 +13873,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13724,6 +13898,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -13873,6 +14048,7 @@
   - step_function
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   endpoint:
     type: rest_json
     auth: none
@@ -13900,6 +14076,7 @@
   - step_function
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   endpoint:
     type: rest_json
     auth: none
@@ -14307,6 +14484,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/food/event.json?count=date_created
@@ -14331,6 +14509,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/drug/label.json?count=effective_time
@@ -14356,6 +14535,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/device/udi.json?count=publish_date
@@ -14381,6 +14561,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://api.fda.gov/device/pma.json?count=decision_date
@@ -14502,6 +14683,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14525,6 +14707,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14548,6 +14731,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14571,6 +14755,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14594,6 +14779,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14617,6 +14803,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14640,6 +14827,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14663,6 +14851,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14687,6 +14876,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14711,6 +14901,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14735,6 +14926,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14759,6 +14951,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14783,6 +14976,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -14807,6 +15001,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -14831,6 +15026,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -14855,6 +15051,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -14879,6 +15076,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15072,6 +15270,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15096,6 +15295,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15222,6 +15422,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15246,6 +15447,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15270,6 +15472,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15294,6 +15497,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15318,6 +15522,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15342,6 +15547,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15366,6 +15572,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15390,6 +15597,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15414,6 +15622,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15438,6 +15647,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15462,6 +15672,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15486,6 +15697,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15510,6 +15722,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15534,6 +15747,7 @@
   - bounded
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -15558,6 +15772,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     auth: none
@@ -15582,6 +15797,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15605,6 +15821,7 @@
   - bounded
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15677,6 +15894,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15701,6 +15919,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15725,6 +15944,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15749,6 +15969,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15773,6 +15994,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15797,6 +16019,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15821,6 +16044,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15845,6 +16069,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -15869,6 +16094,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     auth: none
@@ -22193,6 +22419,7 @@
   archetypes:
   - count_discrete
   frequency: PT1H
+  rollup: sum
   poll: PT3H
   endpoint:
     type: rest_json
@@ -22275,6 +22502,7 @@
   archetypes:
   - count_discrete
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://data.townofcary.org/api/explore/v2.1/catalog/datasets/wake-county-restaurants/exports/json?limit=2000&order_by=restaurantopendate%20desc&select=restaurantopendate
@@ -22354,6 +22582,7 @@
   archetypes:
   - count_discrete
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://data.casey.vic.gov.au/api/explore/v2.1/catalog/datasets/planning-permit-applications-register-only/exports/json?limit=2000&order_by=lodged_date%20desc&select=lodged_date
@@ -22381,6 +22610,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/issued-building-permits/exports/json?limit=2000&order_by=permitnumbercreateddate%20desc&select=permitnumbercreateddate,permitelapseddays,projectvalue
@@ -22407,6 +22637,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT5M
+  rollup: sum
   poll: PT3H
   endpoint:
     type: rest_json
@@ -22730,6 +22961,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://data.montreuil.fr/api/explore/v2.1/catalog/datasets/comptage-des-passages-des-velos-rue-etienne-marcel/exports/json?limit=2000&order_by=date%20desc&select=date,total,vers_paris,vers_croix
@@ -22758,6 +22990,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: sum
   endpoint:
     type: rest_json
     url: https://www.odwb.be/api/explore/v2.1/catalog/datasets/bornes-de-comptage-cyclistes-et-pietons-chiffres/exports/json?limit=2000&order_by=start_datetime%20desc&select=start_datetime,bikes,people
@@ -23071,6 +23304,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1M
+  rollup: last
   endpoint:
     type: rest_json
     url: https://hub.huwise.com/api/explore/v2.1/catalog/datasets/prix-des-carburants-j-1/exports/json?limit=2000&order_by=update%20desc&select=update,price_gazole,price_sp95,price_sp98
@@ -23230,6 +23464,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -23286,6 +23521,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -23315,6 +23551,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -23372,6 +23609,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -24891,6 +25129,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/pic-journalier-consommation-brute/exports/json?limit=2000&order_by=date%20desc&select=date,pic_journalier_consommation,temperature_moyenne,temperature_reference
@@ -26315,6 +26554,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://opendata.noisylegrand.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-j-1-avec-historique-a-noisy-le-grand/exports/json?limit=2000&order_by=update%20desc&select=update,price_gazole,price_sp95,price_sp98
@@ -26343,6 +26583,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data.bs.ch/api/explore/v2.1/catalog/datasets/100254/exports/json?limit=2000&order_by=date%20desc&select=date,gre000d0,hto000d0,nto000d0
@@ -26371,6 +26612,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -26400,6 +26642,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -26429,6 +26672,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -26458,6 +26702,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -26487,6 +26732,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -26515,6 +26761,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: sum
   poll: PT3H
   endpoint:
     type: rest_json
@@ -26543,6 +26790,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: sum
   poll: PT3H
   endpoint:
     type: rest_json
@@ -26627,6 +26875,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27604,6 +27853,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27632,6 +27882,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27662,6 +27913,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27689,6 +27941,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27716,6 +27969,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27743,6 +27997,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27773,6 +28028,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data.neracoos.org/erddap/tabledap/B01_waves.json?time,significant_wave_height,dominant_wave_period,mean_wave_direction&time%3E=now-2days
@@ -27801,6 +28057,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27859,6 +28116,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27887,6 +28145,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -27974,6 +28233,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -28003,6 +28263,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -28091,6 +28352,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://comet.nefsc.noaa.gov/erddap/tabledap/eMOLT_realtime_bottom_temps_and_profiles.json?time,tow_id,segment_type,temperature&time%3E=now-2days
@@ -28119,6 +28381,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -28146,6 +28409,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -28173,6 +28437,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -28233,6 +28498,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT2H
   endpoint:
     type: rest_json
@@ -28263,6 +28529,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT2H
   endpoint:
     type: rest_json
@@ -28476,6 +28743,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -28593,6 +28861,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -28620,6 +28889,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -28824,6 +29094,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://erddap.ondeckdata.com/erddap/tabledap/emolt_data.json?time,tow_id,segment_type,temperature&time%3E=now-2days
@@ -30369,6 +30640,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -30395,6 +30667,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -30421,6 +30694,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data.bep.be/api/explore/v2.1/catalog/datasets/qualite-de-l-air-en-province-de-namur-par-heure-indicateurs-regionaux/exports/json?limit=2000&order_by=moment%20desc&select=moment,reg_avg_value,aqi
@@ -30473,6 +30747,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data.hawkesbury.nsw.gov.au/api/explore/v2.1/catalog/datasets/solar-aggregated-data/exports/json?limit=2000&order_by=time%20desc&select=time,energyselfconsumption,energyconsumptiontotal,production
@@ -30632,6 +30907,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -30660,6 +30936,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -30688,6 +30965,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_json
     url: https://datasource.kapsarc.org/api/explore/v2.1/catalog/datasets/daily-spot-prices-for-heating-oil-1986-march-2016/exports/json?limit=2000&order_by=period%20desc&select=period,value
@@ -30763,6 +31041,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -30792,6 +31071,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://e-redes.opendatasoft.com/api/explore/v2.1/catalog/datasets/energia-injetada-na-rede-de-distribuicao/exports/json?limit=2000&order_by=datahora%20desc&select=datahora,cogeracao,eolica,fotovoltaica
@@ -30820,6 +31100,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://e-redes.opendatasoft.com/api/explore/v2.1/catalog/datasets/energia-produzida-total-nacional/exports/json?limit=2000&order_by=datahora%20desc&select=datahora,dgm,pre,total
@@ -30847,6 +31128,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://leko.apps.birdz.com/api/explore/v2.1/catalog/datasets/leko-indicateurs-prd/exports/json?limit=2000&order_by=nightstart%20desc&select=nightstart,indicateur_spec,indicateur_lum,indicateur_arb
@@ -30874,6 +31156,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://nsw-bayside.opendatasoft.com/api/explore/v2.1/catalog/datasets/tide-data-realtime/exports/json?limit=2000&order_by=datetime%20desc&select=datetime,height
@@ -30899,6 +31182,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -30979,6 +31263,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://opendata.comune.bologna.it/api/explore/v2.1/catalog/datasets/temperature_bologna/exports/json?limit=2000&order_by=date%20desc&select=date,avg,max,min
@@ -31007,6 +31292,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -31035,6 +31321,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -31142,6 +31429,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://opendata.portphillip.vic.gov.au/api/explore/v2.1/catalog/datasets/solar-energy-generation/exports/json?limit=2000&order_by=date%20desc&select=date,production,avoided_emissions
@@ -31197,6 +31485,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://opendata.potsdam.de/api/explore/v2.1/catalog/datasets/wetterstation-steubenplatz/exports/json?limit=2000&order_by=time%20desc&select=time,air_temperature,uv_index,wind_speed
@@ -31361,6 +31650,7 @@
   archetypes:
   - non_stationary_regime
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -65081,6 +65371,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://coastwatch.pfeg.noaa.gov/erddap/tabledap/ecocast_inputs.json?time,blueshark,bluesharkTRK,sealions,leatherbacks&time%3E=now-120days
@@ -83572,6 +83863,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -83607,6 +83899,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://erddap.sensors.ioos.us/erddap/tabledap/org_cormp_ilm2.json?time,air_pressure_at_mean_sea_level,relative_humidity,sea_water_practical_salinity,air_temperature&time%3E=now-2days
@@ -83640,6 +83933,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -83674,6 +83968,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -83709,6 +84004,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -83743,6 +84039,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://data.neracoos.org/erddap/tabledap/B01_met.json?time,wind_speed,wind_gust,wind_direction,air_temperature&time%3E=now-2days
@@ -83778,6 +84075,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -83813,6 +84111,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   endpoint:
     type: rest_json
     url: http://erddap.secoora.org/erddap/tabledap/org_cormp_ilm2.json?time,air_pressure_at_mean_sea_level,relative_humidity,sea_water_practical_salinity,air_temperature&time%3E=now-2days
@@ -83876,6 +84175,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -84079,6 +84379,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -84111,6 +84412,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT30M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -84207,6 +84509,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT15M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -84272,6 +84575,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: P1D
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://oceanview.pfeg.noaa.gov/erddap/tabledap/erdUI216hr.json?time,upwelling_index&time%3E=now-120days
@@ -84337,6 +84641,7 @@
   - non_stationary_regime
   - seasonal_multi
   frequency: PT1M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -84881,6 +85186,7 @@
   - non_stationary_regime
   - trend_dominant
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/CISS/D.AT.Z0Z.4F.EC.SOV_CIN.IDX?startPeriod=2015-01-01&format=csvdata&detail=dataonly
@@ -84910,6 +85216,7 @@
   - non_stationary_regime
   - trend_dominant
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/CISS/D.AT.Z0Z.4F.EC.SS_CIN.IDX?startPeriod=2015-01-01&format=csvdata&detail=dataonly
@@ -84939,6 +85246,7 @@
   - non_stationary_regime
   - trend_dominant
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/CISS/D.BE.Z0Z.4F.EC.SOV_CIN.IDX?startPeriod=2015-01-01&format=csvdata&detail=dataonly
@@ -85136,6 +85444,7 @@
   - non_stationary_regime
   - trend_dominant
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/EXR/D.AUD.EUR.SP00.A?startPeriod=2015-01-01&format=csvdata&detail=dataonly
@@ -85762,6 +86071,7 @@
   - non_stationary_regime
   - trend_dominant
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM.BETA0?startPeriod=2015-01-01&format=csvdata&detail=dataonly
@@ -85791,6 +86101,7 @@
   - non_stationary_regime
   - trend_dominant
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM.BETA1?startPeriod=2015-01-01&format=csvdata&detail=dataonly
@@ -85820,6 +86131,7 @@
   - non_stationary_regime
   - trend_dominant
   frequency: P1D
+  rollup: last
   endpoint:
     type: rest_csv
     url: https://data-api.ecb.europa.eu/service/data/YC/B.U2.EUR.4F.G_N_A.SV_C_YM.BETA2?startPeriod=2015-01-01&format=csvdata&detail=dataonly
@@ -90646,6 +90958,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -90677,6 +90990,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -90706,6 +91020,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=at&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -90735,6 +91050,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -90764,6 +91080,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -90793,6 +91110,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=cz&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -90823,6 +91141,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -90854,6 +91173,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -90883,6 +91203,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=de&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91009,6 +91330,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91040,6 +91362,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91069,6 +91392,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ee&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91099,6 +91423,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91130,6 +91455,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91159,6 +91485,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=es&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91188,6 +91515,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91217,6 +91545,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91246,6 +91575,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=fi&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91276,6 +91606,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91307,6 +91638,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91336,6 +91668,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=fr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91366,6 +91699,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91397,6 +91731,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91426,6 +91761,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=hr&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91456,6 +91792,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91487,6 +91824,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91516,6 +91854,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=hu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91545,6 +91884,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91574,6 +91914,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91603,6 +91944,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ie&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91633,6 +91975,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91664,6 +92007,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91693,6 +92037,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=it&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91722,6 +92067,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91751,6 +92097,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91780,6 +92127,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=lt&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91809,6 +92157,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91838,6 +92187,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91867,6 +92217,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=lu&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91896,6 +92247,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91925,6 +92277,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91954,6 +92307,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=nl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -91984,6 +92338,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92015,6 +92370,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92044,6 +92400,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=no&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92074,6 +92431,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92105,6 +92463,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92134,6 +92493,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=pl&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92164,6 +92524,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ro&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92195,6 +92556,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ro&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92224,6 +92586,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=ro&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92254,6 +92617,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=se&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92285,6 +92649,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=se&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92314,6 +92679,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/public_power?country=se&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92343,6 +92709,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=DE-LU&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92371,6 +92738,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=FR&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92399,6 +92767,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=ES&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92427,6 +92796,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=IT-North&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92455,6 +92825,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=IT-Centre-North&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92483,6 +92854,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=IT-Centre-South&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92511,6 +92883,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=IT-South&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92539,6 +92912,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=IT-Sicily&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92567,6 +92941,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=IT-Sardinia&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92595,6 +92970,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=NL&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92623,6 +92999,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=BE&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92651,6 +93028,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=AT&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92679,6 +93057,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=PL&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92707,6 +93086,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=CZ&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92735,6 +93115,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=DK1&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92763,6 +93144,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=DK2&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92791,6 +93173,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=SE1&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92819,6 +93202,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=SE2&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92847,6 +93231,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=SE3&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92875,6 +93260,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=SE4&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92903,6 +93289,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=NO1&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92931,6 +93318,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=NO2&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92959,6 +93347,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=NO3&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -92987,6 +93376,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=NO4&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93015,6 +93405,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=NO5&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93043,6 +93434,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=FI&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93071,6 +93463,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=PT&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93099,6 +93492,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=HU&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93127,6 +93521,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=RO&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93155,6 +93550,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=BG&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93183,6 +93579,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=SK&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93211,6 +93608,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=SI&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93239,6 +93637,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=RS&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93267,6 +93666,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=EE&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93295,6 +93695,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=LV&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -93323,6 +93724,7 @@
   - heavy_tailed
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://api.energy-charts.info/price?bzn=LT&start={YYYY-MM-DD-14d}&end={YYYY-MM-DD}
@@ -95421,6 +95823,7 @@
   - bounded
   - chaotic_nonlinear
   frequency: PT30M
+  rollup: mean
   endpoint:
     type: rest_json
     url: https://kp.gfz.de/app/json/?start={YYYY-MM-DD-3d}T00%3A00%3A00Z&end={YYYY-MM-DD}T23%3A59%3A00Z&index=Hp30
@@ -96238,6 +96641,7 @@
   - random_walk
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   admit_slow: daily FX fixings; lastNObservations=400 re-serves >320 business days per currency on every
     fetch
   endpoint:
@@ -96264,6 +96668,7 @@
   - random_walk
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   admit_slow: daily yield curve; lastNObservations=400 re-serves >320 business days per tenor on every fetch
   endpoint:
     type: rest_csv
@@ -96288,6 +96693,7 @@
   - non_stationary_regime
   - bounded
   frequency: P1D
+  rollup: last
   admit_slow: daily policy-rate series; startPeriod window re-serves >320 business days per economy on every
     fetch
   endpoint:
@@ -96314,6 +96720,7 @@
   - non_stationary_regime
   - bounded
   frequency: P1D
+  rollup: last
   admit_slow: daily policy-rate series; startPeriod window re-serves >320 business days per economy on every
     fetch
   endpoint:
@@ -96340,6 +96747,7 @@
   - non_stationary_regime
   - chaotic_nonlinear
   frequency: PT15M
+  rollup: last
   endpoint:
     type: rest_json
     url: https://api.exchange.coinbase.com/products/{PRODUCT}/candles?granularity=900
@@ -96642,6 +97050,7 @@
   - random_walk
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   admit_slow: daily EER index; the startPeriod window re-serves >320 business days per economy on every
     fetch
   endpoint:
@@ -96668,6 +97077,7 @@
   - random_walk
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   admit_slow: daily EER index; the startPeriod window re-serves >320 business days per economy on every
     fetch
   endpoint:
@@ -96802,6 +97212,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -96832,6 +97243,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -96863,6 +97275,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -96893,6 +97306,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -96924,6 +97338,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -96954,6 +97369,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -96985,6 +97401,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -97016,6 +97433,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -97047,6 +97465,7 @@
   - smooth_periodic
   - hierarchical
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~14 months per item on every
     fetch
   endpoint:
@@ -97076,6 +97495,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
     >320 days on every fetch
   endpoint:
@@ -97105,6 +97525,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
     >320 days on every fetch
   endpoint:
@@ -97134,6 +97555,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
     >320 days on every fetch
   endpoint:
@@ -97163,6 +97585,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
     >320 days on every fetch
   endpoint:
@@ -97192,6 +97615,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
     >320 days on every fetch
   endpoint:
@@ -97220,6 +97644,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily counts computed server-side (SoQL date_trunc_ymd + count); the 2024-01-01 window re-serves
     >320 days on every fetch
   endpoint:
@@ -97250,6 +97675,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -97276,6 +97702,7 @@
   - non_stationary_regime
   - noisy_clean_pair
   frequency: P1D
+  rollup: last
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -97303,6 +97730,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -97329,6 +97757,7 @@
   - non_stationary_regime
   - noisy_clean_pair
   frequency: P1D
+  rollup: last
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -97355,6 +97784,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -97381,6 +97811,7 @@
   - non_stationary_regime
   - noisy_clean_pair
   frequency: P1D
+  rollup: last
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -97409,6 +97840,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -97437,6 +97869,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -97464,6 +97897,7 @@
   - smooth_periodic
   - non_stationary_regime
   frequency: P1D
+  rollup: sum
   admit_slow: daily aggregate computed server-side; the fixed 2024 start re-serves >320 days on every fetch
   endpoint:
     type: rest_json
@@ -99584,6 +100018,7 @@
   - non_stationary_regime
   - smooth_periodic
   frequency: P1D
+  rollup: last
   admit_slow: daily mandatory price report; the report_date range re-serves ~20 months per purchase type
     on every fetch
   endpoint:
@@ -107567,6 +108002,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107590,6 +108026,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107613,6 +108050,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107636,6 +108074,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107659,6 +108098,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107682,6 +108122,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107705,6 +108146,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107728,6 +108170,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107751,6 +108194,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107774,6 +108218,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107797,6 +108242,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107820,6 +108266,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107843,6 +108290,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107866,6 +108314,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107889,6 +108338,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107912,6 +108362,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107935,6 +108386,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107958,6 +108410,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -107981,6 +108434,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108004,6 +108458,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108027,6 +108482,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108050,6 +108506,7 @@
   - non_stationary_regime
   - heavy_tailed
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108072,6 +108529,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108119,6 +108577,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -108142,6 +108601,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108165,6 +108625,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108188,6 +108649,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108211,6 +108673,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108234,6 +108697,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108257,6 +108721,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108280,6 +108745,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108303,6 +108769,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108326,6 +108793,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108349,6 +108817,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108372,6 +108841,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108395,6 +108865,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108418,6 +108889,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108441,6 +108913,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108464,6 +108937,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108487,6 +108961,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108510,6 +108985,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108533,6 +109009,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108556,6 +109033,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108579,6 +109057,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108602,6 +109081,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108625,6 +109105,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108648,6 +109129,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108671,6 +109153,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_csv
@@ -108694,6 +109177,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_csv
@@ -108717,6 +109201,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_csv
@@ -108740,6 +109225,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_csv
@@ -108763,6 +109249,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_csv
@@ -108786,6 +109273,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_csv
@@ -108809,6 +109297,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_csv
@@ -108832,6 +109321,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108855,6 +109345,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108878,6 +109369,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108901,6 +109393,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: PT12H
   endpoint:
     type: rest_json
@@ -108925,6 +109418,7 @@
   - step_function
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -108949,6 +109443,7 @@
   - step_function
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -108973,6 +109468,7 @@
   - step_function
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -108997,6 +109493,7 @@
   - step_function
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109020,6 +109517,7 @@
   archetypes:
   - step_function
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109043,6 +109541,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109066,6 +109565,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109089,6 +109589,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109112,6 +109613,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109135,6 +109637,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109158,6 +109661,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109181,6 +109685,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109204,6 +109709,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109227,6 +109733,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109250,6 +109757,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109273,6 +109781,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109296,6 +109805,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109319,6 +109829,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109342,6 +109853,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109365,6 +109877,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109388,6 +109901,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109411,6 +109925,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109434,6 +109949,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109457,6 +109973,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109480,6 +109997,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109503,6 +110021,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109526,6 +110045,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109549,6 +110069,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109572,6 +110093,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109595,6 +110117,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109618,6 +110141,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109641,6 +110165,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109664,6 +110189,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109687,6 +110213,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109710,6 +110237,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109733,6 +110261,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109756,6 +110285,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109779,6 +110309,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109802,6 +110333,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109825,6 +110357,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109848,6 +110381,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109871,6 +110405,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109894,6 +110429,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109917,6 +110453,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109940,6 +110477,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109963,6 +110501,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -109986,6 +110525,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110009,6 +110549,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110032,6 +110573,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110055,6 +110597,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110078,6 +110621,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110101,6 +110645,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110124,6 +110669,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110147,6 +110693,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110170,6 +110717,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110193,6 +110741,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110216,6 +110765,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110239,6 +110789,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110262,6 +110813,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110285,6 +110837,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110308,6 +110861,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110331,6 +110885,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110354,6 +110909,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110377,6 +110933,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110400,6 +110957,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110423,6 +110981,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110446,6 +111005,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110469,6 +111029,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110492,6 +111053,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110515,6 +111077,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110538,6 +111101,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110561,6 +111125,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110584,6 +111149,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110607,6 +111173,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110630,6 +111197,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -110653,6 +111221,7 @@
   archetypes:
   - non_stationary_regime
   frequency: P1D
+  rollup: last
   poll: P1D
   endpoint:
     type: rest_json
@@ -111548,6 +112117,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111574,6 +112144,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111600,6 +112171,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111626,6 +112198,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111652,6 +112225,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111678,6 +112252,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111704,6 +112279,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111730,6 +112306,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111756,6 +112333,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111782,6 +112360,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111808,6 +112387,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111834,6 +112414,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111860,6 +112441,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111886,6 +112468,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111912,6 +112495,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111938,6 +112522,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111964,6 +112549,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -111990,6 +112576,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112016,6 +112603,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112042,6 +112630,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112068,6 +112657,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112094,6 +112684,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112120,6 +112711,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112146,6 +112738,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112172,6 +112765,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112198,6 +112792,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112224,6 +112819,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112250,6 +112846,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112276,6 +112873,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112302,6 +112900,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112328,6 +112927,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112354,6 +112954,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112380,6 +112981,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112406,6 +113008,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112432,6 +113035,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112458,6 +113062,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112484,6 +113089,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112510,6 +113116,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112536,6 +113143,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112562,6 +113170,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112588,6 +113197,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112614,6 +113224,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112640,6 +113251,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112666,6 +113278,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112692,6 +113305,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112718,6 +113332,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112744,6 +113359,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112770,6 +113386,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112796,6 +113413,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112822,6 +113440,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112848,6 +113467,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112874,6 +113494,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112900,6 +113521,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112926,6 +113548,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112952,6 +113575,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -112978,6 +113602,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113004,6 +113629,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113030,6 +113656,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113056,6 +113683,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113082,6 +113710,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113108,6 +113737,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113133,6 +113763,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113159,6 +113790,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113185,6 +113817,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113211,6 +113844,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113237,6 +113871,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113286,6 +113921,7 @@
   - non_stationary_regime
   - bounded
   frequency: PT30M
+  rollup: mean
   endpoint:
     type: rest_json
     auth: none
@@ -113324,6 +113960,7 @@
   - hierarchical
   - seasonal_multiscale
   frequency: PT5M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -113445,6 +114082,7 @@
   - hierarchical
   - seasonal_multiscale
   frequency: PT30M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113470,6 +114108,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT30M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113494,6 +114133,7 @@
   - seasonal_multiscale
   - smooth_periodic
   frequency: PT30M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113519,6 +114159,7 @@
   - seasonal_multiscale
   - smooth_periodic
   frequency: PT30M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113833,6 +114474,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113858,6 +114500,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113883,6 +114526,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113908,6 +114552,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113933,6 +114578,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113958,6 +114604,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -113983,6 +114630,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114008,6 +114656,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114033,6 +114682,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114058,6 +114708,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114135,6 +114786,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114264,6 +114916,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114289,6 +114942,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114314,6 +114968,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114339,6 +114994,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114364,6 +115020,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114389,6 +115046,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114414,6 +115072,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114439,6 +115098,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114464,6 +115124,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114489,6 +115150,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114514,6 +115176,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114539,6 +115202,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114564,6 +115228,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114589,6 +115254,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114614,6 +115280,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114639,6 +115306,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114664,6 +115332,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114689,6 +115358,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114714,6 +115384,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114739,6 +115410,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114764,6 +115436,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114789,6 +115462,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114814,6 +115488,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114839,6 +115514,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114864,6 +115540,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114889,6 +115566,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114914,6 +115592,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114939,6 +115618,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114964,6 +115644,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -114989,6 +115670,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115014,6 +115696,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115039,6 +115722,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115064,6 +115748,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115089,6 +115774,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115114,6 +115800,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115139,6 +115826,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115164,6 +115852,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115189,6 +115878,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115214,6 +115904,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115239,6 +115930,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115264,6 +115956,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115289,6 +115982,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115314,6 +116008,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115339,6 +116034,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115364,6 +116060,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115389,6 +116086,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115414,6 +116112,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115439,6 +116138,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115464,6 +116164,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115489,6 +116190,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115514,6 +116216,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115539,6 +116242,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115564,6 +116268,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115589,6 +116294,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115614,6 +116320,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115639,6 +116346,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115664,6 +116372,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115689,6 +116398,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115714,6 +116424,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115739,6 +116450,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115764,6 +116476,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115789,6 +116502,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115814,6 +116528,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115839,6 +116554,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -115864,6 +116580,7 @@
   - seasonal_multiscale
   - chaotic_nonlinear
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -117658,6 +118375,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117684,6 +118402,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117710,6 +118429,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117736,6 +118456,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117762,6 +118483,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117788,6 +118510,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117814,6 +118537,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117840,6 +118564,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117866,6 +118591,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117892,6 +118618,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117918,6 +118645,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117944,6 +118672,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117970,6 +118699,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -117996,6 +118726,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118022,6 +118753,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118048,6 +118780,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118074,6 +118807,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118100,6 +118834,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118126,6 +118861,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118152,6 +118888,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118178,6 +118915,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118204,6 +118942,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118230,6 +118969,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118256,6 +118996,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118282,6 +119023,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118308,6 +119050,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118334,6 +119077,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118360,6 +119104,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118386,6 +119131,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118412,6 +119158,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118438,6 +119185,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118464,6 +119212,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118491,6 +119240,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118519,6 +119269,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118545,6 +119296,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118571,6 +119323,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118597,6 +119350,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118623,6 +119377,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118649,6 +119404,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118675,6 +119431,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118701,6 +119458,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118727,6 +119485,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118753,6 +119512,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118779,6 +119539,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118805,6 +119566,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118831,6 +119593,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118857,6 +119620,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118883,6 +119647,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118909,6 +119674,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118935,6 +119701,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118961,6 +119728,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -118987,6 +119755,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119013,6 +119782,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119039,6 +119809,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119065,6 +119836,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119091,6 +119863,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119117,6 +119890,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119143,6 +119917,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119169,6 +119944,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119195,6 +119971,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119221,6 +119998,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119247,6 +120025,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119273,6 +120052,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119299,6 +120079,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119325,6 +120106,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119351,6 +120133,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119377,6 +120160,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119403,6 +120187,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119429,6 +120214,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119455,6 +120241,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119481,6 +120268,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119507,6 +120295,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119533,6 +120322,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119559,6 +120349,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119585,6 +120376,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119611,6 +120403,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119637,6 +120430,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119663,6 +120457,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119689,6 +120484,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119715,6 +120511,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119741,6 +120538,7 @@
   - volatility_clustering
   - non_stationary_regime
   frequency: PT1H
+  rollup: last
   poll: PT3H
   endpoint:
     type: rest_json
@@ -119817,6 +120615,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: PT1H
+  rollup: sum
   poll: PT6H
   endpoint:
     type: rest_json
@@ -119844,6 +120643,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: PT1H
+  rollup: sum
   poll: PT6H
   endpoint:
     type: rest_json
@@ -119871,6 +120671,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: PT1H
+  rollup: sum
   poll: PT6H
   endpoint:
     type: rest_json
@@ -119897,6 +120698,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: PT1H
+  rollup: sum
   poll: PT6H
   endpoint:
     type: rest_json
@@ -119923,6 +120725,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: PT1H
+  rollup: sum
   poll: PT6H
   endpoint:
     type: rest_json
@@ -119949,6 +120752,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: PT1H
+  rollup: sum
   poll: PT6H
   endpoint:
     type: rest_json
@@ -119975,6 +120779,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: PT1H
+  rollup: sum
   poll: PT6H
   endpoint:
     type: rest_json
@@ -120001,6 +120806,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: P1D
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -120026,6 +120832,7 @@
   - count_discrete
   - seasonal_multiscale
   frequency: P1D
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -124308,6 +125115,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -124334,6 +125142,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -124360,6 +125169,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -124386,6 +125196,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -124412,6 +125223,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -124438,6 +125250,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -124464,6 +125277,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -125380,6 +126194,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125406,6 +126221,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125432,6 +126248,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125458,6 +126275,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125484,6 +126302,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125510,6 +126329,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125536,6 +126356,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125562,6 +126383,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125588,6 +126410,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125614,6 +126437,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125640,6 +126464,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125666,6 +126491,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125692,6 +126518,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125718,6 +126545,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125744,6 +126572,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125770,6 +126599,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125823,6 +126653,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125849,6 +126680,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125875,6 +126707,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125901,6 +126734,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125927,6 +126761,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125953,6 +126788,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -125979,6 +126815,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126005,6 +126842,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126031,6 +126869,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126057,6 +126896,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126083,6 +126923,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126109,6 +126950,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126135,6 +126977,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126161,6 +127004,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126187,6 +127031,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126241,6 +127086,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126267,6 +127113,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126293,6 +127140,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126319,6 +127167,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126345,6 +127194,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126371,6 +127221,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126397,6 +127248,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126423,6 +127275,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126449,6 +127302,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126475,6 +127329,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126501,6 +127356,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126527,6 +127383,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126553,6 +127410,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126579,6 +127437,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126605,6 +127464,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126631,6 +127491,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126657,6 +127518,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126683,6 +127545,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126709,6 +127572,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126735,6 +127599,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126761,6 +127626,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126787,6 +127653,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT5M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126813,6 +127680,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126839,6 +127707,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126865,6 +127734,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126891,6 +127761,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT10M
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126917,6 +127788,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126970,6 +127842,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -126996,6 +127869,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -127022,6 +127896,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT2M30S
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -128131,6 +129006,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128157,6 +129033,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128183,6 +129060,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128209,6 +129087,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128235,6 +129114,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128289,6 +129169,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128315,6 +129196,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128369,6 +129251,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128395,6 +129278,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128421,6 +129305,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128447,6 +129332,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128473,6 +129359,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128554,6 +129441,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128580,6 +129468,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128606,6 +129495,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128632,6 +129522,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128658,6 +129549,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128684,6 +129576,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128710,6 +129603,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128736,6 +129630,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128762,6 +129657,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128788,6 +129684,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128814,6 +129711,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128840,6 +129738,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -128866,6 +129765,7 @@
   - smooth_periodic
   - seasonal_multiscale
   frequency: PT1M
+  rollup: mean
   poll: PT1H
   endpoint:
     type: rest_json
@@ -137077,6 +137977,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: P1D
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137104,6 +138005,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: P1D
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137131,6 +138033,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: P1D
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137186,6 +138089,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: P1D
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137241,6 +138145,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: P1D
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137268,6 +138173,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: P1D
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137351,6 +138257,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137380,6 +138287,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137409,6 +138317,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137438,6 +138347,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137467,6 +138377,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137496,6 +138407,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137525,6 +138437,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137554,6 +138467,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137583,6 +138497,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -137643,6 +138558,7 @@
   - bursty_spiky
   - heavy_tailed
   frequency: PT1H
+  rollup: sum
   poll: P1D
   endpoint:
     type: rest_json
@@ -159348,6 +160264,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159375,6 +160292,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159402,6 +160320,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159429,6 +160348,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159456,6 +160376,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159483,6 +160404,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159510,6 +160432,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159537,6 +160460,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159564,6 +160488,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159591,6 +160516,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159763,6 +160689,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159790,6 +160717,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159817,6 +160745,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159844,6 +160773,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159871,6 +160801,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159898,6 +160829,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159925,6 +160857,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159952,6 +160885,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -159979,6 +160913,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160006,6 +160941,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160033,6 +160969,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160060,6 +160997,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160087,6 +161025,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160114,6 +161053,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160141,6 +161081,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160168,6 +161109,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160195,6 +161137,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160222,6 +161165,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160249,6 +161193,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160276,6 +161221,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160303,6 +161249,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160330,6 +161277,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160357,6 +161305,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160384,6 +161333,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160411,6 +161361,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160438,6 +161389,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160465,6 +161417,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160492,6 +161445,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160519,6 +161473,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160546,6 +161501,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160573,6 +161529,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160600,6 +161557,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160627,6 +161585,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160654,6 +161613,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160681,6 +161641,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160708,6 +161669,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160735,6 +161697,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160762,6 +161725,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160789,6 +161753,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160816,6 +161781,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160843,6 +161809,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160870,6 +161837,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160897,6 +161865,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160924,6 +161893,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160951,6 +161921,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -160978,6 +161949,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161005,6 +161977,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161032,6 +162005,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161059,6 +162033,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161086,6 +162061,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161113,6 +162089,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161140,6 +162117,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161167,6 +162145,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161194,6 +162173,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161221,6 +162201,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161248,6 +162229,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161275,6 +162257,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161302,6 +162285,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161329,6 +162313,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161356,6 +162341,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161383,6 +162369,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161410,6 +162397,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161437,6 +162425,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161464,6 +162453,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161491,6 +162481,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161518,6 +162509,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161545,6 +162537,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161572,6 +162565,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161599,6 +162593,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -161626,6 +162621,7 @@
   - seasonal_multiscale
   - non_stationary_regime
   frequency: PT15M
+  rollup: mean
   poll: PT6H
   endpoint:
     type: rest_json
@@ -175781,6 +176777,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -175809,6 +176806,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -175837,6 +176835,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -175865,6 +176864,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -175893,6 +176893,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -175921,6 +176922,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -175949,6 +176951,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -175977,6 +176980,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176005,6 +177009,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176033,6 +177038,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176061,6 +177067,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176089,6 +177096,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176117,6 +177125,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176145,6 +177154,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176173,6 +177183,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176201,6 +177212,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176229,6 +177241,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176257,6 +177270,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176285,6 +177299,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176313,6 +177328,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176341,6 +177357,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176369,6 +177386,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -176397,6 +177415,7 @@
   - bursty_spiky
   - seasonal_multiscale
   frequency: PT1H
+  rollup: mean
   poll: PT3H
   endpoint:
     type: rest_json
@@ -191422,6 +192441,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191445,6 +192465,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191468,6 +192489,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191491,6 +192513,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191514,6 +192537,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191537,6 +192561,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191560,6 +192585,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191583,6 +192609,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191606,6 +192633,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191629,6 +192657,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191652,6 +192681,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191675,6 +192705,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191698,6 +192729,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191721,6 +192753,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191744,6 +192777,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191767,6 +192801,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191790,6 +192825,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191813,6 +192849,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191836,6 +192873,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191859,6 +192897,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191882,6 +192921,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191905,6 +192945,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191928,6 +192969,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191951,6 +192993,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191974,6 +193017,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -191997,6 +193041,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192020,6 +193065,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192043,6 +193089,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192066,6 +193113,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192089,6 +193137,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192112,6 +193161,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192135,6 +193185,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192158,6 +193209,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192181,6 +193233,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192204,6 +193257,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192227,6 +193281,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192250,6 +193305,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192273,6 +193329,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192296,6 +193353,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192319,6 +193377,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192342,6 +193401,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192365,6 +193425,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192388,6 +193449,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192411,6 +193473,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192434,6 +193497,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192457,6 +193521,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192480,6 +193545,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192503,6 +193569,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192526,6 +193593,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192549,6 +193617,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192572,6 +193641,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192595,6 +193665,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192618,6 +193689,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192641,6 +193713,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192664,6 +193737,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192687,6 +193761,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192710,6 +193785,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192733,6 +193809,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192756,6 +193833,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192779,6 +193857,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192802,6 +193881,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192825,6 +193905,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192848,6 +193929,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192871,6 +193953,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192894,6 +193977,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192917,6 +194001,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192940,6 +194025,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192963,6 +194049,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -192986,6 +194073,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193009,6 +194097,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193032,6 +194121,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193055,6 +194145,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193078,6 +194169,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193101,6 +194193,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193124,6 +194217,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193147,6 +194241,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193170,6 +194265,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193193,6 +194289,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193216,6 +194313,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
@@ -193239,6 +194337,7 @@
   domain: energy
   dgp_class: generation_by_fuel
   frequency: PT1H
+  rollup: mean
   poll: PT6H
   license: US public domain (EIA)
   endpoint:
