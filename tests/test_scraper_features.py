@@ -1722,3 +1722,21 @@ def test_wildcard_key_descends_into_a_self_named_series():
     assert [r["value"] for r in recs] == [10, 12]
     assert [r["timestamp"] for r in recs] == ["2026-11-20", "2026-11-21"]
     assert scraper._apply({"a": {"*": 1}}, scraper._tokenize("a.*")) == 1   # a literal "*" key wins
+
+
+def test_dayfirst_dates_are_rewritten_to_iso():
+    blob = json.dumps([{"data": "02/01/2023", "valor": "5.34"},
+                       {"data": "13/11/2026", "valor": "5.10"}]).encode()
+    src = {"id": "t", "endpoint": {"type": "rest_json", "url": "x"},
+           "schema": {"timestamp_field": "[].data", "value_field": "[].valor", "dayfirst_date": True}}
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert [r["timestamp"] for r in recs] == ["2023-01-02", "2026-11-13"]
+
+
+def test_date_keyed_map_index_picks_the_value_from_list_entries():
+    blob = json.dumps({"data": {"143": {"2026-11-23 19:00:00": [5, 2, 3, "2026-11-23 20:00:00", "0"],
+                                        "2026-11-23 20:00:00": [5, 2, 7, "2026-11-23 21:00:00", "0"]}}}).encode()
+    src = {"id": "t", "endpoint": {"type": "rest_json", "url": "x"},
+           "schema": {"date_keyed_map": True, "date_keyed_map_index": 2, "value_field": "data.*"}}
+    recs = scraper.parse_payload(src, blob, "application/json")
+    assert [r["value"] for r in recs] == [3, 7]

@@ -828,7 +828,7 @@ def _records_from_date_map(data: Any, schema: dict) -> list[dict]:
     val_paths = schema.get("value_field") or []
     if isinstance(val_paths, str):
         val_paths = [val_paths]
-    names = _value_names(val_paths)
+    names = _value_names(val_paths) if len(val_paths) > 1 else ["value"]
     maps: dict[str, dict] = {}
     for name, path in zip(names, val_paths):
         try:
@@ -840,7 +840,15 @@ def _records_from_date_map(data: Any, schema: dict) -> list[dict]:
     if not maps:
         return []
     keys = sorted({k for m in maps.values() for k in m})
-    return [{"timestamp": str(k), **{n: m.get(k) for n, m in maps.items()}}
+    # date_keyed_map_index: the map's values are lists and the number sits at
+    # this position (UBA air data: {ts: [component, scope, value, end, idx]}).
+    idx = schema.get("date_keyed_map_index")
+
+    def _pick(v):
+        if idx is not None and isinstance(v, list):
+            return v[int(idx)] if int(idx) < len(v) else None
+        return v
+    return [{"timestamp": str(k), **{n: _pick(m.get(k)) for n, m in maps.items()}}
             for k in keys]
 
 
@@ -1601,6 +1609,14 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
             m = re.fullmatch(r"(\d{2,3})[./-](\d{1,2})[./-](\d{1,2})", str(r.get("timestamp", "")).strip())
             if m:
                 r["timestamp"] = f"{int(m.group(1)) + 1911:04d}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
+    if schema.get("dayfirst_date"):
+        # Day-first dates, "02/01/2023" = 2 Jan 2023 (Banco Central do Brasil
+        # SGS). Rewritten to ISO at parse time for the same reason as roc_date:
+        # pandas reads 02/01/2023 month-first, as 1 Feb.
+        for r in recs:
+            m = re.fullmatch(r"(\d{1,2})[./-](\d{1,2})[./-](\d{4})(.*)", str(r.get("timestamp", "")).strip())
+            if m:
+                r["timestamp"] = f"{m.group(3)}-{int(m.group(2)):02d}-{int(m.group(1)):02d}{m.group(4)}"
     if schema.get("snapshot_now"):
         # Live-snapshot APIs with no per-record timestamp (SEPTA TrainView,
         # TTC vehicle positions): stamp fetch time. Without a timestamp list

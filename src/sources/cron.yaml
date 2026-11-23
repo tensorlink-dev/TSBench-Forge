@@ -1285,6 +1285,7 @@ schedules:
   - opendata_ods157_42
   - opendata_ods156_53
   - zurich_bahnhofstrasse_footfall_hourly
+  - uba_air_hourly_germany
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -3157,6 +3158,8 @@ schedules:
   - eve_market_daily_volume_the_forge
   - eve_market_daily_volume_metropolis
   - julia_pkgserver_requests_by_client
+  - bcb_sgs_daily_markets
+  - bundesbank_bund_yield_curve_daily
   cron: 10 1 * * *
 - every: P1D
   sources:

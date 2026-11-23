@@ -202221,3 +202221,185 @@
   license: JuliaLang public package-server logs
   pretraining_novelty: high
   notes: Aggregated Pkg server logs (CI / user / unknown clients). Gzipped CSV, refreshed daily ~04:00 UTC.
+
+# -- wired batch: 10k-econ_b1 --
+- id: bcb_sgs_daily_markets
+  name: Banco Central do Brasil SGS daily FX, rates and reserves
+  domain: econ_fin
+  dgp_class: fx_rate
+  archetypes:
+  - random_walk
+  - non_stationary_regime
+  - regime_switching
+  frequency: P1D
+  rollup: last
+  admit_slow: ~2,200 business days on the first fetch, so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://api.bcb.gov.br/dados/serie/bcdata.sgs.{SERIES}/dados?formato=json&dataInicial=01/01/2018
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+    timeout: 90
+  panel:
+  - SERIES: '1'
+  - SERIES: '21619'
+  - SERIES: '21623'
+  - SERIES: '21621'
+  - SERIES: '11'
+  - SERIES: '1178'
+  - SERIES: '13621'
+  - SERIES: '25'
+  - SERIES: '226'
+  schema:
+    timestamp_field: '[].data'
+    value_field: '[].valor'
+    dayfirst_date: true
+  history_available: 'since 2018-01-01 per call (SGS caps a daily query at 10 years: move dataInicial forward
+    before 2028)'
+  license: Banco Central do Brasil open data
+  pretraining_novelty: medium
+  notes: 'SGS codes: 1 USD/BRL sell, 21619 EUR/BRL sell, 21623 GBP/BRL sell, 21621 JPY/BRL sell, 11 Selic
+    daily rate, 1178 Selic annualised, 13621 international reserves (USD mn), 25 savings-account yield,
+    226 TR reference rate. Dates are day-first (dd/MM/yyyy), rewritten to ISO by dayfirst_date.'
+
+# -- wired batch: 10k-health_b1 --
+- id: uba_air_hourly_germany
+  name: German state air-quality networks, hourly NO2 and PM10 (UBA)
+  domain: healthcare
+  dgp_class: air_quality
+  archetypes:
+  - smooth_periodic
+  - heavy_tailed
+  - non_stationary_regime
+  frequency: PT1H
+  poll: PT12H
+  rollup: mean
+  endpoint:
+    type: rest_json
+    url: https://luftdaten.umweltbundesamt.de/api/air-data/v4/measures/json?date_from={YYYY-MM-DD-400d}&time_from=1&date_to={YYYY-MM-DD}&time_to=24&station={STATION}&component={COMP}&scope=2
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 0.5
+    timeout: 120
+  panel:
+  - STATION: '10465'
+    COMP: '5'
+  - STATION: '42'
+    COMP: '1'
+  - STATION: '10347'
+    COMP: '5'
+  - STATION: '121'
+    COMP: '1'
+  - STATION: '282'
+    COMP: '5'
+  - STATION: '10470'
+    COMP: '1'
+  - STATION: '435'
+    COMP: '5'
+  - STATION: '471'
+    COMP: '1'
+  - STATION: '616'
+    COMP: '5'
+  - STATION: '628'
+    COMP: '1'
+  - STATION: '10472'
+    COMP: '5'
+  - STATION: '629'
+    COMP: '1'
+  - STATION: '10348'
+    COMP: '5'
+  - STATION: '791'
+    COMP: '1'
+  - STATION: '869'
+    COMP: '5'
+  - STATION: '861'
+    COMP: '1'
+  - STATION: '1025'
+    COMP: '5'
+  - STATION: '937'
+    COMP: '1'
+  - STATION: '1076'
+    COMP: '5'
+  - STATION: '1089'
+    COMP: '1'
+  - STATION: '1438'
+    COMP: '5'
+  - STATION: '1440'
+    COMP: '1'
+  - STATION: '10351'
+    COMP: '5'
+  - STATION: '1549'
+    COMP: '1'
+  - STATION: '1500'
+    COMP: '5'
+  - STATION: '1503'
+    COMP: '1'
+  - STATION: '1594'
+    COMP: '5'
+  - STATION: '1608'
+    COMP: '1'
+  - STATION: '10388'
+    COMP: '5'
+  - STATION: '1779'
+    COMP: '1'
+  - STATION: '1861'
+    COMP: '5'
+  - STATION: '1890'
+    COMP: '1'
+  - STATION: '1945'
+    COMP: '5'
+  - STATION: '1948'
+    COMP: '1'
+  schema:
+    date_keyed_map: true
+    date_keyed_map_index: 2
+    value_field: data.*
+  history_available: P400D per call (stations report back to 2016)
+  license: dl-de/by-2-0 (Umweltbundesamt)
+  pretraining_novelty: medium
+  notes: "UBA air-data v3, hourly 1-h means (scope 2), one NO2 and one PM10 row from each of the 16 state networks plus UBA's own. Keys are the hour's START; the 400-day window is re-served whole, so a 12-hour poll loses nothing. Rows: BB 10465 Oranienburg, Bernauer Str. (traffic) NO2; BB 42 Cottbus, Bahnhofstr. (traffic) PM10; BE 10347 Berlin Silbersteinstraße 5 (traffic) NO2; BE 121 Berlin Wedding (background) PM10; BW 282 Karlsruhe Reinhold-Frank-Straße (traffic) NO2; BW 10470 Stuttgart Hauptstätter Straße (traffic) PM10; BY 435 Ansbach/Residenzstraße (traffic) NO2; BY 471 München/Stachus (traffic) PM10; HB 616 Bremen-Mitte (background) NO2; HB 628 Bremen-Hasenbüren (industry) PM10; HE 10472 Rimberg (background) NO2; HE 629 Darmstadt (background) PM10; HH 10348 Hamburg Niendorf (background) NO2; HH 791 Hamburg Veddel (industry) PM10; MV 869 Rostock Am Strande (traffic) NO2; MV 861 Gülzow (background) PM10; NI 1025 Oldenburg Heiligengeistwall (traffic) NO2; NI 937 Südoldenburg (industry) PM10; NW 1076 Bottrop-Welheim (industry) NO2; NW 1089 Duisburg-Walsum (industry) PM10; RP 1438 Ludwigshafen-Oppau (background) NO2; RP 1440 Ludwigshafen-Mundenheim (industry) PM10; SH 10351 Norderstedt Bekwisch (background) NO2; SH 1549 Flensburg (traffic) PM10; SL 1500 Dillingen City (industry) NO2; SL 1503 Lauterbach (background) PM10; SN 1594 Borna (traffic) NO2; SN 1608 Görlitz (traffic) PM10; ST 10388 Magdeburg City-Tunnel (traffic) NO2; ST 1779 Wittenberg/Dessauer Strasse (traffic) PM10; TH 1861 Erfurt Bergstr. (traffic) NO2; TH 1890 Suhl F.-König-Str (traffic) PM10; UB 1945 Westerland (background) NO2; UB 1948 Schauinsland (background) PM10"
+
+# -- wired batch: 10k-econ_b2 --
+- id: bundesbank_bund_yield_curve_daily
+  name: Bundesbank daily German government yield curve (Svensson zero rates)
+  domain: econ_fin
+  dgp_class: sovereign_yield
+  archetypes:
+  - random_walk
+  - non_stationary_regime
+  - smooth_trend
+  frequency: P1D
+  rollup: last
+  admit_slow: ~2,500 business days on the first fetch, so it is eligible at once
+  endpoint:
+    type: rest_csv
+    url: https://api.statistiken.bundesbank.de/rest/data/BBSIS/D.I.ZST.ZI.EUR.S1311.B.A604.{MAT}.R.A.A._Z._Z.A?startPeriod={YYYY-MM-DD-3650d}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+    timeout: 90
+    headers:
+      Accept: application/vnd.sdmx.data+csv;version=1.0.0
+  panel:
+  - MAT: R01XX
+  - MAT: R02XX
+  - MAT: R03XX
+  - MAT: R05XX
+  - MAT: R07XX
+  - MAT: R10XX
+  - MAT: R15XX
+  - MAT: R20XX
+  - MAT: R30XX
+  schema:
+    timestamp_field: TIME_PERIOD
+    value_field: OBS_VALUE
+    csv_delimiter: ;
+    null_values:
+    - .
+    drop_null_values: true
+  history_available: P10Y per call (the series start in 1997)
+  license: Deutsche Bundesbank open data (free reuse with source)
+  pretraining_novelty: medium
+  notes: BBSIS term structure of listed Federal securities, zero-coupon rates from the Svensson method,
+    residual maturities 1-30 years. Non-trading days carry '.' as OBS_VALUE.
