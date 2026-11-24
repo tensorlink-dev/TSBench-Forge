@@ -1626,7 +1626,10 @@ def parse_payload(src: dict, blob: bytes, content_type: str) -> list[dict]:
         # eval-pool builder parses stored timestamps with pandas, which reads
         # a Minguo date as nothing at all.
         for r in recs:
-            m = re.fullmatch(r"(\d{2,3})[./-](\d{1,2})[./-](\d{1,2})", str(r.get("timestamp", "")).strip())
+            ts = str(r.get("timestamp", "")).strip()
+            # Also the compact 7-digit form, "1151121" (MOA hog auctions).
+            m = (re.fullmatch(r"(\d{2,3})[./-](\d{1,2})[./-](\d{1,2})", ts)
+                 or re.fullmatch(r"(\d{3})(\d{2})(\d{2})", ts))
             if m:
                 r["timestamp"] = f"{int(m.group(1)) + 1911:04d}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
     if schema.get("dayfirst_date"):

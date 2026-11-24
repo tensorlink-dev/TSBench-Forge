@@ -1767,3 +1767,11 @@ def test_date_keyed_map_dollar_is_the_payload_root():
     rows = _records_from_json({"2026-01-01": "5", "2026-01-02": "7"},
                               {"date_keyed_map": True, "value_field": "$"})
     assert [(r["timestamp"], r["value"]) for r in rows] == [("2026-01-01", "5"), ("2026-01-02", "7")]
+
+
+def test_roc_date_accepts_the_compact_seven_digit_form():
+    from sources.scraper import parse_payload
+    src = {"id": "x", "endpoint": {"type": "rest_json"},
+           "schema": {"timestamp_field": "[].d", "value_field": "[].v", "roc_date": True}}
+    rows = parse_payload(src, b'[{"d": "1151121", "v": 3}]', "application/json")
+    assert rows[0]["timestamp"] == "2026-11-21"

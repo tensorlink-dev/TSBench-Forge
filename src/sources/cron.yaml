@@ -1292,6 +1292,7 @@ schedules:
   - ons_brazil_solar_generation_hourly
   - ons_brazil_load_curve_hourly
   - ons_brazil_interchange_hourly
+  - meteoswiss_pollen_hourly
   cron: 5 * * * *
 - every: P1D
   sources:
@@ -3180,6 +3181,8 @@ schedules:
   - eve_market_daily_volume_domain
   - eve_market_daily_volume_sinq_laison
   - eve_market_daily_volume_heimatar
+  - bavaria_epin_pollen_3h
+  - moa_tw_hog_auction_head_count
   cron: 10 1 * * *
 - every: P1D
   sources:

@@ -203150,3 +203150,163 @@
   notes: 'ESI market history for region 10000030: units traded per day. Types: 34 Tritanium, 35 Pyerite,
     36 Mexallon, 37 Isogen, 38 Nocxium, 39 Zydrine, 40 Megacyte, 11399 Morphite, 40520 Large Skill Injector,
     16274 Helium Isotopes.'
+
+# -- wired batch: 10k-health-pollen --
+- id: meteoswiss_pollen_hourly
+  name: MeteoSwiss hourly airborne pollen concentration by station (7 taxa)
+  domain: healthcare
+  dgp_class: allergen_exposure
+  archetypes:
+  - intermittent
+  - seasonal
+  - heavy_tailed
+  frequency: PT1H
+  rollup: mean
+  poll: PT12H
+  endpoint:
+    type: rest_csv
+    url: https://data.geo.admin.ch/ch.meteoschweiz.ogd-pollen/{STATION}/ogd-pollen_{STATION}_h_recent.csv
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+    timeout: 90
+  panel:
+  - STATION: pbe
+  - STATION: pbs
+  - STATION: pbu
+  - STATION: pcf
+  - STATION: pds
+  - STATION: pge
+  - STATION: pju
+  - STATION: plo
+  - STATION: pls
+  - STATION: plu
+  - STATION: plz
+  - STATION: pmu
+  - STATION: pne
+  - STATION: ppy
+  - STATION: psn
+  - STATION: pzh
+  schema:
+    timestamp_field: reference_timestamp
+    value_field:
+    - kabetuh0
+    - khpoach0
+    - kaalnuh0
+    - kacoryh0
+    - kafaguh0
+    - kafraxh0
+    - kaquerh0
+    csv_delimiter: ;
+    dayfirst_date: true
+  license: MeteoSwiss Open Government Data (CC BY 4.0)
+  pretraining_novelty: high
+  audit_slack_days: 3
+  history_available: _h_recent covers 1 Jan of the current year to ~yesterday; _h_historical_2020-2029 holds
+    earlier years
+  notes: 'Pollen grains/m3, hourly: birch, grasses, alder, hazel, beech, ash, oak (SwissPollen network,
+    automatic monitors). Long zero runs outside each taxon''s season. The recent file restarts each January;
+    earlier history from the historical file.'
+
+# -- wired batch: 10k-health-epin --
+- id: bavaria_epin_pollen_3h
+  name: Bavaria ePIN automatic pollen monitors, 3-hourly concentration by taxon and station
+  domain: healthcare
+  dgp_class: allergen_exposure
+  archetypes:
+  - intermittent
+  - seasonal
+  - heavy_tailed
+  frequency: PT3H
+  rollup: mean
+  poll: PT12H
+  endpoint:
+    type: rest_json
+    url: https://epin.lgl.bayern.de/api/measurements?from={EPOCH-4800h}&to={EPOCH}&pollen={TAXON}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 2.0
+    timeout: 120
+  panel:
+  - TAXON: Alnus
+  - TAXON: Ambrosia
+  - TAXON: Artemisia
+  - TAXON: Betula
+  - TAXON: Corylus
+  - TAXON: Fagus
+  - TAXON: Fraxinus
+  - TAXON: Picea
+  - TAXON: Pinus
+  - TAXON: Poaceae
+  - TAXON: Quercus
+  - TAXON: Urtica
+  schema:
+    flatten_groups:
+      list: measurements
+      label: location
+      items: data
+    timestamp_field: _flat[].from
+    value_field: _flat[].value
+    panel_field: _flat[].group
+  license: Bayerisches Landesamt für Gesundheit und Lebensmittelsicherheit (LGL) ePIN open data
+  pretraining_novelty: high
+  audit_slack_days: 3
+  history_available: 2019 onward via from/to epoch params
+  notes: Pollen/m3 per 3-hour bin from the 12 ePIN automatic monitors (Poleno), one series per taxon x station.
+    200-day rolling window per fetch.
+  admit_slow: 3-hour bins; each fetch carries a 200-day window (~1,500 points), so it is eligible at once
+
+# -- wired batch: 10k-sales-hog --
+- id: moa_tw_hog_auction_head_count
+  name: Taiwan MOA daily hog auction head count and price by market
+  domain: sales
+  dgp_class: wholesale_auction
+  archetypes:
+  - calendar_effects
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: full history (2011 onward, ~4,600 trading days) on every fetch, so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://data.moa.gov.tw/Service/OpenData/FromM/AnimalTransData.aspx?IsTransData=1&MarketName={MARKET}
+    auth: none
+    rate_limit: polite
+    timeout: 120
+    panel_interval_s: 2.0
+  schema:
+    timestamp_field: '[].交易日期'
+    value_field:
+    - '[].成交頭數-總數'
+    - '[].成交頭數-平均價格'
+    roc_date: true
+  license: Taiwan MOA open data (Open Government Data License)
+  pretraining_novelty: high
+  audit_slack_days: 4
+  history_available: 2011 onward per market; the endpoint ignores StartDate/EndDate, but MarketName filters
+  notes: 'Hogs sold per auction day (成交頭數-總數) and average price (NTD/kg) for each of ~20 Taiwan meat markets.
+    One call per market (MarketName filter): the unfiltered call caps at 9,999 rows oldest-first from Jan
+    of last year, which would truncate the newest days.'
+  panel:
+  - MARKET: 桃園市
+  - MARKET: 新竹縣
+  - MARKET: 新北市
+  - MARKET: 雲林縣
+  - MARKET: 苗栗縣
+  - MARKET: 嘉義市
+  - MARKET: 南投縣
+  - MARKET: 彰化縣
+  - MARKET: 台中大安
+  - MARKET: 高雄市
+  - MARKET: 高雄鳳山
+  - MARKET: 高雄岡山
+  - MARKET: 臺南市
+  - MARKET: 屏東縣
+  - MARKET: 高雄旗山
+  - MARKET: 臺南安南
+  - MARKET: 花蓮縣
+  - MARKET: 台東縣
+  - MARKET: 宜蘭縣
+  - MARKET: 澎湖縣
+  poll: P1D
