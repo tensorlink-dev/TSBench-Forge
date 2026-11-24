@@ -642,7 +642,9 @@ def _apply(obj: Any, tokens: list[tuple[str, str]]) -> Any:
                 # Wildcard key: payloads that key the series by its own name
                 # (Packagist `values: {"vendor/pkg": [...]}`). One key descends
                 # into it; several are lifted like `[]`.
-                vals = list(obj.values())
+                # Scalar siblings (a `totalSize` count beside the one list, as
+                # Taiwan Lottery's `content` carries) are not series; skip them.
+                vals = [v for v in obj.values() if isinstance(v, (dict, list))] or list(obj.values())
                 if len(vals) == 1:
                     return _apply(vals[0], rest)
                 return [_apply(v, rest) for v in vals]

@@ -1754,3 +1754,9 @@ def test_flatten_groups_tags_each_point_with_its_group_label():
               "panel_field": "_flat[].group"}
     rows = _records_from_json(data, schema)
     assert [(r["_panel_group"], r["value"]) for r in rows] == [("Wind", 1), ("Wind", 2), ("Hydro", 7)]
+
+
+def test_wildcard_key_skips_scalar_siblings():
+    from sources.scraper import _walk
+    data = {"content": {"totalSize": 2, "lotto3DRes": [{"sellAmount": 5}, {"sellAmount": 6}]}}
+    assert _walk(data, "content.*[].sellAmount") == [5, 6]

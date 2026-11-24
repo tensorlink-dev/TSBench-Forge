@@ -202681,3 +202681,136 @@
     once
   notes: 'REE (Red Eléctrica) apidatos generacion/no-renovables-detalle-emisiones-CO2, daily MWh; one series
     per group label. '
+
+# -- wired batch: 10k-sales-flathub --
+- id: flathub_app_daily_installs
+  name: Flathub per-app daily installs (Linux desktop app store)
+  domain: sales
+  dgp_class: download_counts
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  rollup: sum
+  admit_slow: daily app-store installs; API serves a 180-day window, backfilled once from flathub.org/stats
+    daily files
+  endpoint:
+    type: rest_json
+    url: https://flathub.org/api/v2/stats/{APP}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+  panel:
+  - APP: org.mozilla.firefox
+  - APP: com.spotify.Client
+  - APP: org.videolan.VLC
+  - APP: com.discordapp.Discord
+  - APP: com.obsproject.Studio
+  - APP: org.gimp.GIMP
+  - APP: com.valvesoftware.Steam
+  - APP: org.telegram.desktop
+  - APP: com.brave.Browser
+  - APP: us.zoom.Zoom
+  - APP: org.libreoffice.LibreOffice
+  - APP: org.mozilla.Thunderbird
+  - APP: com.usebottles.bottles
+  - APP: com.heroicgameslauncher.hgl
+  - APP: com.github.tchx84.Flatseal
+  - APP: org.kde.kdenlive
+  - APP: org.blender.Blender
+  - APP: org.signal.Signal
+  - APP: org.prismlauncher.PrismLauncher
+  - APP: net.lutris.Lutris
+  schema:
+    date_keyed_map: true
+    value_field: installs_per_day
+  license: Flathub stats — public
+  pretraining_novelty: high
+  audit_slack_days: 4
+  history_available: API 180 days; flathub.org/stats/YYYY/MM/DD.json daily since 2018 (installs = downloads
+    - updates summed over arches, verified equal to the API on 2026-06-01)
+  notes: New installs per day per Flathub app id. Backfilled 2024-06..2026-05 from the daily stats files.
+
+# -- wired batch: 10k-sales-twlottery --
+- id: taiwan_lottery_daily_game_sales
+  name: Taiwan Lottery daily-draw game ticket sales (TWD per draw)
+  domain: sales
+  dgp_class: retail_sales_daily
+  archetypes:
+  - calendar_effects
+  - non_stationary_regime
+  - seasonal
+  frequency: P1D
+  rollup: sum
+  admit_slow: one draw per day (Mon-Sat); each fetch returns the newest 2,000 draws (~6.4 years)
+  endpoint:
+    type: rest_json
+    url: https://api.taiwanlottery.com/TLCAPIWeB/Lottery/{GAME}?period&startMonth=2007-01&endMonth={YYYY}-{MM}&pageNum=1&pageSize=2000
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+  panel:
+  - GAME: Daily539Result
+  - GAME: 3DResult
+  - GAME: 4DResult
+  - GAME: 39M5Result
+  schema:
+    timestamp_field: content.*[].lotteryDate
+    value_field: content.*[].sellAmount
+  license: Taiwan Lottery Co. public draw results
+  pretraining_novelty: high
+  audit_slack_days: 4
+  history_available: 2007-01 onward (pageSize up to the full ~6,000 draws in one call)
+  notes: sellAmount per draw for the four daily games (Daily Cash 539, 3D, 4D, 39M5); no Sunday draws. startMonth/endMonth
+    query returns newest-first; pageSize=2000 keeps ~6.4 years per fetch.
+
+# -- wired batch: 10k-sales-sourceforge --
+- id: sourceforge_project_daily_downloads
+  name: SourceForge per-project daily downloads
+  domain: sales
+  dgp_class: download_counts
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  rollup: sum
+  admit_slow: daily download counts; each fetch returns a rolling 1,500-day window, eligible at once
+  endpoint:
+    type: rest_json
+    url: https://sourceforge.net/projects/{PROJECT}/files/stats/json?start_date={YYYY-MM-DD-1500d}&end_date={YYYY-MM-DD-1d}&period=daily
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.5
+    timeout: 90
+  panel:
+  - PROJECT: sevenzip
+  - PROJECT: keepass
+  - PROJECT: mingw-w64
+  - PROJECT: winscp
+  - PROJECT: xampp
+  - PROJECT: portableapps
+  - PROJECT: clonezilla
+  - PROJECT: gparted
+  - PROJECT: systemrescuecd
+  - PROJECT: shotcut
+  - PROJECT: tortoisesvn
+  - PROJECT: smartmontools
+  - PROJECT: dosbox
+  - PROJECT: mpc-hc
+  - PROJECT: emule
+  - PROJECT: ventoy
+  - PROJECT: openofficeorg.mirror
+  - PROJECT: qbittorrent
+  - PROJECT: pidgin
+  - PROJECT: crystaldiskinfo
+  schema:
+    timestamp_field: downloads[][0]
+    value_field: downloads[][1]
+  license: SourceForge public project statistics
+  pretraining_novelty: high
+  audit_slack_days: 4
+  history_available: project start onward (stats/json takes any start_date)
+  notes: Daily file downloads per project (7-Zip, KeePass, WinSCP, XAMPP, TortoiseSVN, qBittorrent, Ventoy,
+    ...). end_date is yesterday because the current day is flagged last_period_incomplete.
