@@ -202578,3 +202578,106 @@
   history_available: the current calendar year in one file
   notes: 'ONS intercâmbio nacional: verified hourly flow per origin->destination subsystem pair. The year
     file restarts each January.'
+
+# -- wired batch: 10k-energy-ree --
+- domain: energy
+  frequency: P1D
+  poll: PT12H
+  license: REE apidatos — public
+  pretraining_novelty: high
+  audit_slack_days: 4
+  admit_slow: REE serves daily totals only (hourly time_trunc returns 400 on these endpoints); 365-day rolling
+    window
+  id: ree_spain_generation_by_technology_daily
+  name: REE Spain daily generation by technology (MWh)
+  dgp_class: generation_by_fuel
+  archetypes:
+  - seasonal
+  - non_stationary_regime
+  - intermittent
+  rollup: sum
+  endpoint:
+    type: rest_json
+    url: https://apidatos.ree.es/en/datos/generacion/estructura-generacion?start_date={YYYY-MM-DD-364d}T00:00&end_date={YYYY-MM-DD}T23:59&time_trunc=day
+    auth: none
+    rate_limit: polite
+    timeout: 60
+  schema:
+    flatten_groups:
+      list: included
+      label: type
+      items: attributes.values
+    timestamp_field: _flat[].datetime
+    value_field: _flat[].value
+    panel_field: _flat[].group
+  history_available: 2011 onward via dated queries (max 366 days per daily query); backfilled 2016-2025
+    once
+  notes: 'REE (Red Eléctrica) apidatos generacion/estructura-generacion, daily MWh; one series per group
+    label. '
+- domain: energy
+  frequency: P1D
+  poll: PT12H
+  license: REE apidatos — public
+  pretraining_novelty: high
+  audit_slack_days: 4
+  admit_slow: REE serves daily totals only (hourly time_trunc returns 400 on these endpoints); 365-day rolling
+    window
+  id: ree_spain_storage_balance_daily
+  name: REE Spain daily pumped-hydro and battery storage flows (MWh)
+  dgp_class: storage_dispatch
+  archetypes:
+  - intermittent
+  - non_stationary_regime
+  rollup: sum
+  endpoint:
+    type: rest_json
+    url: https://apidatos.ree.es/en/datos/balance/balance-electrico?start_date={YYYY-MM-DD-364d}T00:00&end_date={YYYY-MM-DD}T23:59&time_trunc=day
+    auth: none
+    rate_limit: polite
+    timeout: 60
+  schema:
+    flatten_groups:
+      list: included[2].attributes.content
+      label: type
+      items: attributes.values
+    timestamp_field: _flat[].datetime
+    value_field: _flat[].value
+    panel_field: _flat[].group
+  history_available: 2011 onward via dated queries (max 366 days per daily query); backfilled 2016-2025
+    once
+  notes: 'REE (Red Eléctrica) apidatos balance/balance-electrico, daily MWh; one series per group label.
+    Storage block (index 2, ''Almacenamiento'') of the electricity balance: pumping turbine/consumption,
+    battery delivery/charging, storage balance.'
+- domain: energy
+  frequency: P1D
+  poll: PT12H
+  license: REE apidatos — public
+  pretraining_novelty: high
+  audit_slack_days: 4
+  admit_slow: REE serves daily totals only (hourly time_trunc returns 400 on these endpoints); 365-day rolling
+    window
+  id: ree_spain_co2_emissions_daily
+  name: REE Spain daily CO2 emissions by non-renewable technology (tCO2eq)
+  dgp_class: emissions
+  archetypes:
+  - seasonal
+  - non_stationary_regime
+  rollup: sum
+  endpoint:
+    type: rest_json
+    url: https://apidatos.ree.es/en/datos/generacion/no-renovables-detalle-emisiones-CO2?start_date={YYYY-MM-DD-364d}T00:00&end_date={YYYY-MM-DD}T23:59&time_trunc=day
+    auth: none
+    rate_limit: polite
+    timeout: 60
+  schema:
+    flatten_groups:
+      list: included
+      label: type
+      items: attributes.values
+    timestamp_field: _flat[].datetime
+    value_field: _flat[].value
+    panel_field: _flat[].group
+  history_available: 2011 onward via dated queries (max 366 days per daily query); backfilled 2016-2025
+    once
+  notes: 'REE (Red Eléctrica) apidatos generacion/no-renovables-detalle-emisiones-CO2, daily MWh; one series
+    per group label. '

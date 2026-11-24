@@ -1045,6 +1045,22 @@ def _records_from_json(data: Any, schema: dict) -> list[dict]:
     if schema.get("date_keyed_map"):
         return _records_from_date_map(data, schema)
 
+    fg = schema.get("flatten_groups")
+    if fg and isinstance(data, dict):
+        # Grouped payloads: one list of groups, each carrying its own label and
+        # its own list of points (REE apidatos `included[].type` +
+        # `included[].attributes.values[]`). A panel path cannot align a label
+        # per group with a flattened point list, so the points are copied into
+        # `_flat` with the label as `group`; paths then walk `_flat[]...` and
+        # `panel_field: _flat[].group`.
+        flat = []
+        for g in (_walk(data, fg["list"]) or []):
+            label = _walk(g, fg["label"])
+            for item in (_walk(g, fg["items"]) or []):
+                if isinstance(item, dict):
+                    flat.append({**item, "group": label})
+        data = {**data, "_flat": flat}
+
     if schema.get("series_step"):
         return _records_from_stepped_series(data, schema)
 

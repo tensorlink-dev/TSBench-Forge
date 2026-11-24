@@ -1740,3 +1740,17 @@ def test_date_keyed_map_index_picks_the_value_from_list_entries():
            "schema": {"date_keyed_map": True, "date_keyed_map_index": 2, "value_field": "data.*"}}
     recs = scraper.parse_payload(src, blob, "application/json")
     assert [r["value"] for r in recs] == [3, 7]
+
+
+def test_flatten_groups_tags_each_point_with_its_group_label():
+    from sources.scraper import _records_from_json
+    data = {"included": [
+        {"type": "Wind", "attributes": {"values": [
+            {"datetime": "2026-01-01", "value": 1}, {"datetime": "2026-01-02", "value": 2}]}},
+        {"type": "Hydro", "attributes": {"values": [{"datetime": "2026-01-01", "value": 7}]}},
+    ]}
+    schema = {"flatten_groups": {"list": "included", "label": "type", "items": "attributes.values"},
+              "timestamp_field": "_flat[].datetime", "value_field": "_flat[].value",
+              "panel_field": "_flat[].group"}
+    rows = _records_from_json(data, schema)
+    assert [(r["_panel_group"], r["value"]) for r in rows] == [("Wind", 1), ("Wind", 2), ("Hydro", 7)]
