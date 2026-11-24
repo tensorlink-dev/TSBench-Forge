@@ -834,7 +834,9 @@ def _records_from_date_map(data: Any, schema: dict) -> list[dict]:
     maps: dict[str, dict] = {}
     for name, path in zip(names, val_paths):
         try:
-            got = _walk(data, path)
+            # `$` is the payload itself: WordPress.org download stats are a
+            # bare {date: count} object with no enclosing key.
+            got = data if path == "$" else _walk(data, path)
         except Exception:                                   # noqa: BLE001
             continue
         if isinstance(got, dict):

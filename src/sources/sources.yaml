@@ -202814,3 +202814,339 @@
   history_available: project start onward (stats/json takes any start_date)
   notes: Daily file downloads per project (7-Zip, KeePass, WinSCP, XAMPP, TortoiseSVN, qBittorrent, Ventoy,
     ...). end_date is yesterday because the current day is flagged last_period_incomplete.
+
+# -- wired batch: 10k-sales-gems-wp --
+- domain: sales
+  dgp_class: download_counts
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  rollup: sum
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: bestgems_rubygems_daily_downloads
+  name: RubyGems per-gem daily downloads (BestGems)
+  admit_slow: daily download counts with history back to 2013 in every fetch
+  endpoint:
+    type: rest_json
+    url: https://bestgems.org/api/v1/gems/{GEM}/daily_downloads.json
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.5
+    timeout: 90
+  panel:
+  - GEM: rails
+  - GEM: rack
+  - GEM: nokogiri
+  - GEM: aws-sdk-core
+  - GEM: bundler
+  - GEM: rake
+  - GEM: rspec-core
+  - GEM: puma
+  - GEM: sidekiq
+  - GEM: devise
+  - GEM: faraday
+  - GEM: json
+  - GEM: activesupport
+  - GEM: pg
+  - GEM: redis
+  - GEM: rubocop
+  - GEM: concurrent-ruby
+  - GEM: thor
+  - GEM: jwt
+  - GEM: grpc
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].daily_downloads'
+  license: BestGems public API (RubyGems.org download counts)
+  history_available: 2013-06 onward
+  notes: Daily downloads per gem, derived by BestGems from rubygems.org cumulative totals; newest-first
+    list.
+- domain: sales
+  dgp_class: download_counts
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  rollup: sum
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: wordpress_plugin_daily_downloads
+  name: WordPress.org plugin daily downloads
+  admit_slow: daily download counts; the API serves the last ~180 days, so it reaches 320 points by accumulation
+  endpoint:
+    type: rest_json
+    url: https://api.wordpress.org/stats/plugin/1.0/downloads.php?slug={SLUG}&limit=1500
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+  panel:
+  - SLUG: woocommerce
+  - SLUG: akismet
+  - SLUG: contact-form-7
+  - SLUG: wordpress-seo
+  - SLUG: elementor
+  - SLUG: jetpack
+  - SLUG: classic-editor
+  - SLUG: wpforms-lite
+  - SLUG: litespeed-cache
+  - SLUG: really-simple-ssl
+  - SLUG: updraftplus
+  - SLUG: all-in-one-wp-migration
+  - SLUG: wordfence
+  - SLUG: google-site-kit
+  - SLUG: duplicate-post
+  - SLUG: advanced-custom-fields
+  - SLUG: redirection
+  - SLUG: wp-mail-smtp
+  - SLUG: limit-login-attempts-reloaded
+  - SLUG: loco-translate
+  schema:
+    date_keyed_map: true
+    value_field: $
+  license: WordPress.org public API
+  history_available: last ~180 days per call
+  notes: Daily downloads (installs + updates) per plugin slug.
+- domain: sales
+  dgp_class: download_counts
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - smooth_periodic
+  frequency: P1D
+  rollup: sum
+  pretraining_novelty: high
+  audit_slack_days: 4
+  id: wordpress_theme_daily_downloads
+  name: WordPress.org theme daily downloads
+  admit_slow: daily download counts; the API serves the last ~180 days, so it reaches 320 points by accumulation
+  endpoint:
+    type: rest_json
+    url: https://api.wordpress.org/stats/themes/1.0/downloads.php?slug={SLUG}&limit=1500
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+  panel:
+  - SLUG: astra
+  - SLUG: hello-elementor
+  - SLUG: twentytwentyfive
+  - SLUG: twentytwentyfour
+  - SLUG: kadence
+  - SLUG: generatepress
+  - SLUG: oceanwp
+  - SLUG: neve
+  - SLUG: blocksy
+  - SLUG: hestia
+  - SLUG: sydney
+  - SLUG: popularfx
+  - SLUG: twentytwentythree
+  - SLUG: storefront
+  - SLUG: colibri-wp
+  - SLUG: go
+  - SLUG: inspiro
+  - SLUG: twentytwentyone
+  - SLUG: zakra
+  - SLUG: spectra-one
+  schema:
+    date_keyed_map: true
+    value_field: $
+  license: WordPress.org public API
+  history_available: last ~180 days per call
+  notes: Daily downloads per theme slug.
+
+# -- wired batch: 10k-econ-dex --
+- id: defillama_dex_daily_volume
+  name: DefiLlama per-DEX daily trading volume (USD)
+  domain: econ_fin
+  dgp_class: exchange_volume
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - volatility_clustering
+  frequency: P1D
+  rollup: sum
+  admit_slow: DefiLlama aggregates DEX volume per UTC day; full history in each fetch
+  endpoint:
+    type: rest_json
+    url: https://api.llama.fi/summary/dexs/{DEX}?excludeTotalDataChartBreakdown=true&excludeTotalDataChart=false&dataType=dailyVolume
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.5
+    timeout: 90
+  panel:
+  - DEX: uniswap
+  - DEX: curve-finance
+  - DEX: pancakeswap
+  - DEX: aerodrome
+  - DEX: raydium
+  - DEX: orca
+  - DEX: meteora
+  - DEX: sushiswap
+  - DEX: balancer
+  - DEX: thorchain-dex
+  - DEX: velodrome
+  - DEX: camelot
+  - DEX: quickswap
+  - DEX: maverick-protocol
+  - DEX: lifinity
+  - DEX: fluid
+  - DEX: pumpswap
+  - DEX: chainflip
+  - DEX: dexalot
+  - DEX: kyberswap
+  schema:
+    timestamp_field: totalDataChart[][0]
+    value_field: totalDataChart[][1]
+  license: DefiLlama open API
+  pretraining_novelty: medium
+  audit_slack_days: 4
+  history_available: protocol launch onward (uniswap from 2018-11)
+  notes: Daily on-chain DEX volume per protocol (summed across chains).
+
+# -- wired batch: 10k-sales-rejudge --
+- id: defillama_nft_marketplace_fees
+  name: DefiLlama NFT marketplace daily fees
+  domain: sales
+  dgp_class: marketplace_sales
+  archetypes:
+  - heavy_tailed
+  - non_stationary_regime
+  - regime_switching
+  frequency: P1D
+  rollup: sum
+  admit_slow: deep backfill on the first fetch (well over 320 daily points), so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://api.llama.fi/summary/fees/{PROTOCOL}?dataType=dailyFees&excludeTotalDataChartBreakdown=true
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 1.0
+  panel:
+  - PROTOCOL: opensea
+  - PROTOCOL: blur
+  - PROTOCOL: fragment
+  - PROTOCOL: immutable-orderbook
+  - PROTOCOL: element-nft-marketplace
+  - PROTOCOL: looksrare
+  - PROTOCOL: x2y2
+  schema:
+    timestamp_field: totalDataChart[][0]
+    value_field: totalDataChart[][1]
+  history_available: full history per call (OpenSea since 2018-08)
+  license: DefiLlama open API
+  pretraining_novelty: medium
+  notes: Daily fees (USD) earned by an NFT marketplace, a proxy for its sales volume. Epoch-second timestamps.
+- id: eve_market_daily_volume_domain
+  name: 'EVE Online regional market daily units traded: Domain'
+  domain: sales
+  dgp_class: marketplace_sales
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: P1D
+  rollup: sum
+  admit_slow: 417 daily points on the first fetch, so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://esi.evetech.net/latest/markets/10000043/history/?datasource=tranquility&type_id={TYPE}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 0.5
+  panel:
+  - TYPE: '34'
+  - TYPE: '35'
+  - TYPE: '36'
+  - TYPE: '37'
+  - TYPE: '38'
+  - TYPE: '39'
+  - TYPE: '40'
+  - TYPE: '11399'
+  - TYPE: '40520'
+  - TYPE: '16274'
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].volume'
+  history_available: P417D rolling per call
+  license: CCP EVE Online developer licence (free, attribution)
+  pretraining_novelty: high
+  notes: 'ESI market history for region 10000043: units traded per day. Types: 34 Tritanium, 35 Pyerite,
+    36 Mexallon, 37 Isogen, 38 Nocxium, 39 Zydrine, 40 Megacyte, 11399 Morphite, 40520 Large Skill Injector,
+    16274 Helium Isotopes.'
+- id: eve_market_daily_volume_sinq_laison
+  name: 'EVE Online regional market daily units traded: Sinq Laison'
+  domain: sales
+  dgp_class: marketplace_sales
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: P1D
+  rollup: sum
+  admit_slow: 417 daily points on the first fetch, so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://esi.evetech.net/latest/markets/10000032/history/?datasource=tranquility&type_id={TYPE}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 0.5
+  panel:
+  - TYPE: '34'
+  - TYPE: '35'
+  - TYPE: '36'
+  - TYPE: '37'
+  - TYPE: '38'
+  - TYPE: '39'
+  - TYPE: '40'
+  - TYPE: '11399'
+  - TYPE: '40520'
+  - TYPE: '16274'
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].volume'
+  history_available: P417D rolling per call
+  license: CCP EVE Online developer licence (free, attribution)
+  pretraining_novelty: high
+  notes: 'ESI market history for region 10000032: units traded per day. Types: 34 Tritanium, 35 Pyerite,
+    36 Mexallon, 37 Isogen, 38 Nocxium, 39 Zydrine, 40 Megacyte, 11399 Morphite, 40520 Large Skill Injector,
+    16274 Helium Isotopes.'
+- id: eve_market_daily_volume_heimatar
+  name: 'EVE Online regional market daily units traded: Heimatar'
+  domain: sales
+  dgp_class: marketplace_sales
+  archetypes:
+  - count_discrete
+  - non_stationary_regime
+  - heavy_tailed
+  frequency: P1D
+  rollup: sum
+  admit_slow: 417 daily points on the first fetch, so it is eligible at once
+  endpoint:
+    type: rest_json
+    url: https://esi.evetech.net/latest/markets/10000030/history/?datasource=tranquility&type_id={TYPE}
+    auth: none
+    rate_limit: polite
+    panel_interval_s: 0.5
+  panel:
+  - TYPE: '34'
+  - TYPE: '35'
+  - TYPE: '36'
+  - TYPE: '37'
+  - TYPE: '38'
+  - TYPE: '39'
+  - TYPE: '40'
+  - TYPE: '11399'
+  - TYPE: '40520'
+  - TYPE: '16274'
+  schema:
+    timestamp_field: '[].date'
+    value_field: '[].volume'
+  history_available: P417D rolling per call
+  license: CCP EVE Online developer licence (free, attribution)
+  pretraining_novelty: high
+  notes: 'ESI market history for region 10000030: units traded per day. Types: 34 Tritanium, 35 Pyerite,
+    36 Mexallon, 37 Isogen, 38 Nocxium, 39 Zydrine, 40 Megacyte, 11399 Morphite, 40520 Large Skill Injector,
+    16274 Helium Isotopes.'

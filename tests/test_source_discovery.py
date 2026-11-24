@@ -757,6 +757,39 @@ def test_archetype_gate_blocks_overcovered(monkeypatch):
     assert res.ok and res.archetype == "A03"
 
 
+def test_archetype_gate_judges_each_panel_member(monkeypatch):
+    """A panel entry is judged per member, not on the members concatenated:
+    it is refused only when most judged members are over-covered."""
+    import datetime as dt
+    from source_discovery import wire
+
+    class FakeScraper:
+        def fetch_payload(self, entry, prow=None):
+            return prow["K"].encode(), "application/json"
+
+        def parse_payload(self, entry, blob, ctype):
+            now = dt.datetime.now(dt.timezone.utc)
+            return [{"timestamp": (now - dt.timedelta(minutes=30 - i)).isoformat(),
+                     "v": 1.0 if blob == b"over" else 2.0} for i in range(30)]
+
+    seen = []
+
+    def fake_arch(recs):
+        kinds = {r["v"] for r in recs}
+        seen.append(kinds)
+        return ("A08", 0.25) if kinds == {1.0} else ("A09", 2.6)
+
+    monkeypatch.setattr(wire, "archetype_of", fake_arch)
+    e = {"id": "x", "frequency": "PT1M", "endpoint": {"url": "https://example.org/{K}"},
+         "panel": [{"K": "over"}, {"K": "under"}, {"K": "under"}]}
+    res = wire.verify_entry(e, FakeScraper())
+    assert all(len(k) == 1 for k in seen)          # never a mixed series
+    assert res.ok and res.archetype == "A09"
+    e["panel"] = [{"K": "over"}, {"K": "over"}, {"K": "under"}]
+    res = wire.verify_entry(e, FakeScraper())
+    assert not res.ok and "67% of panel members" in res.error
+
+
 def test_tsfeatures_are_scale_invariant():
     """features(a*x + b) == features(x) for a > 0. BOOM publishes standardised
     series and GIFT/TIME/our pool are raw: any unit-dependent feature splits

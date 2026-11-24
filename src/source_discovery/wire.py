@@ -189,6 +189,24 @@ def archetype_of(recs: list[dict]) -> tuple[Optional[str], Optional[float]]:
     return meta["names"][i], float(meta["draw_weight"][i])
 
 
+def _panel_archetype(recs: list[dict]) -> tuple[Optional[str], Optional[float], Optional[float]]:
+    """(modal archetype, its draw weight, share of judged members that are
+    over-covered). Each `_member` (one panel row of a panel entry) is judged on
+    its own series; a plain entry is one member. Members too short to judge
+    are left out; (None, None, None) when none can be judged."""
+    from collections import Counter  # noqa: PLC0415
+    groups: dict = {}
+    for r in recs:
+        groups.setdefault(r.get("_member"), []).append(r)
+    verdicts = [v for v in (archetype_of(g) for g in groups.values()) if v[0] is not None]
+    if not verdicts:
+        return None, None, None
+    name = Counter(a for a, _ in verdicts).most_common(1)[0][0]
+    weight = next(w for a, w in verdicts if a == name)
+    over = sum(1 for _, w in verdicts if w < ARCHETYPE_MIN_WEIGHT) / len(verdicts)
+    return name, weight, over
+
+
 def _too_slow(entry: dict) -> Optional[str]:
     """Reject cadences that cannot reach the eval floor in reasonable time.
 
@@ -233,9 +251,12 @@ def verify_entry(entry: dict, scraper_mod=None) -> VerifyResult:
         panel = entry.get("panel")
         if isinstance(panel, list) and panel:
             recs: list[dict] = []
-            for prow in panel:
+            for i, prow in enumerate(panel):
                 blob, ctype = sc.fetch_payload(entry, prow)
-                recs += sc.parse_payload(entry, blob, ctype)
+                # Tag each member: concatenating 20 packages' downloads into
+                # one array and judging THAT gave the archetype of the level
+                # jumps between members, not of any real series.
+                recs += [{**r, "_member": i} for r in sc.parse_payload(entry, blob, ctype)]
         else:
             blob, ctype = sc.fetch_payload(entry)
             recs = sc.parse_payload(entry, blob, ctype)
@@ -280,12 +301,14 @@ def verify_entry(entry: dict, scraper_mod=None) -> VerifyResult:
         err = None
     arch_name = None
     if ok:
-        arch_name, weight = archetype_of(recs)
-        if (weight is not None and weight < ARCHETYPE_MIN_WEIGHT
+        arch_name, weight, share_over = _panel_archetype(recs)
+        if (share_over is not None and share_over > 0.5
                 and not entry.get("allow_overcovered_archetype")):
             ok = False
             err = (f"archetype {arch_name} is over-covered (draw weight {weight:.2f} < "
-                   f"{ARCHETYPE_MIN_WEIGHT}): the pool already holds more of this kind of "
+                   f"{ARCHETYPE_MIN_WEIGHT}"
+                   + (f"; {share_over:.0%} of panel members" if share_over < 1 else "")
+                   + "): the pool already holds more of this kind of "
                    f"series than GIFT/BOOM/TIME do, so adding it widens the gap")
     return VerifyResult(ok=ok, rows=len(recs), distinct_ts=len(ts),
                         numeric_rows=nn, panel_entities=len(ents),

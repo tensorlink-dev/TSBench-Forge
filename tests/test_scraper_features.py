@@ -1760,3 +1760,10 @@ def test_wildcard_key_skips_scalar_siblings():
     from sources.scraper import _walk
     data = {"content": {"totalSize": 2, "lotto3DRes": [{"sellAmount": 5}, {"sellAmount": 6}]}}
     assert _walk(data, "content.*[].sellAmount") == [5, 6]
+
+
+def test_date_keyed_map_dollar_is_the_payload_root():
+    from sources.scraper import _records_from_json
+    rows = _records_from_json({"2026-01-01": "5", "2026-01-02": "7"},
+                              {"date_keyed_map": True, "value_field": "$"})
+    assert [(r["timestamp"], r["value"]) for r in rows] == [("2026-01-01", "5"), ("2026-01-02", "7")]
