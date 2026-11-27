@@ -3450,12 +3450,30 @@
     "times_proposed": 1
   },
   {
+    "key": "econ_fin|api.company-information.service.gov.uk",
+    "name": "UK Companies House Public API \u2014 company filing/incorporation event arrival strea",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-11-27",
+    "times_proposed": 1
+  },
+  {
     "key": "econ_fin|api.consumerfinance.gov",
     "name": "CFPB Consumer Complaint Database",
     "domain": "econ_fin",
     "frequency": "irregular",
     "status": "wired",
     "first_proposed": "2026-07-04",
+    "times_proposed": 1
+  },
+  {
+    "key": "econ_fin|api.crunchbase.com",
+    "name": "Crunchbase Startup Ecosystem API \u2014 funding rounds, acquisitions, investments (da",
+    "domain": "econ_fin",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-11-27",
     "times_proposed": 1
   },
   {
@@ -4779,6 +4797,15 @@
     "times_proposed": 1
   },
   {
+    "key": "healthcare|api.opensensemap.org",
+    "name": "opensensemap_api",
+    "domain": "healthcare",
+    "frequency": "few-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "healthcare|api.reporter.nih.gov",
     "name": "nih_reporter_grant_awards",
     "domain": "healthcare",
@@ -4804,6 +4831,15 @@
     "frequency": "half-hour",
     "status": "key-gated",
     "first_proposed": "2026-07-10",
+    "times_proposed": 1
+  },
+  {
+    "key": "healthcare|api.smartcitizen.me",
+    "name": "smart_citizen_kit_api",
+    "domain": "healthcare",
+    "frequency": "sub-min",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
     "times_proposed": 1
   },
   {
@@ -5803,12 +5839,30 @@
     "times_proposed": 1
   },
   {
+    "key": "nature|api.reliefweb.int",
+    "name": "ReliefWeb (UN OCHA) API \u2014 disaster event alert/report arrival stream (daily coun",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-11-27",
+    "times_proposed": 1
+  },
+  {
     "key": "nature|api.tidesandcurrents.noaa.gov",
     "name": "NOAA Tides and Currents Water Levels (Irregular)",
     "domain": "nature",
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-10",
+    "times_proposed": 1
+  },
+  {
+    "key": "nature|api.tomorrow.io",
+    "name": "Tomorrow.io (formerly ClimaCell) Weather API \u2014 severe weather alert issuance str",
+    "domain": "nature",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-11-27",
     "times_proposed": 1
   },
   {
@@ -6907,12 +6961,30 @@
     "times_proposed": 1
   },
   {
+    "key": "sales|api.warpcast.com",
+    "name": "farcaster_recent_casts",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "sales|archive.org",
     "name": "internet_archive_item_additions",
     "domain": "sales",
     "frequency": "irregular",
     "status": "rejected",
     "first_proposed": "2026-07-06",
+    "times_proposed": 1
+  },
+  {
+    "key": "sales|bsky.social",
+    "name": "bluesky_firehose",
+    "domain": "sales",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
     "times_proposed": 1
   },
   {
@@ -8521,6 +8593,15 @@
     "times_proposed": 1
   },
   {
+    "key": "transport|www.transitchicago.com",
+    "name": "chicago_cta_gtfsrt_alerts",
+    "domain": "transport",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "transport|www.translink.ca",
     "name": "TransLink (Vancouver) Transit Alerts",
     "domain": "transport",
@@ -9027,6 +9108,15 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|fastlystatus.com",
+    "name": "fastly_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|github.com",
     "name": "github_traffic_half_hour",
     "domain": "web_cloudops",
@@ -9234,6 +9324,15 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|status.sentry.io",
+    "name": "sentry_status_incidents",
+    "domain": "web_cloudops",
+    "frequency": "half-hour",
+    "status": "proposed",
+    "first_proposed": "2026-07-25",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|stripe_status_incidents",
     "name": "stripe_status_incidents",
     "domain": "web_cloudops",
@@ -9333,75 +9432,21 @@
     "times_proposed": 1
   },
   {
+    "key": "web_cloudops|www.hybrid-analysis.com",
+    "name": "Hybrid Analysis (CrowdStrike) Public API \u2014 new malware analysis report submissio",
+    "domain": "web_cloudops",
+    "frequency": "irregular",
+    "status": "proposed",
+    "first_proposed": "2026-11-27",
+    "times_proposed": 1
+  },
+  {
     "key": "web_cloudops|www.peeringdb.org",
     "name": "PeeringDB Network IXP Changes (Irregular)",
     "domain": "web_cloudops",
     "frequency": "irregular",
     "status": "wired",
     "first_proposed": "2026-07-10",
-    "times_proposed": 1
-  },
-  {
-    "key": "healthcare|api.opensensemap.org",
-    "name": "opensensemap_api",
-    "domain": "healthcare",
-    "frequency": "few-min",
-    "status": "proposed",
-    "first_proposed": "2026-07-25",
-    "times_proposed": 1
-  },
-  {
-    "key": "healthcare|api.smartcitizen.me",
-    "name": "smart_citizen_kit_api",
-    "domain": "healthcare",
-    "frequency": "sub-min",
-    "status": "proposed",
-    "first_proposed": "2026-07-25",
-    "times_proposed": 1
-  },
-  {
-    "key": "sales|api.warpcast.com",
-    "name": "farcaster_recent_casts",
-    "domain": "sales",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-25",
-    "times_proposed": 1
-  },
-  {
-    "key": "sales|bsky.social",
-    "name": "bluesky_firehose",
-    "domain": "sales",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-25",
-    "times_proposed": 1
-  },
-  {
-    "key": "transport|www.transitchicago.com",
-    "name": "chicago_cta_gtfsrt_alerts",
-    "domain": "transport",
-    "frequency": "irregular",
-    "status": "proposed",
-    "first_proposed": "2026-07-25",
-    "times_proposed": 1
-  },
-  {
-    "key": "web_cloudops|fastlystatus.com",
-    "name": "fastly_status_incidents",
-    "domain": "web_cloudops",
-    "frequency": "half-hour",
-    "status": "proposed",
-    "first_proposed": "2026-07-25",
-    "times_proposed": 1
-  },
-  {
-    "key": "web_cloudops|status.sentry.io",
-    "name": "sentry_status_incidents",
-    "domain": "web_cloudops",
-    "frequency": "half-hour",
-    "status": "proposed",
-    "first_proposed": "2026-07-25",
     "times_proposed": 1
   }
 ]
